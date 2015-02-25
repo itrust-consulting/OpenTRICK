@@ -1,11 +1,11 @@
 function TimeoutInterceptor() {
 	this.lastUpdate = null;
-	this.LIMIT_SESSION = 15.1 * 60 * 1000;
+	this.LIMIT_SESSION = 15.0001 * 60 * 1000;
 	this.ALERT_TIME = 1 * 60 * 1000;
 	this.timer = {};
 	this.intervalTimeout = null;
 	this.logoutTimeout = null;
-	this.TIME_TO_DISPLAY_ALERT = 14 * 60 * 1000;
+	this.TIME_TO_DISPLAY_ALERT = 13.5 * 60 * 1000;
 	this.alertDialog = null;
 	this.messages = {
 		Alert : "",
@@ -16,8 +16,14 @@ function TimeoutInterceptor() {
 
 TimeoutInterceptor.prototype = {
 	Update : function() {
-		if (this.lastUpdate == null || this.CurrentTime() < this.LIMIT_SESSION)
-			this.lastUpdate = new Date();
+		var that = this;
+		that.ClearTimer();
+		if (that.lastUpdate == null || that.CurrentTime() < that.LIMIT_SESSION) {
+			that.lastUpdate = new Date();
+			that.timer = setTimeout(function() {
+				that.Check();
+			}, that.TIME_TO_DISPLAY_ALERT);
+		}
 	},
 	IsAuthenticate : function() {
 		var authentificated = false;
@@ -31,28 +37,28 @@ TimeoutInterceptor.prototype = {
 				},
 			});
 		} catch (e) {
-			if(e["name"]==="NS_ERROR_FAILURE"){
-				
+			if (e["name"] === "NS_ERROR_FAILURE") {
+
 				this.Stop();
-				
-				if(this.alertDialog == null)
+
+				if (this.alertDialog == null)
 					this.alertDialog = new Modal($("#alert-dialog").clone());
-				
+
 				var alertDialog = this.alertDialog;
-				
+
 				alertDialog.setBody(this.messages.Offine);
-				
+
 				var $buttonOK = $(alertDialog.modal).find(".btn-danger");
-				
+
 				$buttonOK.unbind("click");
-				
+
 				$(alertDialog.modal).find(".btn-danger").on("click", function() {
 					alertDialog.Destroy();
 				});
-				
+
 				if (this.alertDialog.isHidden)
 					this.alertDialog.Show();
-				
+
 				return true;
 			}
 		}
@@ -62,7 +68,7 @@ TimeoutInterceptor.prototype = {
 		return (new Date().getTime() - this.lastUpdate.getTime());
 	},
 	ShowLogin : function() {
-		if(this.IsAuthenticate())
+		if (this.IsAuthenticate())
 			return true;
 		var url = undefined;
 		if ($("#nav-container").length) {
@@ -82,7 +88,7 @@ TimeoutInterceptor.prototype = {
 		var that = this;
 		if (this.alertDialog == null) {
 			this.alertDialog = new Modal($("#alert-dialog").clone());
-			
+
 			$(this.alertDialog.modal).find(".btn-danger").on("click", function() {
 				if (!that.Reinitialise())
 					return that.ShowLogin();
@@ -104,7 +110,7 @@ TimeoutInterceptor.prototype = {
 						daily = Math.floor((that.LIMIT_SESSION - that.CurrentTime()) * 0.001);
 						if (daily > 0)
 							that.alertDialog.setBody(that.messages.Alert.replace("%d", daily));
-						else{
+						else {
 							that.alertDialog.setBody(that.messages.Logout);
 							that.alertDialog.Destroy();
 						}
@@ -124,32 +130,18 @@ TimeoutInterceptor.prototype = {
 		return false;
 	},
 	Initialise : function() {
-
 		var that = this;
-
 		this.stopState = false;
 		this.lastUpdate = null;
 		this.loginShow = false;
-
+		that.ClearTimer();
 		if (!this.IsAuthenticate())
 			this.ShowLogin();
 		else {
-
 			// before jQuery send the request we will push it to our array
 			$.ajaxSetup({
 				beforeSend : function(jqXHR, options) {
 					that.Update();
-					//console.log(options.url);
-					if (!options.url.match("/IsAuthenticate$")) {
-						if (!that.IsAuthenticate())
-							that.ShowLogin();
-						else {
-							clearTimeout(that.timer);
-							that.timer = setTimeout(function() {
-								that.Check();
-							}, that.TIME_TO_DISPLAY_ALERT);
-						}
-					}
 				}
 			});
 
@@ -158,15 +150,13 @@ TimeoutInterceptor.prototype = {
 			this.messages.Offine = MessageResolver("error.server.offline", "Server appears to be offline... Try again later!");
 
 			this.timer = setTimeout(function() {
-				this.Check();
+				that.Check();
 			}, this.TIME_TO_DISPLAY_ALERT);
 		}
 
 	},
 	Reinitialise : function() {
-
 		var authentificated = false;
-
 		$.ajax({
 			url : context + "/IsAuthenticate",
 			contentType : "application/json;charset=UTF-8",
@@ -176,7 +166,6 @@ TimeoutInterceptor.prototype = {
 			},
 			error : unknowError
 		});
-
 		return authentificated;
 
 	},
@@ -192,11 +181,19 @@ TimeoutInterceptor.prototype = {
 			}, daily);
 		}
 	},
-	Stop : function(){
-		$.ajaxSetup({beforeSend : undefined});
-		clearTimeout(this.logoutTimeout);
-		clearTimeout(this.timer);
-		clearInterval(this.intervalTimeout);
+	ClearTimer : function() {
+		if (this.logoutTimeout != null)
+			clearTimeout(this.logoutTimeout);
+		if (this.timer != null)
+			clearTimeout(this.timer);
+		if (this.intervalTimeout != null)
+			clearInterval(this.intervalTimeout);
+	},
+	Stop : function() {
+		$.ajaxSetup({
+			beforeSend : undefined
+		});
+		this.ClearTimer();
 		return true;
 	},
 	Start : function(login) {
