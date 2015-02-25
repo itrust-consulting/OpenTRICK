@@ -127,7 +127,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				duplicator.getDaoAnalysis().saveOrUpdate(copy);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.switch.read.only.preview", "Turn on readonly all preview version", language, 98));
+				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.switch.read.only.previous", "Turn on readonly all previous version", language, 98));
 
 				ManageAnalysisRight manageAnalysisRight = new ManageAnalysisRight();
 

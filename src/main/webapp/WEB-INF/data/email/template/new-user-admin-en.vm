@@ -121,7 +121,7 @@
 								 <h4 align="left">Hello ${admin.login},</h4>
 								 <p style="margin-top:5px;">${user.lastName} ${user.firstName} has just registered on TRICK Service.<br>
 								 Please check the information provided: ${user.email}<br>
-								 If you did not request this, please ignore this message.
+								 If in doubt thank you to suspend the account.
 								</p>
                                 </div>
                               </div>

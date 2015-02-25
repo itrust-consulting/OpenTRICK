@@ -169,13 +169,13 @@ public class ExportAnalysisReport {
 				locale = Locale.ENGLISH;
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", null, increase(1)));//1%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", null, increase(1)));// 1%
 
 			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel(), analysis.getVersion()));
 			if (!workFile.exists())
 				workFile.createNewFile();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.load.word.template", "Loading word template", null, increase(2)));//3%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.load.word.template", "Loading word template", null, increase(2)));// 3%
 
 			if (template) {
 				File doctemplate = new File(String.format("%s/WEB-INF/data/%s.dotm", contextPath, reportName));
@@ -190,51 +190,51 @@ public class ExportAnalysisReport {
 				xwpfStyles.setStyles(templateDocx.getStyle());
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.data", "Printing data", null, increase(2)));//5%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.data", "Printing data", null, increase(2)));// 5%
 
 			generatePlaceholders();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.item.information", "Printing item information table", null, increase(5)));//10%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.item.information", "Printing item information table", null, increase(5)));// 10%
 
 			generateItemInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.asset", "Printing asset table", null, increase(5)));//15%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.asset", "Printing asset table", null, increase(5)));// 15%
 
 			generateAssets();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.scenario", "Printing scenario table", null, increase(5)));//20%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.scenario", "Printing scenario table", null, increase(5)));// 20%
 
 			generateScenarios();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.estimation", "Printing estimation table", null, increase(5)));//25%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.estimation", "Printing estimation table", null, increase(5)));// 25%
 
 			generateAssessements();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.threat", "Printing threat table", null, increase(5)));//30%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.threat", "Printing threat table", null, increase(5)));// 30%
 
 			generateThreats();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.impact", "Printing impact table", null, increase(5)));//35%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.impact", "Printing impact table", null, increase(5)));// 35%
 
 			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.probabilty", "Printing probabilty table", null, increase(5)));//40%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.probabilty", "Printing probabilty table", null, increase(5)));// 40%
 
 			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.action.plan", "Printing action plan table", null, increase(5)));//45%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.action.plan", "Printing action plan table", null, increase(5)));// 45%
 
 			generateActionPlan();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.summary", "Printing summary table", null, increase(10)));//55%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.summary", "Printing summary table", null, increase(10)));// 55%
 
 			generateActionPlanSummary();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.measure", "Printing measure table", null, increase(5)));//60%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.table.measure", "Printing measure table", null, increase(5)));// 60%
 
 			generateMeasures();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart", "Printing chart", null, increase(5)));//70%
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart", "Printing chart", null, increase(5)));// 70%
 
 			generateGraphics();
 
@@ -1116,7 +1116,12 @@ public class ExportAnalysisReport {
 			row.getCell(0).setText(getMessage("report.parameter.level", null, "Level", locale));
 			row.getCell(1).setText(getMessage("report.parameter.acronym", null, "Acro", locale));
 			row.getCell(2).setText(getMessage("report.parameter.qualification", null, "Qualification", locale));
-			row.getCell(3).setText(getMessage("report.parameter.value", null, "Value (k€/y)", locale));
+			
+			if (parmetertype.equals("Proba"))
+				row.getCell(3).setText(getMessage("report.parameter.proba.value", null, "Value (/y)", locale));
+			else
+				row.getCell(3).setText(getMessage("report.parameter.value", null, "Value (k€/y)", locale));
+			
 			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
 			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
 
@@ -1166,34 +1171,38 @@ public class ExportAnalysisReport {
 					case "Compliance27001":
 					case "Compliance27002":
 						if (reportExcelSheet.getName().equalsIgnoreCase("Compliance27001"))
-							serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.compliance.27001", "Printing compliance 27001 excel sheet", null, increase(2)));//72%
+							serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.compliance.27001", "Printing compliance 27001 excel sheet", null,
+									increase(2)));// 72%
 						else
-							serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.compliance.27002", "Printing compliance 27002 excel sheet", null, increase(2)));//74%
+							serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.compliance.27002", "Printing compliance 27002 excel sheet", null,
+									increase(2)));// 74%
 						generateComplianceGraphic(reportExcelSheet);
 						break;
 					case "ALEByScenarioType":
-						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario.type", "Printing ALE by scenario type excel sheet", null, increase(3)));//77%
+						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario.type", "Printing ALE by scenario type excel sheet", null,
+								increase(3)));// 77%
 						generateALEByScenarioTypeGraphic(reportExcelSheet);
 						break;
 					case "ALEByScenario":
-						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario", "Printing ALE by scenario excel sheet", null, increase(5)));//82%
+						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.scenario", "Printing ALE by scenario excel sheet", null, increase(5)));// 82%
 						generateALEByScenarioGraphic(reportExcelSheet);
 						break;
 					case "ALEByAssetType":
-						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset.type", "Printing ALE by asset type excel sheet", null, increase(2)));//84%
+						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset.type", "Printing ALE by asset type excel sheet", null,
+								increase(2)));// 84%
 						generateALEByAssetTypeGraphic(reportExcelSheet);
 						break;
 					case "ALEByAsset":
-						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset", "Printing ALE by asset excel sheet", null, increase(5)));//89%
+						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.ale.by.asset", "Printing ALE by asset excel sheet", null, increase(5)));// 89%
 						generateALEByAssetGraphic(reportExcelSheet);
 						break;
 					case "EvolutionOfProfitability":
 						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.evolution.of.profitability",
-								"Printing evolution of profitability  excel sheet", null, increase(7)));//96%
+								"Printing evolution of profitability  excel sheet", null, increase(7)));// 96%
 						generateEvolutionOfProfitabilityGraphic(reportExcelSheet);
 						break;
 					case "Budget":
-						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.budget", "Printing budget excel sheet", null, increase(2)));//98%
+						serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.chart.data.budget", "Printing budget excel sheet", null, increase(2)));// 98%
 						generateBudgetGraphic(reportExcelSheet);
 						break;
 					}
