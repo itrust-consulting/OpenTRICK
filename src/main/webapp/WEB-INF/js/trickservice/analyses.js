@@ -29,11 +29,8 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 				$("#userselect").one('focus', function() {
 					previous = this.value;
 				}).change(function() {
-
 					$("#user_" + previous).attr("hidden", true);
-
 					$("#user_" + this.value).removeAttr("hidden");
-
 					previous = this.value;
 				});
 			},
@@ -59,13 +56,11 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 			$("#userselect").one('focus', function() {
 				previous = this.value;
 			}).change(function() {
-
 				$("#user_" + previous).attr("hidden", true);
-
 				$("#user_" + this.value).removeAttr("hidden");
-
 				previous = this.value;
 			});
+			reloadSection("section_analysis");
 		},
 		error : unknowError
 	});
