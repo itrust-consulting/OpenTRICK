@@ -60,16 +60,16 @@
 						<fmt:setLocale value="fr" scope="session" />
 						<c:choose>
 							<c:when test="${show_uncertainty}">
-								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[0].value*0.001,0)}" maxFractionDigits="0" /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[2].value*0.001,0)}" maxFractionDigits="0" /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[0].value*0.001,1)}"  /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[2].value*0.001,1)}"  /></td>
 							</c:when>
 							<c:otherwise>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
 							</c:otherwise>
 						</c:choose>
 						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
@@ -85,16 +85,16 @@
 						<fmt:setLocale value="fr" scope="session" />
 						<c:choose>
 							<c:when test="${show_uncertainty}">
-								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[0].value*0.001,0)}" maxFractionDigits="0" /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[2].value*0.001,0)}" maxFractionDigits="0" /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[0].value*0.001,1)}"  /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[2].value*0.001,1)}"  /></td>
 							</c:when>
 							<c:otherwise>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
+										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
 							</c:otherwise>
 						</c:choose>
 						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />

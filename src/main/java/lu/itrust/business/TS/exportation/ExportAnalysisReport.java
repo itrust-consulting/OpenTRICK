@@ -91,12 +91,14 @@ public class ExportAnalysisReport {
 	private long idTask;
 
 	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+	
+	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
 	private Locale locale = null;
 
 	private MessageSource messageSource;
 
-	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+	
 
 	private String reportName;
 
@@ -111,8 +113,6 @@ public class ExportAnalysisReport {
 	private int maxProgress;
 
 	public ExportAnalysisReport() {
-		kEuroFormat.setMaximumFractionDigits(1);
-		numberFormat.setMaximumFractionDigits(0);
 	}
 
 	public ExportAnalysisReport(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String contextPath) {
@@ -168,7 +168,8 @@ public class ExportAnalysisReport {
 			default:
 				locale = Locale.ENGLISH;
 			}
-
+			kEuroFormat.setMaximumFractionDigits(1);
+			numberFormat.setMaximumFractionDigits(0);
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", null, increase(1)));// 1%
 
 			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel(), analysis.getVersion()));
@@ -765,7 +766,7 @@ public class ExportAnalysisReport {
 
 			run = paragraph.createRun();
 
-			run.setText(String.format("%s k€", numberFormat.format(totalale * 0.001)));
+			run.setText(String.format("%s k€", kEuroFormat.format(totalale * 0.001)));
 
 			paragraph.setStyle("TSAssessmentTotalALE");
 
@@ -784,7 +785,7 @@ public class ExportAnalysisReport {
 
 				run = paragraph.createRun();
 
-				run.setText(String.format("%s k€", numberFormat.format(ale.getValue() * 0.001)));
+				run.setText(String.format("%s k€", kEuroFormat.format(ale.getValue() * 0.001)));
 
 				run.setBold(true);
 
@@ -819,7 +820,7 @@ public class ExportAnalysisReport {
 					row.getCell(0).setText(assessment.getScenario().getName());
 					addCellNumber(row.getCell(1), formatedImpact(assessment.getImpactFin()));
 					addCellNumber(row.getCell(2), formatLikelihood(assessment.getLikelihood()));
-					addCellNumber(row.getCell(3), numberFormat.format(assessment.getALE() * 0.001));
+					addCellNumber(row.getCell(3), kEuroFormat.format(assessment.getALE() * 0.001));
 					addCellParagraph(row.getCell(4), assessment.getComment());
 				}
 			}
