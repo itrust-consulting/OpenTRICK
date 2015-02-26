@@ -751,6 +751,17 @@ public class ControllerAnalysis {
 			if (analysis == null)
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
+			List<String> versions = serviceAnalysis.getAllNotEmptyVersion(analysis.getIdentifier());
+			Comparator<String> comparator = new Comparator<String>() {
+				@Override
+				public int compare(String o1, String o2) {
+					return GeneralComperator.VersionComparator(o1, o2);
+				}
+			};
+			Collections.sort(versions, Collections.reverseOrder(comparator));
+
+			String lastVersion = versions.get(0);
+
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
 			if (validator == null)
@@ -767,7 +778,6 @@ public class ControllerAnalysis {
 			Date date = new Date(System.currentTimeMillis());
 			String version = jsonNode.get("version").asText();
 			String comment = jsonNode.get("comment").asText();
-			String oldVersion = jsonNode.get("oldVersion").asText();
 
 			error = validator.validate(history, "author", author);
 			if (error != null)
@@ -779,11 +789,11 @@ public class ControllerAnalysis {
 			if (error != null)
 				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-
-				if (GeneralComperator.VersionComparator(oldVersion, version) >= 0)
-					errors.put("version", messageSource.getMessage("error.history.version.invalid", null, "Version has to be bigger than based on version", locale));
-				else if (serviceAnalysis.exists(analysis.getIdentifier(), version))
-					errors.put("version", messageSource.getMessage("error.history.version.exists", null, "Version already exists for the analysis", locale));
+				if (GeneralComperator.VersionComparator(lastVersion, version) >= 0)
+					errors.put(
+							"version",
+							messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
+									String.format("Version has to be bigger than last %s", lastVersion), locale));
 				else
 					history.setVersion(version);
 			}
@@ -944,8 +954,6 @@ public class ControllerAnalysis {
 			// return error message
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 	}
-
-	
 
 	/**
 	 * computeRiskRegister: <br>

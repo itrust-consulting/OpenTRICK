@@ -25,6 +25,7 @@ import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
+import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.data.general.SecurityCriteria;
@@ -94,7 +95,7 @@ public class ImportAnalysis {
 	 * Fields
 	 **********************************************************************************************/
 
-	private long idTask;
+	private String idTask;
 
 	private DAOParameterType daoParameterType;
 
@@ -418,7 +419,12 @@ public class ImportAnalysis {
 
 		// close result
 		rs.close();
-
+		
+		List<Customer> customers = daoAnalysis.getCustomersByIdAnalysis(this.analysis.getIdentifier());
+		
+		if(customers.size()>1 || !(customers.isEmpty() || customers.contains(this.analysis.getCustomer())))
+			throw new TrickException("error.bad.customer", "This analysis already belong to an other customer");
+		
 		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
 		// ****************************************************************
@@ -3129,7 +3135,7 @@ public class ImportAnalysis {
 	/**
 	 * @return the idTask
 	 */
-	public long getIdTask() {
+	public String getIdTask() {
 		return idTask;
 	}
 
@@ -3137,7 +3143,7 @@ public class ImportAnalysis {
 	 * @param idTask
 	 *            the idTask to set
 	 */
-	public void setIdTask(long idTask) {
+	public void setIdTask(String idTask) {
 		this.idTask = idTask;
 	}
 

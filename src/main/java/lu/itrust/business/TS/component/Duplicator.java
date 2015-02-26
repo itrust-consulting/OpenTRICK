@@ -109,7 +109,7 @@ public class Duplicator {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Analysis duplicateAnalysis(Analysis analysis, Analysis newAnalysis, ServiceTaskFeedback serviceTaskFeedback, Long idTask, int minProgress, int maxProgress)
+	public Analysis duplicateAnalysis(Analysis analysis, Analysis newAnalysis, ServiceTaskFeedback serviceTaskFeedback, String idTask, int minProgress, int maxProgress)
 			throws Exception {
 
 		Map<Integer, Phase> phases = new LinkedHashMap<>();
@@ -388,7 +388,7 @@ public class Duplicator {
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public Analysis createProfile(Analysis analysis, String name, List<Integer> standards, ServiceTaskFeedback serviceTaskFeedback, long idTask) {
+	public Analysis createProfile(Analysis analysis, String name, List<Integer> standards, ServiceTaskFeedback serviceTaskFeedback, String idTask) {
 
 		try {
 

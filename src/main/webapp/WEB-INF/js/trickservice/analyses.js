@@ -660,8 +660,8 @@ function calculateActionPlan(analysisId) {
 					if (taskManager == undefined)
 						taskManager = new TaskManager();
 					taskManager.Start();
-				} else if (message["error"]) {
-					$("#alert-dialog .modal-body").html(message["error"]);
+				} else if (response["error"] !=undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
 				}
 			},
@@ -710,10 +710,10 @@ function calculateRiskRegister(analysisId) {
 					if (taskManager == undefined)
 						taskManager = new TaskManager();
 					taskManager.Start();
-				} else if (message["error"]) {
-					$("#alert-dialog .modal-body").html(message["error"]);
+				} else if (response["error"] !=undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
-				}
+				}else unknowError();
 			},
 			error : unknowError
 		});
@@ -737,13 +737,12 @@ function exportAnalysis(analysisId) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
-					// if (taskManager == undefined)
 					taskManager = new TaskManager();
 					taskManager.Start();
-				} else if (message["error"]) {
-					$("#alert-dialog .modal-body").html(message["error"]);
+				} else if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
-				}
+				}else unknowError();
 			},
 			error : unknowError
 		});
@@ -766,12 +765,12 @@ function exportAnalysisReport(analysisId) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				if (response["success"] != undefined) 
+				if (response["success"] != undefined)
 					application["taskManager"].Start();
-				else if (message["error"]) {
-					$("#alert-dialog .modal-body").html(message["error"]);
+				else if (response["error"]!=undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
-				}
+				}else unknowError();
 			},
 			error : unknowError
 		});

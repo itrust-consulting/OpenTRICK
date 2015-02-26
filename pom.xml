@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>TrickService</artifactId>
-	<version>0.7.8k</version>
+	<version>0.7.8l</version>
 	<packaging>war</packaging>
 	<properties>
 		<org.springframework.version>4.1.4.RELEASE</org.springframework.version>

@@ -27,7 +27,7 @@ import org.hibernate.SessionFactory;
  */
 public class WorkerCreateAnalysisVersion implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;
 
@@ -211,7 +211,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	 * lu.itrust.business.TS.asynchronousWorkers.Worker#setId(java.lang.Long)
 	 */
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -233,7 +233,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#getId()
 	 */
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

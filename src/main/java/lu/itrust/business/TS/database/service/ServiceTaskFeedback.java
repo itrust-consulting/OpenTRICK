@@ -14,31 +14,31 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
  */
 public interface ServiceTaskFeedback {
 
-	public int messageCount(long id);
+	public int messageCount(String id);
 
-	public boolean taskExist(long id);
+	public boolean taskExist(String id);
 
-	public boolean hasMessage(long id);
+	public boolean hasMessage(String id);
 
 	public boolean userHasTask(String userName);
 
-	public boolean hasTask(String userName, long id);
+	public boolean hasTask(String userName, String id);
 
-	public boolean registerTask(String userName, long id);
+	public boolean registerTask(String userName, String id);
 
-	public void unregisterTask(String userName, long id);
+	public void unregisterTask(String userName, String id);
 
 	public void send(MessageHandler handler);
 
-	public void send(long id, MessageHandler handler);
+	public void send(String id, MessageHandler handler);
 
-	public void send(String userName, long id, MessageHandler handler);
+	public void send(String userName, String id, MessageHandler handler);
 
-	public MessageHandler recieve(long id);
+	public MessageHandler recieveById(String id);
 
-	public MessageHandler recieveLast(long id);
+	public MessageHandler recieveLast(String id);
 
 	public List<MessageHandler> recieve(String userName);
 
-	public List<Long> tasks(String userName);
+	public List<String> tasks(String userName);
 }

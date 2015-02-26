@@ -1,5 +1,4 @@
 function TaskManager(title) {
-
 	this.tasks = [];
 	this.progressBars = [];
 	this.title = title;
@@ -52,7 +51,6 @@ function TaskManager(title) {
 							instance.UpdateStatus(reponse[int]);
 						}
 					}
-
 					if (!instance.isEmpty())
 						instance.Show();
 				}
@@ -107,6 +105,7 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					return false;
 				}
+				
 				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined) {
 					instance.progressBars[taskId] = instance.createProgressBar(taskId);
 				}

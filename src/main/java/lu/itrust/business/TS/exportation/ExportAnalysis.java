@@ -57,7 +57,7 @@ public class ExportAnalysis {
 	/** SQLite Database Handler */
 	private DatabaseHandler sqlite = null;
 
-	private long idTask = 0;
+	private String idTask;
 
 	/** Analysis object */
 	private Analysis analysis = null;
@@ -82,7 +82,7 @@ public class ExportAnalysis {
 		this.sqlite = sqlite2;
 	}
 
-	public ExportAnalysis(ServiceTaskFeedback serviceTaskFeedback, Session session, DatabaseHandler sqlite2, Analysis analysis, long idTask) {
+	public ExportAnalysis(ServiceTaskFeedback serviceTaskFeedback, Session session, DatabaseHandler sqlite2, Analysis analysis, String idTask) {
 		this.serviceAssetType = new DAOAssetTypeHBM(session);
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sqlite = sqlite2;

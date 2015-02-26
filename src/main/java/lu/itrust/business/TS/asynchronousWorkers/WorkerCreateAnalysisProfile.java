@@ -29,7 +29,7 @@ import org.hibernate.Transaction;
  */
 public class WorkerCreateAnalysisProfile implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;
 
@@ -153,7 +153,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	}
 
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 
 	}
@@ -165,7 +165,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	}
 
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

@@ -18,20 +18,22 @@
 	</mvc:annotation-driven>
 
 	<context:component-scan base-package="lu.itrust.business" />
+	
+	<util:properties id="propertyConfigurer" location="classpath:jdbc.properties" />
+	
+	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
+		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
+		<property name="waitForTasksToCompleteOnShutdown" value="true" />
+	</bean>
+
+	<task:scheduler id="scheduler" pool-size="5" />
 
 	<task:annotation-driven executor="executor" scheduler="scheduler" />
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
-	
-	<util:properties id="propertyConfigurer" location="classpath:jdbc.properties" />
 
 	<context:property-placeholder properties-ref="propertyConfigurer" />
-
-	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
-	</bean>
-
-	<task:scheduler id="scheduler" pool-size="5" />
 
 	<mvc:resources mapping="/images/**" location="/WEB-INF/images/" />
 

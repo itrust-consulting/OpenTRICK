@@ -521,7 +521,16 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public boolean isAnalysisOwner(Integer analysisId, String userName) {
-		
 		return daoAnalysis.isAnalysisOwner(analysisId, userName);
+	}
+
+	@Override
+	public boolean exists(String identifier) {
+		return daoAnalysis.exists(identifier);
+	}
+
+	@Override
+	public Long countByIdentifier(String identifier) {
+		return daoAnalysis.countByIdentifier(identifier);
 	}
 }

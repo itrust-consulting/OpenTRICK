@@ -351,7 +351,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * remove: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#remove(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#remove(String)
 	 */
 	@Override
 	public void delete(Analysis analysis) throws Exception {
@@ -481,5 +481,23 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public Integer getIdFromIdentifierAndVersion(String identifier, String version) {
 		return (Integer) getSession().createQuery("select id from Analysis where identifier = :identifier and version = :version").setParameter("identifier", identifier)
 				.setString("version", version).uniqueResult();
+	}
+
+	@Override
+	public boolean exists(String identifier) {
+		return ((Long) getSession().createQuery("Select count(analysis) From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier)
+				.uniqueResult()).intValue() > 0;
+	}
+
+	@Override
+	public Long countByIdentifier(String identifier) {
+		return ((Long) getSession().createQuery("Select count(analysis) From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier)
+				.uniqueResult());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(String identifier) {
+		return getSession().createQuery("Select distinct analysis.customer From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier).list();
 	}
 }

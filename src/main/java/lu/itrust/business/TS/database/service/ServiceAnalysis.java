@@ -19,6 +19,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2013
  */
 public interface ServiceAnalysis {
+	
 	public Analysis get(Integer idAnalysis) throws Exception;
 
 	public Analysis getDefaultProfile() throws Exception;
@@ -26,6 +27,8 @@ public interface ServiceAnalysis {
 	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) throws Exception;
 
 	public boolean exists(Integer idAnalysis) throws Exception;
+	
+	public boolean exists(String identifier);
 
 	public boolean exists(String identifier, String version) throws Exception;
 
@@ -98,5 +101,9 @@ public interface ServiceAnalysis {
 	public Integer getCustomerIdByIdAnalysis(int analysisId);
 
 	public boolean isAnalysisOwner(Integer analysisId, String userName);
+
+	public Long countByIdentifier(String identifier);
+
+	
 
 }

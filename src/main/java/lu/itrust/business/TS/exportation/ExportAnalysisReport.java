@@ -88,7 +88,7 @@ public class ExportAnalysisReport {
 
 	private XWPFDocument document = null;
 
-	private long idTask;
+	private String idTask;
 
 	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 	
@@ -97,8 +97,6 @@ public class ExportAnalysisReport {
 	private Locale locale = null;
 
 	private MessageSource messageSource;
-
-	
 
 	private String reportName;
 
@@ -168,10 +166,11 @@ public class ExportAnalysisReport {
 			default:
 				locale = Locale.ENGLISH;
 			}
+			
 			kEuroFormat.setMaximumFractionDigits(1);
 			numberFormat.setMaximumFractionDigits(0);
+			
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", null, increase(1)));// 1%
-
 			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel(), analysis.getVersion()));
 			if (!workFile.exists())
 				workFile.createNewFile();
@@ -773,7 +772,7 @@ public class ExportAnalysisReport {
 			for (ALE ale : ales) {
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
 				paragraph.createRun().setText(ale.getAssetName());
-				paragraph.setStyle("Titre4");
+				paragraph.setStyle("TSEstimationTitle");
 
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
 
@@ -1552,7 +1551,7 @@ public class ExportAnalysisReport {
 		return document;
 	}
 
-	public long getIdTask() {
+	public String getIdTask() {
 		return idTask;
 	}
 
@@ -1603,7 +1602,7 @@ public class ExportAnalysisReport {
 		this.document = document;
 	}
 
-	public void setIdTask(long idTask) {
+	public void setIdTask(String idTask) {
 		this.idTask = idTask;
 	}
 

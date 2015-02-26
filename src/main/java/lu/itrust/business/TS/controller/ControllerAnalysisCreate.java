@@ -369,6 +369,11 @@ public class ControllerAnalysisCreate {
 			
 			serviceAnalysis.save(analysis);
 			
+			while(serviceAnalysis.countByIdentifier(analysis.getIdentifier())>1){
+				analysis.setIdentifier(language.getAlpha3() + "_" + new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(history.getDate()));
+				serviceAnalysis.save(analysis);
+			}
+			
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(customAnalysisForm.getStandard());
 			
 			for (AnalysisStandard analysisStandard : analysisStandards)

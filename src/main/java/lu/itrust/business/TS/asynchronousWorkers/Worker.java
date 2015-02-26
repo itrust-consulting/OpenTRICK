@@ -18,11 +18,11 @@ public interface Worker extends Runnable{
 	
 	Exception getError();
 	
-	void setId(Long id);
+	void setId(String id);
 	
 	void setPoolManager(WorkersPoolManager poolManager);
 	
-	Long getId();
+	String getId();
 	
 	void start();
 	

@@ -102,4 +102,10 @@ public interface DAOAnalysis {
 	public List<String> getAllVersion(String identifier);
 
 	public Integer getIdFromIdentifierAndVersion(String identifier, String string);
+
+	public boolean exists(String identifier);
+
+	public Long countByIdentifier(String identifier);
+
+	public List<Customer> getCustomersByIdAnalysis(String identifier);
 }

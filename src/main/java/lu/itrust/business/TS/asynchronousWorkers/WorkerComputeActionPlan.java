@@ -34,7 +34,7 @@ import org.springframework.context.MessageSource;
  */
 public class WorkerComputeActionPlan implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;
 
@@ -306,7 +306,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @see lu.itrust.business.task.Worker#setId(java.lang.Long)
 	 */
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -327,7 +327,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @see lu.itrust.business.task.Worker#getId()
 	 */
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

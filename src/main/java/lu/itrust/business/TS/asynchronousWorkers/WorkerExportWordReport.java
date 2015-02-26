@@ -28,7 +28,7 @@ import org.springframework.util.FileCopyUtils;
  */
 public class WorkerExportWordReport implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private int idAnalysis;
 
@@ -151,7 +151,7 @@ public class WorkerExportWordReport implements Worker {
 	}
 
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -161,7 +161,7 @@ public class WorkerExportWordReport implements Worker {
 	}
 
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

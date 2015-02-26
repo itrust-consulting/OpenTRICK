@@ -81,7 +81,7 @@ public class ActionPlanComputation {
 	private ServiceMeasure serviceMeasure;
 
 	/** task id */
-	private Long idTask;
+	private String idTask;
 
 	/** Analysis Object */
 	private Analysis analysis = null;
@@ -150,7 +150,7 @@ public class ActionPlanComputation {
 	 * @param standards
 	 * @param uncertainty
 	 */
-	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, Long idTask, Analysis analysis,
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, String idTask, Analysis analysis,
 			List<AnalysisStandard> standards, boolean uncertainty, MessageSource messageSource) {
 
 		// initialise variables
@@ -3050,7 +3050,7 @@ public class ActionPlanComputation {
 	 * 
 	 * @return
 	 */
-	public Long getIdTask() {
+	public String getIdTask() {
 		return idTask;
 	}
 
@@ -3060,7 +3060,7 @@ public class ActionPlanComputation {
 	 * 
 	 * @param idTask
 	 */
-	public void setIdTask(Long idTask) {
+	public void setIdTask(String idTask) {
 		this.idTask = idTask;
 	}
 

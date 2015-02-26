@@ -20,7 +20,7 @@ import org.hibernate.SessionFactory;
  */
 public class WorkerAnalysisImport implements Worker {
 
-	private Long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error = null;
 
@@ -92,7 +92,7 @@ public class WorkerAnalysisImport implements Worker {
 	 * @see lu.itrust.business.task.Worker#setId(java.lang.Long)
 	 */
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -102,7 +102,7 @@ public class WorkerAnalysisImport implements Worker {
 	 * @see lu.itrust.business.task.Worker#getId()
 	 */
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
