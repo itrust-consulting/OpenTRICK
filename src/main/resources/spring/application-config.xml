@@ -14,12 +14,12 @@
 	<context:annotation-config />
 
 	<mvc:annotation-driven>
-		<mvc:async-support default-timeout="90000" />
+		<mvc:async-support default-timeout="900000" />
 	</mvc:annotation-driven>
 
 	<context:component-scan base-package="lu.itrust.business" />
 	
-	<util:properties id="propertyConfigurer" location="classpath:jdbc.properties" />
+	<util:properties id="propertyConfigurer" location="classpath:application.properties" />
 	
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
@@ -27,7 +27,7 @@
 		<property name="waitForTasksToCompleteOnShutdown" value="true" />
 	</bean>
 
-	<task:scheduler id="scheduler" pool-size="5" />
+	<task:scheduler id="scheduler" pool-size="${app.settings.scheduler.pool.size}" />
 
 	<task:annotation-driven executor="executor" scheduler="scheduler" />
 
@@ -82,7 +82,7 @@
 	</bean>
 
 	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-		<property name="host" value="smtp.pt.lu" />
+		<property name="host" value="${app.settings.smtp.host}" />
 	</bean>
 	
 	<bean id="velocityEngine"
@@ -101,9 +101,9 @@
 		</bean>
 	</mvc:interceptors>
 
-	<import resource="spring-security.xml" />
-
 	<!-- File Uploader -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	
+	<import resource="spring-security.xml" />
 
 </beans>

@@ -14,7 +14,7 @@ function initUserCustomerList() {
 		$(this).toggleClass('active');
 		var allVal = new Array();
 		$('#customerusersform .list-group li.active').each(function() {
-			allVal.push($(this).attr(data-trick-opt));
+			allVal.push($(this).attr(data - trick - opt));
 		});
 		$('#usercustomer').val(allVal);
 	});
@@ -27,7 +27,7 @@ function saveCustomer(form) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response, textStatus, jqXHR) {
 			$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 			var alert = $("#addCustomerModel .label-danger");
 			if (alert.length)
@@ -112,21 +112,25 @@ function deleteCustomer(customerId, organisation) {
 			url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
 			type : "POST",
 			contentType : "application/json",
-			success : function(response) {
-				if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				}
-				reloadSection("section_customer");
+			success : function(response, textStatus, jqXHR) {
+				if (response["success"] == undefined) {
+					if (response["error"] == undefined)
+						unknowError();
+					else {
+						$("#alert-dialog .modal-body").html(response["error"]);
+						$("#alert-dialog").modal("show");
+					}
+				} else
+					reloadSection("section_customer");
 				return false;
 			},
 			error : unknowError
 		});
-		$("#deleteCustomerModel").modal('toggle');
+		$("#deleteCustomerModel").modal('hide');
 		$("#deletecustomerbuttonYes").unbind();
 		return false;
 	});
-	$("#deleteCustomerModel").modal('toggle');
+	$("#deleteCustomerModel").modal('show');
 	return false;
 }
 
@@ -151,7 +155,7 @@ function newCustomer() {
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Add", "Add a new Customer"));
 	$("#addcustomerbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#customer_form").prop("action", "Customer/Create");
-	$("#addCustomerModel").modal('toggle');
+	$("#addCustomerModel").modal('show');
 	return false;
 }
 
@@ -181,15 +185,15 @@ function editSingleCustomer(customerId) {
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Update", "Update a Customer"));
 	$("#addcustomerbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#customer_form").prop("action", "Customer/Edit/" + customerId);
-	$("#addCustomerModel").modal('toggle');
+	$("#addCustomerModel").modal('show');
 	return false;
 }
 
 function manageUsers(customerID) {
-	if(!isNotCustomerProfile())
+	if (!isNotCustomerProfile())
 		return false;
 	if (customerID == null || customerID == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_customer"));
+		var selectedScenario = findSelectItemIdBySection("section_customer");
 		if (selectedScenario.length != 1)
 			return false;
 		customerID = selectedScenario[0];
@@ -199,11 +203,16 @@ function manageUsers(customerID) {
 		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users",
 		type : "get",
 		contentType : "application/json",
-		success : function(response) {
-			$("#customerusersbody").html(response);
-			initUserCustomerList();
-			$("#customerusersform").prop("action", "Customer/" + customerID + "/Users/Update");
-			$("#customerusersbutton").attr("onclick", "updateManageUsers(" + customerID + ",'#customerusersform')");
+		success : function(response, textStatus, jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersbody");
+			if ($content.length) {
+				var $customer = $("#customerusersbody").html(response);
+				initUserCustomerList();
+				$("#customerusersform").prop("action", "Customer/" + customerID + "/Users/Update");
+				$("#customerusersbutton").attr("onclick", "updateManageUsers(" + customerID + ",'#customerusersform')");
+			} else
+				unknowError();
+			return false;
 		},
 		error : unknowError
 	});
@@ -211,9 +220,9 @@ function manageUsers(customerID) {
 	return false;
 }
 
-function isNotCustomerProfile(){
+function isNotCustomerProfile() {
 	var $selectedCustomer = $("#section_customer tbody>tr>td>input:checked");
-	return $selectedCustomer.parent().parent().attr("data-trick-is-profile")==="false";
+	return $selectedCustomer.parent().parent().attr("data-trick-is-profile") === "false";
 }
 
 function updateManageUsers(customerID, form) {
@@ -237,9 +246,14 @@ function updateManageUsers(customerID, form) {
 		type : "post",
 		data : jsonarray,
 		contentType : "application/json",
-		success : function(response) {
-			$("#customerusersbody").html(response);
-			initUserCustomerList();
+		success : function(response, textStatus, jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersbody");
+			if ($content.length) {
+				$("#customerusersbody").replaceWith($content)
+				initUserCustomerList();
+			} else
+				unknowError();
+			return false;
 		},
 		error : unknowError
 	});

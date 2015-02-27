@@ -7,7 +7,7 @@ function saveStandard(form) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			$("#addStandardModel #addstandardbutton").prop("disabled", false);
 			var alert = $("#addStandardModel .label-danger");
 			if (alert.length)
@@ -69,7 +69,7 @@ function deleteStandard(idStandard, name) {
 			url : context + "/KnowledgeBase/Standard/Delete/" + idStandard,
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
@@ -94,7 +94,7 @@ function uploadImportStandardFile() {
 		url : context + "/KnowledgeBase/Standard/Upload",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			if ((uploadStandardModal = doc.getElementById("uploadStandardModal")) == null)
@@ -144,7 +144,7 @@ function importNewStandard() {
 		},
 		// Ajax events
 		// beforeSend : beforeSendHandler,
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response.flag != undefined) {
 				progressBar = new ProgressBar();
 				progressBar.Initialise();

@@ -13,7 +13,7 @@ function register(form) {
 		type : "post",
 		contentType : "application/json",
 		data : serializeForm(form),
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();

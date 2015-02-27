@@ -39,7 +39,7 @@ function editSingleAnalysis(analysisId) {
 		url : context + "/Analysis/Edit/" + analysisId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			if ((form = doc.getElementById("form_edit_analysis")) == null) {
@@ -67,7 +67,7 @@ function setAsDefaultProfile(analysisId) {
 		url : context + "/Analysis/SetDefaultProfile/" + analysisId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			reloadSection("section_profile_analysis");
 		},
 		error : unknowError
@@ -101,7 +101,7 @@ function saveAnalysis(form, reloadaction) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			$("#editAnalysisModel .progress").hide();
 			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 			var alert = $("#editAnalysisModel .label-danger");
@@ -155,7 +155,7 @@ function deleteAnalysis(analysisId) {
 			url : context + "/Analysis/Delete/" + analysisId,
 			type : "GET",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				$("#deleteprogressbar").hide();
 				$("#deleteanalysisbuttonYes").prop("disabled", false);
 				$("#deleteAnalysisModel").modal('toggle');

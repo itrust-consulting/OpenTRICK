@@ -13,8 +13,9 @@ function AssessmentViewer() {
 		var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
 		$(this.modal_title).replaceWith(
 				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
-						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>"
-						+ enableEditModeText + "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
+						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale
+						+ "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>" + enableEditModeText
+						+ "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
 		$(this.modal_footer).remove();
 		this.dialogError = $("#alert-dialog").clone();
 		$(this.dialogError).removeAttr("id");
@@ -62,8 +63,10 @@ function AssessmentViewer() {
 			application.modal["AssessmentViewer"] = undefined;
 			$(window).off(resizer);
 		});
-		
-		$(this.modal).find(".modal-content").css({'padding-bottom':'20px'});
+
+		$(this.modal).find(".modal-content").css({
+			'padding-bottom' : '20px'
+		});
 
 		$(this.modal).on("show.bs.modal", function() {
 			disableEditMode();
@@ -176,14 +179,15 @@ function AssessmentAssetViewer(assetId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
-				if (!assessments.length)
-					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("data-trick-name"));
-				var table = $(instance.modal_body).find('table');
-				if (callback != null && $.isFunction(callback))
-					return callback();
+				var assessments = $(doc).find("#section_asset_assessment");
+				if (assessments.length) {
+					$(instance.modal_body).html($(assessments).html());
+					instance.setTitle($(assessments).attr("data-trick-name"));
+					var table = $(instance.modal_body).find('table');
+					if (callback != null && $.isFunction(callback))
+						return callback();
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -200,13 +204,14 @@ function AssessmentAssetViewer(assetId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
-				if (!assessments.length)
-					return true;
-				if (instance.SmartUpdate.apply(instance, assessments)) {
-					instance.setBody(assessments);
-					instance.setTitle($(assessments).attr("data-trick-name"));
-				}
+				var assessments = $(doc).find("#section_asset_assessment");
+				if (assessments.length) {
+					if (instance.SmartUpdate.apply(instance, assessments)) {
+						instance.setBody(assessments);
+						instance.setTitle($(assessments).attr("data-trick-name"));
+					}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -234,12 +239,13 @@ function AssessmentScenarioViewer(scenarioId) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
 				var assessments = $(doc).find("*[id='section_scenario_assessment']");
-				if (!assessments.length)
-					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("data-trick-name"));
-				if (callback != null && $.isFunction(callback))
-					return callback();
+				if (assessments.length) {
+					$(instance.modal_body).html($(assessments).html());
+					instance.setTitle($(assessments).attr("data-trick-name"));
+					if (callback != null && $.isFunction(callback))
+						return callback();
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -256,12 +262,13 @@ function AssessmentScenarioViewer(scenarioId) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
 				var assessments = $(doc).find("*[id='section_scenario_assessment']");
-				if (!assessments.length)
-					return true;
-				if (instance.SmartUpdate.apply(instance, assessments)) {
-					instance.setBody(assessments);
-					instance.setTitle($(assessments).attr("data-trick-name"));
-				}
+				if (assessments.length) {
+					if (instance.SmartUpdate.apply(instance, assessments)) {
+						instance.setBody(assessments);
+						instance.setTitle($(assessments).attr("data-trick-name"));
+					}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -295,7 +302,7 @@ function computeAssessment(silent) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
@@ -305,14 +312,14 @@ function computeAssessment(silent) {
 						$("#info-dialog").modal("toggle");
 					}
 					chartALE();
-				}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
 		});
 	} else
 		permissionError();
-
 	return false;
 }
 
@@ -326,7 +333,7 @@ function refreshAssessment() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					if (response['error'] != undefined) {
 						$("#info-dialog .modal-body").text(response['error']);
 						$("#info-dialog").modal("toggle");
@@ -334,7 +341,8 @@ function refreshAssessment() {
 						$("#info-dialog .modal-body").text(response['success']);
 						$("#info-dialog").modal("toggle");
 						chartALE();
-					}
+					} else
+						unknowError();
 					return false;
 				},
 				error : unknowError
@@ -354,7 +362,7 @@ function updateAssessmentAle(silent) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
@@ -363,7 +371,8 @@ function updateAssessmentAle(silent) {
 						$("#info-dialog .modal-body").text(response['success']);
 						$("#info-dialog").modal("toggle");
 					}
-				}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError

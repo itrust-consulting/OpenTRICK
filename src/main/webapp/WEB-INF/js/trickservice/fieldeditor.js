@@ -40,6 +40,7 @@ function FieldEditor(element, validator) {
 	this.classId = null;
 	this.fieldType = null;
 	this.callback = null;
+	this.async = true;
 
 	FieldEditor.prototype.GeneratefieldEditor = function() {
 		if ($(this.element).find("input").length || $(this.element).find("select").length || $(this.element).find("textarea").length)
@@ -253,11 +254,11 @@ function FieldEditor(element, validator) {
 				$.ajax({
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
-					async : true,
+					async : that.async,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
-					success : function(response) {
+					success : function(response,textStatus,jqXHR) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
 							if (that.callback != null && that.callback != undefined)
@@ -362,11 +363,11 @@ function ExtendedFieldEditor(element) {
 				$.ajax({
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
-					async : true,
+					async : that.async,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
-					success : function(response) {
+					success : function(response,textStatus,jqXHR) {
 						if (response["success"] != undefined) {
 							reloadSection("section_parameter");
 							if (that.fieldName == "value" || that.fieldName == "acronym")
@@ -459,11 +460,11 @@ function AssessmentFieldEditor(element) {
 				$.ajax({
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
-					async : true,
+					async : that.async,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
-					success : function(response) {
+					success : function(response,textStatus,jqXHR) {
 						if (response["success"] != undefined) {
 							if (application.modal["AssessmentViewer"] != undefined)
 								application.modal["AssessmentViewer"].Update();
@@ -686,7 +687,9 @@ function disableEditMode() {
 	application.editMode = false
 	$("li[role='enterEditMode']").removeClass("disabled");
 	$("li[role='leaveEditMode']").addClass("disabled");
+	
 	$(application.fieldEditors).each(function() {
+		this.async = false;
 		this.Save(this);
 	});
 	return false;

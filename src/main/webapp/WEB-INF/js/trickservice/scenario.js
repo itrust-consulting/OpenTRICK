@@ -16,7 +16,7 @@ function editScenario(rowTrickId, isAdd) {
 			url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if ((addScenarioModal = doc.getElementById("addScenarioModal")) == null)
@@ -39,7 +39,7 @@ function saveScenario(form) {
 		data : serializeScenarioForm(form),
 		contentType : "application/json;charset=UTF-8",
 		async : true,
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var label = $("#addScenarioModal .label-danger");
 			if (label.length)
 				label.remove();
@@ -109,7 +109,7 @@ function deleteScenario(scenarioId) {
 						url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
 						contentType : "application/json;charset=UTF-8",
 						async : false,
-						success : function(response) {
+						success : function(response,textStatus,jqXHR) {
 							var trickSelect = parseJson(response);
 							if (trickSelect != undefined && trickSelect["success"] != undefined) {
 								/*

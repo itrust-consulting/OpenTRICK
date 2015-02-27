@@ -6,7 +6,6 @@ function serializeAssetForm(formId) {
 		"id" : parseInt(data["assetType"]),
 		"type" : $("#asset_assettype_id option:selected").text()
 	};
-	// data["value"] = parseFloat(data["value"]);
 	data["selected"] = data["selected"] == "on";
 	return JSON.stringify(data);
 }
@@ -78,11 +77,8 @@ function deleteAsset(assetId) {
 					url : context + "/Analysis/Asset/Delete/" + rowTrickId,
 					async : true,
 					contentType : "application/json;charset=UTF-8",
-					success : function(response) {
-
-						var trickSelect = parseJson(response);
-						if (trickSelect != undefined && trickSelect["success"] == undefined) {
-
+					success : function(response,textStatus,jqXHR) {
+						if (response["success"] == undefined) {
 							if (response["error"] != undefined) {
 								$("#alert-dialog .modal-body").html(response["error"]);
 								$("#alert-dialog").modal("toggle");
@@ -90,9 +86,7 @@ function deleteAsset(assetId) {
 								$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
 								$("#alert-dialog").modal("toggle");
 							}
-
 						}
-
 						return false;
 					},
 					error : unknowError
@@ -123,13 +117,13 @@ function editAsset(rowTrickId, isAdd) {
 			url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Analysis/Asset/Add" : "/Analysis/Asset/Edit/" + rowTrickId),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				var addAssetModal = $(doc).find("* div#addAssetModal");
-				if ($("#addAssetModal").length)
-					$("#addAssetModal").html($(addAssetModal).html());
-				$("#addAssetModal").modal("toggle");
+			success : function(response,textStatus,jqXHR) {
+				var $addAssetModal = $(new DOMParser().parseFromString(response, "text/html")).find("#addAssetModal");
+				if ($addAssetModal.length) {
+					$("#addAssetModal").replaceWith($addAssetModal);
+					$("#addAssetModal").modal("toggle");
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -139,13 +133,12 @@ function editAsset(rowTrickId, isAdd) {
 }
 
 function saveAsset(form) {
-	return $.ajax({
+	$.ajax({
 		url : context + "/Analysis/Asset/Save",
 		type : "post",
-		async : true,
 		data : serializeAssetForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var alert = $("#addAssetModal .label-danger");
 			if (alert.length)
 				alert.remove();
@@ -198,4 +191,5 @@ function saveAsset(form) {
 			return false;
 		},
 	});
+	return false;
 }

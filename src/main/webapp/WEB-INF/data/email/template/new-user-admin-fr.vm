@@ -119,8 +119,10 @@
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
 								 <h4 align="left">Bonjour ${admin.login},</h4>
-								 <p style="margin-top:5px;">${user.lastName} ${user.firstName} vient de s'inscrire sur TRICK Service.<br>
-								 Veuillez verifier les informations fournis : ${user.email}.<br>
+								 <p style="margin-top:5px;">Un nouveau utilisateur vient de s'inscrire sur TRICK Service.<br>
+								 Nom d'utilisateur : ${user.login}<br>
+								 Nom compl&egrave;t&eacute; : ${user.firstName} ${user.lastName}<br>
+								 Courriel : ${user.email}<br>
 								 En cas de doute merci de suspendre le compte.
 								</p>
                                 </div>

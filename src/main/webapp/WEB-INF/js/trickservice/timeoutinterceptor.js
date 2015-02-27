@@ -32,7 +32,7 @@ TimeoutInterceptor.prototype = {
 				url : context + "/IsAuthenticate",
 				contentType : "application/json;charset=UTF-8",
 				async : false,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					authentificated = response === true;
 				},
 			});
@@ -161,7 +161,7 @@ TimeoutInterceptor.prototype = {
 			url : context + "/IsAuthenticate",
 			contentType : "application/json;charset=UTF-8",
 			async : false,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				authentificated = response === true;
 			},
 			error : unknowError

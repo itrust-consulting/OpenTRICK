@@ -263,11 +263,10 @@ function MessageResolver(code, defaulttext, params, language) {
 		data : JSON.stringify(data),
 		async : false,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			if (response.message == null || !response.message.length)
-				return defaulttext;
-			application.localesMessages[uniqueCode] = response.message
-			return true;
+		success : function(response,textStatus,jqXHR) {
+			if (!(response.message == undefined || response.message == null || response.message.length))
+				application.localesMessages[uniqueCode] = response.message
+			return false;
 		}
 	});
 	return application.localesMessages[uniqueCode];
@@ -458,9 +457,6 @@ function updateStatus(progressBar, idTask, callback, status) {
 				updateStatus(progressBar, idTask, callback);
 			}, 1500);
 		} else {
-			/*
-			 * setTimeout(function() { progressBar.Destroy(); }, 3000);
-			 */
 			$(progressBar.progress).parent().parent().find("button").each(function() {
 				$(this).removeAttr("disabled");
 			});

@@ -31,7 +31,7 @@ function calculateRiskRegister(analysisId) {
 			data : JSON.stringify(data),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response["success"] != undefined)
 					new TaskManager().Start();
 				else if (message["error"]) {

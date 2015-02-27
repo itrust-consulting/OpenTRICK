@@ -204,7 +204,7 @@ function savePhase(form) {
 		async : true,
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var previewError = $("#addPhaseModel .alert");
 			if (previewError.length)
 				previewError.remove();
@@ -240,7 +240,7 @@ function deletePhase(idPhase) {
 			url : context + "/Analysis/Phase/Delete/" + idPhase,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response["success"] != undefined) {
 					setTimeout(function() {
 						reloadSection("section_phase");

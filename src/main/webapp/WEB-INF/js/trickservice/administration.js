@@ -9,22 +9,20 @@ $(document).ready(function() {
 });
 
 function installTrickService() {
-
 	$.ajax({
 		url : context + "/Install",
 		type : "GET",
 		async : true,
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["error"] != undefined) {
 				$("#alert-dialog .modal-body").html(response["error"]);
 				$("#alert-dialog").modal("toggle");
-			} else if (response["idTask"] != undefined) 
+			} else if (response["idTask"] != undefined)
 				application['taskManager'].Start();
 		},
 		error : unknowError
 	});
-
 	return false;
 }
 
@@ -43,24 +41,23 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		url : context + "/Admin/Analysis/" + analysisId + "/ManageAccess",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			newSection = $(doc).find("* div#manageAnalysisAccessModel");
-			$("div#manageAnalysisAccessModel").replaceWith(newSection);
-			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-			$("#manageAnalysisAccessModel").modal('toggle');
-			$("#userselect").one('focus', function() {
-				previous = this.value;
-			}).change(function() {
-
-				$("#user_" + previous).attr("hidden", true);
-
-				$("#user_" + this.value).removeAttr("hidden");
-
-				previous = this.value;
-			});
+			var $newSection = $(doc).find("#manageAnalysisAccessModel");
+			if ($newSection.length) {
+				$("#manageAnalysisAccessModel").replaceWith($newSection);
+				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
+				$("#manageAnalysisAccessModel").modal('toggle');
+				$("#userselect").one('focus', function() {
+					previous = this.value;
+				}).change(function() {
+					$("#user_" + previous).attr("hidden", true);
+					$("#user_" + this.value).removeAttr("hidden");
+					previous = this.value;
+				});
+			} else
+				unknowError();
 		},
 		error : unknowError
 	});
@@ -73,22 +70,22 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 		type : "post",
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			newSection = $(doc).find("* div.modal-content");
-			$("div#manageAnalysisAccessModel div.modal-content").html(newSection);
-			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-			$("#userselect").one('focus', function() {
-				previous = this.value;
-			}).change(function() {
-
-				$("#user_" + previous).attr("hidden", true);
-
-				$("#user_" + this.value).removeAttr("hidden");
-
-				previous = this.value;
-			});
+			var $newSection = $(doc).find(".modal-content");
+			if ($newSection.length) {
+				$("#manageAnalysisAccessModel .modal-content").replaceWith($newSection);
+				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
+				$("#userselect").one('focus', function() {
+					previous = this.value;
+				}).change(function() {
+					$("#user_" + previous).attr("hidden", true);
+					$("#user_" + this.value).removeAttr("hidden");
+					previous = this.value;
+				});
+			} else
+				unknowError();
 		},
 		error : unknowError
 	});
@@ -116,16 +113,17 @@ function adminCustomerChange(selector) {
 		url : context + "/Admin/Analysis/DisplayByCustomer/" + customer,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			newSection = $(doc).find("*[id ='section_admin_analysis']");
-			$("#section_admin_analysis").replaceWith(newSection);
-			$("#section_admin_analysis table").stickyTableHeaders({
-				cssTopOffset : ".nav-tab",
-				fixedOffset : 6
-			});
-
+			var $newSection = $(doc).find("#section_admin_analysis");
+			if ($newSection.length) {
+				$("#section_admin_analysis").replaceWith($newSection);
+				$("#section_admin_analysis table").stickyTableHeaders({
+					cssTopOffset : ".nav-tab",
+					fixedOffset : 6
+				});
+			}else unknowError();
 		},
 		error : unknowError
 	});
@@ -155,7 +153,7 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 			type : "post",
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(selectedAnalysis),
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response === true)
 					$("#section_admin_analysis select").change();
 				else if (response === false) {

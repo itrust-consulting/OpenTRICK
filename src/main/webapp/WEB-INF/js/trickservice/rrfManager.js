@@ -3,7 +3,7 @@ function loadRRF() {
 		url : context + "/Analysis/RRF",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			newSection = $(doc).find("*[id ='rrfEditor']");
@@ -59,7 +59,7 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 			"type" : "numeric"
 		}),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response.error != undefined) {
 				$("#rrfEditor #control_rrf_measure #measure_" + property + "_value").attr("value", previousValue);
 				console.log("error: " + response.error);
@@ -104,7 +104,7 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 			"type" : "numeric"
 		}),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response.error != undefined) {
 				$("#rrfEditor #control_rrf_scenario #scenario_" + property + "_value").attr("value", previousValue);
 				console.log("error: " + response.error);
@@ -218,7 +218,7 @@ function loadMeasure() {
 		url : context + "/Analysis/RRF/Standard/" + idStandard + "/Measure/" + idMeasure,
 		type : "GET",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
@@ -263,7 +263,7 @@ function loadMeasureChart() {
 				}),
 				async : true,
 				contentType : "application/json;charset=UTF-8",
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$("#rrfEditor #chart_rrf").css("padding-right", "");
 					if (response.chart != null && response.chart != undefined) {
 						$("#rrfEditor #chart-container").highcharts(response).highcharts();
@@ -295,7 +295,7 @@ function loadScenario() {
 		url : context + "/Analysis/RRF/Scenario/" + idScenario,
 		type : "GET",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
@@ -349,7 +349,7 @@ function loadScenarioChart() {
 				}),
 				async : true,
 				contentType : "application/json;charset=UTF-8",
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$("#rrfEditor #chart_rrf").css("padding-right", "");
 					if (response.chart != null && response.chart != undefined) {
 						$("#rrfEditor #chart-container").highcharts(response).highcharts();

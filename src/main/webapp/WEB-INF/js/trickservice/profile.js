@@ -22,7 +22,7 @@ function deleteSqlite(id) {
 		url : context + "/Profile/Sqlite/" + id + "/Delete",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["success"] != undefined) {
 				$("#section_sqlite>table>tbody>tr[data-trick-id='" + id + "']").remove();
 				if (currentSize == size)
@@ -43,7 +43,7 @@ function deleteReport(id) {
 		url : context + "/Profile/Report/" + id + "/Delete",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["success"] != undefined) {
 				$("#section_report>table>tbody>tr[data-trick-id='" + id + "']").remove();
 				if (currentSize == size)
@@ -69,7 +69,7 @@ function userSqliteScrolling() {
 				"page" : (currentSize / size) + 1
 			},
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
@@ -94,7 +94,7 @@ function userReportScrolling() {
 				"page" : (currentSize / size) + 1
 			},
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_report>table>tbody>tr").each(function() {
 					var $current = $("#section_report>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
@@ -116,7 +116,7 @@ function updateReportControl(element) {
 		type : "post",
 		data : serializeForm("#formReportControl"),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["success"] != undefined)
 				return loadUserReport();
 			else if (response["error"] != undefined)
@@ -137,7 +137,7 @@ function updateSqliteControl(element) {
 		type : "post",
 		data : serializeForm("#formSqliteControl"),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["success"] != undefined)
 				return loadUserSqlite();
 			else if (response["error"] != undefined)
@@ -156,7 +156,7 @@ function loadUserSqlite(update) {
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (update) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
@@ -184,7 +184,7 @@ function loadUserReport(update) {
 		url : context + "/Profile/Section/Report",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (update) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
@@ -215,7 +215,7 @@ function updateProfile(form) {
 				type : "post",
 				contentType : "application/json",
 				data : serializeForm(form),
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 
 					$("#profileInfo").attr("hidden", "hidden");
 					$("#profileInfo div").remove();

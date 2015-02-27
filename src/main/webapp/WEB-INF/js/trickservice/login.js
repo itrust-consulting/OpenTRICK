@@ -10,7 +10,7 @@ Login.prototype = {
 			url : context + "/IsAuthenticate",
 			contentType : "application/json;charset=UTF-8",
 			async:false,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				authentificated = response === true;
 			}
 		});
@@ -28,7 +28,7 @@ Login.prototype = {
 		$.ajax({
 			url : context,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				var login = $($.parseHTML(response)).find("#login");
 				if (login.length) {
 					view.setBody($(login).html());
@@ -44,7 +44,7 @@ Login.prototype = {
 							contentType : "application/x-www-form-urlencoded",
 							type : "post",
 							data : $(view.modal_body).find("#login_form").serialize(),
-							success : function(response) {
+							success : function(response,textStatus,jqXHR) {
 								var $htmlResult = $.parseHTML(response);
 								if ($($htmlResult).find("#login").length)
 									$(view.modal_body).prepend($($htmlResult).find(".alert"));

@@ -5,7 +5,7 @@ function importRRF(idAnalysis) {
 		$.ajax({
 			url : context + "/Analysis/RRF/Import",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if ($(doc).find("#importMeasureCharacteristics").length) {
@@ -37,7 +37,7 @@ function importRRF(idAnalysis) {
 							url : context + "/Analysis/RRF/Import/Save",
 							type : "post",
 							data : $(modal.modal_body).find("form").serialize(),
-							success : function(response) {
+							success : function(response,textStatus,jqXHR) {
 								if (response.success != undefined)
 									showSuccess($(modal.modal_body)[0], response.success);
 								else {

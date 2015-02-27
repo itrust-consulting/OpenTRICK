@@ -2,7 +2,7 @@ function fixAllScenarioCategories() {
 	$.ajax({
 		url : context + "/Patch/Update/ScenarioCategoryValue",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
@@ -27,7 +27,7 @@ function updateMeasureAssetTypeValue() {
 	$.ajax({
 		url : context + "/Patch/Update/Measure/MeasureAssetTypeValues",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
@@ -47,7 +47,7 @@ function fixAllAssessments() {
 	$.ajax({
 		url : context + "/Patch/Update/Assessments",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");

@@ -36,7 +36,7 @@ function updateSettings(element, entryKey) {
 			'value' : !$(element).hasClass('glyphicon-ok')
 		},
 		async : false,
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response == undefined || response !== true)
 				unknowError();
 			else {
@@ -68,7 +68,7 @@ function reloadMeasureRow(idMeasure, standard) {
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var element = document.createElement("div");
 			$(element).html(response);
 			var tag = $(element).find("tr[data-trick-id='" + idMeasure + "']");
@@ -97,7 +97,7 @@ function compliances() {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		async : true,
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 
 			if (response.standards == undefined || response.standards == null)
 				return;
@@ -132,7 +132,7 @@ function compliance(standard) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
 				$('#chart_compliance_' + standard).highcharts(response);
@@ -154,7 +154,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
@@ -176,7 +176,7 @@ function budgetByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_budget_' + actionPlanType).highcharts(response);
@@ -243,7 +243,7 @@ function loadChartAsset() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_asset').highcharts(response);
 				},
 				error : unknowError
@@ -257,7 +257,7 @@ function loadChartAsset() {
 				url : context + "/Analysis/Asset/Chart/Type/Ale",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_asset_type').highcharts(response);
 				},
 				error : unknowError
@@ -276,7 +276,7 @@ function loadChartScenario() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_scenario_type').highcharts(response);
 				},
 				error : unknowError
@@ -290,10 +290,8 @@ function loadChartScenario() {
 			$.ajax({
 				url : context + "/Analysis/Scenario/Chart/Ale",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
-				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_scenario').highcharts(response);
 				},
 				error : unknowError

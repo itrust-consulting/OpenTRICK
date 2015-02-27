@@ -15,7 +15,7 @@ function showMeasures(idStandard, languageId) {
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Language/" + languageId + "/Measures",
 		type : "POST",
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			
@@ -61,7 +61,7 @@ function newMeasure(idStandard) {
 		type : "get",
 		async : true,
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
 			if ($(doc).find("#measurelanguageselect").length) {
 				var language = $("#measures_body #languageselect").val();
@@ -116,7 +116,7 @@ function editSingleMeasure(measureId, idStandard) {
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
 		type : "post",
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
 			if ($(doc).find("#measurelanguageselect").length) {
 				var language = $("#measures_body #languageselect").val();
@@ -147,7 +147,7 @@ function saveMeasure() {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var alert = $("#addMeasureModel").find(".label-danger");
 			if (alert.length)
 				alert.remove();
@@ -231,7 +231,7 @@ function deleteMeasure(measureId, reference, standard) {
 			type : "POST",
 			contentType : "application/json",
 			async : false,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response.success) {
 					var language = $("#measures_body #languageselect").val();
 					return showMeasures(idStandard, language);

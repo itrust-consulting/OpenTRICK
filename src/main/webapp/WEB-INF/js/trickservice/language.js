@@ -5,7 +5,7 @@ function saveLanguage(form) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 			var alert = $("#addLanguageModel .label-danger");
 			if (alert.length)
@@ -68,7 +68,7 @@ function deleteLanguage(languageId, name) {
 			url : context + "/KnowledgeBase/Language/Delete/" + languageId,
 			type : "POST",
 			contentType : "application/json",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				reloadSection("section_language");
 				return false;
 			},

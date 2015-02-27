@@ -5,7 +5,7 @@ function saveUser(form) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();
 
@@ -89,7 +89,7 @@ function deleteUser(userId, name) {
 			url : context + "/Admin/User/Delete/" + userId,
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
@@ -123,7 +123,7 @@ function newUser() {
 		url : context + "/Admin/Roles",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			$("#rolescontainer").html(response);
 		},
 		error : unknowError
@@ -156,7 +156,7 @@ function editSingleUser(userId) {
 		url : context + "/Admin/User/Roles/" + userId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			$("#rolescontainer").html(response);
 		},
 		error : unknowError

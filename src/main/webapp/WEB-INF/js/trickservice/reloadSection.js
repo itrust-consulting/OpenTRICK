@@ -10,7 +10,7 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			if (subSection != null && subSection != undefined)
@@ -62,7 +62,7 @@ function reloadSection(section, subSection, refreshOnly) {
 			type : "get",
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if (subSection != null && subSection != undefined)

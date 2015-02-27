@@ -525,16 +525,12 @@ public class ControllerAdministration {
 		try {
 
 			User user = serviceUser.get(userId);
-
 			if (!user.getLogin().equals(principal.getName())) {
 				customDelete.deleteUser(user);
 			} else {
-
 				errors.put("error", messageSource.getMessage("error.user.delete_your_account", null, "You cannot delete your own account!", locale));
-
 				return errors;
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			errors.put("error", messageSource.getMessage("error.user.delete_failed", null, "Could not delete the account! Make sure the user does not own any analyses!", locale));

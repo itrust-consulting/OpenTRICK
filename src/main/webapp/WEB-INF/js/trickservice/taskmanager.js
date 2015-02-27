@@ -17,12 +17,21 @@ function TaskManager(title) {
 		this.view.Intialise();
 		$(this.view.modal_footer).remove();
 		this.view.setTitle(this.title);
+		return this;
+	};
+	
+	TaskManager.prototype.SetTitle= function(title){
+		this.title = title;
+		if(!(this.view == undefined ||this.view == null || this.view.isDisposed))
+			this.view.setTitle(title)
+		return this;
 	};
 
 	TaskManager.prototype.Show = function() {
-		if (this.view == null || this.view == undefined || this.view.isDisposed)
+		if (this.view == undefined ||this.view == null || this.view.isDisposed)
 			this.__CreateView();
 		this.view.Show();
+		return this;
 	};
 
 	TaskManager.prototype.isEmpty = function() {
@@ -57,7 +66,7 @@ function TaskManager(title) {
 			},
 			error : unknowError
 		});
-		return false;
+		return this;
 	};
 
 	TaskManager.prototype.createProgressBar = function(taskId) {
@@ -73,7 +82,6 @@ function TaskManager(title) {
 			setTimeout(function() {
 				progressBar.Destroy();
 				instance.Remove(taskId);
-				instance.Destroy();
 			}, 10000);
 		});
 		return progressBar;
@@ -87,8 +95,9 @@ function TaskManager(title) {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
-		this.Destroy();
-		return false;
+		if(this.isEmpty())
+			this.Destroy();
+		return this;
 	};
 
 	TaskManager.prototype.UpdateStatus = function(taskId) {
