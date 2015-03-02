@@ -244,6 +244,8 @@ public class ControllerAnalysisStandard {
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
+		
+		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		return "analyses/singleAnalysis/components/standards/standard/standards";
 	}
@@ -725,6 +727,7 @@ public class ControllerAnalysisStandard {
 				measure2.setAnalysisStandard(analysisStandard);
 				analysisStandard.getMeasures().add(measure2);
 			}
+			
 			analysis.addAnalysisStandard(analysisStandard);
 
 			serviceAnalysis.saveOrUpdate(analysis);
