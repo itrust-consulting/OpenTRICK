@@ -57,10 +57,22 @@ public class MeasureDescriptionText implements Cloneable {
 	/** The Description Text */
 	@Column(name = "dtDescription", nullable = false, columnDefinition = "LONGTEXT")
 	private String description = "";
+	
+	/**
+	 * 
+	 */
+	public MeasureDescriptionText() {
+	}
+
+	public MeasureDescriptionText(Language language) {
+		setLanguage(language);
+	}
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	
 
 	/**
 	 * getDomain: <br>

@@ -84,7 +84,7 @@ body {
 	margin-top: -50px;
 }
 
-#nav-container,#tab-container {
+#nav-container, #tab-container {
 	margin-top: 50px;
 	padding-top: 5px;
 }
@@ -168,34 +168,6 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 .autofitpanelbodydefinition {
 	max-height: 600px;
 	overflow: auto;
-}
-
-@media ( min-height : 600px) {
-	.panel-max-tab {
-		max-height: auto;
-		overflow: auto;
-	}
-}
-
-@media ( min-height : 768px) {
-	.panel-max-tab {
-		max-height: 633px;
-		overflow: auto;
-	}
-}
-
-@media ( min-height : 800px) {
-	.panel-max-tab {
-		max-height: 665px;
-		overflow: auto;
-	}
-}
-
-@media ( min-height : 1080px) {
-	.panel-max-tab {
-		max-height: 740px;
-		overflow: auto;
-	}
 }
 
 .textaligncenter {
@@ -468,4 +440,34 @@ a[role="changeUILanguage"]:hover {
 #manageAssetMeasureModel .list-group-item:hover {
 	background-color: #f5f5f5;
 	border-color: #dddddd;
+}
+
+.clearfix () { &:before, &:after {
+	content: " ";
+	display: table;
+}
+
+&
+:after {
+	clear: both;
+}
+
+}
+.container { .clearfix ();
+	
+}
+
+ul.asset-measure {
+	height: 250px;
+	padding: 0px;
+	overflow: auto;
+	margin: 8px auto 0 auto;
+}
+
+ul.asset-measure>li {
+	cursor: pointer;
+}
+
+#measure_form .slider.slider-vertical {
+	height: 310px;
 }

@@ -26,7 +26,7 @@ function manageStandard() {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : false,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["error"] != undefined)
 					showError($("#standardModal .modal-body")[0], response["error"]);
 				else {
@@ -87,7 +87,7 @@ function doCreateStandard(form) {
 			type : "post",
 			data : serializeForm(form),
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 
 				$("#createStandardModal #createstandardbutton").prop("disabled", false);
 				var alert = $("#createStandardModal .label-danger");
@@ -117,7 +117,7 @@ function doCreateStandard(form) {
 						type : "get",
 						async : false,
 						contentType : "application/json;charset=UTF-8",
-						success : function(response,textStatus,jqXHR) {
+						success : function(response, textStatus, jqXHR) {
 							var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
 							if ($table.length) {
 								$("#section_manage_standards table.table").replaceWith($table);
@@ -207,7 +207,7 @@ function doEditStandard(form) {
 			type : "post",
 			data : serializeForm(form),
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 
 				$("#createStandardModal #createstandardbutton").prop("disabled", false);
 				var alert = $("#createStandardModal .label-danger");
@@ -244,7 +244,7 @@ function doEditStandard(form) {
 						type : "get",
 						async : false,
 						contentType : "application/json;charset=UTF-8",
-						success : function(response,textStatus,jqXHR) {
+						success : function(response, textStatus, jqXHR) {
 							var $table = new DOMParser().parseFromString(response, "text/html").find("#section_manage_standards table.table");
 							if ($table.length) {
 								$("#section_manage_standards table.table").replaceWith($table);
@@ -285,7 +285,7 @@ function addStandard() {
 			url : context + "/Analysis/Standard/Available",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["0"] != undefined) {
 					$("#add_standard_progressbar").css("display", "none");
 					showError($("#addStandardModal .modal-footer")[0], response["0"]);
@@ -339,7 +339,7 @@ function doAddStandard(form) {
 			url : context + "/Analysis/Standard/Add/" + idStandard,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["error"] != undefined) {
 					$("#add_standard_progressbar").css("display", "none");
 					showError($("#addStandardModal .modal-footer")[0], response["error"]);
@@ -351,7 +351,7 @@ function doAddStandard(form) {
 						type : "get",
 						async : false,
 						contentType : "application/json;charset=UTF-8",
-						success : function(response,textStatus,jqXHR) {
+						success : function(response, textStatus, jqXHR) {
 							var parser = new DOMParser();
 							var doc = parser.parseFromString(response, "text/html");
 							$("#section_manage_standards table.table").replaceWith($(doc).find("#section_manage_standards table.table"));
@@ -396,7 +396,7 @@ function removeStandard() {
 			type : "get",
 			async : false,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["error"] != undefined) {
 					$(deleteModal.modal_footer).find("#delete_standard_progressbar").css("display", "none");
 					showError($("#standardModal .modal-footer")[0], response["error"]);
@@ -408,7 +408,7 @@ function removeStandard() {
 						type : "get",
 						async : false,
 						contentType : "application/json;charset=UTF-8",
-						success : function(response,textStatus,jqXHR) {
+						success : function(response, textStatus, jqXHR) {
 							var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
 							if ($table.length) {
 								$("#section_manage_standards table.table").replaceWith($table);
@@ -431,44 +431,80 @@ function removeStandard() {
 
 // management of measures of analysis only standards
 
-function newMeasure(idStandard) {
+function addMeasure(idStandard) {
+	if (idStandard == undefined || idStandard == null) {
+		idStandard = $(".tab-pane.active").attr("data-trick-id");
+		if (idStandard == undefined || idStandard == null)
+			return false;
+	}
+	$.ajax({
+		url : context + "/Analysis/Standard/" + idStandard + "/Measure/New",
+		type : "get",
+		contentType : "application/json",
+		success : function(response, textStatus, jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
+			if ($content.length) {
+				if ($("#modalMeasureForm").length)
+					$("#modalMeasureForm").replaceWith($content);
+				else
+					$content.appendTo($("#widgets"));
+				$content.find("#measure_form_tabs").tab();
+				var $assetTab = $content.find("#tab_asset");
 
-	if (idStandard == null || idStandard == undefined)
-		return false;
+				if ($assetTab.length) {
 
-	var selectedItem = $("#section_standard_" + idStandard + " tbody :checked");
-	if (selectedItem.length != 0)
-		return false;
+					var onSelectedAsset = function(asset) {
+						var id = $(asset).attr("data-trick-id");
+						$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($(asset));
+						$(asset).appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']"));
+						$(asset).attr("data-trick-selected", true);
+						var $data = $('<td data-trick-class="MeasureAssetValue"><input type="text" class="slider" id="asset_slider_' + id
+								+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name="property_asset_' + id
+								+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>');
+						$data.appendTo($assetTab.find("#slider"));
+						
+						$data.find("slider").slider().on('slide', function(){
+							$content.find("#values input[name='" + event.target.name + "']").val(event.value);
+						});
+					};
 
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
+					var onDeselectedAsset = function(asset) {
+						$(asset).find("input").remove();
+						$(asset).appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']"));
+						$(asset).attr("data-trick-selected", false);
+					};
 
-	$("#addMeasureModel #addmeasurebutton").prop("disabled", false);
-	$("#addMeasureModel #measure_id").prop("value", "-1");
-	$("#addMeasureModel #measure_reference").prop("value", "");
-	$("#addMeasureModel #measure_level").prop("value", "");
-	$("#addMeasureModel input[type='checkbox']").removeAttr("checked");
+					$assetTab.find("li[data-trick-type]").each(function() {
+						$(this).on("click", function() {
+							if ($(this).attr("data-trick-selected") == "true")
+								onDeselectedAsset(this);
+							else
+								onSelectedAsset(this);
+						});
+					});
 
-	$("#addMeasureModel #measure_form").prop("action", context + "/Analysis/Standard/" + idStandard + "/Measure/Save");
+					var updateAssetUI = function(selected) {
+						$assetTab.find("li[data-trick-type='" + selected + "']").show();
+						$assetTab.find("li[data-trick-type!='" + selected + "']").hide();
+					};
 
-	var lang = $("#nav-container").attr("data-trick-language");
+					updateAssetUI($assetTab.find("#assettypes").val());
 
-	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure", null, lang));
-	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.add", "Add", null, lang));
-
-	$("#addMeasureModel #addmeasurebutton").attr("onclick", "saveMeasure('" + idStandard + "')");
-
-	var text = '<div style="display: block;"><div class="form-group"><label class="col-sm-2 control-label" for="domain">'
-			+ MessageResolver("label.measure.domain", "Domain", null, lang)
-			+ '</label><div class="col-sm-10"><input type="text" class="form-control" id="measure_domain" name="domain"></div></div>';
-	text = text + '<div class="form-group"><label class="col-sm-2 control-label" for="description">' + MessageResolver("label.measure.description", "Description", null, lang)
-			+ '</label><div class="col-sm-10"><textarea class="form-control" id="measure_description" name="description"></textarea></div></div></div>';
-
-	$("#addMeasureModel #measurelanguages").html(text);
-
-	$("#addMeasureModel").modal("show");
-
+					$assetTab.find("#assettypes").on("change", function() {
+						updateAssetUI($(this).val());
+					});
+				}
+				$($content.find(".slider")).slider().each(function() {
+					$(this).on("slide", function(event) {
+						$content.find("#values input[name='" + event.target.name + "']").val(event.value);
+					})
+				});
+				new Modal($content).Show();
+			} else
+				unknowError()
+		},
+		error : unknowError
+	});
 	return false;
 }
 
@@ -493,7 +529,7 @@ function newAssetMeasure(idStandard) {
 		type : "get",
 		async : false,
 		contentType : "application/json",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var $form = $(new DOMParser().parseFromString(response, "text/html")).find("form#manageAssetMeasure_form");
 			if ($form.length)
 				$("#manageAssetMeasureModel #manageAssetMeasure_form").replaceWith($form)
@@ -674,7 +710,7 @@ function editAssetMeasure(idMeasure, idStandard) {
 		type : "get",
 		async : false,
 		contentType : "application/json",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var $form = $(new DOMParser().parseFromString(response, "text/html")).find("#manageAssetMeasure_form");
 			if ($form.length)
 				$("#manageAssetMeasureModel #manageAssetMeasure_form").replaceWith($form)
@@ -736,7 +772,7 @@ function saveMeasure(idStandard) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var alert = $("#addMeasureModel").find(".label-danger");
 			if (alert.length)
 				alert.remove();
@@ -828,8 +864,8 @@ function deleteMeasure(measureId, standardid) {
 				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + rowTrickId,
 				async : false,
 				contentType : "application/json",
-				success : function(response,textStatus,jqXHR) {
-					if (response["success"]==undefined) {
+				success : function(response, textStatus, jqXHR) {
+					if (response["success"] == undefined) {
 						errors = true;
 						if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
@@ -907,7 +943,7 @@ function saveAssetMeasure(form) {
 		type : "post",
 		data : jsonarray,
 		contentType : "application/json",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var alert = $("#manageAssetMeasure_form").find(".label-danger");
 			if (alert.length)
 				alert.remove();

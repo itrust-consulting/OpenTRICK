@@ -1190,6 +1190,21 @@ public abstract class SecurityCriteria implements Cloneable {
 		categories.put(category, valueFixer(category, value));
 
 	}
+	
+	
+	/**
+	 * getAllCategories: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	@Transient
+	public Map<String, Integer> getCategories() {
+		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
+		for (String category : categories.keySet())
+			result.put(category, categories.get(category));
+		return result;
+	}
 
 	/**
 	 * getAllCategories: <br>
@@ -1198,7 +1213,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return
 	 */
 	@Transient
-	public LinkedHashMap<String, Integer> getAllCategories() {
+	public Map<String, Integer> getAllCategories() {
 		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
 		for (String category : CategoryConverter.JAVAKEYS)
 			result.put(category, categories.get(category));
@@ -1212,7 +1227,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return
 	 */
 	@Transient
-	public LinkedHashMap<String, Integer> getCIACategories() {
+	public Map<String, Integer> getCIACategories() {
 		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
 		for (String category : CategoryConverter.TYPE_CIA_KEYS)
 			result.put(category, categories.get(category));
@@ -1226,7 +1241,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return
 	 */
 	@Transient
-	public LinkedHashMap<String, Integer> getCSSFCategories() {
+	public Map<String, Integer> getCSSFCategories() {
 		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
 		for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 			result.put(category, categories.get(category));

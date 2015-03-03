@@ -44,33 +44,6 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="manageAssetMeasureModel" tabindex="-1" role="dialog" data-aria-labelledby="manageAssetMeasureModel" style="z-index: 1042" data-aria-hidden="true">
-	<div class="modal-dialog" style="width: 50%;">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="addMeasureModel-title">
-					<spring:message code="label.tile.add.measure" text="Add new Measure" />
-				</h4>
-			</div>
-			<div class="modal-body">
-				<ul id="assetTabs" class="nav nav-tabs">
-					<li class="active"><a id="group_1" href="#group_1"><spring:message code="label.menu.assetmeasure.gerneral" text="General" /></a></li>
-					<li><a id="group_2" href="#group_2"><spring:message code="label.menu.assetmeasure.assets" text="Assets" /></a></li>
-					<li><a id="group_3" href="#group_3"><spring:message code="label.menu.assetmeasure.properties" text="Properties" /></a></li>
-				</ul>
-				<form name="manageAssetMeasure" action="/Save" class="form-horizontal" id="manageAssetMeasure_form" method="post">
-					content
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="return saveAssetMeasure('#manageAssetMeasure_form')">
-					<spring:message code="label.action.save" text="Save" />
-				</button>
-			</div>
-		</div>
-	</div>
-</div>
 <div class="modal fade" id="deleteMeasureModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteMeasure" style="z-index: 1042" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">

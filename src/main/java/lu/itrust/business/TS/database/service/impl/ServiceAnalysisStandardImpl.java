@@ -172,4 +172,9 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	public void deleteAllFromAnalysis(Integer analysisId) throws Exception {
 		daoAnalysisStandard.deleteAllFromAnalysis(analysisId);
 	}
+
+	@Override
+	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer analysisId, int standardId) {
+		return daoAnalysisStandard.getFromAnalysisIdAndStandardId(analysisId,standardId );
+	}
 }

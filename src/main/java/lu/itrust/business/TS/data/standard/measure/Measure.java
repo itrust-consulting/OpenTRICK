@@ -17,6 +17,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.exception.TrickException;
 
@@ -615,6 +616,11 @@ public abstract class Measure implements Cloneable {
 
 	public static int compare(String reference, String reference2) {
 		return GeneralComperator.VersionComparator(reference, reference2);
+	}
+
+	public static Measure buildFromStandard(Standard standard) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

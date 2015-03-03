@@ -7,32 +7,32 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <c:forEach items="${measures.keySet()}" var="standard">
-	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardType(standards, standard)" var="standardType" scope="page" />
-	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="page" />
-	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).isAnalysisOnlyStandard(standards, standard)" var="analysisOnly" scope="page" />
-	<div class="tab-pane" id="tabStandard_${standardid}">
+	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
+	<c:set var="standardType" value="${selectedStandard.type}" scope="page"/>
+	<c:set var="standardid" value="${selectedStandard.id }" scope="page"/>
+	<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" scope="page" />
+	<div class="tab-pane" id="tabStandard_${standardid}" data-trick-id="${standardid}">
 		<span class="anchor" id="anchorMeasure_${standardid}"></span>
 		<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}">
 			<c:choose>
-				<c:when test="${analysisOnly}">
-					<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
-						<li style="padding: 10px 15px;"><spring:message text="${standard}" /></li>
-						<c:if test="${standardType.name.equals('ASSET')}">
-							<c:if test="${isEditable}">
-								<li><a onclick="return newAssetMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-							</c:if>
-							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editAssetMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
-									<fmt:message key="label.action.edit" /></a></li>
-						</c:if>
-						<c:if test="${!standardType.name.equals('ASSET')}">
-							<c:if test="${isEditable}">
-								<li><a onclick="return newMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-							</c:if>
-							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editSingleMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
-									<fmt:message key="label.action.edit" /></a></li>
-						</c:if>
-						<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger" href="#"><span
-								class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
+				<c:when test="${selectedStandard.computable}">
+					<ul style="padding: 3px 5px 9px 51px" class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
+						<li style="min-width: 5%"><h3 style="margin: 7px auto;"><spring:message text="${standard}" /></h3></li>
+						<c:choose>
+							<c:when test="${analysisOnly}">
+								<c:if test="${isEditable}">
+									<li><a onclick="return addMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+								</c:if>
+								<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(null, ${standardid});" href="#"><span
+										class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
+								<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});"
+									class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
+							</c:when>
+							<c:otherwise>
+								<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasureRRF();" href="#"><span
+										class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
+							</c:otherwise>
+						</c:choose>
 					</ul>
 				</c:when>
 				<c:otherwise>
@@ -42,16 +42,16 @@
 								<h3>
 									<spring:message text="${standard}" />
 								</h3>
-								</div>
 							</div>
 						</div>
+					</div>
 				</c:otherwise>
 			</c:choose>
 			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
 				<thead>
 					<tr>
-						<c:if test="${analysisOnly}">
-							<th><input type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
+						<c:if test="${selectedStandard.computable}">
+							<th><input disabled="disabled" type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
 						</c:if>
 						<th style="width:5%"><fmt:message key="label.measure.ref" /></th>
 						<th style="width:15%"><fmt:message key="label.measure.domain" /></th>
@@ -84,20 +84,15 @@
 						<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 						<c:set var="dblclickaction">
 							<c:if test="${analysisOnly}">
-								<c:if test="${standardType.name.equals('NORMAL')}">
-									ondblclick="return editSingleMeasure(${measure.id},${standardid});"
-								</c:if>
-								<c:if test="${standardType.name.equals('ASSET')}">
-									ondblclick="return editAssetMeasure(${measure.id},${standardid});"
-								</c:if>
+								ondblclick="return editMeasure(${measure.id},${standardid});"
 							</c:if>
 						</c:set>
 						<c:choose>
-							<c:when test="${measure.measureDescription.computable==false }">
+							<c:when test="${not measure.measureDescription.computable}">
 								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 									data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-									<c:if test="${analysisOnly}">
-										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+									<c:if test="${selectedStandard.computable}">
+										<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'16':'15'}"><spring:message
@@ -107,7 +102,7 @@
 							<c:otherwise>
 								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure"
 									data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
-									<c:if test="${analysisOnly}">
+									<c:if test="${selectedStandard.computable}">
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
 									<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
@@ -153,16 +148,10 @@
 											<c:otherwise>${measure.phase.number}</c:otherwise>
 										</c:choose></td>
 									<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string">
-												<spring:message text="${measure.toCheck}" />
-											</pre></td>
+										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 									</c:if>
-									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string">
-											<spring:message text="${measure.comment}" />
-										</pre></td>
-									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string">
-											<spring:message text="${measure.toDo}" />
-										</pre></td>
+									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 								</tr>
 							</c:otherwise>
 						</c:choose>

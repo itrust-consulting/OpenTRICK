@@ -15,10 +15,6 @@ $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
 });
 
-function loadAnalysisSections() {
-
-}
-
 function findAnalysisId() {
 	return $("#nav-container").attr("data-trick-id");
 }
