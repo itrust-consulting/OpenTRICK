@@ -19,4 +19,6 @@ public interface DAOMeasureAssetValue {
 
 	public void delete(MeasureAssetValue measureAssetValue) throws Exception;
 
+	public MeasureAssetValue getByAssetId(int idAsset);
+
 }

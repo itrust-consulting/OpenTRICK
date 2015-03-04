@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.controller;
 
-import java.lang.reflect.Field;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +24,6 @@ import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.general.Phase;
-import lu.itrust.business.TS.data.general.SecurityCriteria;
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.AssetStandard;
@@ -39,6 +37,7 @@ import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.data.standard.measure.helper.MeasureAssetValueForm;
 import lu.itrust.business.TS.data.standard.measure.helper.MeasureForm;
 import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
@@ -962,7 +961,7 @@ public class ControllerAnalysisStandard {
 			}
 
 			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
-			
+
 			// return success message
 			return "analyses/singleAnalysis/components/standards/measure/form";
 		} catch (Exception e) {
@@ -973,452 +972,179 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
-	@RequestMapping(value = "/{idStandard}/AssetMeasure/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Measure/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> measuresave(@RequestBody String value, @PathVariable("idStandard") int idStandard, Locale locale, Model model, Principal principal,
-			HttpSession session) {
-
+	public @ResponseBody Map<String, String> measuresave(@RequestBody MeasureForm measureForm, Model model, Principal principal, HttpSession session) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Language language = serviceLanguage.getFromAnalysis(idAnalysis);
+		Locale locale = new Locale(language.getAlpha3());
 		try {
-
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-
-			Standard standard = serviceStandard.get(idStandard);
-
-			if (standard == null) {
-
-				errors.put("standard", messageSource.getMessage("error.standard.not_found", null, "Standard could not be found!", locale));
-				return errors;
-			}
-			if (!standard.isAnalysisOnly() || standard.getType() != StandardType.ASSET) {
-				errors.put("standard", messageSource.getMessage("error.standard.not_asset_type", null, "Standard is not a asset standard type!", locale));
-				return errors;
-			}
-
-			AnalysisStandard astandard = null;
-
-			for (AnalysisStandard tmpastandard : serviceAnalysisStandard.getAllFromAnalysis(idAnalysis))
-				if (tmpastandard.getStandard().equals(standard)) {
-					astandard = tmpastandard;
-					break;
-				}
-			if (astandard == null) {
+			if (!serviceAnalysisStandard.belongsToAnalysis(idAnalysis, measureForm.getIdAnalysisStandard())) {
 				errors.put("standard", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not belong to analysis!", locale));
 				return errors;
 			}
-
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-
-			int id = jsonNode.get("idMeasure").asInt();
-
+			AnalysisStandard analysisStandard = serviceAnalysisStandard.get(measureForm.getIdAnalysisStandard());
 			Measure measure = null;
-
-			if (id != -1) {
-				for (Measure tmpmeasure : astandard.getMeasures())
-					if (tmpmeasure.getId() == id) {
-						measure = tmpmeasure;
-						break;
-					}
-				if (measure == null) {
-					errors.put("measure", messageSource.getMessage("error.measure.not_found", null, "Measure could not be found!", locale));
+			if (measureForm.getId() > 0) {
+				measure = serviceMeasure.getFromAnalysisById(idAnalysis, measureForm.getId());
+				if (measure == null)
+					errors.put("measure", messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+				else if (measure.getAnalysisStandard().getId() != analysisStandard.getId())
+					errors.put("measure", messageSource.getMessage("error.measure.belong.standard", null, "Measure does not belong to standard", locale));
+				if (!errors.isEmpty())
 					return errors;
-				}
 			} else {
-				measure = new AssetMeasure();
-				measure.setAnalysisStandard(astandard);
-				((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
-				measure.setMeasureDescription(new MeasureDescription());
-				measure.getMeasureDescription().setStandard(standard);
-				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-				measure.setImplementationRate(new Double(0));
-				measure.setStatus("AP");
-				astandard.getMeasures().add(measure);
+				switch (measureForm.getType()) {
+				case ASSET:
+					measure = new AssetMeasure();
+					break;
+				case NORMAL:
+					measure = new NormalMeasure();
+					break;
+				default:
+					throw new TrickException("error.measure.cannot.be.created", "Measure cannot be created");
+				}
+
 				Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, Constant.PHASE_DEFAULT);
 				if (phase == null) {
-					phase = new Phase(Constant.PHASE_DEFAULT);
-					phase.setAnalysis(serviceAnalysis.get(idAnalysis));
+					errors.put("phase", messageSource.getMessage("error.measure.default.pahse.not_found", null, "Default phase cannot be found", locale));
+					return errors;
 				}
+				
 				measure.setPhase(phase);
+				
+				measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
+				
+				measure.setImplementationRate(0.0);
+				
+				measure.setAnalysisStandard(analysisStandard);
 			}
 
-			buildAssetMeasure(errors, ((AssetMeasure) measure), value, locale, idAnalysis);
-
-			if (!errors.isEmpty())
+			if (measureForm.getProperties() == null) {
+				errors.put("properties", messageSource.getMessage("error.property.empty", null, "Properties cannot be empty", locale));
 				return errors;
+			}
 
-			if (measure.getId() > 0)
-				serviceAnalysisStandard.saveOrUpdate(astandard);
-			else
-				serviceAnalysisStandard.save(astandard);
-
-			errors.put("success", messageSource.getMessage("success.measure.assetmeasure_update_assets", null, "Assets successfully updated", locale));
-
-			// return success message
-			return errors;
+			if (analysisStandard.getStandard().isAnalysisOnly()) {
+				validate(measureForm, errors, locale);
+				if (!errors.isEmpty())
+					return errors;
+				update(measure, measureForm, idAnalysis, language, locale, errors);
+			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
+				if (measure.getId() < 1)
+					throw new TrickException("error.measure.not_found", "Measure cannot be found");
+				measureForm.getProperties().copyTo(((NormalMeasure) measure).getMeasurePropertyList());
+			} else
+				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			serviceMeasure.saveOrUpdate(measure);
+		} catch (TrickException e) {
+			e.printStackTrace();
+			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
 			errors.put("error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		}
+		return errors;
+	}
+
+	private void validate(MeasureForm measureForm, Map<String, String> errors, Locale locale) throws Exception {
+		ValidatorField validator = serviceDataValidation.findByClass(MeasureDescriptionValidator.class);
+		if (validator == null)
+			serviceDataValidation.register(validator = new MeasureDescriptionValidator());
+		String error = validator.validate("reference", measureForm.getReference());
+		if (error != null)
+			errors.put("reference", serviceDataValidation.ParseError(error, messageSource, locale));
+		else if(serviceMeasureDescription.existsForMeasureByReferenceAndStandard(measureForm.getReference(), measureForm.getIdAnalysisStandard()))
+			errors.put("reference", messageSource.getMessage("error.measure_description.reference.duplicated", null, "Reference is duplicated", locale));
+			
+		error = validator.validate("level", measureForm.getLevel());
+		if (error != null)
+			errors.put("level", serviceDataValidation.ParseError(error, messageSource, locale));
+
+		validator = serviceDataValidation.findByClass(MeasureDescriptionTextValidator.class);
+		if (validator == null)
+			serviceDataValidation.register(validator = new MeasureDescriptionTextValidator());
+
+		error = validator.validate("domain", measureForm.getDomain());
+		if (error != null)
+			errors.put("domain", serviceDataValidation.ParseError(error, messageSource, locale));
+		error = validator.validate("description", measureForm.getDescription());
+		if (error != null)
+			errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
+	}
+
+	private Map<String, String> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, Language language, Locale locale, Map<String, String> errors) throws Exception {
+		if (errors == null)
+			errors = new LinkedHashMap<String, String>();
+		MeasureDescription description = measure.getMeasureDescription();
+		if (description == null) {
+			description = serviceMeasureDescription.getByReferenceAndStandard(measureForm.getReference(), measure.getAnalysisStandard().getStandard());
+			if (description == null) {
+				description = new MeasureDescription(measureForm.getReference(), measure.getAnalysisStandard().getStandard(), measureForm.getLevel(), measureForm.isComputable());
+				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(), measureForm.getDescription(), language));
+			}
+			measure.setMeasureDescription(description);
+		}
+		if (description.getId() > 0) {
+			MeasureDescriptionText descriptionText = description.findByLanguage(language);
+			if (descriptionText == null)
+				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(), measureForm.getDescription(), language));
+			else
+				descriptionText.update(measureForm.getDomain(), measureForm.getDescription());
+		}
+
+		if (measureForm.getProperties() == null) {
+			errors.put("properties", messageSource.getMessage("error.property.empty", null, "Properties cannot be empty", locale));
 			return errors;
 		}
+
+		if (measure instanceof AssetMeasure) {
+			AssetMeasure assetMeasure = (AssetMeasure) measure;
+			if (assetMeasure.getMeasurePropertyList() == null)
+				assetMeasure.setMeasurePropertyList(new MeasureProperties());
+
+			measureForm.getProperties().copyTo(assetMeasure.getMeasurePropertyList());
+
+			List<MeasureAssetValue> assetValues = new ArrayList<MeasureAssetValue>(measureForm.getAssetValues().size());
+			for (MeasureAssetValueForm assetValueForm : measureForm.getAssetValues()) {
+				Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, assetValueForm.getId());
+				if (asset == null)
+					throw new TrickException("error.asset.not_found", "Asset does not found");
+				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByAssetId(asset.getId());
+				if (assetValue == null)
+					assetValue = new MeasureAssetValue(asset, assetValueForm.getValue());
+				else
+					assetValue.setValue(assetValueForm.getValue());
+				assetValues.add(assetValue);
+			}
+
+			Iterator<MeasureAssetValue> iterator = assetMeasure.getMeasureAssetValues().iterator();
+			while (iterator.hasNext()) {
+				MeasureAssetValue assetValue = iterator.next();
+				if (!assetValues.contains(assetValue)) {
+					iterator.remove();
+					serviceMeasureAssetValue.delete(assetValue);
+				} else
+					assetValues.remove(assetValue);
+			}
+			assetMeasure.getMeasureAssetValues().addAll(assetValues);
+		} else if (measure instanceof NormalMeasure) {
+			NormalMeasure normalMeasure = (NormalMeasure) measure;
+			if (normalMeasure.getMeasurePropertyList() == null)
+				normalMeasure.setMeasurePropertyList(new MeasureProperties());
+			measureForm.getProperties().copyTo(normalMeasure.getMeasurePropertyList());
+		}
+
+		return errors;
 	}
 
 	@RequestMapping(value = "/{idStandard}/AssetMeasure/{idMeasure}/Edit", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public String editAssetMeasure(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal,
 			HttpSession session) {
-		try {
-
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-
-			Standard standard = serviceStandard.get(idStandard);
-
-			if (standard == null) {
-				model.addAttribute("error", messageSource.getMessage("error.standard.not_found", null, "Standard could not be found!", locale));
-				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
-			}
-			if (!standard.isAnalysisOnly() || standard.getType() != StandardType.ASSET) {
-				model.addAttribute("error", messageSource.getMessage("error.standard.not_asset_type", null, "Standard is not a asset standard type!", locale));
-				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
-			}
-
-			boolean standardfound = false;
-
-			boolean measurefound = false;
-
-			AssetMeasure measure = null;
-
-			for (AnalysisStandard astandard : serviceAnalysisStandard.getAllFromAnalysis(idAnalysis))
-				if (astandard.getStandard().equals(standard)) {
-					standardfound = true;
-					for (Measure tmpmeasure : astandard.getMeasures())
-						if (tmpmeasure.getId() == idMeasure) {
-							measurefound = true;
-							measure = (AssetMeasure) tmpmeasure;
-							break;
-						}
-					break;
-				}
-			if (!standardfound) {
-				model.addAttribute("error", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard not found in analysis!", locale));
-				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
-			}
-
-			if (!measurefound) {
-				model.addAttribute("error", messageSource.getMessage("error.measure.not_found", null, "Measure could not be found!", locale));
-				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
-			}
-
-			List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
-
-			List<Asset> measureAssets = new ArrayList<Asset>();
-
-			for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
-				availableAssets.remove(mav.getAsset());
-				measureAssets.add(mav.getAsset());
-			}
-
-			model.addAttribute("idStandard", idStandard);
-
-			model.addAttribute("idMeasure", idMeasure);
-
-			model.addAttribute("availableAssets", availableAssets);
-
-			model.addAttribute("measureAssets", measureAssets);
-
-			if (availableAssets != null && !availableAssets.isEmpty())
-				model.addAttribute("selectedAssetType", availableAssets.get(0).getAssetType().getType());
-			else if (measureAssets != null && !measureAssets.isEmpty())
-				model.addAttribute("selectedAssetType", measureAssets.get(0).getAssetType().getType());
-
-			List<AssetType> assettypes = new ArrayList<AssetType>();
-
-			for (Asset asset : availableAssets)
-				if (!assettypes.contains(asset.getAssetType()))
-					assettypes.add(asset.getAssetType());
-
-			for (Asset asset : measureAssets)
-				if (!assettypes.contains(asset.getAssetType()))
-					assettypes.add(asset.getAssetType());
-
-			model.addAttribute("assetTypes", assettypes);
-
-			model.addAttribute("desc", measure.getMeasureDescription());
-
-			MeasureDescriptionText text = measure.getMeasureDescription().getMeasureDescriptionText(serviceAnalysis.getLanguageOfAnalysis(idAnalysis));
-
-			if (text == null) {
-				text = new MeasureDescriptionText();
-
-			}
-
-			model.addAttribute("desctext", text);
-
-			model.addAttribute("props", measure.getMeasurePropertyList());
-
-			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
-				model.addAttribute("categories", measure.getMeasurePropertyList().getAllCategories());
-			} else {
-				model.addAttribute("categories", measure.getMeasurePropertyList().getCIACategories());
-			}
-
-			model.addAttribute("assets", measure.getMeasureAssetValues());
-
-			// return success message
-			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
-		} catch (Exception e) {
-			// return error
-			e.printStackTrace();
-			model.addAttribute("error", messageSource.getMessage("error.measure.new", null, "Error retrieving measure info", locale));
-			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
-		}
-	}
-
-	/**
-	 * buildAssetMeasure: <br>
-	 * Description
-	 * 
-	 * @param errors
-	 * @param measure
-	 * @param source
-	 * @param locale
-	 * @param analysisId
-	 * @return
-	 */
-	private boolean buildAssetMeasure(Map<String, String> errors, AssetMeasure measure, String source, Locale locale, Integer analysisId) {
-		try {
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-
-			if (!serviceDataValidation.isRegistred(MeasureDescription.class))
-				serviceDataValidation.register(new MeasureDescriptionValidator());
-
-			if (!serviceDataValidation.isRegistred(MeasureDescriptionText.class))
-				serviceDataValidation.register(new MeasureDescriptionTextValidator());
-
-			String reference = jsonNode.get("reference").asText();
-
-			boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
-
-			int level = jsonNode.get("level").asInt();
-
-			MeasureProperties mesProps = measure.getMeasurePropertyList();
-
-			MeasureDescription mesdesc = measure.getMeasureDescription();
-
-			String error = serviceDataValidation.validate(mesdesc, "reference", reference);
-
-			if (error != null)
-				errors.put("reference", serviceDataValidation.ParseError(error, messageSource, locale));
-			else {
-				if (mesdesc.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, mesdesc.getStandard()))
-					errors.put("reference", messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
-				else
-					mesdesc.setReference(reference);
-			}
-
-			error = serviceDataValidation.validate(mesdesc, "level", level);
-
-			if (error != null)
-				errors.put("level", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				mesdesc.setLevel(level);
-
-			error = serviceDataValidation.validate(mesdesc, "computable", computable);
-
-			if (error != null)
-				errors.put("computable", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				mesdesc.setComputable(computable);
-
-			ValidatorField validator = serviceDataValidation.findByClass(MeasureDescriptionText.class);
-
-			// get language
-			Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
-
-			// get domain in this language
-			String domain = jsonNode.get("domain").asText().trim();
-
-			// get description in this language
-			String description = jsonNode.get("description").asText().trim();
-
-			// init measdesctext object
-			MeasureDescriptionText mesDescText = mesdesc.findByLanguage(language);
-
-			// if new measure or text for this language does not exist:
-			// create new text and save
-			if (mesDescText == null) {
-				// create new and add data
-				mesDescText = new MeasureDescriptionText();
-				mesDescText.setLanguage(language);
-				mesdesc.addMeasureDescriptionText(mesDescText);
-			}
-
-			error = validator.validate(mesDescText, "domain", domain);
-
-			if (error != null)
-				errors.put("domain", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				mesDescText.setDomain(domain);
-
-			if (level == 3)
-				error = validator.validate(mesDescText, "description", description);
-			else
-				error = null;
-			if (error != null)
-				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if (!errors.containsKey("level"))
-				mesDescText.setDescription(description);
-
-			if (mesdesc.isComputable()) {
-
-				Iterator<String> assetnodes = jsonNode.get("measureassetvalues").fieldNames();
-
-				Map<Asset, Integer> assets = new LinkedHashMap<Asset, Integer>();
-
-				while (assetnodes.hasNext()) {
-
-					String asset = assetnodes.next();
-					Integer value = jsonNode.get("measureassetvalues").get(asset).asInt();
-
-					Asset tmpasset = serviceAsset.getFromAnalysisByName(analysisId, asset);
-
-					if (tmpasset == null)
-						errors.put("asset", "asset could not be found");
-					else {
-						assets.put(tmpasset, value);
-					}
-				}
-
-				if (errors.get("asset") == null) {
-
-					for (Asset asset : assets.keySet()) {
-
-						boolean found = false;
-
-						for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
-							if (mav.getAsset().equals(asset)) {
-								mav.setValue(assets.get(asset));
-								found = true;
-								break;
-							}
-						}
-						if (!found)
-							measure.addAnMeasureAssetValue(new MeasureAssetValue(asset, assets.get(asset)));
-					}
-
-					List<MeasureAssetValue> assetvalues = new ArrayList<MeasureAssetValue>();
-
-					for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
-						boolean found = false;
-						for (Asset asset : assets.keySet()) {
-							if (mav.getAsset().equals(asset)) {
-								found = true;
-								break;
-							}
-
-						}
-						if (!found)
-							assetvalues.add(mav);
-					}
-
-					for (MeasureAssetValue assetValue : assetvalues) {
-						measure.getMeasureAssetValues().remove(assetValue);
-						serviceMeasureAssetValue.delete(assetValue);
-					}
-
-				}
-			} else {
-				for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
-					serviceMeasureAssetValue.delete(mav);
-				}
-				measure.getMeasureAssetValues().clear();
-			}
-			Iterator<String> properties = jsonNode.get("properties").fieldNames();
-
-			while (properties.hasNext()) {
-
-				String property = properties.next();
-
-				if (property.equals("categories")) {
-
-					Iterator<String> categories = jsonNode.get("properties").get("categories").fieldNames();
-
-					while (categories.hasNext()) {
-						String category = categories.next();
-
-						int value = jsonNode.get("properties").get("categories").get(category).asInt();
-
-						if (MeasureProperties.isCategoryKey(category))
-							mesProps.setCategoryValue(category, value);
-						else
-							errors.put("category", "One or more categories are not valid");
-
-					}
-
-				} else {
-					if (!property.equals("fsectoral") && !property.equals("fmeasure")) {
-						if (property.equals("preventive") || property.equals("detective") || property.equals("limitative") || property.equals("corrective")) {
-							double val = jsonNode.get("properties").get(property).asDouble();
-
-							if (val < 0 || val > 4)
-								errors.put(property, "value is not valid");
-							else {
-								Field field = SecurityCriteria.class.getDeclaredField(property);
-
-								field.setAccessible(true);
-
-								field.set(mesProps, val);
-							}
-						} else {
-							int val = jsonNode.get("properties").get(property).asInt();
-							if (val < 0 || val > 4)
-								errors.put(property, "value is not valid");
-							else {
-								Field field = SecurityCriteria.class.getDeclaredField(property);
-
-								field.setAccessible(true);
-
-								field.set(mesProps, val);
-							}
-						}
-					} else {
-						int val = jsonNode.get("properties").get(property).asInt();
-						if (property.equals("fmeasure")) {
-							if (val < 0 || val > 10)
-								errors.put(property, "value is not valid");
-						} else {
-							if (val < 0 || val > 4)
-								errors.put(property, "value is not valid");
-						}
-
-						if (errors.get(property) == null) {
-							Field field = MeasureProperties.class.getDeclaredField(property);
-
-							field.setAccessible(true);
-
-							field.set(mesProps, val);
-						}
-
-					}
-
-				}
-
-			}
-
-			// return success message
-			return errors.isEmpty();
-
-		} catch (Exception e) {
-
-			// return error message
-			errors.put("measure", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
-			return false;
-		}
+		return null;
 	}
 
 	/**

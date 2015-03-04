@@ -84,4 +84,10 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 		daoMeasureAssetValue.delete(measureAssetValue);
 	}
 
+	@Override
+	public MeasureAssetValue getByAssetId(int idAsset) {
+		
+		return daoMeasureAssetValue.getByAssetId(idAsset);
+	}
+
 }

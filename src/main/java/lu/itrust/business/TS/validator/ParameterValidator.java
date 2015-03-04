@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.parameter.ParameterType;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**
@@ -32,9 +33,7 @@ public class ParameterValidator extends ValidatorFieldImpl {
 	 * java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (!supports(o.getClass()))
-			return null;
+	public String validate(String fieldName, Object candidate) {
 		switch (fieldName) {
 		case DESCRIPTION:
 			if (!(candidate instanceof String))
@@ -69,13 +68,13 @@ public class ParameterValidator extends ValidatorFieldImpl {
 
 	@Override
 	public String validate(Object o, String fieldName, Object candidate,
-			Object[] choose) {
+			Object[] choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 
 	@Override
 	public String validate(Object o, String fieldName, Object candidate,
-			List<Object> choose) {
+			List<Object> choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 

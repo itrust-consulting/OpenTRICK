@@ -177,4 +177,9 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer analysisId, int standardId) {
 		return daoAnalysisStandard.getFromAnalysisIdAndStandardId(analysisId,standardId );
 	}
+
+	@Override
+	public boolean belongsToAnalysis(Integer idAnalysis, int id) {
+		return daoAnalysisStandard.belongsToAnalysis(idAnalysis, id);
+	}
 }

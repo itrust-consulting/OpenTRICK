@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.exception.TrickException;
+
 /**
  * @author eomar
  * 
@@ -22,6 +24,15 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 				return true;
 		}
 		return false;
+	}
+	
+	
+
+	@Override
+	public String validate(Object o, String fieldName, Object candidate) throws TrickException {
+		if (o == null || !supports(o.getClass()))
+			return null;
+		return validate(fieldName, candidate);
 	}
 
 	public static boolean Contains(Object objects, Object element) {
@@ -55,7 +66,7 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, String> validate(Object o, Map<Object, Object> choose) {
+	public Map<String, String> validate(Object o, Map<Object, Object> choose) throws TrickException {
 		if (!supports(o.getClass()))
 			return null;
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -95,7 +106,7 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 	 * @see lu.itrust.business.validator.Validator#validate(java.lang.Object)
 	 */
 	@Override
-	public Map<String, String> validate(Object object) {
+	public Map<String, String> validate(Object object) throws TrickException {
 		if (!supports(object.getClass()))
 			return null;
 		Map<String, String> errors = new LinkedHashMap<String, String>();

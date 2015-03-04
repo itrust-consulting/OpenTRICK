@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.asset.AssetType;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 import org.springframework.validation.Errors;
@@ -14,8 +15,8 @@ import org.springframework.validation.Validator;
 public class AssetValidator extends ValidatorFieldImpl implements Validator {
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (o == null || !supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
+	public String validate(String fieldName, Object candidate) {
+		if (fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		switch (fieldName) {
 		case "name":
@@ -39,12 +40,12 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) {
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) {
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 

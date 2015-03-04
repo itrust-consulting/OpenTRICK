@@ -5,6 +5,7 @@ package lu.itrust.business.TS.validator;
 
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * @author eomar
@@ -43,7 +44,7 @@ public class MaturityMeasureValidator extends MeasureValidator {
 	 * java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
+	public String validate(Object o, String fieldName, Object candidate) throws TrickException {
 		if (!supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		Double doubleCanditate = null;

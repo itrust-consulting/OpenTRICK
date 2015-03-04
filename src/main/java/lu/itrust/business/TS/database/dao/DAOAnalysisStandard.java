@@ -15,6 +15,7 @@ import lu.itrust.business.TS.data.standard.Standard;
  * @since 24 janv. 2013
  */
 public interface DAOAnalysisStandard {
+	
 	public AnalysisStandard get(Integer id) throws Exception;
 
 	public List<AnalysisStandard> getAll() throws Exception;
@@ -38,4 +39,6 @@ public interface DAOAnalysisStandard {
 	public void delete(AnalysisStandard analysisStandard) throws Exception;
 	
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard);
+
+	public boolean belongsToAnalysis(Integer idAnalysis, int id);
 }

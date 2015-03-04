@@ -458,20 +458,26 @@ function addMeasure(idStandard) {
 						$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($(asset));
 						$(asset).appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']"));
 						$(asset).attr("data-trick-selected", true);
-						var $data = $('<td data-trick-class="MeasureAssetValue"><input type="text" class="slider" id="asset_slider_' + id
-								+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name="property_asset_' + id
+						var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>')
+						var $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" ><input type="text" class="slider" id="asset_slider_' + id
+								+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="property_asset_' + id
 								+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>');
-						$data.appendTo($assetTab.find("#slider"));
-						
-						$data.find("slider").slider().on('slide', function(){
-							$content.find("#values input[name='" + event.target.name + "']").val(event.value);
+						var $value = $('<td data-trick-class="MeasureAssetValue"  data-trick-asset-id="' + id + '"><input type="text" id="property_asset_' + id
+								+ '_value" style="min-width: 50px;" readonly="readonly" class="form-control" value="0" name="' + id + '"></td>');
+						$header.appendTo($content.find("#slidersTitle"));
+						$data.appendTo($content.find("#sliders"));
+						$value.appendTo($content.find("#values"));
+						$data.find(".slider").slider().on('slide', function(event) {
+							$value.find("input").val(event.value);
 						});
 					};
 
 					var onDeselectedAsset = function(asset) {
+						var id = $(asset).attr("data-trick-id");
 						$(asset).find("input").remove();
 						$(asset).appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']"));
 						$(asset).attr("data-trick-selected", false);
+						$content.find('[data-trick-class="MeasureAssetValue"][data-trick-asset-id="' + id + '"]').remove();
 					};
 
 					$assetTab.find("li[data-trick-type]").each(function() {
@@ -766,14 +772,32 @@ function editAssetMeasure(idMeasure, idStandard) {
 }
 
 function saveMeasure(idStandard) {
-	var form = $("#addMeasureModel #measure_form");
+	var form = $("#modalMeasureForm #measure_form");
+	var data = $("#modalMeasureForm #measure_form #tab_general").serializeJSON();
+	var properties = $("#modalMeasureForm #measure_form #tab_properties #values").serializeJSON();
+	var $assetTab = $("#modalMeasureForm #measure_form #tab_asset");
+	if ($assetTab.length) {
+		data.type = "ASSET";
+		data.assetValues = [];
+		$assetTab.find("li>input[name='assets']").each(function() {
+			data.assetValues.push({
+				id : this.value,
+				value : properties[this.value],
+			});
+			delete properties[this.value];
+		});
+	} else
+		data.type = "NORMAL";
+	data.properties = properties;
+	data.computable = data.computable === "on";
+
 	$.ajax({
-		url : form.prop("action"),
+		url : context + "/Analysis/Standard/Measure/Save",
 		type : "post",
-		data : serializeForm(form),
+		data : JSON.stringify(data),
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
-			var alert = $("#addMeasureModel").find(".label-danger");
+			var alert = $("#modalMeasureForm").find(".label-danger");
 			if (alert.length)
 				alert.remove();
 			for ( var error in response) {
@@ -782,19 +806,19 @@ function saveMeasure(idStandard) {
 				$(errorElement).text(response[error]);
 				switch (error) {
 				case "reference":
-					$(errorElement).appendTo(form.find("#measure_reference").parent());
+					$(errorElement).appendTo(form.find("#reference").parent());
 					break;
 				case "level":
-					$(errorElement).appendTo(form.find("#measure_level").parent());
+					$(errorElement).appendTo(form.find("#level").parent());
 					break;
 				case "computable":
-					$(errorElement).appendTo(form.find("#measure_computable").parent());
+					$(errorElement).appendTo(form.find("#computable").parent());
 					break;
 				case "domain":
-					$(errorElement).appendTo(form.find("#measure_domain").parent());
+					$(errorElement).appendTo(form.find("#domain").parent());
 					break;
 				case "description":
-					$(errorElement).appendTo(form.find("#measure_description").parent());
+					$(errorElement).appendTo(form.find("#description").parent());
 					break;
 				case "norm":
 				case "measureDescription":
@@ -802,12 +826,11 @@ function saveMeasure(idStandard) {
 					break;
 				}
 			}
-			if (!$("#addMeasureModel").find(".label-danger").length) {
-				$("#addMeasureModel").modal("hide");
+			if (!$("#modalMeasureForm").find(".label-danger").length) {
+				$("#modalMeasureForm").modal("hide");
 				reloadSection("section_standard_" + idStandard);
 			}
 			return false;
-
 		},
 		error : unknowError
 	});
