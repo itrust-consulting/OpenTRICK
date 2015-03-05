@@ -10,31 +10,16 @@
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 </c:set>
 <c:set var="dblclickaction">
-	<c:if test="${analysisOnly}">
-		<c:if test="${standardType.name.equals('NORMAL')}">
-											ondblclick="return editSingleMeasure(${measure.id},${standardid});"
-										</c:if>
-		<c:if test="${standardType.name.equals('ASSET')}">
-											ondblclick="return editAssetMeasure(${measure.id},${standardid});"
-										</c:if>
+	<c:if test="${isAnalysisOnly || measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY' && measure.measureDescription.computable }">
+		ondblclick="return addMeasure(${standardid},${measure.id});"
 	</c:if>
 </c:set>
 <c:choose>
 	<c:when test="${measure.measureDescription.computable==false }">
-		<c:set var="dblclickaction">
-			<c:if test="${analysisOnly}">
-				<c:if test="${standardType.name.equals('NORMAL')}">
-											ondblclick="return editSingleMeasure(this,${standardid});"
-										</c:if>
-				<c:if test="${standardType.name.equals('ASSET')}">
-											ondblclick="return editAssetMeasure(this,${standardid});"
-										</c:if>
-			</c:if>
-		</c:set>
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-			<c:if test="${analysisOnly}">
-				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+			<c:if test="${measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY'}">
+				<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td><spring:message text="${measure.measureDescription.reference}" /></td>
 			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'16':'15'}"><spring:message
@@ -44,7 +29,7 @@
 	<c:otherwise>
 		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
-			<c:if test="${standardType.name.equals('ASSET')}">
+			<c:if test="${measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY'}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
 			</c:if>
 			<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
@@ -88,16 +73,10 @@
 					<c:otherwise>${measure.phase.number}</c:otherwise>
 				</c:choose></td>
 			<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-				<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string">
-				<spring:message text="${measure.toCheck}" />
-			</pre></td>
+				<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 			</c:if>
-			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string">
-			<spring:message text="${measure.comment}" />
-		</pre></td>
-			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string">
-			<spring:message text="${measure.toDo}" />
-		</pre></td>
+			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 		</tr>
 	</c:otherwise>
 </c:choose>

@@ -116,7 +116,7 @@ public class ControllerSummary {
 			}
 		}
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		// generate chart
 		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute("selectedAnalysis"), summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);
@@ -146,7 +146,7 @@ public class ControllerSummary {
 		// retrieve summaries
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		// return chart
 		return chartGenerator.budget(summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);

@@ -247,7 +247,7 @@ public class ActionPlanComputation {
 		// initialise task feedback progress in percentage to return to the user
 		int progress = 10;
 
-		String language = this.analysis.getLanguage().getAlpha3().substring(0, 2);
+		String language = this.analysis.getLanguage().getAlpha2();
 
 		// check if uncertainty to adopt the progress factor
 		if (!uncertainty)
@@ -1104,7 +1104,7 @@ public class ActionPlanComputation {
 			}
 		}
 
-		String language = this.analysis.getLanguage().getAlpha3().substring(0, 2);
+		String language = this.analysis.getLanguage().getAlpha2();
 		
 		Locale locale = new Locale(language);
 		

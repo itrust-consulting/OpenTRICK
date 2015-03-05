@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.data.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
-import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -122,7 +122,7 @@ public class Duplicator {
 
 		double bound = ((double) (maxProgress - minProgress)) / 100.0;
 
-		String language = analysis.getLanguage().getAlpha3();
+		String language = analysis.getLanguage().getAlpha2();
 
 		try {
 
@@ -213,7 +213,7 @@ public class Duplicator {
 				copycounter++;
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", language, (int) (minProgress + bound
 						* (60 + (percentageperstandard * copycounter)))));
-				copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, false));
+				copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
 			}
 
 			return copy;
@@ -232,12 +232,13 @@ public class Duplicator {
 	 * @param analysisStandard
 	 * @param phases
 	 * @param parameters
+	 * @param assets
 	 * @param anonymize
 	 * @return
 	 * @throws Exception
 	 */
-	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize)
-			throws Exception {
+	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, Map<Integer, Asset> assets,
+			boolean anonymize) throws Exception {
 
 		if (!analysisStandard.getStandard().isAnalysisOnly()) {
 
@@ -246,11 +247,11 @@ public class Duplicator {
 			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
 			for (Measure measure : analysisStandard.getMeasures())
 				if (anonymize)
-					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, parameters, anonymize));
+					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, assets, parameters, anonymize));
 				else
 					measures.add(duplicateMeasure(measure,
 							phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), astandard,
-							parameters, anonymize));
+							assets, parameters, anonymize));
 
 			astandard.setMeasures(measures);
 			return astandard;
@@ -285,7 +286,7 @@ public class Duplicator {
 
 				Measure tmpmeasure = null;
 
-				tmpmeasure = duplicateMeasure(measure, anonymize ? phases.get(Constant.PHASE_DEFAULT) : phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard,
+				tmpmeasure = duplicateMeasure(measure, anonymize ? phases.get(Constant.PHASE_DEFAULT) : phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, assets,
 						parameters, anonymize);
 
 				MeasureDescription mesDesc = newMesDescs.get(tmpmeasure.getMeasureDescription().getReference());
@@ -309,13 +310,14 @@ public class Duplicator {
 	 * @param measure
 	 * @param phase
 	 * @param standard
+	 * @param assets
 	 * @param parameters
 	 * @param anonymize
 	 * @return
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<String, Parameter> parameters, boolean anonymize)
+	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<Integer, Asset> assets, Map<String, Parameter> parameters, boolean anonymize)
 			throws CloneNotSupportedException, TrickException {
 		Measure copy = measure.duplicate(standard, phase);
 
@@ -354,7 +356,6 @@ public class Duplicator {
 			if (anonymize) {
 				normalMeasure.setToCheck(Constant.EMPTY_STRING);
 				normalMeasure.setImplementationRate(0);
-				normalMeasure.setMeasurePropertyList((MeasureProperties) normalMeasure.getMeasurePropertyList().duplicate());
 				normalMeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
 				normalMeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
 				normalMeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
@@ -363,16 +364,29 @@ public class Duplicator {
 			}
 		} else if (copy instanceof AssetMeasure) {
 			AssetMeasure assetMeasure = (AssetMeasure) copy;
+			if (assets == null || assets.isEmpty())
+				assetMeasure.getMeasureAssetValues().clear();
+			else {
+				Iterator<MeasureAssetValue> iterator = assetMeasure.getMeasureAssetValues().iterator();
+				while (iterator.hasNext()) {
+					MeasureAssetValue assetValue = iterator.next();
+					if (!assets.containsKey(assetValue.getAsset().getId()))
+						iterator.remove();
+					else {
+						assetValue.setAsset(assets.get(assetValue.getAsset().getId()));
+						if (anonymize)
+							assetValue.setValue(0);
+					}
+				}
+			}
 			if (anonymize) {
 				assetMeasure.setToCheck(Constant.EMPTY_STRING);
 				assetMeasure.setImplementationRate(0);
-				assetMeasure.setMeasurePropertyList((MeasureProperties) assetMeasure.getMeasurePropertyList().duplicate());
 				assetMeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
 				assetMeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
 				assetMeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
-				for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues())
-					assetValue.setValue(0);
 			}
+
 		}
 		return copy;
 	}
@@ -498,7 +512,7 @@ public class Duplicator {
 				copycounter++;
 				AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
 				if (standard != null) {
-					copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, true));
+					copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, null, true));
 					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60 + (percentageperstandard * copycounter)));
 				}
 			}

@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -187,5 +188,12 @@ public class Language {
 			return false;
 		}
 		return true;
+	}
+
+	@Transient
+	public String getAlpha2() {
+		if(alpha3 == null|| alpha3.length()!=3)
+			return null;
+		return alpha3.substring(0, 2);
 	}
 }

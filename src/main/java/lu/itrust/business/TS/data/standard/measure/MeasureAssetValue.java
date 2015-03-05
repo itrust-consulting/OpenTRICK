@@ -127,7 +127,9 @@ public class MeasureAssetValue implements Cloneable {
 	 */
 	@Override
 	public MeasureAssetValue clone() throws CloneNotSupportedException {
-		return (MeasureAssetValue) super.clone();
+		MeasureAssetValue assetValue =  (MeasureAssetValue) super.clone();
+		assetValue.asset = this.asset.clone();
+		return assetValue;
 	}
 
 	/**
@@ -138,9 +140,26 @@ public class MeasureAssetValue implements Cloneable {
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
-	public MeasureAssetValue duplicate() throws CloneNotSupportedException {
+	public MeasureAssetValue duplicate() throws CloneNotSupportedException, TrickException {
 		MeasureAssetValue assetValue = (MeasureAssetValue) super.clone();
 		assetValue.id = -1;
+		assetValue.asset.setId(-1);
+		return assetValue;
+	}
+	
+	/**
+	 * clone: <br>
+	 * Description
+	 * 
+	 * @throws TrickException
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public MeasureAssetValue duplicate(Asset asset) throws CloneNotSupportedException {
+		MeasureAssetValue assetValue = (MeasureAssetValue) super.clone();
+		assetValue.id = -1;
+		if(asset!=null)
+			assetValue.asset = asset;
 		return assetValue;
 	}
 

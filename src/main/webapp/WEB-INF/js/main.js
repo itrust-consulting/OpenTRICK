@@ -247,6 +247,13 @@ function MessageResolver(code, defaulttext, params, language) {
 		return application.localesMessages[uniqueCode];
 	else
 		application.localesMessages[uniqueCode] = defaulttext;
+
+	if (language == undefined || language == null) {
+		language = $("[data-trick-language]").attr("data-trick-language");
+		if (language == undefined)
+			language = $("html").attr("lang");
+	}
+	
 	var data = {
 		"code" : code,
 		"message" : defaulttext,
@@ -263,7 +270,7 @@ function MessageResolver(code, defaulttext, params, language) {
 		data : JSON.stringify(data),
 		async : false,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (!(response.message == undefined || response.message == null || response.message.length))
 				application.localesMessages[uniqueCode] = response.message
 			return false;

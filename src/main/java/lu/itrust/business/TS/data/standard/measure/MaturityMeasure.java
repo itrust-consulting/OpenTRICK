@@ -261,7 +261,6 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	/**
 	 * duplicate: <br>
 	 * Description
-	 *
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.data.standard.measure.Measure#duplicate(lu.itrust.business.TS.data.standard.AnalysisStandard)

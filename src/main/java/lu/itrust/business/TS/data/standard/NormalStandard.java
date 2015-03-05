@@ -118,13 +118,14 @@ public class NormalStandard extends AnalysisStandard {
 	/**
 	 * duplicate: <br>
 	 * Description
+	 * @throws TrickException 
 	 *
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.data.standard.AnalysisStandard#duplicate()
 	 */
 	@Override
-	public NormalStandard duplicate() throws CloneNotSupportedException {
+	public NormalStandard duplicate() throws CloneNotSupportedException, TrickException {
 		return (NormalStandard) super.duplicate();
 	}
 

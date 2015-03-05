@@ -262,7 +262,7 @@ public class ControllerRRF {
 							measures.add(measure);
 					}
 			}
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
 	}
 
@@ -346,7 +346,7 @@ public class ControllerRRF {
 		}
 
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
-		model.addAttribute("language", language.getAlpha3());
+		model.addAttribute("language", language.getAlpha2());
 
 		return "analyses/singleAnalysis/components/forms/rrf/measureRRF";
 	}
@@ -392,7 +392,7 @@ public class ControllerRRF {
 		} else
 			scenarios = serviceScenario.getAllSelectedFromAnalysisByType(idAnalysis, scenariotype);
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 

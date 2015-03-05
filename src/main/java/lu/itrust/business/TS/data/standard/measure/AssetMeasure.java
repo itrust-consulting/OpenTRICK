@@ -280,7 +280,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 		AssetMeasure assetMeasure = (AssetMeasure) super.duplicate(analysisStandard, phase);
 		assetMeasure.measureAssetValues = new ArrayList<>();
 		for (MeasureAssetValue assetValue : measureAssetValues)
-			assetMeasure.addAnMeasureAssetValue(assetValue.duplicate());
+			assetMeasure.addAnMeasureAssetValue(assetValue.duplicate(null));
 		assetMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
 		return assetMeasure;
 	}

@@ -144,7 +144,7 @@ public class WorkerComputeActionPlan implements Worker {
 			System.out.println("Loading Analysis...");
 
 			String language = null;
-			language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha3().substring(0, 2);
+			language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
 			
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", language, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
@@ -193,7 +193,7 @@ public class WorkerComputeActionPlan implements Worker {
 			try {
 				
 				String language = null;
-				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha3().substring(0, 2);
+				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
 								
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed",language, e));
 				e.printStackTrace();
@@ -257,7 +257,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 */
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
-		String lang = analysis.getLanguage().getAlpha3().substring(0, 2);
+		String lang = analysis.getLanguage().getAlpha2();
 		
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting",lang, null));
 

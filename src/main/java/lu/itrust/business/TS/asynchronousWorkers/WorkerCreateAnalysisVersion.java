@@ -97,7 +97,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", language, 0));
 			else {
 
-				language = analysis.getLanguage().getAlpha3();
+				language = analysis.getLanguage().getAlpha2();
 
 				Analysis copy = duplicator.duplicateAnalysis(analysis, null, serviceTaskFeedback, id, 5, 95);
 

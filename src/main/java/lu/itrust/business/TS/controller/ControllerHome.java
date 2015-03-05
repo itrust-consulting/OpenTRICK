@@ -112,5 +112,10 @@ public class ControllerHome {
 	public @ResponseBody String success(@ModelAttribute("success") String success) {
 		return JsonMessage.Success(success);
 	}
+	
+	@RequestMapping(value = "/Error", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String error(@ModelAttribute("error") String error) {
+		return JsonMessage.Error(error);
+	}
 
 }

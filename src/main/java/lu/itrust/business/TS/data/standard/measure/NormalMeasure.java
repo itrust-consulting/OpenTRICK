@@ -261,8 +261,6 @@ public class NormalMeasure extends Measure {
 	 * duplicate: <br>
 	 * Description
 	 * 
-	 * @throws TrickException
-	 *
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.data.standard.measure.Measure#duplicate()

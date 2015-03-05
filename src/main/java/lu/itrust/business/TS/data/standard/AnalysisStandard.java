@@ -179,8 +179,9 @@ public abstract class AnalysisStandard implements Cloneable {
 	 * 
 	 * @return
 	 * @throws CloneNotSupportedException
+	 * @throws TrickException 
 	 */
-	public AnalysisStandard duplicate() throws CloneNotSupportedException {
+	public AnalysisStandard duplicate() throws CloneNotSupportedException, TrickException {
 		AnalysisStandard analysisStandard = (AnalysisStandard) super.clone();
 		analysisStandard.id = -1;
 		analysisStandard.measures = new ArrayList<>();

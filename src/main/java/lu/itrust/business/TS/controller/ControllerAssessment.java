@@ -82,7 +82,7 @@ public class ControllerAssessment {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
 			// check if analysis is not null
 			if (integer == null)
@@ -106,14 +106,14 @@ public class ControllerAssessment {
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
 				+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale : locale) + "\"}");
 		}
@@ -135,7 +135,7 @@ public class ControllerAssessment {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// check if analysis is not null
 			if (integer == null)
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
@@ -157,14 +157,14 @@ public class ControllerAssessment {
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
 				+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale : locale) + "\"}");
 		}
@@ -178,7 +178,7 @@ public class ControllerAssessment {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// check if analysis is not null
 			if (integer == null)
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
@@ -202,7 +202,7 @@ public class ControllerAssessment {
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
 				+ messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", customLocale != null ? customLocale : locale) + "\"}");
 		}

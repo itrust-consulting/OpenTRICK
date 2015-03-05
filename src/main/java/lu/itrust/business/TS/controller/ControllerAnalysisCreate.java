@@ -377,7 +377,7 @@ public class ControllerAnalysisCreate {
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(customAnalysisForm.getStandard());
 			
 			for (AnalysisStandard analysisStandard : analysisStandards)
-				analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, false));
+				analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, mappingAssets, false));
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			return JsonMessage.Success(messageSource.getMessage("success.analysis_custom.create", null, "Your analysis has been successfully created", locale));

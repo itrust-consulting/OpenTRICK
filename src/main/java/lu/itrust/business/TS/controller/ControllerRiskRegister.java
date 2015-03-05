@@ -148,7 +148,7 @@ public class ControllerRiskRegister {
 		
 		Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 		
-		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3());
+		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 		WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, true);
 

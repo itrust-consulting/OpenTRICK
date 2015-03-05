@@ -111,7 +111,7 @@ public class WorkerComputeRiskRegister implements Worker {
 
 			System.out.println("Loading Analysis...");
 
-			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
 			
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading",lang, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
@@ -158,7 +158,7 @@ public class WorkerComputeRiskRegister implements Worker {
 				
 				try {
 					String lang;
-					lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+					lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
 					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),lang, e));
 				} catch (Exception e1) {
 					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),null, e));
@@ -216,7 +216,7 @@ public class WorkerComputeRiskRegister implements Worker {
 	 */
 	private void deleteRiskRegister(Analysis analysis) throws Exception {
 		String lang;
-		lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+		lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting",lang, 50));
 
 		while (!analysis.getRiskRegisters().isEmpty())
