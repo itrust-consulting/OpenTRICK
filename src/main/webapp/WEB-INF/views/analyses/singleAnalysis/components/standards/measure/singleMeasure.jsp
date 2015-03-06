@@ -18,7 +18,7 @@
 	<c:when test="${measure.measureDescription.computable==false }">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-			<c:if test="${measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY'}">
+			<c:if test="${isAnalysisOnly}">
 				<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td><spring:message text="${measure.measureDescription.reference}" /></td>
@@ -29,7 +29,7 @@
 	<c:otherwise>
 		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
-			<c:if test="${measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY'}">
+			<c:if test="${isAnalysisOnly}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
 			</c:if>
 			<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
