@@ -577,7 +577,10 @@ function saveMeasure() {
 			}
 			if (!$("#modalMeasureForm").find(".label-danger").length) {
 				$("#modalMeasureForm").modal("hide");
-				reloadSection("section_standard_" + data.idStandard);
+				if (data.id > 0)
+					reloadMeasureRow(data.id, data.idStandard);
+				else
+					reloadSection("section_standard_" + data.idStandard);
 			}
 			return false;
 		},

@@ -179,9 +179,8 @@ function callbackBySection(section) {
 
 	};
 
-	if (section.match("^section_standard_")) {
+	if (section.match("^section_standard_"))
 		$("#" + section + " td.popover-element").popover('hide');
-	}
 
 	return callbacks[section];
 }
