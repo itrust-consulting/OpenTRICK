@@ -8,9 +8,6 @@ public class Maintenance {
 	/** Sum of External Maintenance to the Last Stage Entry */
 	private double externalMaintenance = 0;
 	
-	/** Sum of recurrent investment to the Last Stage Entry */
-	private double recurrentInvestment = 0;
-	
 	/**
 	 * 
 	 */
@@ -22,10 +19,8 @@ public class Maintenance {
 	 * @param externalMaintenance
 	 * @param recurrentInvestment
 	 */
-	public Maintenance(double internalMaintenance, double externalMaintenance, double recurrentInvestment) {
-		this.internalMaintenance = internalMaintenance;
-		this.externalMaintenance = externalMaintenance;
-		this.recurrentInvestment = recurrentInvestment;
+	public Maintenance(double internalMaintenance, double externalMaintenance) {
+		update(internalMaintenance, externalMaintenance);
 	}
 
 	public double getInternalMaintenance() {
@@ -44,12 +39,10 @@ public class Maintenance {
 		this.externalMaintenance = externalMaintenance;
 	}
 
-	public double getRecurrentInvestment() {
-		return recurrentInvestment;
-	}
-
-	public void setRecurrentInvestment(double recurrentInvestment) {
-		this.recurrentInvestment = recurrentInvestment;
+	public void update(double internalMaintenance, double externalMaintenance) {
+		setInternalMaintenance(internalMaintenance);
+		setExternalMaintenance(externalMaintenance);
+		
 	}
 	
 }

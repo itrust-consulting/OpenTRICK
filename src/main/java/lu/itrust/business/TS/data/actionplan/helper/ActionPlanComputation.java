@@ -2568,14 +2568,14 @@ public class ActionPlanComputation {
 		ActionPlanEntry ape = null;
 		boolean byPhase = false;
 		int phase = 0;
-		
+
 		// check if actionplan is empty -> YES: quit method
 		if (actionPlan.isEmpty())
 			return;
 
 		// retirve actionplantype
 		ActionPlanType apt = actionPlan.get(0).getActionPlanType();
-		
+
 		Map<Integer, Maintenance> maintenances = new LinkedHashMap<Integer, Maintenance>();
 
 		// ****************************************************************
@@ -2594,7 +2594,7 @@ public class ActionPlanComputation {
 		tmpval.totalALE = actionPlan.get(0).getTotalALE() + actionPlan.get(0).getDeltaALE();
 
 		// generate first stage
-		generateStage(apt, tmpval, sumStage, "Start(P0)", true, 0);
+		generateStage(apt, tmpval, sumStage, "Start(P0)", true, 0, maintenances);
 
 		// ****************************************************************
 		// * check if calculation by phase
@@ -2639,7 +2639,8 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * generate stage for previous phase
 					// ****************************************************************
-					generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase);
+
+					generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase, maintenances);
 
 					// ****************************************************************
 					// * reinitialise variables
@@ -2686,7 +2687,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * generate stage for anticipated level
 						// ****************************************************************
-						generateStage(apt, tmpval, sumStage, "Anticipated", false, phase);
+						generateStage(apt, tmpval, sumStage, "Anticipated", false, phase, maintenances);
 
 						// deactivate flag
 						anticipated = false;
@@ -2716,7 +2717,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * generate stage for phase
 			// ****************************************************************
-			generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase);
+			generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase, maintenances);
 		} else {
 
 			// check if by phase -> NO
@@ -2724,7 +2725,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * generate stage for all measures
 			// ****************************************************************
-			generateStage(apt, tmpval, sumStage, "All Measures", false, phase);
+			generateStage(apt, tmpval, sumStage, "All Measures", false, phase, maintenances);
 		}
 
 		// ****************************************************************
@@ -2861,9 +2862,11 @@ public class ActionPlanComputation {
 	 *            The Name to give for the Stage
 	 * @param firstStage
 	 *            Flag to tell if the Stage is the First Stage
+	 * @param maintenances
 	 * @throws TrickException
 	 */
-	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage, int phasenumber) throws TrickException {
+	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage, int phasenumber,
+			Map<Integer, Maintenance> maintenances) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2984,6 +2987,13 @@ public class ActionPlanComputation {
 
 		}
 
+		Maintenance maintenance = maintenances.containsKey(phasenumber - 1) ? maintenances.get(phasenumber - 1) : new Maintenance();
+
+		if (maintenances.containsKey(phasenumber))
+			maintenances.get(phasenumber).update(tmpval.internalMaintenance, tmpval.externalMaintenance);
+		else
+			maintenances.put(phasenumber, new Maintenance(tmpval.internalMaintenance, tmpval.externalMaintenance));
+		
 		// ****************************************************************
 		// * create summary stage object
 		// ****************************************************************
@@ -3009,8 +3019,8 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
-		aStage.setInternalMaintenance(tmpval.internalMaintenance * phasetime);
-		aStage.setExternalMaintenance(tmpval.externalMaintenance * phasetime);
+		aStage.setInternalMaintenance(maintenance.getInternalMaintenance() * phasetime);
+		aStage.setExternalMaintenance(maintenance.getExternalMaintenance() * phasetime);
 		aStage.setRecurrentInvestment(tmpval.recurrentInvestment * phasetime);
 
 		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
@@ -3029,9 +3039,10 @@ public class ActionPlanComputation {
 		// phasetime and with internal and external setup as well as investment
 		// with phasetime
 		if (phasetime > 0)
-			tmpval.totalCost += (tmpval.internalMaintenance * phasetime * ir) + (tmpval.externalMaintenance * phasetime * er) + (tmpval.recurrentInvestment * phasetime);
+			tmpval.totalCost += (maintenance.getInternalMaintenance() * phasetime * ir) + (maintenance.getExternalMaintenance() * phasetime * er)
+					+ (tmpval.recurrentInvestment * phasetime);
 		else
-			tmpval.totalCost += (tmpval.internalMaintenance * ir) + (tmpval.externalMaintenance * er) + tmpval.recurrentInvestment;
+			tmpval.totalCost += (maintenance.getInternalMaintenance() * ir) + (maintenance.getExternalMaintenance() * er) + tmpval.recurrentInvestment;
 
 		aStage.setTotalCostofStage(tmpval.totalCost);
 

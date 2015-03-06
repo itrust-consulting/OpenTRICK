@@ -18,7 +18,8 @@ import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * SecurityCriteria: <br>
- * This class represents SecurityCriteria which are properties of either a Measure or a Scenario.
+ * This class represents SecurityCriteria which are properties of either a
+ * Measure or a Scenario.
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
@@ -120,7 +121,8 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * setDirect1: <br>
-	 * Sets the "Direct1" with a value. Uses {@link #setCategoryValue(String, int)}.
+	 * Sets the "Direct1" with a value. Uses
+	 * {@link #setCategoryValue(String, int)}.
 	 * 
 	 * @param value
 	 *            the value to set
@@ -721,7 +723,8 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * setConfidentiality: <br>
-	 * Sets the "Confidentiality" value. Uses {@link #setCategoryValue(String, int)}
+	 * Sets the "Confidentiality" value. Uses
+	 * {@link #setCategoryValue(String, int)}
 	 * 
 	 * @param value
 	 *            Value to set
@@ -769,7 +772,8 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * setAvailability: <br>
-	 * Sets the "Availability" value. Uses {@link #setCategoryValue(String, int)}
+	 * Sets the "Availability" value. Uses
+	 * {@link #setCategoryValue(String, int)}
 	 * 
 	 * @param value
 	 *            Value to set the Availability
@@ -1001,8 +1005,8 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * isValidValue: <br>
-	 * Checks if a given Value is valid. Will be overriden inside inherited classes (Scenario and
-	 * MeasureProperties).
+	 * Checks if a given Value is valid. Will be overriden inside inherited
+	 * classes (Scenario and MeasureProperties).
 	 * 
 	 * @param value
 	 *            The Value to check
@@ -1023,9 +1027,11 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * hasCSSFInfluence: <br>
-	 * Check if this object has CSSF Categories that are influenced. (CSSF Category Value is > 0).
+	 * Check if this object has CSSF Categories that are influenced. (CSSF
+	 * Category Value is > 0).
 	 * 
-	 * @return True if there is at least 1 CSSF category influenced; False if none are influenced
+	 * @return True if there is at least 1 CSSF category influenced; False if
+	 *         none are influenced
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1059,10 +1065,11 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * hasCIAInfluence: <br>
-	 * Check if Categories Confidentiality, Integrity or Availability are influenced (Category Value
-	 * > 0).
+	 * Check if Categories Confidentiality, Integrity or Availability are
+	 * influenced (Category Value > 0).
 	 * 
-	 * @return True if at least 1 Category is influenced; False if none is influenced
+	 * @return True if at least 1 Category is influenced; False if none is
+	 *         influenced
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1098,8 +1105,8 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * hasInfluenceOnAllCategories: <br>
 	 * Checks if Categories of CIA or CSSF are influenced.
 	 * 
-	 * @return True if CIA or CSSF Categories are influenced. Returns False if none of both
-	 *         Categories are influenced.
+	 * @return True if CIA or CSSF Categories are influenced. Returns False if
+	 *         none of both Categories are influenced.
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1113,10 +1120,11 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * hasInfluenceOnCategory: <br>
-	 * Checks if given Category exists and is valid, then checks if it is influenced. (Category
-	 * Value > 0)
+	 * Checks if given Category exists and is valid, then checks if it is
+	 * influenced. (Category Value > 0)
 	 * 
-	 * @return True if the given category is influenced. Returns False if it is not influenced.
+	 * @return True if the given category is influenced. Returns False if it is
+	 *         not influenced.
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1126,9 +1134,10 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * getCategoryValue: <br>
-	 * Checks if the given Category Key is valid, then checks if the Key exists inside the Map. If
-	 * the Key exists: the value is returned, if the Key does not exist, it will be added with the
-	 * default value 0, which will be returned.
+	 * Checks if the given Category Key is valid, then checks if the Key exists
+	 * inside the Map. If the Key exists: the value is returned, if the Key does
+	 * not exist, it will be added with the default value 0, which will be
+	 * returned.
 	 * 
 	 * @param category
 	 *            The Key that represents the category
@@ -1146,20 +1155,22 @@ public abstract class SecurityCriteria implements Cloneable {
 		if (!isCategoryKey(category))
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
 
+		Integer value = categories.get(category);
+
 		// check if category key exists in MAP -> NO
-		if (!categories.containsKey(category))
+		if (value == null)
 			// add category with default value 0 to MAP
-			categories.put(category, 0);
+			categories.put(category, value = 0);
 
 		// return value of Category (At this moment, the Key is valid and
 		// already exists in MAP)
-		return categories.get(category);
+		return value;
 	}
 
 	/**
 	 * setCategoryValue: <br>
-	 * Set the value of a key given by parameters. A check will be performed to have only valid keys
-	 * and valid values.
+	 * Set the value of a key given by parameters. A check will be performed to
+	 * have only valid keys and valid values.
 	 * 
 	 * @param category
 	 *            The Key that represents the Category
@@ -1190,8 +1201,7 @@ public abstract class SecurityCriteria implements Cloneable {
 		categories.put(category, valueFixer(category, value));
 
 	}
-	
-	
+
 	/**
 	 * getAllCategories: <br>
 	 * Description
@@ -1233,7 +1243,7 @@ public abstract class SecurityCriteria implements Cloneable {
 			result.put(category, categories.get(category));
 		return result;
 	}
-	
+
 	/**
 	 * getCSSFCategories: <br>
 	 * Description
@@ -1250,9 +1260,11 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * getGenericCategoryKeys:<br>
-	 * Returns a String[] (array) with confidentiality, integrity and availability categories.
+	 * Returns a String[] (array) with confidentiality, integrity and
+	 * availability categories.
 	 * 
-	 * @return Array of Scenario Confidentiality, Integrity and Availability Categories
+	 * @return Array of Scenario Confidentiality, Integrity and Availability
+	 *         Categories
 	 */
 	public static final String[] getCIACategoryKeys() {
 		return CategoryConverter.TYPE_CIA_KEYS;
