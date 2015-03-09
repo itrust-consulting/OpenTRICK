@@ -134,6 +134,8 @@ public class ExportAnalysisReport {
 
 	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text, boolean add) {
 		XWPFParagraph paragraph = !add && cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
+		if(text == null)
+			text= "";
 		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
@@ -1306,7 +1308,7 @@ public class ExportAnalysisReport {
 				if (row.getCell(0).getCTTc().getTcPr() == null)
 					row.getCell(0).getCTTc().addNewTcPr();
 
-				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(15));
 
 				row.getCell(0).setText(analysisStandard.getStandard().getLabel());
 
