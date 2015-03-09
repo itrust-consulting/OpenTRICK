@@ -6,6 +6,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
+<c:set var="isAnalysisOnly" value="${measure.analysisStandard.standard.analysisOnly}"/>
 <c:set var="css">
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 </c:set>
@@ -15,14 +16,14 @@
 	</c:if>
 </c:set>
 <c:choose>
-	<c:when test="${measure.measureDescription.computable==false }">
+	<c:when test="${measure.measureDescription.computable==false}">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 			<c:if test="${isAnalysisOnly}">
 				<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td><spring:message text="${measure.measureDescription.reference}" /></td>
-			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'16':'15'}"><spring:message
+			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
 					text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 		</tr>
 	</c:when>
@@ -77,6 +78,7 @@
 			</c:if>
 			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
 			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
+			<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 		</tr>
 	</c:otherwise>
 </c:choose>

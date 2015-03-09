@@ -23,6 +23,7 @@
 						<th colspan="3"><fmt:message key="label.risk_register.net_eval" /></th>
 						<th colspan="3"><fmt:message key="label.risk_register.exp_eval" /></th>
 						<th rowspan="2"><fmt:message key="label.risk_register.strategy" /></th>
+						<th rowspan="2"><fmt:message key="label.risk_register.owner" /></th>
 					</tr>
 					<tr>
 						<th class="text-center" title='<fmt:message key="label.risk_register.probability" />'><fmt:message key="label.risk_register.acro.probability" /></th>
@@ -97,9 +98,11 @@
 							<c:if test="${strategy=='shrink' }">
 								<c:set value="reduce" var="strategy" />
 							</c:if>
-							<td class="success" data-trick-id="${item.id}" data-trick-field="strategy" onclick="return editField(this);" data-trick-class="RiskRegister" data-trick-choose="accept,reduce,transfer,avoid"
-								data-data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string" colspan="2"><fmt:message
+							<td class="success" data-trick-id="${item.id}" data-trick-field="strategy" onclick="return editField(this);" data-trick-class="RiskRegister"
+								data-trick-choose="accept,reduce,transfer,avoid" data-data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><fmt:message
 									key="label.risk_register.strategy.${strategy}" /></td>
+							<td class="success" data-trick-id="${item.id}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="RiskRegister"
+								data-trick-field-type="string"><spring:message text="${item.owner}"/> </td>
 						</tr>
 					</c:forEach>
 				</tbody>

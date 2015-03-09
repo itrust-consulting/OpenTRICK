@@ -104,6 +104,8 @@ public class RiskRegisterItem {
 	/** Strategy */
 	@Column(name="dtResponseStrategy", nullable=false)
 	private String strategy = REDUCE_VALUE;
+	
+	private String owner = "";
 
 	/***********************************************************************************************
 	 * Constructors
@@ -304,5 +306,13 @@ public class RiskRegisterItem {
 
 	public void setAsset(Asset asset) {
 		this.asset = asset;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 }

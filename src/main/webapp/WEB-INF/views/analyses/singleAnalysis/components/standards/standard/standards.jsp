@@ -45,26 +45,27 @@
 				<thead>
 					<tr>
 						<c:if test="${analysisOnly}">
-							<th><input disabled="disabled" type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
+							<th width="1%"><input disabled="disabled" type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
 						</c:if>
-						<th style="width:5%"><fmt:message key="label.measure.ref" /></th>
-						<th style="width:15%"><fmt:message key="label.measure.domain" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.status" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.ir" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.iw" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.ew" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.inv" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.lt" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.im" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.em" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.ri" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.cost" /></th>
-						<th style="width:3%"><fmt:message key="label.measure.phase" /></th>
+						<th width="5%"><fmt:message key="label.measure.ref" /></th>
+						<th width="15%"><fmt:message key="label.measure.domain" /></th>
+						<th width="3%"><fmt:message key="label.measure.status" /></th>
+						<th width="3%"><fmt:message key="label.measure.ir" /></th>
+						<th width="3%"><fmt:message key="label.measure.iw" /></th>
+						<th width="3%"><fmt:message key="label.measure.ew" /></th>
+						<th width="3%"><fmt:message key="label.measure.inv" /></th>
+						<th width="3%"><fmt:message key="label.measure.lt" /></th>
+						<th width="3%"><fmt:message key="label.measure.im" /></th>
+						<th width="3%"><fmt:message key="label.measure.em" /></th>
+						<th width="3%"><fmt:message key="label.measure.ri" /></th>
+						<th width="3%"><fmt:message key="label.measure.cost" /></th>
+						<th width="3%"><fmt:message key="label.measure.phase" /></th>
 						<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 							<th><fmt:message key="label.measure.tocheck" /></th>
 						</c:if>
 						<th><fmt:message key="label.measure.comment" /></th>
 						<th><fmt:message key="label.measure.todo" /></th>
+						<th width="1%"><fmt:message key="label.measure.responsible" /></th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -89,7 +90,7 @@
 										<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
-									<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'16':'15'}"><spring:message
+									<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
 											text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 								</tr>
 							</c:when>
@@ -146,6 +147,7 @@
 									</c:if>
 									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
 									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
+									<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 								</tr>
 							</c:otherwise>
 						</c:choose>

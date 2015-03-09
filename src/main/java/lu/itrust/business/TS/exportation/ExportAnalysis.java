@@ -41,14 +41,18 @@ import org.hibernate.Session;
 
 /**
  * ExportAnalysis: <br>
- * This class is used to export a specific Analysis into a SQLite file to be used inside TRICK
- * Light.
+ * This class is used to export a specific Analysis into a SQLite file to be
+ * used inside TRICK Light.
  * 
  * @author itrust consulting s.��� r.l. - SME,BJA,EOM
  * @version 0.1
  * @since 2012-12-17
  */
 public class ExportAnalysis {
+
+	private static final int MEASURE_ROW_COUNT = 68;
+
+	private static final int MATURITY_MEASURE_ROW_COUNT = 27;
 
 	/***********************************************************************************************
 	 * Fields
@@ -222,7 +226,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportRiskInformation: <br>
-	 * Exports the Risk Information to an Sqlite File using an Sqlite Database Handler.
+	 * Exports the Risk Information to an Sqlite File using an Sqlite Database
+	 * Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -478,7 +483,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportItemInformation: <br>
-	 * Exports the Item Information to an Sqlite File using an Sqlite Database Handler.
+	 * Exports the Item Information to an Sqlite File using an Sqlite Database
+	 * Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -638,7 +644,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportIdentifier: <br>
-	 * Exports the identifier to an sqlite file using an sqlite database handler.
+	 * Exports the identifier to an sqlite file using an sqlite database
+	 * handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -719,7 +726,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportSimpleParameters: <br>
-	 * Export Simple Parameters to an Sqlite File usaing a Sqlite Database Hanlder.
+	 * Export Simple Parameters to an Sqlite File usaing a Sqlite Database
+	 * Hanlder.
 	 * 
 	 * @throws Exception
 	 */
@@ -788,24 +796,24 @@ public class ExportAnalysis {
 				int line = 0;
 
 				switch (parameter.getDescription()) {
-					case Constant.IS_NOT_ACHIEVED:
-						line = 1;
-						break;
-					case Constant.IS_RUDIMENTARY_ACHIEVED:
-						line = 2;
-						break;
-					case Constant.IS_PARTIALLY_ACHIEVED:
-						line = 3;
-						break;
-					case Constant.IS_LARGELY_ACHIEVED:
-						line = 4;
-						break;
-					case Constant.IS_FULLY_ACHIEVED:
-						line = 5;
-						break;
-					default:
-						line = 0;
-						break;
+				case Constant.IS_NOT_ACHIEVED:
+					line = 1;
+					break;
+				case Constant.IS_RUDIMENTARY_ACHIEVED:
+					line = 2;
+					break;
+				case Constant.IS_PARTIALLY_ACHIEVED:
+					line = 3;
+					break;
+				case Constant.IS_LARGELY_ACHIEVED:
+					line = 4;
+					break;
+				case Constant.IS_FULLY_ACHIEVED:
+					line = 5;
+					break;
+				default:
+					line = 0;
+					break;
 				}
 
 				params.add(line);
@@ -846,7 +854,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportExtendedParameters: <br>
-	 * Export Extended Parameters to an Sqlite File using a Sqlite Database Handler.
+	 * Export Extended Parameters to an Sqlite File using a Sqlite Database
+	 * Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -868,7 +877,7 @@ public class ExportAnalysis {
 
 			// check if impact OR propability -> YES
 			if ((this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				|| (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
+					|| (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
 
 				// store parameter in object
 				extendedParameter = (ExtendedParameter) this.analysis.getAParameter(index);
@@ -911,7 +920,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportMaturityParameters: <br>
-	 * Export Maturity Parameters to an Sqlite File using a Sqlite Database Handler.
+	 * Export Maturity Parameters to an Sqlite File using a Sqlite Database
+	 * Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -989,36 +999,36 @@ public class ExportAnalysis {
 					// "::: value: ");
 
 					switch (i) {
-						case 0: {
-							// System.out.println(maturityParameter.getSMLLevel0());
-							params.add(maturityParameter.getSMLLevel0());
-							break;
-						}
-						case 1: {
-							// System.out.println(maturityParameter.getSMLLevel1());
-							params.add(maturityParameter.getSMLLevel1());
-							break;
-						}
-						case 2: {
-							// System.out.println(maturityParameter.getSMLLevel2());
-							params.add(maturityParameter.getSMLLevel2());
-							break;
-						}
-						case 3: {
-							// System.out.println(maturityParameter.getSMLLevel3());
-							params.add(maturityParameter.getSMLLevel3());
-							break;
-						}
-						case 4: {
-							// System.out.println(maturityParameter.getSMLLevel4());
-							params.add(maturityParameter.getSMLLevel4());
-							break;
-						}
-						case 5: {
-							// System.out.println(maturityParameter.getSMLLevel5());
-							params.add(maturityParameter.getSMLLevel5());
-							break;
-						}
+					case 0: {
+						// System.out.println(maturityParameter.getSMLLevel0());
+						params.add(maturityParameter.getSMLLevel0());
+						break;
+					}
+					case 1: {
+						// System.out.println(maturityParameter.getSMLLevel1());
+						params.add(maturityParameter.getSMLLevel1());
+						break;
+					}
+					case 2: {
+						// System.out.println(maturityParameter.getSMLLevel2());
+						params.add(maturityParameter.getSMLLevel2());
+						break;
+					}
+					case 3: {
+						// System.out.println(maturityParameter.getSMLLevel3());
+						params.add(maturityParameter.getSMLLevel3());
+						break;
+					}
+					case 4: {
+						// System.out.println(maturityParameter.getSMLLevel4());
+						params.add(maturityParameter.getSMLLevel4());
+						break;
+					}
+					case 5: {
+						// System.out.println(maturityParameter.getSMLLevel5());
+						params.add(maturityParameter.getSMLLevel5());
+						break;
+					}
 					}
 				}
 
@@ -1038,8 +1048,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportParameters: <br>
-	 * Exports the Simple, Extended and Maturity Parameters to an Sqlite File using an Sqlite
-	 * Database Handler.
+	 * Exports the Simple, Extended and Maturity Parameters to an Sqlite File
+	 * using an Sqlite Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -1151,35 +1161,33 @@ public class ExportAnalysis {
 		List<Object> params = new ArrayList<Object>();
 		String query = "";
 
-		/*List<ScenarioType> scenarioTypes = null;
-
-		if (analysis.isCssf())
-			scenarioTypes = ScenarioType.getAllCSSF();
-		else
-			ScenarioType.getAllCIA();*/
+		/*
+		 * List<ScenarioType> scenarioTypes = null;
+		 * 
+		 * if (analysis.isCssf()) scenarioTypes = ScenarioType.getAllCSSF();
+		 * else ScenarioType.getAllCIA();
+		 */
 
 		// ****************************************************************
 		// * export scenario types
 		// ****************************************************************
 
 		// parse scenario types
-		/*for (ScenarioType scenarioType : scenarioTypes) {
-
-			// ****************************************************************
-			// * export scenario types
-			// ****************************************************************
-
-			// build query
-			query = "INSERT INTO threat_types VALUES (?, ?)";
-
-			// add parameters
-			params.clear();
-			params.add(scenarioType.getValue());
-			params.add(scenarioType.getName());
-
-			// execute query
-			sqlite.query(query, params);
-		}*/
+		/*
+		 * for (ScenarioType scenarioType : scenarioTypes) {
+		 * 
+		 * // ****************************************************************
+		 * // * export scenario types //
+		 * ****************************************************************
+		 * 
+		 * // build query query = "INSERT INTO threat_types VALUES (?, ?)";
+		 * 
+		 * // add parameters params.clear();
+		 * params.add(scenarioType.getValue());
+		 * params.add(scenarioType.getName());
+		 * 
+		 * // execute query sqlite.query(query, params); }
+		 */
 
 		// ****************************************************************
 		// * export scenarios
@@ -1225,7 +1233,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportAssessments: <br>
-	 * Exports the Assessments to an Sqlite File using an Sqlite Database Handler.
+	 * Exports the Assessments to an Sqlite File using an Sqlite Database
+	 * Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -1269,9 +1278,9 @@ public class ExportAnalysis {
 			if (query.equals(Constant.EMPTY_STRING)) {
 
 				// build query
-				query =
-					"INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
-						+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
+				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
+						+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as "
+						+ "uncertainty UNION";
 
 				// set ? limit
 				counter = 14;
@@ -1291,9 +1300,9 @@ public class ExportAnalysis {
 
 					// reset query
 					// build query
-					query =
-						"INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
-							+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
+					query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? "
+							+ "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as "
+							+ "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
 
 					// set ? limit
 					counter = 14;
@@ -1352,10 +1361,10 @@ public class ExportAnalysis {
 		List<Object> specparams = new ArrayList<Object>();
 		List<Object> defaultspecparams = new ArrayList<Object>();
 		String specdefaultquery = "";
-		
+
 		MaturityStandard maturityStandard = null;
 		MaturityMeasure maturity = null;
-		
+
 		String measurequery = "";
 		int measurecounter = 0;
 		int specdefaultcounter = 0;
@@ -1375,11 +1384,11 @@ public class ExportAnalysis {
 			// standard not maturity -> YES
 			// ****************************************************************
 			if (this.analysis.getAnalysisStandard(indexStandard) instanceof NormalStandard) {
-				
+
 				NormalStandard normalStandard = (NormalStandard) this.analysis.getAnalysisStandard(indexStandard);
-				
+
 				// store standard as measurestandard
-				
+
 				// ****************************************************************
 				// * parse measures of this standard
 				// ****************************************************************
@@ -1405,28 +1414,28 @@ public class ExportAnalysis {
 					if (measurequery.isEmpty()) {
 
 						// build query
-						measurequery =
-								"INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type'," + "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure',"
-								+ "? as 'measure_computable'," + "? as 'domain_measure'," + "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral',"
-								+ "? as 'confidentiality'," + "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
-								+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4'," + "? as 'i5',"
-								+ "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10'," + "? as 'preventive',"
-								+ "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat',"
-								+ "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," 
-								+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status',"
-								+ "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment',"
-								+ "? as 'index2' UNION";
+						measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
+								+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
+								+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
+								+ "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
+								+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
+								+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9',"
+								+ "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional',"
+								+ "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup',"
+								+ "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'internal_maintenance'," + "? as 'external_maintenance',"
+								+ "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision',"
+								+ "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
 
 						// System.out.println(measurequery);
 
 						// set ? limit
-						measurecounter = 67;
+						measurecounter = MEASURE_ROW_COUNT;
 					} else {
 
 						// check if first part of query -> NO
 
 						// limit reached ? -> YES
-						if (measurecounter + 67 >= 999) {
+						if (measurecounter + MEASURE_ROW_COUNT >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1436,29 +1445,29 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery =
-									"INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type'," + "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure',"
-									+ "? as 'measure_computable'," + "? as 'domain_measure'," + "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral',"
-									+ "? as 'confidentiality'," + "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5',"
-									+ "? as 'd6'," + "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
-									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10',"
-									+ "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental',"
-									+ "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime',"
-									+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate',"
-									+ "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk',"
-									+ "? as 'soa_comment'," + "? as 'index2' UNION";
+							measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
+									+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
+									+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
+									+ "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
+									+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
+									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9',"
+									+ "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional',"
+									+ "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup',"
+									+ "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'internal_maintenance'," + "? as 'external_maintenance',"
+									+ "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision',"
+									+ "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
 
 							// reset limit counter
-							measurecounter = 67;
+							measurecounter = MEASURE_ROW_COUNT;
 						} else {
 
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 67;
+							measurecounter += MEASURE_ROW_COUNT;
 						}
 					}
 
@@ -1505,6 +1514,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getComment());
 					measureparams.add(measure.getToDo());
 					measureparams.add(measure.getToCheck());
+					measureparams.add(measure.getResponsible());
 					measureparams.add(measure.getPhase().getNumber());
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
@@ -1532,8 +1542,7 @@ public class ExportAnalysis {
 						if (specdefaultquery.isEmpty()) {
 
 							// set query
-							specdefaultquery =
-								"INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+							specdefaultquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 							// set limit
 							specdefaultcounter = 5;
@@ -1553,8 +1562,7 @@ public class ExportAnalysis {
 								defaultspecparams.clear();
 
 								// reset query
-								specdefaultquery =
-									"INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+								specdefaultquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 								// reset limit
 								specdefaultcounter = 5;
@@ -1574,7 +1582,7 @@ public class ExportAnalysis {
 						defaultspecparams.add(assetTypeValue.getAssetType().getId());
 
 						defaultspecparams.add(normalStandard.getStandard().getLabel());
-						
+
 						defaultspecparams.add(normalStandard.getStandard().getVersion());
 
 						defaultspecparams.add(measure.getMeasureDescription().getReference());
@@ -1632,28 +1640,28 @@ public class ExportAnalysis {
 					if (measurequery.isEmpty()) {
 
 						// build query
-						measurequery =
-								"INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type'," + "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure',"
-								+ "? as 'measure_computable'," + "? as 'domain_measure'," + "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral',"
-								+ "? as 'confidentiality'," + "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
-								+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4'," + "? as 'i5',"
-								+ "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10'," + "? as 'preventive',"
-								+ "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat',"
-								+ "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," 
-								+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status',"
-								+ "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment',"
-								+ "? as 'index2' UNION";
+						measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
+								+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
+								+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
+								+ "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
+								+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
+								+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9',"
+								+ "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional',"
+								+ "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup',"
+								+ "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'internal_maintenance'," + "? as 'external_maintenance',"
+								+ "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision',"
+								+ "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
 
 						// System.out.println(measurequery);
 
 						// set ? limit
-						measurecounter = 67;
+						measurecounter = MEASURE_ROW_COUNT;
 					} else {
 
 						// check if first part of query -> NO
 
 						// limit reached ? -> YES
-						if (measurecounter + 67 >= 999) {
+						if (measurecounter + MEASURE_ROW_COUNT >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1663,29 +1671,29 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery =
-								"INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type'," + "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure',"
-									+ "? as 'measure_computable'," + "? as 'domain_measure'," + "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral',"
-									+ "? as 'confidentiality'," + "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5',"
-									+ "? as 'd6'," + "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
-									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10',"
-									+ "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental',"
-									+ "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime',"
-									+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate',"
-									+ "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk',"
-									+ "? as 'soa_comment'," + "? as 'index2' UNION";
+							measurequery = "INSERT INTO measures SELECT " + "? as 'id_norme'," + "? as 'version_norme'," + "? as 'norme_description'," + "? as 'norme_type',"
+									+ "? as 'norme_computable'," + "? as 'norme_analysisOnly'," + "? as 'ref_measure'," + "? as 'measure_computable'," + "? as 'domain_measure',"
+									+ "? as 'question_measure'," + "? as 'level'," + "? as 'strength_measure'," + "? as 'strength_sectoral'," + "? as 'confidentiality',"
+									+ "? as 'integrity'," + "? as 'availability'," + "? as 'd1'," + "? as 'd2'," + "? as 'd3'," + "? as 'd4'," + "? as 'd5'," + "? as 'd6',"
+									+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4',"
+									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9',"
+									+ "? as 'i10'," + "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional',"
+									+ "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup',"
+									+ "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'internal_maintenance'," + "? as 'external_maintenance',"
+									+ "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision',"
+									+ "? as 'responsible'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment'," + "? as 'index2' UNION";
 
 							// reset limit counter
-							measurecounter = 67;
+							measurecounter = MEASURE_ROW_COUNT;
 						} else {
 
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 67;
+							measurecounter += MEASURE_ROW_COUNT;
 						}
 					}
 
@@ -1732,6 +1740,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getComment());
 					measureparams.add(measure.getToDo());
 					measureparams.add(measure.getToCheck());
+					measureparams.add(measure.getResponsible());
 					measureparams.add(measure.getPhase().getNumber());
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
@@ -1759,8 +1768,7 @@ public class ExportAnalysis {
 						if (specdefaultquery.isEmpty()) {
 
 							// set query
-							specdefaultquery =
-								"INSERT INTO spec_asset_measure SELECT ? as 'id_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+							specdefaultquery = "INSERT INTO spec_asset_measure SELECT ? as 'id_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 							// set limit
 							specdefaultcounter = 5;
@@ -1780,8 +1788,7 @@ public class ExportAnalysis {
 								defaultspecparams.clear();
 
 								// reset query
-								specdefaultquery =
-									"INSERT INTO spec_asset_measure SELECT ? as 'id_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+								specdefaultquery = "INSERT INTO spec_asset_measure SELECT ? as 'id_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 								// reset limit
 								specdefaultcounter = 5;
@@ -1801,7 +1808,7 @@ public class ExportAnalysis {
 						defaultspecparams.add(assetValue.getAsset().getId());
 
 						defaultspecparams.add(assetstandard.getStandard().getLabel());
-						
+
 						defaultspecparams.add(assetstandard.getStandard().getVersion());
 
 						defaultspecparams.add(measure.getMeasureDescription().getReference());
@@ -1809,7 +1816,7 @@ public class ExportAnalysis {
 						defaultspecparams.add(assetValue.getValue());
 
 						// check if measure is level 3 -> YES
-				
+
 					}
 				}
 
@@ -1833,7 +1840,7 @@ public class ExportAnalysis {
 					// execute the query
 					sqlite.query(specdefaultquery, defaultspecparams);
 
-			}else if (this.analysis.getAnalysisStandard(indexStandard) instanceof MaturityStandard) {
+			} else if (this.analysis.getAnalysisStandard(indexStandard) instanceof MaturityStandard) {
 
 				// ****************************************************************
 				// standard not maturity -> NO
@@ -1868,18 +1875,18 @@ public class ExportAnalysis {
 						// set query
 						measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
 						measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ? as ";
-						measurequery += "'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',";
+						measurequery += "'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo', ? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 						measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 						// set limit
-						measurecounter = 26;
+						measurecounter = MATURITY_MEASURE_ROW_COUNT;
 
 					} else {
 
 						// check if first part -> NO
 
 						// check if limit reached -> YES
-						if (measurecounter + 26 >= 999) {
+						if (measurecounter + MATURITY_MEASURE_ROW_COUNT >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1891,20 +1898,20 @@ public class ExportAnalysis {
 							// reset query
 							measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
 							measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ";
-							measurequery += "? as 'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',";
+							measurequery += "? as 'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'responsible',? as 'sml1',? as 'sml2',? as 'sml3',";
 							measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 							// reset limit
-							measurecounter = 26;
+							measurecounter = MATURITY_MEASURE_ROW_COUNT;
 						} else {
 
 							// limit reached -> NO
 
 							// add insert data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 26;
+							measurecounter += MATURITY_MEASURE_ROW_COUNT;
 						}
 					}
 
@@ -1929,6 +1936,7 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getRecurrentInvestment());
 					measureparams.add(maturity.getComment());
 					measureparams.add(maturity.getToDo());
+					measureparams.add(maturity.getResponsible());
 					measureparams.add(maturity.getSML1Cost());
 					measureparams.add(maturity.getSML2Cost());
 					measureparams.add(maturity.getSML3Cost());
@@ -1936,7 +1944,6 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getSML5Cost());
 					measureparams.add(generateIndexOfReference(maturity.getMeasureDescription().getReference()));
 					measureparams.add(maturity.getReachedLevel());
-
 				}
 
 				// ****************************************************************
@@ -1956,7 +1963,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportActionPlans: <br>
-	 * Exports the Action Plans to an Sqlite File using an Sqlite Database Handler.
+	 * Exports the Action Plans to an Sqlite File using an Sqlite Database
+	 * Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -1968,7 +1976,7 @@ public class ExportAnalysis {
 		// * export action plan types
 		// ****************************************************************
 		sqlite.query("INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'" + "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION "
-			+ "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
+				+ "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
 
 		// ****************************************************************
 		// * export action plans
@@ -2249,7 +2257,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = DatabaseHandler.generateInsertQuery("risk_register", 13);
+		query = DatabaseHandler.generateInsertQuery("risk_register", 14);
 
 		// parse all Risk Register Entries
 		for (int i = 0; i < this.analysis.getRiskRegisters().size(); i++) {
@@ -2269,6 +2277,7 @@ public class ExportAnalysis {
 			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImpact());
 			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImportance());
 			params.add(this.analysis.getARiskRegisterEntry(i).getStrategy());
+			params.add(this.analysis.getARiskRegisterEntry(i).getOwner());
 
 			// execute query
 			sqlite.query(query, params);
@@ -2329,8 +2338,9 @@ public class ExportAnalysis {
 
 	/**
 	 * generateIndexOfReference: <br>
-	 * Generate Index of Measure or Maturity Reference. This will be used inside Measure Export, to
-	 * set the Field in the Sqlite File to define the Order inside TRICK Light.
+	 * Generate Index of Measure or Maturity Reference. This will be used inside
+	 * Measure Export, to set the Field in the Sqlite File to define the Order
+	 * inside TRICK Light.
 	 * 
 	 * @param reference
 	 *            The Reference of the Measure
@@ -2405,7 +2415,8 @@ public class ExportAnalysis {
 
 	/**
 	 * getLinefromMaturityCategory: <br>
-	 * Get the Line corresponding to the maturity category. If label belongs to nothing, return -1.
+	 * Get the Line corresponding to the maturity category. If label belongs to
+	 * nothing, return -1.
 	 * 
 	 * @throws Exception
 	 */

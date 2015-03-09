@@ -2040,6 +2040,10 @@ public class ImportAnalysis {
 					((AssetMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION));
 			}
 			measure.setToDo(rs.getString(Constant.MEASURE_TODO));
+
+			if (columnExists(rs, Constant.MEASURE_RESPONSIBLE))
+				measure.setResponsible(rs.getString(Constant.MEASURE_RESPONSIBLE));
+
 			measure.getMeasureDescription().setComputable(measurecomputable);
 
 			// calculate cost
@@ -2660,6 +2664,8 @@ public class ImportAnalysis {
 			maturityMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 			maturityMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS).replace("'", "''"));
 			maturityMeasure.setToDo(rs.getString(Constant.MEASURE_TODO).replace("'", "''"));
+			if (columnExists(rs, Constant.MEASURE_RESPONSIBLE))
+				maturityMeasure.setResponsible(rs.getString(Constant.MEASURE_RESPONSIBLE));
 			maturityMeasure.setReachedLevel(rs.getInt(Constant.MATURITY_REACHED));
 			maturityMeasure.setSML1Cost(rs.getInt(Constant.MATURITY_SML1));
 			maturityMeasure.setSML2Cost(rs.getInt(Constant.MATURITY_SML2));

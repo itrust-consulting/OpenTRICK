@@ -64,6 +64,7 @@ import lu.itrust.business.TS.validator.ParameterValidator;
 import lu.itrust.business.TS.validator.RiskInformationValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -132,7 +133,7 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceAsset serviceAsset;
-	
+
 	@Autowired
 	private ServiceAssetType serviceAssetType;
 
@@ -287,11 +288,13 @@ public class ControllerEditField {
 				field.setAccessible(true);
 
 				field.set(asset, fieldEditor.getValue());
-			}else {
+			} else {
 				AssetType assetType = serviceAssetType.getByName(fieldEditor.getValue().toString());
-				if(assetType!=null)
+				if (assetType != null)
 					asset.setAssetType(assetType);
-				else return JsonMessage.Error(messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", cutomLocale != null ? cutomLocale : locale));
+				else
+					return JsonMessage
+							.Error(messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", cutomLocale != null ? cutomLocale : locale));
 			}
 
 			// update measure
@@ -1815,13 +1818,13 @@ public class ControllerEditField {
 			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		if (fieldEditor.getFieldName().equalsIgnoreCase("strategy")) {
+		if (fieldEditor.getFieldName().matches("strategy|owner")) {
 			RiskRegisterItem registerItem = serviceRiskRegister.get(elementID);
 			if (registerItem == null)
 				return JsonMessage.Error(messageSource.getMessage("error.risk_register.not_found", null, "Risk register cannot be found", cutomLocale != null ? cutomLocale
 						: locale));
 			try {
-				registerItem.setStrategy(fieldEditor.getValue().toString());
+				PropertyAccessorFactory.forBeanPropertyAccess(registerItem).setPropertyValue(fieldEditor.getFieldName(), fieldEditor.getValue());
 				serviceRiskRegister.saveOrUpdate(registerItem);
 				return JsonMessage.Success(messageSource.getMessage("success.risk_register.updated", null, "Risk register was successfully updated",
 						cutomLocale != null ? cutomLocale : locale));

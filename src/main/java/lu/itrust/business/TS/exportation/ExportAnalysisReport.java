@@ -1315,7 +1315,7 @@ public class ExportAnalysisReport {
 				if (!row.getTableCells().isEmpty())
 					row.getCell(0).setColor(SUPER_HEAD_COLOR);
 
-				while (row.getTableCells().size() < 14)
+				while (row.getTableCells().size() < 15)
 					row.createCell().setColor(SUPER_HEAD_COLOR);
 
 				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
@@ -1332,6 +1332,7 @@ public class ExportAnalysisReport {
 				row.getCell(11).setText(getMessage("report.measure.cost", null, "CS(k€)", locale));
 				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
 				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
+				row.getCell(14).setText(getMessage("report.measure.responsible", null, "Responsible", locale));
 				// set data
 				Collections.sort(analysisStandard.getMeasures(), comparator);
 
@@ -1346,11 +1347,11 @@ public class ExportAnalysisReport {
 					if (measure.getMeasureDescription().getLevel() < 3) {
 						if (row.getCell(1).getCTTc().getTcPr() == null)
 							row.getCell(1).getCTTc().addNewTcPr();
-						row.getCell(1).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(13));
+						row.getCell(1).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
 						for (int i = 0; i < 2; i++)
 							row.getCell(i).setColor(measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
 					} else {
-						while (row.getTableCells().size() < 14)
+						while (row.getTableCells().size() < 15)
 							row.createCell();
 						row.getCell(2).setText(measure.getStatus());
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
@@ -1364,9 +1365,10 @@ public class ExportAnalysisReport {
 						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
 						addCellParagraph(row.getCell(12), measure.getComment());
 						addCellParagraph(row.getCell(13), measure.getToDo());
+						addCellParagraph(row.getCell(14), measure.getResponsible());
 
 						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
-							for (int i = 0; i < 14; i++)
+							for (int i = 0; i < 15; i++)
 								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
 						} else {
 							row.getCell(0).setColor(SUB_HEADER_COLOR);

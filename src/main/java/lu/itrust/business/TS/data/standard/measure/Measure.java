@@ -85,6 +85,8 @@ public abstract class Measure implements Cloneable {
 
 	/** The "ToDo" of this Measure */
 	private String toDo = "";
+	
+	private String responsible = "";
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
@@ -614,6 +616,14 @@ public abstract class Measure implements Cloneable {
 
 	public static int compare(String reference, String reference2) {
 		return GeneralComperator.VersionComparator(reference, reference2);
+	}
+
+	public String getResponsible() {
+		return responsible;
+	}
+
+	public void setResponsible(String responsible) {
+		this.responsible = responsible;
 	}
 
 }
