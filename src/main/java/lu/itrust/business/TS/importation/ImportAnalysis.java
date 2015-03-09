@@ -1987,8 +1987,10 @@ public class ImportAnalysis {
 			phaseNumber = rs.getInt(Constant.MEASURE_PHASE);
 
 			// retrieve phase from phases map
+			if(phaseNumber == 0)
+				phaseNumber = 1;
 			phase = phases.get(phaseNumber);
-
+			
 			// if (phase.getAnalysis() == null) {
 			// System.out.println(phase);
 			// }

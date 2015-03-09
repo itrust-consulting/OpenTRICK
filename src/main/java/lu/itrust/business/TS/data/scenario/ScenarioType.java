@@ -15,20 +15,21 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 public enum ScenarioType {
 
-	Confidentiality(1), Integrity(2), Availability(3), Direct1(4), Direct2(5), Direct3(6), Direct4(7), Direct5(8), Direct6(9), Direct6_1(10), Direct6_2(11), Direct6_3(12), Direct6_4(13), Direct7(14), Indirect1(
-			15), Indirect2(16), Indirect3(17), Indirect4(18), Indirect5(19), Indirect6(20), Indirect7(21), Indirect8(22), Indirect8_1(23), Indirect8_2(24), Indirect8_3(25), Indirect8_4(26), Indirect9(
-			27), Indirect10(28);
+	Confidentiality(1), Integrity(2), Availability(3), Direct1(4), Direct2(5), Direct3(6), Direct4(7), Direct5(8), Direct6(9), Direct6_1(10), Direct6_2(11), Direct6_3(12), Direct6_4(
+			13), Direct7(14), Indirect1(15), Indirect2(16), Indirect3(17), Indirect4(18), Indirect5(19), Indirect6(20), Indirect7(21), Indirect8(22), Indirect8_1(23), Indirect8_2(
+			24), Indirect8_3(25), Indirect8_4(26), Indirect9(27), Indirect10(28);
 
-	public static final String[] NAMES = new String[] { "Confidentiality", "Integrity", "Availability", "D1-Strat", "D2-RH", "D3-Processus", "D4-BCM", "D5-Soustrait", "D6-SI", "D6.1-Secu",
-		"D6.2-Dev", "D6.3-Expl", "D6.4-Support", "D7-Aut", "I1-Strat", "I2-Fin", "I3-Leg", "I4-RH", "I5-Processus", "I6-BCM", "I7-Soustrait", "I8-SI", "I8.1-Secu", "I8.2-Dev", "I8.3-Expl",
-		"I8.4-Support", "I9-Prest", "I10-Aut" };
+	public static final String[] NAMES = new String[] { "Confidentiality", "Integrity", "Availability", "D1-Strat", "D2-RH", "D3-Processus", "D4-BCM", "D5-Soustrait", "D6-SI",
+			"D6.1-Secu", "D6.2-Dev", "D6.3-Expl", "D6.4-Support", "D7-Aut", "I1-Strat", "I2-Fin", "I3-Leg", "I4-RH", "I5-Processus", "I6-BCM", "I7-Soustrait", "I8-SI",
+			"I8.1-Secu", "I8.2-Dev", "I8.3-Expl", "I8.4-Support", "I9-Prest", "I10-Aut" };
 
-	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2",
-		"Direct6.3", "Direct6.4", "Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3",
-		"Indirect8.4", "Indirect9", "Indirect10" };
+	public static final String[] JAVAKEYS = new String[] { "Confidentiality", "Integrity", "Availability", "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6",
+			"Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4", "Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8",
+			"Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
 
-	public static final String[] CSSF_KEYS = new String[] { "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4", "Direct7",
-		"Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3", "Indirect8.4", "Indirect9", "Indirect10" };
+	public static final String[] CSSF_KEYS = new String[] { "Direct1", "Direct2", "Direct3", "Direct4", "Direct5", "Direct6", "Direct6.1", "Direct6.2", "Direct6.3", "Direct6.4",
+			"Direct7", "Indirect1", "Indirect2", "Indirect3", "Indirect4", "Indirect5", "Indirect6", "Indirect7", "Indirect8", "Indirect8.1", "Indirect8.2", "Indirect8.3",
+			"Indirect8.4", "Indirect9", "Indirect10" };
 
 	public static final String[] CIA_KEYS = new String[] { "Confidentiality", "Integrity", "Availability" };
 
@@ -119,7 +120,7 @@ public enum ScenarioType {
 	public static ScenarioType getByName(String name) {
 		ScenarioType[] values = values();
 		for (int i = 0; i < values.length; i++)
-			if (values[i].getName().equals(name.trim()))
+			if (values[i].getName().equals(name.trim()) || values[i].name().equals(name) || NAMES[i].equalsIgnoreCase(name))
 				return values[i];
 		return null;
 	}
