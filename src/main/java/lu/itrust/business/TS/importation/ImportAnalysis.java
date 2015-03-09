@@ -342,7 +342,7 @@ public class ImportAnalysis {
 			clearData();
 			if (session != null)
 				session.close();
-			if(sqlite !=null)
+			if (sqlite != null)
 				sqlite.close();
 		}
 	}
@@ -419,12 +419,12 @@ public class ImportAnalysis {
 
 		// close result
 		rs.close();
-		
+
 		List<Customer> customers = daoAnalysis.getCustomersByIdAnalysis(this.analysis.getIdentifier());
-		
-		if(customers.size()>1 || !(customers.isEmpty() || customers.contains(this.analysis.getCustomer())))
+
+		if (customers.size() > 1 || !(customers.isEmpty() || customers.contains(this.analysis.getCustomer())))
 			throw new TrickException("error.bad.customer", "This analysis already belong to an other customer");
-		
+
 		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
 		// ****************************************************************
@@ -1927,6 +1927,9 @@ public class ImportAnalysis {
 			// * Retrive phase
 			// ****************************************************************
 			phaseNumber = rs.getInt(Constant.MEASURE_PHASE);
+
+			if (phaseNumber == Constant.PHASE_NOT_USABLE)
+				phaseNumber = Constant.PHASE_DEFAULT;
 
 			// retrieve phase from phases map
 			phase = phases.get(phaseNumber);

@@ -162,10 +162,8 @@ public class ActionPlanSummaryManager {
 			}
 
 			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
-
 				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
 				summary.add(index, (int) (conformance.getConformance() * 100) + "");
-
 			}
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);

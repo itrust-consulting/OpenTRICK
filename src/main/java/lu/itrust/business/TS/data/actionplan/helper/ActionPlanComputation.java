@@ -171,19 +171,10 @@ public class ActionPlanComputation {
 		// check if standards to compute is empty -> YES: take all standards;
 		// NO: use
 		// only the standards given
-		if (standards == null || standards.isEmpty()) {
-
-			List<AnalysisStandard> tmpStandards = new ArrayList<AnalysisStandard>();
-
-			for (AnalysisStandard analysisStandard : this.analysis.getAnalysisStandards()) {
-				if (analysisStandard.getStandard().isComputable())
-					tmpStandards.add(analysisStandard);
-			}
-
-			this.standards = tmpStandards;
-		} else {
+		if (standards == null || standards.isEmpty())
+			this.standards = this.analysis.getAnalysisStandards();
+		else
 			this.standards = standards;
-		}
 
 		// check if maturity standard is to compute -> check if 27002 is
 		// selected,
@@ -2993,7 +2984,7 @@ public class ActionPlanComputation {
 			maintenances.get(phasenumber).update(tmpval.internalMaintenance, tmpval.externalMaintenance);
 		else
 			maintenances.put(phasenumber, new Maintenance(tmpval.internalMaintenance, tmpval.externalMaintenance));
-		
+
 		// ****************************************************************
 		// * create summary stage object
 		// ****************************************************************
