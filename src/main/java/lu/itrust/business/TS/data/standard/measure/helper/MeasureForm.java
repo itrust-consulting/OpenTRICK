@@ -6,6 +6,7 @@ package lu.itrust.business.TS.data.standard.measure.helper;
 import java.util.ArrayList;
 import java.util.List;
 
+import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.standard.StandardType;
 import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.data.standard.measure.Measure;
@@ -72,17 +73,19 @@ public class MeasureForm {
 		}
 
 		MeasureProperties properties = null;
-		if (measure instanceof NormalMeasure)
+		if (measure instanceof NormalMeasure){
 			properties = ((NormalMeasure) measure).getMeasurePropertyList();
+			form.assetValues = new ArrayList<MeasureAssetValueForm>(((NormalMeasure) measure).getAssetTypeValues().size());
+			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues()) 
+				form.assetValues.add(new MeasureAssetValueForm(assetTypeValue.getAssetType().getId(),assetTypeValue.getAssetType().getType(), assetTypeValue.getValue()));
+		}
 		else if (measure instanceof AssetMeasure) {
 			properties = ((AssetMeasure) measure).getMeasurePropertyList();
 			form.setAssetValues(new ArrayList<MeasureAssetValueForm>(((AssetMeasure) measure).getMeasureAssetValues().size()));
 			for (MeasureAssetValue assetValue : ((AssetMeasure) measure).getMeasureAssetValues())
 				form.assetValues.add(new MeasureAssetValueForm(assetValue));
 		}
-
 		form.setProperties(properties);
-
 		return form;
 	}
 

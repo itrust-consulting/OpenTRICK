@@ -85,13 +85,16 @@
 										</p>
 									</div>
 									<hr class="center-block" style="width: 96%">
-									<div style="width: 47%; margin: 5px 15px;">
-										Filter <select class="form-control" name="assettypes" id="assettypes">
-											<c:forEach items="${assetTypes}" var="assetType">
-												<option value="${assetType.type}" ${assetType.type.equals(selectedAssetType)?"selected='selected'":"" }><spring:message text="${assetType.type}" /></option>
-											</c:forEach>
-										</select>
-
+									<div class="form-group" style="width: 47%; margin: 5px 15px;">
+										<label class="col-xs-3" style="padding: 5px;"><spring:message code="label.filter" text="Filter" /></label>
+										<div class="col-xs-9">
+											<select class="form-control" name="assettypes" id="assettypes">
+												<option value="ALL"><spring:message code="label.all" text="All" /></option>
+												<c:forEach items="${assetTypes}" var="assetType">
+													<option value="${assetType.type}" ${assetType.type.equals(selectedAssetType)?"selected='selected'":"" }><spring:message text="${assetType.type}" /></option>
+												</c:forEach>
+											</select>
+										</div>
 									</div>
 								</div>
 								<div class="row">
@@ -148,11 +151,18 @@
 										<th class="warning"><fmt:message key="label.rrf.measure.environmental" /></th>
 										<th class="warning"><fmt:message key="label.rrf.measure.internal_threat" /></th>
 										<th class="warning"><fmt:message key="label.rrf.measure.external_threat" /></th>
-										<c:if test="${measureForm.type == 'ASSET' }">
-											<c:forEach items="${measureForm.assetValues}" var="assetValue">
-												<th data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><spring:message text='${assetValue.name}' /></th>
-											</c:forEach>
-										</c:if>
+										<c:choose>
+											<c:when test="${measureForm.type == 'ASSET' }">
+												<c:forEach items="${measureForm.assetValues}" var="assetValue">
+													<th data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><spring:message text='${assetValue.name}' /></th>
+												</c:forEach>
+											</c:when>
+											<c:when test="${measureForm.type == 'NORMAL' }">
+												<c:forEach items="${measureForm.assetValues}" var="assetValue">
+													<th ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><spring:message text='${assetValue.name}' /></th>
+												</c:forEach>
+											</c:when>
+										</c:choose>
 									</tr>
 								</thead>
 								<tbody>
@@ -196,14 +206,24 @@
 										<td class="warning"><input type="text" class="slider" id="externalThreat" value="${measureForm.properties.externalThreat}" data-slider-min="0" data-slider-max="4"
 											data-slider-step="1" data-slider-value="${measureForm.properties.externalThreat}" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after"
 											data-slider-tooltip="show"></td>
-										<c:if test="${measureForm.type == 'ASSET' }">
-											<c:forEach items="${measureForm.assetValues}" var="assetValue">
-												<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="text" class="slider"
-													id='asset_slider_<spring:message text="${assetValue.id}"/>' value="${assetValue.value}" data-slider-min="0" data-slider-max="100" data-slider-step="1"
-													data-slider-value="${assetValue.value}" name="<spring:message text="${assetValue.id}"/>" data-slider-orientation="vertical" data-slider-selection="after"
-													data-slider-tooltip="show"></td>
-											</c:forEach>
-										</c:if>
+										<c:choose>
+											<c:when test="${measureForm.type == 'ASSET'}">
+												<c:forEach items="${measureForm.assetValues}" var="assetValue">
+													<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="text" class="slider"
+														id='asset_slider_<spring:message text="${assetValue.id}"/>' value="${assetValue.value}" data-slider-min="0" data-slider-max="100" data-slider-step="1"
+														data-slider-value="${assetValue.value}" name="<spring:message text="${assetValue.id}"/>" data-slider-orientation="vertical" data-slider-selection="after"
+														data-slider-tooltip="show"></td>
+												</c:forEach>
+											</c:when>
+											<c:when test="${measureForm.type == 'NORMAL'}">
+												<c:forEach items="${measureForm.assetValues}" var="assetValue">
+													<td ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><input type="text" class="slider"
+														id='asset_slider_<spring:message text="${assetValue.id}"/>' value="${assetValue.value}" data-slider-min="0" data-slider-max="100" data-slider-step="1"
+														data-slider-value="${assetValue.value}" name="<spring:message text="${assetValue.id}"/>" data-slider-orientation="vertical" data-slider-selection="after"
+														data-slider-tooltip="show"></td>
+												</c:forEach>
+											</c:when>
+										</c:choose>
 									</tr>
 									<tr id="values">
 										<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="fvalue"
@@ -233,13 +253,22 @@
 											value="${measureForm.properties.internalThreat}" name="internalThreat"></td>
 										<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="externalThreat_value"
 											value="${measureForm.properties.externalThreat}" name="externalThreat"></td>
-										<c:if test="${measureForm.type == 'ASSET' }">
-											<c:forEach items="${measureForm.assetValues}" var="assetValue">
-												<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="text"
-													id='property_asset_<spring:message text="${assetValue.id}"/>_value' style="min-width: 50px;" readonly="readonly" class="form-control" value="${assetValue.value}"
-													name="<spring:message text="${assetValue.id}" />"></td>
-											</c:forEach>
-										</c:if>
+										<c:choose>
+											<c:when test="${measureForm.type == 'ASSET' }">
+												<c:forEach items="${measureForm.assetValues}" var="assetValue">
+													<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="text"
+														id='property_asset_<spring:message text="${assetValue.id}"/>_value' style="min-width: 50px;" readonly="readonly" class="form-control" value="${assetValue.value}"
+														name="<spring:message text="${assetValue.id}" />"></td>
+												</c:forEach>
+											</c:when>
+											<c:when test="${measureForm.type == 'NORMAL' }">
+												<c:forEach items="${measureForm.assetValues}" var="assetValue">
+													<td ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><input type="text"
+														id='property_asset_type_<spring:message text="${assetValue.id}"/>_value' style="min-width: 50px;" readonly="readonly" class="form-control" value="${assetValue.value}"
+														name="<spring:message text="${assetValue.id}" />"></td>
+												</c:forEach>
+											</c:when>
+										</c:choose>
 									</tr>
 								</tbody>
 							</table>

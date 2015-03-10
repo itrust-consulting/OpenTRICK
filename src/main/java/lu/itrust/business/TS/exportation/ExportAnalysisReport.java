@@ -173,7 +173,7 @@ public class ExportAnalysisReport {
 			numberFormat.setMaximumFractionDigits(0);
 			
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", null, increase(1)));// 1%
-			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel(), analysis.getVersion()));
+			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("[ -()][/]|\\s{2,}", "_"), analysis.getVersion()));
 			if (!workFile.exists())
 				workFile.createNewFile();
 

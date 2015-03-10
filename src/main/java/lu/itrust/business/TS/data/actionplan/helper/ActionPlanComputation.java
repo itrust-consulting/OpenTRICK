@@ -2906,7 +2906,7 @@ public class ActionPlanComputation {
 				else if (measure instanceof MaturityMeasure)
 					imprate = ((MaturityMeasure) measure).getImplementationRateValue();
 
-				if (measure.getMeasureDescription().isComputable()) {
+				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 
 					String chapterName = extractMainChapter(measure.getMeasureDescription().getReference());
 
@@ -2938,7 +2938,6 @@ public class ActionPlanComputation {
 
 						for (int k = 0; k < helper.measures.size(); k++) {
 							if (measure.equals(helper.measures.get(k))) {
-
 								numerator += (1.) - (imprate / 100.);
 								tmpval.measureCount++;
 								break;

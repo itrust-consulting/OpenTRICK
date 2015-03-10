@@ -53,9 +53,7 @@
 		</c:if>
 		<li><a href="#tabActionPlan" data-toggle="tab"> <fmt:message key="label.menu.analysis.action_plan" /></a></li>
 		<li><a href="#tabSummary" data-toggle="tab"> <fmt:message key="label.menu.analysis.summary" /></a></li>
-		<c:if test="${show_cssf}">
-			<li><a href="#tabRiskRegister" data-toggle="tab"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
-		</c:if>
+		<li><a href="#tabRiskRegister" data-toggle="tab"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
 		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.analysis.chart" /><span class="caret"></span></a>
 			<ul class="dropdown-menu">
 				<li><a href="#tabChartAsset" data-toggle="tab"> <fmt:message key="label.chart.asset" /></a></li>
@@ -86,9 +84,7 @@
 				<li class="dropdown-header"><fmt:message key="label.title.computation" /></li>
 				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.action.compute.action_plan" />
 				</a></li>
-				<c:if test="${show_cssf}">
-					<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.action.compute.risk_register" /></a></li>
-				</c:if>
+				<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.action.compute.risk_register" /></a></li>
 				<li class="divider"></li>
 				<li><a href="#" onclick="return reloadCharts();"> <fmt:message key="label.action.reload.charts" /></a></li>
 				<li class="divider"></li>

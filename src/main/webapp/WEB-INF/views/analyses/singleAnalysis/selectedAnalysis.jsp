@@ -48,10 +48,8 @@
 					<jsp:include page="./components/actionplan.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
-					<c:if test="${show_cssf}">
-						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
-						<jsp:include page="./components/riskregister.jsp" />
-					</c:if>
+					<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
+					<jsp:include page="./components/riskregister.jsp" />
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
 			</div>

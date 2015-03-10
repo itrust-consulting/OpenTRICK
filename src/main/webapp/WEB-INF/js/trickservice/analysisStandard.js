@@ -498,8 +498,12 @@ function addMeasure(idStandard, idMeasure) {
 					});
 
 					var updateAssetUI = function(selected) {
-						$assetTab.find("li[data-trick-type='" + selected + "']").show();
-						$assetTab.find("li[data-trick-type!='" + selected + "']").hide();
+						if (selected === 'ALL')
+							$assetTab.find("li[data-trick-type]").show();
+						else {
+							$assetTab.find("li[data-trick-type='" + selected + "']").show();
+							$assetTab.find("li[data-trick-type!='" + selected + "']").hide();
+						}
 					};
 
 					updateAssetUI($assetTab.find("#assettypes").val());
@@ -535,18 +539,21 @@ function saveMeasure() {
 		data = $genearal.serializeJSON();
 	data.id = form.find("#id").val();
 	data.idStandard = form.find("#idStandard").val();
-	if ($assetTab.length) {
-		data.type = "ASSET";
-		data.assetValues = [];
-		$assetTab.find("li>input[name='assets']").each(function() {
-			data.assetValues.push({
-				id : this.value,
-				value : properties[this.value],
-			});
-			delete properties[this.value];
+	data.assetValues = [];
+
+	form.find("#tab_properties #values input[id^='property_asset_type']").each(function() {
+		data.assetValues.push({
+			id : this.name,
+			value : properties[this.name],
 		});
-	} else
+		delete properties[this.name];
+	});
+
+	if ($assetTab.length)
+		data.type = "ASSET";
+	else
 		data.type = "NORMAL";
+
 	data.properties = properties;
 	data.computable = data.computable === "on";
 	$.ajax({

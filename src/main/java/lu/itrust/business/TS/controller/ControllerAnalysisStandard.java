@@ -766,10 +766,8 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		try {
-
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis",
 					customLocale != null ? customLocale : locale));
@@ -840,25 +838,32 @@ public class ControllerAnalysisStandard {
 			Measure measure = MeasureManager.Create(analysisStandard);
 
 			MeasureProperties properties = null;
+			
+			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
 			if (measure instanceof AssetMeasure) {
 
 				List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
 
 				model.addAttribute("availableAssets", availableAssets);
-
-				List<AssetType> assettypes = new ArrayList<AssetType>();
-
-				for (Asset asset : availableAssets)
-					if (!assettypes.contains(asset.getAssetType()))
-						assettypes.add(asset.getAssetType());
-
-				model.addAttribute("assetTypes", assettypes);
+				
+				model.addAttribute("assetTypes", analysisAssetTypes);
 
 				((AssetMeasure) measure).setMeasurePropertyList(properties = new MeasureProperties());
 
-			} else if (measure instanceof NormalMeasure)
-				((NormalMeasure) measure).setMeasurePropertyList(properties = new MeasureProperties());
+			} else if (measure instanceof NormalMeasure) {
+				NormalMeasure normalMeasure = (NormalMeasure) measure;
+				normalMeasure.setMeasurePropertyList(properties = new MeasureProperties());
+				List<AssetType> assetTypes = serviceAssetType.getAll();
+				
+				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
+				for (AssetType assetType : assetTypes) {
+					if (!analysisAssetTypes.contains(assetType))
+						assetTypesMapping.put(assetType.getType(), false);
+					normalMeasure.addAnAssetTypeValue(new AssetTypeValue(assetType, 0));
+				}
+				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
+			}
 
 			measure.setMeasureDescription(new MeasureDescription(new MeasureDescriptionText(language)));
 
@@ -890,10 +895,10 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		try {
-			
+
 			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 			locale = new Locale(language.getAlpha2());
-			
+
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 			if (measure == null)
 				throw new TrickException("error.measure.not_found", "Measure cannot be found");
@@ -901,6 +906,8 @@ public class ControllerAnalysisStandard {
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
 			MeasureProperties properties = null;
+			
+			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
 			if (measure instanceof AssetMeasure) {
 
@@ -909,14 +916,8 @@ public class ControllerAnalysisStandard {
 				List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
 
 				model.addAttribute("availableAssets", availableAssets);
-
-				List<AssetType> assettypes = new ArrayList<AssetType>();
-
-				for (Asset asset : availableAssets)
-					if (!assettypes.contains(asset.getAssetType()))
-						assettypes.add(asset.getAssetType());
-
-				model.addAttribute("assetTypes", assettypes);
+				
+				model.addAttribute("assetTypes", analysisAssetTypes);
 
 				if (!(availableAssets.isEmpty() || assetMeasure.getMeasureAssetValues().isEmpty())) {
 					for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues())
@@ -925,8 +926,19 @@ public class ControllerAnalysisStandard {
 
 				properties = ((AssetMeasure) measure).getMeasurePropertyList();
 
-			} else if (measure instanceof NormalMeasure)
-				properties = ((NormalMeasure) measure).getMeasurePropertyList();
+			} else if (measure instanceof NormalMeasure) {
+				NormalMeasure normalMeasure = (NormalMeasure) measure;
+				properties = normalMeasure.getMeasurePropertyList();
+				List<AssetType> assetTypes = serviceAssetType.getAll();
+				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
+				for (AssetType assetType : assetTypes) {
+					if (!analysisAssetTypes.contains(assetType))
+						assetTypesMapping.put(assetType.getType(), false);
+					if (normalMeasure.getAssetTypeValueByAssetType(assetType) == null)
+						normalMeasure.addAnAssetTypeValue(new AssetTypeValue(assetType, 0));
+				}
+				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
+			}
 
 			if (properties != null) {
 				boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
@@ -961,8 +973,6 @@ public class ControllerAnalysisStandard {
 			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 
 			locale = new Locale(language.getAlpha2());
-			
-			System.out.println(locale.getCountry());
 
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
 
@@ -1022,8 +1032,11 @@ public class ControllerAnalysisStandard {
 				if (measure.getId() < 1)
 					throw new TrickException("error.measure.not_found", "Measure cannot be found");
 				measureForm.getProperties().copyTo(((NormalMeasure) measure).getMeasurePropertyList());
+				if (!updateAssetTypeValues((NormalMeasure) measure, measureForm.getAssetValues(), errors, locale).isEmpty())
+					return errors;
 			} else
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+
 			serviceMeasure.saveOrUpdate(measure);
 		} catch (TrickException e) {
 			e.printStackTrace();
@@ -1033,6 +1046,31 @@ public class ControllerAnalysisStandard {
 			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
+	}
+
+	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)
+			throws Exception {
+		Map<Integer, AssetType> assetTypes = new LinkedHashMap<Integer, AssetType>();
+		serviceAssetType.getAll().stream().forEach(assetType -> assetTypes.put(assetType.getId(), assetType));
+		assetValueForms.stream().forEach(assetTypeValueForm -> {
+			try {
+				AssetType assetType = assetTypes.get(assetTypeValueForm.getId());
+				if (assetType == null) {
+					errors.put("assetType", messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", locale));
+					return;
+				}
+				AssetTypeValue assetTypeValue = measure.getAssetTypeValueByAssetType(assetType);
+				if (assetTypeValue == null)
+					measure.addAnAssetTypeValue(assetTypeValue = new AssetTypeValue(assetType, assetTypeValueForm.getValue()));
+				else
+					assetTypeValue.setValue(assetTypeValueForm.getValue());
+			} catch (TrickException e) {
+				errors.put("assetTypeValue", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+				return;
+			}
+		});
+		return errors;
+
 	}
 
 	private void validate(MeasureForm measureForm, Map<String, String> errors, Locale locale) throws Exception {
@@ -1085,7 +1123,7 @@ public class ControllerAnalysisStandard {
 			else
 				descriptionText.update(measureForm.getDomain(), measureForm.getDescription());
 		}
-		
+
 		description.setComputable(measureForm.isComputable());
 
 		if (measureForm.getProperties() == null) {
@@ -1128,6 +1166,7 @@ public class ControllerAnalysisStandard {
 			if (normalMeasure.getMeasurePropertyList() == null)
 				normalMeasure.setMeasurePropertyList(new MeasureProperties());
 			measureForm.getProperties().copyTo(normalMeasure.getMeasurePropertyList());
+			updateAssetTypeValues(normalMeasure, measureForm.getAssetValues(), errors, locale);
 		}
 
 		return errors;

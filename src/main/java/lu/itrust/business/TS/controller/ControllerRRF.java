@@ -138,10 +138,6 @@ public class ControllerRRF {
 				model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
 				model.addAttribute("internalThreat", normalMeasure.getMeasurePropertyList().getInternalThreat());
 				model.addAttribute("externalThreat", normalMeasure.getMeasurePropertyList().getExternalThreat());
-				Double typeValue =
-					normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
-						+ normalMeasure.getMeasurePropertyList().getCorrective();
-				model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 				model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
 			}
 			if (measure instanceof AssetMeasure) {
@@ -307,10 +303,6 @@ public class ControllerRRF {
 			model.addAttribute("detective", normalMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute("limitative", normalMeasure.getMeasurePropertyList().getLimitative());
 			model.addAttribute("corrective", normalMeasure.getMeasurePropertyList().getCorrective());
-			double typeValue =
-				normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
-					+ normalMeasure.getMeasurePropertyList().getCorrective();
-			model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", normalMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", normalMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
@@ -333,10 +325,6 @@ public class ControllerRRF {
 			model.addAttribute("detective", assetMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
 			model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
-			double typeValue =
-				assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective() + assetMeasure.getMeasurePropertyList().getLimitative()
-					+ assetMeasure.getMeasurePropertyList().getCorrective();
-			model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environmental", assetMeasure.getMeasurePropertyList().getEnvironmental());

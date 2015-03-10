@@ -56,6 +56,13 @@ public class MeasureAssetValueForm {
 		this.value = assetValue.getValue();
 	}
 
+	public MeasureAssetValueForm(int id, String type, int value) {
+		setId(id);
+		setType(type);
+		setName(type);
+		setValue(value);
+	}
+
 	public String getType() {
 		return type;
 	}
