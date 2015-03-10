@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.data.general;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -64,7 +63,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	private int externalThreat = 0;
 
 	/** The Map of Scenario Categories */
-	private Map<String, Integer> categories = new HashMap<String, Integer>(25);
+	private Map<String, Integer> categories = new LinkedHashMap<String, Integer>(25);
 
 	/***********************************************************************************************
 	 * Constructor

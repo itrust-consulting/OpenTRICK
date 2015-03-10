@@ -14,6 +14,7 @@ import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * @author eomar
@@ -47,7 +48,7 @@ public class MeasureForm {
 	public MeasureForm() {
 	}
 
-	public static final MeasureForm Build(Measure measure, String language) {
+	public static final MeasureForm Build(Measure measure, String language) throws TrickException {
 		MeasureForm form = new MeasureForm();
 		if (measure == null)
 			return form;
@@ -72,15 +73,15 @@ public class MeasureForm {
 			}
 		}
 
-		MeasureProperties properties = null;
+		MeasureProperties properties = new MeasureProperties();
 		if (measure instanceof NormalMeasure){
-			properties = ((NormalMeasure) measure).getMeasurePropertyList();
+			((NormalMeasure) measure).getMeasurePropertyList().copyTo(properties);
 			form.assetValues = new ArrayList<MeasureAssetValueForm>(((NormalMeasure) measure).getAssetTypeValues().size());
 			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues()) 
 				form.assetValues.add(new MeasureAssetValueForm(assetTypeValue.getAssetType().getId(),assetTypeValue.getAssetType().getType(), assetTypeValue.getValue()));
 		}
 		else if (measure instanceof AssetMeasure) {
-			properties = ((AssetMeasure) measure).getMeasurePropertyList();
+			((AssetMeasure) measure).getMeasurePropertyList().copyTo(properties);
 			form.setAssetValues(new ArrayList<MeasureAssetValueForm>(((AssetMeasure) measure).getMeasureAssetValues().size()));
 			for (MeasureAssetValue assetValue : ((AssetMeasure) measure).getMeasureAssetValues())
 				form.assetValues.add(new MeasureAssetValueForm(assetValue));
