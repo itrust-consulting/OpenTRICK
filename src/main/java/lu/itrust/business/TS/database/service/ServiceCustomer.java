@@ -46,4 +46,6 @@ public interface ServiceCustomer {
 	public Customer getOneNoProfile();
 
 	public Customer getFromUsernameAndId(String username, int idCustomer);
+
+	public boolean exists(int idCustomer);
 }

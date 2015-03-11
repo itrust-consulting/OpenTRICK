@@ -4,12 +4,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
+import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -355,16 +362,91 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@Override
 	public void delete(Analysis analysis) throws Exception {
+		deleteActionPlanByAnalysisId(analysis.getId());
+		deleteActionPlanSummaryByAnalysisId(analysis.getId());
+		deleteRiskRegisterFromAnalysis(analysis.getId());
+		deleteStandardByAnalysis(analysis);
 		getSession().delete(analysis);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void deleteActionPlanByAnalysisId(Integer analysisID) throws Exception {
+		String query = "Select actionplans FROM Analysis analysis INNER JOIN analysis.actionPlans actionplans WHERE analysis.id= :analysisID";
+
+		List<ActionPlanEntry> actionplans = (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
+		for (ActionPlanEntry entry : actionplans) {
+			List<ActionPlanAsset> assets = entry.getActionPlanAssets();
+			for (ActionPlanAsset asset : assets)
+				getSession().delete(asset);
+			getSession().delete(entry);
+		}
+
+	}
+
+	/**
+	 * deleteAllFromAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#deleteAllFromAnalysis(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	private void deleteActionPlanSummaryByAnalysisId(Integer analysisID) throws Exception {
+		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis";
+		List<SummaryStage> summaries = (List<SummaryStage>) getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
+		for (SummaryStage summary : summaries) {
+			for (SummaryStandardConformance conformance : summary.getConformances())
+				getSession().delete(conformance);
+			getSession().delete(summary);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void deleteRiskRegisterFromAnalysis(Integer analysisID) throws Exception {
+		getSession().createQuery("SELECT riskregisters FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregisters WHERE analysis.id= :analysisID")
+				.setParameter("analysisID", analysisID).list().stream().forEach(riskRegister -> getSession().delete(riskRegister));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void deleteStandardByAnalysis(Analysis analysis) throws Exception {
+
+		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
+
+		for (AnalysisStandard standard : analysis.getAnalysisStandards()) {
+
+			getSession().delete(standard);
+
+			if (standard.getStandard().isAnalysisOnly())
+				standards.add(standard);
+		}
+
+		analysis.getAnalysisStandards().clear();
+
+		getSession().saveOrUpdate(analysis);
+
+		for (AnalysisStandard standard : standards) {
+
+			Standard tmpstandard = standard.getStandard();
+
+			List<MeasureDescription> mesDescs = (List<MeasureDescription>) getSession()
+					.createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).list();
+
+			for (MeasureDescription mesDesc : mesDescs) {
+				for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts())
+					getSession().delete(mesDescText);
+				getSession().delete(mesDesc);
+			}
+			getSession().delete(tmpstandard);
+		}
 
 	}
 
 	@Override
 	public void delete(Integer analysisId) throws Exception {
 		Analysis analysis = get(analysisId);
-		if (analysis != null) {
+		if (analysis != null)
 			delete(analysis);
-		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -498,6 +580,28 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Customer> getCustomersByIdAnalysis(String identifier) {
-		return getSession().createQuery("Select distinct analysis.customer From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier).list();
+		return getSession().createQuery("Select distinct analysis.customer From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier)
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllByIdentifier(String identifier) {
+		return getSession().createQuery("From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(int analysisId) {
+		return getSession()
+				.createQuery(
+						"Select distinct analysis.customer From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2 = :analysisId)")
+				.setInteger("analysisId", analysisId).list();
+	}
+
+	@Override
+	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer) {
+		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where id = :idAnalysis and customer.id = :idCustomer").setInteger("idAnalysis", idAnalysis)
+				.setInteger("idCustomer", idCustomer).uniqueResult();
 	}
 }

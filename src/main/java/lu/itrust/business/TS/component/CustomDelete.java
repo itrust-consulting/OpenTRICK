@@ -4,12 +4,15 @@
 package lu.itrust.business.TS.component;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.AnalysisComparator;
+import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
@@ -36,6 +39,7 @@ import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.DAOUser;
+import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
@@ -68,6 +72,9 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOMeasureDescriptionText daoMeasureDescriptionText;
+	
+	@Autowired
+	private DAOUserAnalysisRight daoUserAnalysisRight;
 
 	@Autowired
 	private DAOScenario daoScenario;
@@ -283,15 +290,42 @@ public class CustomDelete {
 	@Transactional
 	public void deleteAnalysis(int idAnalysis) throws Exception {
 
-		daoActionPlan.deleteAllFromAnalysis(idAnalysis);
+		// delete the analysis
+		List<UserAnalysisRight> currentAnalysisRights = daoUserAnalysisRight.getAllFromAnalysis(idAnalysis);
 
-		daoActionPlanSummary.deleteAllFromAnalysis(idAnalysis);
+		String identifier = daoAnalysis.getIdentifierByIdAnalysis(idAnalysis);
 
-		daoRiskRegister.deleteAllFromAnalysis(idAnalysis);
+		List<String> versions = daoAnalysis.getAllNotEmptyVersion(identifier);
 
-		daoAnalysisStandard.deleteAllFromAnalysis(idAnalysis);
+		Comparator<String> comparator = new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return GeneralComperator.VersionComparator(o1, o2);
+			}
+		};
 
+		Collections.sort(versions, Collections.reverseOrder(comparator));
+		if (!versions.isEmpty())
+			versions.remove(0);
+
+		Analysis lastVersion = null;
+		if (!versions.isEmpty()) {
+			lastVersion = daoAnalysis.getFromIdentifierVersionCustomer(identifier, versions.get(0), daoAnalysis.getCustomerIdByIdAnalysis(idAnalysis));
+			if (lastVersion != null) {
+				for (UserAnalysisRight userAnalysisRight : currentAnalysisRights) {
+					UserAnalysisRight analysisRight = lastVersion.getRightsforUser(userAnalysisRight.getUser());
+					if (analysisRight != null)
+						analysisRight.setRight(userAnalysisRight.getRight());
+				}
+			}
+		}
+		
 		daoAnalysis.delete(idAnalysis);
+		
+		if (lastVersion != null)
+			daoAnalysis.saveOrUpdate(lastVersion);
+		else
+			customDeleteEmptyAnalysis(identifier);
 	}
 
 	@Transactional
@@ -303,6 +337,16 @@ public class CustomDelete {
 		user.getCustomers().clear();
 		daoUser.saveOrUpdate(user);
 		daoUser.delete(user.getId());
+	}
+
+	@Transactional
+	public void customDeleteEmptyAnalysis(String identifier) throws Exception {
+		List<Analysis> analyses = daoAnalysis.getAllByIdentifier(identifier);
+		if (analyses.stream().anyMatch(analysis -> analysis.hasData()))
+			return;
+		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
+		for (Analysis analysis : analyses)
+			daoAnalysis.delete(analysis);
 	}
 
 }

@@ -2,6 +2,7 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -10,9 +11,12 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.CustomerManager;
+import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.TrickService;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
@@ -44,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,9 +92,12 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceTrickService serviceTrickService;
-	
+
 	@Autowired
 	private ManageAnalysisRight manageAnalysisRight;
+
+	@Autowired
+	private CustomerManager customerManager;
 
 	@Value("${app.settings.version}")
 	private String version;
@@ -196,9 +204,11 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
+		List<Analysis> analyses = serviceAnalysis.getAllFromCustomer(customerSection);
+		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
 		session.setAttribute("currentAdminCustomer", customerSection);
 		model.addAttribute("customer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.getAllFromCustomer(customerSection));
+		model.addAttribute("analyses", analyses);
 		model.addAttribute("customers", serviceCustomer.getAll());
 		return "admin/analysis/analyses";
 	}
@@ -280,7 +290,8 @@ public class ControllerAdministration {
 
 			Map<User, AnalysisRight> userrights = manageAnalysisRight.updateAnalysisRights(principal, analysis, serviceUser.getAll(), jsonNode);
 
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success",
+					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -293,6 +304,28 @@ public class ControllerAdministration {
 			e.printStackTrace();
 			return "analyses/allAnalyses/forms/manageUserAnalysisRights";
 		}
+	}
+
+	@RequestMapping("/Analysis/{analysisId}/Switch/Customer")
+	public String switchCUstomerForm(@PathVariable("analysisId") int analysisId, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
+		model.addAttribute("idAnalysis", analysisId);
+		model.addAttribute("currentCustomers", serviceAnalysis.getCustomersByIdAnalysis(analysisId));
+		model.addAttribute("customers", serviceCustomer.getAllNotProfiles());
+		return "admin/analysis/switch-customer";
+	}
+
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Customer/{idCustomer}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String switchCUstomerForm(@PathVariable("idAnalysis") int idAnalysis, @PathVariable("idCustomer") int idCustomer, Principal principal, Model model,
+			RedirectAttributes attributes, Locale locale) throws Exception {
+		String identifier = serviceAnalysis.getIdentifierByIdAnalysis(idAnalysis);
+		if (identifier == null)
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+		else if (serviceCustomer.isProfile(idCustomer))
+			return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+		else if (!serviceCustomer.exists(idCustomer))
+			return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
+		customerManager.switchCustomer(identifier, idCustomer);
+		return JsonMessage.Success(messageSource.getMessage("success.analyses.updated", null, "Analyses have been updated", locale));
 	}
 
 	/**
@@ -519,11 +552,8 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping("/User/Delete/{userId}")
 	public @ResponseBody Map<String, String> deleteUser(@PathVariable("userId") int userId, Principal principal, Locale locale) throws Exception {
-
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-
 		try {
-
 			User user = serviceUser.get(userId);
 			if (!user.getLogin().equals(principal.getName())) {
 				customDelete.deleteUser(user);
@@ -535,7 +565,6 @@ public class ControllerAdministration {
 			e.printStackTrace();
 			errors.put("error", messageSource.getMessage("error.user.delete_failed", null, "Could not delete the account! Make sure the user does not own any analyses!", locale));
 		}
-
 		return errors;
 
 	}

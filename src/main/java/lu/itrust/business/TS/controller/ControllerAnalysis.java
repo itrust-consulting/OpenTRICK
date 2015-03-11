@@ -19,6 +19,7 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -26,7 +27,6 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
@@ -202,6 +202,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ManageAnalysisRight manageAnalysisRight;
+
+	@Autowired
+	private CustomerManager customerManager;
 
 	@Autowired
 	private CustomDelete customDelete;
@@ -642,39 +645,7 @@ public class ControllerAnalysis {
 			if (analysis != null && analysis.getId() == analysisId)
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
-			// delete the analysis
-			List<UserAnalysisRight> currentAnalysisRights = serviceUserAnalysisRight.getAllFromAnalysis(analysisId);
-
-			String identifier = serviceAnalysis.getIdentifierByIdAnalysis(analysisId);
-
-			List<String> versions = serviceAnalysis.getAllNotEmptyVersion(identifier);
-
-			Comparator<String> comparator = new Comparator<String>() {
-				@Override
-				public int compare(String o1, String o2) {
-					return GeneralComperator.VersionComparator(o1, o2);
-				}
-			};
-
-			Collections.sort(versions, Collections.reverseOrder(comparator));
-			if (!versions.isEmpty())
-				versions.remove(0);
-
-			Analysis lastVersion = null;
-			if (!versions.isEmpty()) {
-				lastVersion = serviceAnalysis.getFromIdentifierVersionCustomer(identifier, versions.get(0), serviceAnalysis.getCustomerIdByIdAnalysis(analysisId));
-				if (lastVersion != null) {
-					for (UserAnalysisRight userAnalysisRight : currentAnalysisRights) {
-						UserAnalysisRight analysisRight = lastVersion.getRightsforUser(userAnalysisRight.getUser());
-						if (analysisRight != null)
-							analysisRight.setRight(userAnalysisRight.getRight());
-					}
-				}
-			}
-
 			customDelete.deleteAnalysis(analysisId);
-			if (lastVersion != null)
-				serviceAnalysis.saveOrUpdate(lastVersion);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 
@@ -1012,32 +983,46 @@ public class ControllerAnalysis {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			Analysis analysis = null;
+			Customer customer = null;
+
 			int id = jsonNode.get("id").asInt();
+			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
+			if (idCustomer < 1)
+				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
+			else {
+				customer = serviceCustomer.get(idCustomer);
+				if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
+					errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+			}
 
-			if (id > 0)
-				analysis = serviceAnalysis.get(id);
-
-			if (analysis == null) {
-				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+			if (!errors.isEmpty())
 				return false;
+
+			if (id > 0) {
+				if (!serviceAnalysis.exists(id)) {
+					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+					return false;
+				}
+				if (!serviceAnalysis.isProfile(id)) {
+					if (!serviceAnalysis.isAnalysisCustomer(id, idCustomer))
+						customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer);
+					analysis = serviceAnalysis.get(id);
+					if (customer.getId() != analysis.getCustomer().getId())
+						analysis.setCustomer(customer);
+				} else
+					analysis = serviceAnalysis.get(id);
 			}
 
 			int idLanguage = jsonNode.has("analysislanguage") ? jsonNode.get("analysislanguage").asInt() : -1;
+			
 			Language language = serviceLanguage.get(idLanguage);
 
 			String comment = jsonNode.has("comment") ? jsonNode.get("comment").asText() : "";
-
-			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
-			Customer customer = serviceCustomer.get(idCustomer);
 
 			boolean uncertainty = jsonNode.has("uncertainty") ? !jsonNode.get("uncertainty").asText().isEmpty() : false;
 
 			boolean cssf = jsonNode.has("cssf") ? !jsonNode.get("cssf").asText().isEmpty() : false;
 
-			if (idCustomer < 1)
-				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
-			else if (customer == null || !customer.isCanBeUsed())
-				errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
 			if (idLanguage < 1)
 				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
 			else if (language == null)
@@ -1047,9 +1032,6 @@ public class ControllerAnalysis {
 
 			if (!errors.isEmpty())
 				return false;
-
-			if (!analysis.isProfile())
-				analysis.setCustomer(customer);
 
 			analysis.setLabel(comment);
 			analysis.setLanguage(language);

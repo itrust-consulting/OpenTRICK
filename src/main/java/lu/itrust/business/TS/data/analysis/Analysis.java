@@ -115,18 +115,21 @@ public class Analysis implements Cloneable {
 	/** The Customer object */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "fiCustomer", nullable = false)
 	private Customer customer;
 
 	/** Analysis owner (the one that created or imported it) */
 	@ManyToOne
 	@JoinColumn(name = "fiOwner", nullable = false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private User owner;
 
 	/** Based on analysis */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "fiBasedOnAnalysis", nullable = true)
 	private Analysis basedOnAnalysis;
 

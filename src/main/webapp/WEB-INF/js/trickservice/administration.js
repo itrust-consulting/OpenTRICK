@@ -14,7 +14,7 @@ function installTrickService() {
 		type : "GET",
 		async : true,
 		contentType : "application/json",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response["error"] != undefined) {
 				$("#alert-dialog .modal-body").html(response["error"]);
 				$("#alert-dialog").modal("toggle");
@@ -26,25 +26,61 @@ function installTrickService() {
 	return false;
 }
 
+function switchCustomer(section) {
+	var selectedAnalysis = findSelectItemIdBySection(section);
+	if (!isProfile("#" + section) || selectedAnalysis.length != 1)
+		return false;
+	var idAnalysis = selectedAnalysis[0];
+	$.ajax({
+		url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Customer",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#switchCustomerModal");
+			if ($content.length) {
+				$content.appendTo($("#widget"))
+				$content.find(".modal-footer>button").on("click", function() {
+					$content.find(".label-error").remove();
+					$.ajax({
+						url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Customer/" + $content.find("select").val(),
+						type : "get",
+						contentType : "application/json;charset=UTF-8",
+						success : function(response, textStatus, jqXHR) {
+							if (response["success"] != undefined)
+								adminCustomerChange($(section).find("select"));
+							else if (response["error"] != undefined)
+								$("<label class='label label-error'>" + response["error"] + "</label>").appendTo($content.find(".modal-body"));
+							else
+								unknowError();
+						},
+						error : unknowError
+					});
+				});
+				new Modal($content).Show();
+			} else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 function manageAnalysisAccess(analysisId, section_analysis) {
+	if (!isProfile(section_analysis))
+		return false;
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection(section_analysis);
 		if (selectedAnalysis.length != 1)
 			return false;
 		analysisId = selectedAnalysis[0];
-		var profile = $("#" + section_analysis + " [data-trick-id='" + analysisId + "']");
-		if (profile.length && $(profile).attr("data-trick-isprofile") == "true")
-			return false;
 	}
 
 	$.ajax({
 		url : context + "/Admin/Analysis/" + analysisId + "/ManageAccess",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var $newSection = $(doc).find("#manageAnalysisAccessModel");
+		success : function(response, textStatus, jqXHR) {
+			var $newSection = $(new DOMParser().parseFromString(response, "text/html")).find("#manageAnalysisAccessModel");
 			if ($newSection.length) {
 				$("#manageAnalysisAccessModel").replaceWith($newSection);
 				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
@@ -70,7 +106,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 		type : "post",
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			var $newSection = $(doc).find(".modal-content");
@@ -113,7 +149,7 @@ function adminCustomerChange(selector) {
 		url : context + "/Admin/Analysis/DisplayByCustomer/" + customer,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			var $newSection = $(doc).find("#section_admin_analysis");
@@ -123,7 +159,8 @@ function adminCustomerChange(selector) {
 					cssTopOffset : ".nav-tab",
 					fixedOffset : 6
 				});
-			}else unknowError();
+			} else
+				unknowError();
 		},
 		error : unknowError
 	});
@@ -153,7 +190,7 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 			type : "post",
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(selectedAnalysis),
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response === true)
 					$("#section_admin_analysis select").change();
 				else if (response === false) {

@@ -533,4 +533,34 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public Long countByIdentifier(String identifier) {
 		return daoAnalysis.countByIdentifier(identifier);
 	}
+
+	@Override
+	public List<Analysis> getAllByIdentifier(String identifier) {
+		return daoAnalysis.getAllByIdentifier(identifier);
+	}
+
+	@Override
+	public List<String> getAllVersion(String identifier) {
+		return daoAnalysis.getAllVersion(identifier);
+	}
+
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(String identifier) {
+		return daoAnalysis.getCustomersByIdAnalysis(identifier);
+	}
+
+	@Override
+	public Integer getIdFromIdentifierAndVersion(String identifier, String string) {
+		return daoAnalysis.getIdFromIdentifierAndVersion(identifier, string);
+	}
+
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(int analysisId) {
+		return daoAnalysis.getCustomersByIdAnalysis(analysisId);
+	}
+
+	@Override
+	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer) {
+		return daoAnalysis.isAnalysisCustomer(idAnalysis,idCustomer);
+	}
 }

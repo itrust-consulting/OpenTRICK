@@ -254,4 +254,10 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	public Customer getFromUsernameAndId(String username, int idCustomer) {
 		return daoCustomer.getFromUsernameAndId(username, idCustomer);
 	}
+
+	@Override
+	public boolean exists(int idCustomer) {
+
+		return daoCustomer.exists(idCustomer);
+	}
 }

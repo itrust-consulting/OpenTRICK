@@ -204,19 +204,20 @@ function manageUsers(customerID) {
 		type : "get",
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersbody");
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersform");
 			if ($content.length) {
 				var $customer = $("#customerusersbody").html(response);
 				initUserCustomerList();
 				$("#customerusersform").prop("action", "Customer/" + customerID + "/Users/Update");
 				$("#customerusersbutton").attr("onclick", "updateManageUsers(" + customerID + ",'#customerusersform')");
+				$("#manageCustomerUserModel").modal('toggle');
 			} else
 				unknowError();
 			return false;
 		},
 		error : unknowError
 	});
-	$("#manageCustomerUserModel").modal('toggle');
+
 	return false;
 }
 

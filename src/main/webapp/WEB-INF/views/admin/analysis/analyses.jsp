@@ -11,6 +11,11 @@
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
 						code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
+						
+			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+				onclick="return switchCustomer('section_admin_analysis');"> <span class="fa fa-exchange fa-sw primary"></span> <spring:message
+						code="label.menu.switch.customer" text="Switch customer" /></a></li>
+						
 			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#" onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span
 					class="glyphicon glyphicon-remove"></span> <spring:message code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>

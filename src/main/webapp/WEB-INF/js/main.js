@@ -253,7 +253,7 @@ function MessageResolver(code, defaulttext, params, language) {
 		if (language == undefined)
 			language = $("html").attr("lang");
 	}
-	
+
 	var data = {
 		"code" : code,
 		"message" : defaulttext,

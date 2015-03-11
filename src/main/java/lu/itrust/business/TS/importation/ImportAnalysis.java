@@ -1795,8 +1795,7 @@ public class ImportAnalysis {
 	 */
 	private static boolean columnExists(ResultSet rs, String columnname) {
 		try {
-			rs.findColumn(Constant.MEASURE_VERSION_NORM);
-			return true;
+			return rs.findColumn(columnname) >=0;
 		} catch (SQLException e) {
 			return false;
 		}
