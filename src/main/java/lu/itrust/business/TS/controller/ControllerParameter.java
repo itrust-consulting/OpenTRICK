@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceParameterType;
 
@@ -37,6 +38,9 @@ public class ControllerParameter {
 
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Autowired
+	private ServiceLanguage serviceLanguage;
 
 	@Autowired
 	private ServiceParameterType serviceParameterType;
@@ -62,6 +66,8 @@ public class ControllerParameter {
 
 		// add parameters to model
 		model.addAttribute("parameters", serviceParameter.getAllFromAnalysis(idAnalysis));
+		
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
 		return "analyses/singleAnalysis/components/parameter";
 	}

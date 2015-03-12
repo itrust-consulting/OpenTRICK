@@ -264,6 +264,7 @@ public class ControllerScenario {
 		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
 		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/singleAnalysis/components/scenario/scenario";
 	}
 

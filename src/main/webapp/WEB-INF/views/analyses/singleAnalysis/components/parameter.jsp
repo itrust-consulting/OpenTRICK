@@ -49,7 +49,7 @@
 									</c:choose></td>
 							</tr>
 						</c:forEach>
-						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+						<fmt:setLocale value="${language}" scope="session" />
 					</tbody>
 				</table>
 			</div>
@@ -103,7 +103,7 @@
 									</c:choose></td>
 							</tr>
 						</c:forEach>
-						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+						<fmt:setLocale value="${language}" scope="session" />
 					</tbody>
 				</table>
 			</div>
@@ -150,7 +150,7 @@
 										value="${parameter.SMLLevel4*100}" maxFractionDigits="0" /></td>
 								<td class="success textaligncenter" data-trick-field="SMLLevel5" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.SMLLevel5*100}" maxFractionDigits="0" /></td>
-								<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+								<fmt:setLocale value="${language}" scope="session" />
 							</tr>
 						</c:forEach>
 					</tbody>
@@ -185,7 +185,7 @@
 										value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 							</c:forEach>
 						</tr>
-						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+						<fmt:setLocale value="${language}" scope="session" />
 					</tbody>
 				</table>
 			</div>
@@ -216,7 +216,7 @@
 								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 					</tbody>
 				</table>
@@ -244,7 +244,7 @@
 								<fmt:setLocale value="fr" scope="session" />
 								<td data-trick-field="value" data-trick-field-type="double" class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}"
 										maxFractionDigits="0" /></td>
-								<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+								<fmt:setLocale value="${language}" scope="session" />
 							</tr>
 						</c:forEach>
 					</tbody>

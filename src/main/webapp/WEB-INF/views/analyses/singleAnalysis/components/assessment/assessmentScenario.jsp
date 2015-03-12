@@ -159,7 +159,7 @@
 						<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}"
 								 /></td>
 					</c:if>
-					<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+					<fmt:setLocale value="${language}" scope="session" />
 					<td class="success" onclick="return editField(this.firstChild);"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
 							text="${assessment.comment}" /></pre></td>
 					<td class="success" onclick="return editField(this.firstChild);"><pre data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message
@@ -167,7 +167,7 @@
 				</tr>
 			</c:forEach>
 			<tr class="panel-footer" style="font-weight: bold;">
-			<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+			<fmt:setLocale value="${language}" scope="session" />
 				<c:choose>
 					<c:when test="${show_uncertainty}">
 						<c:choose>
@@ -185,7 +185,7 @@
 								 /></td>
 						<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,1)}"
 								 /></td>
-						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+						<fmt:setLocale value="${language}" scope="session" />
 					</c:when>
 					<c:otherwise>
 						<c:choose>

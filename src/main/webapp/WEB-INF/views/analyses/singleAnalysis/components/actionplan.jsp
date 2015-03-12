@@ -84,7 +84,7 @@
 								<td><spring:message text="${ape.order}" /></td>
 								<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
 								<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
-								<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha3(language).getDomain()}" /></b> <br /> <spring:message
+								<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha2(language).getDomain()}" /></b> <br /> <spring:message
 										text="${ape.measure.getToDo()}" /></td>
 								<td ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'>
 									<fmt:formatNumber value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" />
@@ -121,7 +121,7 @@
 								</c:forEach>
 							</tr>
 						</c:forEach>
-						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+						<fmt:setLocale value="${language}" scope="session" />
 					</tbody>
 					<tfoot></tfoot>
 				</table>

@@ -471,3 +471,7 @@ ul.asset-measure>li {
 #measure_form .slider.slider-vertical {
 	height: 310px;
 }
+
+.tab-pane.active {
+	overflow: auto;
+}

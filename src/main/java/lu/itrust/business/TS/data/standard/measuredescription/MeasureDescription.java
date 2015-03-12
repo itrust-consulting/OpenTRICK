@@ -120,6 +120,45 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescriptionText findByLanguage(Language language) {
 		return findByAlph3(language.getAlpha3());
 	}
+	
+	
+	/**
+	 * findByAlph3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 */
+	public MeasureDescriptionText findByAlph2(String alpha2) {
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
+			if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase(alpha2))
+				return measureDescriptionText;
+		return null;
+	}
+
+	/**
+	 * getMeasureDescriptionTextByAlpha3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 */
+	public MeasureDescriptionText getMeasureDescriptionTextByAlpha2(String alpha2) {
+
+		MeasureDescriptionText descriptionText = null;
+		MeasureDescriptionText descriptionTextEnglish = null;
+
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts) {
+			if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase(alpha2))
+				return measureDescriptionText;
+			else if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase("en"))
+				descriptionTextEnglish = measureDescriptionText;
+		}
+
+		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
+				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
+	}
+
 
 	/**
 	 * findByAlph3: <br>

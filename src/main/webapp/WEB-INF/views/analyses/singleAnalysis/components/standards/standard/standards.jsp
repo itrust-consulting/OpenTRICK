@@ -76,7 +76,7 @@
 						<c:set var="css">
 							<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 						</c:set>
-						<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
+						<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 						<c:set var="dblclickaction">
 							<c:if test="${analysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY'}">
 								ondblclick="return addMeasure(${standardid},${measure.id});"
@@ -154,7 +154,7 @@
 					</c:forEach>
 				</tbody>
 			</table>
-			<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+			<fmt:setLocale value="${language}" scope="session" />
 		</div>
 	</div>
 </c:forEach>

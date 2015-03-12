@@ -16,6 +16,7 @@ import lu.itrust.business.TS.data.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceUser;
 
@@ -50,6 +51,9 @@ public class ControllerSummary {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
+	
+	@Autowired
+	private ServiceLanguage serviceLanguage;
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -80,6 +84,8 @@ public class ControllerSummary {
 
 		// add actionplan summaries
 		model.addAttribute("summaries", serviceActionPlanSummary.getAllFromAnalysis(idAnalysis));
+		
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
 		return "analyses/singleAnalysis/components/summary";
 	}

@@ -5,8 +5,9 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<html lang="${fn:substring(analysis.language.alpha3,0, 2)}">
-<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+<c:set var="language" value="${analysis.language.alpha2}" scope="request"/>
+<html lang="${language}">
+<fmt:setLocale value="${language}" scope="session" />
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <jsp:include page="../../template/header.jsp" />
 <body>
@@ -17,7 +18,8 @@
 			<jsp:include page="analysisMenu.jsp" />
 			<jsp:include page="../../template/successErrors.jsp" />
 			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis" data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
-				data-trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
+				data-trick-language="${language}">
+				
 				<c:if test="${!analysis.isProfile()}">
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />

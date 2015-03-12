@@ -46,8 +46,10 @@ function switchCustomer(section) {
 						type : "get",
 						contentType : "application/json;charset=UTF-8",
 						success : function(response, textStatus, jqXHR) {
-							if (response["success"] != undefined)
-								adminCustomerChange($(section).find("select"));
+							if (response["success"] != undefined){
+								adminCustomerChange($("#tab_analyses").find("select"));
+								$content.modal("hide");
+							}
 							else if (response["error"] != undefined)
 								$("<label class='label label-error'>" + response["error"] + "</label>").appendTo($content.find(".modal-body"));
 							else

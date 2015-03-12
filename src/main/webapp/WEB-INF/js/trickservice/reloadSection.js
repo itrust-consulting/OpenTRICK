@@ -265,7 +265,7 @@ SectionSmartUpdate.prototype = {
 			}
 			return false;
 		} catch (e) {
-			console.log(e);
+			console.log("reload error: "+e);
 			return true;
 		}
 	}

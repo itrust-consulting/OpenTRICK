@@ -21,12 +21,12 @@
 				</h2>
 				<a class="navbar-link pull-right" style="margin-top: -30px;" href="${pageContext.request.contextPath}/Register"> <spring:message code="label.signup" text="Sign up" />
 				</a>
-				
+
 				<c:if test="${!empty(sessionScope.LOGIN_ERROR)}">
-					<c:set var="error" value="${sessionScope.LOGIN_ERROR}" scope="request"/>
-					<c:remove var="LOGIN_ERROR" scope="session"/>
+					<c:set var="error" value="${sessionScope.LOGIN_ERROR}" scope="request" />
+					<c:remove var="LOGIN_ERROR" scope="session" />
 				</c:if>
-				
+
 				<jsp:include page="../template/successErrors.jsp" />
 				<form id="login_form" method="post" action="<c:url value='${pageContext.request.contextPath}/j_spring_security_check'/>">
 					<div class="form-group">
@@ -38,7 +38,7 @@
 							placeholder="<spring:message code='label.signin.password' text='Password' />" required="required" />
 					</div>
 					<div class="form-group">
-						<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/ResetPassword" > <spring:message code="label.reset.password" text="Reset password" /></a>
+						<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/ResetPassword"> <spring:message code="label.reset.password" text="Reset password" /></a>
 					</div>
 					<div class="form-group">
 						<button type="submit" id="login_signin_button" class="btn btn-danger navbar-btn" style="width: 100%;">
@@ -46,15 +46,6 @@
 						</button>
 					</div>
 				</form>
-				<script>
-					$(document).ready(function() {
-						$("#username").focus();
-						var val =$("#username").val();
-						$("#username").val("");
-						$("#username").val(val);
-						
-					});
-				</script>
 			</div>
 		</div>
 		<jsp:include page="../template/footer.jsp" />

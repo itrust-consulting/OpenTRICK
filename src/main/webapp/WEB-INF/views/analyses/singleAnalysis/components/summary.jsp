@@ -71,7 +71,7 @@
 										<fmt:formatNumber value="${compliances.get(i)*100}" maxFractionDigits="0" var="val" />
 										<td class="text-right"><spring:message text="${val}" /></td>
 									</c:forEach>
-									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+									<fmt:setLocale value="${language}" scope="session" />
 								</tr>
 							</c:if>
 						</c:forEach>
@@ -82,7 +82,7 @@
 								<fmt:formatNumber value="${measurecounts.get(i)}" maxFractionDigits="0" var="value" />
 								<td class="text-right"><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.characteristic.count.measure.implemented" /></td>
@@ -91,7 +91,7 @@
 								<fmt:formatNumber value="${implementedcounts.get(i)}" maxFractionDigits="0" var="value" />
 								<td class="text-right"><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.profitability" /></td>
@@ -103,7 +103,7 @@
 								<fmt:formatNumber value="${fct:round(totalales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${totalales.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.profitability.risk.reduction" /></td>
@@ -112,7 +112,7 @@
 								<fmt:formatNumber value="${fct:round(deltaales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${deltaales.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.profitability.rosi" /></td>
@@ -121,7 +121,7 @@
 								<fmt:formatNumber value="${fct:round(rosis.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${rosis.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.profitability.rosi.relatif" /></td>
@@ -130,7 +130,7 @@
 								<fmt:formatNumber value="${fct:round(relativerosis.get(i),0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.resource.planning" /></td>
@@ -142,7 +142,7 @@
 								<fmt:formatNumber value="${internalworkloads.get(i)}" maxFractionDigits="2" var="value" />
 								<td class="text-right"><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.external.workload" /></td>
@@ -151,7 +151,7 @@
 								<fmt:formatNumber value="${externalworkloads.get(i)}" maxFractionDigits="2" var="value" />
 								<td class="text-right"><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.investment" /></td>
@@ -160,7 +160,7 @@
 								<fmt:formatNumber value="${fct:round(investments.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${investments.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.internal.maintenance" /></td>
@@ -169,7 +169,7 @@
 								<fmt:formatNumber value="${fct:round(internalmaintenances.get(i),0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${internalmaintenances.get(i)}" maxFractionDigits="2" />'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.external.maintenance" /></td>
@@ -178,7 +178,7 @@
 								<fmt:formatNumber value="${fct:round(externalmaintenances.get(i),0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${externalmaintenances.get(i)}" maxFractionDigits="2" />'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.recurrent.investment" /></td>
@@ -187,7 +187,7 @@
 								<fmt:formatNumber value="${fct:round(recurrentinvestments.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${recurrentinvestments.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.recurrent.cost" /></td>
@@ -196,7 +196,7 @@
 								<fmt:formatNumber value="${fct:round(recurrentcosts.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${recurrentcosts.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.total.phase.cost" /></td>
@@ -205,7 +205,7 @@
 								<fmt:formatNumber value="${fct:round(totalcosts.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${totalcosts.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 					</tbody>
 					<tfoot>

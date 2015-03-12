@@ -271,7 +271,7 @@ function MessageResolver(code, defaulttext, params, language) {
 		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			if (!(response.message == undefined || response.message == null || response.message.length))
+			if (!(response.message == undefined || response.message == null || !response.message.length))
 				application.localesMessages[uniqueCode] = response.message
 			return false;
 		}

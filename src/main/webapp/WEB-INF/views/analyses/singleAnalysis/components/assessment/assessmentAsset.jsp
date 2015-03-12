@@ -155,14 +155,14 @@
 						<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}"
 								 /></td>
 					</c:if>
-					<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+					<fmt:setLocale value="${language}" scope="session" />
 					<td onclick="return editField(this.firstChild);" class="success"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message
 							text="${assessment.comment}" /></pre></td>
 					<td onclick="return editField(this.firstChild);" class="success"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message
 							text="${assessment.hiddenComment}" /></pre></td>
 				</tr>
 			</c:forEach>
-			<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+			<fmt:setLocale value="${language}" scope="session" />
 			<tr class="panel-footer" style="font-weight: bold;">
 				<c:choose>
 					<c:when test="${show_uncertainty}">

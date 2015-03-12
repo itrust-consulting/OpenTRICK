@@ -192,7 +192,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		// add language of the analysis
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
 		return "analyses/singleAnalysis/components/standards/standard/standards";
 	}
@@ -244,7 +244,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("measures", measures);
 
 		// add language of the analysis
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
 		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
@@ -309,7 +309,7 @@ public class ControllerAnalysisStandard {
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3());
+		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
 		model.addAttribute("analysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());

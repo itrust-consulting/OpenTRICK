@@ -72,7 +72,7 @@
 										value="${fct:round(ale[1].value*0.001,1)}" /></td>
 							</c:otherwise>
 						</c:choose>
-						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+						<fmt:setLocale value="${language}" scope="session" />
 						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.comment}" /></pre></td>
 						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></pre></td>
 					</tr>
@@ -97,7 +97,7 @@
 									value="${fct:round(ale[1].value*0.001,1)}" /></td>
 						</c:otherwise>
 					</c:choose>
-					<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+					<fmt:setLocale value="${language}" scope="session" />
 					<td colspan="2"></td>
 				</tr>
 			</tfoot>

@@ -29,6 +29,7 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
@@ -87,6 +88,9 @@ public class ControllerAsset {
 	
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+	
+	@Autowired
+	private ServiceLanguage serviceLanguage;
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -268,6 +272,7 @@ public class ControllerAsset {
 		model.addAttribute("assets", assets);
 		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/singleAnalysis/components/asset/asset";
 	}
 

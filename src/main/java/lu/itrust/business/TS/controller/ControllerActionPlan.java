@@ -115,7 +115,7 @@ public class ControllerActionPlan {
 		// prepare model
 		model.put("actionplans", actionplans);
 		model.put("assets", assets);
-		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha3());
+		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 
 		// return view
 		return "analyses/singleAnalysis/components/actionplan";
@@ -157,7 +157,7 @@ public class ControllerActionPlan {
 			// prepare model
 			model.put("actionplans", actionplans);
 			model.put("assets", assets);
-			model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha3());
+			model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 		} else
 			model.put("actionplans", actionplans);
 

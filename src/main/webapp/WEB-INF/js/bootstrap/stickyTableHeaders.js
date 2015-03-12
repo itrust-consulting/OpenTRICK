@@ -99,22 +99,22 @@
 			base.$el.each(function() {
 				var $this = $(this);
 
-				var newTopOffset = isNaN(base.options.fixedOffset) ? base.options.fixedOffset.height() : base.options.fixedOffset;
+				var $header = $this.find("thead");
 
+				var newTopOffset = isNaN(base.options.fixedOffset) ? base.options.fixedOffset.height() : base.options.fixedOffset;
 				var offset = $this.offset();
 				var scrollTop = base.$window.scrollTop() + newTopOffset;
 				var scrollLeft = base.$window.scrollLeft();
-				var fixedOffet = scrollTop > offset.top || base.cssTargetTopOffset == undefined || base.cssTargetTopOffset == undefined ? 0
-						: $(base.cssTargetTopOffset).offset().top;
+				var headerPosition = offset.top - $header.height() * 2;
+				var fixedOffet = scrollTop > offset.top || base.cssTargetTopOffset == undefined ? 0 : $(base.cssTargetTopOffset).offset().top;
 
-				if ((scrollTop > (offset.top - fixedOffet)) && (scrollTop < (offset.top - fixedOffet) + $this.height() - base.$clonedHeader.height())) {
+				if (scrollTop > headerPosition && (scrollTop < (offset.top - fixedOffet) + $this.height() - base.$clonedHeader.height())) {
 					var newLeft = offset.left - scrollLeft;
 					if (base.isSticky && (newLeft === base.leftOffset) && (newTopOffset === base.topOffset)) {
 						return;
 					}
 
-					var marginTop = base.cssTargetTopOffset == undefined || base.cssTargetTopOffset == undefined ? 0 : $(base.cssTargetTopOffset).height()
-							+ $(base.cssTargetTopOffset).position().top;
+					var marginTop = base.cssTargetTopOffset == undefined ? 0 : $(base.cssTargetTopOffset).height() + $(base.cssTargetTopOffset).position().top;
 
 					base.$originalHeader.css({
 						'position' : 'fixed',

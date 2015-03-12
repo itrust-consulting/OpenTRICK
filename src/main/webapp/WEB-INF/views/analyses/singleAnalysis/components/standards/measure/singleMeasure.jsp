@@ -29,7 +29,7 @@
 	</c:when>
 	<c:otherwise>
 		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
-			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
+			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 			<c:if test="${isAnalysisOnly}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
 			</c:if>
@@ -82,4 +82,4 @@
 		</tr>
 	</c:otherwise>
 </c:choose>
-<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+<fmt:setLocale value="${language}" scope="session" />

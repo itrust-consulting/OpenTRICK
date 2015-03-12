@@ -55,7 +55,6 @@ public class ControllerHome {
 
 	@Autowired
 	private LocaleResolver localeResolver;
-	
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
@@ -65,8 +64,10 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
-		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().substring(0, 2)) : null;
-		return String.format("{\"message\":\"%s\"}", messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
+		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().length() == 2 ? message.getLanguage() : message.getLanguage().substring(0, 2))
+				: null;
+		return String.format("{\"message\":\"%s\"}",
+				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
@@ -87,7 +88,7 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response) throws Exception {
-		if(principal == null)
+		if (principal == null)
 			return false;
 		User user = serviceUser.get(principal.getName());
 		if (user == null) {
@@ -112,7 +113,7 @@ public class ControllerHome {
 	public @ResponseBody String success(@ModelAttribute("success") String success) {
 		return JsonMessage.Success(success);
 	}
-	
+
 	@RequestMapping(value = "/Error", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String error(@ModelAttribute("error") String error) {
 		return JsonMessage.Error(error);

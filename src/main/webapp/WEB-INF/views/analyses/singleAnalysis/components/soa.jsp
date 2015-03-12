@@ -34,14 +34,14 @@
 						<c:choose>
 							<c:when test="${measure.measureDescription.computable==false }">
 								<tr style="background-color: #F8F8F8;">
-									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
+									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 								</tr>
 							</c:when>
 							<c:otherwise>
 								<tr data-trick-class="SOA" data-trick-id="${measure.id}">
-									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
+									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 									<c:choose>
 										<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
 											<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true" data-content=''

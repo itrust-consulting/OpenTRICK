@@ -41,17 +41,13 @@
 					<spring:eval expression="T(lu.itrust.business.TS.data.cssf.helper.RiskRegisterMapper).Generate(riskregister,parameters)" var="mappingRegisterHelpers" />
 					<c:forEach items="${riskregister}" var="item" varStatus="status">
 						<tr>
-							<td><spring:message text="${item.scenario.type.name}" /></td>
+							<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(item.scenario.type.name,'-','_'))}" /></td>
 							<td><spring:message text="${item.position}" /></td>
 							<td><spring:message text="${item.scenario.name}" /></td>
 							<td><spring:message text="${item.asset.name}" /></td>
-
 							<fmt:message key="label.metric.keuro_by_year" var="keuro_by_year" />
 							<fmt:message key="label.assessment.likelihood.unit" var="by_year" />
-
-
 							<fmt:setLocale value="fr" scope="session" />
-
 							<c:set var="registerHelper" value="${mappingRegisterHelpers[item.id]}" />
 							<fmt:formatNumber value="${fct:round(item.rawEvaluation.probability,3)}" maxFractionDigits="3" var="probability" />
 							<fmt:formatNumber value="${fct:round(item.rawEvaluation.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
@@ -86,7 +82,7 @@
 							<td data-scale-value="${importance}" data-scale-level='<fmt:formatNumber value="${registerHelper.expectedImportance.importance}" maxFractionDigits="0"/>' class="text-center"
 								title='<fmt:formatNumber value="${item.expectedImportance.importance}" maxFractionDigits="2" /> ${keuro_by_year}'>${importance}</td>
 
-							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+							<fmt:setLocale value="${language}" scope="session" />
 
 							<fmt:message key="label.risk_register.strategy.accept" var="accept" />
 							<fmt:message key="label.risk_register.strategy.reduce" var="reduce" />

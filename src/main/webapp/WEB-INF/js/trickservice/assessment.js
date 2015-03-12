@@ -6,7 +6,7 @@ function AssessmentViewer() {
 		Modal.prototype.Intialise.call(this);
 		$(this.modal_dialog).prop("style", "width: 100%;");
 		var lang = $("#nav-container").attr("data-trick-language");
-
+	
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
 		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
 		var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
@@ -52,16 +52,19 @@ function AssessmentViewer() {
 
 		var that = this;
 		var resizer = function() {
+			var height = $(window).height();
+			var multi = height < 200 ? 0.50 : height < 520 ? 0.60 : height < 600 ? 0.65 : height < 770 ? 0.72 : height < 820 ? 0.76 : height < 900 ? 0.77 : 0.79;
 			$(that.modal_body).css({
-				'max-height' : ($(window).height() * 0.77) + 'px',
+				'max-height' : (height * multi) + 'px',
 				'overflow' : 'auto'
 			});
 		}
-		$(window).resize(resizer);
+		
+		$(window).on('resize.assessment',resizer);
 		resizer.apply(resizer, null);
 		$(this.modal).on("hidden.bs.modal", function() {
 			application.modal["AssessmentViewer"] = undefined;
-			$(window).off(resizer);
+			$(window).off('resize.assessment',resizer)
 		});
 
 		$(this.modal).find(".modal-content").css({

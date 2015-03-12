@@ -265,7 +265,6 @@ public class ControllerAnalysis {
 				analysis.setSummaries(serviceActionPlanSummary.getAllFromAnalysis(selected));
 
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-
 				model.addAttribute("login", user.getLogin());
 				model.addAttribute("analysis", analysis);
 				model.addAttribute("standards", analysis.getStandards());
@@ -273,7 +272,7 @@ public class ControllerAnalysis {
 				model.addAttribute("soa", measures.get("27002"));
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
-				model.addAttribute("language", analysis.getLanguage().getAlpha3());
+				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
