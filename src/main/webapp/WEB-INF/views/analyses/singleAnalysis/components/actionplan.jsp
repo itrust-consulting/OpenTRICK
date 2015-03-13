@@ -36,9 +36,9 @@
 							<th style="width:4%;"><fmt:message key="label.action_plan.delta_ale" /></th>
 							<th style="width:3%;"><fmt:message key="label.measure.cost" /></th>
 							<th style="width:3%;"><fmt:message key="label.action_plan.roi" /></th>
-							<th style="width:3%;"><fmt:message key="label.action_plan.internal_setup" /></th>
-							<th style="width:3%;"><fmt:message key="label.action_plan.external_setup" /></th>
-							<th style="width:3%;"><fmt:message key="label.action_plan.investment" /></th>
+							<th style="width:3%;"><fmt:message key="label.measure.iw" /></th>
+							<th style="width:3%;"><fmt:message key="label.measure.ew" /></th>
+							<th style="width:3%;"><fmt:message key="label.measure.inv" /></th>
 							<th style="width:3%;"><fmt:message key="label.action_plan.phase" /></th>
 							<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 							<c:forEach items="${actionplanassets}" var="asset">
