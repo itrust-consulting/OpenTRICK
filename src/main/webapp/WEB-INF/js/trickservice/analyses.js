@@ -879,7 +879,7 @@ function duplicateAnalysis(form, analyisId) {
 function customerChange(selector) {
 	var customer = $(selector).find("option:selected").val();
 	$.ajax({
-		url : context + "/Analysis/DisplayByCustomer/" + customer,
+		url : context + "/Analysis/DisplayByCustomer/" + customer+"/ALL",
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
