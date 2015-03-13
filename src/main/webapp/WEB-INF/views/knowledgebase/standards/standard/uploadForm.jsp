@@ -9,7 +9,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="uploadStandard-title">
-					<spring:message code="label.title.import.norm" text="Import of a new standard" />
+					<spring:message code="label.title.import.norm" text="Import of new standard" />
 				</h4>
 			</div>
 			<div class="modal-body">

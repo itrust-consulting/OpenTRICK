@@ -20,7 +20,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			url : context + "/Analysis/ManageAccess/" + analysisId,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				var doc = new DOMParser().parseFromString(response, "text/html");
 				var $newSection = $(doc).find("#manageAnalysisAccessModel");
 				$("#manageAnalysisAccessModel").replaceWith($newSection);
@@ -48,7 +48,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 		type : "post",
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
 			var $newSection = $(doc).find(".modal-content");
 			if ($newSection.length) {
@@ -101,7 +101,7 @@ function saveAnalysis(form, reloadaction) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			$("#editAnalysisModel .progress").hide();
 			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 			var alert = $("#editAnalysisModel .label-danger");
@@ -176,7 +176,7 @@ function deleteAnalysis(analysisId) {
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "GET",
 				contentType : "application/json;charset=UTF-8",
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$("#deleteprogressbar").hide();
 					$("#deleteanalysisbuttonYes").prop("disabled", false);
 					$("#deleteAnalysisModel").modal('hide');
@@ -212,7 +212,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 			url : context + "/AnalysisProfile/Add/" + analysisId,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				var doc = new DOMParser().parseFromString(response, "text/html");
 				if ((analysisProfile = doc.getElementById("analysisProfileModal")) == null)
 					return false;
@@ -281,7 +281,7 @@ function saveAnalysisProfile(form) {
 		data : jsonarray,
 		contentType : "application/json;charset=UTF-8",
 		aync : true,
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 
 			var alert = $("#analysisProfileform .label-danger");
 			if (alert.length)
@@ -343,7 +343,7 @@ function customAnalysis(element) {
 		url : context + "/Analysis/Build",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
 			if ($(doc).find("#buildAnalysisModal").length) {
 				var modal = new Modal($(doc).find("#buildAnalysisModal").clone());
@@ -359,7 +359,7 @@ function customAnalysis(element) {
 							url : context + "/Analysis/Build/Customer/" + $(e.target).val(),
 							type : "get",
 							contentType : "application/json;charset=UTF-8",
-							success : function(response,textStatus,jqXHR) {
+							success : function(response, textStatus, jqXHR) {
 								if (typeof response == 'object') {
 									var $analysisSelector = $(modal.modal_body).find("#selector-analysis");
 									for (var i = 0; i < response.length; i++)
@@ -385,7 +385,7 @@ function customAnalysis(element) {
 									url : context + "/Analysis/Build/Customer/" + $(modal.modal_body).find("#selector-customer").val() + "/Identifier/" + $(e.target).val(),
 									type : "get",
 									contentType : "application/json;charset=UTF-8",
-									success : function(response,textStatus,jqXHR) {
+									success : function(response, textStatus, jqXHR) {
 										if (typeof response == 'object') {
 											var $analysisVersions = $(modal.modal_body).find("#analysis-versions");
 											for (var i = 0; i < response.length; i++) {
@@ -483,7 +483,7 @@ function customAnalysis(element) {
 						type : "post",
 						data : $(modal.modal_body).find("form").serialize(),
 						async : false,
-						success : function(response,textStatus,jqXHR) {
+						success : function(response, textStatus, jqXHR) {
 							if (typeof response == 'object') {
 
 								if (response.error != undefined)
@@ -514,6 +514,7 @@ function customAnalysis(element) {
 										case "version":
 										case "assessment":
 										case "profile":
+										case "name":
 											$(errorElement).appendTo($(modal.modal_body).find("form *[name='" + error + "']").parent());
 											break;
 										case "riskInformation":
@@ -563,7 +564,7 @@ function addHistory(analysisId) {
 			url : context + "/Analysis/" + analysisId + "/NewVersion",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#addHistoryModal");
 				if ($content.length) {
 					$("#addHistoryModal").replaceWith(response);
@@ -593,7 +594,7 @@ function editSingleAnalysis(analysisId) {
 			url : context + "/Analysis/Edit/" + analysisId,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				var doc = new DOMParser().parseFromString(response, "text/html");
 				if ((form = doc.getElementById("form_edit_analysis")) == null) {
 					$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
@@ -657,7 +658,7 @@ function calculateActionPlan(analysisId) {
 			data : JSON.stringify(data),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					application["taskManager"].Start();
 				} else if (response["error"] != undefined) {
@@ -706,7 +707,7 @@ function calculateRiskRegister(analysisId) {
 			data : JSON.stringify(data),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					application["taskManager"].Start();
 				} else if (response["error"] != undefined) {
@@ -735,7 +736,7 @@ function exportAnalysis(analysisId) {
 			type : "get",
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					application["taskManager"].Start();
 				} else if (response["error"] != undefined) {
@@ -764,7 +765,7 @@ function exportAnalysisReport(analysisId) {
 			type : "get",
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined)
 					application["taskManager"].Start();
 				else if (response["error"] != undefined) {
@@ -814,7 +815,7 @@ function duplicateAnalysis(form, analyisId) {
 		aync : true,
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 
 			$("#history_oldVersion").attr("value", oldVersion);
 
@@ -876,15 +877,14 @@ function duplicateAnalysis(form, analyisId) {
 	return false;
 }
 
-function customerChange(selector) {
-	var customer = $(selector).find("option:selected").val();
+function customerChange(customer, nameFilter) {
 	$.ajax({
-		url : context + "/Analysis/DisplayByCustomer/" + customer+"/ALL",
-		type : "get",
+		url : context + "/Analysis/DisplayByCustomer/" + $(customer).val(),
+		type : "post",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response,textStatus,jqXHR) {
+		data : $(nameFilter).val(),
+		success : function(response, textStatus, jqXHR) {
 			var $newSection = $(new DOMParser().parseFromString(response, "text/html")).find("#section_analysis");
 			if ($newSection.length) {
 				$("#section_analysis").replaceWith($newSection);
@@ -895,7 +895,8 @@ function customerChange(selector) {
 						fixedOffset : 6
 					});
 				});
-			}else unknowError();
+			} else
+				unknowError();
 		},
 		error : unknowError
 	});

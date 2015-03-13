@@ -16,6 +16,7 @@ import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.CustomerValidator;
@@ -248,14 +249,9 @@ public class ControllerCustomer {
 			customDelete.deleteCustomer(customer);
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 
-		} catch (Exception e) {
+		} catch (TrickException e) {
 			e.printStackTrace();
-
-			String[] parts = e.getMessage().split(":");
-			String code = parts[0];
-			String defaultmessage = parts[1];
-
-			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 
 	}

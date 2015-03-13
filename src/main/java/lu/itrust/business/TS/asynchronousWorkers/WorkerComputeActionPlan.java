@@ -259,12 +259,12 @@ public class WorkerComputeActionPlan implements Worker {
 
 		String lang = analysis.getLanguage().getAlpha2();
 		
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting",lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting",lang, null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan is deleting",lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting",lang, null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));

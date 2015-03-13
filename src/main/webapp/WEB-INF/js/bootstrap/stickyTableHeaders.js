@@ -106,7 +106,8 @@
 				var scrollTop = base.$window.scrollTop() + newTopOffset;
 				var scrollLeft = base.$window.scrollLeft();
 				var headerPosition = offset.top - $header.height() * 2;
-				var fixedOffet = scrollTop > offset.top || base.cssTargetTopOffset == undefined ? 0 : $(base.cssTargetTopOffset).offset().top;
+				var fixedOffet = scrollTop > offset.top || base.cssTargetTopOffset == undefined || $(base.cssTargetTopOffset).offset() == undefined ? 0
+						: $(base.cssTargetTopOffset).offset().top;
 
 				if (scrollTop > headerPosition && (scrollTop < (offset.top - fixedOffet) + $this.height() - base.$clonedHeader.height())) {
 					var newLeft = offset.left - scrollLeft;

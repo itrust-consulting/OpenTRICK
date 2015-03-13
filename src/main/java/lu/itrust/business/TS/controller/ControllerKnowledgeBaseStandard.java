@@ -167,7 +167,8 @@ public class ControllerKnowledgeBaseStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{idStandard}")
-	public String loadSingleStandard(@PathVariable("idStandard") String idStandard, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
+	public String loadSingleStandard(@PathVariable("idStandard") String idStandard, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
+			throws Exception {
 
 		// load standard object
 		Standard standard = serviceStandard.getStandardByName(idStandard);
@@ -220,7 +221,7 @@ public class ControllerKnowledgeBaseStandard {
 			} else {
 
 				Standard tmpStandard = serviceStandard.get(standard.getId());
-				if(tmpStandard == null)
+				if (tmpStandard == null)
 					errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
 				else if (!tmpStandard.isAnalysisOnly())
 					serviceStandard.saveOrUpdate(tmpStandard.update(standard));
@@ -300,7 +301,8 @@ public class ControllerKnowledgeBaseStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
-	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
 		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
@@ -325,7 +327,8 @@ public class ControllerKnowledgeBaseStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Export/{idStandard}", headers = "Accept=application/json;charset=UTF-8")
-	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response) throws Exception {
+	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response)
+			throws Exception {
 
 		Standard standard = serviceStandard.get(idStandard);
 
@@ -657,8 +660,8 @@ public class ControllerKnowledgeBaseStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{idStandard}/Language/{idLanguage}/Measures/{idMeasure}")
-	public String displaySingle(@PathVariable int idStandard, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response, Model model,
-			Locale locale) throws Exception {
+	public String displaySingle(@PathVariable int idStandard, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response,
+			Model model, Locale locale) throws Exception {
 
 		// load all measuredescriptions of a standard
 		MeasureDescription mesDesc = serviceMeasureDescription.get(idMeasure);
@@ -808,7 +811,8 @@ public class ControllerKnowledgeBaseStandard {
 					errors.put("measureDescription.norm", messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
 				measureDescription.setStandard(standard);
 			} else if (measureDescription.getStandard().getId() != idStandard)
-				errors.put("measureDescription.norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
+				errors.put("measureDescription.norm",
+						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale)) {
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
@@ -894,7 +898,8 @@ public class ControllerKnowledgeBaseStandard {
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
-					errors.put("measuredescription.reference", messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
+					errors.put("measuredescription.reference",
+							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
 				else
 					measuredescription.setReference(reference);
 			}
@@ -903,19 +908,13 @@ public class ControllerKnowledgeBaseStandard {
 
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
-			else {
-				if (!errors.containsKey("measuredescription.reference")) {
-					// int count = 1;
-					// for (int i = 0; i < reference.length(); i++)
-					// if (reference.charAt(i) == '.')
-					// count++;
-					// if (count != level)
-					// errors.put("measuredescription.level",
-					// messageSource.getMessage("error.measuredescription.level.reference.not_meet",
-					// null, "Level and reference do not match", locale));
-					// else
+			else if (!errors.containsKey("measuredescription.reference")) {
+
+				if (reference.split("\\.").length != level)
+					errors.put("measuredescription.level",
+							messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
+				else
 					measuredescription.setLevel(level);
-				}
 			}
 
 			error = serviceDataValidation.validate(measuredescription, "computable", computable);

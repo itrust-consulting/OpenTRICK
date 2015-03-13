@@ -8,13 +8,13 @@ function initUserCustomerList() {
 		if (typeof attr !== 'undefined' && attr !== false) {
 			selected = " active";
 		}
-		$('#customerusersform .list-group').append("<li class='list-group-item" + selected + "' opt='" + $(this).attr('value') + "'>" + $(this).html() + "</li>");
+		$('#customerusersform .list-group').append("<li class='list-group-item" + selected + "' data-trick-opt='" + $(this).attr('value') + "'>" + $(this).html() + "</li>");
 	});
 	$('#customerusersform .list-group li').on('click', function() {
 		$(this).toggleClass('active');
 		var allVal = new Array();
 		$('#customerusersform .list-group li.active').each(function() {
-			allVal.push($(this).attr(data - trick - opt));
+			allVal.push($(this).attr("data-trick-opt"));
 		});
 		$('#usercustomer').val(allVal);
 	});
@@ -248,9 +248,9 @@ function updateManageUsers(customerID, form) {
 		data : jsonarray,
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersbody");
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusers");
 			if ($content.length) {
-				$("#customerusersbody").replaceWith($content)
+				$("#customerusersbody").html(response);
 				initUserCustomerList();
 			} else
 				unknowError();

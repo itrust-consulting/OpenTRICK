@@ -20,7 +20,7 @@
 				<form:hidden path="requestId" />
 				<div class="form-group" style="margin-top: 20px;">
 					<form:label path="password" class="col-sm-3 control-label">
-						<spring:message code="label.user.password" text="Password" />
+						<spring:message code="label.user.new.password" text="new password" />
 					</form:label>
 					<div class="col-sm-9">
 						<form:password path="password" class="form-control" required="true" />

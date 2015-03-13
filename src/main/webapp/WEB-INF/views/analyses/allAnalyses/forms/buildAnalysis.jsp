@@ -75,6 +75,13 @@
 							</div>
 						</div>
 						<div class="form-group">
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.label" text="Name" />
+							</label>
+							<div class="col-sm-10">
+								<input name="name" class="form-control" required="required">
+							</div>
+						</div>
+						<div class="form-group">
 							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 							</label>
 							<div class="col-sm-10">

@@ -13,7 +13,7 @@
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return setAsDefaultProfile(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
 						code="label.menu.analysis.set_default.profile" text="Set as default" /></a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message
-						code="label.menu.edit.analysis.info" text="Edit info" /></a></li>
+						code="label.edit.info" text="Edit info" /></a></li>
 			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.analysis" text="Delete" /></a></li>
 		</ul>

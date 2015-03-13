@@ -180,18 +180,16 @@ function saveMeasure() {
 				}
 			}
 			if (!$("#addMeasureModel").find(".label-danger").length) {
+				$("#addMeasureModel").modal("hide");
 				var language = $("#measures_body #languageselect").val();
 				var idStandard = $("#section_measure_description #measures_header #idStandard").val();
 				return showMeasures(idStandard, language);
 			}
 			return false;
-
 		},
 		error : unknowError
 	});
-	
-	$("#addMeasureModel").modal("hide");
-	
+
 	return false;
 }
 

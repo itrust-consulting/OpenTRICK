@@ -26,7 +26,7 @@
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
-						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message code="label.analysis.editInfo" text="Edit info" /></a></li>
+						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message code="label.edit.info" text="Edit info" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span
 							class="glyphicon glyphicon-file"></span> <spring:message code="label.menu.create.analysis_profile" text="New profile" />
 					</a></li>
@@ -44,7 +44,7 @@
 							<label><spring:message code="label.filter.analysis.customer" text="Analyses filtered by customer" /></label>
 						</p>
 						<form class="col-md-offset-4 col-md-4 form-inline">
-							<select class="form-control" onchange="return customerChange(this)" style="margin-bottom: 10px">
+							<select id="customerSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
 								<c:forEach items="${customers}" var="icustomer">
 									<option value="${icustomer.id}" ${not empty(customer) && icustomer.id == customer? 'selected':'' }>
 										<spring:message text="${icustomer.organisation}" />
@@ -58,10 +58,10 @@
 							<label><spring:message code="label.filter.analysis.name" text="Analyses filtered by name" /></label>
 						</p>
 						<form class="col-md-offset-4 col-md-4  form-inline">
-							<select class="form-control" onchange="return nameChange(this)" style="margin-bottom: 10px">
+							<select id="nameSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
 								<option value="ALL"><spring:message code="label.all" text="ALL"/></option>
 								<c:forEach items="${names}" var="name">
-									<option value="${name}" ${not empty(selectedName) && selectedName == name? 'selected':'' }>
+									<option value="${name}" ${not empty(analysisSelectedName) && analysisSelectedName == name? 'selected':'' }>
 										<spring:message text="${name}" />
 									</option>
 								</c:forEach>

@@ -16,7 +16,7 @@
 			<div id="manageAnalysisAccessModelBody" class="modal-body">
 				<p>
 					<spring:message code="label.analysis.anage.access.info" arguments="${analysis.label} , ${analysis.version} , ${analysis.customer.organisation}"
-						text="Description: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" />
+						text="Analysis: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" />
 				</p>
 				<jsp:include page="../../../template/successErrors.jsp" />
 				<c:if test="${!empty userrights}">

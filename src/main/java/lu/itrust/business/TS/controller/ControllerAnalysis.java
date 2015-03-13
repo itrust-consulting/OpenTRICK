@@ -76,6 +76,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -356,14 +357,16 @@ public class ControllerAnalysis {
 		}
 
 		if (customer != null) {
+			if (names == null)
+				names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
 			// load model with objects by the selected customer
-			if (nameFilter == null || nameFilter.equalsIgnoreCase("ALL"))
+			if (nameFilter == null || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
 				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 			else
 				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
 		}
 		model.addAttribute("names", names);
-		model.addAttribute("analysisSelectedName", customer);
+		model.addAttribute("analysisSelectedName", nameFilter);
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
@@ -381,17 +384,26 @@ public class ControllerAnalysis {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping("/DisplayByCustomer/{idCustomer}/{name}")
-	public String section(@PathVariable("idCustomer") Integer idCustomer, @PathVariable("name") String name, HttpSession session, Principal principal, Model model) throws Exception {
+	@RequestMapping(value = "/DisplayByCustomer/{idCustomer}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public String section(@PathVariable("idCustomer") Integer idCustomer, @RequestBody String name, HttpSession session, Principal principal, Model model) throws Exception {
+		if (StringUtils.isEmpty(name))
+			name = "ALL";
 		session.setAttribute(CURRENT_CUSTOMER, idCustomer);
-		session.setAttribute(LAST_SELECTED_ANALYSIS_NAME, name);
-		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), idCustomer));
+		session.setAttribute(FILTER_ANALYSIS_NAME, name);
+		List<String> names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), idCustomer);
+		if (name.equalsIgnoreCase("ALL") || !names.contains(name))
+			model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), idCustomer));
+		else
+			model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), idCustomer, name));
+		model.addAttribute("analysisSelectedName", name);
 		model.addAttribute("customer", idCustomer);
+		model.addAttribute("names", names);
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
 			return "redirect:/Logout";
+		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
 		return "analyses/allAnalyses/analyses";
@@ -993,31 +1005,35 @@ public class ControllerAnalysis {
 
 			int id = jsonNode.get("id").asInt();
 			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
-			if (idCustomer < 1)
-				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
-			else {
-				customer = serviceCustomer.get(idCustomer);
-				if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
-					errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+
+			if (id > 0) {
+				if (!serviceAnalysis.exists(id))
+					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+				else if (!serviceAnalysis.isProfile(id)) {
+					customer = serviceCustomer.get(idCustomer);
+					if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
+						errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+					else {
+						if (!serviceAnalysis.isAnalysisCustomer(id, idCustomer))
+							customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer);
+						analysis = serviceAnalysis.get(id);
+						if (customer.getId() != analysis.getCustomer().getId())
+							analysis.setCustomer(customer);
+					}
+				} else
+					analysis = serviceAnalysis.get(id);
+			} else {
+				if (idCustomer < 1)
+					errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
+				else {
+					customer = serviceCustomer.get(idCustomer);
+					if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
+						errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+				}
 			}
 
 			if (!errors.isEmpty())
 				return false;
-
-			if (id > 0) {
-				if (!serviceAnalysis.exists(id)) {
-					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-					return false;
-				}
-				if (!serviceAnalysis.isProfile(id)) {
-					if (!serviceAnalysis.isAnalysisCustomer(id, idCustomer))
-						customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer);
-					analysis = serviceAnalysis.get(id);
-					if (customer.getId() != analysis.getCustomer().getId())
-						analysis.setCustomer(customer);
-				} else
-					analysis = serviceAnalysis.get(id);
-			}
 
 			int idLanguage = jsonNode.has("analysislanguage") ? jsonNode.get("analysislanguage").asInt() : -1;
 

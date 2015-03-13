@@ -475,3 +475,10 @@ ul.asset-measure>li {
 .nav-analysis.tab-pane.active, .nav-tab.tab-pane.active {
 	overflow: auto;
 }
+
+#uploadStandardModal .progress {
+	max-width: 95%;
+	margin-top: 10px;
+	margin-bottom: -15px;
+	margin-top: 10px;
+}

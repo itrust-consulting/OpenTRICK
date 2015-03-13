@@ -216,7 +216,7 @@ public class ControllerAnalysisCreate {
 			analysis.setLanguage(language);
 			analysis.addAHistory(history);
 			analysis.setData(true);
-			analysis.setLabel(history.getComment());
+			analysis.setLabel(customAnalysisForm.getName());
 			analysis.setCreationDate((Timestamp) history.getDate());
 			analysis.setVersion(customAnalysisForm.getVersion());
 			analysis.setUncertainty(customAnalysisForm.isUncertainty());
