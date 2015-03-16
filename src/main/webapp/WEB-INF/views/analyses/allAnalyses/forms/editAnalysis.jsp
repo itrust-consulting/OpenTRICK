@@ -80,10 +80,10 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
+			<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.label" text="Name" />
 			</label>
 			<div class="col-sm-10">
-				<textarea name="comment" class="form-control resize_vectical_only" rows="5" required="required"><spring:message text="${analysis.label}" /></textarea>
+				<input name="comment" class="form-control resize_vectical_only" required="required" value='<spring:message text="${analysis.label}" />'>
 			</div>
 		</div>
 		<c:if test="${not analysis.profile}">
