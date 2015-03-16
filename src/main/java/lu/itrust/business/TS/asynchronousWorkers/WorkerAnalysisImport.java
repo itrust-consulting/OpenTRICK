@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -15,7 +13,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.SessionFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author eom
@@ -23,13 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class WorkerAnalysisImport implements Worker {
 
-	private Long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error = null;
 
 	private boolean working = false;
 
 	private boolean canceled = false;
+
+	private boolean canDeleteFile = true;
 
 	private WorkersPoolManager poolManager;
 
@@ -41,10 +40,23 @@ public class WorkerAnalysisImport implements Worker {
 
 	private User owner;
 
+	private AsyncCallback asyncCallback;
+
+	private MessageHandler messageHandler;
+
 	/**
 	 * 
 	 */
 	public WorkerAnalysisImport() {
+	}
+
+	/**
+	 * @param importAnalysis
+	 * @param fileName
+	 */
+	public WorkerAnalysisImport(ImportAnalysis importAnalysis, String fileName) {
+		this.importAnalysis = importAnalysis;
+		this.fileName = fileName;
 	}
 
 	/**
@@ -65,7 +77,6 @@ public class WorkerAnalysisImport implements Worker {
 		setCustomer(customer);
 		setFileName(importFile.getCanonicalPath());
 		setImportAnalysis(new ImportAnalysis());
-
 		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
 		importAnalysis.setSessionFactory(sessionFactory);
 	}
@@ -81,7 +92,7 @@ public class WorkerAnalysisImport implements Worker {
 	 * @see lu.itrust.business.task.Worker#setId(java.lang.Long)
 	 */
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -91,7 +102,7 @@ public class WorkerAnalysisImport implements Worker {
 	 * @see lu.itrust.business.task.Worker#getId()
 	 */
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -101,7 +112,6 @@ public class WorkerAnalysisImport implements Worker {
 	 * @see lu.itrust.business.task.Worker#start()
 	 */
 	@Override
-	@Transactional
 	public void start() {
 		run();
 	}
@@ -126,9 +136,11 @@ public class WorkerAnalysisImport implements Worker {
 		} finally {
 			synchronized (this) {
 				working = false;
-				File file = new File(fileName);
-				if (file.exists())
-					file.delete();
+				if (canDeleteFile) {
+					File file = new File(fileName);
+					if (file.exists())
+						file.delete();
+				}
 			}
 			if (poolManager != null)
 				poolManager.remove(getId());
@@ -201,6 +213,15 @@ public class WorkerAnalysisImport implements Worker {
 		this.importAnalysis = importAnalysis;
 	}
 
+	protected void OnSuccess() {
+		if (getMessageHandler() == null)
+			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", null, 100));
+		if (getAsyncCallback() == null)
+			setAsyncCallback(new AsyncCallback("window.location.assign(context+\"/Analysis\")", null));
+		getMessageHandler().setAsyncCallback(getAsyncCallback());
+		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -210,37 +231,36 @@ public class WorkerAnalysisImport implements Worker {
 						return;
 				if (canceled || working)
 					return;
-				working = true;
+				OnStarted();
 			}
+			OnStarted();
 			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
-			Analysis analysis = new Analysis();
-			analysis.setCustomer(customer);
-			analysis.setOwner(owner);
-			UserAnalysisRight uar = new UserAnalysisRight(owner, AnalysisRight.ALL);
-
-			analysis.addUserRight(uar);
-
-			importAnalysis.setAnalysis(analysis);
+			if (importAnalysis.getAnalysis() == null) {
+				Analysis analysis = new Analysis(customer, owner);
+				importAnalysis.setAnalysis(analysis);
+			}
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
-			if (importAnalysis.ImportAnAnalysis()) {
-				MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", null, 100);
-				messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
-				importAnalysis.getServiceTaskFeedback().send(getId(), messageHandler);
-			}
-
+			if (importAnalysis.ImportAnAnalysis())
+				OnSuccess();
 		} catch (Exception e) {
 			error = e;
+			importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred",null,e));
+			e.printStackTrace();
 		} finally {
 			synchronized (this) {
 				working = false;
 				File file = new File(fileName);
-				if (file.exists())
+				if (canDeleteFile && file.exists())
 					file.delete();
 			}
 			if (poolManager != null)
 				poolManager.remove(getId());
 		}
+	}
+
+	protected synchronized void OnStarted() throws Exception {
+		working = true;
 	}
 
 	@Override
@@ -263,5 +283,29 @@ public class WorkerAnalysisImport implements Worker {
 	public void setPoolManager(WorkersPoolManager poolManager) {
 		this.poolManager = poolManager;
 
+	}
+
+	public AsyncCallback getAsyncCallback() {
+		return asyncCallback;
+	}
+
+	public void setAsyncCallback(AsyncCallback asyncCallback) {
+		this.asyncCallback = asyncCallback;
+	}
+
+	public MessageHandler getMessageHandler() {
+		return messageHandler;
+	}
+
+	public void setMessageHandler(MessageHandler messageHandler) {
+		this.messageHandler = messageHandler;
+	}
+
+	public boolean isCanDeleteFile() {
+		return canDeleteFile;
+	}
+
+	public void setCanDeleteFile(boolean canDeleteFile) {
+		this.canDeleteFile = canDeleteFile;
 	}
 }

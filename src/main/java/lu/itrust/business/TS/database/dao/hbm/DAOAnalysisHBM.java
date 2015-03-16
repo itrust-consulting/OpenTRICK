@@ -4,12 +4,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
+import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -93,7 +100,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * exists: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#exists(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#exists(java.lang.String,
+	 *      java.lang.String)
 	 */
 	@Override
 	public boolean exists(String identifier, String version) throws Exception {
@@ -220,7 +228,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.customer.id = :customer ";
 		query += "order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc, analysis.data desc";
-		return getSession().createQuery(query).setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
+		return getSession().createQuery(query).setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize)
+				.setFirstResult((pageIndex - 1) * pageSize).list();
 	}
 
 	/**
@@ -349,20 +358,95 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * remove: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#remove(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#remove(String)
 	 */
 	@Override
 	public void delete(Analysis analysis) throws Exception {
+		deleteActionPlanByAnalysisId(analysis.getId());
+		deleteActionPlanSummaryByAnalysisId(analysis.getId());
+		deleteRiskRegisterFromAnalysis(analysis.getId());
+		deleteStandardByAnalysis(analysis);
 		getSession().delete(analysis);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void deleteActionPlanByAnalysisId(Integer analysisID) throws Exception {
+		String query = "Select actionplans FROM Analysis analysis INNER JOIN analysis.actionPlans actionplans WHERE analysis.id= :analysisID";
+
+		List<ActionPlanEntry> actionplans = (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
+		for (ActionPlanEntry entry : actionplans) {
+			List<ActionPlanAsset> assets = entry.getActionPlanAssets();
+			for (ActionPlanAsset asset : assets)
+				getSession().delete(asset);
+			getSession().delete(entry);
+		}
+
+	}
+
+	/**
+	 * deleteAllFromAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#deleteAllFromAnalysis(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	private void deleteActionPlanSummaryByAnalysisId(Integer analysisID) throws Exception {
+		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis";
+		List<SummaryStage> summaries = (List<SummaryStage>) getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
+		for (SummaryStage summary : summaries) {
+			for (SummaryStandardConformance conformance : summary.getConformances())
+				getSession().delete(conformance);
+			getSession().delete(summary);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void deleteRiskRegisterFromAnalysis(Integer analysisID) throws Exception {
+		getSession().createQuery("SELECT riskregisters FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregisters WHERE analysis.id= :analysisID")
+				.setParameter("analysisID", analysisID).list().stream().forEach(riskRegister -> getSession().delete(riskRegister));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void deleteStandardByAnalysis(Analysis analysis) throws Exception {
+
+		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
+
+		for (AnalysisStandard standard : analysis.getAnalysisStandards()) {
+
+			getSession().delete(standard);
+
+			if (standard.getStandard().isAnalysisOnly())
+				standards.add(standard);
+		}
+
+		analysis.getAnalysisStandards().clear();
+
+		getSession().saveOrUpdate(analysis);
+
+		for (AnalysisStandard standard : standards) {
+
+			Standard tmpstandard = standard.getStandard();
+
+			List<MeasureDescription> mesDescs = (List<MeasureDescription>) getSession()
+					.createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).list();
+
+			for (MeasureDescription mesDesc : mesDescs) {
+				for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts())
+					getSession().delete(mesDescText);
+				getSession().delete(mesDesc);
+			}
+			getSession().delete(tmpstandard);
+		}
 
 	}
 
 	@Override
 	public void delete(Integer analysisId) throws Exception {
 		Analysis analysis = get(analysisId);
-		if (analysis != null) {
+		if (analysis != null)
 			delete(analysis);
-		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -374,8 +458,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards) {
-		return getSession().createQuery(
-				"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysisStandard.standard in :standards")
+		return getSession()
+				.createQuery(
+						"Select distinct analysis From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.profile = true and analysisStandard.standard in :standards")
 				.setParameterList("standards", standards).list();
 	}
 
@@ -395,8 +480,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier) {
 		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
-		String query =
-			"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.identifier = :identifier  and analysis.data = true and ";
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.identifier = :identifier  and analysis.data = true and ";
 		query += "analysis.customer.id = :customer order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc";
 		Iterator<Analysis> iterator = getSession().createQuery(query).setParameter("username", username).setString("identifier", identifier).setParameter("customer", id).iterate();
 		while (iterator.hasNext())
@@ -406,7 +490,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@Override
 	public int getDefaultProfileId() {
-		Integer id = (Integer) getSession().createQuery("Select analysis.id From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true").uniqueResult();
+		Integer id = (Integer) getSession().createQuery("Select analysis.id From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true")
+				.uniqueResult();
 		return id == null ? -1 : id;
 	}
 
@@ -430,5 +515,111 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public boolean isAnalysisCssf(Integer analysisID) throws Exception {
 		String query = "Select analysis.cssf from Analysis as analysis where analysis.id= :id";
 		return (boolean) getSession().createQuery(query).setParameter("id", analysisID).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getAllNotEmptyVersion(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select distinct analysis.version from Analysis as analysis where analysis.data = true "
+								+ "and analysis.identifier = (select analysis2.identifier from Analysis as analysis2 where analysis2.id = :idAnalysis)")
+				.setParameter("idAnalysis", idAnalysis).list();
+	}
+
+	@Override
+	public String getIdentifierByIdAnalysis(int idAnalysis) {
+		return (String) getSession().createQuery("select analysis.identifier from Analysis as analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
+				.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getAllNotEmptyVersion(String identifier) {
+		return getSession().createQuery("Select distinct analysis.version from Analysis as analysis where analysis.data = true and analysis.identifier = :identifier")
+				.setParameter("identifier", identifier).list();
+	}
+
+	@Override
+	public Integer getCustomerIdByIdAnalysis(int idAnalysis) {
+		return (Integer) getSession().createQuery("select analysis.customer.id from Analysis as analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
+				.uniqueResult();
+	}
+
+	@Override
+	public boolean isAnalysisOwner(Integer analysisId, String userName) {
+		return (boolean) getSession().createQuery("select count(analysis)>0 from Analysis as analysis where analysis.id = :idAnalysis and analysis.owner.login = :username")
+				.setParameter("idAnalysis", analysisId).setString("username", userName).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getAllVersion(String identifier) {
+		return getSession().createQuery("Select distinct analysis.version from Analysis as analysis where analysis.identifier = :identifier")
+				.setParameter("identifier", identifier).list();
+	}
+
+	@Override
+	public Integer getIdFromIdentifierAndVersion(String identifier, String version) {
+		return (Integer) getSession().createQuery("select id from Analysis where identifier = :identifier and version = :version").setParameter("identifier", identifier)
+				.setString("version", version).uniqueResult();
+	}
+
+	@Override
+	public boolean exists(String identifier) {
+		return ((Long) getSession().createQuery("Select count(analysis) From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier)
+				.uniqueResult()).intValue() > 0;
+	}
+
+	@Override
+	public Long countByIdentifier(String identifier) {
+		return ((Long) getSession().createQuery("Select count(analysis) From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier)
+				.uniqueResult());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(String identifier) {
+		return getSession().createQuery("Select distinct analysis.customer From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier)
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllByIdentifier(String identifier) {
+		return getSession().createQuery("From Analysis analysis where analysis.identifier = :identifier").setString("identifier", identifier).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(int analysisId) {
+		return getSession()
+				.createQuery(
+						"Select distinct analysis.customer From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2 = :analysisId)")
+				.setInteger("analysisId", analysisId).list();
+	}
+
+	@Override
+	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer) {
+		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where id = :idAnalysis and customer.id = :idCustomer").setInteger("idAnalysis", idAnalysis)
+				.setInteger("idCustomer", idCustomer).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer) {
+		return getSession()
+				.createQuery(
+						"Select distinct analysis.label from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc")
+				.setParameter("username", username).setParameter("customer", idCustomer).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name) {
+		return getSession()
+				.createQuery(
+						"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.customer.id = :customer and  analysis.data = true and analysis.label = :name  order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc")
+				.setParameter("username", username).setParameter("customer", idCustomer).setString("name", name).list();
 	}
 }

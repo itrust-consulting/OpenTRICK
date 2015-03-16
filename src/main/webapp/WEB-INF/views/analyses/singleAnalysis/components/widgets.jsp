@@ -9,6 +9,5 @@
 	<jsp:include page="./phase/widgetcontent.jsp" />
 	<jsp:include page="./standards/measure/widgetcontent.jsp" />
 	<jsp:include page="./standards/standard/widgetcontent.jsp" />
-	<div class="modal fade" id="actionplancomputeoptions" tabindex="-1" role="dialog" data-aria-labelledby="actionplancomputeoptions" data-aria-hidden="true" data-backdrop="static"></div>
 	<div class="modal fade" id="rrfEditor" tabindex="-1" role="dialog" data-aria-labelledby="rrfEditor" data-aria-hidden="true" data-backdrop="static"></div>
 </div>

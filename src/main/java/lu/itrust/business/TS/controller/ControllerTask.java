@@ -53,7 +53,7 @@ public class ControllerTask {
 	 * @return
 	 */
 	@RequestMapping("/Status/{id}")
-	public @ResponseBody AsyncResult status(@PathVariable Long id, Principal principal, Locale locale) {
+	public @ResponseBody AsyncResult status(@PathVariable String id, Principal principal, Locale locale) {
 
 		// create result
 		AsyncResult asyncResult = new AsyncResult(id);
@@ -72,7 +72,6 @@ public class ControllerTask {
 			MessageHandler messageHandler = serviceTaskFeedback.recieveLast(id);
 
 			if (messageHandler != null) {
-
 				if (messageHandler.getLanguage() != null)
 					customLocale = new Locale(messageHandler.getLanguage());
 			}
@@ -115,7 +114,7 @@ public class ControllerTask {
 				asyncResult.setMessage(null);
 
 			// unrgister task when done or errors
-			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3 && !serviceTaskFeedback.hasMessage(id)) {
+			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3) {
 				serviceTaskFeedback.unregisterTask(principal.getName(), id);
 			}
 		}
@@ -125,7 +124,7 @@ public class ControllerTask {
 	}
 
 	@RequestMapping("/Stop/{id}")
-	public @ResponseBody String stop(@PathVariable Long id, Principal principal, Locale locale) {
+	public @ResponseBody String stop(@PathVariable String id, Principal principal, Locale locale) {
 
 		// check if user has the task with given id
 		if (serviceTaskFeedback.hasTask(principal.getName(), id)) {
@@ -159,12 +158,12 @@ public class ControllerTask {
 	 * @return
 	 */
 	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody List<Long> processing(Principal principal) {
+	public @ResponseBody List<String> processing(Principal principal) {
 
-		List<Long> result = serviceTaskFeedback.tasks(principal.getName());
+		List<String> result = serviceTaskFeedback.tasks(principal.getName());
 
 		if(result == null)
-			result = new ArrayList<Long>();
+			result = new ArrayList<String>();
 		
 		// get tasks of this user
 		return result;

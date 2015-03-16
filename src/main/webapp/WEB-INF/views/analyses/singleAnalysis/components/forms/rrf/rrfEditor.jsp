@@ -23,15 +23,15 @@
 									<div class="panel-body">
 										<div class="list-group" style="min-height: 252px; max-height: 252px; overflow: auto;" id="selectable_rrf_scenario_controls">
 											<c:forEach items="${scenarios.keySet()}" var="scenarioType" varStatus="status">
-												<div class="list-group" trick-id="${scenarioType.value}">
+												<div class="list-group" data-trick-id="${scenarioType.value}">
 													<h4 class="list-group-item-heading">
-														<a href="#" trick-id="${scenarioType.value}" trick-value='<spring:message text="${scenarioType.name}" />' onclick="return false;" trick-class="ScenarioType"
+														<a href="#" data-trick-id="${scenarioType.value}" data-trick-value='<spring:message text="${scenarioType.name}" />' onclick="return false;" data-trick-class="ScenarioType"
 															class="list-group-item${status.index==0?' active':''}"> <spring:message text="${scenarioType.name}" />
 														</a>
 													</h4>
-													<div class="list-group" trick-id="${scenarioType.value}" trick-value='<spring:message text="${scenarioType.name}" />'>
+													<div class="list-group" data-trick-id="${scenarioType.value}" data-trick-value='<spring:message text="${scenarioType.name}" />'>
 														<c:forEach items="${scenarios.get(scenarioType)}" var="scenario" varStatus="statusScanrio">
-															<a href="#" onclick="return false;" title='<spring:message text="${scenario.name}"/>' trick-class="Scenario" trick-id="${scenario.id}" class="list-group-item"
+															<a href="#" onclick="return false;" title='<spring:message text="${scenario.name}"/>' data-trick-class="Scenario" data-trick-id="${scenario.id}" class="list-group-item"
 																style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"> <spring:message text="${scenario.name}" />
 															</a>
 															<c:set var="selectedScenario" value="${scenario}" />
@@ -55,16 +55,16 @@
 										</select>
 										<div class="list-group" style="min-height: 278px; max-height: 278px; overflow: auto; margin-bottom: 0;" id="selectable_rrf_measures_chapter_controls">
 											<c:forEach items="${measures.keySet()}" var="chapter" varStatus="status">
-												<div class="list-group" trick-id="${chapter.standard.id}" trick-filter-value="${status.index}" style="${status.index==0?'display:block':'display:none'}">
+												<div class="list-group" data-trick-id="${chapter.standard.id}" data-trick-filter-value="${status.index}" style="${status.index==0?'display:block':'display:none'}">
 													<h4 class="list-group-item-heading">
-														<a href="#" onclick="return false;" class="list-group-item${status.index==0?' active':''}" trick-class="Standard"
-															title='<spring:message text="${chapter.reference}"/>' trick-id="${chapter.standard.id}" trick-value=<spring:message text="${chapter.reference}"/>> <spring:message
+														<a href="#" onclick="return false;" class="list-group-item${status.index==0?' active':''}" data-trick-class="Standard"
+															title='<spring:message text="${chapter.reference}"/>' data-trick-id="${chapter.standard.id}" data-trick-value=<spring:message text="${chapter.reference}"/>> <spring:message
 																text="${chapter.standard.label}" /> - <spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
 														</a>
 													</h4>
-													<div class="list-group" trick-id="${chapter.standard.id}" trick-value=<spring:message text="${chapter.reference}"/>>
+													<div class="list-group" data-trick-id="${chapter.standard.id}" data-trick-value=<spring:message text="${chapter.reference}"/>>
 														<c:forEach items="${measures.get(chapter)}" var="currentMeasure">
-															<a href="#" onclick="return false;" trick-class="Measure" trick-id="${currentMeasure.id}"
+															<a href="#" onclick="return false;" data-trick-class="Measure" data-trick-id="${currentMeasure.id}"
 																class="list-group-item ${standardid==chapter.standard.id && currentMeasure.getId()==measureid?'active':''}"
 																style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"> <spring:message
 																	text="${currentMeasure.getMeasureDescription().reference} - ${currentMeasure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(language).domain}" />
@@ -102,7 +102,7 @@
 															<th class="warning"><fmt:message key="label.rrf.measure.strength_sectoral" /></th>
 															<c:if test="${!empty(categories)}">
 																<c:forEach items="${categories.keySet()}" var="category">
-																	<th class="info" trick-class="Category" trick-value=<spring:message text="${category}" />><fmt:message
+																	<th class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
 																			key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 																</c:forEach>
 															</c:if>
@@ -129,55 +129,55 @@
 													</thead>
 													<tbody>
 														<tr>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fmeasure" value="${strength_measure}" data-slider-min="0"
+															<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fmeasure" value="${strength_measure}" data-slider-min="0"
 																data-slider-max="10" data-slider-step="1" data-slider-value="${strength_measure}" name="fmeasure" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fSectoral" value="${strength_sectorial}" data-slider-min="0"
+															<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fSectoral" value="${strength_sectorial}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${strength_sectorial}" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
 															<c:if test="${!empty(categories)}">
 																<c:forEach items="${categories.keySet()}" var="category">
-																	<td class="info" trick-class="MeasureProperties" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
+																	<td class="info" data-trick-class="MeasureProperties" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
 																		id="measure_category_${category}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
 																		data-slider-value="${categories.get(category)}" name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after"
 																		data-slider-tooltip="show"></td>
 																</c:forEach>
 															</c:if>
-															<td class="success" trick-class="MeasureProperties"><input type="text" id="measure_preventive" class="slider" value="${preventive}" data-slider-min="0"
+															<td class="success" data-trick-class="MeasureProperties"><input type="text" id="measure_preventive" class="slider" value="${preventive}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive"
 																data-slider-tooltip="show"></td>
-															<td class="success" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_detective" value="${detective}" data-slider-min="0"
+															<td class="success" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_detective" value="${detective}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="success" trick-class="MeasureProperties"><input type="text" id="measure_limitative" class="slider" value="${limitative}" data-slider-min="0"
+															<td class="success" data-trick-class="MeasureProperties"><input type="text" id="measure_limitative" class="slider" value="${limitative}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative"
 																data-slider-tooltip="show"></td>
-															<td class="success" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_corrective" value="${corrective}" data-slider-min="0"
+															<td class="success" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_corrective" value="${corrective}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_intentional" value="${intentional}" data-slider-min="0"
+															<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_intentional" value="${intentional}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${intentional}" name="intentional" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_accidental" value="${accidental}" data-slider-min="0"
+															<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_accidental" value="${accidental}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${accidental}" name="accidental" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_environmental" value="${environmental}" data-slider-min="0"
+															<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_environmental" value="${environmental}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${environmental}" name="environmental" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_internalThreat" value="${internalThreat}" data-slider-min="0"
+															<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_internalThreat" value="${internalThreat}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${internalThreat}" name="internalThreat" data-slider-orientation="vertical"
 																data-slider-selection="after" data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_externalThreat" value="${externalThreat}" data-slider-min="0"
+															<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="measure_externalThreat" value="${externalThreat}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${externalThreat}" name="externalThreat" data-slider-orientation="vertical"
 																data-slider-selection="after" data-slider-tooltip="show"></td>
 															<c:forEach items="${assetTypes}" var="assetType">
-																<td trick-class="AssetType"><input type="text" class="slider" id='measure_assetType_<spring:message text="${assetType.assetType.type}"/>'
+																<td data-trick-class="AssetType"><input type="text" class="slider" id='measure_assetType_<spring:message text="${assetType.assetType.type}"/>'
 																	value="${assetType.value}" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetType.value}"
 																	name=<spring:message text="${assetType.assetType.type}"/> data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 															</c:forEach>
 															<c:if test="${!empty(assets)}">
 																<c:forEach items="${assets}" var="asset">
-																	<td trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.asset.value}"
+																	<td data-trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.asset.value}"
 																		data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.asset.value}" name="<spring:message text="${asset.asset.name}"/>"
 																		data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 																</c:forEach>
@@ -188,7 +188,7 @@
 															<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_fsectoral_value" value="${strength_sectorial}" name="fsectoral"></td>
 															<c:if test="${!empty(categories)}">
 																<c:forEach items="${categories.keySet()}" var="category">
-																	<td class="info" trick-class="Category" trick-value="<spring:message text="${category}" />"><input type="text"
+																	<td class="info" data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
 																		id='measure_<spring:message text="${category}"/>_value' readonly="readonly" class="form-control" value="${categories.get(category)}"
 																		name="<spring:message text="${category}" />"></td>
 																</c:forEach>
@@ -206,13 +206,13 @@
 																name="externalThreat"></td>
 															<c:if test="${!empty(assetTypes)}">
 																<c:forEach items="${assetTypes}" var="assetType">
-																	<td trick-class="AssetTypeValue"><input type="text" id='measure_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;"
+																	<td data-trick-class="AssetTypeValue"><input type="text" id='measure_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;"
 																		readonly="readonly" class="form-control" value="${assetType.value}" name="<spring:message text="${assetType.assetType.type}" />"></td>
 																</c:forEach>
 															</c:if>
 															<c:if test="${!empty(assets)}">
 																<c:forEach items="${assets}" var="asset">
-																	<td trick-class="MeasureAssetValue"><input type="text" id='measure_asset_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;"
+																	<td data-trick-class="MeasureAssetValue"><input type="text" id='measure_asset_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;"
 																		readonly="readonly" class="form-control" value="${asset.asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
 																</c:forEach>
 															</c:if>

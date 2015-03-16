@@ -37,4 +37,6 @@ public interface DAOMeasureDescription {
 	public void delete(MeasureDescription measureDescription) throws Exception;
 
 	public void delete(int id) throws Exception;
+
+	public boolean existsForMeasureByReferenceAndAnalysisStandardId(String reference, int idAnalysisStandard);
 }

@@ -1,23 +1,23 @@
 package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.TrickService;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.general.Customer;
-import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.TS.usermanagement.User;
@@ -26,6 +26,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,45 +62,21 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+	
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+	
+	@Autowired
+	private TaskExecutor executor;
 
 	@Value("${app.settings.version}")
 	private String version;
-
-	/**
-	 * install: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param principal
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/Install")
-	public String install(Model model, Principal principal, HttpServletRequest request) throws Exception {
-		return "redirect:/RemoveDefaultProfile";
-	}
-
-	/**
-	 * removeDefault: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param principal
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/RemoveDefaultProfile")
-	public String removeDefault(Model model, Principal principal, HttpServletRequest request) throws Exception {
-
-		Analysis analysis = serviceAnalysis.getDefaultProfile();
-
-		if (analysis != null)
-			serviceAnalysis.delete(analysis);
-
-		return "redirect:/InstallTS";
-	}
+	
+	@Value("${app.settings.default.profile.sqlite.path}")
+	private String defaultProfileSqlitePath;
 
 	/**
 	 * installTS: <br>
@@ -112,19 +89,12 @@ public class ControllerIntstallation {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/InstallTS")
+	@RequestMapping("/Install")
 	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-
-		TrickService status = serviceTrickService.getStatus();
-
-		if (status == null) {
-			errors.put("status", messageSource.getMessage("error.application.no_install", null, "Please install TRICK Service!", locale));
-			return errors;
-		}
-
-		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.2.sqlite";
+		
+		String fileName = request.getServletContext().getRealPath(defaultProfileSqlitePath);
 
 		installProfileCustomer(errors, locale);
 
@@ -132,14 +102,7 @@ public class ControllerIntstallation {
 			return errors;
 		
 		installDefaultProfile(fileName, principal, errors, locale);
-
-		if(!errors.isEmpty())
-			return errors;
 		
-		status.setVersion(version);
-
-		serviceTrickService.saveOrUpdate(status);
-
 		return errors;
 
 	}
@@ -160,7 +123,7 @@ public class ControllerIntstallation {
 				customer.setOrganisation("Profile");
 				customer.setContactPerson("Profile");
 				customer.setEmail("profile@trickservice.lu");
-				customer.setPhoneNumber("0123456");
+				customer.setPhoneNumber("00000000");
 				customer.setAddress("Profile");
 				customer.setCity("Profile");
 				customer.setZIPCode("Profile");
@@ -197,8 +160,6 @@ public class ControllerIntstallation {
 
 		Analysis analysis = null;
 
-		DatabaseHandler sqlitehandler = null;
-
 		try {
 
 			// customer
@@ -223,35 +184,21 @@ public class ControllerIntstallation {
 			}
 
 			// create analysis
-			analysis = new Analysis();
-			analysis.setCustomer(customer);
-			analysis.setOwner(owner);
+			analysis = new Analysis(customer, owner);
 			analysis.setProfile(true);
 			analysis.setDefaultProfile(true);
-
-			sqlitehandler = new DatabaseHandler(fileName);
-
-			// import default values
-			ImportAnalysis importAnalysis = new ImportAnalysis(analysis, sqlitehandler);
-			importAnalysis.setSessionFactory(sessionFactory);
-
-			boolean returnvalue = importAnalysis.simpleAnalysisImport();
-
-			importAnalysis.getAnalysis().setLabel("SME: Small and Medium Entreprises (Default Profile from installer)");
-
-			Timestamp ts = new Timestamp(System.currentTimeMillis());
-
-			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-			String tsstring = outDateFormat.format(ts);
-
-			importAnalysis.getAnalysis().setIdentifier(importAnalysis.getAnalysis().getLanguage().getAlpha3() + "_" + tsstring);
-
-			serviceAnalysis.saveOrUpdate(importAnalysis.getAnalysis());
-
-			errors.put("success", messageSource.getMessage("label.ts.install.success", null, "Installation successfull", locale));
+			analysis.setLabel("SME: Small and Medium Entreprises (Default Profile from installer)");
 			
-			return returnvalue;
+			ImportAnalysis importAnalysis = new ImportAnalysis(analysis,serviceTaskFeedback, sessionFactory);
+			Worker worker = new WorkerTSInstallation(version,importAnalysis, fileName);
+			worker.setPoolManager(workersPoolManager);
+			if(!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
+				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+				return false;
+			}
+			executor.execute(worker);
+			errors.put("idTask", String.valueOf(worker.isWorking()));
+			return true;
 
 		} catch (TrickException e) {
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));

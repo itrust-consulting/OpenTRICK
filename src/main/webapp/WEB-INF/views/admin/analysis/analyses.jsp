@@ -4,71 +4,63 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="section" id="section_admin_analysis">
-	<div class="page-header">
-		<h3>
-			<spring:message code="label.analysis.title" text="All Analyses" />
-		</h3>
-		<jsp:include page="../../successErrors.jsp" />
-	</div>
-	<div class="panel panel-default">
-		<div class="panel-heading" style="min-height: 60px">
-			<ul class="nav nav-pills" id="menu_admin_analysis">
-				<li class="disabled" trick-selectable="true" trick-check="isProfile('#section_admin_analysis')"><a href="#"
-					onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
-							code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
-				<li class="disabled pull-right" trick-selectable="true" trick-check="isProfile('#section_admin_analysis')"><a href="#" onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span
-						class="glyphicon glyphicon-remove"></span> <spring:message code="label.menu.delete.analysis" text="Delete" /></a></li>
-			</ul>
-		</div>
-		<div class="panel-body">
-			<div class="col-md-offset-5 col-md-2 text-center">
-				<spring:message code="label.analysis.filter.customer" text="Analyses filtered by customer: " />
-				<select class="form-control" onchange="return adminCustomerChange(this)" style="margin-bottom: 10px">
+<div class="tab-pane" id="tab_analyses">
+	<div class="section" id="section_admin_analysis">
+		<jsp:include page="../../template/successErrors.jsp" />
+		<ul class="nav nav-pills bordered-bottom" id="menu_admin_analysis">
+			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
+						code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
+
+			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+				onclick="return switchCustomer('section_admin_analysis');"> <span class="fa fa-exchange fa-sw primary"></span> <spring:message code="label.menu.switch.customer"
+						text="Switch customer" /></a></li>
+
+			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+				onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span class="glyphicon glyphicon-remove"></span> <spring:message
+						code="label.menu.delete.analysis" text="Delete" /></a></li>
+		</ul>
+		<div class="center-block">
+			<p class="text-center" style="margin-bottom: 0; margin-top: 10px;">
+				<label><spring:message code="label.filter.analysis.customer" text="Analyses filtered by customer" /></label>
+			</p>
+			<form class="col-md-offset-5 col-md-2 form-inline">
+				<select class="form-control" onchange="return adminCustomerChange(this)" style="margin-bottom: 15px">
 					<c:forEach items="${customers}" var="icustomer">
-						<option value="${icustomer.id}" ${customer !=null && icustomer.id == customer? 'selected':'' }>
+						<option value="${icustomer.id}" ${not empty(customer) && icustomer.id == customer? 'selected':'' }>
 							<spring:message text="${icustomer.organisation}" />
 						</option>
 					</c:forEach>
 				</select>
-			</div>
-			<div style="clear: both" class="autofitpanelbodydefinition">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'admin_analysis');" ></th>
-							<th><spring:message code="label.analysis.identifier" text="Identifier" /></th>
-							<th><spring:message code="label.analysis.comment" text="Comment" /></th>
-							<th><spring:message code="label.analysis.creation_date" text="Create date" /></th>
-							<th><spring:message code="label.analysis.version" text="Version" /></th>
-							<th><spring:message code="label.analysis.owner" text="Owner" /></th>
-							<th><spring:message code="label.analysis.language" text="Language" /></th>
-							<th><spring:message code="label.analysis.profile" text="Profile" />
-						</tr>
-					</thead>
-					<tbody>
-						<c:forEach items="${analyses}" var="analysis">
-							<tr trick-id="${analysis.id}" trick-rights-id="0" data="${analysis.hasData()}" trick-isProfile="${analysis.profile}">
-								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
-								<td><spring:message text="${analysis.identifier}" /></td>
-								<td><spring:message text="${analysis.label}" /></td>
-								<td><spring:message text="${analysis.creationDate}" /></td>
-								<td trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>
-								<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}" /></td>
-								<td><spring:message text="${analysis.language.name}" /></td>
-								<c:choose>
-									<c:when test="${analysis.profile == true}">
-										<td><spring:message code="label.yes" text="Yes" /></td>
-									</c:when>
-									<c:otherwise>
-										<td><spring:message code="label.no" text="No" /></td>
-									</c:otherwise>
-								</c:choose>
-							</tr>
-						</c:forEach>
-					</tbody>
-				</table>
-			</div>
+			</form>
 		</div>
+		<table class="table table-hover" style="border-top: 1px solid #dddddd;">
+			<thead>
+				<tr>
+					<th width="1%"></th>
+					<th><spring:message code="label.analysis.identifier" text="Identifier" /></th>
+					<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
+					<th width="40%"><spring:message code="label.analysis.comment" text="Comment" /></th>
+					<th><spring:message code="label.analysis.version" text="Version" /></th>
+					<th><spring:message code="label.analysis.creation_date" text="Create date" /></th>
+					<th><spring:message code="label.analysis.owner" text="Owner" /></th>
+					<th><spring:message code="label.analysis.language" text="Language" /></th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${analyses}" var="analysis">
+					<tr data-trick-id="${analysis.id}" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}">
+						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
+						<td><spring:message text="${analysis.identifier}" /></td>
+						<td><pre><spring:message text="${analysis.label}" /></pre></td>
+						<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
+						<td data-trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>
+						<td><spring:message text="${analysis.creationDate}" /></td>
+						<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}" /></td>
+						<td><spring:message text="${analysis.language.name}" /></td>
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
 	</div>
 </div>

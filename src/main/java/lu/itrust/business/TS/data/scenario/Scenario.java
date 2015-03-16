@@ -72,8 +72,9 @@ public class Scenario extends SecurityCriteria {
 	 * Constructor: <br>
 	 * 
 	 * @param assettypes
+	 * @throws TrickException 
 	 */
-	public Scenario(List<AssetType> assettypes) {
+	public Scenario(List<AssetType> assettypes) throws TrickException {
 		for (AssetType at : assettypes) {
 			AssetTypeValue tmpATV = new AssetTypeValue(at, 0);
 			assetTypeValues.add(tmpATV);
@@ -233,8 +234,9 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param assetType
 	 * @return
+	 * @throws TrickException 
 	 */
-	public int getAssetTypeValue(AssetType assetType) {
+	public int getAssetTypeValue(AssetType assetType) throws TrickException {
 		for (AssetTypeValue typeValue : assetTypeValues) {
 			if (typeValue.getAssetType().equals(assetType)) {
 				return typeValue.getValue();

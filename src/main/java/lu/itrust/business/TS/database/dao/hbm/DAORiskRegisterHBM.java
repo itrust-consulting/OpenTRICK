@@ -55,8 +55,8 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
-	public boolean belongsToAnalysis(Integer riskregisterItemId, Integer analysisId) throws Exception {
-		String query = "Select count(riskregisterItem) From Analysis as analysis inner join analysis.riskRegister as riskregisterItem where analysis.id = :analysisid and phase.id = ";
+	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId) throws Exception {
+		String query = "Select count(riskregisterItem) From Analysis as analysis inner join analysis.riskRegisters as riskregisterItem where analysis.id = :analysisid and riskregisterItem.id = ";
 		query += ":riskregisterItemId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskregisterItemId", riskregisterItemId).uniqueResult()).intValue() > 0;
 	}

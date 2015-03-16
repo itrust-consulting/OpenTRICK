@@ -9,6 +9,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**
@@ -61,8 +62,8 @@ public class MeasureValidator extends ValidatorFieldImpl {
 	 * Object, java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (!supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
+	public String validate( String fieldName, Object candidate) {
+		if (fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		String stringCandidate = null;
 		Double doubleCanditate = null;
@@ -156,7 +157,7 @@ public class MeasureValidator extends ValidatorFieldImpl {
 	 * Object, java.lang.String, java.lang.Object, java.lang.Object[])
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) {
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
@@ -168,7 +169,7 @@ public class MeasureValidator extends ValidatorFieldImpl {
 	 * Object, java.lang.String, java.lang.Object, java.util.List)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) {
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 

@@ -19,7 +19,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 @Service
 public class WorkersPoolManagerImpl implements WorkersPoolManager {
 
-	private final Map<Long, Worker> workersPool = new LinkedHashMap<>();
+	private final Map<String, Worker> workersPool = new LinkedHashMap<>();
 
 	/**
 	 * Constructor: <br>
@@ -51,10 +51,10 @@ public class WorkersPoolManagerImpl implements WorkersPoolManager {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#get(java.lang.Long)
+	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#get(String)
 	 */
 	@Override
-	public Worker get(Long id) {
+	public Worker get(String id) {
 		return workersPool.get(id);
 	}
 
@@ -79,10 +79,10 @@ public class WorkersPoolManagerImpl implements WorkersPoolManager {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#remove(java.lang.Long)
+	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#remove(String)
 	 */
 	@Override
-	public Worker remove(Long id) {
+	public Worker remove(String id) {
 		return workersPool.remove(id);
 	}
 
@@ -93,10 +93,10 @@ public class WorkersPoolManagerImpl implements WorkersPoolManager {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#exist(java.lang.Long)
+	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#exist(String)
 	 */
 	@Override
-	public boolean exist(Long id) {
+	public boolean exist(String id) {
 		return workersPool.containsKey(id);
 	}
 

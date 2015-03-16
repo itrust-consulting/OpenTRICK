@@ -61,10 +61,11 @@ public class AssetTypeValue implements Cloneable {
 	 *            The Asset Type Object
 	 * @param value
 	 *            The Value to set
+	 * @throws TrickException 
 	 */
-	public AssetTypeValue(AssetType assetType, int value) {
-		this.assetType = assetType;
-		this.value = value;
+	public AssetTypeValue(AssetType assetType, int value) throws TrickException {
+		setAssetType(assetType);
+		setValue(value);
 	}
 
 	/***********************************************************************************************

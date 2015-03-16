@@ -13,6 +13,7 @@ import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.rrf.ImportRRFForm;
@@ -35,8 +36,6 @@ import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +47,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerRRF.java: <br>
@@ -88,7 +90,7 @@ public class ControllerRRF {
 
 	@Autowired
 	private ServiceStandard serviceStandard;
-	
+
 	/**
 	 * rrf: <br>
 	 * Description
@@ -137,11 +139,18 @@ public class ControllerRRF {
 				model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
 				model.addAttribute("internalThreat", normalMeasure.getMeasurePropertyList().getInternalThreat());
 				model.addAttribute("externalThreat", normalMeasure.getMeasurePropertyList().getExternalThreat());
-				Double typeValue =
-					normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
-						+ normalMeasure.getMeasurePropertyList().getCorrective();
-				model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
-				model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
+				List<AssetType> assetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
+				List<AssetTypeValue> assetTypeValues = normalMeasure.getAssetTypeValues();
+				int size = assetTypeValues.size();
+				for (AssetType assetType : assetTypes) {
+					if (normalMeasure.getAssetTypeValueByAssetType(assetType) == null)
+						normalMeasure.addAnAssetTypeValue(new AssetTypeValue(assetType, 0));
+				}
+
+				if (assetTypeValues.size() != size)
+					serviceMeasure.saveOrUpdate(measure);
+
+				model.addAttribute("assetTypes", assetTypeValues);
 			}
 			if (measure instanceof AssetMeasure) {
 				AssetMeasure assetMeasure = (AssetMeasure) measure;
@@ -163,9 +172,8 @@ public class ControllerRRF {
 				model.addAttribute("environmental", assetMeasure.getMeasurePropertyList().getEnvironmental());
 				model.addAttribute("internalThreat", assetMeasure.getMeasurePropertyList().getInternalThreat());
 				model.addAttribute("externalThreat", assetMeasure.getMeasurePropertyList().getExternalThreat());
-				double typeValue =
-					assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective() + assetMeasure.getMeasurePropertyList().getLimitative()
-						+ assetMeasure.getMeasurePropertyList().getCorrective();
+				double typeValue = assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective()
+						+ assetMeasure.getMeasurePropertyList().getLimitative() + assetMeasure.getMeasurePropertyList().getCorrective();
 				model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 				model.addAttribute("assets", assetMeasure.getMeasureAssetValues());
 			}
@@ -223,8 +231,8 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID,'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String loadRRFScenarioChart(@RequestBody String requestBody, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale)
-			throws Exception {
+	public @ResponseBody String loadRRFScenarioChart(@RequestBody String requestBody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
+			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		ObjectMapper mapper = new ObjectMapper();
@@ -261,7 +269,7 @@ public class ControllerRRF {
 							measures.add(measure);
 					}
 			}
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
 	}
 
@@ -306,16 +314,23 @@ public class ControllerRRF {
 			model.addAttribute("detective", normalMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute("limitative", normalMeasure.getMeasurePropertyList().getLimitative());
 			model.addAttribute("corrective", normalMeasure.getMeasurePropertyList().getCorrective());
-			double typeValue =
-				normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
-					+ normalMeasure.getMeasurePropertyList().getCorrective();
-			model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", normalMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", normalMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
 			model.addAttribute("internalThreat", normalMeasure.getMeasurePropertyList().getInternalThreat());
 			model.addAttribute("externalThreat", normalMeasure.getMeasurePropertyList().getExternalThreat());
-			model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
+			List<AssetType> assetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
+			List<AssetTypeValue> assetTypeValues = normalMeasure.getAssetTypeValues();
+			int size = assetTypeValues.size();
+			for (AssetType assetType : assetTypes) {
+				if (normalMeasure.getAssetTypeValueByAssetType(assetType) == null)
+					normalMeasure.addAnAssetTypeValue(new AssetTypeValue(assetType, 0));
+			}
+
+			if (assetTypeValues.size() != size)
+				serviceMeasure.saveOrUpdate(measure);
+
+			model.addAttribute("assetTypes", assetTypeValues);
 
 		} else if (measure instanceof AssetMeasure) {
 			AssetMeasure assetMeasure = (AssetMeasure) measure;
@@ -332,10 +347,6 @@ public class ControllerRRF {
 			model.addAttribute("detective", assetMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
 			model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
-			double typeValue =
-				assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective() + assetMeasure.getMeasurePropertyList().getLimitative()
-					+ assetMeasure.getMeasurePropertyList().getCorrective();
-			model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environmental", assetMeasure.getMeasurePropertyList().getEnvironmental());
@@ -345,7 +356,7 @@ public class ControllerRRF {
 		}
 
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
-		model.addAttribute("language", language.getAlpha3());
+		model.addAttribute("language", language.getAlpha2());
 
 		return "analyses/singleAnalysis/components/forms/rrf/measureRRF";
 	}
@@ -365,8 +376,8 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFStandardChart(@RequestBody String requestbody, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale)
-			throws Exception {
+	public @ResponseBody String loadRRFStandardChart(@RequestBody String requestbody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
+			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		ObjectMapper mapper = new ObjectMapper();
@@ -391,7 +402,7 @@ public class ControllerRRF {
 		} else
 			scenarios = serviceScenario.getAllSelectedFromAnalysisByType(idAnalysis, scenariotype);
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 
@@ -439,5 +450,5 @@ public class ControllerRRF {
 		}
 
 	}
-	
+
 }

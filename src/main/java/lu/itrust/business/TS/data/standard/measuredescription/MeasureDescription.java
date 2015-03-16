@@ -30,8 +30,8 @@ import org.hibernate.annotations.CascadeType;
  * <li>The Level of Measure (1-3)</li>
  * <li>The Measure Reference inside the Standard</li>
  * <li>
- * Measure Description Texts which represents the Domain and Description f a Measure in one to more
- * languages</li>
+ * Measure Description Texts which represents the Domain and Description f a
+ * Measure in one to more languages</li>
  * </ul>
  * 
  * @author itrust consulting s.à r.l. : SME, BJA, EOM
@@ -61,7 +61,7 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy = "measureDescription", fetch = FetchType.EAGER)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
@@ -74,8 +74,8 @@ public class MeasureDescription implements Cloneable {
 	private String reference = "";
 
 	/**
-	 * Flag to determine if measure can be used in the action plan (before: measure had to be level
-	 * 3)
+	 * Flag to determine if measure can be used in the action plan (before:
+	 * measure had to be level 3)
 	 */
 	@Column(name = "dtComputable", nullable = false)
 	private boolean computable = true;
@@ -120,6 +120,45 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescriptionText findByLanguage(Language language) {
 		return findByAlph3(language.getAlpha3());
 	}
+	
+	
+	/**
+	 * findByAlph3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 */
+	public MeasureDescriptionText findByAlph2(String alpha2) {
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
+			if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase(alpha2))
+				return measureDescriptionText;
+		return null;
+	}
+
+	/**
+	 * getMeasureDescriptionTextByAlpha3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 */
+	public MeasureDescriptionText getMeasureDescriptionTextByAlpha2(String alpha2) {
+
+		MeasureDescriptionText descriptionText = null;
+		MeasureDescriptionText descriptionTextEnglish = null;
+
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts) {
+			if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase(alpha2))
+				return measureDescriptionText;
+			else if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase("en"))
+				descriptionTextEnglish = measureDescriptionText;
+		}
+
+		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
+				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
+	}
+
 
 	/**
 	 * findByAlph3: <br>
@@ -154,8 +193,8 @@ public class MeasureDescription implements Cloneable {
 				descriptionTextEnglish = measureDescriptionText;
 		}
 
-		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish : descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0)
-			: descriptionText;
+		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
+				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
 	}
 
 	/**
@@ -168,6 +207,10 @@ public class MeasureDescription implements Cloneable {
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	public MeasureDescription(MeasureDescriptionText measureDescriptionText) {
+		measureDescriptionTexts.add(measureDescriptionText);
+	}
 
 	/**
 	 * getId: <br>
@@ -259,7 +302,9 @@ public class MeasureDescription implements Cloneable {
 	 * @return The value of the measureDescriptionTexts field
 	 */
 	public MeasureDescriptionText getAMeasureDescriptionText(int index) {
-		return measureDescriptionTexts.get(index);
+		if (index > -1 && measureDescriptionTexts.size() > index)
+			return measureDescriptionTexts.get(index);
+		return null;
 	}
 
 	/**

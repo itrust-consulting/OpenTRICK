@@ -5,39 +5,21 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+<c:set var="language" value="${analysis.language.alpha2}" scope="request"/>
+<html lang="${language}">
+<fmt:setLocale value="${language}" scope="session" />
 <c:set scope="request" var="title">label.title.analysis</c:set>
-<html>
-<jsp:include page="../../header.jsp" />
+<jsp:include page="../../template/header.jsp" />
 <body>
-	<jsp:include page="../../scripts.jsp" />
-	<script src="<spring:url value="js/trickservice/analysis.js" />"></script>
-	<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
-	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
-	<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
-	<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
-	<!-- <script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script> -->
-	
-	<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/rrfManager.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
-	<c:if test="${!analysis.isProfile()}">
-		<script type="text/javascript" src="<spring:url value="js/trickservice/actionplan.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/asset.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/analysisStandard.js" />"></script>
-	</c:if>
 	<div id="wrap">
-		<jsp:include page="../../menu.jsp" />
+		<c:set var="isEditable" value="${analysis.getRightsforUserString(login).right.ordinal()<5}" scope="request" />
+		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="analysisMenu.jsp" />
-			<jsp:include page="../../successErrors.jsp" />
-			<div class="tab-content" id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
-				trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
+			<jsp:include page="../../template/successErrors.jsp" />
+			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis" data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
+				data-trick-language="${language}">
+				
 				<c:if test="${!analysis.isProfile()}">
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />
@@ -68,16 +50,35 @@
 					<jsp:include page="./components/actionplan.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
-					<c:if test="${show_cssf}">
-						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
-						<jsp:include page="./components/riskregister.jsp" />
-					</c:if>
+					<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
+					<jsp:include page="./components/riskregister.jsp" />
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
 			</div>
 			<jsp:include page="./components/widgets.jsp" />
 		</div>
-		<jsp:include page="../../footer.jsp" />
+		<jsp:include page="../../template/footer.jsp" />
 	</div>
+	<jsp:include page="../../template/scripts.jsp" />
+	<script src="<spring:url value="js/trickservice/analysis.js" />"></script>
+	<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
+	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
+	<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
+	<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
+	<!-- <script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script> -->
+	
+	<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/rrfManager.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/analysisStandard.js" />"></script>
+	<c:if test="${!analysis.isProfile()}">
+		<script type="text/javascript" src="<spring:url value="js/trickservice/actionplan.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/asset.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
+	</c:if>
 </body>
 </html>

@@ -182,4 +182,9 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	public void delete(int id) throws Exception {
 		daoMeasureDescription.delete(id);
 	}
+
+	@Override
+	public boolean existsForMeasureByReferenceAndAnalysisStandardId(String reference, int idAnalysisStandard) {
+		return daoMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(reference,idAnalysisStandard);
+	}
 }

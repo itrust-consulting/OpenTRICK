@@ -1,6 +1,29 @@
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
-	analysisTableSortable();
+	$("#tab-container table").stickyTableHeaders({
+		cssTopOffset : ".nav-tab",
+		fixedOffset : 6
+	});
+	
+	var resizer = function() {
+		$("#measures_body").css({
+			'max-height' : ($(window).height() * 0.78) + 'px',
+			'overflow' : 'auto'
+		});
+	};
+	
+	$("#section_measure_description").on("hidden.bs.modal", function() {
+		$(window).off(resizer);
+	});
+	
+	$("#section_measure_description").on("show.bs.modal", function() {
+		resizer.apply(resizer, null);
+	});
+	
+	$("#section_measure_description").on("shown.bs.modal", function() {
+		$(window).resize(resizer);
+	});
+	
 });
 
 function editSingleAnalysis(analysisId) {
@@ -16,7 +39,7 @@ function editSingleAnalysis(analysisId) {
 		url : context + "/Analysis/Edit/" + analysisId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			if ((form = doc.getElementById("form_edit_analysis")) == null) {
@@ -44,7 +67,7 @@ function setAsDefaultProfile(analysisId) {
 		url : context + "/Analysis/SetDefaultProfile/" + analysisId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			reloadSection("section_profile_analysis");
 		},
 		error : unknowError
@@ -78,7 +101,7 @@ function saveAnalysis(form, reloadaction) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			$("#editAnalysisModel .progress").hide();
 			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 			var alert = $("#editAnalysisModel .label-danger");
@@ -89,17 +112,13 @@ function saveAnalysis(form, reloadaction) {
 				errorElement.setAttribute("class", "label label-danger");
 				$(errorElement).text(response[error]);
 				switch (error) {
-				
 				case "analysislanguage":
 					$(errorElement).appendTo($("#analysislanguagecontainer"));
 					break;
-
 				case "comment":
 					$(errorElement).appendTo($("#analysis_label").parent());
-
 					break;
-
-				case "analysis":
+				default:
 					$(errorElement).appendTo($("#editAnalysisModel .modal-body"));
 					break;
 				}
@@ -132,7 +151,7 @@ function deleteAnalysis(analysisId) {
 			url : context + "/Analysis/Delete/" + analysisId,
 			type : "GET",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				$("#deleteprogressbar").hide();
 				$("#deleteanalysisbuttonYes").prop("disabled", false);
 				$("#deleteAnalysisModel").modal('toggle');
@@ -151,73 +170,5 @@ function deleteAnalysis(analysisId) {
 	$("#deleteanalysisbuttonYes").prop("disabled", false);
 	$("#deleteAnalysisModel .modal-header > .close").show();
 	$("#deleteAnalysisModel").modal('show');
-	return false;
-}
-
-function analysisTableSortable() {
-
-	// check if datatable has to be initialised
-	var tables = $("#section_profile_analysis table");
-	
-	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
-
-	// flag to check for case sensitive comparation
-	Array.AlphanumericSortIgnoreCase = true;
-
-	// call the tablesorter plugin and apply the uitheme widget
-	$(tables).tablesorter({
-		headers : {
-			0 : {
-				sorter : false,
-				filter : false,
-			},
-			1 : {
-				sorter : "text",
-				filter : false,
-			},
-			2 : {
-				sorter : "text",
-				filter : false,
-			},
-			3 : {
-				sorter : "text",
-				filter : false,
-			},
-			4 : {
-				sorter : "text",
-				filter : false,
-			},
-			5 : {
-				sorter : "text",
-				filter : false,
-			},
-		},
-		textSorter : {
-			1 : Array.AlphanumericSort,
-			2 : function(a, b, direction, column, table) {
-				if (table.config.sortLocaleCompare)
-					return a.localeCompare(b);
-				return versionComparator(a, b, direction);
-			},
-			3 : $.tablesorter.sortNatural,
-		},
-		theme : "bootstrap",
-		dateFormat : "yyyymmdd",
-		widthFixed : false,
-		headerTemplate : '{content} {icon}',
-		widgets : [ "uitheme", "filter", "zebra" ],
-		widgetOptions : {
-			zebra : [ "even", "odd" ],
-			filter_reset : ".reset"
-		}
-	});
-	$("th[class~='tablesorter-header'][data-column='0']").css({
-		'width' : '2px'
-	});
-	$("th[class~='tablesorter-header'][data-column='1']").css({
-		'width' : '25%'
-	});
-
 	return false;
 }

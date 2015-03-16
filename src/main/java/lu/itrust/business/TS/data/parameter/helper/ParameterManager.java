@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.data.parameter.helper;
 
+import java.util.Collections;
 import java.util.List;
 
 import lu.itrust.business.TS.data.parameter.ExtendedParameter;
@@ -14,6 +15,7 @@ import lu.itrust.business.TS.data.parameter.ExtendedParameter;
 public class ParameterManager {
 
 	public static void ComputeImpactValue(List<ExtendedParameter> parameters) {
+		Collections.sort(parameters, new ExtendedParameterComparator());
 		int limit = parameters.size() - 1;
 		for (int i = 0; i < limit; i++) {
 			if ((i % 2) != 0)

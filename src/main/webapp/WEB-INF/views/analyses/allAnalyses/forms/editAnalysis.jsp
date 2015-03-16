@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<jsp:include page="../../../successErrors.jsp" />
+<jsp:include page="../../../template/successErrors.jsp" />
 <c:if test="${analysis != null}">
 	<div id="form_edit_analysis">
 		<input type="hidden" name="id" value="${analysis.id}" id="analysis_id">
@@ -14,7 +14,7 @@
 				<input name="identifier" id="analysis_identifier" class="form-control" type="text" value="${analysis.identifier}" readonly />
 			</div>
 		</div>
-		<c:if test="${analysis.profile == false }">
+		<c:if test="${not analysis.profile}">
 			<div class="form-group">
 				<label for="version" class="col-sm-2 control-label"> <spring:message code="label.analysis.version" text="Version" />
 				</label>
@@ -46,7 +46,7 @@
 				<input name="owner" id="analysis_owner" class="form-control" type="text" value="${analysis.owner.firstName} ${analysis.owner.lastName}" readonly />
 			</div>
 		</div>
-		<c:if test="${analysis.profile == false }">
+		<c:if test="${not analysis.profile}">
 			<div class="form-group">
 				<label for="hasData" class="col-sm-2 control-label"> <spring:message code="label.analysis.has_data" text="Has Data" />
 				</label>
@@ -55,7 +55,7 @@
 				</div>
 			</div>
 		</c:if>
-		<c:if test="${analysis.profile == false }">
+		<c:if test="${not analysis.profile}">
 			<div class="form-group">
 				<label for="customer" class="col-sm-2 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
 				</label>
@@ -80,24 +80,26 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
+			<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.label" text="Name" />
 			</label>
 			<div class="col-sm-10">
-				<textarea name="comment" class="form-control resize_vectical_only" rows="5" required="required"><spring:message text="${analysis.label}"/></textarea>
+				<input name="comment" class="form-control resize_vectical_only" required="required" value='<spring:message text="${analysis.label}" />'>
 			</div>
 		</div>
-		<div class="form-group">
-			<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
-			</label>
-			<div class="col-sm-10">
-				<input type="checkbox" name="uncertainty" class="form-control" ${analysis.uncertainty?"checked='checked'":''}>
+		<c:if test="${not analysis.profile}">
+			<div class="form-group">
+				<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
+				</label>
+				<div class="col-sm-10">
+					<input type="checkbox" name="uncertainty" class="form-control" ${analysis.uncertainty?"checked='checked'":''}>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" /></label>
-			<div class="col-sm-10">
-				<input type="checkbox" name="cssf" class="form-control" ${analysis.cssf?"checked='checked'":''}>
+			<div class="form-group">
+				<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" /></label>
+				<div class="col-sm-10">
+					<input type="checkbox" name="cssf" class="form-control" ${analysis.cssf?"checked='checked'":''}>
+				</div>
 			</div>
-		</div>
+		</c:if>
 	</div>
 </c:if>

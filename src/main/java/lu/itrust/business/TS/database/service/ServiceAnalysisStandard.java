@@ -34,4 +34,8 @@ public interface ServiceAnalysisStandard {
 	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception;
 
 	public void delete(AnalysisStandard analysisStandard) throws Exception;
+
+	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer analysisId, int standardId);
+
+	public boolean belongsToAnalysis(Integer idAnalysis, int id);
 }

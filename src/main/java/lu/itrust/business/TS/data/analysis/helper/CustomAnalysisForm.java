@@ -18,6 +18,8 @@ public class CustomAnalysisForm {
 	private int asset;
 
 	private String author;
+	
+	private String name;
 
 	private String comment;
 
@@ -225,6 +227,14 @@ public class CustomAnalysisForm {
 	 */
 	public void setCssf(boolean cssf) {
 		this.cssf = cssf;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

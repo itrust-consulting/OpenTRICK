@@ -42,6 +42,7 @@ import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
+import lu.itrust.business.TS.exception.TrickException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -84,6 +85,14 @@ public class MeasureManager {
 
 	@Autowired
 	private CustomDelete customDelete;
+	
+	
+	public static Standard getStandard(List<Standard> standards, String standardname) {
+		for (Standard standard : standards)
+			if (standard.getLabel().equals(standardname))
+				return standard;
+		return null;
+	}
 
 	public static Integer getStandardId(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
@@ -105,7 +114,7 @@ public class MeasureManager {
 				return standard.isAnalysisOnly();
 		return false;
 	}
-	
+
 	/**
 	 * SplitByStandard: <br>
 	 * Description
@@ -165,19 +174,19 @@ public class MeasureManager {
 	public static Map<Chapter, List<Measure>> SplitByChapter(List<Measure> measures) {
 		Map<Chapter, List<Measure>> chapters = new LinkedHashMap<Chapter, List<Measure>>();
 		Map<String, Chapter> chapterMapping = new LinkedHashMap<String, Chapter>();
-		
+
 		Comparator<Measure> cmp = new MeasureComparator();
-		
-		Map<String,List<Measure>> splittedmeasures = MeasureManager.SplitByStandard(measures);
-		
+
+		Map<String, List<Measure>> splittedmeasures = MeasureManager.SplitByStandard(measures);
+
 		List<Measure> allmeasures = new ArrayList<Measure>();
-		
-		for(String key : splittedmeasures.keySet()) {
+
+		for (String key : splittedmeasures.keySet()) {
 			List<Measure> tmpMeasures = splittedmeasures.get(key);
 			Collections.sort(tmpMeasures, cmp);
 			allmeasures.addAll(tmpMeasures);
 		}
-		
+
 		for (Measure measure : allmeasures) {
 			String reference = extractMainChapter(measure.getMeasureDescription().getReference());
 			Standard standard = measure.getMeasureDescription().getStandard();
@@ -325,5 +334,26 @@ public class MeasureManager {
 
 		if (standard.isAnalysisOnly() && (astandards == null || astandards.isEmpty()))
 			customDelete.deleteStandard(standard);
+	}
+
+	public static Measure Create(AnalysisStandard analysisStandard) throws TrickException {
+		if (analysisStandard == null || analysisStandard.getStandard() == null || analysisStandard.getStandard().getType() == null)
+			throw new TrickException("error.create.measure.invalid.standard", "Measure cannot be created: invalid standard");
+		Measure measure = null;
+		switch (analysisStandard.getStandard().getType()) {
+		case ASSET:
+			measure = new AssetMeasure();
+			break;
+		case NORMAL:
+			measure = new NormalMeasure();
+			break;
+		case MATURITY:
+			measure = new MaturityMeasure();
+			break;
+		default:
+			throw new TrickException("error.create.measure.invalid.standard.type", "Measure cannot be created: invalid standard type");
+		}
+		measure.setAnalysisStandard(analysisStandard);
+		return measure;
 	}
 }

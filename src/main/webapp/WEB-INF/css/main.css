@@ -41,7 +41,7 @@ body {
 	width: 96%;
 }
 
-.nav-analysis {
+.nav-analysis, .nav-tab {
 	z-index: 1030;
 	background-color: white;
 	padding-top: 5px;
@@ -63,8 +63,7 @@ body {
 	z-index: 10;
 }
 
-.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev
-	{
+.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev {
 	font-size: 60px;
 }
 
@@ -85,7 +84,7 @@ body {
 	margin-top: -50px;
 }
 
-#nav-container {
+#nav-container, #tab-container {
 	margin-top: 50px;
 	padding-top: 5px;
 }
@@ -93,6 +92,10 @@ body {
 .nav-container h3, .sectionpanel {
 	margin-top: -120px;
 	padding-top: 120px;
+}
+
+.nav.bordered-bottom {
+	border-bottom: 1px solid #dddddd;
 }
 
 .navbar-custom {
@@ -112,8 +115,7 @@ body {
 	width: 100%;
 }
 
-table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
-	{
+table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	background-color: #FFFFFF;
 }
 
@@ -166,34 +168,6 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
 .autofitpanelbodydefinition {
 	max-height: 600px;
 	overflow: auto;
-}
-
-@media ( min-height : 600px) {
-	.panel-max-tab {
-		max-height: auto;
-		overflow: auto;
-	}
-}
-
-@media ( min-height : 768px) {
-	.panel-max-tab {
-		max-height: 633px;
-		overflow: auto;
-	}
-}
-
-@media ( min-height : 800px) {
-	.panel-max-tab {
-		max-height: 665px;
-		overflow: auto;
-	}
-}
-
-@media ( min-height : 1080px) {
-	.panel-max-tab {
-		max-height: 740px;
-		overflow: auto;
-	}
 }
 
 .textaligncenter {
@@ -453,9 +427,7 @@ a[role="changeUILanguage"]:hover {
 	margin-top: 0px;
 }
 
-.tab-content-header h1, .tab-content-header h2, .tab-content-header h3,
-	.tab-content-header h4, .tab-content-header h5, .tab-content-header h6
-	{
+.tab-content-header h1, .tab-content-header h2, .tab-content-header h3, .tab-content-header h4, .tab-content-header h5, .tab-content-header h6 {
 	margin-top: 10px;
 }
 
@@ -468,4 +440,45 @@ a[role="changeUILanguage"]:hover {
 #manageAssetMeasureModel .list-group-item:hover {
 	background-color: #f5f5f5;
 	border-color: #dddddd;
+}
+
+.clearfix () { &:before, &:after {
+	content: " ";
+	display: table;
+}
+
+&
+:after {
+	clear: both;
+}
+
+}
+.container { .clearfix ();
+	
+}
+
+ul.asset-measure {
+	height: 250px;
+	padding: 0px;
+	overflow: auto;
+	margin: 8px auto 0 auto;
+}
+
+ul.asset-measure>li {
+	cursor: pointer;
+}
+
+#measure_form .slider.slider-vertical {
+	height: 310px;
+}
+
+.nav-analysis.tab-pane.active, .nav-tab.tab-pane.active {
+	overflow: auto;
+}
+
+#uploadStandardModal .progress {
+	max-width: 95%;
+	margin-top: 10px;
+	margin-bottom: -15px;
+	margin-top: 10px;
 }

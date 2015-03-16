@@ -1,11 +1,11 @@
 function importRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
-		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+		idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/RRF/Import",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if ($(doc).find("#importMeasureCharacteristics").length) {
@@ -16,8 +16,8 @@ function importRRF(idAnalysis) {
 						var value = $(e.target).val();
 						if (value == undefined)
 							value = -1;
-						$standards.find("option[name!='" + value + "']").hide().prop("selected", false);
-						$standards.find("option[name='" + value + "']").show();
+						$standards.find("option[data-trick-id!='" + value + "']").hide().prop("selected", false);
+						$standards.find("option[data-trick-id='" + value + "']").show();
 					});
 					var $closeButton = $(modal.modal_header).find("button");
 					var $switchRRFButton = $(modal.modal_footer).find("button[name='show_rrf']");
@@ -37,7 +37,7 @@ function importRRF(idAnalysis) {
 							url : context + "/Analysis/RRF/Import/Save",
 							type : "post",
 							data : $(modal.modal_body).find("form").serialize(),
-							success : function(response) {
+							success : function(response,textStatus,jqXHR) {
 								if (response.success != undefined)
 									showSuccess($(modal.modal_body)[0], response.success);
 								else {

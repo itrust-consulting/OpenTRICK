@@ -498,4 +498,79 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public boolean isAnalysisCssf(Integer analysisID) throws Exception {
 		return daoAnalysis.isAnalysisCssf(analysisID);
 	}
+
+	@Override
+	public List<String> getAllNotEmptyVersion(int analysisId) {
+		return daoAnalysis.getAllNotEmptyVersion(analysisId);
+	}
+
+	@Override
+	public String getIdentifierByIdAnalysis(int analysisId) {
+		return daoAnalysis.getIdentifierByIdAnalysis(analysisId);
+	}
+
+	@Override
+	public List<String> getAllNotEmptyVersion(String identfier) {
+		return daoAnalysis.getAllNotEmptyVersion(identfier);
+	}
+
+	@Override
+	public Integer getCustomerIdByIdAnalysis(int analysisId) {
+		return daoAnalysis.getCustomerIdByIdAnalysis(analysisId);
+	}
+
+	@Override
+	public boolean isAnalysisOwner(Integer analysisId, String userName) {
+		return daoAnalysis.isAnalysisOwner(analysisId, userName);
+	}
+
+	@Override
+	public boolean exists(String identifier) {
+		return daoAnalysis.exists(identifier);
+	}
+
+	@Override
+	public Long countByIdentifier(String identifier) {
+		return daoAnalysis.countByIdentifier(identifier);
+	}
+
+	@Override
+	public List<Analysis> getAllByIdentifier(String identifier) {
+		return daoAnalysis.getAllByIdentifier(identifier);
+	}
+
+	@Override
+	public List<String> getAllVersion(String identifier) {
+		return daoAnalysis.getAllVersion(identifier);
+	}
+
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(String identifier) {
+		return daoAnalysis.getCustomersByIdAnalysis(identifier);
+	}
+
+	@Override
+	public Integer getIdFromIdentifierAndVersion(String identifier, String string) {
+		return daoAnalysis.getIdFromIdentifierAndVersion(identifier, string);
+	}
+
+	@Override
+	public List<Customer> getCustomersByIdAnalysis(int analysisId) {
+		return daoAnalysis.getCustomersByIdAnalysis(analysisId);
+	}
+
+	@Override
+	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer) {
+		return daoAnalysis.isAnalysisCustomer(idAnalysis,idCustomer);
+	}
+
+	@Override
+	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer) {
+		return daoAnalysis.getNamesByUserAndCustomerAndNotEmpty(username,idCustomer);
+	}
+
+	@Override
+	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name) {
+		return daoAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(username,idCustomer, name);
+	}
 }

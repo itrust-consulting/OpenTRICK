@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.messagehandler;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lu.itrust.business.TS.asynchronousWorkers.AsyncCallback;
 import lu.itrust.business.TS.exception.TrickException;
 
@@ -148,6 +150,7 @@ public class MessageHandler {
 			this.exception = exception;
 	}
 
+	@JsonIgnore
 	public void setException(TrickException e) {
 		this.code = e.getCode();
 		this.parameters = e.getParameters();

@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.parameter.ParameterType;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**
@@ -39,9 +40,7 @@ public class MaturityParameterValidator extends ValidatorFieldImpl {
 	 * java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (!supports(o.getClass()))
-			return null;
+	public String validate(String fieldName, Object candidate) {
 		int level = -1;
 		switch (fieldName) {
 		case DESCRIPTION:
@@ -53,7 +52,7 @@ public class MaturityParameterValidator extends ValidatorFieldImpl {
 			break;
 		case CATEGORY:
 			if (!(candidate instanceof String))
-				return String.format(ERROR_UNSUPPORTED_DATA_VALUE,"category", "Category");
+				return String.format(ERROR_UNSUPPORTED_DATA_VALUE, "category", "Category");
 
 			String category = (String) candidate;
 			if (category == null || category.trim().isEmpty())
@@ -63,7 +62,7 @@ public class MaturityParameterValidator extends ValidatorFieldImpl {
 			if (candidate == null)
 				return ERROR_PARAMETER_TYPE_NULL;
 			else if (!(candidate instanceof ParameterType))
-				return String.format(ERROR_UNSUPPORTED_DATA_VALUE,TYPE,"Type");
+				return String.format(ERROR_UNSUPPORTED_DATA_VALUE, TYPE, "Type");
 			break;
 		case SMLLevel:
 			if (candidate == null)
@@ -108,12 +107,12 @@ public class MaturityParameterValidator extends ValidatorFieldImpl {
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) {
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) {
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 

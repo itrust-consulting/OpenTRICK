@@ -3,7 +3,6 @@
  */
 package lu.itrust.business.TS.controller;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
@@ -20,8 +19,6 @@ import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -42,6 +38,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 public class ControllerHome {
+
+	private static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -60,15 +58,16 @@ public class ControllerHome {
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
-	public String home(Model model, Principal principal, SessionLocaleResolver session, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		model.addAttribute("userSqLites", serviceUserSqLite.getByFileName(principal.getName()));
-		return "home";
+	public String home() throws Exception {
+		return "default/home";
 	}
 
-	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) throws JsonParseException, JsonMappingException, IOException {
-		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().substring(0, 2)) : null;
-		return String.format("{\"message\":\"%s\"}", messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
+	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
+		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().length() == 2 ? message.getLanguage() : message.getLanguage().substring(0, 2))
+				: null;
+		return String.format("{\"message\":\"%s\"}",
+				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
@@ -79,18 +78,17 @@ public class ControllerHome {
 
 	@RequestMapping("/Login")
 	public String login(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
-
 		if (request.getParameter("registerSuccess") != null) {
 			model.addAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
 			model.addAttribute("j_username", request.getParameter("login") == null ? "" : request.getParameter("login"));
 		}
 
-		return "loginForm";
+		return "default/login";
 	}
 
-	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response) throws Exception {
-		if(principal == null)
+		if (principal == null)
 			return false;
 		User user = serviceUser.get(principal.getName());
 		if (user == null) {
@@ -111,9 +109,14 @@ public class ControllerHome {
 		return "redirect:/j_spring_security_logout";
 	}
 
-	@RequestMapping(value = "/Success", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Success", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String success(@ModelAttribute("success") String success) {
 		return JsonMessage.Success(success);
+	}
+
+	@RequestMapping(value = "/Error", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String error(@ModelAttribute("error") String error) {
+		return JsonMessage.Error(error);
 	}
 
 }

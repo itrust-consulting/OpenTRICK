@@ -5,13 +5,17 @@ function AssessmentViewer() {
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
 		$(this.modal_dialog).prop("style", "width: 100%;");
-		var lang = $("#nav-container").attr("trick-language");
-
+		var lang = $("#nav-container").attr("data-trick-language");
+	
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
 		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
+		var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
+		var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
 		$(this.modal_title).replaceWith(
 				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
-						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><ul></div>"));
+						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale
+						+ "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>" + enableEditModeText
+						+ "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
 		$(this.modal_footer).remove();
 		this.dialogError = $("#alert-dialog").clone();
 		$(this.dialogError).removeAttr("id");
@@ -19,8 +23,9 @@ function AssessmentViewer() {
 		this.setTitle("Assessment");
 
 		$(this.modal).on("hidden.bs.modal", function() {
+			disableEditMode();
 			reloadSection("section_asset");// it will call reloadSection for
-											// scenario
+			// scenario
 		});
 
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
@@ -44,6 +49,32 @@ function AssessmentViewer() {
 			view.Show();
 			return false;
 		});
+
+		var that = this;
+		var resizer = function() {
+			var height = $(window).height();
+			var multi = height < 200 ? 0.50 : height < 520 ? 0.60 : height < 600 ? 0.65 : height < 770 ? 0.72 : height < 820 ? 0.76 : height < 900 ? 0.77 : 0.79;
+			$(that.modal_body).css({
+				'max-height' : (height * multi) + 'px',
+				'overflow' : 'auto'
+			});
+		}
+		
+		$(window).on('resize.assessment',resizer);
+		resizer.apply(resizer, null);
+		$(this.modal).on("hidden.bs.modal", function() {
+			application.modal["AssessmentViewer"] = undefined;
+			$(window).off('resize.assessment',resizer)
+		});
+
+		$(this.modal).find(".modal-content").css({
+			'padding-bottom' : '20px'
+		});
+
+		$(this.modal).on("show.bs.modal", function() {
+			disableEditMode();
+		});
+
 		return false;
 
 	};
@@ -81,7 +112,7 @@ function AssessmentViewer() {
 		if (!(tableDestTrs.length && $(tableDestTrs[0]).find("td").length == $(assessments).find("tbody>tr:first>td").length))
 			return true;
 		for (var i = 0; i < tableDestTrs.length; i++) {
-			var trickId = $(tableDestTrs[i]).attr("trick-id");
+			var trickId = $(tableDestTrs[i]).attr("data-trick-id");
 			if (trickId == undefined && $(tableDestTrs[i]).hasClass("panel-footer")) {
 				var $tr = $(assessments).find("tbody tr.panel-footer");
 				if ($tr.length)
@@ -89,7 +120,7 @@ function AssessmentViewer() {
 				else
 					$(tableDestTrs[i]).appendTo($(this.modal_body).find("tbody"));
 			} else {
-				var $tr = $(assessments).find("tbody tr[trick-id='" + trickId + "']");
+				var $tr = $(assessments).find("tbody tr[data-trick-id='" + trickId + "']");
 				if (!$tr.length)
 					$(tableDestTrs[i]).remove();
 				else
@@ -103,10 +134,10 @@ function AssessmentViewer() {
 			if ($footer.length)
 				$footer.appendTo($tbody);
 		}
-		var tableSourceTrs = $(assessments).find("tbody tr[trick-id]");
+		var tableSourceTrs = $(assessments).find("tbody tr[data-trick-id]");
 		for (var i = 0; i < tableSourceTrs.length; i++) {
-			var trickId = $(tableSourceTrs[i]).attr("trick-id");
-			var $tr = $(this.modal_body).find("tbody tr[trick-id='" + trickId + "']");
+			var trickId = $(tableSourceTrs[i]).attr("data-trick-id");
+			var $tr = $(this.modal_body).find("tbody tr[data-trick-id='" + trickId + "']");
 			if (!$tr.length) {
 				if ($footer.length)
 					$tr.before($footer);
@@ -118,7 +149,8 @@ function AssessmentViewer() {
 	};
 
 	AssessmentViewer.prototype.ShowError = function(message) {
-		var error = $('<div class="alert alert-danger alert-dismissable">' + message + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
+		var error = $('<div class="alert alert-danger alert-dismissable">' + message
+				+ '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
 		error.attr("style", "margin-bottom: 0px;");
 		$(error).appendTo(this.modal_title);
 		setTimeout(function() {
@@ -134,38 +166,36 @@ function AssessmentViewer() {
 AssessmentAssetViewer.prototype = new AssessmentViewer();
 
 function AssessmentAssetViewer(assetId) {
-	this.assetId = assetId;
 
-	AssessmentAssetViewer.prototype.constructor = AssessmentAssetViewer;
+	AssessmentViewer.call(this);
+
+	this.assetId = assetId;
 
 	AssessmentAssetViewer.prototype.Load = function(callback) {
 		if (this.modal_body == null)
 			this.Intialise();
 		var instance = this;
-		return $.ajax({
+		$.ajax({
 			url : context + "/Analysis/Assessment/Asset/" + instance.assetId,
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
-				if (!assessments.length)
-					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("trick-name"));
-				var table = $(instance.modal_body).find('table.table-fixed-header');
-				if (table.length) {
-					setTimeout(function() {
-						fixedTableHeader(table);
-					}, 400);
-				}
-				if (callback != null && $.isFunction(callback))
-					return callback();
+				var assessments = $(doc).find("#section_asset_assessment");
+				if (assessments.length) {
+					$(instance.modal_body).html($(assessments).html());
+					instance.setTitle($(assessments).attr("data-trick-name"));
+					var table = $(instance.modal_body).find('table');
+					if (callback != null && $.isFunction(callback))
+						return callback();
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
 		});
+		return this;
 	};
 
 	AssessmentAssetViewer.prototype.Update = function() {
@@ -177,19 +207,14 @@ function AssessmentAssetViewer(assetId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
-				if (!assessments.length)
-					return true;
-				if (instance.SmartUpdate.apply(instance, assessments)) {
-					instance.setBody(assessments);
-					instance.setTitle($(assessments).attr("trick-name"));
-					var table = $(instance.modal_body).find('table.table-fixed-header');
-					if (table.length) {
-						setTimeout(function() {
-							fixedTableHeader(table);
-						}, 400);
+				var assessments = $(doc).find("#section_asset_assessment");
+				if (assessments.length) {
+					if (instance.SmartUpdate.apply(instance, assessments)) {
+						instance.setBody(assessments);
+						instance.setTitle($(assessments).attr("data-trick-name"));
 					}
-				}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -200,9 +225,10 @@ function AssessmentAssetViewer(assetId) {
 AssessmentScenarioViewer.prototype = new AssessmentViewer();
 
 function AssessmentScenarioViewer(scenarioId) {
-	this.scenarioId = scenarioId;
 
-	AssessmentScenarioViewer.prototype.constructor = AssessmentScenarioViewer;
+	AssessmentViewer.call(this)
+
+	this.scenarioId = scenarioId;
 
 	AssessmentScenarioViewer.prototype.Load = function(callback) {
 		if (this.modal_body == null)
@@ -216,19 +242,13 @@ function AssessmentScenarioViewer(scenarioId) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
 				var assessments = $(doc).find("*[id='section_scenario_assessment']");
-				if (!assessments.length)
-					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("trick-name"));
-				var table = $(instance.modal_body).find('table.table-fixed-header');
-				if (table.length) {
-					setTimeout(function() {
-						fixedTableHeader(table);
-					}, 400);
-				}
-
-				if (callback != null && $.isFunction(callback))
-					return callback();
+				if (assessments.length) {
+					$(instance.modal_body).html($(assessments).html());
+					instance.setTitle($(assessments).attr("data-trick-name"));
+					if (callback != null && $.isFunction(callback))
+						return callback();
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -245,18 +265,13 @@ function AssessmentScenarioViewer(scenarioId) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
 				var assessments = $(doc).find("*[id='section_scenario_assessment']");
-				if (!assessments.length)
-					return true;
-				if (instance.SmartUpdate.apply(instance, assessments)) {
-					instance.setBody(assessments);
-					instance.setTitle($(assessments).attr("trick-name"));
-					var table = $(instance.modal_body).find('table.table-fixed-header');
-					if (table.length) {
-						setTimeout(function() {
-							fixedTableHeader(table);
-						}, 400);
+				if (assessments.length) {
+					if (instance.SmartUpdate.apply(instance, assessments)) {
+						instance.setBody(assessments);
+						instance.setTitle($(assessments).attr("data-trick-name"));
 					}
-				}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
@@ -283,14 +298,14 @@ function displayAssessmentByAsset() {
 }
 
 function computeAssessment(silent) {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
@@ -300,19 +315,19 @@ function computeAssessment(silent) {
 						$("#info-dialog").modal("toggle");
 					}
 					chartALE();
-				}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError
 		});
 	} else
 		permissionError();
-
 	return false;
 }
 
 function refreshAssessment() {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
 		$("#confirm-dialog .btn-danger").click(function() {
@@ -321,7 +336,7 @@ function refreshAssessment() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					if (response['error'] != undefined) {
 						$("#info-dialog .modal-body").text(response['error']);
 						$("#info-dialog").modal("toggle");
@@ -329,7 +344,8 @@ function refreshAssessment() {
 						$("#info-dialog .modal-body").text(response['success']);
 						$("#info-dialog").modal("toggle");
 						chartALE();
-					}
+					} else
+						unknowError();
 					return false;
 				},
 				error : unknowError
@@ -342,14 +358,14 @@ function refreshAssessment() {
 }
 
 function updateAssessmentAle(silent) {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update/ALE",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
@@ -358,7 +374,8 @@ function updateAssessmentAle(silent) {
 						$("#info-dialog .modal-body").text(response['success']);
 						$("#info-dialog").modal("toggle");
 					}
-				}
+				} else
+					unknowError();
 				return false;
 			},
 			error : unknowError

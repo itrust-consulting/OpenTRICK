@@ -18,4 +18,6 @@ public interface ServiceMeasureAssetValue {
 	public void saveOrUpdate(MeasureAssetValue measureAssetValue) throws Exception;
 
 	public void delete(MeasureAssetValue measureAssetValue) throws Exception;
+
+	public MeasureAssetValue getByAssetId(int idAsset);
 }

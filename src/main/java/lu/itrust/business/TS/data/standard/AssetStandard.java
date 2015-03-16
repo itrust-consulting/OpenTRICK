@@ -121,13 +121,14 @@ public class AssetStandard extends AnalysisStandard {
 	/**
 	 * duplicate: <br>
 	 * Description
+	 * @throws TrickException 
 	 *
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.data.standard.AnalysisStandard#duplicate()
 	 */
 	@Override
-	public AssetStandard duplicate() throws CloneNotSupportedException {
+	public AssetStandard duplicate() throws CloneNotSupportedException, TrickException {
 		return (AssetStandard) super.duplicate();
 	}
 

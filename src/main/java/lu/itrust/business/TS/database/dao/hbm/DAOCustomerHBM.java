@@ -222,4 +222,9 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.id = :idCustomer";
 		return (Customer) getSession().createQuery(query).setParameter("username", username).setInteger("idCustomer", idCustomer).uniqueResult();
 	}
+
+	@Override
+	public boolean exists(int idCustomer) {
+		return (boolean) getSession().createQuery("Select count(*)>0 From Customer where id = :idCustomer").setInteger("idCustomer", idCustomer).uniqueResult();
+	}
 }

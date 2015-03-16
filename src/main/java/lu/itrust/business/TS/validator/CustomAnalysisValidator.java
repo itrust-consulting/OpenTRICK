@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.helper.CustomAnalysisForm;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**
@@ -16,21 +17,20 @@ import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 public class CustomAnalysisValidator extends ValidatorFieldImpl {
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (o == null || !supports(o.getClass()) || fieldName == null
-				|| fieldName.trim().isEmpty())
+	public String validate(String fieldName, Object candidate) {
+		if (fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		switch (fieldName) {
 		case "customer":
-			if(candidate == null || !(candidate instanceof Integer))
+			if (candidate == null || !(candidate instanceof Integer))
 				return "error.analysis_custom.customer_id.unsupported::Customer id is not supported";
-			else if((int)candidate <1)
+			else if ((int) candidate < 1)
 				return "error.analysis_custom.customer_id::No customer selected";
 			break;
 		case "language":
-			if(candidate == null || !(candidate instanceof Integer))
+			if (candidate == null || !(candidate instanceof Integer))
 				return "error.analysis_custom.language_id.unsupported::Language id is not supported";
-			else if((int)candidate <1)
+			else if ((int) candidate < 1)
 				return "error.analysis_custom.language_id::No language selected";
 			break;
 		case "author":
@@ -43,8 +43,7 @@ public class CustomAnalysisValidator extends ValidatorFieldImpl {
 		case "version":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.history.version.unsupported::Version value is not supported";
-			if (!candidate.toString().matches(
-					Constant.REGEXP_VALID_ANALYSIS_VERSION))
+			if (!candidate.toString().matches(Constant.REGEXP_VALID_ANALYSIS_VERSION))
 				return "error.history.version.not_meet_regex::Version not acceptable";
 			break;
 		case "comment":
@@ -53,18 +52,24 @@ public class CustomAnalysisValidator extends ValidatorFieldImpl {
 			if (candidate.toString().trim().isEmpty())
 				return "error.history.comment.empty::Comment cannot be empty";
 			break;
+		case "name":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.analysis.label.unsupported::Name value is not supported";
+			if (candidate.toString().trim().isEmpty())
+				return "error.analysis.label.empty::Name cannot be empty";
+			break;
 		}
 		return null;
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) {
-		return validate(o, fieldName,candidate );
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
+		return validate(o, fieldName, candidate);
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) {
-		return validate(o, fieldName,candidate);
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
+		return validate(o, fieldName, candidate);
 	}
 
 	@Override

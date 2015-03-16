@@ -18,10 +18,10 @@
 			<tfoot></tfoot>
 			<tbody>
 				<c:forEach items="${itemInformations}" var="itemInformation">
-					<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
+					<tr data-trick-class="ItemInformation" data-trick-id="${itemInformation.id}">
 						<td>
 						<fmt:message key="label.item_information.${itemInformation.description.trim()}" /></td>
-						<td onclick="return editField(this.firstElementChild);" class="success"><pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
+						<td onclick="return editField(this.firstElementChild);" class="success"><pre data-trick-field="value" data-trick-content="text" data-trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>

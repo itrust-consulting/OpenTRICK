@@ -12,6 +12,7 @@ import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
@@ -29,7 +30,7 @@ import org.hibernate.Transaction;
  */
 public class WorkerCreateAnalysisProfile implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;
 
@@ -49,7 +50,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 
 	private List<Integer> standards;
 
-	private User owner = null;
+	private String username= null;
 
 	/**
 	 * @param serviceTaskFeedback
@@ -58,11 +59,11 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	 * @param analysisProfile
 	 */
 	public WorkerCreateAnalysisProfile(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, Integer analysisId, String name,
-			List<Integer> standards, User owner) {
+			List<Integer> standards, String username) {
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
-		this.owner = owner;
+		this.username = username;
 		this.analysisId = analysisId;
 		this.name = name;
 		this.standards = standards;
@@ -84,7 +85,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			DAOCustomer daoCustomer = new DAOCustomerHBM(session);
-
+			User owner = new DAOUserHBM(session).get(username);
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a profile customer before creating an analysis profile", null, null));
@@ -153,7 +154,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	}
 
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 
 	}
@@ -165,7 +166,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	}
 
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

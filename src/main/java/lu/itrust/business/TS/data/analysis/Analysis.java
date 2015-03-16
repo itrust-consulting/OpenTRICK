@@ -56,10 +56,11 @@ import org.hibernate.annotations.CascadeType;
 
 /**
  * Analysis: <br>
- * This class represents an analysis and all its data of TRICK Service. This class is used to store
- * analysis data such as assets, scenarios, security measures, item information, risk information,
- * the version, parameters and phases. After the data is stored, the action plan can be computed
- * within this class as well as the Action Plan Summary.
+ * This class represents an analysis and all its data of TRICK Service. This
+ * class is used to store analysis data such as assets, scenarios, security
+ * measures, item information, risk information, the version, parameters and
+ * phases. After the data is stored, the action plan can be computed within this
+ * class as well as the Action Plan Summary.
  * <ul>
  * <li>import Analysis from SQLite file</li>
  * <li>store analysis in java object to use during the calculations</li>
@@ -114,18 +115,21 @@ public class Analysis implements Cloneable {
 	/** The Customer object */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "fiCustomer", nullable = false)
 	private Customer customer;
 
 	/** Analysis owner (the one that created or imported it) */
 	@ManyToOne
 	@JoinColumn(name = "fiOwner", nullable = false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private User owner;
 
 	/** Based on analysis */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "fiBasedOnAnalysis", nullable = true)
 	private Analysis basedOnAnalysis;
 
@@ -145,37 +149,36 @@ public class Analysis implements Cloneable {
 	private boolean data;
 
 	/** List of users and their access rights */
-	@OneToMany
-	@JoinColumn(name = "fiAnalysis", nullable = false, insertable = true)
+	@OneToMany(mappedBy = "analysis")
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** List of History data of the Analysis */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
@@ -183,14 +186,14 @@ public class Analysis implements Cloneable {
 	/** List of Risk Information */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("type,name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
@@ -198,7 +201,7 @@ public class Analysis implements Cloneable {
 	/** List of Assessment */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
@@ -206,13 +209,13 @@ public class Analysis implements Cloneable {
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@OrderBy("standard")
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy = "analysis")
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("number")
 	private List<Phase> phases = new ArrayList<Phase>();
@@ -220,22 +223,23 @@ public class Analysis implements Cloneable {
 	/** The Final Action Plan without Phase Computation - Normal */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Risk Register (CSSF) */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
+	@OrderBy("position asc,dtRawEvaluationImportance desc, dtNetEvaluationImportance, dtExpEvaluationImportance")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************
@@ -252,6 +256,12 @@ public class Analysis implements Cloneable {
 	/***********************************************************************************************
 	 * Methods
 	 **********************************************************************************************/
+
+	public Analysis(Customer customer, User owner) {
+		setCustomer(customer);
+		setOwner(owner);
+		addUserRight(owner, AnalysisRight.ALL);
+	}
 
 	/**
 	 * initialiseEmptyItemInformation: <br>
@@ -356,7 +366,8 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getLatestVersion: <br>
-	 * Parse all history entries to find latest version (version has to be of format xx.xx.xx)
+	 * Parse all history entries to find latest version (version has to be of
+	 * format xx.xx.xx)
 	 * 
 	 * @return
 	 */
@@ -435,9 +446,8 @@ public class Analysis implements Cloneable {
 		lifetimeDefault = this.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost =
-			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(), measure
-					.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
+				measure.getLifetime(), measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 
 		// return calculated cost
 		return cost;
@@ -455,8 +465,9 @@ public class Analysis implements Cloneable {
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in Euro<br>
 	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 * ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%) :: if 0 -> use
-	 * The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
+	 * ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 =
+	 * 100%) :: if 0 -> use The Default Maintenance in Percentage (0,00 - 1,00
+	 * WHERE 0,00 = 0% and 0,1 = 100%)
 	 * 
 	 * @param internalSetup
 	 * 
@@ -479,8 +490,8 @@ public class Analysis implements Cloneable {
 	 * @return The Calculated Cost
 	 */
 	@Deprecated
-	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance, double internalWorkLoad,
-			double externalWorkLoad, double investment, double lifetime) {
+	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance,
+			double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -529,11 +540,13 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * computeCost: <br>
-	 * Returns the Calculated Cost of a Measure. This method does no more need the parameter default
-	 * maintenance, but needs to get the internal and external maintenance in md as well as the
-	 * recurrent investment per year in keuro. <br>
+	 * Returns the Calculated Cost of a Measure. This method does no more need
+	 * the parameter default maintenance, but needs to get the internal and
+	 * external maintenance in md as well as the recurrent investment per year
+	 * in keuro. <br>
 	 * Formula used:<br>
-	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er) + ri))<br>
+	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er)
+	 * + ri))<br>
 	 * With:<br>
 	 * ir: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
@@ -633,7 +646,8 @@ public class Analysis implements Cloneable {
 
 		// ****************************************************************
 		// * retrieve all phases and add them to the list of phases
-		// * therefore parse all analysisStandard and all measures to check phases
+		// * therefore parse all analysisStandard and all measures to check
+		// phases
 		// ****************************************************************
 
 		// parse all analysisStandard
@@ -732,8 +746,9 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getYearsDifferenceBetweenTwoDates: <br>
-	 * This method Calculates an Double Value that Indicates the Difference between two Dates. It is
-	 * used to Calculate the Size of the Phase in Years.
+	 * This method Calculates an Double Value that Indicates the Difference
+	 * between two Dates. It is used to Calculate the Size of the Phase in
+	 * Years.
 	 * 
 	 * @param beginDate
 	 *            begin date (should be smallest date)
@@ -788,7 +803,8 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter
+	 *         was not found
 	 */
 	public double getParameter(String parameter) {
 
@@ -819,7 +835,8 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter
+	 *         was not found
 	 */
 	public Parameter getParameterObject(String parameter) {
 
@@ -843,8 +860,9 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * computeParameterScales: <br>
-	 * This method will calculate the bounds of the extended parameters from and to values. Since
-	 * CSSF implementation, impact and probability values need to be calculated using bounds.
+	 * This method will calculate the bounds of the extended parameters from and
+	 * to values. Since CSSF implementation, impact and probability values need
+	 * to be calculated using bounds.
 	 * 
 	 * @throws TrickException
 	 */
@@ -1116,7 +1134,8 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getAnItemInformtation: <br>
-	 * Returns a Single Item Information from the List of Item Information at the postion "index"
+	 * Returns a Single Item Information from the List of Item Information at
+	 * the postion "index"
 	 * 
 	 * @param index
 	 *            The Position in the List to retrieve the Item Information
@@ -1268,7 +1287,8 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getARiskInformation: <br>
-	 * Returns a Risk Information from the List of Risk Information at position "index"
+	 * Returns a Risk Information from the List of Risk Information at position
+	 * "index"
 	 * 
 	 * @param index
 	 *            The Position to retrieve the Object
@@ -1726,7 +1746,8 @@ public class Analysis implements Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan Type
+	 * @return The List of Action Plan Entries for the requested Action Plan
+	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlans() {
 		return this.actionPlans;
@@ -1739,7 +1760,8 @@ public class Analysis implements Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan Type
+	 * @return The List of Action Plan Entries for the requested Action Plan
+	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(String mode) {
 
@@ -1759,7 +1781,8 @@ public class Analysis implements Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan Type
+	 * @return The List of Action Plan Entries for the requested Action Plan
+	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
 
@@ -1923,10 +1946,10 @@ public class Analysis implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label + ", histories="
-			+ histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets + ", riskInformations="
-			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", phases=" + phases + ", actionPlans=" + actionPlans
-			+ ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
+				+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets="
+				+ assets + ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards
+				+ ", phases=" + phases + ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**
@@ -1947,8 +1970,8 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Method to identify if this object equals another. Equal means the fields identifier, version
-	 * and creationDate are the same.
+	 * Method to identify if this object equals another. Equal means the fields
+	 * identifier, version and creationDate are the same.
 	 * 
 	 * @param obj
 	 *            The other object to check
@@ -2129,7 +2152,7 @@ public class Analysis implements Cloneable {
 	 * @param userRight
 	 */
 	public void addUserRight(UserAnalysisRight userRight) {
-		this.userRights.add(userRight);
+		addUserRight(userRight.getUser(), userRight.getRight());
 	}
 
 	/**
@@ -2137,9 +2160,19 @@ public class Analysis implements Cloneable {
 	 * Description
 	 * 
 	 * @param userRight
+	 * @return
 	 */
-	public void addUserRight(User user, AnalysisRight right) {
-		this.userRights.add(new UserAnalysisRight(user, right));
+	public UserAnalysisRight addUserRight(User user, AnalysisRight right) {
+		if (user == null)
+			return null;
+		UserAnalysisRight userAnalysisRight = getRightsforUser(user);
+		if (userAnalysisRight == null)
+			this.userRights.add(userAnalysisRight = new UserAnalysisRight(this, user, right));
+		else if (right == null)
+			this.userRights.remove(userAnalysisRight);
+		else if (!right.equals(userAnalysisRight.getRight()))
+			userAnalysisRight.setRight(right);
+		return userAnalysisRight;
 	}
 
 	/**
@@ -2150,14 +2183,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight getRightsforUser(User user) {
-
-		for (UserAnalysisRight userRight : userRights) {
-			if (userRight.getUser().getLogin().equals(user.getLogin())) {
-				return userRight;
-			}
-		}
-
-		return null;
+		return getRightsforUserString(user.getLogin());
 	}
 
 	/**

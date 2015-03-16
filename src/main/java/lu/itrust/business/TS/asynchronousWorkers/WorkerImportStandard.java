@@ -35,7 +35,7 @@ import org.hibernate.Transaction;
 
 public class WorkerImportStandard implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;
 
@@ -68,7 +68,6 @@ public class WorkerImportStandard implements Worker {
 	private MessageHandler messageHandler;
 
 	public WorkerImportStandard(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
-		super();
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
@@ -395,7 +394,7 @@ public class WorkerImportStandard implements Worker {
 	}
 
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 
 	}
@@ -406,7 +405,7 @@ public class WorkerImportStandard implements Worker {
 	}
 
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

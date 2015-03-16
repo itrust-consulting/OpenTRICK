@@ -33,11 +33,10 @@ public class ExtendedParameterValidator extends ParameterValidator {
 	 * , java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (o == null || !supports(o.getClass()) || fieldName == null
+	public String validate( String fieldName, Object candidate) {
+		if (fieldName == null
 				|| fieldName.trim().isEmpty())
 			return null;
-		ExtendedParameter extendedParameter = (ExtendedParameter) o;
 		switch (fieldName) {
 		case BOUNDS:
 			if (candidate == null)
@@ -69,7 +68,7 @@ public class ExtendedParameterValidator extends ParameterValidator {
 			break;
 			
 		}
-		return super.validate(extendedParameter, fieldName, candidate);
+		return super.validate(fieldName, candidate);
 	}
 
 	/*

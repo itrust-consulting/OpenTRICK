@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.database.dao.DAOAsset;
+
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOAssetHBM.java: <br>
@@ -214,5 +214,11 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@Override
 	public Integer getAnalysisIdFromAsset(Integer assetId) throws Exception {
 		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.assets asset where asset.id = :assetID").setParameter("assetID", assetId).uniqueResult();
+	}
+
+	@Override
+	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset) {
+		return (Asset) getSession().createQuery("Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.id = :idAsset")
+				.setInteger("idAnalysis", idAnalysis).setInteger("idAsset", idAsset).uniqueResult();
 	}
 }

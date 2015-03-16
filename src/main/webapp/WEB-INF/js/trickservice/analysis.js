@@ -15,8 +15,12 @@ $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
 });
 
-function loadAnalysisSections() {
+function findAnalysisId() {
+	return $("#nav-container").attr("data-trick-id");
+}
 
+function isEditable(){
+	return userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY);
 }
 
 function updateSettings(element, entryKey) {
@@ -28,7 +32,7 @@ function updateSettings(element, entryKey) {
 			'value' : !$(element).hasClass('glyphicon-ok')
 		},
 		async : false,
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			if (response == undefined || response !== true)
 				unknowError();
 			else {
@@ -36,13 +40,13 @@ function updateSettings(element, entryKey) {
 					$(element).removeClass('glyphicon-ok');
 				else
 					$(element).addClass('glyphicon-ok');
-				var sections = $(element).attr("trick-section-dependency");
+				var sections = $(element).attr("data-trick-section-dependency");
 				if (sections != undefined)
 					return reloadSection(sections.split(','));
-				var callBack = $(element).attr("trick-callback");
+				var callBack = $(element).attr("data-trick-callback");
 				if (callBack != undefined)
 					return eval(callBack);
-				var reload = $(element).attr("trick-reload");
+				var reload = $(element).attr("data-trick-reload");
 				if (reload == undefined || reload == 'true')
 					location.reload();
 			}
@@ -60,13 +64,13 @@ function reloadMeasureRow(idMeasure, standard) {
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 			var element = document.createElement("div");
 			$(element).html(response);
-			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
+			var tag = $(element).find("tr[data-trick-id='" + idMeasure + "']");
 			if (tag.length) {
-				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
-				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith(tag);
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
 			}
 		},
 		error : unknowError
@@ -89,7 +93,7 @@ function compliances() {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		async : true,
-		success : function(response) {
+		success : function(response,textStatus,jqXHR) {
 
 			if (response.standards == undefined || response.standards == null)
 				return;
@@ -124,7 +128,7 @@ function compliance(standard) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
 				$('#chart_compliance_' + standard).highcharts(response);
@@ -146,7 +150,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
@@ -168,7 +172,7 @@ function budgetByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response) {
+			success : function(response,textStatus,jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_budget_' + actionPlanType).highcharts(response);
@@ -181,10 +185,10 @@ function budgetByActionPlanType(actionPlanType) {
 }
 
 function summaryCharts() {
-	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
-			actionPlanType = $(actionPlanTypes[i]).attr("trick-nav-control");
+			actionPlanType = $(actionPlanTypes[i]).attr("data-trick-nav-control");
 			evolutionProfitabilityComplianceByActionPlanType(actionPlanType);
 			budgetByActionPlanType(actionPlanType);
 		} catch (e) {
@@ -195,10 +199,10 @@ function summaryCharts() {
 }
 
 function loadChartEvolution(){
-	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
-			evolutionProfitabilityComplianceByActionPlanType($(actionPlanTypes[i]).attr("trick-nav-control"));
+			evolutionProfitabilityComplianceByActionPlanType($(actionPlanTypes[i]).attr("data-trick-nav-control"));
 		} catch (e) {
 			console.log(e);
 		}
@@ -207,10 +211,10 @@ function loadChartEvolution(){
 }
 
 function loadChartBudget(){
-	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
-			budgetByActionPlanType($(actionPlanTypes[i]).attr("trick-nav-control"));
+			budgetByActionPlanType($(actionPlanTypes[i]).attr("data-trick-nav-control"));
 		} catch (e) {
 			console.log(e);
 		}
@@ -235,7 +239,7 @@ function loadChartAsset() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_asset').highcharts(response);
 				},
 				error : unknowError
@@ -249,7 +253,7 @@ function loadChartAsset() {
 				url : context + "/Analysis/Asset/Chart/Type/Ale",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_asset_type').highcharts(response);
 				},
 				error : unknowError
@@ -268,7 +272,7 @@ function loadChartScenario() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_scenario_type').highcharts(response);
 				},
 				error : unknowError
@@ -282,10 +286,8 @@ function loadChartScenario() {
 			$.ajax({
 				url : context + "/Analysis/Scenario/Chart/Ale",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
-				async : true,
-				success : function(response) {
+				success : function(response,textStatus,jqXHR) {
 					$('#chart_ale_scenario').highcharts(response);
 				},
 				error : unknowError
@@ -342,30 +344,34 @@ function measureSortTable(element) {
 // common
 
 function navToogled(section, navSelected, fixedHeader) {
-	var currentMenu = $("#" + section + " *[trick-nav-control='" + navSelected + "']");
+	var currentMenu = $("#" + section + " *[data-trick-nav-control='" + navSelected + "']");
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	var controls = $("#" + section + " *[trick-nav-control]");
-	var data = $("#" + section + " *[trick-nav-data]");
+	var controls = $("#" + section + " *[data-trick-nav-control]");
+	var data = $("#" + section + " *[data-trick-nav-data]");
 
 	for (var i = 0; i < controls.length; i++) {
-		if ($(controls[i]).attr("trick-nav-control") == navSelected)
+		if ($(controls[i]).attr("data-trick-nav-control") == navSelected)
 			$(controls[i]).addClass("disabled");
 		else
 			$(controls[i]).removeClass("disabled");
-		if ($(data[i]).attr("trick-nav-data") != navSelected) {
+		if ($(data[i]).attr("data-trick-nav-data") != navSelected) {
 			/*if (fixedHeader) {
 				var table = $(data[i]).find("table");
-				if (table.length)
-					$(table).floatThead("destroy");
+				if (table.length && $(table).destroy != undefined)
+					$(table).destroy();
 			}*/
 			$(data[i]).hide();
 		} else {
 			$(data[i]).show();
 			/*if (fixedHeader) {
 				var table = $(data[i]).find("table");
-				if (table.length)
-					fixedTableHeader(table);
+				if (table.length){
+					$(table).stickyTableHeaders({
+						cssTopOffset : ".nav-analysis",
+						fixedOffset : 6
+					});
+				}
 			}*/
 		}
 	}

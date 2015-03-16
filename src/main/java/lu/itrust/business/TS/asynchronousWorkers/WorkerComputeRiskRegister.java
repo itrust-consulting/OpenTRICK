@@ -26,7 +26,7 @@ import org.hibernate.SessionFactory;
  */
 public class WorkerComputeRiskRegister implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;
 
@@ -111,7 +111,7 @@ public class WorkerComputeRiskRegister implements Worker {
 
 			System.out.println("Loading Analysis...");
 
-			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
 			
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading",lang, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
@@ -158,7 +158,7 @@ public class WorkerComputeRiskRegister implements Worker {
 				
 				try {
 					String lang;
-					lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+					lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
 					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),lang, e));
 				} catch (Exception e1) {
 					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),null, e));
@@ -176,6 +176,8 @@ public class WorkerComputeRiskRegister implements Worker {
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
+			}catch(Exception ex){
+				ex.printStackTrace();
 			}
 			synchronized (this) {
 				working = false;
@@ -214,7 +216,7 @@ public class WorkerComputeRiskRegister implements Worker {
 	 */
 	private void deleteRiskRegister(Analysis analysis) throws Exception {
 		String lang;
-		lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+		lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting",lang, 50));
 
 		while (!analysis.getRiskRegisters().isEmpty())
@@ -258,7 +260,7 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * @see lu.itrust.business.task.Worker#setId(java.lang.Long)
 	 */
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -279,7 +281,7 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * @see lu.itrust.business.task.Worker#getId()
 	 */
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

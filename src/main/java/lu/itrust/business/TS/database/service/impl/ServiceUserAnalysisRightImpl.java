@@ -252,4 +252,9 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	public void delete(Integer id) throws Exception {
 		this.daoUserAnalysisRight.delete(get(id));
 	}
+
+	@Override
+	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int AnalysisId) {
+		return this.daoUserAnalysisRight.getAllFromIdenfierExceptAnalysisIdAndRightNotRead(identifier, AnalysisId);
+	}
 }

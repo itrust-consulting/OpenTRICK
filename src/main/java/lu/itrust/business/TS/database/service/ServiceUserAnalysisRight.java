@@ -43,4 +43,6 @@ public interface ServiceUserAnalysisRight {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
+
+	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int AnalysisId);
 }

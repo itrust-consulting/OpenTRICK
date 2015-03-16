@@ -51,7 +51,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 */
 	@Override
 	public TrickService getStatus() throws Exception {
-		return (TrickService) getSession().get(TrickService.class, 1);
+		return (TrickService) getSession().createQuery("From TrickService").uniqueResult();
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * remove: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#remove(lu.itrust.business.TS.data.TrickService)
+	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#remove(String)
 	 */
 	@Override
 	public void delete(TrickService trickservice) throws Exception {

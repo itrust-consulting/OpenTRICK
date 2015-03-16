@@ -18,9 +18,9 @@
 					<form id="analysisProfileform" action="/AnalysisProfile/Save" method="post" class="form">
 						<input type="hidden" id="id" name="id" value="${id}" />
 						<div class="form-group">
-							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.description" text="Description" /></label>
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.name" text="Name" /></label>
 							<div class="col-sm-10">
-								<textarea class="form-control resize_vectical_only" id="name" name="name" style="height: 65px;"></textarea>
+								<input class="form-control" id="name" name="name">
 							</div>
 						</div>
 						<div class="form-group">
@@ -34,7 +34,7 @@
 									</select>
 									<ul class="list-group">
 										<c:forEach items="${analysisStandards}" var="analysisStandard">
-											<a opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
+											<a data-trick-opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
 										</c:forEach>
 									</ul>
 								</c:if>

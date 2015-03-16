@@ -7,33 +7,27 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <c:forEach items="${measures.keySet()}" var="standard">
-	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardType(standards, standard)" var="standardType" scope="page" />
-	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="page" />
-	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).isAnalysisOnlyStandard(standards, standard)" var="analysisOnly" scope="page" />
-	<div class="tab-pane" id="tabStandard_${standardid}">
+	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
+	<c:set var="standardType" value="${selectedStandard.type}" scope="page"/>
+	<c:set var="standardid" value="${selectedStandard.id }" scope="page"/>
+	<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" scope="page" />
+	<div class="tab-pane" id="tabStandard_${standardid}" data-trick-id="${standardid}">
 		<span class="anchor" id="anchorMeasure_${standardid}"></span>
-		<div id="section_standard_${standardid}" trick-id="${standardid}" trick-label="${standard}">
-		<c:choose>
-			<c:when test="${analysisOnly}">
-				<div class="panel panel-default">
-					<div class="panel-heading" style="min-height: 60px;">
-						<ul class="nav nav-pills" id="menu_standard_${standardid}">
-							<li style="padding: 10px 15px;"><spring:message text="${standard}" /></li>
-							<c:if test="${standardType.name.equals('ASSET')}">
-								<li><a onclick="return newAssetMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-								<li trick-selectable="true" class="disabled"><a onclick="return editAssetMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
-										<fmt:message key="label.action.edit" /></a></li>
-							</c:if>
-							<c:if test="${!standardType.name.equals('ASSET')}">
-								<li><a onclick="return newMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-								<li trick-selectable="true" class="disabled"><a onclick="return editSingleMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
-										<fmt:message key="label.action.edit" /></a></li>
-							</c:if>
-							<li trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger" href="#"><span
-									class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
-						</ul>
-					</div>
-					<div class="panel-body">
+		<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}">
+			<c:choose>
+				<c:when test="${analysisOnly}">
+					<ul style="padding: 3px 5px 9px 51px" class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
+						<li style="min-width: 5%"><h3 style="margin: 7px auto;">
+								<spring:message text="${standard}" />
+							</h3></li>
+						<c:if test="${isEditable}">
+							<li><a onclick="return addMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+						</c:if>
+						<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return addMeasure(${standardid});" href="#"><span
+								class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
+						<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
+							href="#"><span class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
+					</ul>
 				</c:when>
 				<c:otherwise>
 					<div class="page-header tab-content-header">
@@ -42,138 +36,125 @@
 								<h3>
 									<spring:message text="${standard}" />
 								</h3>
-								</div>
 							</div>
 						</div>
+					</div>
 				</c:otherwise>
-				</c:choose>
-					<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
-						<thead>
-							<tr>
-								<c:if test="${analysisOnly}">
-									<th><input type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
-								</c:if>
-								<th style="width:5%"><fmt:message key="label.measure.ref" /></th>
-								<th style="width:15%"><fmt:message key="label.measure.domain" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.status" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.ir" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.iw" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.ew" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.inv" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.lt" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.im" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.em" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.ri" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.cost" /></th>
-								<th style="width:3%"><fmt:message key="label.measure.phase" /></th>
-								<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-									<th><fmt:message key="label.measure.tocheck" /></th>
-								</c:if>
-								<th><fmt:message key="label.measure.comment" /></th>
-								<th><fmt:message key="label.measure.todo" /></th>
-							</tr>
-						</thead>
-						<tfoot>
-						</tfoot>
-						<tbody>
-							<fmt:setLocale value="fr" scope="session" />
-							<c:forEach items="${measures.get(standard)}" var="measure">
-								<c:set var="css">
-									<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
-								</c:set>
-								<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
-								<c:set var="dblclickaction">
+			</c:choose>
+			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
+				<thead>
+					<tr>
+						<c:if test="${analysisOnly}">
+							<th width="1%"><input disabled="disabled" type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
+						</c:if>
+						<th width="5%"><fmt:message key="label.measure.ref" /></th>
+						<th width="15%"><fmt:message key="label.measure.domain" /></th>
+						<th width="3%"><fmt:message key="label.measure.status" /></th>
+						<th width="3%"><fmt:message key="label.measure.ir" /></th>
+						<th width="3%"><fmt:message key="label.measure.iw" /></th>
+						<th width="3%"><fmt:message key="label.measure.ew" /></th>
+						<th width="3%"><fmt:message key="label.measure.inv" /></th>
+						<th width="3%"><fmt:message key="label.measure.lt" /></th>
+						<th width="3%"><fmt:message key="label.measure.im" /></th>
+						<th width="3%"><fmt:message key="label.measure.em" /></th>
+						<th width="3%"><fmt:message key="label.measure.ri" /></th>
+						<th width="3%"><fmt:message key="label.measure.cost" /></th>
+						<th width="3%"><fmt:message key="label.measure.phase" /></th>
+						<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
+							<th><fmt:message key="label.measure.tocheck" /></th>
+						</c:if>
+						<th><fmt:message key="label.measure.comment" /></th>
+						<th><fmt:message key="label.measure.todo" /></th>
+						<th width="1%"><fmt:message key="label.measure.responsible" /></th>
+					</tr>
+				</thead>
+				<tfoot>
+				</tfoot>
+				<tbody>
+					<fmt:setLocale value="fr" scope="session" />
+					<c:forEach items="${measures.get(standard)}" var="measure">
+						<c:set var="css">
+							<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
+						</c:set>
+						<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
+						<c:set var="dblclickaction">
+							<c:if test="${analysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY'}">
+								ondblclick="return addMeasure(${standardid},${measure.id});"
+							</c:if>
+						</c:set>
+						<c:choose>
+							<c:when test="${not measure.measureDescription.computable}">
+								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
+									data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 									<c:if test="${analysisOnly}">
-										<c:if test="${standardType.name.equals('NORMAL')}">
-											ondblclick="return editSingleMeasure(${measure.id},${standardid});"
-										</c:if>
-										<c:if test="${standardType.name.equals('ASSET')}">
-											ondblclick="return editAssetMeasure(${measure.id},${standardid});"
-										</c:if>
+										<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-								</c:set>
-								<c:choose>
-									<c:when test="${measure.measureDescription.computable==false }">
-										<tr trick-computable="false" trick-level="${measure.measureDescription.level}" trick-class="Measure" style="background-color: #F8F8F8;" trick-id="${measure.id}"
-											trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-											<c:if test="${analysisOnly}">
-												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
-											</c:if>
-											<td><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'16':'15'}"><spring:message
-													text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-										</tr>
-									</c:when>
-									<c:otherwise>
-										<tr trick-computable="true" trick-description="${measureDescriptionText.description}" trick-level="${measure.measureDescription.level}" trick-class="Measure"
-											trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
-											<c:if test="${analysisOnly}">
-												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
-											</c:if>
-											<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-												data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
-												${analysisOnly?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td ${analysisOnly?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" onclick="return editField(this);"><spring:message
-													text="${measure.status}" /></td>
-											<td ${css} trick-field="implementationRate" ${standardType.name.equals('MATURITY')?'trick-class="MaturityMeasure"':''} trick-field-type="double"
-												trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
-													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
-											<td ${css} trick-field="internalWL" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}"
-													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="externalWL" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
-													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="investment" trick-field-type="double" onclick="return editField(this);"
-												title='<fmt:formatNumber value="${fct:round(measure.investment,0)}" maxFractionDigits="0" /> &euro;'
-												real-value='<fmt:formatNumber value="${measure.investment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber maxFractionDigits="0"
-													value="${fct:round(measure.investment*0.001,0)}" /></td>
-											<td ${css} trick-field="lifetime" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
-											<td ${css} trick-field="internalMaintenance" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalMaintenance}"
-													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="externalMaintenance" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalMaintenance}"
-													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="recurrentInvestment" trick-field-type="double" onclick="return editField(this);"
-												title='<fmt:formatNumber value="${fct:round(measure.recurrentInvestment,0)}" maxFractionDigits="0" /> &euro;'
-												real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
-													value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
-											<c:choose>
-												<c:when test="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')}">
-													<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
-															value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
-												</c:when>
-												<c:otherwise>
-													<td ${measure.cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" }
-														title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber value="${fct:round(measure.cost*0.001,0)}"
-															maxFractionDigits="0" /></td>
-												</c:otherwise>
-											</c:choose>
-											<td ${css} trick-field="phase" trick-field-type="integer" onclick="return editField(this);" trick-callback-pre="extractPhase(this)"
-												real-value='${measure.phase.number}'><c:choose>
-													<c:when test="${measure.phase.number == 0}">NA</c:when>
-													<c:otherwise>${measure.phase.number}</c:otherwise>
-												</c:choose></td>
-											<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-												<td ${css} onclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string">
-														<spring:message text="${measure.toCheck}" />
-													</pre></td>
-											</c:if>
-											<td ${css} onclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string">
-													<spring:message text="${measure.comment}" />
-												</pre></td>
-											<td ${css} onclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string">
-													<spring:message text="${measure.toDo}" />
-												</pre></td>
-										</tr>
-									</c:otherwise>
-								</c:choose>
-							</c:forEach>
-						</tbody>
-					</table>
-					<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
-				</div>
-			</div>
-<c:if test="${analysisOnly}">
+									<td><spring:message text="${measure.measureDescription.reference}" /></td>
+									<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
+											text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+								</tr>
+							</c:when>
+							<c:otherwise>
+								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure"
+									data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
+									<c:if test="${analysisOnly}">
+										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+									</c:if>
+									<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+										data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
+										${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
+									<td ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-field-type="string" onclick="return editField(this);"><spring:message
+											text="${measure.status}" /></td>
+									<td ${css} data-trick-field="implementationRate" ${standardType.name.equals('MATURITY')?'data-trick-class="MaturityMeasure"':''} data-trick-field-type="double"
+										data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
+											value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
+									<td ${css} data-trick-field="internalWL" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}"
+											maxFractionDigits="2" /></td>
+									<td ${css} data-trick-field="externalWL" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
+											maxFractionDigits="2" /></td>
+									<td ${css} data-trick-field="investment" data-trick-field-type="double" onclick="return editField(this);"
+										title='<fmt:formatNumber value="${fct:round(measure.investment,0)}" maxFractionDigits="0" /> &euro;'
+										data-real-value='<fmt:formatNumber value="${measure.investment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber maxFractionDigits="0"
+											value="${fct:round(measure.investment*0.001,0)}" /></td>
+									<td ${css} data-trick-field="lifetime" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
+									<td ${css} data-trick-field="internalMaintenance" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalMaintenance}"
+											maxFractionDigits="2" /></td>
+									<td ${css} data-trick-field="externalMaintenance" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalMaintenance}"
+											maxFractionDigits="2" /></td>
+									<td ${css} data-trick-field="recurrentInvestment" data-trick-field-type="double" onclick="return editField(this);"
+										title='<fmt:formatNumber value="${fct:round(measure.recurrentInvestment,0)}" maxFractionDigits="0" /> &euro;'
+										data-real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
+											value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
+									<c:choose>
+										<c:when test="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')}">
+											<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
+													value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
+										</c:when>
+										<c:otherwise>
+											<td ${measure.cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" }
+												title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber value="${fct:round(measure.cost*0.001,0)}"
+													maxFractionDigits="0" /></td>
+										</c:otherwise>
+									</c:choose>
+									<td ${css} data-trick-field="phase" data-trick-field-type="integer" onclick="return editField(this);" data-trick-callback-pre="extractPhase(this)"
+										data-real-value='${measure.phase.number}'><c:choose>
+											<c:when test="${measure.phase.number == 0}">NA</c:when>
+											<c:otherwise>${measure.phase.number}</c:otherwise>
+										</c:choose></td>
+									<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
+										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
+									</c:if>
+									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
+									<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
+								</tr>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</tbody>
+			</table>
+			<fmt:setLocale value="${language}" scope="session" />
 		</div>
 	</div>
-</c:if>
 </c:forEach>

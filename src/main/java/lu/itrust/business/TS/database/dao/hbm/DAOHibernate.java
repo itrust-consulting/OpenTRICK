@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
 /**
  * HibernateDAO.java: <br>
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Repository;
  * @version
  * @since 11 janv. 2013
  */
-@Repository
 public class DAOHibernate {
 
 	/** The Session */

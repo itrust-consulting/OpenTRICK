@@ -6,7 +6,9 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
+import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -52,11 +54,11 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * getByFileName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByFileName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByFilename(java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByFileName(String fileName) throws Exception {
-		return (UserSQLite) getSession().createQuery("From UserSQLite where fileName = :fileName").setParameter("fileName", fileName).uniqueResult();
+	public UserSQLite getByFilename(String filename) throws Exception {
+		return (UserSQLite) getSession().createQuery("From UserSQLite where filename = :filename").setParameter("filename", filename).uniqueResult();
 	}
 
 	/**
@@ -81,7 +83,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserSQLite> getAllFromUser(String username) throws Exception {
-		return getSession().createQuery("From UserSQLite where user.login = :username").setParameter("username", username).list();
+		return getSession().createQuery("From UserSQLite where user.login = :username order by exportTime desc").setParameter("username", username).list();
 	}
 
 	/**
@@ -94,7 +96,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) throws Exception {
-		String query = "From UserSQLite where user.login = :username";
+		String query = "From UserSQLite where user.login = :username order by exportTime desc";
 		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
 	}
 
@@ -149,8 +151,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(java.lang.String)
 	 */
 	@Override
-	public void delete(String fileName) throws Exception {
-		delete(getByFileName(fileName));
+	public void delete(String filename) throws Exception {
+		delete(getByFilename(filename));
 	}
 
 	/**
@@ -162,5 +164,26 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@Override
 	public void delete(UserSQLite userSqLite) throws Exception {
 		getSession().delete(userSqLite);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getDistinctIdentifierByUser(User user) {
+		return getSession().createQuery("Select distinct identifier From UserSQLite where user = :user order by identifier desc").setParameter("user", user).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserSQLite> getAllFromUserByPageAndFilterControl(String username, Integer page, FilterControl filter) {
+		if (!filter.validate())
+			throw new IllegalArgumentException();
+		if ("ALL".equalsIgnoreCase(filter.getFilter()))
+			return getSession().createQuery(String.format("From UserSQLite where user.login = :username order by %s %s", filter.getSort(), filter.getDirection()))
+					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
+		else
+			return getSession()
+					.createQuery(String.format("From UserSQLite where user.login = :username and identifier = :filter order by %s %s", filter.getSort(), filter.getDirection()))
+					.setParameter("username", username).setString("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
+					.list();
 	}
 }

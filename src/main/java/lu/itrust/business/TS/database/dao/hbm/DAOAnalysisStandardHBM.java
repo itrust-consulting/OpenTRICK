@@ -72,7 +72,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) throws Exception {
 		return (List<AnalysisStandard>) getSession().createQuery(
-				"SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label  ASC")
+				"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label  ASC")
 				.setParameter("analysis", analysisID).list();
 	}
 
@@ -87,7 +87,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisID) throws Exception {
 		return (List<AnalysisStandard>) getSession()
 				.createQuery(
-						"SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = true ORDER BY analysisStandard.standard.label ASC")
+						"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = true ORDER BY analysisStandard.standard.label ASC")
 				.setParameter("analysis", analysisID).list();
 	}
 
@@ -100,7 +100,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception {
-		return (List<AnalysisStandard>) getSession().createQuery("SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis = :analysis")
+		return (List<AnalysisStandard>) getSession().createQuery("SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis = :analysis")
 				.setParameter("analysis", analysis).list();
 	}
 
@@ -169,7 +169,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@Override
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard) {
 		return (AnalysisStandard) getSession().createQuery(
-				"select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
+				"select analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
 				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResult();
 	}
 
@@ -212,7 +212,14 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 
 	@Override
 	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) throws Exception {
-		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
+		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
 				.setParameter("analysisstandard", analysisStandard).uniqueResult();
+	}
+
+	@Override
+	public boolean belongsToAnalysis(Integer idAnalysis, int id) {
+		return (Boolean) getSession().createQuery(
+				"select count(analysisStandard) > 0 From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.id = :id")
+				.setParameter("idAnalysis", idAnalysis).setParameter("id", id).uniqueResult();
 	}
 }

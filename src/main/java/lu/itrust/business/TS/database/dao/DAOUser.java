@@ -33,6 +33,8 @@ public interface DAOUser {
 
 	public List<User> getAllFromCustomer(Customer customer) throws Exception;
 
+	public List<User> getAllAdministrators() throws Exception;
+	
 	public boolean hasRole(User user, Role role) throws Exception;
 
 	public void save(User user) throws Exception;
@@ -42,4 +44,6 @@ public interface DAOUser {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(User user) throws Exception;
+
+	public User getByEmail(String email);
 }

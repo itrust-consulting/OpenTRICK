@@ -33,8 +33,8 @@ public class NormalMeasureValidator extends MeasureValidator {
 	 * Object, java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (!supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
+	public String validate( String fieldName, Object candidate) {
+		if (fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		Double doubleCanditate = null;
 		switch (fieldName) {
@@ -62,7 +62,7 @@ public class NormalMeasureValidator extends MeasureValidator {
 				return ERROR_UNSUPPORTED_DATA_TO_CHECK_TO_CHECK_VALUE_IS_NOT_SUPPORTED;
 			break;
 		}
-		return super.validate(o, fieldName, candidate);
+		return super.validate(fieldName, candidate);
 	}
 
 	/* (non-Javadoc)

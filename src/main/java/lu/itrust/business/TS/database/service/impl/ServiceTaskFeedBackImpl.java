@@ -8,8 +8,11 @@ import java.util.Map;
 import java.util.Queue;
 
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,9 +26,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
-	private Map<String, List<Long>> userTasks = Collections.synchronizedMap(new LinkedHashMap<String, List<Long>>());
+	private Map<String, List<String>> userTasks = Collections.synchronizedMap(new LinkedHashMap<String, List<String>>());
 
-	private Map<Long, Queue<MessageHandler>> messageHandlers = Collections.synchronizedMap(new LinkedHashMap<Long, Queue<MessageHandler>>());
+	private Map<String, Queue<MessageHandler>> messageHandlers = Collections.synchronizedMap(new LinkedHashMap<String, Queue<MessageHandler>>());
+
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+
+	@Value("${app.settings.background.task.max.pool.size}")
+	private int maxPoolSize;
+
+	@Value("${app.settings.background.task.max.user.size}")
+	private int maxUserSize;
 
 	/**
 	 * messageCount: <br>
@@ -34,10 +46,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#messageCount(long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#messageCount(String)
 	 */
 	@Override
-	public int messageCount(long id) {
+	public int messageCount(String id) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
 		return queue == null ? 0 : queue.size();
 	}
@@ -49,10 +61,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#taskExist(long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#taskExist(String)
 	 */
 	@Override
-	public boolean taskExist(long id) {
+	public boolean taskExist(String id) {
 		return messageHandlers.containsKey(id);
 	}
 
@@ -63,10 +75,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#hasMessage(long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#hasMessage(String)
 	 */
 	@Override
-	public boolean hasMessage(long id) {
+	public boolean hasMessage(String id) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
 		return queue != null && !queue.isEmpty();
 	}
@@ -84,7 +96,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	public boolean userHasTask(String userName) {
 		if (!userTasks.containsKey(userName))
 			return false;
-		List<Long> tasks = userTasks.get(userName);
+		List<String> tasks = userTasks.get(userName);
 		return tasks != null && !tasks.isEmpty();
 	}
 
@@ -96,14 +108,15 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#hasTask(java.lang.String, long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#hasTask(java.lang.String,
+	 *      String)
 	 */
 	@Override
-	public boolean hasTask(String userName, long id) {
+	public boolean hasTask(String userName, String id) {
 		if (!userTasks.containsKey(userName))
 			return false;
-		for (Long task : userTasks.get(userName))
-			if (id == task)
+		for (String task : userTasks.get(userName))
+			if (task.equals(id))
 				return true;
 		return false;
 	}
@@ -116,14 +129,17 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#registerTask(java.lang.String, long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#registerTask(java.lang.String,
+	 *      String)
 	 */
 	@Override
-	public boolean registerTask(String userName, long id) {
+	public boolean registerTask(String userName, String id) {
 		if (messageHandlers.containsKey(id))
 			return false;
+		List<String> tasks = userTasks.containsKey(userName) ? userTasks.get(userName) : Collections.synchronizedList(new LinkedList<String>());
+		if (tasks.size() >= maxUserSize || workersPoolManager.poolSize() >= maxPoolSize)
+			return false;
 		messageHandlers.put(id, new LinkedList<MessageHandler>());
-		List<Long> tasks = userTasks.containsKey(userName) ? userTasks.get(userName) : Collections.synchronizedList(new LinkedList<Long>());
 		tasks.add(id);
 		if (!userTasks.containsKey(userName))
 			userTasks.put(userName, tasks);
@@ -137,13 +153,14 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param userName
 	 * @param id
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#unregisterTask(java.lang.String, long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#unregisterTask(java.lang.String,
+	 *      String)
 	 */
 	@Override
-	public void unregisterTask(String userName, long id) {
+	public void unregisterTask(String userName, String id) {
 		if (!userTasks.containsKey(userName))
 			return;
-		List<Long> tasks = userTasks.get(userName);
+		List<String> tasks = userTasks.get(userName);
 		if (tasks == null || tasks.isEmpty())
 			return;
 		tasks.remove(id);
@@ -152,6 +169,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		if (messageHandlers.containsKey(id) && !messageHandlers.get(id).isEmpty())
 			messageHandlers.get(id).clear();
 		messageHandlers.remove(id);
+		workersPoolManager.remove(id);
 	}
 
 	/**
@@ -177,11 +195,11 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @param handler
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#send(long,
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#send(String,
 	 *      lu.itrust.business.TS.messagehandler.MessageHandler)
 	 */
 	@Override
-	public void send(long id, MessageHandler handler) {
+	public void send(String id, MessageHandler handler) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
 		if (queue == null)
 			return;
@@ -196,11 +214,11 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @param handler
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#send(java.lang.String, long,
-	 *      lu.itrust.business.TS.messagehandler.MessageHandler)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#send(java.lang.String,
+	 *      String, lu.itrust.business.TS.messagehandler.MessageHandler)
 	 */
 	@Override
-	public void send(String userName, long id, MessageHandler handler) {
+	public void send(String userName, String id, MessageHandler handler) {
 		if (!hasTask(userName, id) && !registerTask(userName, id))
 			return;
 		send(id, handler);
@@ -212,10 +230,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * 
 	 * @param id
 	 * @return
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#recieve(long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#recieveById(String)
 	 */
 	@Override
-	public MessageHandler recieve(long id) {
+	public MessageHandler recieveById(String id) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
 		if (queue == null || queue.isEmpty())
 			return null;
@@ -229,16 +247,20 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#recieveLast(long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#recieveLast(String)
 	 */
 	@Override
-	public MessageHandler recieveLast(long id) {
+	public MessageHandler recieveLast(String id) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
 		if (queue == null || queue.isEmpty())
 			return null;
 		MessageHandler messageHandler = null;
-		while (!queue.isEmpty())
-			messageHandler = queue.poll();
+		synchronized (queue) {
+			while (queue.size() > 1)
+				queue.poll();
+			if (!queue.isEmpty())
+				messageHandler = queue.peek();
+		}
 		return messageHandler;
 	}
 
@@ -256,7 +278,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		List<MessageHandler> handlers = new LinkedList<>();
 		if (!userTasks.containsKey(userName))
 			return handlers;
-		for (Long taskId : userTasks.get(userName))
+		for (String taskId : userTasks.get(userName))
 			if (messageHandlers.containsKey(taskId))
 				handlers.addAll(messageHandlers.get(taskId));
 		return handlers;
@@ -272,7 +294,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#tasks(java.lang.String)
 	 */
 	@Override
-	public List<Long> tasks(String userName) {
+	public List<String> tasks(String userName) {
 		return userTasks.get(userName);
 	}
 }

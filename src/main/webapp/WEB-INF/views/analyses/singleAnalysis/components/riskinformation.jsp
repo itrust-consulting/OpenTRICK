@@ -69,7 +69,7 @@
 							</c:otherwise>
 						</c:choose>
 					</c:if>
-					<tr trick-class="RiskInformation" trick-id="${risk_information.id}">
+					<tr data-trick-class="RiskInformation" data-trick-id="${risk_information.id}">
 						<c:set var="codeText" value="${risk_information.label}" />
 						<c:choose>
 							<c:when test="${risk_information.category == 'Risk_TBA'}">
@@ -92,12 +92,12 @@
 									<c:otherwise>
 										<td style="height:32px;"><strong><spring:message text="${risk_information.chapter}" /></strong></td>
 										<td><strong><fmt:message key="${codeLabel}" /></strong></td>
-										<td class="success" trick-field="exposed" trick-choose=",++,+,N,-,--" trick-field-type="string" onclick="return editField(this);"><spring:message
+										<td class="success" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 												text="${risk_information.exposed}" /></td>
-										<td class="success" onclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string">
+										<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string">
 												<spring:message text="${risk_information.comment}" />
 											</pre></td>
-										<td class="success" onclick="return editField(this.firstElementChild);"><pre trick-field="hiddenComment" trick-content="text" trick-field-type="string">
+										<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string">
 												<spring:message text="${risk_information.hiddenComment}" />
 											</pre></td>
 									</c:otherwise>
@@ -109,12 +109,12 @@
 								<c:if test="${categoryRiskInformation == 'Threat'}">
 									<td><spring:message text="${risk_information.acronym}" /></td>
 								</c:if>
-								<td class="success" trick-field="exposed" trick-choose=",++,+,N,-,--" trick-field-type="string" onclick="return editField(this);"><spring:message
+								<td class="success" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 										text="${risk_information.exposed}" /></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string">
+								<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string">
 										<spring:message text="${risk_information.comment}" />
 									</pre></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre trick-field="hiddenComment" trick-content="text" trick-field-type="string">
+								<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string">
 										<spring:message text="${risk_information.hiddenComment}" />
 									</pre></td>
 							</c:otherwise>

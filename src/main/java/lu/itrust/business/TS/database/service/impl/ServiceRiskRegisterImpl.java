@@ -43,9 +43,9 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	/**
 	 * belongsToAnalysis: <br>
 	 * Description
-	 * 
-	 * @param riskregisterItemId
 	 * @param analysisId
+	 * @param riskregisterItemId
+	 * 
 	 * @return
 	 * @throws Exception
 	 * 
@@ -53,8 +53,8 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer riskregisterItemId, Integer analysisId) throws Exception {
-		return daoRiskRegister.belongsToAnalysis(riskregisterItemId, analysisId);
+	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId) throws Exception {
+		return daoRiskRegister.belongsToAnalysis(analysisId,riskregisterItemId);
 	}
 
 	/**

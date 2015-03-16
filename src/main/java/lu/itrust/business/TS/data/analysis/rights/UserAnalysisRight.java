@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -39,6 +40,12 @@ public class UserAnalysisRight implements Cloneable {
 	@Access(AccessType.FIELD)
 	private User user;
 
+	/** Analysis */
+	@ManyToOne
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Access(AccessType.FIELD)
+	private Analysis analysis;
+	
 	/** rights */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtRight", nullable = false)
@@ -60,6 +67,12 @@ public class UserAnalysisRight implements Cloneable {
 	public UserAnalysisRight(User user, AnalysisRight right) {
 		this.user = user;
 		this.right = right;
+	}
+
+	public UserAnalysisRight(Analysis analysis, User user, AnalysisRight right) {
+		setAnalysis(analysis);
+		setRight(right);
+		setUser(user);
 	}
 
 	/**
@@ -123,6 +136,25 @@ public class UserAnalysisRight implements Cloneable {
 	 */
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	/** getAnalysis: <br>
+	 * Returns the analysis field value.
+	 * 
+	 * @return The value of the analysis field
+	 */
+	public Analysis getAnalysis() {
+		return analysis;
+	}
+
+	/** setAnalysis: <br>
+	 * Sets the Field "analysis" with a value.
+	 * 
+	 * @param analysis 
+	 * 			The Value to set the analysis field
+	 */
+	public void setAnalysis(Analysis analysis) {
+		this.analysis = analysis;
 	}
 
 	/**

@@ -12,7 +12,7 @@ import lu.itrust.business.TS.messagehandler.TaskName;
 
 public class AsyncResult {
 
-	private Long taskID;
+	private String taskID;
 
 	private int flag = 0;
 
@@ -27,17 +27,17 @@ public class AsyncResult {
 	private int progress = 0;
 
 	/**
-	 * @param taskID
+	 * @param id
 	 */
-	public AsyncResult(Long taskID) {
-		this.taskID = taskID;
+	public AsyncResult(String id) {
+		this.taskID = id;
 	}
 
 	/**
 	 * @param status
 	 * @param taskID
 	 */
-	public AsyncResult(String status, Long taskID) {
+	public AsyncResult(String status, String taskID) {
 		this.status = status;
 		this.taskID = taskID;
 	}
@@ -48,7 +48,7 @@ public class AsyncResult {
 	 * @param taskID
 	 * @param message
 	 */
-	public AsyncResult(TaskName taskName, String status, Long taskID, String message) {
+	public AsyncResult(TaskName taskName, String status, String taskID, String message) {
 		this.taskName = taskName;
 		this.status = status;
 		this.taskID = taskID;
@@ -88,7 +88,7 @@ public class AsyncResult {
 	/**
 	 * @return the taskID
 	 */
-	public Long getTaskID() {
+	public String getTaskID() {
 		return taskID;
 	}
 
@@ -96,7 +96,7 @@ public class AsyncResult {
 	 * @param taskID
 	 *            the taskID to set
 	 */
-	public void setTaskID(Long taskID) {
+	public void setTaskID(String taskID) {
 		this.taskID = taskID;
 	}
 

@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.riskinformation.RiskInformation;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**
@@ -16,8 +17,8 @@ import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 public class RiskInformationValidator extends ValidatorFieldImpl{
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if(o == null || !supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
+	public String validate(String fieldName, Object candidate) {
+		if(fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		switch (fieldName) {
 		case "label":
@@ -83,12 +84,12 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) {
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) {
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 

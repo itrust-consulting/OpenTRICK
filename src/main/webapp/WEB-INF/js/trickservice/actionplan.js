@@ -1,20 +1,14 @@
 function displayActionPlanOptions(analysisId) {
-
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/ComputeOptions",
 		type : "GET",
-		async : true,
 		contentType : "application/json",
-		success : function(response) {
-
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var actionplancomputeoptions = $(doc).find("* div#actionplancomputeoptions");
-
-			if ($("#actionplancomputeoptions").length)
-				$("#actionplancomputeoptions").html($(actionplancomputeoptions).html());
-			$("#actionplancomputeoptions").modal("toggle");
-
+		success : function(response,textStatus,jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionplancomputeoptions");
+			if ($content.length)
+				new Modal($content.clone()).Show();
+			else
+				unknowError();
 		},
 		error : unknowError
 	});
@@ -38,23 +32,21 @@ function calculateActionPlanWithOptions(form) {
 		data[name] = value;
 
 	});
-
 	var jsonarray = JSON.stringify(data);
-
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/Compute",
 		type : "post",
 		data : jsonarray,
-		async : true,
 		contentType : "application/json",
-		success : function(response) {
-			if (response["success"] != undefined) {
-				var language = $("#nav-container").attr("trick-language");
-				new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan", null, language)).Start();
-			} else if (message["error"]) {
-				$("#alert-dialog .modal-body").html(message["error"]);
+		success : function(response,textStatus,jqXHR) {
+			if (response["success"] != undefined)
+				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan", null, $("#nav-container").attr("data-trick-language")))
+						.Start();
+			else if (response["error"]) {
+				$("#alert-dialog .modal-body").html(response["error"]);
 				$("#alert-dialog").modal("toggle");
-			}
+			} else
+				unknowError();
 		},
 		error : unknowError
 	});
@@ -64,29 +56,30 @@ function calculateActionPlanWithOptions(form) {
 }
 
 function hideActionplanAssets(sectionactionplan, menu) {
-
-	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
-
+	var actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
 	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
 		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
-		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
+		$(menu + " a#actionplanassetsmenulink").html(
+				"<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 	}
-
 	return false;
 
 }
 
 function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
-	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
+	var actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
 	var table = $("#actionplantable_" + actionplantype);
-	table.floatThead('destroy');
+	$(table).stickyTableHeaders("destroy");
 	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
 	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
-		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
-		//fixedTableHeader(table);
+		$(menu + " a#actionplanassetsmenulink").html(
+				"<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
+		$(table).stickyTableHeaders({
+			cssTopOffset : ".nav-analysis",
+			fixedOffset : 6
+		});
 	} else {
 		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
-		//fixedTableHeader(table);
 	}
 	return false;
 }
@@ -95,14 +88,13 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) 
 	$.ajax({
 		url : context + "/Analyis/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
-		async : true,
 		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (!response.length)
-				return false;
-			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
-			return false;
+		success : function(response,textStatus,jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("tr[data-trick-id='" + idActionPlanEntry + "']");
+			if ($content.length)
+				$("#section_actionplan_" + type + " tr[data-trick-id='" + idActionPlanEntry + "']").replaceWith($content);
+			else
+				unknowError();
 		},
 		error : unknowError
 	});

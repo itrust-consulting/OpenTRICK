@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * ServiceUserSqLiteImpl.java: <br>
@@ -43,15 +45,15 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * getByFileName: <br>
 	 * Description
 	 * 
-	 * @param fileName
+	 * @param filename
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByFileName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByFilename(java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByFileName(String fileName) throws Exception {
-		return daoUserSqLite.getByFileName(fileName);
+	public UserSQLite getByFilename(String filename) throws Exception {
+		return daoUserSqLite.getByFilename(filename);
 	}
 
 	/**
@@ -170,15 +172,15 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @param fileName
+	 * @param filename
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(java.lang.String)
 	 */
 	@Transactional
 	@Override
-	public void delete(String fileName) throws Exception {
-		daoUserSqLite.delete(fileName);
+	public void delete(String filename) throws Exception {
+		daoUserSqLite.delete(filename);
 	}
 
 	/**
@@ -194,5 +196,15 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	@Override
 	public void delete(UserSQLite userSqLite) throws Exception {
 		daoUserSqLite.delete(userSqLite);
+	}
+
+	@Override
+	public List<String> getDistinctIdentifierByUser(User user) {
+		return daoUserSqLite.getDistinctIdentifierByUser(user);
+	}
+
+	@Override
+	public List<UserSQLite> getAllFromUserByFilterControl(String username, Integer page, FilterControl filter) {
+		return daoUserSqLite.getAllFromUserByPageAndFilterControl(username,page, filter);
 	}
 }

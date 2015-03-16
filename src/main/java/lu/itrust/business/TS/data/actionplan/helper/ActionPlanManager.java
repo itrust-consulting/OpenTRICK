@@ -41,16 +41,38 @@ public class ActionPlanManager {
 			List<Asset> assets = new ArrayList<Asset>();
 			if (entries != null && entries.size() > 0) {
 				ape = entries.get(0);
-			} else 
+			} else
 				throw new TrickException("error.action.plan.empty", "Action plan is empty!");
-			for (ActionPlanAsset apa : ape.getActionPlanAssets()) 
+			for (ActionPlanAsset apa : ape.getActionPlanAssets())
 				assets.add(apa.getAsset());
 			return assets;
-		} catch(TrickException e){
+		} catch (TrickException e) {
+			e.printStackTrace();
+			return null;
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		catch (Exception e) {
+	}
+
+	public static List<ActionPlanAsset> orderActionPlanAssetsByAssetList(ActionPlanEntry entry, List<Asset> assets) {
+		try {
+
+			List<ActionPlanAsset> apassets = new ArrayList<ActionPlanAsset>();
+
+			Map<Asset, ActionPlanAsset> mapofassets = new LinkedHashMap<Asset, ActionPlanAsset>();
+
+			for (ActionPlanAsset apasset : entry.getActionPlanAssets()) {
+
+				mapofassets.put(apasset.getAsset(), apasset);
+			}
+
+			for (Asset asset : assets) {
+				apassets.add(mapofassets.get(asset));
+			}
+
+			return apassets;
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}

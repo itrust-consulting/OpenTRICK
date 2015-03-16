@@ -14,6 +14,7 @@ import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.asset.AssetType;
@@ -29,12 +30,11 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.ScenarioValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +45,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerScenario.java: <br>
@@ -91,6 +94,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
+	
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -113,7 +119,7 @@ public class ControllerScenario {
 
 			Integer analysis = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha2());
 
 			// retrieve scenario
 			Scenario scenario = serviceScenario.get(elementID);
@@ -132,7 +138,7 @@ public class ControllerScenario {
 
 			Integer analysis = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha2());
 			// return error message
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
@@ -162,7 +168,7 @@ public class ControllerScenario {
 
 				Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 				if (!serviceScenario.belongsToAnalysis(analysisId, id)) {
 					errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_scenario", null, "One of the scenarios does not belong to this analysis!", customLocale != null
@@ -175,7 +181,7 @@ public class ControllerScenario {
 			for (Integer id : ids) {
 				Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 				// select elements
 				select(id, principal, customLocale != null ? customLocale : locale, session);
 
@@ -188,7 +194,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			// return error message
 			e.printStackTrace();
 			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale)));
@@ -214,7 +220,7 @@ public class ControllerScenario {
 
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 			// try to delete assessment with this scenario
 			customDelete.deleteScenario(serviceScenario.get(elementID));
@@ -224,7 +230,7 @@ public class ControllerScenario {
 
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 			// return error message
 			e.printStackTrace();
@@ -256,7 +262,9 @@ public class ControllerScenario {
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
+		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/singleAnalysis/components/scenario/scenario";
 	}
 
@@ -315,7 +323,7 @@ public class ControllerScenario {
 		try {
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisId);
 			customDelete.deleteDuplicationAssetTypeValue(scenarios);
 			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null, "Duplication were successfully deleted", customLocale != null ? customLocale
@@ -323,7 +331,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.delete.assettypevalue.duplication", null, "Duplication cannot be deleted", customLocale != null ? customLocale : locale));
 		}
@@ -358,7 +366,7 @@ public class ControllerScenario {
 				return errors;
 			}
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 			Scenario scenario = null;
 
@@ -405,7 +413,7 @@ public class ControllerScenario {
 		} catch (TrickException e) {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 			} else
 				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -414,7 +422,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 			e.printStackTrace();
 			return errors;
@@ -441,7 +449,7 @@ public class ControllerScenario {
 		if (idAnalysis == null)
 			return null;
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		return chartGenerator.aleByScenario(idAnalysis, customLocale != null ? customLocale : locale);
 	}
@@ -463,7 +471,7 @@ public class ControllerScenario {
 		if (idAnalysis == null)
 			return null;
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		return chartGenerator.aleByScenarioType(idAnalysis, customLocale != null ? customLocale : locale);
 	}

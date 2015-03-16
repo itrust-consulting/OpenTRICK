@@ -34,7 +34,7 @@ import org.springframework.context.MessageSource;
  */
 public class WorkerComputeActionPlan implements Worker {
 
-	private long id = System.nanoTime();
+	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;
 
@@ -144,7 +144,7 @@ public class WorkerComputeActionPlan implements Worker {
 			System.out.println("Loading Analysis...");
 
 			String language = null;
-			language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha3().substring(0, 2);
+			language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
 			
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", language, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
@@ -193,7 +193,7 @@ public class WorkerComputeActionPlan implements Worker {
 			try {
 				
 				String language = null;
-				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha3().substring(0, 2);
+				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
 								
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed",language, e));
 				e.printStackTrace();
@@ -257,14 +257,14 @@ public class WorkerComputeActionPlan implements Worker {
 	 */
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
-		String lang = analysis.getLanguage().getAlpha3().substring(0, 2);
+		String lang = analysis.getLanguage().getAlpha2();
 		
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting",lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting",lang, null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan is deleting",lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting",lang, null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
@@ -306,7 +306,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @see lu.itrust.business.task.Worker#setId(java.lang.Long)
 	 */
 	@Override
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -327,7 +327,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @see lu.itrust.business.task.Worker#getId()
 	 */
 	@Override
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

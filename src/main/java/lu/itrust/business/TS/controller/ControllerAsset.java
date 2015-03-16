@@ -19,6 +19,7 @@ import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.asset.Asset;
@@ -28,13 +29,13 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.AssetValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +46,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author eom
@@ -81,6 +85,12 @@ public class ControllerAsset {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
+	
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+	
+	@Autowired
+	private ServiceLanguage serviceLanguage;
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -105,7 +115,7 @@ public class ControllerAsset {
 			Locale customLocale = null;
 
 			if (integer != null)
-				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
 			// retrieve asset
 			Asset asset = serviceAsset.get(elementID);
@@ -126,7 +136,7 @@ public class ControllerAsset {
 			Locale customLocale = null;
 
 			if (integer != null)
-				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// return error message
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
@@ -137,7 +147,7 @@ public class ControllerAsset {
 			Locale customLocale = null;
 
 			if (integer != null)
-				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// return error message
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
@@ -165,7 +175,7 @@ public class ControllerAsset {
 		for (Integer id : ids) {
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
 			if (!serviceAsset.belongsToAnalysis(integer, id)) {
 				errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null, "One of the assets does not belong to this analysis!", customLocale != null ? customLocale
@@ -180,7 +190,7 @@ public class ControllerAsset {
 
 				Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
 				select(id, principal, customLocale != null ? customLocale : locale, session);
 
@@ -188,7 +198,7 @@ public class ControllerAsset {
 				e.printStackTrace();
 				Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
 				errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale)));
 			}
@@ -222,7 +232,7 @@ public class ControllerAsset {
 
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
 			customDelete.deleteAsset(serviceAsset.get(elementID));
 			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", customLocale != null ? customLocale : locale));
@@ -230,7 +240,7 @@ public class ControllerAsset {
 		} catch (Exception e) {
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", customLocale != null ? customLocale : locale));
 		}
@@ -256,10 +266,13 @@ public class ControllerAsset {
 
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
+		
 		// load all assets of analysis to model
 		model.addAttribute("assetALE", AssessmentManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
+		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/singleAnalysis/components/asset/asset";
 	}
 
@@ -311,7 +324,7 @@ public class ControllerAsset {
 				return errors;
 			}
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 			// create new asset object
 			Asset asset = new Asset();
@@ -357,7 +370,7 @@ public class ControllerAsset {
 		} catch (TrickException e) {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 				errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 			} else
 				errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -367,7 +380,7 @@ public class ControllerAsset {
 			e.printStackTrace();
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 				errors.put("asset", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
 			} else
 				errors.put("asset", messageSource.getMessage(e.getMessage(), null, locale));
@@ -396,7 +409,7 @@ public class ControllerAsset {
 		if (idAnalysis == null)
 			return null;
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		// generate chart of assets for this analysis
 		return chartGenerator.aleByAsset(idAnalysis, customLocale != null ? customLocale : locale);
@@ -421,7 +434,7 @@ public class ControllerAsset {
 		if (idAnalysis == null)
 			return null;
 
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		// generate chart of assets for this analysis
 		return chartGenerator.aleByAssetType(idAnalysis, customLocale != null ? customLocale : locale);

@@ -16,13 +16,12 @@ import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.CustomerValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerCustomer.java: <br>
@@ -247,14 +249,9 @@ public class ControllerCustomer {
 			customDelete.deleteCustomer(customer);
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 
-		} catch (Exception e) {
+		} catch (TrickException e) {
 			e.printStackTrace();
-
-			String[] parts = e.getMessage().split(":");
-			String code = parts[0];
-			String defaultmessage = parts[1];
-
-			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 
 	}

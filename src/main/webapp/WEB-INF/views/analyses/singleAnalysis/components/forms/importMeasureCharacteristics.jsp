@@ -27,14 +27,14 @@
 						<c:forEach items="${profiles}" var="profile">
 							<c:forEach items="${profile.analysisStandards}" var="analysisStandard">
 								<c:if test="${idStandards.contains(analysisStandard.standard.id)}">
-									<option title="${analysisStandard.standard.label} - v. ${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" name="${profile.id}"><spring:message
+									<option title="${analysisStandard.standard.label} - v. ${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" data-trick-id="${profile.id}"><spring:message
 											text="${analysisStandard.standard.label}" /></option>
 								</c:if>
 							</c:forEach>
 						</c:forEach>
 					</select>
 				</form>
-				<div class="progress progress-striped active" hidden="true">
+				<div class="progress progress-striped active" hidden="true" style="margin-top:10px;margin-bottom:-15px">
 					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 				</div>
 			</div>

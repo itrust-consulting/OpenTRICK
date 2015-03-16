@@ -13,7 +13,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<jsp:include page="../../../successErrors.jsp" />
+				<jsp:include page="../../../template/successErrors.jsp" />
 				<form name="history" action="${pageContext.request.contextPath}/History/Analysis/${analysisId}/NewVersion/Save" class="form-horizontal" id="history_form" method="post">
 					<div class="form-group">
 						<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
@@ -44,9 +44,7 @@
 						</div>
 					</div>
 				</form>
-				<div class="progress progress-striped" hidden="true">
-					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-				</div>
+				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" id="history_submit_button" onclick="return duplicateAnalysis('history_form', '${analysisId}')">

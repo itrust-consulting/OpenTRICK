@@ -52,11 +52,12 @@ public abstract class AnalysisStandard implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE})
 	private Standard standard = null;
 
 	/** AnalysisStandard List of measures */
 	@OneToMany(mappedBy = "analysisStandard")
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Measure> measures = new ArrayList<Measure>();
 
@@ -178,8 +179,9 @@ public abstract class AnalysisStandard implements Cloneable {
 	 * 
 	 * @return
 	 * @throws CloneNotSupportedException
+	 * @throws TrickException 
 	 */
-	public AnalysisStandard duplicate() throws CloneNotSupportedException {
+	public AnalysisStandard duplicate() throws CloneNotSupportedException, TrickException {
 		AnalysisStandard analysisStandard = (AnalysisStandard) super.clone();
 		analysisStandard.id = -1;
 		analysisStandard.measures = new ArrayList<>();

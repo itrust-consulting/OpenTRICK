@@ -216,7 +216,7 @@ public class ControllerAnalysisCreate {
 			analysis.setLanguage(language);
 			analysis.addAHistory(history);
 			analysis.setData(true);
-			analysis.setLabel(history.getComment());
+			analysis.setLabel(customAnalysisForm.getName());
 			analysis.setCreationDate((Timestamp) history.getDate());
 			analysis.setVersion(customAnalysisForm.getVersion());
 			analysis.setUncertainty(customAnalysisForm.isUncertainty());
@@ -369,10 +369,15 @@ public class ControllerAnalysisCreate {
 			
 			serviceAnalysis.save(analysis);
 			
+			while(serviceAnalysis.countByIdentifier(analysis.getIdentifier())>1){
+				analysis.setIdentifier(language.getAlpha3() + "_" + new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(history.getDate()));
+				serviceAnalysis.save(analysis);
+			}
+			
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(customAnalysisForm.getStandard());
 			
 			for (AnalysisStandard analysisStandard : analysisStandards)
-				analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, false));
+				analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, mappingAssets, false));
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			return JsonMessage.Success(messageSource.getMessage("success.analysis_custom.create", null, "Your analysis has been successfully created", locale));

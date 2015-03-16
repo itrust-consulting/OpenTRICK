@@ -21,30 +21,37 @@ import lu.itrust.business.TS.usermanagement.User;
 @Entity
 public class UserSQLite {
 
-	@Id @GeneratedValue
-	@Column(name="idUserSQLite")
+	@Id
+	@GeneratedValue
+	@Column(name = "idUserSQLite")
 	private int id = -1;
 
-	@Column(name="dtFileName", unique=true, nullable=false)
-	private String fileName = null;
+	@Column(name = "dtFilename", unique = true, nullable = false)
+	private String filename = null;
 
-	@Column(name="dtAnalysisIdentifier", nullable=false)
-	private String analysisIdentifier = null;
+	@Column(name = "dtIdentifier", nullable = false)
+	private String identifier = null;
+
+	@Column(name = "dtLabel", nullable = false)
+	private String label;
+
+	@Column(name = "dtVersion", nullable = false)
+	private String version;
 
 	@ManyToOne
-	@JoinColumn(name="fiUser", nullable=false)
+	@JoinColumn(name = "fiUser", nullable = false)
 	private User user = null;
 
-	@Column(name="dtSize", nullable=false)
+	@Column(name = "dtSize", nullable = false)
 	private long size = 0;
 
-	@Column(name="dtSQLite", columnDefinition="MEDIUMBLOB", nullable=false)
+	@Column(name = "dtSQLite", columnDefinition = "MEDIUMBLOB", nullable = false)
 	private byte[] sqLite;
 
-	@Column(name="dtExportTime", nullable=false)
+	@Column(name = "dtExportTime", nullable = false)
 	private Timestamp exportTime = null;
 
-	@Column(name="dtDeleteTime", nullable=false)
+	@Column(name = "dtDeleteTime", nullable = false)
 	private Timestamp deleteTime = null;
 
 	/**
@@ -54,14 +61,22 @@ public class UserSQLite {
 	}
 
 	/**
-	 * @param fileName
+	 * @param string3
+	 * @param string2
+	 * @param string
+	 * @param filename
 	 * @param user
+	 * @param size
 	 * @param exportDate
 	 */
-	public UserSQLite(String fileName, User user, byte[] file) {
-		this.fileName = fileName;
-		this.user = user;
-		this.sqLite = file;
+	public UserSQLite(String identifier, String label, String version, String fileName, User user, byte[] file, long size) {
+		setIdentifier(identifier);
+		setLabel(label);
+		setVersion(version);
+		setFilename(fileName);
+		setUser(user);
+		setSqLite(file);
+		setSize(size);
 		this.setExportTime(new Timestamp(System.currentTimeMillis()));
 		this.setDeleteTime(new Timestamp(System.currentTimeMillis() + 86400000));
 	}
@@ -82,18 +97,18 @@ public class UserSQLite {
 	}
 
 	/**
-	 * @return the fileName
+	 * @return the filename
 	 */
-	public String getFileName() {
-		return fileName;
+	public String getFilename() {
+		return filename;
 	}
 
 	/**
-	 * @param fileName
-	 *            the fileName to set
+	 * @param filename
+	 *            the filename to set
 	 */
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 
 	/**
@@ -169,18 +184,34 @@ public class UserSQLite {
 	}
 
 	/**
-	 * @return the analysisIdentifier
+	 * @return the identifier
 	 */
-	public String getAnalysisIdentifier() {
-		return analysisIdentifier;
+	public String getIdentifier() {
+		return identifier;
 	}
 
 	/**
-	 * @param analysisIdentifier
-	 *            the analysisIdentifier to set
+	 * @param identifier
+	 *            the identifier to set
 	 */
-	public void setAnalysisIdentifier(String analysisIdentifier) {
-		this.analysisIdentifier = analysisIdentifier;
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 }

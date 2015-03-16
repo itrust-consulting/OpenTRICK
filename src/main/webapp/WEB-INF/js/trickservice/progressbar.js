@@ -113,8 +113,7 @@ function ProgressBar() {
 	};
 
 	ProgressBar.prototype.Remove = function() {
-		if (this.progress != null)
-			$(this.progress).remove();
+		$(this.progress).remove();
 		return false;
 	};
 

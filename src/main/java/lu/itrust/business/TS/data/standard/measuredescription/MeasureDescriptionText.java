@@ -57,10 +57,29 @@ public class MeasureDescriptionText implements Cloneable {
 	/** The Description Text */
 	@Column(name = "dtDescription", nullable = false, columnDefinition = "LONGTEXT")
 	private String description = "";
+	
+	/**
+	 * 
+	 */
+	public MeasureDescriptionText() {
+	}
+
+	public MeasureDescriptionText(Language language) {
+		setLanguage(language);
+	}
+	
+	public MeasureDescriptionText(MeasureDescription measureDescription, String domain, String description, Language language) throws TrickException {
+		setDomain(domain);
+		setMeasureDescription(measureDescription);
+		setDescription(description);
+		setLanguage(language);
+	}
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
+
+	
 
 	/**
 	 * getDomain: <br>
@@ -205,6 +224,11 @@ public class MeasureDescriptionText implements Cloneable {
 		measureDescriptionText.id = -1;
 		measureDescriptionText.measureDescription = description;
 		return measureDescriptionText;
+	}
+
+	public void update(String domain, String description) throws TrickException {
+		setDomain(domain);
+		setDescription(description);
 	}
 
 }

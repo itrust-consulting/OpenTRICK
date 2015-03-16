@@ -1,4 +1,5 @@
 package lu.itrust.business.TS.data.actionplan.helper;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -17,6 +18,7 @@ import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.data.actionplan.ActionPlanType;
 import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.data.actionplan.summary.helper.Maintenance;
 import lu.itrust.business.TS.data.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.data.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.data.analysis.Analysis;
@@ -39,7 +41,6 @@ import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
-import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -47,41 +48,34 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
 
 /**
  * ActionPlanComputation: <br>
- * This class is used to calculate the action plan for an Analysis. This class is also used to
- * generate the TMAList (Threat - Measure - Asset Triples). This class will initialize the Lists of
- * ActionPlan Entries inside the Analysis class (The final Action Plans) as well as the Summary for
- * each Action Plans. After the Action Plans are calculated, this class will save the results to the
- * MySQL Database.
+ * This class is used to calculate the action plan for an Analysis. This class
+ * is also used to generate the TMAList (Threat - Measure - Asset Triples). This
+ * class will initialize the Lists of ActionPlan Entries inside the Analysis
+ * class (The final Action Plans) as well as the Summary for each Action Plans.
+ * After the Action Plans are calculated, this class will save the results to
+ * the MySQL Database.
  * 
  * @author itrust consulting s.à.rl. : SME
  * @version 0.1
  * @since 9 janv. 2013
  */
-@Component
 public class ActionPlanComputation {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
-	@Autowired
 	private DAOActionPlanType serviceActionPlanType;
 
-	@Autowired
 	private DAOAnalysis sericeAnalysis;
 
-	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
 
-	@Autowired
-	private ServiceMeasure serviceMeasure;
-
 	/** task id */
-	private Long idTask;
+	private String idTask;
 
 	/** Analysis Object */
 	private Analysis analysis = null;
@@ -105,7 +99,8 @@ public class ActionPlanComputation {
 	 **********************************************************************************************/
 
 	/**
-	 * Constructor: This creates an object and takes as parameter an loaded Analysis.
+	 * Constructor: This creates an object and takes as parameter an loaded
+	 * Analysis.
 	 * 
 	 * @param analysis
 	 *            The Analysis Object
@@ -121,8 +116,9 @@ public class ActionPlanComputation {
 	}
 
 	/**
-	 * ActionPlanComputation: constructor that takes the service actionplantype and serviceAnalysis
-	 * ( to get all nessesary data for computation) and the anaylsis object itself as parameters.
+	 * ActionPlanComputation: constructor that takes the service actionplantype
+	 * and serviceAnalysis ( to get all nessesary data for computation) and the
+	 * anaylsis object itself as parameters.
 	 * 
 	 * @param serviceActionPlanType
 	 * @param sericeAnalysis
@@ -135,12 +131,13 @@ public class ActionPlanComputation {
 	}
 
 	/**
-	 * ActionPlanComputation: constructor that takes the service actionplantype and serviceAnalysis
-	 * ( to get all nessesary data for computation) , standards to compute, uncertainty flag, the
-	 * analysis and the task parameters for asynchronous actionplan computation.
+	 * ActionPlanComputation: constructor that takes the service actionplantype
+	 * and serviceAnalysis ( to get all nessesary data for computation) ,
+	 * standards to compute, uncertainty flag, the analysis and the task
+	 * parameters for asynchronous actionplan computation.
 	 * 
-	 * Inside this constructor, the standards will be determined to compute as well as the
-	 * uncertainty and maturity computation flag.
+	 * Inside this constructor, the standards will be determined to compute as
+	 * well as the uncertainty and maturity computation flag.
 	 * 
 	 * @param serviceActionPlanType
 	 * @param sericeAnalysis
@@ -150,7 +147,7 @@ public class ActionPlanComputation {
 	 * @param standards
 	 * @param uncertainty
 	 */
-	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, Long idTask, Analysis analysis,
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, String idTask, Analysis analysis,
 			List<AnalysisStandard> standards, boolean uncertainty, MessageSource messageSource) {
 
 		// initialise variables
@@ -171,23 +168,16 @@ public class ActionPlanComputation {
 			}
 		}
 
-		// check if standards to compute is empty -> YES: take all standards; NO: use
+		// check if standards to compute is empty -> YES: take all standards;
+		// NO: use
 		// only the standards given
-		if (standards == null || standards.isEmpty()) {
-
-			List<AnalysisStandard> tmpStandards = new ArrayList<AnalysisStandard>();
-
-			for (AnalysisStandard analysisStandard : this.analysis.getAnalysisStandards()) {
-				if (analysisStandard.getStandard().isComputable())
-					tmpStandards.add(analysisStandard);
-			}
-
-			this.standards = tmpStandards;
-		} else {
+		if (standards == null || standards.isEmpty())
+			this.standards = this.analysis.getAnalysisStandards();
+		else
 			this.standards = standards;
-		}
 
-		// check if maturity standard is to compute -> check if 27002 is selected,
+		// check if maturity standard is to compute -> check if 27002 is
+		// selected,
 		// if no: select 27002
 		for (AnalysisStandard analysisStandard : this.standards) {
 
@@ -220,8 +210,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * calculateActionPlans: <br>
-	 * This method calculates all Action Plans and all Summaries and stores the Results into the
-	 * Database.
+	 * This method calculates all Action Plans and all Summaries and stores the
+	 * Results into the Database.
 	 * 
 	 * This method is parted into 3 areas:<br>
 	 * <br>
@@ -247,7 +237,7 @@ public class ActionPlanComputation {
 		// initialise task feedback progress in percentage to return to the user
 		int progress = 10;
 
-		String language = this.analysis.getLanguage().getAlpha3().substring(0, 2);
+		String language = this.analysis.getLanguage().getAlpha2();
 
 		// check if uncertainty to adopt the progress factor
 		if (!uncertainty)
@@ -303,7 +293,8 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - optimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", language, progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", language,
+						progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPO);
@@ -318,7 +309,8 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", language, progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", language,
+						progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPP);
@@ -355,7 +347,8 @@ public class ActionPlanComputation {
 				progress = 80;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", language, progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary",
+					language, progress));
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -381,8 +374,8 @@ public class ActionPlanComputation {
 				// ****************************************************************
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary", language,
-						progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase",
+						"Create summary for optimistic phase action plan summary", language, progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPO);
@@ -395,8 +388,8 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * create summary for pessimistic phase action plan summary
 				// ****************************************************************
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", language,
-						progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase",
+						"Create summary for pessimistic phase action plan summary", language, progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPP);
@@ -440,8 +433,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * determinePositions: <br>
-	 * Calculates the Position of each Action Plan Entry refered to the Normal Action Plan
-	 * Calculation
+	 * Calculates the Position of each Action Plan Entry refered to the Normal
+	 * Action Plan Calculation
 	 * 
 	 * @throws TrickException
 	 */
@@ -651,11 +644,12 @@ public class ActionPlanComputation {
 
 	/**
 	 * computeActionPlan: <br>
-	 * Generates a List of TMA (Threat Measure Asset) and Generates a Temporary Action Plan for each
-	 * Measure used Inside TMA.
+	 * Generates a List of TMA (Threat Measure Asset) and Generates a Temporary
+	 * Action Plan for each Measure used Inside TMA.
 	 * 
 	 * @param mode
-	 *            The Mode to Compute the Action Plan : Normal, Optimistic or Pessimistic
+	 *            The Mode to Compute the Action Plan : Normal, Optimistic or
+	 *            Pessimistic
 	 * @param actionPlan
 	 *            The Action Plan where the Final Values are Stored
 	 * @throws Exception
@@ -893,7 +887,7 @@ public class ActionPlanComputation {
 						// if the assessment corresponds to the current TMAList
 						// -> YES
 						if ((TMAList.get(i).getAssessment().getScenario().getName().equals(tmpTMAList.get(j).getAssessment().getScenario().getName()))
-							&& (TMAList.get(i).getAssessment().getAsset().getName().equals(tmpTMAList.get(j).getAssessment().getAsset().getName()))) {
+								&& (TMAList.get(i).getAssessment().getAsset().getName().equals(tmpTMAList.get(j).getAssessment().getAsset().getName()))) {
 
 							// ****************************************************************
 							// * edit the ALE value
@@ -906,7 +900,8 @@ public class ActionPlanComputation {
 							TMAList.get(i).calculateDeltaALE();
 
 							// ****************************************************************
-							// * if 27002 standard, recalculate deltaALE maturity if
+							// * if 27002 standard, recalculate deltaALE
+							// maturity if
 							// maturity
 							// computation -> YES
 							// ****************************************************************
@@ -1104,47 +1099,48 @@ public class ActionPlanComputation {
 			}
 		}
 
-		String language = this.analysis.getLanguage().getAlpha3().substring(0, 2);
-		
+		String language = this.analysis.getLanguage().getAlpha2();
+
 		Locale locale = new Locale(language);
-		
+
 		String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + " \n ";
 		soarisk += messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + " \n ";
-		
+
 		double val = report;
-		
+
 		NumberFormat nf = new DecimalFormat();
-	    nf.setMaximumFractionDigits(2);
-	    
-	    try {
+		nf.setMaximumFractionDigits(2);
+
+		try {
 			val = nf.parse(nf.format(val)).doubleValue();
 		} catch (ParseException e) {
 			e.printStackTrace();
 			throw new TrickException("error.number.format", e.getMessage());
 		}
-		
-		
+
 		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(val);
 
 		((NormalMeasure) entry.getMeasure()).getMeasurePropertyList().setSoaRisk(soarisk);
 		// serviceMeasure.saveOrUpdate(entry.getMeasure());
 	}
-	
+
 	/***********************************************************************************************
 	 * Temporary Action Plan - BEGIN
 	 **********************************************************************************************/
 
 	/**
 	 * generateTemporaryActionPlan: <br>
-	 * Generates the Temporary Action Plan based on the "TMAList" values and the usedMeasures List.
-	 * Where usedMeasures is the List of Measures to add to the Action Plan.
+	 * Generates the Temporary Action Plan based on the "TMAList" values and the
+	 * usedMeasures List. Where usedMeasures is the List of Measures to add to
+	 * the Action Plan.
 	 * 
 	 * @return The Temporary Action Plan Entries
 	 * 
 	 * @throws InvalidAttributesException
 	 * @throws TrickException
 	 */
-	private List<ActionPlanEntry> generateTemporaryActionPlan(List<Measure> usedMeasures, ActionPlanType actionPlanType, List<TMA> TMAList) throws InvalidAttributesException, TrickException {
+	private List<ActionPlanEntry> generateTemporaryActionPlan(List<Measure> usedMeasures, ActionPlanType actionPlanType, List<TMA> TMAList) throws InvalidAttributesException,
+			TrickException {
 
 		// ****************************************************************
 		// * variables initialisation
@@ -1169,9 +1165,10 @@ public class ActionPlanComputation {
 
 	/**
 	 * generateNormalActionPlanEntries: <br>
-	 * This method is used Inside "generateTemporaryActionPlan" to Calculate the Action Plan with
-	 * Calculations only for the AnalysisStandard Measures, Maturity Measures are added but no
-	 * Calculation is done for Maturity. Calculations for Maturity Entries are done in the Method
+	 * This method is used Inside "generateTemporaryActionPlan" to Calculate the
+	 * Action Plan with Calculations only for the AnalysisStandard Measures,
+	 * Maturity Measures are added but no Calculation is done for Maturity.
+	 * Calculations for Maturity Entries are done in the Method
 	 * "generateMaturtiyChapterActionPlanEntries".
 	 * 
 	 * @param tmpActionPlan
@@ -1179,8 +1176,8 @@ public class ActionPlanComputation {
 	 * @throws InvalidAttributesException
 	 * @throws TrickException
 	 */
-	private void generateNormalActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, ActionPlanType actionPlanType, List<Measure> usedMeasures, List<TMA> TMAList) throws InvalidAttributesException,
-			TrickException {
+	private void generateNormalActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, ActionPlanType actionPlanType, List<Measure> usedMeasures, List<TMA> TMAList)
+			throws InvalidAttributesException, TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1317,7 +1314,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * generateMaturtiyChapterActionPlanEntries: <br>
-	 * Generate Action Plan Entries for the Maturity Chapters Inside an Action Plan.
+	 * Generate Action Plan Entries for the Maturity Chapters Inside an Action
+	 * Plan.
 	 * 
 	 * @param tmpActionPlan
 	 *            The Action Plan to Add Maturity Chapters
@@ -1328,7 +1326,8 @@ public class ActionPlanComputation {
 	 * @throws InvalidAttributesException
 	 * @throws TrickException
 	 */
-	private void generateMaturtiyChapterActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, List<Measure> usedMeasures, List<TMA> TMAList) throws InvalidAttributesException, TrickException {
+	private void generateMaturtiyChapterActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, List<Measure> usedMeasures, List<TMA> TMAList) throws InvalidAttributesException,
+			TrickException {
 
 		// ****************************************************************
 		// * inistialise variables
@@ -1411,24 +1410,24 @@ public class ActionPlanComputation {
 
 				// retrieve cost to get to the next SML (level numbers: 0-4)
 				switch (thisLevel) {
-					case 0:
-						totalCost = maturityMeasure.getSML1Cost();
-						break;
-					case 1:
-						totalCost = maturityMeasure.getSML2Cost();
-						break;
-					case 2:
-						totalCost = maturityMeasure.getSML3Cost();
-						break;
-					case 3:
-						totalCost = maturityMeasure.getSML4Cost();
-						break;
-					case 4:
-						totalCost = maturityMeasure.getSML5Cost();
-						break;
-					default:
-						totalCost = 0;
-						break;
+				case 0:
+					totalCost = maturityMeasure.getSML1Cost();
+					break;
+				case 1:
+					totalCost = maturityMeasure.getSML2Cost();
+					break;
+				case 2:
+					totalCost = maturityMeasure.getSML3Cost();
+					break;
+				case 3:
+					totalCost = maturityMeasure.getSML4Cost();
+					break;
+				case 4:
+					totalCost = maturityMeasure.getSML5Cost();
+					break;
+				default:
+					totalCost = 0;
+					break;
 				}
 
 				// initialise ALE for the chapter and the deltaALE
@@ -1452,7 +1451,8 @@ public class ActionPlanComputation {
 					// * parse TMAList for AnalysisStandard 27002 measures and
 					// inside this chapter
 					// ****************************************************************
-					if ((TMAList.get(napmc).getStandard().getLabel().equals(Constant.STANDARD_27002)) && (tmpMeasure.getMeasureDescription().getReference().startsWith(maturityChapter))) {
+					if ((TMAList.get(napmc).getStandard().getLabel().equals(Constant.STANDARD_27002))
+							&& (tmpMeasure.getMeasureDescription().getReference().startsWith(maturityChapter))) {
 
 						// ****************************************************************
 						// * add measure to a list if it does not yet exist,
@@ -1595,8 +1595,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * createSelectedAssetsList: <br>
-	 * Create a fresh List of Assets which are only selected. This is used to set the current ALE by
-	 * Asset to the Action Plan Assets.
+	 * Create a fresh List of Assets which are only selected. This is used to
+	 * set the current ALE by Asset to the Action Plan Assets.
 	 * 
 	 * @return The Copy of the List of Assets
 	 * 
@@ -1656,7 +1656,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * adaptValuesForNormalMeasure: <br>
-	 * Adapt ALE for the Next Run of the Action Plan Calculation when a NormalMeasure was taken.
+	 * Adapt ALE for the Next Run of the Action Plan Calculation when a
+	 * NormalMeasure was taken.
 	 * 
 	 * @param actionPlanEntry
 	 *            The Action Plan Entry(used to store ALE values of the Assets)
@@ -1725,7 +1726,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * adaptValuesForMaturityMeasure: <br>
-	 * Adapt ALE for the Next Run of the Action Plan Calculation when a MaturityMeasure was taken.
+	 * Adapt ALE for the Next Run of the Action Plan Calculation when a
+	 * MaturityMeasure was taken.
 	 * 
 	 * @param TMAList
 	 * @param actionPlanEntry
@@ -1778,7 +1780,7 @@ public class ActionPlanComputation {
 					// taken, and when
 					// assessment couple is the same
 					if ((tmpTMA.getMeasure().getMeasureDescription().getReference().startsWith(chapter)) && (tmpTMA.getStandard().getLabel().equals(Constant.STANDARD_27002))
-						&& (tmpTMA.getAssessment().getId() == assessment.getId())) {
+							&& (tmpTMA.getAssessment().getId() == assessment.getId())) {
 
 						// ****************************************************************
 						// * store the deltaALEMaturity
@@ -1831,30 +1833,32 @@ public class ActionPlanComputation {
 
 	/**
 	 * generateTMAList: <br>
-	 * Generates a list of Measure-Assessment-Threat and Calculates for this Triple the deltaALE and
-	 * if it is a Measure of the AnalysisStandard 27002 the deltaALE Maturity. <br>
-	 * The Parameter usedMeasures will have a list of Measures that are to be used for the Action
-	 * Plan Calculation. The Method returns the List of TMA Entries and inside the parameter
-	 * usedMeasures the Measures.
+	 * Generates a list of Measure-Assessment-Threat and Calculates for this
+	 * Triple the deltaALE and if it is a Measure of the AnalysisStandard 27002
+	 * the deltaALE Maturity. <br>
+	 * The Parameter usedMeasures will have a list of Measures that are to be
+	 * used for the Action Plan Calculation. The Method returns the List of TMA
+	 * Entries and inside the parameter usedMeasures the Measures.
 	 * 
 	 * @param usedMeasures
-	 *            List to store the Measures used for Action Plan Calculation (will be filled
-	 *            inside)
+	 *            List to store the Measures used for Action Plan Calculation
+	 *            (will be filled inside)
 	 * @param mode
 	 *            Defines if the Mode is Normal, Optimistic or Pessimistic
 	 * @param phase
-	 *            Defines if the Phase Calculation is Enabled and what Phase to take into account
+	 *            Defines if the Phase Calculation is Enabled and what Phase to
+	 *            take into account
 	 * @param isCssf
 	 *            Flag determinating if TMAList is for CSSF computation or not
 	 * @param maturitycomputation
 	 *            flag determinating if maturity is computed or not
 	 * @param standards
-	 *            List of AnalysisStandards to be used in the actionplan (to generate only TMA
-	 *            entries for the given standards)
+	 *            List of AnalysisStandards to be used in the actionplan (to
+	 *            generate only TMA entries for the given standards)
 	 * @throws TrickException
 	 */
-	public static List<TMA> generateTMAList(Analysis analysis, List<Measure> usedMeasures, ActionPlanMode mode, int phase, boolean isCssf, boolean maturitycomputation, List<AnalysisStandard> standards)
-			throws TrickException {
+	public static List<TMA> generateTMAList(Analysis analysis, List<Measure> usedMeasures, ActionPlanMode mode, int phase, boolean isCssf, boolean maturitycomputation,
+			List<AnalysisStandard> standards) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1911,8 +1915,9 @@ public class ActionPlanComputation {
 					// implementation rate is not
 					// 100% -> YES
 					// ****************************************************************
-					if (!(normalMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normalMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
-						&& (normalMeasure.getMeasureDescription().isComputable()) && (normalMeasure.getCost() >= 0)) {
+					if (!(normalMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+							&& (normalMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (normalMeasure.getMeasureDescription().isComputable())
+							&& (normalMeasure.getCost() >= 0)) {
 
 						// ****************************************************************
 						// * when phase computation, phase is bigger than 0,
@@ -1958,11 +1963,12 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * check the same except take measures where
 						// implementation rate is not
-						// relevant AND check if standard 27002 measure for Maturity
+						// relevant AND check if standard 27002 measure for
+						// Maturity
 						// calculation
 						// ****************************************************************
 						if (!isCssf && !(normalMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normalMeasure.getMeasureDescription().isComputable())
-							&& (normalMeasure.getCost() >= 0) && (normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002) && (maturitycomputation))) {
+								&& (normalMeasure.getCost() >= 0) && (normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002) && (maturitycomputation))) {
 
 							// ****************************************************************
 							// * generate TMA entry -> not a useful measure
@@ -1995,8 +2001,9 @@ public class ActionPlanComputation {
 					// implementation rate is not
 					// 100% -> YES
 					// ****************************************************************
-					if (!(assetMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (assetMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
-						&& (assetMeasure.getMeasureDescription().isComputable()) && (assetMeasure.getCost() >= 0)) {
+					if (!(assetMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+							&& (assetMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (assetMeasure.getMeasureDescription().isComputable())
+							&& (assetMeasure.getCost() >= 0)) {
 
 						// ****************************************************************
 						// * when phase computation, phase is bigger than 0,
@@ -2031,26 +2038,29 @@ public class ActionPlanComputation {
 
 	/**
 	 * generateTMAEntry: <br>
-	 * This method generates for a given Measure TMA (Threat Measure Assessment) entries in the List
-	 * "TMAList". This method adds this measure to the list of usedMEasures given as parameter.
+	 * This method generates for a given Measure TMA (Threat Measure Assessment)
+	 * entries in the List "TMAList". This method adds this measure to the list
+	 * of usedMEasures given as parameter.
 	 * 
 	 * @param TMAList
 	 *            The List to insert the current TMA Entry
 	 * @param usedMeasures
-	 *            The List of Measures to add the current Measure (from TMA Entry) to be used
+	 *            The List of Measures to add the current Measure (from TMA
+	 *            Entry) to be used
 	 * @param mode
-	 *            Defines which Type of Action Plan is Calculated (to take the correct ALE value)
+	 *            Defines which Type of Action Plan is Calculated (to take the
+	 *            correct ALE value)
 	 * @param normalStandard
 	 *            The AnalysisStandard of the Measure (only NormalStandard)
 	 * @param normalMeasure
 	 *            The Measure of the AnalysisStandard (NormalMeasure)
 	 * @param usefulMeasure
-	 *            Flag to determine is this measure needs to be added to the usedMeasures (a valid
-	 *            Measure)
+	 *            Flag to determine is this measure needs to be added to the
+	 *            usedMeasures (a valid Measure)
 	 * @throws TrickException
 	 */
-	private static void generateTMAEntry(Analysis analysis, List<TMA> TMAList, List<Measure> usedMeasures, ActionPlanMode mode, Standard standard, Measure measure, boolean usefulMeasure,
-			boolean maturitycomputation, List<AnalysisStandard> standards) throws TrickException {
+	private static void generateTMAEntry(Analysis analysis, List<TMA> TMAList, List<Measure> usedMeasures, ActionPlanMode mode, Standard standard, Measure measure,
+			boolean usefulMeasure, boolean maturitycomputation, List<AnalysisStandard> standards) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2083,10 +2093,6 @@ public class ActionPlanComputation {
 				// -> YES
 				if (tmpAssessment.isUsable()) {
 
-					if(measure instanceof AssetMeasure)
-						if(((AssetMeasure)measure).getMeasureAssetValueByAsset(tmpAssessment.getAsset())==null)
-							continue;
-					
 					// ****************************************************************
 					// * calculate RRF
 					// ****************************************************************
@@ -2101,7 +2107,14 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * calculate deltaALE for this TMA
 					// ****************************************************************
-					tmpTMA.calculateDeltaALE();
+
+					if (measure instanceof AssetMeasure) {
+						if (((AssetMeasure) measure).getMeasureAssetValueByAsset(tmpAssessment.getAsset()) != null)
+							tmpTMA.calculateDeltaALE();
+						else
+							tmpTMA.setDeltaALE(0);
+					} else
+						tmpTMA.calculateDeltaALE();
 
 					// ****************************************************************
 					// * check if measure needs to taken into account for action
@@ -2172,7 +2185,8 @@ public class ActionPlanComputation {
 						tmpReference = tmpReference.substring(0, tmpReference.indexOf("."));
 
 						// ****************************************************************
-						// * Parse standards to find maturity standard to retrieve SML
+						// * Parse standards to find maturity standard to
+						// retrieve SML
 						// from this chapter
 						// (which is inside tmpReference)
 						// ****************************************************************
@@ -2304,9 +2318,10 @@ public class ActionPlanComputation {
 
 	/**
 	 * addMaturityChaptersToUsedMeasures: <br>
-	 * Parse Maturity Measure and Add only Chapters of Maturity to "usedmeasures" parameter. This is
-	 * used to identify the Maturity Measures to Add to the Action Plan. If Parameter "phase" is not
-	 * 0 then add Maturity Chapters for the given Phase.
+	 * Parse Maturity Measure and Add only Chapters of Maturity to
+	 * "usedmeasures" parameter. This is used to identify the Maturity Measures
+	 * to Add to the Action Plan. If Parameter "phase" is not 0 then add
+	 * Maturity Chapters for the given Phase.
 	 * 
 	 * @param analysis
 	 *            analysis object
@@ -2361,8 +2376,9 @@ public class ActionPlanComputation {
 				// check reference if level 1 chapter that is currently parsed
 				// and if reached SML <
 				// 5
-				if ((maturityStandard.getMeasure(matmeasc).getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1) && (maturityStandard.getMeasure(matmeasc).getReachedLevel() < 5)
-					&& (((phase > 0) && (maturityStandard.getMeasure(matmeasc).getPhase().getNumber() == phase)) || (phase == 0))) {
+				if ((maturityStandard.getMeasure(matmeasc).getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1)
+						&& (maturityStandard.getMeasure(matmeasc).getReachedLevel() < 5)
+						&& (((phase > 0) && (maturityStandard.getMeasure(matmeasc).getPhase().getNumber() == phase)) || (phase == 0))) {
 
 					// add Maturity Chapter as nessesary
 					addAMaturtiyChapterToUsedMeasures(analysis, usedMeasures, maturityStandard, maturityStandard.getMeasure(matmeasc));
@@ -2373,9 +2389,10 @@ public class ActionPlanComputation {
 
 	/**
 	 * addAMaturtiyChapterToUsedMeasures: <br>
-	 * Checks if a Maturity Chapter has a total cost > 0 and if for this chapter, there is at least
-	 * 1 measure of 27002 applicable for this chapter. When both costrains are met, the measure will
-	 * be added to the list "usedMeasures" given as parameter.
+	 * Checks if a Maturity Chapter has a total cost > 0 and if for this
+	 * chapter, there is at least 1 measure of 27002 applicable for this
+	 * chapter. When both costrains are met, the measure will be added to the
+	 * list "usedMeasures" given as parameter.
 	 * 
 	 * @param usedMeasures
 	 *            The List of Measure to add the valid Maturity Chapter to
@@ -2425,10 +2442,10 @@ public class ActionPlanComputation {
 			// check if reference starts with
 			// "M.<currentChapter>.<currentSML+1>." and if applicable
 			// and implementation rate is less than 100%
-			if ((maturityStandard.getMeasure(i).getMeasureDescription().getReference().startsWith(Constant.MATURITY_REFERENCE + chapterValue + "." + String.valueOf(chapter.getReachedLevel() + 1)
-				+ "."))
-				&& (!maturityStandard.getMeasure(i).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-				&& (maturityStandard.getMeasure(i).getImplementationRateValue() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)) {
+			if ((maturityStandard.getMeasure(i).getMeasureDescription().getReference().startsWith(Constant.MATURITY_REFERENCE + chapterValue + "."
+					+ String.valueOf(chapter.getReachedLevel() + 1) + "."))
+					&& (!maturityStandard.getMeasure(i).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+					&& (maturityStandard.getMeasure(i).getImplementationRateValue() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)) {
 
 				// *****************************************************
 				// * useful measure was found: add the cost to the total cost of
@@ -2452,13 +2469,14 @@ public class ActionPlanComputation {
 
 	/**
 	 * hasUsable27002MeasuresInMaturityChapter: <br>
-	 * Checks if a given Maturity Chapter has usable Measures in the appropriate chapter in the
-	 * 27002 AnalysisStandard.
+	 * Checks if a given Maturity Chapter has usable Measures in the appropriate
+	 * chapter in the 27002 AnalysisStandard.
 	 * 
 	 * @param chapter
 	 *            The Maturity Chapter to check
-	 * @return True if there is at least 1 Measure inside the AnalysisStandard 27002 Chapter that is
-	 *         applicable ;False if there are no Measures in the 27002 AnalysisStandard
+	 * @return True if there is at least 1 Measure inside the AnalysisStandard
+	 *         27002 Chapter that is applicable ;False if there are no Measures
+	 *         in the 27002 AnalysisStandard
 	 */
 	private static boolean hasUsable27002MeasuresInMaturityChapter(Analysis analysis, String chapter) {
 
@@ -2467,7 +2485,8 @@ public class ActionPlanComputation {
 		boolean result = false;
 
 		// ****************************************************************
-		// * check if at least 1 measure of 27002 standard is applicable -> Special
+		// * check if at least 1 measure of 27002 standard is applicable ->
+		// Special
 		// case
 		// ****************************************************************
 
@@ -2494,7 +2513,8 @@ public class ActionPlanComputation {
 			// is applicable or
 			// mandatory
 			if ((normalStandard.getMeasure(j).getMeasureDescription().getReference().startsWith(chapter + "."))
-				&& (!normalStandard.getMeasure(j).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (normalStandard.getMeasure(j).getMeasureDescription().isComputable()))) {
+					&& (!normalStandard.getMeasure(j).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (normalStandard.getMeasure(j).getMeasureDescription()
+							.isComputable()))) {
 
 				// *************************************************
 				// * measure found increment counter
@@ -2523,7 +2543,8 @@ public class ActionPlanComputation {
 	 * Computes the Summary for a Specific Action Plan.
 	 * 
 	 * @param mode
-	 *            Defines which Type of Action Plan (Normal, Optimisitc or Pessimistic)
+	 *            Defines which Type of Action Plan (Normal, Optimisitc or
+	 *            Pessimistic)
 	 * @throws TrickException
 	 */
 	private void computeSummary(ActionPlanMode mode) throws TrickException {
@@ -2532,12 +2553,12 @@ public class ActionPlanComputation {
 		// * initialise variables
 		// ****************************************************************
 		List<SummaryStage> sumStage = new ArrayList<SummaryStage>();
+		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlan(mode);
 		SummaryValues tmpval = new SummaryValues(this.standards);
 		boolean anticipated = true;
 		ActionPlanEntry ape = null;
-		int phase = 0;
 		boolean byPhase = false;
-		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlan(mode);
+		int phase = 0;
 
 		// check if actionplan is empty -> YES: quit method
 		if (actionPlan.isEmpty())
@@ -2545,6 +2566,8 @@ public class ActionPlanComputation {
 
 		// retirve actionplantype
 		ActionPlanType apt = actionPlan.get(0).getActionPlanType();
+
+		Map<Integer, Maintenance> maintenances = new LinkedHashMap<Integer, Maintenance>();
 
 		// ****************************************************************
 		// * retrieve internal rate and external rate
@@ -2562,14 +2585,15 @@ public class ActionPlanComputation {
 		tmpval.totalALE = actionPlan.get(0).getTotalALE() + actionPlan.get(0).getDeltaALE();
 
 		// generate first stage
-		generateStage(apt, tmpval, sumStage, "Start(P0)", true, 0);
+		generateStage(apt, tmpval, sumStage, "Start(P0)", true, 0, maintenances);
 
 		// ****************************************************************
 		// * check if calculation by phase
 		// ****************************************************************
 
 		// calculation by phase ? -> YES
-		if ((apt.getId() == Constant.ACTIONPLAN_PHASE_NORMAL_MODE) || (apt.getId() == Constant.ACTIONPLAN_PHASE_OPTIMISTIC_MODE) || (apt.getId() == Constant.ACTIONPLAN_PHASE_PESSIMISTIC_MODE)) {
+		if ((apt.getId() == Constant.ACTIONPLAN_PHASE_NORMAL_MODE) || (apt.getId() == Constant.ACTIONPLAN_PHASE_OPTIMISTIC_MODE)
+				|| (apt.getId() == Constant.ACTIONPLAN_PHASE_PESSIMISTIC_MODE)) {
 
 			// set flag
 			byPhase = true;
@@ -2606,7 +2630,8 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * generate stage for previous phase
 					// ****************************************************************
-					generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase);
+
+					generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase, maintenances);
 
 					// ****************************************************************
 					// * reinitialise variables
@@ -2653,7 +2678,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * generate stage for anticipated level
 						// ****************************************************************
-						generateStage(apt, tmpval, sumStage, "Anticipated", false, phase);
+						generateStage(apt, tmpval, sumStage, "Anticipated", false, phase, maintenances);
 
 						// deactivate flag
 						anticipated = false;
@@ -2683,7 +2708,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * generate stage for phase
 			// ****************************************************************
-			generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase);
+			generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase, maintenances);
 		} else {
 
 			// check if by phase -> NO
@@ -2691,7 +2716,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * generate stage for all measures
 			// ****************************************************************
-			generateStage(apt, tmpval, sumStage, "All Measures", false, phase);
+			generateStage(apt, tmpval, sumStage, "All Measures", false, phase, maintenances);
 		}
 
 		// ****************************************************************
@@ -2817,7 +2842,8 @@ public class ActionPlanComputation {
 
 	/**
 	 * generateStage: <br>
-	 * This Method Creates a Complete Summary Stage and Adds it to the List of Stages.
+	 * This Method Creates a Complete Summary Stage and Adds it to the List of
+	 * Stages.
 	 * 
 	 * @param tmpval
 	 *            The List of Calculation Variables
@@ -2827,9 +2853,11 @@ public class ActionPlanComputation {
 	 *            The Name to give for the Stage
 	 * @param firstStage
 	 *            Flag to tell if the Stage is the First Stage
+	 * @param maintenances
 	 * @throws TrickException
 	 */
-	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage, int phasenumber) throws TrickException {
+	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage, int phasenumber,
+			Map<Integer, Maintenance> maintenances) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2840,17 +2868,14 @@ public class ActionPlanComputation {
 		double phasetime = 0;
 
 		if (phasenumber > 0) {
-
 			for (Phase phase : this.analysis.getPhases()) {
 				if (phase.getNumber() == phasenumber)
 					phasetime = Analysis.getYearsDifferenceBetweenTwoDates(phase.getBeginDate(), phase.getEndDate());
 			}
 		}
 		// check if first stage -> YES
-		if (firstStage) {
-
+		if (firstStage)
 			tmpval.implementedCount = 0;
-		}
 
 		if (tmpval.previousStage != null)
 			tmpval.measureCount = tmpval.previousStage.getMeasureCount();
@@ -2881,7 +2906,7 @@ public class ActionPlanComputation {
 				else if (measure instanceof MaturityMeasure)
 					imprate = ((MaturityMeasure) measure).getImplementationRateValue();
 
-				if (measure.getMeasureDescription().isComputable()) {
+				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 
 					String chapterName = extractMainChapter(measure.getMeasureDescription().getReference());
 
@@ -2913,7 +2938,6 @@ public class ActionPlanComputation {
 
 						for (int k = 0; k < helper.measures.size(); k++) {
 							if (measure.equals(helper.measures.get(k))) {
-
 								numerator += (1.) - (imprate / 100.);
 								tmpval.measureCount++;
 								break;
@@ -2953,6 +2977,13 @@ public class ActionPlanComputation {
 
 		}
 
+		Maintenance maintenance = maintenances.containsKey(phasenumber - 1) ? maintenances.get(phasenumber - 1) : new Maintenance();
+
+		if (maintenances.containsKey(phasenumber))
+			maintenances.get(phasenumber).update(tmpval.internalMaintenance, tmpval.externalMaintenance);
+		else
+			maintenances.put(phasenumber, new Maintenance(tmpval.internalMaintenance, tmpval.externalMaintenance));
+
 		// ****************************************************************
 		// * create summary stage object
 		// ****************************************************************
@@ -2978,8 +3009,8 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
-		aStage.setInternalMaintenance(tmpval.internalMaintenance * phasetime);
-		aStage.setExternalMaintenance(tmpval.externalMaintenance * phasetime);
+		aStage.setInternalMaintenance(maintenance.getInternalMaintenance() * phasetime);
+		aStage.setExternalMaintenance(maintenance.getExternalMaintenance() * phasetime);
 		aStage.setRecurrentInvestment(tmpval.recurrentInvestment * phasetime);
 
 		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
@@ -2991,38 +3022,19 @@ public class ActionPlanComputation {
 		aStage.setRecurrentCost(tmpval.recurrentCost);
 
 		// update total cost
-		tmpval.totalCost += (tmpval.internalWorkload * ir);
-		tmpval.totalCost += (tmpval.externalWorkload * er);
-		tmpval.totalCost += (tmpval.investment);
+		tmpval.totalCost += (tmpval.internalWorkload * ir) + (tmpval.externalWorkload * er) + tmpval.investment;
 
 		// in case of a phase calculation multiply external maintenance,
 		// internal maintenance with
 		// phasetime and with internal and external setup as well as investment
 		// with phasetime
-		if (phasetime > 0) {
-			tmpval.totalCost += (tmpval.internalMaintenance * phasetime * ir);
-			tmpval.totalCost += (tmpval.externalMaintenance * phasetime * er);
-			tmpval.totalCost += (tmpval.recurrentInvestment * phasetime);
-		} else {
-			tmpval.totalCost += (tmpval.internalMaintenance * ir);
-			tmpval.totalCost += (tmpval.externalMaintenance * er);
-			tmpval.totalCost += (tmpval.recurrentInvestment);
-		}
+		if (phasetime > 0)
+			tmpval.totalCost += (maintenance.getInternalMaintenance() * phasetime * ir) + (maintenance.getExternalMaintenance() * phasetime * er)
+					+ (tmpval.recurrentInvestment * phasetime);
+		else
+			tmpval.totalCost += (maintenance.getInternalMaintenance() * ir) + (maintenance.getExternalMaintenance() * er) + tmpval.recurrentInvestment;
 
 		aStage.setTotalCostofStage(tmpval.totalCost);
-
-		/*
-		 * System.out.println("stage: " + aStage.getStage() + ":: conformance27001: " +
-		 * aStage.getConformance27001() + ":: conformance27002: " + aStage.getConformance27002() +
-		 * ":: totalALE: " + aStage.getTotalALE() + ":: deltaALE: " + aStage.getDeltaALE() +
-		 * ":: cost of measures: " + aStage.getCostOfMeasures() + ":: ROSI: " + aStage.getROSI() +
-		 * ":: relative ROSI: " + aStage.getRelativeROSI() + ":: internal workload: " +
-		 * aStage.getInternalWorkload() + ":: external workload: " + aStage.getExternalWorkload() +
-		 * ":: investment: " + aStage.getInvestment() + ":: internal maintenance: " +
-		 * aStage.getInternalMaintenance() + ":: external maintenance: " +
-		 * aStage.getExternalMaintenance() + ":: recurrent cost: " + aStage.getRecurrentCost() +
-		 * ":: total cost of stage: " + aStage.getTotalCostofStage());
-		 */
 
 		// ****************************************************************
 		// * add summary stage to list of summary stages
@@ -3048,7 +3060,7 @@ public class ActionPlanComputation {
 	 * 
 	 * @return
 	 */
-	public Long getIdTask() {
+	public String getIdTask() {
 		return idTask;
 	}
 
@@ -3058,7 +3070,7 @@ public class ActionPlanComputation {
 	 * 
 	 * @param idTask
 	 */
-	public void setIdTask(Long idTask) {
+	public void setIdTask(String idTask) {
 		this.idTask = idTask;
 	}
 

@@ -36,5 +36,10 @@ public class DAOMeasureAssetValueHBM extends DAOHibernate implements DAOMeasureA
 		getSession().delete(measureAssetValue);
 	}
 
+	@Override
+	public MeasureAssetValue getByAssetId(int idAsset) {
+		return (MeasureAssetValue) getSession().createQuery("From MeasureAssetValue where asset.id = :idAsset").setParameter("idAsset", idAsset).uniqueResult();
+	}
+
 	
 }

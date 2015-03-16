@@ -8,6 +8,7 @@ import java.util.List;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**
@@ -32,8 +33,8 @@ public class AssessmentValidator extends ValidatorFieldImpl {
 	 * java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
-		if (o == null || !supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
+	public String validate(String fieldName, Object candidate) {
+		if (fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		switch (fieldName) {
 		case "ALEO":
@@ -89,7 +90,7 @@ public class AssessmentValidator extends ValidatorFieldImpl {
 	 * java.lang.String, java.lang.Object, java.lang.Object[])
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) {
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		if (choose == null || choose.length == 0)
 			return validate(o, fieldName, candidate);
 		if (o == null || !supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
@@ -136,7 +137,7 @@ public class AssessmentValidator extends ValidatorFieldImpl {
 	 * java.lang.String, java.lang.Object, java.util.List)
 	 */
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) {
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
 		if (choose == null || choose.isEmpty())
 			return validate(choose, fieldName, candidate);
 		return validate(choose, fieldName, candidate, choose.toArray());

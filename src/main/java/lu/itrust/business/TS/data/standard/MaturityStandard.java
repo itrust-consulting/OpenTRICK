@@ -130,13 +130,14 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	/**
 	 * duplicate: <br>
 	 * Description
+	 * @throws TrickException 
 	 *
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.data.standard.AnalysisStandard#duplicate()
 	 */
 	@Override
-	public MaturityStandard duplicate() throws CloneNotSupportedException {
+	public MaturityStandard duplicate() throws CloneNotSupportedException, TrickException {
 		return (MaturityStandard) super.duplicate();
 	}
 

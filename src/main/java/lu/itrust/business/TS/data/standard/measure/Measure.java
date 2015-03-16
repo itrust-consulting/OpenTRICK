@@ -25,8 +25,9 @@ import org.hibernate.annotations.CascadeType;
 
 /**
  * Measure: <br>
- * This class represents a Measure and its data. This class has fields that are used in Maturity and
- * AnalysisStandard Meaure classes. (Both are extended by this class)
+ * This class represents a Measure and its data. This class has fields that are
+ * used in Maturity and AnalysisStandard Meaure classes. (Both are extended by
+ * this class)
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
@@ -84,6 +85,8 @@ public abstract class Measure implements Cloneable {
 
 	/** The "ToDo" of this Measure */
 	private String toDo = "";
+	
+	private String responsible = "";
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
@@ -100,7 +103,7 @@ public abstract class Measure implements Cloneable {
 	 */
 	@ManyToOne
 	@JoinColumn(name = "fiPhase", nullable = false)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	@Access(AccessType.FIELD)
 	public Phase getPhase() {
 		return phase;
@@ -383,7 +386,7 @@ public abstract class Measure implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiAnalysisStandard", nullable = false)
 	@Access(AccessType.FIELD)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	public AnalysisStandard getAnalysisStandard() {
 		return analysisStandard;
 	}
@@ -407,7 +410,7 @@ public abstract class Measure implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiMeasureDescription", nullable = false)
 	@Access(AccessType.FIELD)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE })
 	public MeasureDescription getMeasureDescription() {
 		return measureDescription;
 	}
@@ -506,8 +509,8 @@ public abstract class Measure implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Check if this object equals another object of the same type. Equal means: the field id,
-	 * description, domain and reference.
+	 * Check if this object equals another object of the same type. Equal means:
+	 * the field id, description, domain and reference.
 	 * 
 	 * @param obj
 	 *            The other object to check on
@@ -569,9 +572,8 @@ public abstract class Measure implements Cloneable {
 		lifetimeDefault = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost =
-			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure
-					.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+				measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);
@@ -601,25 +603,27 @@ public abstract class Measure implements Cloneable {
 	 * @throws TrickException
 	 */
 	public Measure duplicate(AnalysisStandard astandard, Phase phase) throws CloneNotSupportedException {
-
 		Measure measure = (Measure) super.clone();
-
 		measure.id = -1;
-
 		measure.setAnalysisStandard(astandard);
-
 		measure.setPhase(phase);
-
 		if (astandard.getStandard().isAnalysisOnly()) {
 			MeasureDescription desc = measureDescription.duplicate(astandard.getStandard());
 			measure.setMeasureDescription(desc);
 		}
-
 		return measure;
 	}
 
 	public static int compare(String reference, String reference2) {
 		return GeneralComperator.VersionComparator(reference, reference2);
+	}
+
+	public String getResponsible() {
+		return responsible;
+	}
+
+	public void setResponsible(String responsible) {
+		this.responsible = responsible;
 	}
 
 }

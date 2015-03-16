@@ -17,7 +17,7 @@
 					<li class="active" role="tab_group_1"><a href="#group_1" data-toggle="tab"><spring:message code="label.menu.build.analyis.default" text="Default" /></a></li>
 					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.advance" text="Advance" /></a></li>
 					<li class="col-sm-6 pull-right">
-						<div class="progress progress-striped" hidden="true" style="margin-bottom: 5px; margin-top: 8px;">
+						<div class="progress progress-striped active" hidden="true" style="margin-bottom: 5px; margin-top: 8px;">
 							<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 						</div>
 					</li>
@@ -72,6 +72,13 @@
 							</label>
 							<div class="col-sm-10">
 								<input name="version" class="form-control" type="text" value="0.0.1" required="required" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.label" text="Name" />
+							</label>
+							<div class="col-sm-10">
+								<input name="name" class="form-control" required="required">
 							</div>
 						</div>
 						<div class="form-group">

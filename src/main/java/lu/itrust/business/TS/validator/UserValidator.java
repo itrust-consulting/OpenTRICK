@@ -6,6 +6,7 @@ package lu.itrust.business.TS.validator;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
@@ -51,7 +52,7 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 
 		if (!errors.hasFieldErrors("login") && !user.getLogin().matches(Constant.REGEXP_VALID_NAME))
 			errors.rejectValue("login", "errors.user.login.invalid", "Login is not valid");
-		
+
 		if (!errors.hasFieldErrors("password") && !user.getPassword().matches(Constant.REGEXP_VALID_PASSWORD))
 			errors.rejectValue("password", "errors.user.password.invalid", "Password does not match policy (8 characters, at least one digit, one lower and one uppercase)");
 
@@ -66,17 +67,50 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 
 		if (!errors.hasFieldErrors("email") && !user.getEmail().matches(Constant.REGEXP_VALID_EMAIL))
 			errors.rejectValue("email", "errors.user.email.invalid", "Email address is not valid");
-		
+
 		if (!errors.hasFieldErrors("locale") && !user.getLocale().matches(Constant.REGEXP_VALID_ALPHA_2))
 			errors.rejectValue("email", "errors.user.locale.invalid", "Language is not valid");
-		
+
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate) {
+	public String validate(Object o, String fieldName, Object candidate) throws TrickException {
 		if (o == null || !supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		User user = (User) o;
+		switch (fieldName) {
+		case "repeatPassword":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.user.repeat_password.unsupported::Password value is not supported";
+			if (!((String) candidate).equals(user.getPassword()))
+				return "error.user.repeat_password.not_same::Repeated Password does not match Password";
+			break;
+		default:
+			return validate(fieldName, candidate);
+
+		}
+		return null;
+	}
+
+	@Override
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
+		return validate(o, fieldName, candidate);
+	}
+
+	@Override
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws TrickException {
+		return validate(o, fieldName, candidate);
+	}
+
+	@Override
+	public Class<?> supported() {
+		return User.class;
+	}
+
+	@Override
+	public String validate(String fieldName, Object candidate) throws TrickException {
+		if (fieldName == null || fieldName.trim().isEmpty())
+			return null;
 		switch (fieldName) {
 		case "login":
 			if (candidate == null || !(candidate instanceof String))
@@ -91,26 +125,21 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 				return "error.user.password.not_valid::Password does not match policy (8 characters, at least one digit, one lower and one uppercase)";
 			break;
 		case "repeatPassword":
-			
-			if (candidate == null || !(candidate instanceof String))
-				return "error.user.repeat_password.unsupported::Password value is not supported";
-			if (!((String) candidate).equals(user.getPassword()))
-				return "error.user.repeat_password.not_same::Repeated Password does not match Password";
-			break;
+			throw new TrickException("error.validator.method.not_allowed", "Validator method does not allowed");
 		case "firstName":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.user.firstname.unsupported::First Name value is not supported";
 			if (!((String) candidate).trim().matches(Constant.REGEXP_VALID_NAME))
 				return "error.user.firstname.not_valid::First name is not valid";
 			break;
-		
+
 		case "lastName":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.user.lastname.unsupported::Last Name value is not supported";
 			if (!((String) candidate).trim().matches(Constant.REGEXP_VALID_NAME))
 				return "error.user.lastname.not_valid::Last name is not valid";
 			break;
-		
+
 		case "email":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.user.email.unsupported::Email value is not supported";
@@ -125,20 +154,5 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 			break;
 		}
 		return null;
-	}
-
-	@Override
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) {
-		return validate(o, fieldName, candidate);
-	}
-
-	@Override
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) {
-		return validate(o, fieldName, candidate);
-	}
-
-	@Override
-	public Class<?> supported() {
-		return User.class;
 	}
 }

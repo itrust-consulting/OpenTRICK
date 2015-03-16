@@ -4,16 +4,13 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="customerusers">
-	<jsp:include page="../../successErrors.jsp" />
+	<jsp:include page="../../template/successErrors.jsp" />
 	<form action="Update" name="usercustomer" id="customerusersform">
 		<div>
 			<input type="hidden" value="${customer.id}" name="customerid" />
 			<spring:message code="label.users.customer.access" text="Users having access to customer" />:
 			<b><spring:message text="${customer.organisation}"/></b>
 			<hr />
-			<p>
-				<b><spring:message code="label.users.customer.access.note_info" text="Note: press CTRL or COMMAND button to select multiple entries! On normal click: previous values are reset" /></b>
-			</p>
 		</div>
 		<div class="panel-body">
 			<c:choose>

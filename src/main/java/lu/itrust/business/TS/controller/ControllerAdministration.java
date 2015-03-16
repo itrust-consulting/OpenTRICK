@@ -2,6 +2,7 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -10,9 +11,13 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.CustomerManager;
+import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.TrickService;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.AnalysisComparator;
+import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.general.Customer;
@@ -31,8 +36,6 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -45,6 +48,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerAdministration.java: <br>
@@ -85,6 +92,12 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceTrickService serviceTrickService;
+
+	@Autowired
+	private ManageAnalysisRight manageAnalysisRight;
+
+	@Autowired
+	private CustomerManager customerManager;
 
 	@Value("${app.settings.version}")
 	private String version;
@@ -191,9 +204,11 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
+		List<Analysis> analyses = serviceAnalysis.getAllFromCustomer(customerSection);
+		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
 		session.setAttribute("currentAdminCustomer", customerSection);
 		model.addAttribute("customer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.getAllFromCustomer(customerSection));
+		model.addAttribute("analyses", analyses);
 		model.addAttribute("customers", serviceCustomer.getAll());
 		return "admin/analysis/analyses";
 	}
@@ -267,65 +282,16 @@ public class ControllerAdministration {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
 
-			Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
-
 			Analysis analysis = serviceAnalysis.get(analysisID);
-
-			List<UserAnalysisRight> uars = analysis.getUserRights();
-
-			for (User user : serviceUser.getAll())
-				userrights.put(DAOHibernate.Initialise(user), null);
-
-			for (UserAnalysisRight uar : uars)
-				userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
 
 			int currentUser = jsonNode.get("userselect").asInt();
 
 			model.addAttribute("currentUser", currentUser);
 
-			for (User user : serviceUser.getAll()) {
+			Map<User, AnalysisRight> userrights = manageAnalysisRight.updateAnalysisRights(principal, analysis, serviceUser.getAll(), jsonNode);
 
-				user = DAOHibernate.Initialise(user);
-
-				if (user.getLogin().equals(principal.getName()))
-					continue;
-
-				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-
-				for (UserAnalysisRight uar : analysis.getUserRights())
-					uar.setUser(DAOHibernate.Initialise(uar.getUser()));
-
-				UserAnalysisRight uar = analysis.getRightsforUser(user);
-
-				if (uar != null) {
-
-					if (useraccess == -1) {
-						analysis.removeRights(user);
-						serviceUserAnalysisRight.delete(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user, null);
-					} else {
-						uar.setRight(AnalysisRight.valueOf(useraccess));
-						serviceUserAnalysisRight.saveOrUpdate(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user, uar.getRight());
-					}
-				} else {
-
-					if (!user.getCustomers().contains(analysis.getCustomer()))
-						user.addCustomer(analysis.getCustomer());
-
-					if (useraccess != -1) {
-						uar = new UserAnalysisRight(user, AnalysisRight.valueOf(useraccess));
-						userrights.put(user, uar.getRight());
-						serviceUserAnalysisRight.save(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-					}
-
-				}
-			}
-
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success",
+					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -340,6 +306,28 @@ public class ControllerAdministration {
 		}
 	}
 
+	@RequestMapping("/Analysis/{analysisId}/Switch/Customer")
+	public String switchCUstomerForm(@PathVariable("analysisId") int analysisId, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
+		model.addAttribute("idAnalysis", analysisId);
+		model.addAttribute("currentCustomers", serviceAnalysis.getCustomersByIdAnalysis(analysisId));
+		model.addAttribute("customers", serviceCustomer.getAllNotProfiles());
+		return "admin/analysis/switch-customer";
+	}
+
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Customer/{idCustomer}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String switchCUstomerForm(@PathVariable("idAnalysis") int idAnalysis, @PathVariable("idCustomer") int idCustomer, Principal principal, Model model,
+			RedirectAttributes attributes, Locale locale) throws Exception {
+		String identifier = serviceAnalysis.getIdentifierByIdAnalysis(idAnalysis);
+		if (identifier == null)
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+		else if (serviceCustomer.isProfile(idCustomer))
+			return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+		else if (!serviceCustomer.exists(idCustomer))
+			return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
+		customerManager.switchCustomer(identifier, idCustomer);
+		return JsonMessage.Success(messageSource.getMessage("success.analyses.updated", null, "Analyses have been updated", locale));
+	}
+
 	/**
 	 * section: <br>
 	 * Description
@@ -351,7 +339,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception {
+	public String userSection(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("users", serviceUser.getAll());
 		return "admin/user/users";
 	}
@@ -426,10 +414,8 @@ public class ControllerAdministration {
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
-
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-
 			login = jsonNode.get("login").asText();
 			password = jsonNode.get("password").asText();
 			firstname = jsonNode.get("firstName").asText();
@@ -530,7 +516,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody Map<String, String> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
@@ -565,23 +551,21 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping("/User/Delete/{userId}")
-	public @ResponseBody Boolean delete(@PathVariable("userId") int userId, Principal principal) throws Exception {
+	public @ResponseBody Map<String, String> deleteUser(@PathVariable("userId") int userId, Principal principal, Locale locale) throws Exception {
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
-
 			User user = serviceUser.get(userId);
-
 			if (!user.getLogin().equals(principal.getName())) {
-				user.disable();
-				serviceUser.saveOrUpdate(user);
-				serviceUser.delete(userId);
-				return true;
+				customDelete.deleteUser(user);
 			} else {
-				return false;
+				errors.put("error", messageSource.getMessage("error.user.delete_your_account", null, "You cannot delete your own account!", locale));
+				return errors;
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			errors.put("error", messageSource.getMessage("error.user.delete_failed", null, "Could not delete the account! Make sure the user does not own any analyses!", locale));
 		}
+		return errors;
+
 	}
 }

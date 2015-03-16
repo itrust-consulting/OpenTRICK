@@ -22,6 +22,7 @@ import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.TrickException;
@@ -66,6 +67,9 @@ public class ControllerAssessment {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ServiceLanguage serviceLanguage;
+
 	/**
 	 * updateAssessment: <br>
 	 * Description
@@ -82,40 +86,43 @@ public class ControllerAssessment {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
 			// check if analysis is not null
 			if (integer == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\""
+						+ messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
 
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 
 			// check if analysis object is not null
 			if (analysis == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\""
+						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
 			assessmentManager.WipeAssessment(analysis);
 			assessmentManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
-			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", customLocale != null ? customLocale : locale)
-				+ "\"}");
+			return new String("{\"success\":\""
+					+ messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", customLocale != null ? customLocale : locale) + "\"}");
 		} catch (TrickException e) {
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
-				+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale : locale) + "\"}");
+					+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale
+							: locale) + "\"}");
 		}
 	}
 
@@ -135,38 +142,41 @@ public class ControllerAssessment {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// check if analysis is not null
 			if (integer == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\""
+						+ messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
 
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 
 			// check if analysis object is not null
 			if (analysis == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\""
+						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
 			assessmentManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
-			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", customLocale != null ? customLocale : locale)
-				+ "\"}");
+			return new String("{\"success\":\""
+					+ messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", customLocale != null ? customLocale : locale) + "\"}");
 		} catch (TrickException e) {
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
-				+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale : locale) + "\"}");
+					+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale
+							: locale) + "\"}");
 		}
 	}
 
@@ -178,33 +188,37 @@ public class ControllerAssessment {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// check if analysis is not null
 			if (integer == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\""
+						+ messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
 
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 
 			// check if analysis object is not null
 			if (analysis == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\""
+						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
 			assessmentManager.UpdateAssetALE(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
 			return new String("{\"success\":\""
-				+ messageSource.getMessage("success.assessment.ale.update", null, "Assessments ale were successfully updated", customLocale != null ? customLocale : locale) + "\"}");
+					+ messageSource.getMessage("success.assessment.ale.update", null, "Assessments ale were successfully updated", customLocale != null ? customLocale : locale)
+					+ "\"}");
 		} catch (Exception e) {
 
 			// return error
 			e.printStackTrace();
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
-				+ messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", customLocale != null ? customLocale : locale) + "\"}");
+					+ messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", customLocale != null ? customLocale
+							: locale) + "\"}");
 		}
 	}
 
@@ -455,6 +469,7 @@ public class ControllerAssessment {
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
 		serviceAsset.saveOrUpdate(asset);
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 		return "analyses/singleAnalysis/components/assessment/assessmentAsset";
 	}
 
@@ -484,6 +499,7 @@ public class ControllerAssessment {
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 		return "analyses/singleAnalysis/components/assessment/assessmentScenario";
 	}
 }

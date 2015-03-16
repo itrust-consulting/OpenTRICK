@@ -28,8 +28,6 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +39,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerAdministration.java: <br>
@@ -114,7 +115,7 @@ public class ControllerActionPlan {
 		// prepare model
 		model.put("actionplans", actionplans);
 		model.put("assets", assets);
-		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha3());
+		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 
 		// return view
 		return "analyses/singleAnalysis/components/actionplan";
@@ -156,7 +157,7 @@ public class ControllerActionPlan {
 			// prepare model
 			model.put("actionplans", actionplans);
 			model.put("assets", assets);
-			model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha3());
+			model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 		} else
 			model.put("actionplans", actionplans);
 
@@ -210,7 +211,7 @@ public class ControllerActionPlan {
 		// retrieve analysis id to compute
 		int analysisId = jsonNode.get("id").asInt();
 
-		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
@@ -230,13 +231,10 @@ public class ControllerActionPlan {
 			}
 
 			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;
-
 			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
 			worker.setPoolManager(workersPoolManager);
-
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", analysisLocale));
-
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 			// execute task
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", analysisLocale));

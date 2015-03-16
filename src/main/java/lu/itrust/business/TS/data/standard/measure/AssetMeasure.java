@@ -59,7 +59,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	@ManyToOne
 	@JoinColumn(name = "fiMeasureProperties", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade({ CascadeType.ALL })
 	@Access(AccessType.FIELD)
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
@@ -135,7 +135,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	@OneToMany
 	@JoinColumn(name = "fiAssetMeasure", nullable = false, insertable = true)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	public List<MeasureAssetValue> getMeasureAssetValues() {
 		return measureAssetValues;
@@ -280,7 +280,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 		AssetMeasure assetMeasure = (AssetMeasure) super.duplicate(analysisStandard, phase);
 		assetMeasure.measureAssetValues = new ArrayList<>();
 		for (MeasureAssetValue assetValue : measureAssetValues)
-			assetMeasure.addAnMeasureAssetValue(assetValue.duplicate());
+			assetMeasure.addAnMeasureAssetValue(assetValue.duplicate(null));
 		assetMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
 		return assetMeasure;
 	}

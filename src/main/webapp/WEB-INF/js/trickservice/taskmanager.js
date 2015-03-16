@@ -1,5 +1,4 @@
 function TaskManager(title) {
-
 	this.tasks = [];
 	this.progressBars = [];
 	this.title = title;
@@ -18,12 +17,21 @@ function TaskManager(title) {
 		this.view.Intialise();
 		$(this.view.modal_footer).remove();
 		this.view.setTitle(this.title);
+		return this;
+	};
+	
+	TaskManager.prototype.SetTitle= function(title){
+		this.title = title;
+		if(!(this.view == undefined ||this.view == null || this.view.isDisposed))
+			this.view.setTitle(title)
+		return this;
 	};
 
 	TaskManager.prototype.Show = function() {
-		if (this.view == null || this.view == undefined)
+		if (this.view == undefined ||this.view == null || this.view.isDisposed)
 			this.__CreateView();
 		this.view.Show();
+		return this;
 	};
 
 	TaskManager.prototype.isEmpty = function() {
@@ -52,13 +60,13 @@ function TaskManager(title) {
 							instance.UpdateStatus(reponse[int]);
 						}
 					}
-
 					if (!instance.isEmpty())
 						instance.Show();
 				}
-			},error : unknowError
+			},
+			error : unknowError
 		});
-		return false;
+		return this;
 	};
 
 	TaskManager.prototype.createProgressBar = function(taskId) {
@@ -68,13 +76,12 @@ function TaskManager(title) {
 		var instance = this;
 		progressBar.Initialise();
 		progressBar.progress.setAttribute("id", "task_" + taskId);
-		progressBar.Anchor(this.view.modal_body);
+		if (this.view != null && this.view.modal_body)
+			progressBar.Anchor(this.view.modal_body);
 		progressBar.OnComplete(function(sender) {
-			//progressBar.setInfo("Complete");
 			setTimeout(function() {
 				progressBar.Destroy();
 				instance.Remove(taskId);
-				instance.Destroy();
 			}, 10000);
 		});
 		return progressBar;
@@ -88,8 +95,9 @@ function TaskManager(title) {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
-		this.Destroy();
-		return false;
+		if(this.isEmpty())
+			this.Destroy();
+		return this;
 	};
 
 	TaskManager.prototype.UpdateStatus = function(taskId) {
@@ -106,6 +114,7 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					return false;
 				}
+				
 				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined) {
 					instance.progressBars[taskId] = instance.createProgressBar(taskId);
 				}
@@ -121,7 +130,7 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					}, 10000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
-						if (reponse.asyncCallback.args !=null && reponse.asyncCallback.args.length)
+						if (reponse.asyncCallback.args != null && reponse.asyncCallback.args.length)
 							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);
 						else
 							eval(reponse.asyncCallback.action);
@@ -129,7 +138,8 @@ function TaskManager(title) {
 						eval(reponse.taskName.action);
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 };
