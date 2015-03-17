@@ -76,6 +76,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -101,6 +102,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
+
+	private static final String FILTER_ANALYSIS_NAME = "filter_analysis_name";
+
+	private static final String LAST_SELECTED_ANALYSIS_NAME = "last-selected-analysis-name";
 
 	private static final String ANALYSIS_TASK_ID = "analysis_task_id";
 
@@ -279,36 +284,9 @@ public class ControllerAnalysis {
 				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("errors"));
 			}
 		} else {
-
-			// load only customers of this user
-			List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
-
-			// retrieve currently selected customer
-			Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
-
-			User user = null;
-
-			if (customer == null) {
-				user = serviceUser.get(principal.getName());
-				if (user == null)
-					return "redirect:/Logout";
-				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
-				// check if the current customer is set -> no
-				if (customer == null && !customers.isEmpty()) {
-					// use first customer as selected customer
-					user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
-					serviceUser.saveOrUpdate(user);
-				}
-				session.setAttribute(CURRENT_CUSTOMER, customer);
-			}
-
-			if (customer != null)
-				// load model with objects by the selected customer
-				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
-
-			model.addAttribute("customer", customer);
-			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-			model.addAttribute("login", principal.getName());
+			String view = LoadUserAnalyses(session, principal, model, null);
+			if (view != null)
+				return view;
 		}
 		return "analyses/analysis";
 	}
@@ -344,24 +322,55 @@ public class ControllerAnalysis {
 
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		Integer customer = (Integer) request.getSession().getAttribute(CURRENT_CUSTOMER);
+		return LoadUserAnalyses(request.getSession(), principal, model, "analyses/allAnalyses/analyses");
+	}
+
+	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, String view) throws Exception {
+		List<String> names = null;
+		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
-		if (customer == null) {
+		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
+		if (customer == null || nameFilter == null) {
 			User user = serviceUser.get(principal.getName());
 			if (user == null)
 				return "redirect:/Logout";
-			customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
-			if (customer == null && !customers.isEmpty()) {
-				user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
-				serviceUser.saveOrUpdate(user);
+			if (customer == null) {
+				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
+				// check if the current customer is set -> no
+				if (customer == null && !customers.isEmpty()) {
+					// use first customer as selected customer
+					user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
+					serviceUser.saveOrUpdate(user);
+				}
+				session.setAttribute(CURRENT_CUSTOMER, customer);
 			}
-			request.getSession().setAttribute(CURRENT_CUSTOMER, customer);
+			if (nameFilter == null) {
+				nameFilter = user.getSetting(LAST_SELECTED_ANALYSIS_NAME);
+				if (nameFilter == null && customer != null) {
+					names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
+					if (!names.isEmpty()) {
+						user.setSetting(LAST_SELECTED_ANALYSIS_NAME, nameFilter = names.get(0));
+						serviceUser.saveOrUpdate(user);
+					}
+				}
+			}
 		}
-		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
+
+		if (customer != null) {
+			if (names == null)
+				names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), customer);
+			// load model with objects by the selected customer
+			if (nameFilter == null || nameFilter.equalsIgnoreCase("ALL") || !names.contains(nameFilter))
+				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
+			else
+				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
+		}
+		model.addAttribute("names", names);
+		model.addAttribute("analysisSelectedName", nameFilter);
 		model.addAttribute("customer", customer);
-		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
-		return "analyses/allAnalyses/analyses";
+		return view;
 	}
 
 	/**
@@ -375,17 +384,27 @@ public class ControllerAnalysis {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping("/DisplayByCustomer/{customerSection}")
-	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
-		session.setAttribute(CURRENT_CUSTOMER, customerSection);
-		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customerSection));
-		model.addAttribute("customer", customerSection);
+	@RequestMapping(value = "/DisplayByCustomer/{idCustomer}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public String section(@PathVariable("idCustomer") Integer idCustomer, @RequestBody String name, HttpSession session, Principal principal, Model model) throws Exception {
+		if (StringUtils.isEmpty(name))
+			name = "ALL";
+		session.setAttribute(CURRENT_CUSTOMER, idCustomer);
+		session.setAttribute(FILTER_ANALYSIS_NAME, name);
+		List<String> names = serviceAnalysis.getNamesByUserAndCustomerAndNotEmpty(principal.getName(), idCustomer);
+		if (name.equalsIgnoreCase("ALL") || !names.contains(name))
+			model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), idCustomer));
+		else
+			model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), idCustomer, name));
+		model.addAttribute("analysisSelectedName", name);
+		model.addAttribute("customer", idCustomer);
+		model.addAttribute("names", names);
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
 			return "redirect:/Logout";
-		user.setSetting(LAST_SELECTED_CUSTOMER_ID, customerSection);
+		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
+		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
 		return "analyses/allAnalyses/analyses";
 	}
@@ -986,34 +1005,38 @@ public class ControllerAnalysis {
 
 			int id = jsonNode.get("id").asInt();
 			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
-			if (idCustomer < 1)
-				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
-			else {
-				customer = serviceCustomer.get(idCustomer);
-				if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
-					errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+
+			if (id > 0) {
+				if (!serviceAnalysis.exists(id))
+					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+				else if (!serviceAnalysis.isProfile(id)) {
+					customer = serviceCustomer.get(idCustomer);
+					if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
+						errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+					else {
+						if (!serviceAnalysis.isAnalysisCustomer(id, idCustomer))
+							customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer);
+						analysis = serviceAnalysis.get(id);
+						if (customer.getId() != analysis.getCustomer().getId())
+							analysis.setCustomer(customer);
+					}
+				} else
+					analysis = serviceAnalysis.get(id);
+			} else {
+				if (idCustomer < 1)
+					errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
+				else {
+					customer = serviceCustomer.get(idCustomer);
+					if (customer == null || !customer.isCanBeUsed() || !owner.containsCustomer(customer))
+						errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+				}
 			}
 
 			if (!errors.isEmpty())
 				return false;
 
-			if (id > 0) {
-				if (!serviceAnalysis.exists(id)) {
-					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-					return false;
-				}
-				if (!serviceAnalysis.isProfile(id)) {
-					if (!serviceAnalysis.isAnalysisCustomer(id, idCustomer))
-						customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer);
-					analysis = serviceAnalysis.get(id);
-					if (customer.getId() != analysis.getCustomer().getId())
-						analysis.setCustomer(customer);
-				} else
-					analysis = serviceAnalysis.get(id);
-			}
-
 			int idLanguage = jsonNode.has("analysislanguage") ? jsonNode.get("analysislanguage").asInt() : -1;
-			
+
 			Language language = serviceLanguage.get(idLanguage);
 
 			String comment = jsonNode.has("comment") ? jsonNode.get("comment").asText() : "";

@@ -116,4 +116,8 @@ public interface ServiceAnalysis {
 
 	public boolean isAnalysisCustomer(int idAnalysis ,int idCustomer);
 
+	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer);
+
+	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name);
+
 }

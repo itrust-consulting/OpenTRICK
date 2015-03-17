@@ -112,17 +112,13 @@ function saveAnalysis(form, reloadaction) {
 				errorElement.setAttribute("class", "label label-danger");
 				$(errorElement).text(response[error]);
 				switch (error) {
-				
 				case "analysislanguage":
 					$(errorElement).appendTo($("#analysislanguagecontainer"));
 					break;
-
 				case "comment":
 					$(errorElement).appendTo($("#analysis_label").parent());
-
 					break;
-
-				case "analysis":
+				default:
 					$(errorElement).appendTo($("#editAnalysisModel .modal-body"));
 					break;
 				}

@@ -563,4 +563,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer) {
 		return daoAnalysis.isAnalysisCustomer(idAnalysis,idCustomer);
 	}
+
+	@Override
+	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer) {
+		return daoAnalysis.getNamesByUserAndCustomerAndNotEmpty(username,idCustomer);
+	}
+
+	@Override
+	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name) {
+		return daoAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(username,idCustomer, name);
+	}
 }

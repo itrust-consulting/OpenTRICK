@@ -1,11 +1,17 @@
 function saveUser(form) {
 	result = "";
+	var idUser = $("#"+form).find("#user_id");
+	if (!idUser.length)
+		idUser = -1;
+	else
+		idUser = parseInt(idUser.val());
+
 	$.ajax({
 		url : context + "/Admin/User/Save",
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();
 
@@ -52,7 +58,10 @@ function saveUser(form) {
 			if (!$("#" + form + " .label-danger").length) {
 				var successElement = document.createElement("div");
 				successElement.setAttribute("class", "alert alert-success");
-				$(successElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + MessageResolver("label.user.update.success", "Profile successfully updated"));
+				$(successElement).html(
+						"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
+								+ (idUser === -1 ? MessageResolver("success.user.created", "User was successfully created") : MessageResolver("success.user.update",
+										"User was successfully updated")));
 				$(successElement).appendTo($("#addUserModel .modal-body #success"));
 				$("#success").removeAttr("hidden");
 				$("#user_password").prop("value", "");
@@ -66,7 +75,8 @@ function saveUser(form) {
 			var errorElement = document.createElement("div");
 			errorElement.setAttribute("class", "alert alert-danger");
 			$(errorElement).text(
-					"<button type='button' class='close' data-dismiss='alert'>&times;</button>" + MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
+					"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
+							+ MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
 			$(errorElement).appendTo($("#addUserModel .modal-body #success"));
 			$("#user_password").prop("value", "");
 		},
@@ -89,7 +99,7 @@ function deleteUser(userId, name) {
 			url : context + "/Admin/User/Delete/" + userId,
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
@@ -111,6 +121,7 @@ function deleteUser(userId, name) {
 function newUser() {
 	if (findSelectItemIdBySection(("section_user")).length > 0)
 		return false;
+	$("#addUserModel").find(".alert").remove()
 	$("#user_id").prop("value", "-1");
 	$("#user_login").prop("value", "");
 	$("#user_login").removeAttr("disabled");
@@ -123,7 +134,7 @@ function newUser() {
 		url : context + "/Admin/Roles",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
 		},
 		error : unknowError
@@ -143,6 +154,7 @@ function editSingleUser(userId) {
 			return false;
 		userId = selectedScenario[0];
 	}
+	$("#addUserModel").find(".alert").remove()
 	var rows = $("#section_user").find("tr[data-trick-id='" + userId + "'] td:not(:first-child)");
 	$("#user_id").prop("value", userId);
 	$("#user_login").prop("value", $(rows[0]).text());
@@ -156,7 +168,7 @@ function editSingleUser(userId) {
 		url : context + "/Admin/User/Roles/" + userId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
 		},
 		error : unknowError

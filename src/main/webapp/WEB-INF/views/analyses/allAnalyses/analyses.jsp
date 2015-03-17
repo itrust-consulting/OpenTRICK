@@ -26,9 +26,9 @@
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
-						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message code="label.analysis.editInfo" text="Edit info" /></a></li>
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');">
-							<span class="glyphicon glyphicon-file"></span> <spring:message code="label.menu.create.analysis_profile" text="New profile" />
+						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message code="label.edit.info" text="Edit info" /></a></li>
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span
+							class="glyphicon glyphicon-file"></span> <spring:message code="label.menu.create.analysis_profile" text="New profile" />
 					</a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysis()"> <span
 							class="glyphicon glyphicon-download-alt"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
@@ -39,18 +39,35 @@
 					</a></li>
 				</ul>
 				<div class="center-block">
-					<p class="text-center">
-						<label><spring:message code="label.filter.analysis.customer" text="Analyses filtered by customer" /></label>
-					</p>
-					<form class="col-md-offset-5 col-md-2 form-inline">
-						<select class="form-control" onchange="return customerChange(this)" style="margin-bottom: 10px">
-							<c:forEach items="${customers}" var="icustomer">
-								<option value="${icustomer.id}" ${not empty(customer) && icustomer.id == customer? 'selected':'' }>
-									<spring:message text="${icustomer.organisation}" />
-								</option>
-							</c:forEach>
-						</select>
-					</form>
+					<div class="col-md-6">
+						<p class="text-center">
+							<label><spring:message code="label.filter.analysis.customer" text="Analyses filtered by customer" /></label>
+						</p>
+						<form class="col-md-offset-4 col-md-4 form-inline">
+							<select id="customerSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
+								<c:forEach items="${customers}" var="icustomer">
+									<option value="${icustomer.id}" ${not empty(customer) && icustomer.id == customer? 'selected':'' }>
+										<spring:message text="${icustomer.organisation}" />
+									</option>
+								</c:forEach>
+							</select>
+						</form>
+					</div>
+					<div class="col-md-6">
+						<p class="text-center">
+							<label><spring:message code="label.filter.analysis.name" text="Analyses filtered by name" /></label>
+						</p>
+						<form class="col-md-offset-4 col-md-4  form-inline">
+							<select id="nameSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
+								<option value="ALL"><spring:message code="label.all" text="ALL"/></option>
+								<c:forEach items="${names}" var="name">
+									<option value="${name}" ${not empty(analysisSelectedName) && analysisSelectedName == name? 'selected':'' }>
+										<spring:message text="${name}" />
+									</option>
+								</c:forEach>
+							</select>
+						</form>
+					</div>
 				</div>
 				<table class="table table-hover" style="border-top: 1px solid #dddddd;">
 					<thead>
@@ -72,7 +89,9 @@
 								data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><spring:message text="${analysis.label}" /></td>
-								<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
+								<td><pre>
+										<spring:message text="${analysis.lastHistory.comment}" />
+									</pre></td>
 								<td data-trick-version="${analysis.version}">${analysis.version}</td>
 								<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 								<td><spring:message text="${analysis.lastHistory.author}" /></td>

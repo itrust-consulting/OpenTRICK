@@ -20,7 +20,7 @@
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="profile.jsp" />
 				<div id="sqlite" class="tab-pane" data-update-required="true" data-trigger="loadUserSqlite" data-scroll-trigger="userSqliteScrolling">
-					<div class="col-xs-2">
+					<div class="col-xs-3">
 						<div data-spy="affix">
 							<strong class="col-xs-12" style="font-size: 14px; display: block; border-bottom: 2px solid #dddddd; margin: 8px; padding-bottom: 8px"> <spring:message
 									code="label.title.control" text="Control" />
@@ -79,16 +79,16 @@
 									</div>
 								</div>
 							</form>
+							<div id="progress-sqlite" class="center-block" style="width: 60px">
+								<i class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
+							</div>
 						</div>
 					</div>
-					<div class="col-xs-10" id="section_sqlite">
-						<div class="center-block">
-							<i class="fa fa-spinner fa-pulse fa-5x"></i>
-						</div>
+					<div class="col-xs-9" id="section_sqlite">
 					</div>
 				</div>
 				<div id="report" class="tab-pane" data-update-required="true" data-trigger="loadUserReport" data-scroll-trigger="userReportScrolling">
-					<div class="col-xs-2">
+					<div class="col-xs-3">
 						<div data-spy="affix">
 							<strong class="col-xs-12" style="font-size: 14px; display: block; border-bottom: 2px solid #dddddd; margin: 8px; padding-bottom: 8px"> <spring:message
 									code="label.title.control" text="Control" />
@@ -147,12 +147,12 @@
 									</div>
 								</div>
 							</form>
+							<div id="progress-report" class="center-block" style="width: 60px">
+								<i class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
+							</div>
 						</div>
 					</div>
-					<div class="col-xs-10" id="section_report">
-						<div class="center-block" style="margin-top:">
-							<i class="fa fa-spinner fa-pulse fa-5x"></i>
-						</div>
+					<div class="col-xs-9" id="section_report">
 					</div>
 				</div>
 			</div>

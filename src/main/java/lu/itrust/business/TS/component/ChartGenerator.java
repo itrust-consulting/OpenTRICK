@@ -440,7 +440,7 @@ public class ChartGenerator {
 					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
 					compliance[0] = (Integer) compliance[0] + 1;
 				}
-				
+
 				/*
 				 * else compliance[1] = (Double) compliance[1] +
 				 * Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE;
@@ -464,12 +464,12 @@ public class ChartGenerator {
 		Map<String, Object[]> compliances = previouscompliences;
 
 		for (Measure measure : measures) {
-
-			if (measure.getPhase().getNumber() == phase.getNumber() && measure.getMeasureDescription().isComputable()
-					&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+			if (measure.getPhase().getNumber() == phase.getNumber() && measure.getMeasureDescription().isComputable()) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
-				if (actionPlanMeasures.containsKey(measure.getId()))
+				if (compliance == null)
+					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
+				if (actionPlanMeasures.containsKey(measure.getId()) && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue());
 			}
 		}

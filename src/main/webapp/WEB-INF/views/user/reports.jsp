@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="col-xs-10" id="section_report">
+<div class="col-xs-9" id="section_report">
 	<table class="table">
 		<thead>
 			<tr>

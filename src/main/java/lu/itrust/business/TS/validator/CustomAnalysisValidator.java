@@ -52,6 +52,12 @@ public class CustomAnalysisValidator extends ValidatorFieldImpl {
 			if (candidate.toString().trim().isEmpty())
 				return "error.history.comment.empty::Comment cannot be empty";
 			break;
+		case "name":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.analysis.label.unsupported::Name value is not supported";
+			if (candidate.toString().trim().isEmpty())
+				return "error.analysis.label.empty::Name cannot be empty";
+			break;
 		}
 		return null;
 	}

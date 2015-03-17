@@ -11,9 +11,6 @@
 			<spring:message code="label.users.customer.access" text="Users having access to customer" />:
 			<b><spring:message text="${customer.organisation}"/></b>
 			<hr />
-			<p>
-				<b><spring:message code="label.users.customer.access.note_info" text="Note: press CTRL or COMMAND button to select multiple entries! On normal click: previous values are reset" /></b>
-			</p>
 		</div>
 		<div class="panel-body">
 			<c:choose>

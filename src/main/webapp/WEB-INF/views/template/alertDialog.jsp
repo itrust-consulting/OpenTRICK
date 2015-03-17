@@ -4,7 +4,15 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="dialog-body">
-	<div id="info-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none;z-index:5000;" data-aria-hidden="true">
+	<div id="progress-dialog" class="bootbox modal fade" role="dialog" tabindex="-1" style="display: none; z-index: 5000;" data-aria-hidden="false">
+		<div class="modal-dialog" style="width:0px;top:50%;">
+			<div class="modal-content" style="border: none;">
+				<!-- dialog body -->
+				<i class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
+			</div>
+		</div>
+	</div>
+	<div id="info-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none; z-index: 5000;" data-aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<!-- dialog body -->
@@ -18,7 +26,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="alert-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none;z-index:5000;" data-aria-hidden="true">
+	<div id="alert-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none; z-index: 5000;" data-aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<!-- dialog body -->
@@ -32,7 +40,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="confirm-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none;z-index:5000;" data-aria-hidden="true">
+	<div id="confirm-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none; z-index: 5000;" data-aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<!-- dialog body -->

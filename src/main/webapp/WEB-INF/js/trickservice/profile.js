@@ -22,7 +22,7 @@ function deleteSqlite(id) {
 		url : context + "/Profile/Sqlite/" + id + "/Delete",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#section_sqlite>table>tbody>tr[data-trick-id='" + id + "']").remove();
 				if (currentSize == size)
@@ -43,7 +43,7 @@ function deleteReport(id) {
 		url : context + "/Profile/Report/" + id + "/Delete",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#section_report>table>tbody>tr[data-trick-id='" + id + "']").remove();
 				if (currentSize == size)
@@ -61,6 +61,7 @@ function deleteReport(id) {
 function userSqliteScrolling() {
 	var currentSize = $("#section_sqlite table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val());
 	if (currentSize >= size && currentSize % size === 0) {
+		$("#progress-sqlite").show();
 		$.ajax({
 			url : context + "/Profile/Section/Sqlite",
 			async : false,
@@ -69,7 +70,7 @@ function userSqliteScrolling() {
 				"page" : (currentSize / size) + 1
 			},
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
@@ -77,7 +78,10 @@ function userSqliteScrolling() {
 				});
 				return false;
 			},
-			error : unknowError
+			error : unknowError,
+			complete : function() {
+				$("#progress-sqlite").hide();
+			}
 		});
 	}
 	return true;
@@ -86,6 +90,7 @@ function userSqliteScrolling() {
 function userReportScrolling() {
 	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val());
 	if (currentSize >= size && currentSize % size === 0) {
+		$("#progress-report").show();
 		$.ajax({
 			url : context + "/Profile/Section/Report",
 			async : false,
@@ -94,7 +99,7 @@ function userReportScrolling() {
 				"page" : (currentSize / size) + 1
 			},
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_report>table>tbody>tr").each(function() {
 					var $current = $("#section_report>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
 					if (!$current.length)
@@ -102,7 +107,10 @@ function userReportScrolling() {
 				});
 				return false;
 			},
-			error : unknowError
+			error : unknowError,
+			complete : function() {
+				$("#progress-report").hide();
+			}
 		});
 	}
 	return true;
@@ -116,7 +124,7 @@ function updateReportControl(element) {
 		type : "post",
 		data : serializeForm("#formReportControl"),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
 				return loadUserReport();
 			else if (response["error"] != undefined)
@@ -137,7 +145,7 @@ function updateSqliteControl(element) {
 		type : "post",
 		data : serializeForm("#formSqliteControl"),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
 				return loadUserSqlite();
 			else if (response["error"] != undefined)
@@ -151,12 +159,13 @@ function updateSqliteControl(element) {
 }
 
 function loadUserSqlite(update) {
+	$("#progress-sqlite").show();
 	$.ajax({
 		url : context + "/Profile/Section/Sqlite",
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (update) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
@@ -174,17 +183,21 @@ function loadUserSqlite(update) {
 			}
 			return false;
 		},
-		error : unknowError
+		error : unknowError,
+		complete : function() {
+			$("#progress-sqlite").hide();
+		}
 	});
 	return true;
 }
 
 function loadUserReport(update) {
+	$("#progress-report").show();
 	$.ajax({
 		url : context + "/Profile/Section/Report",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (update) {
 				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
 					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
@@ -202,7 +215,10 @@ function loadUserReport(update) {
 			}
 			return false;
 		},
-		error : unknowError
+		error : unknowError,
+		complete : function() {
+			$("#progress-report").hide();
+		}
 	});
 	return true;
 }
@@ -215,7 +231,7 @@ function updateProfile(form) {
 				type : "post",
 				contentType : "application/json",
 				data : serializeForm(form),
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 
 					$("#profileInfo").attr("hidden", "hidden");
 					$("#profileInfo div").remove();
