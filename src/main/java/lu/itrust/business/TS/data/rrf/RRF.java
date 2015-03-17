@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
-import java.util.Optional;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.assessment.Assessment;
@@ -120,11 +119,14 @@ public class RRF {
 		// ****************************************************************
 
 		// parse assettype value list from given measure
-
-		Optional<AssetTypeValue> optional = measure.getAssetTypeValues().stream().findFirst().filter(assetTypeValue -> assetTypeValue.getAssetType().equals(assetType));
-		if (optional.isPresent())
-			assetValue = optional.get().getValue();
-
+	
+		for(AssetTypeValue atv : measure.getAssetTypeValues()) {
+			if(atv.getAssetType().equals(assetType)) {
+				assetValue = atv.getValue();
+				break;
+			}
+		}
+	
 		// ****************************************************************
 		// * Strength calculation
 		// ****************************************************************
@@ -196,14 +198,14 @@ public class RRF {
 
 		RRF = ((assetValue / 100. * strength * category * type * source)) * (tuning / 100.);
 
-		/*
-		 * System.out.println("Measure: " +
-		 * measure.getMeasureDescription().getReference() + "Asset: " +
-		 * assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" +
-		 * RRF + ", atv=" + assetTypeValue.getValue() + ", strength=" + strength
-		 * + ", Category=" + category + ", type=" + type + ", source=" + source
-		 * + ", tuning=" + tuning);
-		 */
+		
+		  System.out.println("Measure: " +
+		  measure.getMeasureDescription().getReference() + "Asset: " +
+		  assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" +
+		  RRF + ", atv=" + assetValue + ", strength=" + strength
+		  + ", Category=" + category + ", type=" + type + ", source=" + source
+		  + ", tuning=" + tuning);
+		 
 
 		// ****************************************************************
 		// * return the value
