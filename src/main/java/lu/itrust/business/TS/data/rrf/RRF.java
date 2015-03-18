@@ -199,12 +199,12 @@ public class RRF {
 		RRF = ((assetValue / 100. * strength * category * type * source)) * (tuning / 100.);
 
 		
-		  System.out.println("Measure: " +
+		  /*System.out.println("Measure: " +
 		  measure.getMeasureDescription().getReference() + "Asset: " +
 		  assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" +
 		  RRF + ", atv=" + assetValue + ", strength=" + strength
 		  + ", Category=" + category + ", type=" + type + ", source=" + source
-		  + ", tuning=" + tuning);
+		  + ", tuning=" + tuning);*/
 		 
 
 		// ****************************************************************
