@@ -50,8 +50,6 @@
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../template/footer.jsp" />
-		<jsp:include page="../template/scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/register.js" />"></script>
 	</div>
 	<!-- ################################################################ End Container ################################################################# -->
 </body>

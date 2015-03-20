@@ -34,3 +34,4 @@
 		</div>
 	</div>
 </div>
+<jsp:include page="../template/alertDialog.jsp" />

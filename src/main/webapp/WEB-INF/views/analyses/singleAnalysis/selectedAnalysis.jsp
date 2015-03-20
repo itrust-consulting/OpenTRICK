@@ -65,8 +65,6 @@
 	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
 	<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
-	<!-- <script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script> -->
-	
 	<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>

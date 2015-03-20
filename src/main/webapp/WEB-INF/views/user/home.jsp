@@ -158,9 +158,8 @@
 			</div>
 		</div>
 		<jsp:include page="../template/footer.jsp" />
-		<jsp:include page="../template/scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/profile.js" />"></script>
 	</div>
+	<jsp:include page="../template/scripts.jsp" />
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

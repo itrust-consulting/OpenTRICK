@@ -10,13 +10,9 @@
 	var context = '${pageContext.request.contextPath}';
 	-->
 </script>
-
 <script src="<spring:url value="/js/jquery-2.0.js" />"></script>
-
 <script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
-
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
-
 <script src="<spring:url value="/js/bootstrap/bootstrap.min.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootbox.min.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootstrap-slider.js" />"></script>
@@ -33,7 +29,7 @@
 <script src="<spring:url value="/js/trickservice/progressbar.js" />"></script>
 <script src="<spring:url value="/js/trickservice/modal.js" />"></script>
 <script src="<spring:url value="/js/trickservice/patch.js" />"></script>
-
+<script src="<spring:url value="/js/trickservice/profile.js" />"></script>
 <script type="text/javascript">
 	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
 	<!--
@@ -41,4 +37,3 @@
 	-->
 	</sec:authorize>
 </script>
-<jsp:include page="alertDialog.jsp" />

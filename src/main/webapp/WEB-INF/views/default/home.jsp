@@ -20,7 +20,7 @@
 			</h1>
 		</div>
 		<jsp:include page="../template/footer.jsp" />
-		<jsp:include page="../template/scripts.jsp" />
 	</div>
+	<jsp:include page="../template/scripts.jsp" />
 </body>
 </html>

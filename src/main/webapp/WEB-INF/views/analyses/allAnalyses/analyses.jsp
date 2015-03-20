@@ -59,7 +59,7 @@
 						</p>
 						<form class="col-md-offset-4 col-md-4  form-inline">
 							<select id="nameSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
-								<option value="ALL"><spring:message code="label.all" text="ALL"/></option>
+								<option value="ALL"><spring:message code="label.all" text="ALL" /></option>
 								<c:forEach items="${names}" var="name">
 									<option value="${name}" ${not empty(analysisSelectedName) && analysisSelectedName == name? 'selected':'' }>
 										<spring:message text="${name}" />
@@ -114,8 +114,8 @@
 		</div>
 		<jsp:include page="widgets.jsp" />
 		<jsp:include page="../../template/footer.jsp" />
-		<jsp:include page="../../template/scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="js/trickservice/analyses.js" />"></script>
 	</div>
+	<jsp:include page="../../template/scripts.jsp" />
+	<script type="text/javascript" src="<spring:url value="js/trickservice/analyses.js" />"></script>
 </body>
 </html>
