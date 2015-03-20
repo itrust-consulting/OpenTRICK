@@ -49,7 +49,6 @@
 			</div>
 		</div>
 		<jsp:include page="../template/footer.jsp" />
-		<jsp:include page="../template/scripts.jsp" />
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

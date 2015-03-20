@@ -59,7 +59,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 		JavaMailSenderImpl sender = new JavaMailSenderImpl();
 		Properties p = new Properties();
-		p.put("mail.host", mailserver);
+		p.put("mail.smtp.host", mailserver);
+		p.put("mail.smtp.localhost", "itrust.lu");
 		Session con = Session.getInstance(p, null);
 		sender.setSession(con);
 
@@ -115,7 +116,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 		JavaMailSenderImpl sender = new JavaMailSenderImpl();
 		Properties p = new Properties();
-		p.put("mail.host", mailserver);
+		p.put("mail.smtp.host", mailserver);
+		p.put("mail.smtp.localhost", "itrust.lu");
 		Session con = Session.getInstance(p, null);
 		sender.setSession(con);
 
