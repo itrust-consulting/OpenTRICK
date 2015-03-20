@@ -4,7 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
@@ -13,9 +15,10 @@ import lu.itrust.business.TS.usermanagement.User;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
@@ -33,17 +36,13 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Autowired
-	private JavaMailSender javaMailSender;
-
-	@Autowired
 	private MessageSource messageSource;
 
 	@Autowired
 	private VelocityEngine velocityEngine;
 
-	public void setMailSender(JavaMailSender mailSender) {
-		this.javaMailSender = mailSender;
-	}
+	@Value("${app.settings.smtp.host}")
+	private String mailserver;
 
 	/**
 	 * sendRegistrationMail: <br>
@@ -57,7 +56,15 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	@Override
 	public void sendRegistrationMail(final List<User> recipients, final User user) throws Exception {
 		MimeMessagePreparator preparator;
+
+		JavaMailSenderImpl sender = new JavaMailSenderImpl();
+		Properties p = new Properties();
+		p.put("mail.host", mailserver);
+		Session con = Session.getInstance(p, null);
+		sender.setSession(con);
+
 		try {
+
 			preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws Exception {
 					Locale locale = user.getLocaleObject();
@@ -67,13 +74,13 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					model.put("user", user);
-					message.setText(
-							VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
-									+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
+					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+						+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
 					message.setTo(user.getEmail());
 				}
 			};
-			javaMailSender.send(preparator);
+
+			sender.send(preparator);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -90,13 +97,12 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
 							model.put("admin", admin);
 							model.put("user", user);
-							message.setText(
-									VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
-											+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8", model), true);
+							message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+								+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8", model), true);
 							message.setTo(admin.getEmail());
 						}
 					};
-					javaMailSender.send(preparator);
+					sender.send(preparator);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -106,6 +112,13 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Override
 	public void sendResetPassword(final ResetPassword password, final String hotname) {
+
+		JavaMailSenderImpl sender = new JavaMailSenderImpl();
+		Properties p = new Properties();
+		p.put("mail.host", mailserver);
+		Session con = Session.getInstance(p, null);
+		sender.setSession(con);
+
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -117,13 +130,12 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 					model.put("hostname", hotname);
 					model.put("username", password.getUser().getLogin());
-					message.setText(
-							VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
-									+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.vm" : "reset-password-en.vm"), "UTF-8", model), true);
+					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+						+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.vm" : "reset-password-en.vm"), "UTF-8", model), true);
 					message.setTo(password.getUser().getEmail());
 				}
 			};
-			javaMailSender.send(preparator);
+			sender.send(preparator);
 		} catch (MailException e) {
 			e.printStackTrace();
 		}
