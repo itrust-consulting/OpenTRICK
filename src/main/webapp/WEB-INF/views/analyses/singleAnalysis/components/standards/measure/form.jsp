@@ -86,7 +86,7 @@
 									</div>
 									<hr class="center-block" style="width: 96%">
 									<div class="form-group" style="width: 47%; margin: 5px 15px;">
-										<label class="col-xs-3" style="padding: 5px;"><spring:message code="label.filter" text="Filter" /></label>
+										<label class="col-xs-3" style="padding: 5px;"><spring:message code="label.asset_type" text="Asset type" /></label>
 										<div class="col-xs-9">
 											<select class="form-control" name="assettypes" id="assettypes">
 												<option value="ALL"><spring:message code="label.all" text="All" /></option>
