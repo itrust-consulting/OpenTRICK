@@ -838,7 +838,7 @@ public class ControllerAnalysisStandard {
 			Measure measure = MeasureManager.Create(analysisStandard);
 
 			MeasureProperties properties = null;
-			
+
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
 			if (measure instanceof AssetMeasure) {
@@ -846,7 +846,7 @@ public class ControllerAnalysisStandard {
 				List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
 
 				model.addAttribute("availableAssets", availableAssets);
-				
+
 				model.addAttribute("assetTypes", analysisAssetTypes);
 
 				((AssetMeasure) measure).setMeasurePropertyList(properties = new MeasureProperties());
@@ -855,7 +855,7 @@ public class ControllerAnalysisStandard {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
 				normalMeasure.setMeasurePropertyList(properties = new MeasureProperties());
 				List<AssetType> assetTypes = serviceAssetType.getAll();
-				
+
 				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
 				for (AssetType assetType : assetTypes) {
 					if (!analysisAssetTypes.contains(assetType))
@@ -906,7 +906,7 @@ public class ControllerAnalysisStandard {
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
 			MeasureProperties properties = null;
-			
+
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
 			if (measure instanceof AssetMeasure) {
@@ -916,7 +916,7 @@ public class ControllerAnalysisStandard {
 				List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
 
 				model.addAttribute("availableAssets", availableAssets);
-				
+
 				model.addAttribute("assetTypes", analysisAssetTypes);
 
 				if (!(availableAssets.isEmpty() || assetMeasure.getMeasureAssetValues().isEmpty())) {
