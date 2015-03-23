@@ -427,4 +427,9 @@ public class ServiceParameterImpl implements ServiceParameter {
 	public void saveOrUpdate(List<? extends Parameter> parameters) throws Exception {
 		daoParameter.saveOrUpdate(parameters);
 	}
+
+	@Override
+	public Parameter getByAnalysisIdAndDescription(Integer idAnalysis, String description) {
+		return daoParameter.getByAnalysisIdAndDescription(idAnalysis, description);
+	}
 }

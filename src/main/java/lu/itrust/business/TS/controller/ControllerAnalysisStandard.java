@@ -423,7 +423,11 @@ public class ControllerAnalysisStandard {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
-		model.addAttribute("measures", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
+		Parameter parameter = serviceParameter.getByAnalysisIdAndDescription(idAnalysis, Constant.SOA_THRESHOLD);
+
+		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue());
+
+		model.addAttribute("soa", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
 
 		return "analyses/singleAnalysis/components/soa";
 	}

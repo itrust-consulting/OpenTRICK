@@ -12,10 +12,10 @@
 				<h4 class="modal-title">
 					<c:choose>
 						<c:when test="${measureForm.id<1}">
-							<spring:message code="label.tile.add.measure" text="Add new Measure" />
+							<fmt:message key="label.tile.add.measure"/>
 						</c:when>
 						<c:otherwise>
-							<spring:message code="label.tile.edit.measure" text="Edit Measure" />
+							<fmt:message key="label.tile.edit.measure" />
 						</c:otherwise>
 					</c:choose>
 
@@ -86,7 +86,7 @@
 									</div>
 									<hr class="center-block" style="width: 96%">
 									<div class="form-group" style="width: 47%; margin: 5px 15px;">
-										<label class="col-xs-3" style="padding: 5px;"><spring:message code="label.asset_type" text="Asset type" /></label>
+										<label class="col-xs-3" style="padding: 5px;"><fmt:message key="label.asset_type" /></label>
 										<div class="col-xs-9">
 											<select class="form-control" name="assettypes" id="assettypes">
 												<option value="ALL"><spring:message code="label.all" text="All" /></option>

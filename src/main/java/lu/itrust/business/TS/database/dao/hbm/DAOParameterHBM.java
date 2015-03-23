@@ -52,7 +52,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * getFromAnalysisIdById: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getFromAnalysisIdById(int, java.lang.Integer)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getFromAnalysisIdById(int,
+	 *      java.lang.Integer)
 	 */
 	@Override
 	public Parameter getFromAnalysisById(Integer idAnalysis, Integer idParameter) throws Exception {
@@ -71,7 +72,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	public Parameter getFromAnalysisByTypeAndDescription(Integer idAnalysis, String type, String description) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.label = :type and ";
 		query += "parameter.description = :description";
-		return (Parameter) getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", type).setParameter("description", description).uniqueResult();
+		return (Parameter) getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", type).setParameter("description", description)
+				.uniqueResult();
 	}
 
 	/**
@@ -98,8 +100,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select parameter.acronym From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact ";
 		query += "or parameter.type.label = :proba ) order by parameter.level";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME).setParameter("proba",
-				Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
+				.setParameter("proba", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
 	}
 
 	/**
@@ -175,7 +177,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * getAllParametersByPageAndSizeIndex: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllParametersByPageAndSizeIndex(int, int)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllParametersByPageAndSizeIndex(int,
+	 *      int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -253,8 +256,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact or ";
 		query += "parameter.type.label = :proba) order by parameter.type.id, parameter.level";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME).setParameter("proba",
-				Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
+				.setParameter("proba", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
 	}
 
 	/**
@@ -365,5 +368,13 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	@Override
 	public void delete(Parameter parameter) throws Exception {
 		getSession().delete(parameter);
+	}
+
+	@Override
+	public Parameter getByAnalysisIdAndDescription(Integer idAnalysis, String description) {
+		return (Parameter) getSession()
+				.createQuery(
+						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.description = :description")
+				.setParameter("analysisId", idAnalysis).setParameter("description", Constant.SOA_THRESHOLD).uniqueResult();
 	}
 }

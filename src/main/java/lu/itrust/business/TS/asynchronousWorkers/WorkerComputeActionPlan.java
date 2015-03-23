@@ -166,7 +166,7 @@ public class WorkerComputeActionPlan implements Worker {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!",language, 100);
 				if (reloadSection)
-					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_actionplans\")", null));
+					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection([\"section_actionplans\",\"section_soa\"])", null));
 				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			} else
