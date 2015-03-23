@@ -622,4 +622,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.customer.id = :customer and  analysis.data = true and analysis.label = :name  order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc")
 				.setParameter("username", username).setParameter("customer", idCustomer).setString("name", name).list();
 	}
+
+	@Override
+	public boolean isProfileNameInUsed(String name) {
+		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where profile = true and label = :name").setString("name", name).uniqueResult();
+	}
 }

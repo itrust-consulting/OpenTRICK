@@ -120,4 +120,6 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name);
 
+	public boolean isProfileNameInUsed(String name);
+
 }
