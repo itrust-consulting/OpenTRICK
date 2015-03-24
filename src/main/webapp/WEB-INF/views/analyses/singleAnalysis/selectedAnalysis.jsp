@@ -44,7 +44,7 @@
 				<c:set var="phases" scope="request" value="${analysis.phases}" />
 				<jsp:include page="./components/phase/phase.jsp" />
 				<jsp:include page="./components/standards/standard/standards.jsp" />
-				<c:if test="${!analysis.isProfile() }">
+				<c:if test="${!analysis.isProfile()}">
 					<jsp:include page="./components/soa.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 					<jsp:include page="./components/actionplan.jsp" />

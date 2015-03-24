@@ -39,7 +39,7 @@
 									<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 								</tr>
 							</c:when>
-							<c:when test="${ not empty measure.measurePropertyList.soaRisk }">
+							<c:otherwise>
 								<c:set var="css">
 									<c:if test="${measure.implementationRateValue<100 and measure.implementationRateValue < soaThreshold}">class="success"</c:if>
 								</c:set>
@@ -66,13 +66,11 @@
 															</c:otherwise>
 										</c:choose></td>
 									<c:set var="newLine" value="\n" />
-									<td><pre>
-											<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
-										</pre></td>
+									<td><pre><spring:message text="${measure.measurePropertyList.getSoaRisk()}" /></pre></td>
 									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaComment()}" /></pre></td>
 									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaReference" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaReference()}" /></pre></td>
 								</tr>
-							</c:when>
+							</c:otherwise>
 						</c:choose>
 					</c:forEach>
 				</tbody>
