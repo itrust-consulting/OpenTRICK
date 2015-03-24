@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
@@ -63,8 +61,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 */
 	@Override
 	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :analysis and measure.id = :id";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :analysis and measure.id = :id";
 		return (Measure) getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("id", id).uniqueResult();
 	}
 
@@ -72,12 +69,12 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * belongsToAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#belongsToAnalysis(int, int)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#belongsToAnalysis(int,
+	 *      int)
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception {
-		String query =
-			"Select count(measure) From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :analysisId and ";
+		String query = "Select count(measure) From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :analysisId and ";
 		query += "measure.id = :measureId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("measureId", measureId).uniqueResult()).intValue() > 0;
 	}
@@ -103,8 +100,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllFromAnalysis(Integer idAnalysis) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :analysis order by measure.id";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :analysis order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).list();
 	}
 
@@ -117,8 +113,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.label = :standard and analysis.id";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.label = :standard and analysis.id";
 		query += "= :analysis order by analysisStandard.standard.label ASC, measure.id ASC";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("standard", Constant.STANDARD_27002).list();
 	}
@@ -149,8 +144,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and analysis.id = ";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and analysis.id = ";
 		query += ":analysis order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("idStandard", idStandard).list();
 	}
@@ -167,8 +161,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.label = :standard and analysis.id = ";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.label = :standard and analysis.id = ";
 		query += ":analysis order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("standard", standard).list();
 	}
@@ -185,8 +178,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard = :standard and analysis.id = ";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard = :standard and analysis.id = ";
 		query += ":analysis order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("standard", standard).list();
 	}
@@ -222,7 +214,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		query += "measure.measureDescription.computable = true and measure.status='AP' and exists(From NormalMeasure measure2 where measure2 = measure) order by measure.id ";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
-	
+
 	/**
 	 * getAllNormalMeasuresFromAnalysisAndComputable: <br>
 	 * Description
@@ -233,17 +225,13 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception{
-		String query = "Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.type != 'MATURITY'";
-		List<AnalysisStandard> astandards = (List<AnalysisStandard>)getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
-		List<Measure> measures = new ArrayList<Measure>();
-		for(AnalysisStandard astandard: astandards)
-			for(Measure measure : astandard.getMeasures())
-				if(!measure.getStatus().equals("NA") && measure.getImplementationRateValue()<100 && measure.getMeasureDescription().isComputable())
-					measures.add(measure);
-		return measures;
+	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception {
+		return getSession()
+				.createQuery(
+						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :idAnalysis and analysisStandard.standard.type != 'MATURITY' and measure.status <> 'NA'")
+				.setParameter("idAnalysis", idAnalysis).list();
 	}
-	
+
 	/**
 	 * getAllNormalMeasuresFromAnalysisByMeasureIdList: <br>
 	 * Description
@@ -256,11 +244,11 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllNotMaturityMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :analysis and measure.id in ";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :analysis and measure.id in ";
 		query += ":measures order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameterList("measures", measures).list();
 	}
+
 	/**
 	 * getAllNormalMeasuresFromAnalysisByMeasureIdList: <br>
 	 * Description
@@ -273,8 +261,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :analysis and measure.id in ";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :analysis and measure.id in ";
 		query += ":measures order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameterList("measures", measures).list();
 	}
@@ -346,11 +333,10 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Measure> mappingAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) {
-		Iterator<Measure> iterator =
-			getSession()
-					.createQuery(
-							"Select  measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and  analysis.id= :idAnalysis")
-					.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).iterate();
+		Iterator<Measure> iterator = getSession()
+				.createQuery(
+						"Select  measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and  analysis.id= :idAnalysis")
+				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).iterate();
 		Map<String, Measure> result = new LinkedHashMap<String, Measure>();
 		while (iterator.hasNext()) {
 			Measure measure = iterator.next();
@@ -378,7 +364,8 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#getAllNormalMeasure(int, int)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#getAllNormalMeasure(int,
+	 *      int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -393,7 +380,8 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int,
-	 *      java.lang.String, lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 *      java.lang.String,
+	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -406,9 +394,9 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 
 	@Override
 	public Measure getFromAnalysisAndStandardAndReference(Integer idAnalysis, Integer idStandard, String reference) throws Exception {
-		String query =
-			"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and analysis.id = ";
+		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.id = :idStandard and analysis.id = ";
 		query += ":analysis and measure.measureDescription.reference = :reference order by measure.id";
-		return (Measure) getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("idStandard", idStandard).setParameter("reference", reference).uniqueResult();
+		return (Measure) getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("idStandard", idStandard).setParameter("reference", reference)
+				.uniqueResult();
 	}
 }

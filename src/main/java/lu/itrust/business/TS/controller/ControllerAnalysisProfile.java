@@ -37,6 +37,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -129,8 +130,11 @@ public class ControllerAnalysisProfile {
 
 				}
 
-				if (name == null || name == Constant.EMPTY_STRING) {
+				if (StringUtils.isEmpty(name)) {
 					errors.put("description", messageSource.getMessage("error.analysis_profile.empty_description", null, "Description cannot be empty", locale));
+					return errors;
+				}else if(serviceAnalysis.isProfileNameInUsed(name)){
+					errors.put("description", messageSource.getMessage("error.analysis_profile.name_in_used", null, "Another analysis profile with the same description already exists", locale));
 					return errors;
 				}
 

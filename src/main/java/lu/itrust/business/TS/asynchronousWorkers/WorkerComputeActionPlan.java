@@ -6,9 +6,11 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.util.ArrayList;
 import java.util.List;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
@@ -65,7 +67,7 @@ public class WorkerComputeActionPlan implements Worker {
 	private Boolean uncertainty = false;
 
 	private MessageSource messageSource;
-	
+
 	/**
 	 * @param daoActionPlanSummary
 	 * @param daoActionPlanType
@@ -128,7 +130,7 @@ public class WorkerComputeActionPlan implements Worker {
 	@Override
 	public void run() {
 		Session session = null;
-		
+
 		try {
 			synchronized (this) {
 				if (poolManager != null && !poolManager.exist(getId()))
@@ -145,28 +147,29 @@ public class WorkerComputeActionPlan implements Worker {
 
 			String language = null;
 			language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
-			
+
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", language, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found",language, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", language, null));
 				return;
 			}
 			session.beginTransaction();
-			
+
 			List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
-			
+
 			initAnalysis(analysis, analysisStandards);
 
 			System.out.println("Delete previous action plan and summary...");
 
 			deleteActionPlan(analysis);
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, analysisStandards, this.uncertainty, this.messageSource);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, analysisStandards, this.uncertainty,
+					this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
-				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!",language, 100);
+				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", language, 100);
 				if (reloadSection)
-					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_actionplans\")", null));
+					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection([\"section_actionplans\",\"section_soa\"])", null));
 				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			} else
@@ -179,10 +182,9 @@ public class WorkerComputeActionPlan implements Worker {
 			} catch (HibernateException e1) {
 				e1.printStackTrace();
 			}
-		}
-		catch (TrickException e) {
+		} catch (TrickException e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters() , e.getCode(), e));
+				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
@@ -191,11 +193,11 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 		} catch (Exception e) {
 			try {
-				
+
 				String language = null;
 				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
-								
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed",language, e));
+
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", language, e));
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
@@ -222,7 +224,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * Description
 	 * 
 	 * @param analysis
-	 * @param analysisStandards 
+	 * @param analysisStandards
 	 */
 	private void initAnalysis(Analysis analysis, List<AnalysisStandard> analysisStandards) {
 		Hibernate.initialize(analysis);
@@ -236,16 +238,14 @@ public class WorkerComputeActionPlan implements Worker {
 		Hibernate.initialize(analysis.getParameters());
 		Hibernate.initialize(analysis.getPhases());
 		Hibernate.initialize(analysis.getAnalysisStandards());
-		
-		for(Integer id : this.standards) {
-			for(AnalysisStandard aStandard : analysis.getAnalysisStandards()) {
-				if(aStandard.getId()==id)
+
+		for (Integer id : this.standards) {
+			for (AnalysisStandard aStandard : analysis.getAnalysisStandards()) {
+				if (aStandard.getId() == id)
 					analysisStandards.add(aStandard);
 			}
 		}
-			
-		
-		
+
 	}
 
 	/**
@@ -258,16 +258,22 @@ public class WorkerComputeActionPlan implements Worker {
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
 		String lang = analysis.getLanguage().getAlpha2();
-		
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting",lang, null));
+
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", lang, null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting",lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", lang, null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
+
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.clear.soa", "Erasing of SAO", lang, null));
+
+		analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
+				.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+
 	}
 
 	/*
@@ -313,7 +319,8 @@ public class WorkerComputeActionPlan implements Worker {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.task.Worker#setPoolManager(lu.itrust.business.service
+	 * @see
+	 * lu.itrust.business.task.Worker#setPoolManager(lu.itrust.business.service
 	 * .WorkersPoolManager)
 	 */
 	@Override

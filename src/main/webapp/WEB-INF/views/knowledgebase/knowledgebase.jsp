@@ -19,11 +19,10 @@
 			<jsp:include page="../template/successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
-				<li class="active"><a href="#tab_customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers"/></a></li>
-				<li><a href="#tab_language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language"/></a></li>
+				<li class="active"><a href="#tab_customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers" /></a></li>
+				<li><a href="#tab_language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language" /></a></li>
 				<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
 				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
-				
 			</ul>
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="customer/customers.jsp" />
@@ -36,14 +35,14 @@
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../template/footer.jsp" />
-		<jsp:include page="../template/scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/standard.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/language.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
 	</div>
+	<jsp:include page="../template/scripts.jsp" />
+	<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/standard.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/language.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

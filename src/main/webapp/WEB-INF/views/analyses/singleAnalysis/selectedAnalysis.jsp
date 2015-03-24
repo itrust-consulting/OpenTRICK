@@ -44,7 +44,7 @@
 				<c:set var="phases" scope="request" value="${analysis.phases}" />
 				<jsp:include page="./components/phase/phase.jsp" />
 				<jsp:include page="./components/standards/standard/standards.jsp" />
-				<c:if test="${!analysis.isProfile() }">
+				<c:if test="${!analysis.isProfile()}">
 					<jsp:include page="./components/soa.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 					<jsp:include page="./components/actionplan.jsp" />
@@ -65,8 +65,6 @@
 	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
 	<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
-	<!-- <script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script> -->
-	
 	<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>

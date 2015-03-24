@@ -119,7 +119,8 @@ function controllerBySection(section, subSection) {
 		"section_user" : "/Admin/User/Section",
 		"section_actionplans" : "/Analysis/ActionPlan/Section",
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
-		"section_riskregister" : "/Analysis/RiskRegister/Section"
+		"section_riskregister" : "/Analysis/RiskRegister/Section",
+		"section_soa":"/Analysis/Standard/SOA"
 	};
 
 	if (section.match("^section_standard_"))

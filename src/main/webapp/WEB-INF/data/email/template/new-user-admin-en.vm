@@ -123,7 +123,7 @@
 								 User name: ${user.login}<br>
 								 Full name: ${user.firstName} ${user.lastName}<br>
 								 Email address: ${user.email}<br>
-								 In case of doubt thank you to suspend the account.
+								 In case of doubt please to suspend the account.
 								</p>
                                 </div>
                               </div>

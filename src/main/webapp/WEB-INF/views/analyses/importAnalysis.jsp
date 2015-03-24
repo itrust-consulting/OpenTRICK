@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <html>
-<c:set scope="request" var="title" value="label.title.analysis.import"/>
+<c:set scope="request" var="title" value="label.title.analysis.import" />
 <jsp:include page="../template/header.jsp" />
 <body>
 	<div id="wrap">
@@ -79,45 +79,45 @@
 			</div>
 		</div>
 		<jsp:include page="../template/footer.jsp" />
-		<jsp:include page="../template/scripts.jsp" />
-		<script type="text/javascript">
-			function customerChanged() {
-				var e = document.getElementById("customerId");
-
-				var strUser = e.options[e.selectedIndex].value;
-
-				if (strUser == -1) {
-					document.getElementById("file").disabled = true;
-					document.getElementById("validation").disabled = true;
-					$("#browse-button").prop("disabled", true);
-				} else {
-					document.getElementById("file").disabled = false;
-					$("#browse-button").prop("disabled", false);
-					checkFile(false);
-				}
-			}
-
-			function checkFile(b) {
-				var fileVal = document.getElementById("file").value;
-
-				var ext = fileVal.substr(fileVal.length - 7, fileVal.length);
-
-				switch (ext) {
-				case '.sqlite':
-					document.getElementById("validation").disabled = false;
-					$("#upload-file-info").prop("value", fileVal);
-					break;
-				default:
-					document.getElementById("validation").disabled = true;
-					if (b){
-						if($("#import-container .alert.alert-error").length)
-							$("#import-container .alert.alert-error").remove();
-						showError($('#import-container')[0], '<spring:message code="error.import.analysis.selected_file" text="You must import a .sqlite file!"/>');
-					}
-					break;
-				}
-			}
-		</script>
 	</div>
+	<jsp:include page="../template/scripts.jsp" />
+	<script type="text/javascript">
+		function customerChanged() {
+			var e = document.getElementById("customerId");
+
+			var strUser = e.options[e.selectedIndex].value;
+
+			if (strUser == -1) {
+				document.getElementById("file").disabled = true;
+				document.getElementById("validation").disabled = true;
+				$("#browse-button").prop("disabled", true);
+			} else {
+				document.getElementById("file").disabled = false;
+				$("#browse-button").prop("disabled", false);
+				checkFile(false);
+			}
+		}
+
+		function checkFile(b) {
+			var fileVal = document.getElementById("file").value;
+
+			var ext = fileVal.substr(fileVal.length - 7, fileVal.length);
+
+			switch (ext) {
+			case '.sqlite':
+				document.getElementById("validation").disabled = false;
+				$("#upload-file-info").prop("value", fileVal);
+				break;
+			default:
+				document.getElementById("validation").disabled = true;
+				if (b) {
+					if ($("#import-container .alert.alert-error").length)
+						$("#import-container .alert.alert-error").remove();
+					showError($('#import-container')[0], '<spring:message code="error.import.analysis.selected_file" text="You must import a .sqlite file!"/>');
+				}
+				break;
+			}
+		}
+	</script>
 </body>
 </html>

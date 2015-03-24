@@ -119,4 +119,6 @@ public interface DAOAnalysis {
 	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer);
 
 	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name);
+
+	public boolean isProfileNameInUsed(String name);
 }

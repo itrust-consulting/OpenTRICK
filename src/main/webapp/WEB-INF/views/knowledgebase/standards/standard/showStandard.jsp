@@ -21,26 +21,28 @@
 			<div class="row">
 				<div class="page-header">
 					<h1>
-						<spring:message code="label.title.norm" text="Standard"/>: <spring:message text="${standard.name}"/>
+						<spring:message code="label.title.norm" text="Standard" />
+						:
+						<spring:message text="${standard.name}" />
 					</h1>
 				</div>
 				<div class="content col-md-10" id="content" role="main" data-spy="scroll">
 					<c:if test="${!empty standard}">
 						<table class="table" border="1">
 							<tr>
-								<td><spring:message code="label.norm.id" text="Id"/></td>
+								<td><spring:message code="label.norm.id" text="Id" /></td>
 								<td>${standard.id}</td>
 							</tr>
 							<tr>
-								<td><spring:message code="label.norm.label" text="Name"/></td>
-								<td><spring:message text="${standard.label}"/></td>
+								<td><spring:message code="label.norm.label" text="Name" /></td>
+								<td><spring:message text="${standard.label}" /></td>
 							</tr>
 							<tr>
-								<td><spring:message code="label.norm.version" text="Version"/></td>
-								<td><spring:message text="${standard.version}"/></td>
+								<td><spring:message code="label.norm.version" text="Version" /></td>
+								<td><spring:message text="${standard.version}" /></td>
 							</tr>
 							<tr>
-								<td><spring:message code="label.norm.computable" text="Computable"/></td>
+								<td><spring:message code="label.norm.computable" text="Computable" /></td>
 								<td><spring:message code="label.yes_no.${standard.computable}" text="${standard.computable?'Yes':'No'}" /></td>
 							</tr>
 						</table>
@@ -49,7 +51,7 @@
 			</div>
 		</div>
 		<jsp:include page="../../../template/footer.jsp" />
-		<jsp:include page="../../../template/scripts.jsp" />
 	</div>
+	<jsp:include page="../../../template/scripts.jsp" />
 </body>
 </html>

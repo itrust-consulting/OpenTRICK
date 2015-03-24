@@ -541,7 +541,7 @@ function saveMeasure() {
 	data.idStandard = form.find("#idStandard").val();
 	data.assetValues = [];
 
-	form.find("#tab_properties #values input[id^='property_asset_type']").each(function() {
+	form.find("#tab_properties #values input[id^='property_asset']").each(function() {
 		data.assetValues.push({
 			id : this.name,
 			value : properties[this.name],

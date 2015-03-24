@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -31,6 +32,7 @@ import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.history.History;
+import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
@@ -259,17 +261,10 @@ public class ControllerAnalysis {
 					principal, AnalysisRight.READ);
 
 			if (hasPermission) {
-
 				// initialise analysis
-
-				analysis.setAssets(serviceAsset.getAllFromAnalysis(selected));
-				analysis.setScenarios(serviceScenario.getAllFromAnalysis(selected));
-				analysis.setItemInformations(serviceItemInformation.getAllFromAnalysis(selected));
-				analysis.setLanguage(serviceLanguage.getByAlpha3(analysis.getLanguage().getAlpha3()));
-				analysis.setActionPlans(serviceActionPlan.getAllFromAnalysis(selected));
-				analysis.setSummaries(serviceActionPlanSummary.getAllFromAnalysis(selected));
-
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
+				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
+				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
 				model.addAttribute("login", user.getLogin());
 				model.addAttribute("analysis", analysis);
 				model.addAttribute("standards", analysis.getStandards());
@@ -280,8 +275,8 @@ public class ControllerAnalysis {
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 
 			} else {
-				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
-				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("errors"));
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
+				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("error"));
 			}
 		} else {
 			String view = LoadUserAnalyses(session, principal, model, null);

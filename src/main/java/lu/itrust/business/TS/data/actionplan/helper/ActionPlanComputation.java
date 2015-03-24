@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.naming.directory.InvalidAttributesException;
 
@@ -1073,35 +1074,28 @@ public class ActionPlanComputation {
 
 		if (!entry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
 			return;
+		
+		NormalMeasure measure = ((NormalMeasure) entry.getMeasure());
 
-		for (int i = 0; i < TMAList.size(); i++) {
+		for (TMA tma : TMAList) {
 
-			if (!entry.getMeasure().equals(TMAList.get(i).getMeasure()))
+			if (!measure.equals(tma.getMeasure()))
 				continue;
 
-			Assessment tmpAssessment = null;
+			Optional<Assessment> optional = this.analysis.getAssessments().stream().filter(assessment -> assessment.equals(tma.getAssessment())).findFirst();
 
-			for (int k = 0; k < this.analysis.getAssessments().size(); k++) {
-				if (TMAList.get(i).getAssessment().equals(this.analysis.getAnAssessment(k))) {
-					tmpAssessment = this.analysis.getAnAssessment(k);
-					break;
-				}
-			}
+			if (optional.isPresent()) {
 
-			if (tmpAssessment != null) {
-
-				tmpreport = TMAList.get(i).getDeltaALE() / tmpAssessment.getALE() * 100;
+				tmpreport = (tma.getDeltaALE() / optional.get().getALE()) * 100.0;
 
 				if (tmpreport > report) {
 					report = tmpreport;
-					asm = tmpAssessment;
+					asm = optional.get();
 				}
 			}
 		}
 
-		String language = this.analysis.getLanguage().getAlpha2();
-
-		Locale locale = new Locale(language);
+		Locale locale = new Locale(this.analysis.getLanguage().getAlpha2());
 
 		String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + " \n ";
 		soarisk += messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + " \n ";
@@ -1119,9 +1113,7 @@ public class ActionPlanComputation {
 		}
 
 		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(val);
-
-		((NormalMeasure) entry.getMeasure()).getMeasurePropertyList().setSoaRisk(soarisk);
-		// serviceMeasure.saveOrUpdate(entry.getMeasure());
+		measure.getMeasurePropertyList().setSoaRisk(soarisk);
 	}
 
 	/***********************************************************************************************

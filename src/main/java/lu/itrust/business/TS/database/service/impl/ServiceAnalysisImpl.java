@@ -573,4 +573,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name) {
 		return daoAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(username,idCustomer, name);
 	}
+
+	@Override
+	public boolean isProfileNameInUsed(String name) {
+		return daoAnalysis.isProfileNameInUsed(name);
+	}
 }

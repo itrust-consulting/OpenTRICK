@@ -66,7 +66,7 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.filter" text="Filter" />
+									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.analysis.identifier" text="TRICK Name" />
 									</label>
 									<div class="col-sm-8">
 										<select name="filter" class="form-control" onchange="updateSqliteControl()">
@@ -134,8 +134,7 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.filter" text="Filter" />
-									</label>
+									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.analysis.identifier" text="TRICK Name" /></label>
 									<div class="col-sm-8">
 										<select name="filter" class="form-control" onchange="updateReportControl()">
 											<option value="ALL" ${reportControl.filter == 'ALL'?'selected="selected"':''}><spring:message code="label.all" text="All" /></option>
@@ -158,9 +157,8 @@
 			</div>
 		</div>
 		<jsp:include page="../template/footer.jsp" />
-		<jsp:include page="../template/scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/profile.js" />"></script>
 	</div>
+	<jsp:include page="../template/scripts.jsp" />
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

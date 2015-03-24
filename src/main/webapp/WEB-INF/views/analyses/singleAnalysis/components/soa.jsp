@@ -19,10 +19,10 @@
 			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_SOA_27002">
 				<thead>
 					<tr>
-						<th style="width:5%;"><fmt:message key="label.measure.ref" /></th>
-						<th style="width:15%;"><fmt:message key="label.measure.domain" /></th>
-						<th style="width:5%;"><fmt:message key="label.measure.phase" /></th>
-						<th style="width:15%;"><fmt:message key="label.measure.soa.risk" /></th>
+						<th style="width: 5%;"><fmt:message key="label.measure.ref" /></th>
+						<th style="width: 15%;"><fmt:message key="label.measure.domain" /></th>
+						<th style="width: 5%;"><fmt:message key="label.measure.phase" /></th>
+						<th style="width: 15%;"><fmt:message key="label.measure.soa.risk" /></th>
 						<th><fmt:message key="label.measure.soa.comment" /></th>
 						<th><fmt:message key="label.measure.SOA.reference" /></th>
 					</tr>
@@ -32,7 +32,7 @@
 				<tbody>
 					<c:forEach items="${soa}" var="measure">
 						<c:choose>
-							<c:when test="${measure.measureDescription.computable==false }">
+							<c:when test="${not measure.measureDescription.computable}">
 								<tr style="background-color: #F8F8F8;">
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
@@ -40,6 +40,9 @@
 								</tr>
 							</c:when>
 							<c:otherwise>
+								<c:set var="css">
+									<c:if test="${measure.implementationRateValue<100 and measure.implementationRateValue < soaThreshold}">class="success"</c:if>
+								</c:set>
 								<tr data-trick-class="SOA" data-trick-id="${measure.id}">
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 									<c:choose>
@@ -64,16 +67,8 @@
 										</c:choose></td>
 									<c:set var="newLine" value="\n" />
 									<td><pre><spring:message text="${measure.measurePropertyList.getSoaRisk()}" /></pre></td>
-									<td class="success" onclick="return editField(this.firstElementChild);">
-										<pre data-trick-field="soaComment" data-trick-content="text" data-trick-field-type="string">
-											<spring:message text="${measure.measurePropertyList.getSoaComment()}" />
-										</pre>
-									</td>
-									<td class="success" onclick="return editField(this.firstElementChild);">
-										<pre data-trick-field="soaReference" data-trick-content="text" data-trick-field-type="string">
-											<spring:message text="${measure.measurePropertyList.getSoaReference()}" />
-										</pre>
-									</td>
+									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaComment()}" /></pre></td>
+									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaReference" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaReference()}" /></pre></td>
 								</tr>
 							</c:otherwise>
 						</c:choose>
