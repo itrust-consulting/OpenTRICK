@@ -472,7 +472,7 @@ ul.asset-measure>li {
 	height: 310px;
 }
 
-.nav-analysis.tab-pane.active, .nav-tab.tab-pane.active {
+#nav-container .tab-pane.active, #tab-container .tab-pane.active {
 	overflow: auto;
 }
 

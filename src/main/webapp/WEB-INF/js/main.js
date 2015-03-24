@@ -41,11 +41,36 @@ $(function() {
 	if ($("#tab-container").length || $("#nav-container").length) {
 		var tabMenu = $(".nav-tab").length ? $(".nav-tab") : $(".nav-analysis");
 		var tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container");
+		var option = tabMenu.find("#tabOption")
 		$(window).on("resize.window", function() {
 			tabContainer.css({
-				"margin-top" : tabMenu.height() + 12 //default margin-top is 50px and default tabMenu size is 38px
+				"margin-top" : tabMenu.height() + 12
+			// default margin-top is 50px and default tabMenu size is 38px
 			});
 		});
+
+		if (option.length) {
+			var updateOption = function() {
+				var optionMenu = tabContainer.find(".tab-pane.active ul.nav.nav-pills");
+				var tableFloatingHeader = tabContainer.find("table .tableFloatingHeader");
+				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
+					option.hide()
+				else {
+					if (!option.find("#" + optionMenu.prop("id")).length) {
+						option.find("ul").remove();
+						var cloneOption = optionMenu.clone();
+						cloneOption.appendTo(option);
+						cloneOption.removeClass();
+						cloneOption.find("li").removeClass("pull-right")
+						cloneOption.addClass("dropdown-menu")
+					}
+					option.show();
+				}
+			}
+			
+			tabMenu.find('a[data-toggle="tab"]').on('shown.bs.tab', updateOption);
+			$(window).on("scroll.window", updateOption);
+		}
 	}
 
 	if ($(".popover-element").length)
@@ -77,6 +102,7 @@ $(function() {
 				window[$(target).attr("data-trigger")].apply();
 				$(target).attr("data-update-required", "false");
 			}
+			$("#tabOption").hide();
 		});
 	}
 
