@@ -38,6 +38,16 @@ $(function() {
 		application["isReloading"] = true;
 	});
 
+	if ($("#tab-container").length || $("#nav-container").length) {
+		var tabMenu = $(".nav-tab").length ? $(".nav-tab") : $(".nav-analysis");
+		var tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container");
+		$(window).on("resize.window", function() {
+			tabContainer.css({
+				"margin-top" : tabMenu.height() + 12 //default margin-top is 50px and default tabMenu size is 38px
+			});
+		});
+	}
+
 	if ($(".popover-element").length)
 		$(".popover-element").popover('hide');
 
