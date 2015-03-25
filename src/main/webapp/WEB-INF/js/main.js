@@ -70,9 +70,10 @@ $(function() {
 
 			tabMenu.find('a[data-toggle="tab"]').on('shown.bs.tab', function() {
 				$(window).scroll();
-				setTimeout(updateOption, 10);
 			});
-			$(window).on("scroll.window", updateOption);
+			$(window).on("scroll.window", function() {
+				setTimeout(updateOption, 100);
+			});
 		}
 	}
 
