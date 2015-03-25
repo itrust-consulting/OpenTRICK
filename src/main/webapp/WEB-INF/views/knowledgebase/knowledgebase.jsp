@@ -23,6 +23,8 @@
 				<li><a href="#tab_language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language" /></a></li>
 				<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
 				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
+				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
+					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="customer/customers.jsp" />

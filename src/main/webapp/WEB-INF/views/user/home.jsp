@@ -16,6 +16,8 @@
 				<li class="active"><a href="#profile" data-toggle="tab"><spring:message code="label.menu.profile" text="My Profile" /></a></li>
 				<li><a href="#sqlite" data-toggle="tab"><spring:message code="label.menu.sqlite" text="My sqlites" /></a></li>
 				<li><a href="#report" data-toggle="tab"><spring:message code="label.menu.report" text="My reports" /></a></li>
+				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
+					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="profile.jsp" />
@@ -42,12 +44,14 @@
 									<label for="direction" class="col-sm-4 control-label"><spring:message code="label.action.sort_direction" text="Direction" /></label>
 									<div class="col-sm-8">
 										<div class="btn-group" data-toggle="buttons">
-											<label class="btn btn-default ${sqliteControl.direction=='asc'? 'active':'' }" title='<spring:message
-													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio"
-												name="direction" value="asc" ${sqliteControl.direction=='asc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-270"></i>
-											</label> <label class="btn btn-default ${sqliteControl.direction=='desc'? 'active':'' }" title='<spring:message
-													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio"
-												name="direction" value="desc" ${sqliteControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-90"></i>
+											<label class="btn btn-default ${sqliteControl.direction=='asc'? 'active':'' }"
+												title='<spring:message
+													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" value="asc"
+												${sqliteControl.direction=='asc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-270"></i>
+											</label> <label class="btn btn-default ${sqliteControl.direction=='desc'? 'active':'' }"
+												title='<spring:message
+													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction" value="desc"
+												${sqliteControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-90"></i>
 											</label>
 										</div>
 									</div>
@@ -84,8 +88,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-xs-9" id="section_sqlite">
-					</div>
+					<div class="col-xs-9" id="section_sqlite"></div>
 				</div>
 				<div id="report" class="tab-pane" data-update-required="true" data-trigger="loadUserReport" data-scroll-trigger="userReportScrolling">
 					<div class="col-xs-3">
@@ -110,12 +113,15 @@
 									<label for="direction" class="col-sm-4 control-label"><spring:message code="label.action.sort_direction" text="Direction" /></label>
 									<div class="col-sm-8">
 										<div class="btn-group" data-toggle="buttons">
-											<label class="btn btn-default ${reportControl.direction=='asc'? 'active':'' }" title='<spring:message
-													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio"
-												name="direction" autocomplete="off" ${reportControl.direction=='asc'? 'checked="checked"':'' } value="asc" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-270"></i>
-											</label> <label class="btn btn-default ${reportControl.direction=='desc'? 'active':'' }" title='<spring:message
-													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio"
-												name="direction" ${reportControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" value="desc" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-90"></i>
+											<label class="btn btn-default ${reportControl.direction=='asc'? 'active':'' }"
+												title='<spring:message
+													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" autocomplete="off"
+												${reportControl.direction=='asc'? 'checked="checked"':'' } value="asc" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-270"></i>
+											</label> <label class="btn btn-default ${reportControl.direction=='desc'? 'active':'' }"
+												title='<spring:message
+													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction"
+												${reportControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" value="desc" onchange="updateReportControl(this)"><i
+												class="fa fa-play fa-rotate-90"></i>
 											</label>
 										</div>
 									</div>
@@ -151,8 +157,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-xs-9" id="section_report">
-					</div>
+					<div class="col-xs-9" id="section_report"></div>
 				</div>
 			</div>
 		</div>
