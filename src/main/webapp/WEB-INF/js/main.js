@@ -52,7 +52,7 @@ $(function() {
 		if (option.length) {
 			var updateOption = function() {
 				var optionMenu = tabContainer.find(".tab-pane.active ul.nav.nav-pills");
-				var tableFloatingHeader = tabContainer.find("table .tableFloatingHeader");
+				var tableFloatingHeader = tabContainer.find(".tab-pane.active table .tableFloatingHeader");
 				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
 					option.hide()
 				else {
@@ -67,8 +67,11 @@ $(function() {
 					option.show();
 				}
 			}
-			
-			tabMenu.find('a[data-toggle="tab"]').on('shown.bs.tab', updateOption);
+
+			tabMenu.find('a[data-toggle="tab"]').on('shown.bs.tab', function() {
+				$(window).scroll();
+				setTimeout(updateOption, 10);
+			});
 			$(window).on("scroll.window", updateOption);
 		}
 	}

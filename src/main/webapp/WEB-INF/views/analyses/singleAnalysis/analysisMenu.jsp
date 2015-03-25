@@ -93,7 +93,8 @@
 				<li><a href="#" onclick="return refreshAssessment();"><fmt:message key="label.action.refresh.assessment" /></a></li>
 			</c:if>
 		</ul></li>
-	
-	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.options" /><span class="caret"></span></a></li>
-	
+
+	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
+		data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
+
 </ul>

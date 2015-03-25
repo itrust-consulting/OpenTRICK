@@ -49,7 +49,7 @@ function calculateRiskRegister(analysisId) {
 
 function riskRegisterSwitchData(element){
 	var $li = $(element);
-	if($li.hasClass("active"))
+	if($li.hasClass("disabled"))
 		return false;
 	var type = $li.attr("role");
 	var tds = $("#section_riskregister table>tbody td[data-scale-value]");
@@ -58,7 +58,8 @@ function riskRegisterSwitchData(element){
 			$(tds[i]).html($(tds[i]).attr("data-scale-value"));
 		else $(tds[i]).html($(tds[i]).attr("data-scale-level"));
 	}
-	$("#menu_riskRegister>li.active").removeClass("active");
-	$li.addClass("active");
+	$li = $("#menu_riskRegister>li:not(.disabled)");
+	$("#menu_riskRegister>li.disabled").removeClass("disabled");
+	$li.addClass("disabled");
 	return false;
 }

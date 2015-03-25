@@ -9,7 +9,7 @@
 	<div class="section" id="section_riskregister">
 		<c:if test="${!empty(riskregister)}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_riskRegister">
-				<li class="active" role="menu-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message key="label.risk_register.display.value" /></a></li>
+				<li class="disabled" role="menu-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message key="label.risk_register.display.value" /></a></li>
 				<li role="menu-control-level"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message key="label.risk_register.display.level" /></a></li>
 			</ul>
 			<table class="table table-hover table-condensed table-fixed-header-analysis">
