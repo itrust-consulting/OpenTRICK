@@ -559,7 +559,7 @@ function addHistory(analysisId) {
 		oldVersion = $("#section_analysis tr[data-trick-id='" + analysisId + "']>td:nth-child(6)").text();
 	}
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.READ)) {
+	if (canCreateNewVersion(analysisId)) {
 		$.ajax({
 			url : context + "/Analysis/" + analysisId + "/NewVersion",
 			type : "get",

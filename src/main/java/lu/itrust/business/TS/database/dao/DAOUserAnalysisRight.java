@@ -25,6 +25,8 @@ public interface DAOUserAnalysisRight {
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception;
 
 	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) throws Exception;
+	
+	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right)throws Exception;
 
 	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
 
@@ -45,5 +47,7 @@ public interface DAOUserAnalysisRight {
 	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
 
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int analysisId);
+
+	
 	
 }

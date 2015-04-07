@@ -3,7 +3,11 @@ package lu.itrust.business.permissionevaluator;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.security.Principal;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
+import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -100,8 +104,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) throws Exception {
-
+	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right){
 		try {
 
 			if (analysisId == null || analysisId <= 0)
@@ -205,7 +208,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
+	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
 
 			if (analysisId == null || analysisId <= 0)
@@ -237,7 +240,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
+	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
 
 			if (analysisId == null || analysisId <= 0)
@@ -252,6 +255,34 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
 
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right) || serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@Override
+	public boolean canCreateNewVersion(Integer analysisId, Principal principal, AnalysisRight right) {
+		try {
+			if (principal == null || analysisId == null || right == null || analysisId < 1)
+				return false;
+			String identifier = serviceAnalysis.getIdentifierByIdAnalysis(analysisId);
+			List<String> versions = serviceAnalysis.getAllVersion(identifier);
+			if (versions.size() > 1) {
+				Comparator<String> comparator = new Comparator<String>() {
+					@Override
+					public int compare(String o1, String o2) {
+						return GeneralComperator.VersionComparator(o2, o1);
+					}
+				};
+				Collections.sort(versions, comparator);
+				Integer idLastVersion = serviceAnalysis.getIdFromIdentifierAndVersion(identifier, versions.get(0));
+				if (idLastVersion != analysisId)
+					return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right)
+							&& serviceUserAnalysisRight.isUserAuthorized(idLastVersion, principal.getName(), AnalysisRight.ALL)
+							|| serviceAnalysis.isAnalysisOwner(idLastVersion, principal.getName());
+			}
+			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

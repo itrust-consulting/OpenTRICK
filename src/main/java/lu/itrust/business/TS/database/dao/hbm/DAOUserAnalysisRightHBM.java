@@ -232,4 +232,18 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 						"select userRight From Analysis as analysis inner join analysis.userRights as userRight where analysis.identifier = :identifier and analysis.id <> :idAnalysis and userRight.right <>'READ'")
 				.setString("identifier", identifier).setInteger("idAnalysis", analysisId).list();
 	}
+
+	@Override
+	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right) throws Exception {
+		AnalysisRight analysisRight = (AnalysisRight) getSession()
+				.createQuery(
+						"Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.identifier = :identifier and analysis.version = :version and userRight.user = :owner")
+				.setParameter("identifier", identifier).setString("version", version).setParameter("owner", owner).uniqueResult();
+		if (!(analysisRight == null || right == null) && analysisRight.ordinal() <= right.ordinal())
+			return true;
+		else
+			return (boolean) getSession()
+					.createQuery("Select count(*)>0 From Analysis analysis where analysis.identifier = :identifier and analysis.version = :version and analysis.owner = :owner")
+					.setParameter("identifier", identifier).setString("version", version).setParameter("owner", owner).uniqueResult();
+	}
 }

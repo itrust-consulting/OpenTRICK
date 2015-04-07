@@ -578,4 +578,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public boolean isProfileNameInUsed(String name) {
 		return daoAnalysis.isProfileNameInUsed(name);
 	}
+
+	@Override
+	public List<String> getAllVersion(Integer analysisId) {
+		return daoAnalysis.getAllVersion(analysisId);
+	}
 }

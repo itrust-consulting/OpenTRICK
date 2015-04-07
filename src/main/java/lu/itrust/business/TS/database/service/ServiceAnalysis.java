@@ -122,4 +122,6 @@ public interface ServiceAnalysis {
 
 	public boolean isProfileNameInUsed(String name);
 
+	public List<String> getAllVersion(Integer analysisId);
+
 }

@@ -14,10 +14,12 @@ import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
  */
 public interface PermissionEvaluator extends org.springframework.security.access.PermissionEvaluator {
 
-	boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception;
+	boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right);
 	
-	boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception;
+	boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right);
 	
-	boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) throws Exception;
+	boolean canCreateNewVersion(Integer analysisId, Principal principal, AnalysisRight right);
+	
+	boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) ;
 	
 }

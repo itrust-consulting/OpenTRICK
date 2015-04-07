@@ -13,11 +13,13 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -25,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,6 +49,9 @@ public class ControllerHome {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
+	
+	@Autowired
+	private PermissionEvaluator permissionEvaluator;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -68,6 +74,11 @@ public class ControllerHome {
 				: null;
 		return String.format("{\"message\":\"%s\"}",
 				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
+	}
+	
+	@RequestMapping(value = "/Can-create-version/{idAnalysis}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody boolean canCreateVersion(@PathVariable Integer idAnalysis, Principal principal){
+		return permissionEvaluator.canCreateNewVersion(idAnalysis, principal, AnalysisRight.READ);
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)

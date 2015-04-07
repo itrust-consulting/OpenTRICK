@@ -627,4 +627,13 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public boolean isProfileNameInUsed(String name) {
 		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where profile = true and label = :name").setString("name", name).uniqueResult();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getAllVersion(Integer analysisId) {
+		return getSession()
+				.createQuery(
+						"Select distinct analysis.version From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2 = :analysisId)")
+				.setInteger("analysisId", analysisId).list();
+	}
 }

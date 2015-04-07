@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
@@ -65,6 +66,7 @@ import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
+import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
@@ -110,6 +112,8 @@ public class ImportAnalysis {
 	private DAOMeasureDescriptionText daoMeasureDescriptionText;
 
 	private DAOStandard daoStandard;
+
+	private DAOUserAnalysisRight daoUserAnalysisRight;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -186,7 +190,9 @@ public class ImportAnalysis {
 	 * ImportAnAnalysis: <br>
 	 * Method used to import and given analysis using an sqlite file into the
 	 * mysql database.
-	 * @param session TODO
+	 * 
+	 * @param session
+	 *            TODO
 	 * 
 	 * @throws Exception
 	 */
@@ -194,15 +200,15 @@ public class ImportAnalysis {
 
 		try {
 
-			if(hbernateSession == null)
+			if (hbernateSession == null)
 				throw new TrickException("error.database.no_session", "No database session");
-			
+
 			setSession(hbernateSession);
-			
+
 			initialise();
-			
+
 			session.beginTransaction();
-			
+
 			System.out.println("Importing...");
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", null, 0));
@@ -338,7 +344,7 @@ public class ImportAnalysis {
 			try {
 				serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), null, e));
 				e.printStackTrace();
-				if(session!=null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -515,9 +521,29 @@ public class ImportAnalysis {
 		// set analysis creationdate
 		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
-		// initialise analysis version to the last history version
+		List<String> versions = daoAnalysis.getAllVersion(this.analysis.getIdentifier());
 
+		Comparator<String> comparator = new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return GeneralComperator.VersionComparator(o1, o2);
+			}
+		};
+
+		Collections.sort(versions, comparator);
+
+		if (!(versions.isEmpty() || daoUserAnalysisRight.isUserAuthorizedOrOwner(this.analysis.getIdentifier(), versions.get(versions.size() - 1), this.analysis.getOwner(),
+				AnalysisRight.ALL)))
+			throw new TrickException("error.not_authorized", "Insufficient permissions!");
+
+		// initialise analysis version to the last history version
 		Collections.sort(this.analysis.getHistories(), new ComparatorHistoryVersion());
+
+		this.analysis.getHistories().stream().filter(analysisHistory -> !versions.contains(analysisHistory.getVersion()))
+				.forEach(analysisHistory -> versions.add(analysisHistory.getVersion()));
+
+		if (!versions.isEmpty())
+			Collections.sort(versions, comparator);
 
 		this.analysis.setVersion(this.analysis.getLastHistory().getVersion());
 
@@ -536,7 +562,6 @@ public class ImportAnalysis {
 
 			// check if analysis with this version does NOT already exist -> YES
 			if (!daoAnalysis.exists(this.analysis.getIdentifier(), history.getVersion())) {
-
 				// ****************************************************************
 				// * store analysis with history entries to the current version
 				// into database
@@ -544,6 +569,9 @@ public class ImportAnalysis {
 
 				// create new analysis object
 				analysis = new Analysis();
+				int indexOfVersion = versions.indexOf(history.getVersion());
+				Analysis previousVersion = indexOfVersion > 0 ? daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), versions.get(indexOfVersion - 1),
+						this.analysis.getCustomer().getId()) : null;
 
 				// set data for analyses
 				analysis.setIdentifier(this.analysis.getIdentifier());
@@ -553,14 +581,13 @@ public class ImportAnalysis {
 				analysis.setLanguage(this.analysis.getLanguage());
 				analysis.setCustomer(this.analysis.getCustomer());
 				analysis.setOwner(this.analysis.getOwner());
-				analysis.addUserRight(new UserAnalysisRight(this.analysis.getOwner(), AnalysisRight.ALL));
-				if (i == 0) {
-					analysis.setBasedOnAnalysis(null);
-				} else {
-					analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), this.analysis.getAHistory(i - 1).getVersion(),
-							this.analysis.getCustomer().getId()));
+				analysis.setBasedOnAnalysis(previousVersion);
+				if (previousVersion != null) {
+					for (UserAnalysisRight analysisRight : previousVersion.getUserRights())
+						analysis.addUserRight(analysisRight.getUser(), analysisRight.getRight());
 				}
 
+				analysis.editUserRight(this.analysis.getOwner(), AnalysisRight.ALL);
 				// add history entries to this history entry
 				for (int j = 0; j <= i; j++) {
 
@@ -599,12 +626,14 @@ public class ImportAnalysis {
 			}
 		}
 
-		if (history == null) {
-			this.analysis.setBasedOnAnalysis(null);
-		} else {
-			this.analysis
-					.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(), this.analysis.getCustomer().getId()));
+		Analysis previousVersion = history == null ? null : daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(), this.analysis
+				.getCustomer().getId());
+		this.analysis.setBasedOnAnalysis(previousVersion);
+		if (previousVersion != null) {
+			for (UserAnalysisRight analysisRight : previousVersion.getUserRights())
+				this.analysis.addUserRight(analysisRight.getUser(), analysisRight.getRight());
 		}
+		this.analysis.editUserRight(this.analysis.getOwner(), AnalysisRight.ALL);
 	}
 
 	/**
@@ -1798,7 +1827,7 @@ public class ImportAnalysis {
 	 */
 	private static boolean columnExists(ResultSet rs, String columnname) {
 		try {
-			return rs.findColumn(columnname) >=0;
+			return rs.findColumn(columnname) >= 0;
 		} catch (SQLException e) {
 			return false;
 		}
@@ -1934,10 +1963,10 @@ public class ImportAnalysis {
 				phaseNumber = Constant.PHASE_DEFAULT;
 
 			// retrieve phase from phases map
-			if(phaseNumber == 0)
+			if (phaseNumber == 0)
 				phaseNumber = 1;
 			phase = phases.get(phaseNumber);
-			
+
 			// if (phase.getAnalysis() == null) {
 			// System.out.println(phase);
 			// }
@@ -3168,6 +3197,7 @@ public class ImportAnalysis {
 		setDaoMeasureDescriptionText(new DAOMeasureDescriptionTextHBM(session));
 		setDaoStandard(new DAOStandardHBM(session));
 		setDaoParameterType(new DAOParameterTypeHBM(session));
+		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
 	}
 
 	/**
@@ -3242,6 +3272,14 @@ public class ImportAnalysis {
 		this.daoStandard = daoStandard;
 	}
 
+	public DAOUserAnalysisRight getDaoUserAnalysisRight() {
+		return daoUserAnalysisRight;
+	}
+
+	public void setDaoUserAnalysisRight(DAOUserAnalysisRight daoUserAnalysisRight) {
+		this.daoUserAnalysisRight = daoUserAnalysisRight;
+	}
+
 	/**
 	 * @return the currentSqliteTable
 	 */
@@ -3266,7 +3304,7 @@ public class ImportAnalysis {
 	}
 
 	public void updateAnalysis(Customer customer, User owner) {
-		if(this.analysis == null)
+		if (this.analysis == null)
 			this.analysis = new Analysis(customer, owner);
 		else {
 			this.analysis.setCustomer(customer);

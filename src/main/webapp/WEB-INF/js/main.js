@@ -11,6 +11,7 @@ var application = new Application();
 function Application() {
 	this.modal = {};
 	this.data = {};
+	this.rights = {}
 	this.localesMessages = {};
 }
 
@@ -267,6 +268,25 @@ function hasRight(action) {
 	if (!(action instanceof jQuery))
 		action = ANALYSIS_RIGHT[action];
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
+}
+
+function hasCreateVersion(){
+	return canCreateNewVersion($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"));
+}
+
+function canCreateNewVersion(idAnalysis){
+	if(application.rights[idAnalysis] != undefined)
+		return application.rights[idAnalysis];
+	else application.rights[idAnalysis] = false;
+	$.ajax({
+		url : context + "/Can-create-version/"+idAnalysis,
+		async : false,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			return application.rights[idAnalysis] = response===true;
+		}
+	});
+	return  application.rights[idAnalysis];
 }
 
 function canManageAccess() {
