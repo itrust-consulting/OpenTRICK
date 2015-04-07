@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
@@ -19,8 +18,6 @@ import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.importation.ImportAnalysis;
-import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,16 +151,10 @@ public class ControllerIntstallation {
 	 */
 	private boolean installDefaultProfile(String fileName, Principal principal, Map<String, String> errors, Locale locale) {
 
-		Customer customer;
-
-		User owner;
-
-		Analysis analysis = null;
-
 		try {
 
 			// customer
-			customer = serviceCustomer.getProfile();
+			Customer customer = serviceCustomer.getProfile();
 
 			if (customer == null) {
 				customer = installProfileCustomer(errors, locale);
@@ -175,22 +166,14 @@ public class ControllerIntstallation {
 			}
 
 			// owner
-			owner = serviceUser.get(principal.getName());
 
-			if (owner == null) {
+			if (principal == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
 				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
 
-			// create analysis
-			analysis = new Analysis(customer, owner);
-			analysis.setProfile(true);
-			analysis.setDefaultProfile(true);
-			analysis.setLabel("SME: Small and Medium Entreprises (Default Profile from installer)");
-			
-			ImportAnalysis importAnalysis = new ImportAnalysis(analysis,serviceTaskFeedback, sessionFactory);
-			Worker worker = new WorkerTSInstallation(version,importAnalysis, fileName);
+			Worker worker = new WorkerTSInstallation(version,sessionFactory,serviceTaskFeedback, fileName, customer.getId(), principal.getName());
 			worker.setPoolManager(workersPoolManager);
 			if(!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
 				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));

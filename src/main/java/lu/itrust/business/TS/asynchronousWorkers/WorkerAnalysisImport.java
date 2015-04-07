@@ -3,15 +3,18 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.io.File;
 import java.io.IOException;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.DatabaseHandler;
+import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 /**
@@ -34,11 +37,13 @@ public class WorkerAnalysisImport implements Worker {
 
 	private ImportAnalysis importAnalysis;
 
+	private SessionFactory sessionFactory;
+
+	private int customerId;
+
 	private String fileName;
 
-	private Customer customer;
-
-	private User owner;
+	private String username;
 
 	private AsyncCallback asyncCallback;
 
@@ -61,28 +66,37 @@ public class WorkerAnalysisImport implements Worker {
 
 	/**
 	 * @param importAnalysis
-	 * @param customer2
+	 * @param customerId
 	 * @param importFile
 	 * @throws IOException
 	 * 
 	 */
-	public WorkerAnalysisImport(ImportAnalysis importAnalysis, File importFile, Customer customer2) throws IOException {
-		setCustomer(customer2);
+	public WorkerAnalysisImport(ImportAnalysis importAnalysis, File importFile, int customerId) throws IOException {
+		setCustomerId(customerId);
 		setFileName(importFile.getCanonicalPath());
 		setImportAnalysis(importAnalysis);
 	}
 
-	public WorkerAnalysisImport(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, File importFile, Customer customer, User owner) throws IOException {
-		setOwner(owner);
-		setCustomer(customer);
-		setFileName(importFile.getCanonicalPath());
+	public WorkerAnalysisImport(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String filename, int customerId, String userName) throws IOException {
+		setUsername(userName);
+		setCustomerId(customerId);
+		setFileName(filename);
 		setImportAnalysis(new ImportAnalysis());
+		setSessionFactory(sessionFactory);
 		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
-		importAnalysis.setSessionFactory(sessionFactory);
 	}
 
-	public void initialise(File importFile, Customer customer2) throws IOException {
-		setCustomer(customer2);
+	public WorkerAnalysisImport(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, File importFile, int customerId, String userName) throws IOException {
+		setUsername(userName);
+		setCustomerId(customerId);
+		setFileName(importFile.getCanonicalPath());
+		setImportAnalysis(new ImportAnalysis());
+		setSessionFactory(sessionFactory);
+		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
+	}
+
+	public void initialise(File importFile, int customerId) throws IOException {
+		setCustomerId(customerId);
 		setFileName(importFile.getCanonicalPath());
 	}
 
@@ -148,27 +162,6 @@ public class WorkerAnalysisImport implements Worker {
 	}
 
 	/**
-	 * getOwner: <br>
-	 * Returns the owner field value.
-	 * 
-	 * @return The value of the owner field
-	 */
-	public User getOwner() {
-		return owner;
-	}
-
-	/**
-	 * setOwner: <br>
-	 * Sets the Field "owner" with a value.
-	 * 
-	 * @param owner
-	 *            The Value to set the owner field
-	 */
-	public void setOwner(User owner) {
-		this.owner = owner;
-	}
-
-	/**
 	 * @return the fileName
 	 */
 	public String getFileName() {
@@ -181,21 +174,6 @@ public class WorkerAnalysisImport implements Worker {
 	 */
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
-	}
-
-	/**
-	 * @return the customer
-	 */
-	public Customer getCustomer() {
-		return customer;
-	}
-
-	/**
-	 * @param customer
-	 *            the customer to set
-	 */
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
 	}
 
 	/**
@@ -224,6 +202,7 @@ public class WorkerAnalysisImport implements Worker {
 
 	@Override
 	public void run() {
+		Session session = null;
 		try {
 			synchronized (this) {
 				if (poolManager != null && !poolManager.exist(getId()))
@@ -233,29 +212,55 @@ public class WorkerAnalysisImport implements Worker {
 					return;
 				OnStarted();
 			}
-			OnStarted();
 			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
-			if (importAnalysis.getAnalysis() == null) {
-				Analysis analysis = new Analysis(customer, owner);
-				importAnalysis.setAnalysis(analysis);
-			}
+			session = sessionFactory.openSession();
+			User user = new DAOUserHBM(session).get(username);
+			if (user == null)
+				throw new TrickException("error.user.cannot.found", String.format("User (%s) cannot be found", username), username);
+			Customer customer = new DAOCustomerHBM(session).get(customerId);
+			if (customer == null)
+				throw new TrickException("error.customer.not_exist", "Customer does not exist");
+			importAnalysis.updateAnalysis(customer, user);
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
-			if (importAnalysis.ImportAnAnalysis())
+			if (importAnalysis.ImportAnAnalysis(session))
 				OnSuccess();
-		} catch (Exception e) {
-			error = e;
-			importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred",null,e));
-			e.printStackTrace();
-		} finally {
-			synchronized (this) {
-				working = false;
-				File file = new File(fileName);
-				if (canDeleteFile && file.exists())
-					file.delete();
+		} catch (TrickException e) {
+			try {
+				e.printStackTrace();
+				if (session != null && session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}finally{
+				importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+		} catch (Exception e) {
+			try {
+				e.printStackTrace();
+				if (session != null && session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			} finally {
+				importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", null, error = e));
+			}
+		} finally {
+			try {
+				if (session != null)
+					session.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}finally{
+				synchronized (this) {
+					working = false;
+					File file = new File(fileName);
+					if (canDeleteFile && file.exists())
+						file.delete();
+				}
+				if (poolManager != null)
+					poolManager.remove(getId());
+			}
 		}
 	}
 
@@ -307,5 +312,29 @@ public class WorkerAnalysisImport implements Worker {
 
 	public void setCanDeleteFile(boolean canDeleteFile) {
 		this.canDeleteFile = canDeleteFile;
+	}
+
+	public int getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(int customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
 	}
 }

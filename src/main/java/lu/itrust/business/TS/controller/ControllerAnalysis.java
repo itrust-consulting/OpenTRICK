@@ -889,7 +889,7 @@ public class ControllerAnalysis {
 		file.transferTo(importFile);
 
 		// create worker
-		Worker worker = new WorkerAnalysisImport(sessionFactory, serviceTaskFeedback, importFile, customer, serviceUser.get(principal.getName()));
+		Worker worker = new WorkerAnalysisImport(sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
 		worker.setPoolManager(workersPoolManager);
 
 		// register worker to tasklist

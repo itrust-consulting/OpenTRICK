@@ -76,9 +76,9 @@ import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 /**
  * ImportAnalysis: <br>
@@ -113,7 +113,7 @@ public class ImportAnalysis {
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
-	private SessionFactory sessionFactory;
+	private Session session;
 
 	private String currentSqliteTable = "";
 
@@ -167,9 +167,8 @@ public class ImportAnalysis {
 	public ImportAnalysis() {
 	}
 
-	public ImportAnalysis(Analysis analysis, ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory) {
+	public ImportAnalysis(Analysis analysis, ServiceTaskFeedback serviceTaskFeedback) {
 		setAnalysis(analysis);
-		setSessionFactory(sessionFactory);
 		setServiceTaskFeedback(serviceTaskFeedback);
 	}
 
@@ -187,21 +186,23 @@ public class ImportAnalysis {
 	 * ImportAnAnalysis: <br>
 	 * Method used to import and given analysis using an sqlite file into the
 	 * mysql database.
+	 * @param session TODO
 	 * 
 	 * @throws Exception
 	 */
-	public boolean ImportAnAnalysis() throws Exception {
-
-		Session session = null;
+	public boolean ImportAnAnalysis(Session hbernateSession) throws Exception {
 
 		try {
 
-			if (sessionFactory != null) {
-				session = sessionFactory.openSession();
-				initialiseDAO(session);
-				session.getTransaction().begin();
-			}
-
+			if(hbernateSession == null)
+				throw new TrickException("error.database.no_session", "No database session");
+			
+			setSession(hbernateSession);
+			
+			initialise();
+			
+			session.beginTransaction();
+			
 			System.out.println("Importing...");
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", null, 0));
@@ -334,16 +335,18 @@ public class ImportAnalysis {
 
 			return true;
 		} catch (Exception e) {
-			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), null, e));
-			e.printStackTrace();
+			try {
+				serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), null, e));
+				e.printStackTrace();
+				if(session!=null && session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 			throw e;
 		} finally {
 			// clear maps
 			clearData();
-			if (session != null)
-				session.close();
-			if (sqlite != null)
-				sqlite.close();
 		}
 	}
 
@@ -3157,7 +3160,7 @@ public class ImportAnalysis {
 		this.idTask = idTask;
 	}
 
-	protected void initialiseDAO(Session session) {
+	protected void initialise() {
 		setDaoAnalysis(new DAOAnalysisHBM(session));
 		setDaoAssetType(new DAOAssetTypeHBM(session));
 		setDaoLanguage(new DAOLanguageHBM(session));
@@ -3240,21 +3243,6 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @return the sessionFactory
-	 */
-	public SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
-
-	/**
-	 * @param sessionFactory
-	 *            the sessionFactory to set
-	 */
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
-	/**
 	 * @return the currentSqliteTable
 	 */
 	public String getCurrentSqliteTable() {
@@ -3267,6 +3255,24 @@ public class ImportAnalysis {
 	 */
 	public void setCurrentSqliteTable(String currentSqliteTable) {
 		this.currentSqliteTable = currentSqliteTable;
+	}
+
+	public Session getSession() {
+		return session;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
+	}
+
+	public void updateAnalysis(Customer customer, User owner) {
+		if(this.analysis == null)
+			this.analysis = new Analysis(customer, owner);
+		else {
+			this.analysis.setCustomer(customer);
+			this.analysis.setOwner(owner);
+			this.analysis.addUserRight(owner, AnalysisRight.ALL);
+		}
 	}
 
 }
