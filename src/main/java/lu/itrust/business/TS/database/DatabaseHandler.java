@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Vector;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.Analysis;
 
 /**
  * DatabaseHandler: 

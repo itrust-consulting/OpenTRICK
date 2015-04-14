@@ -37,7 +37,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
+			<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
 			<c:forEach items="${sortedAssessments}" var="assessment">
 				<tr data-trick-class="Assessment" data-trick-id="${assessment.id}" data-trick-callback="chartALE()">
 					<td style="height:32px;"><spring:message text="${assessment.scenario.name}" /></td>

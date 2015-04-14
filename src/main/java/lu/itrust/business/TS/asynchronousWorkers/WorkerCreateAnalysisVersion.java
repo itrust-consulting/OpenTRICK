@@ -6,16 +6,16 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.sql.Timestamp;
 
 import lu.itrust.business.TS.component.Duplicator;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
-import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
-import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
+import lu.itrust.business.TS.model.history.History;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;

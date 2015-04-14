@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.general.Customer;
+import lu.itrust.business.TS.model.general.Customer;
 
 /**
  * ServiceCustomer.java: <br>

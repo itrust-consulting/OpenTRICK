@@ -5,9 +5,9 @@ import java.util.List;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.riskinformation.RiskInformation;
 import lu.itrust.business.TS.database.dao.DAORiskInformation;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 
 /**
  * DAORiskInformationHBM.java: <br>
@@ -124,7 +124,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
 	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) throws Exception {
@@ -135,7 +135,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#save(lu.itrust.business.TS.data.riskinformation.RiskInformation)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#save(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
 	public void save(RiskInformation riskInformation) throws Exception {
@@ -146,7 +146,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#saveOrUpdate(lu.itrust.business.TS.data.riskinformation.RiskInformation)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#saveOrUpdate(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
 	public void saveOrUpdate(RiskInformation riskInformation) throws Exception {
@@ -157,7 +157,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#delete(lu.itrust.business.TS.data.riskinformation.RiskInformation)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#delete(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
 	public void delete(RiskInformation riskInformation) throws Exception {

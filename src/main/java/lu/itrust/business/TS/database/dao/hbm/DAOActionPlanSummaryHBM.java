@@ -3,12 +3,12 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.actionplan.ActionPlanType;
-import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.data.actionplan.summary.SummaryStandardConformance;
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.actionplan.ActionPlanType;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
+import lu.itrust.business.TS.model.analysis.Analysis;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -104,7 +104,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
 	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception {
@@ -130,8 +130,8 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * getFromAnalysisAndActionPlanType: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.analysis.Analysis,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.model.analysis.Analysis,
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Override
 	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
@@ -147,7 +147,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#save(lu.itrust.business.TS.data.actionplan.summary.SummaryStage)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#save(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Override
 	public void save(SummaryStage summaryStage) throws Exception {
@@ -158,7 +158,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#saveOrUpdate(lu.itrust.business.TS.data.actionplan.summary.SummaryStage)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#saveOrUpdate(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Override
 	public void saveOrUpdate(SummaryStage summaryStage) throws Exception {
@@ -169,7 +169,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#delete(lu.itrust.business.TS.data.actionplan.summary.SummaryStage)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#delete(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Override
 	public void delete(SummaryStage summaryStage) throws Exception {

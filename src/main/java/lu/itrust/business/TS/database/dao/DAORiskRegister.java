@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.cssf.RiskRegisterItem;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 /**
  * DAORiskRegister.java: <br>

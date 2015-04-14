@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import lu.itrust.business.TS.component.GeneralComperator;
-import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -24,6 +23,7 @@ import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.NotFoundException;

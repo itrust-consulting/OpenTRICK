@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.database.service;
 
-import lu.itrust.business.TS.data.TrickService;
+import lu.itrust.business.TS.model.TrickService;
 
 /**
  * ServiceTrickService.java: <br>

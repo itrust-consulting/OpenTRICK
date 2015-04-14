@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.data.parameter.ExtendedParameter;
-import lu.itrust.business.TS.data.parameter.Parameter;
-import lu.itrust.business.TS.data.parameter.ParameterType;
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 
 /**
  * ServiceParameterImpl.java: <br>
@@ -135,7 +135,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getExtendedParameterAcronymsFromAnalysisByParameterType(int,
-	 *      lu.itrust.business.TS.data.parameter.ParameterType)
+	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Override
 	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception {
@@ -249,7 +249,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getParametersFromAnalysisIdByParameterType(int,
-	 *      lu.itrust.business.TS.data.parameter.ParameterType)
+	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Override
 	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception {
@@ -298,7 +298,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllExtendedParametersFromAnalysisIdAndParameterType(int,
-	 *      lu.itrust.business.TS.data.parameter.ParameterType)
+	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Override
 	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type) throws Exception {
@@ -343,7 +343,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameter#save(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameter#save(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override
@@ -358,7 +358,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param parameter
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameter#saveOrUpdate(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameter#saveOrUpdate(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override
@@ -375,7 +375,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameter#merge(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameter#merge(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override
@@ -390,7 +390,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param parameter
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameter#delete(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameter#delete(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override

@@ -1,8 +1,8 @@
 package lu.itrust.business.TS.database.service.impl;
 
-import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
 import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,7 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.data.general.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -61,7 +61,7 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.data.general.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -76,7 +76,7 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * @param assetTypeValue
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.data.general.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override

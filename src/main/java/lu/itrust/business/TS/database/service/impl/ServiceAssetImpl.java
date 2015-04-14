@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.model.asset.Asset;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -168,7 +168,7 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAsset#save(lu.itrust.business.TS.data.asset.Asset)
+	 * @see lu.itrust.business.TS.database.service.ServiceAsset#save(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@Override
 	@Transactional
@@ -183,7 +183,7 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * @param asset
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAsset#saveOrUpdate(lu.itrust.business.TS.data.asset.Asset)
+	 * @see lu.itrust.business.TS.database.service.ServiceAsset#saveOrUpdate(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@Override
 	@Transactional
@@ -199,7 +199,7 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAsset#merge(lu.itrust.business.TS.data.asset.Asset)
+	 * @see lu.itrust.business.TS.database.service.ServiceAsset#merge(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@Override
 	@Transactional
@@ -229,7 +229,7 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * @param asset
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAsset#delete(lu.itrust.business.TS.data.asset.Asset)
+	 * @see lu.itrust.business.TS.database.service.ServiceAsset#delete(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@Override
 	@Transactional

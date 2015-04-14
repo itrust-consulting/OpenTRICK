@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.model.asset.AssetType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,7 +90,7 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * @param assetType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#save(lu.itrust.business.TS.data.asset.AssetType)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#save(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Transactional
 	@Override
@@ -105,7 +105,7 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * @param assetType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#saveOrUpdate(lu.itrust.business.TS.data.asset.AssetType)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#saveOrUpdate(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Transactional
 	@Override
@@ -120,7 +120,7 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * @param assetType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#delete(lu.itrust.business.TS.data.asset.AssetType)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#delete(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Transactional
 	@Override

@@ -80,7 +80,7 @@
 			</tbody>
 			<tfoot>
 				<tr class="panel-footer" style="font-weight: bold;">
-					<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
+					<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
 					<td colspan="5"><fmt:message key="label.total.ale" /></td>
 					<fmt:setLocale value="fr" scope="session" />
 					<c:choose>

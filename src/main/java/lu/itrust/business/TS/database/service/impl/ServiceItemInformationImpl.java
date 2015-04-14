@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.data.iteminformation.ItemInformation;
 import lu.itrust.business.TS.database.dao.DAOItemInformation;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
+import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 
 /**
  * ServiceItemInformationImpl.java: <br>
@@ -126,7 +126,7 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * @param itemInformation
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#save(lu.itrust.business.TS.data.iteminformation.ItemInformation)
+	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#save(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Transactional
 	@Override
@@ -141,7 +141,7 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * @param itemInformation
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#saveOrUpdate(lu.itrust.business.TS.data.iteminformation.ItemInformation)
+	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#saveOrUpdate(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Transactional
 	@Override
@@ -156,7 +156,7 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * @param itemInformation
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#delete(lu.itrust.business.TS.data.iteminformation.ItemInformation)
+	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#delete(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Transactional
 	@Override

@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.parameter.ParameterType;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
 import lu.itrust.business.TS.database.service.ServiceParameterType;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,7 +76,7 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * @param parameterType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#save(lu.itrust.business.TS.data.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#save(lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Transactional
 	@Override
@@ -92,7 +92,7 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * @param parameterType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#saveOrUpdate(lu.itrust.business.TS.data.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#saveOrUpdate(lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Transactional
 	@Override
@@ -108,7 +108,7 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * @param parameterType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#delete(lu.itrust.business.TS.data.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#delete(lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Transactional
 	@Override

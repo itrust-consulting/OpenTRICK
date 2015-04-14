@@ -14,8 +14,6 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.general.UserSQLite;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
@@ -28,6 +26,8 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.ExportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.HibernateException;

@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.iteminformation.ItemInformation;
 import lu.itrust.business.TS.database.dao.DAOItemInformation;
+import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -151,7 +151,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#save(lu.itrust.business.TS.data.iteminformation.ItemInformation)
+	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#save(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Override
 	public void save(ItemInformation itemInformation) throws Exception {
@@ -162,7 +162,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#saveOrUpdate(lu.itrust.business.TS.data.iteminformation.ItemInformation)
+	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#saveOrUpdate(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Override
 	public void saveOrUpdate(ItemInformation itemInformation) throws Exception {
@@ -173,7 +173,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#delete(lu.itrust.business.TS.data.iteminformation.ItemInformation)
+	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#delete(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Override
 	public void delete(ItemInformation itemInformation) throws Exception {

@@ -5,9 +5,9 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.general.WordReport;
-import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
+import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Session;

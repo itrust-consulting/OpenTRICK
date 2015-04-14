@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.asset.Asset;
-import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * ServiceActionPlan.java: <br>

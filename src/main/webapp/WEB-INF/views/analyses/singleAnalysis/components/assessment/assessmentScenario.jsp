@@ -39,7 +39,7 @@
 		</thead>
 		<tbody>
 			<c:set var="prevAsset" value="null" />
-			<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
+			<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
 			<c:forEach items="${sortedAssessments}" var="assessment">
 				<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 					<td style="height:32px;"><spring:message text="${assessment.asset.name}" /></td>

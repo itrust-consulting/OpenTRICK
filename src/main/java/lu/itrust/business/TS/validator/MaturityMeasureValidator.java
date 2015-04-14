@@ -3,9 +3,9 @@
  */
 package lu.itrust.business.TS.validator;
 
-import lu.itrust.business.TS.data.parameter.Parameter;
-import lu.itrust.business.TS.data.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 
 /**
  * @author eomar

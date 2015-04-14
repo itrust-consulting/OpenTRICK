@@ -7,8 +7,8 @@ import java.util.Date;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 import org.springframework.validation.Errors;

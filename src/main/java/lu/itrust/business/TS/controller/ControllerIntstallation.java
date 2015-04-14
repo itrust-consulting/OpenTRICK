@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -18,6 +17,7 @@ import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.Customer;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

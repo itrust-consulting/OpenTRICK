@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.assessment.Assessment;
-import lu.itrust.business.TS.data.asset.Asset;
-import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
  * DAOAssessment.java: <br>

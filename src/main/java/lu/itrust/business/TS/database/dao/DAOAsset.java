@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.model.asset.Asset;
 
 /**
  * DAOAsset.java: <br>

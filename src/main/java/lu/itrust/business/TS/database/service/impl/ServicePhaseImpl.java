@@ -3,9 +3,9 @@ package lu.itrust.business.TS.database.service.impl;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.model.general.Phase;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -175,7 +175,7 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param phase
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServicePhase#save(lu.itrust.business.TS.data.general.Phase)
+	 * @see lu.itrust.business.TS.database.service.ServicePhase#save(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Transactional
 	@Override
@@ -190,7 +190,7 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param phase
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServicePhase#saveOrUpdate(lu.itrust.business.TS.data.general.Phase)
+	 * @see lu.itrust.business.TS.database.service.ServicePhase#saveOrUpdate(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Transactional
 	@Override
@@ -205,7 +205,7 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param phase
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServicePhase#delete(lu.itrust.business.TS.data.general.Phase)
+	 * @see lu.itrust.business.TS.database.service.ServicePhase#delete(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Transactional
 	@Override

@@ -9,7 +9,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="tab-pane" id="tabActionPlan">
 	<div class="section" id="section_actionplans">
-		<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_actionplan">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
@@ -40,7 +40,7 @@
 							<th style="width:3%;"><fmt:message key="label.measure.ew" /></th>
 							<th style="width:3%;"><fmt:message key="label.measure.inv" /></th>
 							<th style="width:3%;"><fmt:message key="label.action_plan.phase" /></th>
-							<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
+							<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 							<c:forEach items="${actionplanassets}" var="asset">
 								<th class="actionplanasset actionplanassethidden"><spring:message text="${asset.name}" /></th>
 							</c:forEach>
@@ -115,7 +115,7 @@
 										</c:otherwise>
 									</c:choose>
 								</td>
-								<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)" var="actionPlanAssets" />
+								<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)" var="actionPlanAssets" />
 								<c:forEach items="${actionPlanAssets}" var="apa">
 									<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${fct:round(apa.currentALE*0.001,0)}" maxFractionDigits="0" /></td>
 								</c:forEach>

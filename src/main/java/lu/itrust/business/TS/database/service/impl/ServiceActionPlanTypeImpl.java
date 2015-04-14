@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanType;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
 import lu.itrust.business.TS.database.service.ServiceActionPlanType;
+import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,7 +75,7 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * @param actionPlanType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#save(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#save(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
@@ -90,7 +90,7 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * @param actionPlanType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#saveOrUpdate(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#saveOrUpdate(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
@@ -105,7 +105,7 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * @param actionPlanType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#merge(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#merge(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
@@ -120,7 +120,7 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * @param actionPlanType
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#delete(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#delete(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override

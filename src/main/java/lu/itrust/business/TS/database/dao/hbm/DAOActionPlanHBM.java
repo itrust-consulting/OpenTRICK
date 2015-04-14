@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
-import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.asset.Asset;
-import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
+import lu.itrust.business.TS.model.actionplan.ActionPlanAsset;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -107,7 +107,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getFromAnalysisAndActionPlanType(int,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -120,8 +120,8 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * getFromAnalysisAndActionPlanType: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.analysis.Analysis,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.model.analysis.Analysis,
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
 	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception {
@@ -134,7 +134,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getAllFromAsset(lu.itrust.business.TS.data.asset.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getAllFromAsset(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -148,7 +148,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getMeasuresFromActionPlanAndAnalysis(int,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -162,7 +162,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -188,7 +188,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#save(lu.itrust.business.TS.data.actionplan.ActionPlanEntry)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#save(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Override
 	public void save(ActionPlanEntry actionPlanEntry) throws Exception {
@@ -199,7 +199,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#saveOrUpdate(lu.itrust.business.TS.data.actionplan.ActionPlanEntry)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#saveOrUpdate(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Override
 	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) throws Exception {
@@ -210,7 +210,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#delete(lu.itrust.business.TS.data.actionplan.ActionPlanEntry)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#delete(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Override
 	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {

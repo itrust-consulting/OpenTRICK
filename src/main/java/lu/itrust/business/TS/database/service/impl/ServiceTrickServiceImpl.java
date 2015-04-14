@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.data.TrickService;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
+import lu.itrust.business.TS.model.TrickService;
 
 /**
  * ServiceTrickServiceImpl.java: <br>
@@ -58,7 +58,7 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * @param trickservice
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#save(lu.itrust.business.TS.data.TrickService)
+	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#save(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Transactional
 	@Override
@@ -73,7 +73,7 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * @param trickservice
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#saveOrUpdate(lu.itrust.business.TS.data.TrickService)
+	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#saveOrUpdate(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Transactional
 	@Override
@@ -88,7 +88,7 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * @param trickservice
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#delete(lu.itrust.business.TS.data.TrickService)
+	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#delete(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Transactional
 	@Override

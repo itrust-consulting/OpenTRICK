@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanType;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
+import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -74,7 +74,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#save(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#save(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Override
 	public void save(ActionPlanType actionPlanType) throws Exception {
@@ -85,7 +85,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#saveOrUpdate(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#saveOrUpdate(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Override
 	public void saveOrUpdate(ActionPlanType actionPlanType) throws Exception {
@@ -96,7 +96,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#merge(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#merge(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Override
 	public void merge(ActionPlanType actionPlanType) throws Exception {
@@ -107,7 +107,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#delete(lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#delete(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Override
 	public void delete(ActionPlanType actionPlanType) throws Exception {

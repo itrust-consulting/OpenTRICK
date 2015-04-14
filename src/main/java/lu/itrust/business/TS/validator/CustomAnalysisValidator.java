@@ -6,8 +6,8 @@ package lu.itrust.business.TS.validator;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.analysis.helper.CustomAnalysisForm;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.helper.CustomAnalysisForm;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**

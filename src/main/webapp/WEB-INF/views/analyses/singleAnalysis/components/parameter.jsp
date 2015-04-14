@@ -4,10 +4,10 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitParameters(parameters)" var="parametersSplited" />
-<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
-<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
-<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
+<spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitParameters(parameters)" var="parametersSplited" />
+<spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
+<spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
+<spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
 <div class="row tab-pane" id="tabParameterImpactProba">
 	<div class="col-md-6">
 		<div class="panel panel-default" id="Scale_Impact">

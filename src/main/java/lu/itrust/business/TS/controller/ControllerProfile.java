@@ -10,14 +10,14 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.general.UserSQLite;
-import lu.itrust.business.TS.data.general.WordReport;
-import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.model.general.UserSQLite;
+import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;

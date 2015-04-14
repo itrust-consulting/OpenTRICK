@@ -10,10 +10,10 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lu.itrust.business.TS.data.general.WordReport;
-import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -75,7 +75,7 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	}
 
 	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#save(lu.itrust.business.TS.data.general.WordReport)
+	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#save(lu.itrust.business.TS.model.general.WordReport)
 	 */
 	@Transactional
 	@Override
@@ -84,7 +84,7 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	}
 
 	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#saveOrUpdate(lu.itrust.business.TS.data.general.WordReport)
+	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#saveOrUpdate(lu.itrust.business.TS.model.general.WordReport)
 	 */
 	@Transactional
 	@Override
@@ -93,7 +93,7 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	}
 
 	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#merge(lu.itrust.business.TS.data.general.WordReport)
+	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#merge(lu.itrust.business.TS.model.general.WordReport)
 	 */
 	@Transactional
 	@Override
@@ -120,7 +120,7 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	}
 
 	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#delete(lu.itrust.business.TS.data.general.WordReport)
+	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#delete(lu.itrust.business.TS.model.general.WordReport)
 	 */
 	@Transactional
 	@Override

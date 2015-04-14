@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.parameter.ExtendedParameter;
-import lu.itrust.business.TS.data.parameter.Parameter;
-import lu.itrust.business.TS.data.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 
 /**
  * DAOParameter.java: <br>

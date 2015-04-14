@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.riskinformation.RiskInformation;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 
 /**
  * ServiceRiskInformation.java: <br>

@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.model.general.Language;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -165,7 +165,7 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @param language
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#save(lu.itrust.business.TS.data.general.Language)
+	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#save(lu.itrust.business.TS.model.general.Language)
 	 */
 	@Transactional
 	@Override
@@ -180,7 +180,7 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @param language
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#saveOrUpdate(lu.itrust.business.TS.data.general.Language)
+	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#saveOrUpdate(lu.itrust.business.TS.model.general.Language)
 	 */
 	@Transactional
 	@Override
@@ -210,7 +210,7 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @param language
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#delete(lu.itrust.business.TS.data.general.Language)
+	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#delete(lu.itrust.business.TS.model.general.Language)
 	 */
 	@Transactional
 	@Override

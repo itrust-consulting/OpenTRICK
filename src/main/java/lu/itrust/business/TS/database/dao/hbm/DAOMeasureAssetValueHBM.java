@@ -1,7 +1,7 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 
 import org.springframework.stereotype.Repository;
 

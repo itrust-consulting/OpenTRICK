@@ -5,8 +5,6 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.general.WordReport;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
@@ -15,6 +13,8 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.ExportAnalysisReport;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.HibernateException;

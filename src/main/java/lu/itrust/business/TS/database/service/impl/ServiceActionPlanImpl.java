@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.asset.Asset;
-import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -111,7 +111,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisAndActionPlanType(int,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
 	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) throws Exception {
@@ -127,8 +127,8 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.analysis.Analysis,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.model.analysis.Analysis,
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
 	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception {
@@ -145,7 +145,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getMeasuresFromActionPlanAndAnalysis(int,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
 	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer analysisID, ActionPlanMode mode) throws Exception {
@@ -162,7 +162,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
 	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm) throws Exception {
@@ -191,7 +191,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param actionPlanEntry
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#save(lu.itrust.business.TS.data.actionplan.ActionPlanEntry)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#save(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Transactional
 	@Override
@@ -206,7 +206,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param actionPlanEntry
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#saveOrUpdate(lu.itrust.business.TS.data.actionplan.ActionPlanEntry)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#saveOrUpdate(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Transactional
 	@Override
@@ -221,7 +221,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param actionPlanEntry
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#delete(lu.itrust.business.TS.data.actionplan.ActionPlanEntry)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#delete(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Transactional
 	@Override

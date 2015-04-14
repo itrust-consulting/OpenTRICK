@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.validator;
 
-import lu.itrust.business.TS.data.analysis.helper.AnalysisProfile;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisProfile;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;

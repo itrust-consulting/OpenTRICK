@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.database.dao;
 
-import lu.itrust.business.TS.data.TrickService;
+import lu.itrust.business.TS.model.TrickService;
 
 /**
  * DAOTrickService.java: <br>

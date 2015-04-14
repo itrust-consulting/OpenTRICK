@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,7 +96,7 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * @param measureDescription
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#save(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#save(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
@@ -111,7 +111,7 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * @param measureDescription
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
@@ -126,7 +126,7 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * @param measureDescription
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#delete(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#delete(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override

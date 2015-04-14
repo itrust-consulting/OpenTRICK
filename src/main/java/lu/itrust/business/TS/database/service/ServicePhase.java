@@ -3,7 +3,7 @@ package lu.itrust.business.TS.database.service;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.data.general.Phase;
+import lu.itrust.business.TS.model.general.Phase;
 
 /**
  * ServicePhase.java: <br>

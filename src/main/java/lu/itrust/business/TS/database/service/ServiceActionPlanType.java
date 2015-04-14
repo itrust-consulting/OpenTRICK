@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanType;
+import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 
 /**
  * ServiceActionPlanType.java: <br>

@@ -38,7 +38,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<spring:eval expression="T(lu.itrust.business.TS.data.cssf.helper.RiskRegisterMapper).Generate(riskregister,parameters)" var="mappingRegisterHelpers" />
+					<spring:eval expression="T(lu.itrust.business.TS.model.cssf.helper.RiskRegisterMapper).Generate(riskregister,parameters)" var="mappingRegisterHelpers" />
 					<c:forEach items="${riskregister}" var="item" varStatus="status">
 						<tr>
 							<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(item.scenario.type.name,'-','_'))}" /></td>

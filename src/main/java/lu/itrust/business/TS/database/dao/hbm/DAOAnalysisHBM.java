@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
-import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.data.actionplan.summary.SummaryStandardConformance;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.analysis.helper.AnalysisBaseInfo;
-import lu.itrust.business.TS.data.general.Customer;
-import lu.itrust.business.TS.data.general.Language;
-import lu.itrust.business.TS.data.parameter.Parameter;
-import lu.itrust.business.TS.data.standard.AnalysisStandard;
-import lu.itrust.business.TS.data.standard.Standard;
-import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
-import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
+import lu.itrust.business.TS.model.actionplan.ActionPlanAsset;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
+import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Query;
@@ -275,7 +275,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * getAllFromCustomer: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#getAllFromCustomer(lu.itrust.business.TS.data.general.Customer)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#getAllFromCustomer(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -287,7 +287,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * getAllFromCustomerIdentifierVersion: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.data.general.Customer,
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.model.general.Customer,
 	 *      java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -336,7 +336,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#save(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#save(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
 	public void save(Analysis analysis) throws Exception {
@@ -347,7 +347,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#saveOrUpdate(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysis#saveOrUpdate(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
 	public void saveOrUpdate(Analysis analysis) throws Exception {

@@ -33,7 +33,7 @@
 				<c:if test="${!analysis.isProfile() }">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
-					<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).ComputeALE(analysis)" var="ales" />
+					<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).ComputeALE(analysis)" var="ales" />
 					<c:set var="assetALE" value="${ales[0]}" scope="request" />
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/asset/asset.jsp" />

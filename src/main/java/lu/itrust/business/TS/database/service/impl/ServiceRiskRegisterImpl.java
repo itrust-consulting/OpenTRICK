@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,7 +79,7 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * @param riskRegisterItem
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#save(lu.itrust.business.TS.data.cssf.RiskRegisterItem)
+	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#save(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
@@ -94,7 +94,7 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * @param riskRegisterItem
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#saveOrUpdate(lu.itrust.business.TS.data.cssf.RiskRegisterItem)
+	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#saveOrUpdate(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
@@ -109,7 +109,7 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * @param riskRegisterItem
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#delete(lu.itrust.business.TS.data.cssf.RiskRegisterItem)
+	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#delete(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override

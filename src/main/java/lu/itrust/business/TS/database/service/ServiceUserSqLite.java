@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.general.UserSQLite;
-import lu.itrust.business.TS.data.general.helper.FilterControl;
+import lu.itrust.business.TS.model.general.UserSQLite;
+import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**

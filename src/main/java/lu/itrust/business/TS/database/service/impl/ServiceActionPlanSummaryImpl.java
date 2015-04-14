@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanType;
-import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
+import lu.itrust.business.TS.model.actionplan.ActionPlanType;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.analysis.Analysis;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -111,7 +111,7 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
 	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception {
@@ -144,8 +144,8 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.analysis.Analysis,
-	 *      lu.itrust.business.TS.data.actionplan.ActionPlanType)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.model.analysis.Analysis,
+	 *      lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Override
 	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
@@ -159,7 +159,7 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	 * @param summaryStage
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#save(lu.itrust.business.TS.data.actionplan.summary.SummaryStage)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#save(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Transactional
 	@Override
@@ -175,7 +175,7 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	 * @param summaryStage
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#saveOrUpdate(lu.itrust.business.TS.data.actionplan.summary.SummaryStage)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#saveOrUpdate(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Transactional
 	@Override
@@ -191,7 +191,7 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	 * @param summaryStage
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#delete(lu.itrust.business.TS.data.actionplan.summary.SummaryStage)
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanSummary#delete(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Transactional
 	@Override

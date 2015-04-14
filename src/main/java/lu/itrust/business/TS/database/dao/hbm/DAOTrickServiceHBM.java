@@ -1,7 +1,7 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import lu.itrust.business.TS.data.TrickService;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
+import lu.itrust.business.TS.model.TrickService;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -58,7 +58,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#save(lu.itrust.business.TS.data.TrickService)
+	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#save(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Override
 	public void save(TrickService trickservice) throws Exception {
@@ -69,7 +69,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#saveOrUpdate(lu.itrust.business.TS.data.TrickService)
+	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#saveOrUpdate(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Override
 	public void saveOrUpdate(TrickService trickservice) throws Exception {

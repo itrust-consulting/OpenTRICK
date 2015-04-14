@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.component.GeneralComperator;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.database.dao.DAOHistory;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.history.History;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -89,7 +89,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * versionExistsForAnalysisByVersion: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#versionExistsForAnalysisByVersion(lu.itrust.business.TS.data.analysis.Analysis,
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#versionExistsForAnalysisByVersion(lu.itrust.business.TS.model.analysis.Analysis,
 	 *      java.lang.String)
 	 */
 	@Override
@@ -144,7 +144,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -156,7 +156,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * getAllHistoriesFromAnalysisByAuthor: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#getAllHistoriesFromAnalysisByAuthor(lu.itrust.business.TS.data.analysis.Analysis,
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#getAllHistoriesFromAnalysisByAuthor(lu.itrust.business.TS.model.analysis.Analysis,
 	 *      java.lang.String)
 	 */
 	@Override
@@ -175,7 +175,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * getAllHistoriesFromAnalysisByVersion: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#getAllHistoriesFromAnalysisByVersion(lu.itrust.business.TS.data.analysis.Analysis,
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#getAllHistoriesFromAnalysisByVersion(lu.itrust.business.TS.model.analysis.Analysis,
 	 *      java.lang.String)
 	 */
 	@Override
@@ -194,7 +194,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#save(java.lang.Integer, lu.itrust.business.TS.data.history.History)
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#save(java.lang.Integer, lu.itrust.business.TS.model.history.History)
 	 */
 	@Override
 	public void save(Integer analysisId, History history) throws Exception {
@@ -213,7 +213,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#save(lu.itrust.business.TS.data.history.History)
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#save(lu.itrust.business.TS.model.history.History)
 	 */
 	@Override
 	public void save(History history) throws Exception {
@@ -224,7 +224,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#saveOrUpdate(lu.itrust.business.TS.data.history.History)
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#saveOrUpdate(lu.itrust.business.TS.model.history.History)
 	 */
 	@Override
 	public void saveOrUpdate(History history) throws Exception {
@@ -235,7 +235,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOHistory#delete(lu.itrust.business.TS.data.history.History)
+	 * @see lu.itrust.business.TS.database.dao.DAOHistory#delete(lu.itrust.business.TS.model.history.History)
 	 */
 	@Override
 	public void delete(History history) throws Exception {

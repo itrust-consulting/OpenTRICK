@@ -2,14 +2,14 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.analysis.helper.AnalysisBaseInfo;
-import lu.itrust.business.TS.data.general.Customer;
-import lu.itrust.business.TS.data.general.Language;
-import lu.itrust.business.TS.data.parameter.Parameter;
-import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
+import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -317,7 +317,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomer(lu.itrust.business.TS.data.general.Customer)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomer(lu.itrust.business.TS.model.general.Customer)
 	 */
 
 	@Override
@@ -335,7 +335,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.data.general.Customer,
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.model.general.Customer,
 	 *      java.lang.String, java.lang.String)
 	 */
 
@@ -401,7 +401,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param analysis
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#save(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#save(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
@@ -416,7 +416,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param analysis
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#saveOrUpdate(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#saveOrUpdate(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
@@ -431,7 +431,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param analysis
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#delete(lu.itrust.business.TS.data.analysis.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#delete(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override

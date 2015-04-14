@@ -3,9 +3,9 @@ package lu.itrust.business.TS.validator;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.scenario.Scenario;
-import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 import org.springframework.validation.Errors;

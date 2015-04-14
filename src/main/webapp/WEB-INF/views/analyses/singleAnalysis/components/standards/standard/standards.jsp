@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <c:forEach items="${measures.keySet()}" var="standard">
-	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
+	<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
 	<c:set var="standardType" value="${selectedStandard.type}" scope="page"/>
 	<c:set var="standardid" value="${selectedStandard.id }" scope="page"/>
 	<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" scope="page" />

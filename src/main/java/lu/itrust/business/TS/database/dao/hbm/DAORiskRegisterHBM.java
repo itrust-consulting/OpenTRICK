@@ -5,8 +5,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -84,7 +84,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#save(lu.itrust.business.TS.data.cssf.RiskRegisterItem)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#save(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
 	public void save(RiskRegisterItem riskRegisterItem) throws Exception {
@@ -95,7 +95,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business.TS.data.cssf.RiskRegisterItem)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
 	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception {
@@ -106,7 +106,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#delete(lu.itrust.business.TS.data.cssf.RiskRegisterItem)
+	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#delete(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
 	public void delete(RiskRegisterItem riskRegisterItem) throws Exception {

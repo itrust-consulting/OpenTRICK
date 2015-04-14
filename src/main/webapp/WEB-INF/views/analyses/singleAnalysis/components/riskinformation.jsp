@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <c:if test="${empty(riskInformationSplited)}">
-	<spring:eval expression="T(lu.itrust.business.TS.data.riskinformation.helper.RiskInformationManager).Split(riskInformation)" var="riskInformationSplited" />
+	<spring:eval expression="T(lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager).Split(riskInformation)" var="riskInformationSplited" />
 </c:if>
 <c:set var="chapterRegex">^\d(\.0)*$</c:set>
 <c:forEach items="${riskInformationSplited.keySet()}" var="categoryRiskInformation">

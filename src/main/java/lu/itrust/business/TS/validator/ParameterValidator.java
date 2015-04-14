@@ -5,9 +5,9 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.parameter.Parameter;
-import lu.itrust.business.TS.data.parameter.ParameterType;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**

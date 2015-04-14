@@ -1,0 +1,20 @@
+/**
+ * 
+ */
+package lu.itrust.business.TS.model.actionplan.helper;
+
+import java.util.Comparator;
+
+import lu.itrust.business.TS.model.standard.measure.Measure;
+
+/**
+ * @author oensuifudine
+ *
+ */
+public class ComparatorMeasure implements Comparator<Measure> {
+
+	@Override
+	public int compare(Measure arg0, Measure arg1) {
+		return arg0.getMeasureDescription().getReference().compareToIgnoreCase(arg1.getMeasureDescription().getReference());
+	}
+}

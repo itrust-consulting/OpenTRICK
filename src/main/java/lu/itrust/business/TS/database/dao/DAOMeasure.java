@@ -3,10 +3,10 @@ package lu.itrust.business.TS.database.dao;
 import java.util.List;
 import java.util.Map;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.standard.Standard;
-import lu.itrust.business.TS.data.standard.measure.Measure;
-import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
 /**
  * DAOMeasure.java: <br>

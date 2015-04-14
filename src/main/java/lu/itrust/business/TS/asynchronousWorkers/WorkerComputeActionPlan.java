@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.standard.AnalysisStandard;
-import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
@@ -23,6 +19,10 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;

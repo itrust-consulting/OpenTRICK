@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.service.ServiceAssetTypeValue;
+import lu.itrust.business.TS.model.general.AssetTypeValue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.data.general.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -63,7 +63,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.data.general.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -79,7 +79,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#merge(lu.itrust.business.TS.data.general.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#merge(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -109,7 +109,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @param assetTypeValue
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.data.general.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override

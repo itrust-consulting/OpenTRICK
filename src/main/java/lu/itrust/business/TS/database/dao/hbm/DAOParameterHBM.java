@@ -3,10 +3,10 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.parameter.ExtendedParameter;
-import lu.itrust.business.TS.data.parameter.Parameter;
-import lu.itrust.business.TS.data.parameter.ParameterType;
 import lu.itrust.business.TS.database.dao.DAOParameter;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -124,7 +124,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getExtendedParameterAcronymsFromAnalysisByParameterType(int,
-	 *      lu.itrust.business.TS.data.parameter.ParameterType)
+	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -219,7 +219,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getParametersFromAnalysisIdByParameterType(int,
-	 *      lu.itrust.business.TS.data.parameter.ParameterType)
+	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -265,7 +265,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExtendedParametersFromAnalysisIdAndParameterType(int,
-	 *      lu.itrust.business.TS.data.parameter.ParameterType)
+	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -307,7 +307,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#save(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#save(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Override
 	public Parameter save(Parameter parameter) throws Exception {
@@ -318,7 +318,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#saveOrUpdate(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#saveOrUpdate(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Override
 	public void saveOrUpdate(Parameter parameter) throws Exception {
@@ -341,7 +341,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#merge(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#merge(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Override
 	public Parameter merge(Parameter parameter) throws Exception {
@@ -363,7 +363,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#delete(lu.itrust.business.TS.data.parameter.Parameter)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#delete(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Override
 	public void delete(Parameter parameter) throws Exception {

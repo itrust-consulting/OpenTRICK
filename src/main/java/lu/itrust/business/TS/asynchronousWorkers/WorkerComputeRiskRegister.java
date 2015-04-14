@@ -1,7 +1,5 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -10,6 +8,8 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.cssf.RiskRegisterComputation;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;

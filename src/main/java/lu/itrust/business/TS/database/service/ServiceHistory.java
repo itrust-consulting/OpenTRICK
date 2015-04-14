@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.history.History;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.history.History;
 
 /**
  * ServiceHistory.java: <br>

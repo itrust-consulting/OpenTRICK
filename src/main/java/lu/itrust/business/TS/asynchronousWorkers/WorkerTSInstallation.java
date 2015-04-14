@@ -5,14 +5,14 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.IOException;
 
-import lu.itrust.business.TS.data.TrickService;
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOTrickServiceHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.TrickService;
+import lu.itrust.business.TS.model.analysis.Analysis;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

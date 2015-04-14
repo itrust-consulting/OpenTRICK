@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
+import lu.itrust.business.TS.model.asset.AssetType;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -87,7 +87,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#save(lu.itrust.business.TS.data.asset.AssetType)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#save(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Override
 	public void save(AssetType assetType) throws Exception {
@@ -98,7 +98,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#saveOrUpdate(lu.itrust.business.TS.data.asset.AssetType)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#saveOrUpdate(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Override
 	public void saveOrUpdate(AssetType assetType) throws Exception {
@@ -109,7 +109,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#delete(lu.itrust.business.TS.data.asset.AssetType)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#delete(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Override
 	public void delete(AssetType assetType) throws Exception {

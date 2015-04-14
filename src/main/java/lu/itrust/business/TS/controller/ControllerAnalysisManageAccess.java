@@ -9,14 +9,14 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
-import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class ControllerAnalysisManageAccess {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisID}")
-	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, HttpSession session) throws Exception {
 
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
@@ -103,7 +103,7 @@ public class ControllerAnalysisManageAccess {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Update/{analysisID}")
-	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
 
 		try {
