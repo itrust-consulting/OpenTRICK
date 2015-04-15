@@ -4,10 +4,13 @@
 package lu.itrust.business.TS.component;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.database.dao.hbm.DAOTrickLogHBM;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TrickLog;
 
 import org.hibernate.HibernateException;
@@ -33,6 +36,7 @@ public class TrickLogManager {
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
+	
 	public void setSessionFactory(SessionFactory sessionFactory){
 		this.sessionFactory = sessionFactory;
 	}
@@ -50,6 +54,102 @@ public class TrickLogManager {
 	public static boolean Persist(TrickLog trickLog){
 		synchronized (getInstance().trickLogs) {
 			return getInstance().trickLogs.offer(trickLog);
+		}
+	}
+	
+	/**
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(String code, String message, List<String> parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(code, message, parameters));
+		}
+	}
+	
+	/**
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(String code, String message, String... parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(code, message, parameters));
+		}
+	}
+	
+	/**
+	 * @param level
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(LogLevel level, String code, String message, String... parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(level, code, message, parameters));
+		}
+	}
+	
+	/**
+	 * @param level
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(LogLevel level, String code, String message, List<String> parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(level, code, message, parameters));
+		}
+	}
+	
+	/**
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(LogType type, String code, String message, List<String> parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(type, code, message, parameters));
+		}
+	}
+	
+	/**
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(LogType type, String code, String message, String... parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(type, code, message, parameters));
+		}
+	}
+	
+	/**
+	 * @param level
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(LogLevel level, LogType type, String code, String message, List<String> parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(level, type, code, message, parameters));
+		}
+	}
+	
+	/**
+	 * @param level
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean Persist(LogLevel level, LogType type, String code, String message, String... parameters) {
+		synchronized (getInstance().trickLogs) {
+			return getInstance().trickLogs.offer(new TrickLog(level, type, code, message, parameters));
 		}
 	}
 	

@@ -18,6 +18,7 @@ import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
+import lu.itrust.business.TS.model.general.helper.TrickFilter;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
@@ -105,14 +106,14 @@ public class ControllerProfile {
 		model.addAttribute("user", user);
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
-		FilterControl filterControl = buildFromUser(user, FILTER_CONTROL_SQLITE);
+		TrickFilter filterControl = buildFromUser(user, FILTER_CONTROL_SQLITE);
 		session.setAttribute("sqliteControl", filterControl);
 		filterControl = buildFromUser(user, FILTER_CONTROL_REPORT);
 		session.setAttribute("reportControl", filterControl);
 		return "user/home";
 	}
 
-	private FilterControl buildFromUser(User user, String type) {
+	private TrickFilter buildFromUser(User user, String type) {
 		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)), filter = user
 				.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
 		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));

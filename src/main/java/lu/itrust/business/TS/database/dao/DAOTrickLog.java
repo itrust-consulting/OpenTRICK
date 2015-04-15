@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.TrickLog;
+import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 
 /**
  * @author eomar
@@ -35,4 +36,6 @@ public interface DAOTrickLog {
 	void delete(Long id);
 
 	void delete(TrickLog trickLog);
+
+	List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter);
 }

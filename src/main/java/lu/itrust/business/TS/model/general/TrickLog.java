@@ -37,6 +37,10 @@ public class TrickLog {
 	@Column(name="dtLevel")
 	private LogLevel level;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(name="dtType")
+	private LogType type;
+	
 	@Column(name="dtCode")
 	private String code;
 	
@@ -52,6 +56,40 @@ public class TrickLog {
 	@Cascade(CascadeType.ALL)
 	private List<String> parameters;
 	
+
+	/**
+	 * 
+	 */
+	public TrickLog() {
+	}
+
+	/**
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public TrickLog(String code, String message, List<String> parameters) {
+		this.type = LogType.GENERAL;
+		this.level = LogLevel.INFO;
+		this.code = code;
+		this.message = message;
+		this.parameters = parameters;
+		this.created = new Timestamp(System.currentTimeMillis());
+	}
+	
+	/**
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public TrickLog(String code, String message, String... parameters) {
+		this.type = LogType.GENERAL;
+		this.level = LogLevel.INFO;
+		this.code = code;
+		this.message = message;
+		this.parameters = ToList(parameters);
+		this.created = new Timestamp(System.currentTimeMillis());
+	}
 	
 	/**
 	 * @param level
@@ -60,6 +98,7 @@ public class TrickLog {
 	 * @param parameters
 	 */
 	public TrickLog(LogLevel level, String code, String message, String... parameters) {
+		this.type = LogType.GENERAL;
 		this.level = level;
 		this.code = code;
 		this.message = message;
@@ -67,7 +106,6 @@ public class TrickLog {
 		this.created = new Timestamp(System.currentTimeMillis());
 	}
 	
-
 	/**
 	 * @param level
 	 * @param code
@@ -75,6 +113,7 @@ public class TrickLog {
 	 * @param parameters
 	 */
 	public TrickLog(LogLevel level, String code, String message, List<String> parameters) {
+		this.type = LogType.GENERAL;
 		this.level = level;
 		this.code = code;
 		this.message = message;
@@ -83,6 +122,70 @@ public class TrickLog {
 	}
 	
 	
+	
+	/**
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public TrickLog(LogType type, String code, String message, List<String> parameters) {
+		this.level = LogLevel.INFO;
+		this.type = type;
+		this.code = code;
+		this.message = message;
+		this.created = new Timestamp(System.currentTimeMillis());
+		this.parameters = parameters;
+	}
+	
+	/**
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public TrickLog(LogType type, String code, String message, String... parameters) {
+		this.level = LogLevel.INFO;
+		this.type = type;
+		this.code = code;
+		this.message = message;
+		this.created = new Timestamp(System.currentTimeMillis());
+		this.parameters = ToList(parameters);
+	}
+	
+	/**
+	 * @param level
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public TrickLog(LogLevel level, LogType type, String code, String message, List<String> parameters) {
+		this.level = level;
+		this.type = type;
+		this.code = code;
+		this.message = message;
+		this.created = new Timestamp(System.currentTimeMillis());
+		this.parameters = parameters;
+	}
+	
+	/**
+	 * @param level
+	 * @param type
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public TrickLog(LogLevel level, LogType type, String code, String message,String... parameters) {
+		this.level = level;
+		this.type = type;
+		this.code = code;
+		this.message = message;
+		this.created = new Timestamp(System.currentTimeMillis());
+		this.parameters = ToList(parameters);
+	}
+
+
 	public static <T> List<T> ToList(T[] array){
 		if(array == null)
 			return new LinkedList<T>();
@@ -108,6 +211,15 @@ public class TrickLog {
 		this.level = level;
 	}
 	
+	public LogType getType() {
+		return type;
+	}
+
+	public void setType(LogType type) {
+		this.type = type;
+	}
+
+
 	public String getCode() {
 		return code;
 	}

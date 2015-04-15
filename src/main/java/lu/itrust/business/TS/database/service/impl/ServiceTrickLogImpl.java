@@ -14,6 +14,7 @@ import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.TrickLog;
+import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 
 /**
  * @author eomar
@@ -115,6 +116,11 @@ public class ServiceTrickLogImpl implements ServiceTrickLog {
 	@Override
 	public void delete(TrickLog trickLog) {
 		daoTrickLog.delete(trickLog);
+	}
+
+	@Override
+	public List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter) {
+		return daoTrickLog.getAll(page,filter);
 	}
 
 }

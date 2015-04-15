@@ -5,12 +5,14 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.TrickLog;
+import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 
 /**
  * @author eomar
@@ -18,7 +20,7 @@ import lu.itrust.business.TS.model.general.TrickLog;
  */
 @Repository
 public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
-	
+
 	/**
 	 * 
 	 */
@@ -56,7 +58,7 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAllByLevel(LogLevel level, int page, int size) {
-		return getSession().createQuery("From TrickLog where level = :level").setParameter("level", level).setFirstResult((page -1)*size).setMaxResults(size).list();
+		return getSession().createQuery("From TrickLog where level = :level").setParameter("level", level).setFirstResult((page - 1) * size).setMaxResults(size).list();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -68,13 +70,13 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAll(int page, int size) {
-		return getSession().createQuery("From TrickLog").setFirstResult((page -1)*size).setMaxResults(size).list();
+		return getSession().createQuery("From TrickLog").setFirstResult((page - 1) * size).setMaxResults(size).list();
 	}
 
 	@Override
 	public TrickLog save(TrickLog trickLog) {
 		return (TrickLog) getSession().save(trickLog);
-		
+
 	}
 
 	@Override
@@ -92,4 +94,22 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 		getSession().delete(trickLog);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter) {
+		Query query;
+		if (filter.getLevel() == null) {
+			if (filter.getType() == null)
+				query = getSession().createQuery(String.format("From TrickLog order by created %s", filter.isOrderDescending() ? "desc" : "asc"));
+			else
+				query = getSession().createQuery(String.format("From TrickLog where type = :type order by created %s", filter.isOrderDescending() ? "desc" : "asc")).setParameter(
+						"type", filter.getType());
+		} else if (filter.getType() == null)
+			query = getSession().createQuery(String.format("From TrickLog where level = :level order by created %s", filter.isOrderDescending() ? "desc" : "asc")).setParameter(
+					"level", filter.getLevel());
+		else
+			query = getSession().createQuery(String.format("From TrickLog where level = :level and type = :type order by created %s", filter.isOrderDescending() ? "desc" : "asc"))
+					.setParameter("level", filter.getLevel()).setParameter("type", filter.getType());
+		return query.setFirstResult((page - 1) * filter.getSize()).list();
+	}
 }

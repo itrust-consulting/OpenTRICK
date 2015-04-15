@@ -14,11 +14,11 @@ import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTrickLog;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -30,6 +30,9 @@ import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -47,6 +50,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -65,6 +69,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 @RequestMapping("/Admin")
 public class ControllerAdministration {
+
+	private static final String TRICK_LOG_FILTER = "trick-log-filter";
+
+	private static final String LOG_FILTER_TYPE = "LOG-FILTER-TYPE";
+
+	private static final String LOG_FILTER_LEVEL = "LOG-FILTER-LEVEL";
+
+	private static final String LOG_FILTER_SORT_DIRECTION = "LOG-FILTER-SORT-DIRECTION";
+
+	private static final String LOG_FILTER_PAGE_SIZE = "LOG-FILTER-PAGE-SIZE";
 
 	@Autowired
 	private MessageSource messageSource;
@@ -98,6 +112,9 @@ public class ControllerAdministration {
 
 	@Autowired
 	private CustomerManager customerManager;
+	
+	@Autowired
+	private ServiceTrickLog serviceTrickLog;
 
 	@Value("${app.settings.version}")
 	private String version;
@@ -150,7 +167,23 @@ public class ControllerAdministration {
 			} else
 				model.put("analyses", serviceAnalysis.getAll());
 		}
+
+		model.put("logFilter", loadLogFilter(session, principal.getName()));
+		model.put("logLevels", LogLevel.values());
+		model.put("logTypes", LogType.values());
+
 		return "admin/administration";
+	}
+
+	private TrickLogFilter loadLogFilter(HttpSession session, String username) throws Exception {
+		TrickLogFilter filter = (TrickLogFilter) session.getAttribute(TRICK_LOG_FILTER);
+		if (filter != null)
+			return filter;
+		User user = serviceUser.get(username);
+		filter = new TrickLogFilter(user.getInteger(LOG_FILTER_PAGE_SIZE), user.getSetting(LOG_FILTER_LEVEL), user.getSetting(LOG_FILTER_TYPE),
+				user.getSetting(LOG_FILTER_SORT_DIRECTION));
+		session.setAttribute(TRICK_LOG_FILTER, filter);
+		return filter;
 	}
 
 	/**
@@ -226,6 +259,18 @@ public class ControllerAdministration {
 		}
 	}
 
+	@RequestMapping(value = "/Log/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String sectionLog(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
+		try {
+			TrickLogFilter filter = loadLogFilter(session, principal.getName());
+			
+			model.addAttribute("trickLogs", serviceTrickLog.getAll(page, filter));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "admin/log/section";
+	}
+
 	/**
 	 * manageaccessrights: <br>
 	 * Description
@@ -238,22 +283,13 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping("/Analysis/{analysisID}/ManageAccess")
 	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model) throws Exception {
-
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
-
 		Analysis analysis = serviceAnalysis.get(analysisID);
-
 		if (!analysis.isProfile()) {
-
 			List<UserAnalysisRight> uars = analysis.getUserRights();
-
-			for (User user : serviceUser.getAll())
-				userrights.put(DAOHibernate.Initialise(user), null);
-
-			for (UserAnalysisRight uar : uars)
-				userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
-
-			model.addAttribute("currentUser", (DAOHibernate.Initialise(serviceUser.get(principal.getName())).getId()));
+			serviceUser.getAll().forEach(user -> userrights.put(user, null));
+			uars.forEach(uar -> userrights.put(uar.getUser(), uar.getRight()));
+			model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
@@ -277,26 +313,20 @@ public class ControllerAdministration {
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
 
 		try {
-
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
-
-			Analysis analysis = serviceAnalysis.get(analysisID);
-
 			int currentUser = jsonNode.get("userselect").asInt();
-
 			model.addAttribute("currentUser", currentUser);
-
-			Map<User, AnalysisRight> userrights = manageAnalysisRight.updateAnalysisRights(principal, analysis, serviceUser.getAll(), jsonNode);
-
+			manageAnalysisRight.updateAnalysisRights(principal, analysisID, jsonNode);
 			model.addAttribute("success",
 					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
-
+			Analysis analysis = serviceAnalysis.get(analysisID);
+			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
+			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
-
 			return "analyses/allAnalyses/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors

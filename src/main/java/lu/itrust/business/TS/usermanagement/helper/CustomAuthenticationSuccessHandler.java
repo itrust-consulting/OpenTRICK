@@ -13,8 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.TrickLog;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			if(myUser.getLocale()==null){
 				myUser.setLocale("en");
 				serviceUser.saveOrUpdate(myUser);
-			} 
+			}
 			
 			locale = new Locale(myUser.getLocale());
 				
@@ -71,8 +70,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			String remoteaddr = request.getRemoteAddr();
 			
 			System.out.println(stringdate +" CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '"+request.getParameter("j_username") +"'! Requesting IP: "+remoteaddr);
-			TrickLogManager.Persist(new TrickLog(LogLevel.SUCCESS, "sucess.user.connect", String.format("%s connects from %s", request.getParameter("j_username"),
-					remoteaddr), request.getParameter("j_username"), remoteaddr));
+			TrickLogManager.Persist(LogType.AUTHENTICATION, "sucess.user.connect", String.format("%s connects from %s", request.getParameter("j_username"),
+					remoteaddr), request.getParameter("j_username"), remoteaddr);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.TrickLog;
+import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 
 /**
  * @author eomar
@@ -21,6 +22,8 @@ public interface ServiceTrickLog {
 	Long countByLevel(LogLevel level);
 	
 	List<TrickLog> getAll();
+	
+	List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter);
 	
 	List<TrickLog> getAllByLevel(LogLevel level, int page, int size);
 	

@@ -476,6 +476,10 @@ ul.asset-measure>li {
 	overflow: auto;
 }
 
+#nav-container .tab-pane.trick-chart-tab{
+	overflow:inherit;
+}
+
 #uploadStandardModal .progress {
 	max-width: 95%;
 	margin-top: 10px;

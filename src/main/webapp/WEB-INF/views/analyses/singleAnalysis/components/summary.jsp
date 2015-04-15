@@ -9,7 +9,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <div class="tab-pane" id="tabSummary">
 	<div class="section" id="section_summary">
-		<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
+		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
 		<ul class="nav nav-pills bordered-bottom">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"

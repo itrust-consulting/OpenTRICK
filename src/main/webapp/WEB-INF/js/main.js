@@ -109,6 +109,14 @@ $(function() {
 			}
 			$("#tabOption").hide();
 		});
+	}else {
+		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+			var target = $(e.target).attr("href");
+			if ($(target).attr("data-update-required") == "true") {
+				window[$(target).attr("data-trigger")].apply();
+				$(target).attr("data-update-required", "false");
+			}
+		});
 	}
 
 	if ($('.table-fixed-header').length) {

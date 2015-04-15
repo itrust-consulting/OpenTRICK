@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -58,7 +57,7 @@ public class ControllerAnalysisManageAccess {
 
 	@Autowired
 	private ManageAnalysisRight manageAnalysisRight;
-	
+
 	/**
 	 * manageaccessrights: <br>
 	 * Description
@@ -72,20 +71,12 @@ public class ControllerAnalysisManageAccess {
 	@RequestMapping("/{analysisID}")
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, HttpSession session) throws Exception {
-
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
-
 		Analysis analysis = serviceAnalysis.get(analysisID);
-
 		List<UserAnalysisRight> uars = analysis.getUserRights();
-
-		for (User user : serviceUser.getAll())
-			userrights.put(DAOHibernate.Initialise(user), null);
-
-		for (UserAnalysisRight uar : uars)
-			userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
-
-		model.addAttribute("currentUser", (DAOHibernate.Initialise(serviceUser.get(principal.getName())).getId()));
+		serviceUser.getAll().forEach(user-> userrights.put(user, null));
+		uars.forEach(uar-> userrights.put(uar.getUser(), uar.getRight()));
+		model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
 		model.addAttribute("analysisRights", AnalysisRight.values());
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("userrights", userrights);
@@ -107,20 +98,17 @@ public class ControllerAnalysisManageAccess {
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
 
 		try {
-
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
-
-			Analysis analysis = serviceAnalysis.get(analysisID);
-
 			int currentUser = jsonNode.get("userselect").asInt();
-
 			model.addAttribute("currentUser", currentUser);
-
-			Map<User, AnalysisRight> userrights = manageAnalysisRight.updateAnalysisRights(principal, analysis, serviceUser.getAll(), jsonNode);
-			
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			manageAnalysisRight.updateAnalysisRights(principal, analysisID, jsonNode);
+			Analysis analysis = serviceAnalysis.get(analysisID);
+			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
+			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
+			model.addAttribute("success",
+					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);

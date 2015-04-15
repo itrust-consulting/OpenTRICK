@@ -4,17 +4,18 @@
 package lu.itrust.business.TS.model.analysis.helper;
 
 import java.security.Principal;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
+import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class ManageAnalysisRight {
 
 	private DAOAnalysis daoAnalysis;
 
+	private DAOUser daoUser;
+
 	public void switchAnalysisToReadOnly(String identifier, int idAnalysis) throws Exception {
 		List<UserAnalysisRight> userAnalysisRights = daoUserAnalysisRight.getAllFromIdenfierExceptAnalysisIdAndRightNotRead(identifier, idAnalysis);
 		for (UserAnalysisRight userAnalysisRight : userAnalysisRights) {
@@ -42,54 +45,48 @@ public class ManageAnalysisRight {
 		}
 	}
 
-	public Map<User, AnalysisRight> updateAnalysisRights(Principal principal, Analysis analysis, List<User> users, JsonNode jsonNode) throws Exception {
-		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
+	public void updateAnalysisRights(Principal principal, Integer idAnalysis, JsonNode jsonNode) throws Exception {
+		List<User> users = daoUser.getAll();
+		Analysis analysis = daoAnalysis.get(idAnalysis);
 		for (User user : users) {
-
-			if (analysis.getRightsforUser(user) != null)
-				userrights.put(user, analysis.getRightsforUser(user).getRight());
-			else
-				userrights.put(user, null);
 
 			if (user.getLogin().equals(principal.getName()) && !analysis.getOwner().getLogin().equals(principal.getName()))
 				continue;
 
 			int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-
 			if (analysis.getOwner().equals(user) && !AnalysisRight.isValid(useraccess))
 				continue;
 
 			UserAnalysisRight uar = analysis.getRightsforUser(user);
-
 			if (uar != null) {
-
 				if (useraccess == -1) {
 					analysis.getUserRights().remove(uar);
 					daoUserAnalysisRight.delete(uar);
-					userrights.put(user, null);
+					TrickLogManager.Persist(LogType.ANALYSIS, "info.remove.analysis.access.right", String.format("Analysis: %s, version: %s, %s removed %s access to %s",
+							analysis.getIdentifier(), analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin()), analysis.getIdentifier(),
+							analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin());
 				} else {
 					uar.setRight(AnalysisRight.valueOf(useraccess));
 					daoUserAnalysisRight.saveOrUpdate(uar);
-					userrights.put(user, uar.getRight());
+					TrickLogManager.Persist(LogType.ANALYSIS, "info.grante.analysis.access.right", String.format("Analysis: %s, version: %s, %s granted %s access to %s",
+							analysis.getIdentifier(), analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin()), analysis.getIdentifier(),
+							analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin());
 				}
 			} else {
-
 				if (useraccess != -1) {
-
 					if (!user.getCustomers().contains(analysis.getCustomer()))
 						user.addCustomer(analysis.getCustomer());
-					
-					uar = analysis.addUserRight(user,  AnalysisRight.valueOf(useraccess));
+					uar = analysis.addUserRight(user, AnalysisRight.valueOf(useraccess));
 					daoUserAnalysisRight.save(uar);
-					userrights.put(user, uar.getRight());
+					TrickLogManager.Persist(LogType.ANALYSIS, "info.give.analysis.access.right", String.format("Analysis: %s, version: %s, %s gave %s access to %s",
+							analysis.getIdentifier(), analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin()), analysis.getIdentifier(),
+							analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin());
 				}
 
 			}
 		}
 
 		daoAnalysis.saveOrUpdate(analysis);
-
-		return userrights;
 	}
 
 	@Autowired
@@ -101,5 +98,12 @@ public class ManageAnalysisRight {
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
 	}
+
+	@Autowired
+	public void setDaoUser(DAOUser daoUser) {
+		this.daoUser = daoUser;
+	}
+	
+	
 
 }

@@ -8,6 +8,16 @@ $(document).ready(function() {
 	});
 });
 
+$(function() {
+	$(window).scroll(function(e) {
+		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
+			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
+			if ($selectedTab.attr("data-update-required") === "false" && typeof attr !== typeof undefined && attr !== false)
+				window[$selectedTab.attr("data-scroll-trigger")].apply();
+		}
+	});
+});
+
 function installTrickService() {
 	$.ajax({
 		url : context + "/Install",
@@ -46,11 +56,10 @@ function switchCustomer(section) {
 						type : "get",
 						contentType : "application/json;charset=UTF-8",
 						success : function(response, textStatus, jqXHR) {
-							if (response["success"] != undefined){
+							if (response["success"] != undefined) {
 								adminCustomerChange($("#tab_analyses").find("select"));
 								$content.modal("hide");
-							}
-							else if (response["error"] != undefined)
+							} else if (response["error"] != undefined)
 								$("<label class='label label-error'>" + response["error"] + "</label>").appendTo($content.find(".modal-body"));
 							else
 								unknowError();
@@ -214,4 +223,52 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 	$(modal.modal).find("#deleteanalysisbuttonYes").prop("disabled", false);
 	modal.Show();
 	return false;
+}
+
+function loadSystemLog() {
+	$("#progress-trickLog").show();
+	$.ajax({
+		url : context + "/Admin/Log/Section",
+		async : false,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			var section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
+			if(section.length)
+				$("#section_log").replaceWith(section);
+			else unknowError();
+		},
+		error : unknowError,
+		complete : function() {
+			$("#progress-trickLog").hide();
+		}
+	});
+	return true;
+}
+
+function loadSystemLogScrolling() {
+	var currentSize = $("#section_log table>tbody>tr").length, size = parseInt($("#logFilterPageSize").val());
+	if (currentSize >= size && currentSize % size === 0) {
+		$("#progress-trickLog").show();
+		$.ajax({
+			url : context + "/Admin/Log/Section",
+			async : false,
+			data : {
+				"page" : (currentSize / size) + 1
+			},
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_log>table>tbody>tr").each(function() {
+					var $current = $("#section_log>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
+					if (!$current.length)
+						$(this).appendTo($("#section_log>table>tbody"));
+				});
+				return false;
+			},
+			error : unknowError,
+			complete : function() {
+				$("#progress-trickLog").hide();
+			}
+		});
+	}
+	return true;
 }
