@@ -24,6 +24,7 @@ import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -58,6 +59,8 @@ import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -262,6 +265,9 @@ public class ControllerAnalysis {
 
 			if (hasPermission) {
 				// initialise analysis
+				TrickLogManager.Persist(LogType.ANALYSIS, "log.info.user.open.analysis",
+						String.format("Analysis: %s, version: %s, action: open, username: %s", analysis.getIdentifier(), analysis.getVersion(), user.getLogin()),
+						analysis.getIdentifier(), analysis.getVersion(), user.getLogin());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
@@ -275,6 +281,9 @@ public class ControllerAnalysis {
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 
 			} else {
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.info.user.try.open.analysis",
+						String.format("Analysis: %s, version:%s, action: deny access, username: %s", analysis.getIdentifier(), analysis.getVersion(), user.getLogin()),
+						analysis.getIdentifier(), analysis.getVersion(), user.getLogin());
 				attributes.addFlashAttribute("error", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("error"));
 			}
@@ -658,7 +667,7 @@ public class ControllerAnalysis {
 			if (analysis != null && analysis.getId() == analysisId)
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
-			customDelete.deleteAnalysis(analysisId);
+			customDelete.deleteAnalysis(analysisId, principal.getName());
 
 			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 
@@ -1010,13 +1019,17 @@ public class ControllerAnalysis {
 						errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
 					else {
 						if (!serviceAnalysis.isAnalysisCustomer(id, idCustomer))
-							customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer);
+							customerManager.switchCustomer(serviceAnalysis.getIdentifierByIdAnalysis(id), idCustomer, owner.getLogin());
 						analysis = serviceAnalysis.get(id);
 						if (customer.getId() != analysis.getCustomer().getId())
 							analysis.setCustomer(customer);
 					}
 				} else
 					analysis = serviceAnalysis.get(id);
+				if(analysis!=null)
+					TrickLogManager.Persist(LogLevel.WARNING,LogType.ANALYSIS, "log.user.edit.analysis.information", String.format(
+							"Analysis: %s, version: %s, action: edit information, username: %s", analysis.getIdentifier(), analysis.getVersion(),
+							 owner.getLogin()), analysis.getIdentifier(), analysis.getVersion(), owner.getLogin());
 			} else {
 				if (idCustomer < 1)
 					errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));

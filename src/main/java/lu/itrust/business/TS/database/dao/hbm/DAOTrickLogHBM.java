@@ -110,6 +110,6 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 		else
 			query = getSession().createQuery(String.format("From TrickLog where level = :level and type = :type order by created %s", filter.isOrderDescending() ? "desc" : "asc"))
 					.setParameter("level", filter.getLevel()).setParameter("type", filter.getType());
-		return query.setFirstResult((page - 1) * filter.getSize()).list();
+		return query.setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
 	}
 }

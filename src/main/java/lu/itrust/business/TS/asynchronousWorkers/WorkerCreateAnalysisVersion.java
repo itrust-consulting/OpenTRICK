@@ -6,6 +6,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.sql.Timestamp;
 
 import lu.itrust.business.TS.component.Duplicator;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -15,6 +16,8 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.history.History;
 
 import org.hibernate.HibernateException;
@@ -140,6 +143,10 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				session.getTransaction().commit();
 
 				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", language, 100));
+
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.create.analysis.version", String.format(
+						"Analysis: %s, version: %s, action: create version (%s), username: %s", analysis.getIdentifier(), analysis.getVersion(), copy.getVersion(), userName),
+						analysis.getIdentifier(), analysis.getVersion(), copy.getVersion(), userName);
 			}
 
 		} catch (InterruptedException e) {

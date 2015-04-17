@@ -636,4 +636,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						"Select distinct analysis.version From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2 = :analysisId)")
 				.setInteger("analysisId", analysisId).list();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAll(List<Integer> ids) {
+		return getSession().createQuery("From Analysis analysis where analysis.id in :analysisIds").setParameterList("analysisIds", ids).list();
+	}
 }

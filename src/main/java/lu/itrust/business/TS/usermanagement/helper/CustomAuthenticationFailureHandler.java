@@ -31,7 +31,6 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-		// exception.printStackTrace();
 		DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
 		Date date = new Date();
 		String stringdate = dateFormat.format(date);
@@ -40,12 +39,12 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + request.getParameter("j_username") + "' does not exist! Requesting IP: "
 					+ remoteaddr);
 			request.getSession().setAttribute("LOGIN_ERROR", "error.bad.credential");
-			TrickLogManager.Persist(LogLevel.WARNING,LogType.AUTHENTICATION, "error.user.bad.credential", String.format("%s attempts to connect from %s", request.getParameter("j_username"),
+			TrickLogManager.Persist(LogLevel.WARNING,LogType.AUTHENTICATION, "log.user.bad.credential", String.format("%s attempts to connect from %s", request.getParameter("j_username"),
 					remoteaddr), request.getParameter("j_username"), remoteaddr);
 		} else if (exception.getClass().isAssignableFrom(DisabledException.class)) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: User '" + request.getParameter("j_username") + "' is disabled! Requesting IP: "
 					+ remoteaddr);
-			TrickLogManager.Persist(LogLevel.WARNING,LogType.AUTHENTICATION, "error.user.account.disabled", String.format("%s's account is disabled but he tries to connect from %s", request.getParameter("j_username"),
+			TrickLogManager.Persist(LogLevel.WARNING,LogType.AUTHENTICATION, "log.user.account.disabled", String.format("%s's account is disabled but he tries to connect from %s", request.getParameter("j_username"),
 					remoteaddr), request.getParameter("j_username"), remoteaddr);
 		} else if (exception.getClass().isAssignableFrom(InternalAuthenticationServiceException.class)) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: Database Connection Failed!");

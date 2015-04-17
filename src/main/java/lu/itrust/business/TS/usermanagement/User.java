@@ -530,4 +530,12 @@ public class User implements Serializable {
 		this.userSettings.put(name, String.valueOf(value));
 	}
 
+	public RoleType getAccess() {
+		for (RoleType roleType : RoleType.values()){
+			if(hasRole(roleType))
+				return roleType;
+		}
+		return null;
+	}
+
 }

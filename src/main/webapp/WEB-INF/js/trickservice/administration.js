@@ -225,6 +225,32 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 	return false;
 }
 
+function updateLogFilter(element){
+	if (element != undefined && !$(element).is(":checked"))
+		return false;
+	var data = $("#logFilterForm").serializeJSON();
+	if(data["level"]==="ALL")
+		delete data["level"];
+	if(data["type"] ==="ALL")
+		delete data["type"];
+	$.ajax({
+		url : context + "/Admin/Log/Filter/Update",
+		type : "post",
+		data : JSON.stringify(data),
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (response["success"] != undefined)
+				return loadSystemLog();
+			else if (response["error"] != undefined)
+				new Modal($("#alert-dialog").clone(), response["error"]).Show();
+			else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 function loadSystemLog() {
 	$("#progress-trickLog").show();
 	$.ajax({
@@ -233,8 +259,13 @@ function loadSystemLog() {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
-			if(section.length)
+			if(section.length){
 				$("#section_log").replaceWith(section);
+				$("#section_log table.table-fixed-header-analysis").stickyTableHeaders({
+					cssTopOffset : ".nav-tab",
+					fixedOffset : 6
+				});
+			}
 			else unknowError();
 		},
 		error : unknowError,
@@ -272,3 +303,4 @@ function loadSystemLogScrolling() {
 	}
 	return true;
 }
+

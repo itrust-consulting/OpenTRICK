@@ -123,4 +123,6 @@ public interface DAOAnalysis {
 	public boolean isProfileNameInUsed(String name);
 
 	public List<String> getAllVersion(Integer analysisId);
+
+	public List<Analysis> getAll(List<Integer> ids);
 }

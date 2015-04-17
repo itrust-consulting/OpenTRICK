@@ -35,6 +35,8 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -72,7 +74,7 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOMeasureDescriptionText daoMeasureDescriptionText;
-	
+
 	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
 
@@ -275,11 +277,12 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public boolean deleteAnalysis(List<Integer> ids) {
+	public boolean deleteAnalysis(List<Integer> ids, String username) {
 		try {
-			Collections.sort(ids, Collections.reverseOrder());
-			for (Integer id : ids)
-				daoAnalysis.delete(id);
+			List<Analysis> analyses = daoAnalysis.getAll(ids);
+			Collections.sort(analyses, new AnalysisComparator().reversed());
+			for (Analysis analysis : analyses)
+				deleteAnalysis(analysis, username);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -287,16 +290,9 @@ public class CustomDelete {
 		}
 	}
 
-	@Transactional
-	public void deleteAnalysis(int idAnalysis) throws Exception {
+	protected void deleteAnalysis(Analysis analysis, String username) throws Exception {
 
-		// delete the analysis
-		List<UserAnalysisRight> currentAnalysisRights = daoUserAnalysisRight.getAllFromAnalysis(idAnalysis);
-
-		String identifier = daoAnalysis.getIdentifierByIdAnalysis(idAnalysis);
-
-		List<String> versions = daoAnalysis.getAllNotEmptyVersion(identifier);
-
+		List<String> versions = daoAnalysis.getAllNotEmptyVersion(analysis.getIdentifier());
 		Comparator<String> comparator = new Comparator<String>() {
 			@Override
 			public int compare(String o1, String o2) {
@@ -310,22 +306,29 @@ public class CustomDelete {
 
 		Analysis lastVersion = null;
 		if (!versions.isEmpty()) {
-			lastVersion = daoAnalysis.getFromIdentifierVersionCustomer(identifier, versions.get(0), daoAnalysis.getCustomerIdByIdAnalysis(idAnalysis));
+			lastVersion = daoAnalysis.getFromIdentifierVersionCustomer(analysis.getIdentifier(), versions.get(0), analysis.getCustomer().getId());
 			if (lastVersion != null) {
-				for (UserAnalysisRight userAnalysisRight : currentAnalysisRights) {
+				for (UserAnalysisRight userAnalysisRight : analysis.getUserRights()) {
 					UserAnalysisRight analysisRight = lastVersion.getRightsforUser(userAnalysisRight.getUser());
 					if (analysisRight != null)
 						analysisRight.setRight(userAnalysisRight.getRight());
 				}
 			}
 		}
-		
-		daoAnalysis.delete(idAnalysis);
-		
+
+		daoAnalysis.delete(analysis);
+		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.analysis",
+				String.format("Analysis: %s, version: %s, action: delete, username: %s", analysis.getIdentifier(), analysis.getVersion(), username), analysis.getIdentifier(),
+				analysis.getVersion(), username);
 		if (lastVersion != null)
 			daoAnalysis.saveOrUpdate(lastVersion);
 		else
-			customDeleteEmptyAnalysis(identifier);
+			customDeleteEmptyAnalysis(analysis.getIdentifier(), username);
+	}
+
+	@Transactional
+	public void deleteAnalysis(int idAnalysis, String username) throws Exception {
+		deleteAnalysis(daoAnalysis.get(idAnalysis), username);
 	}
 
 	@Transactional
@@ -340,13 +343,17 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void customDeleteEmptyAnalysis(String identifier) throws Exception {
+	public void customDeleteEmptyAnalysis(String identifier, String username) throws Exception {
 		List<Analysis> analyses = daoAnalysis.getAllByIdentifier(identifier);
 		if (analyses.stream().anyMatch(analysis -> analysis.hasData()))
 			return;
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
-		for (Analysis analysis : analyses)
+		for (Analysis analysis : analyses){
 			daoAnalysis.delete(analysis);
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.analysis",
+					String.format("Analysis: %s, version: %s, action: delete, username: %s", analysis.getIdentifier(), analysis.getVersion(), username), analysis.getIdentifier(),
+					analysis.getVersion(), username);
+		}
 	}
 
 }
