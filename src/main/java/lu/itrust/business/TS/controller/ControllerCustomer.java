@@ -11,12 +11,15 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.CustomerValidator;
@@ -107,8 +110,8 @@ public class ControllerCustomer {
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale, RedirectAttributes redirectAttributes)
-			throws Exception {
+	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale,
+			RedirectAttributes redirectAttributes) throws Exception {
 		// create errors list
 
 		try {
@@ -123,10 +126,15 @@ public class ControllerCustomer {
 			for (User user : users) {
 				boolean userhasaccess = jsonNode.get("user_" + user.getId()).asBoolean();
 				if (userhasaccess) {
-					user.addCustomer(customer);
-					serviceUser.saveOrUpdate(user);
-				} else
-					customDelete.removeCustomerByUser(customer, user.getLogin());
+					if (!user.containsCustomer(customer)) {
+						user.addCustomer(customer);
+						serviceUser.saveOrUpdate(user);
+						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
+								String.format("Customer: %s, action: give access, grantee: %s, username: %s", customer.getOrganisation(), user.getLogin(), principal.getName()),
+								customer.getOrganisation(), user.getLogin(), principal.getName());
+					}
+				} else 
+					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
 			}
 
 			model.addAttribute("users", users);
@@ -160,12 +168,13 @@ public class ControllerCustomer {
 	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
 		String referer = request.getHeader("Referer");
 		User user = serviceUser.get(principal.getName());
-		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		if (referer != null && referer.contains("/Admin")) {
 			model.addAttribute("adminView", true);
 			if (user.isAutorised(RoleType.ROLE_ADMIN))
 				model.addAttribute("customers", serviceCustomer.getAll());
 		}
+		if (!model.containsAttribute("customers"))
+			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		return "knowledgebase/customer/customers";
 	}
 
@@ -175,8 +184,8 @@ public class ControllerCustomer {
 	 * 
 	 * */
 	@RequestMapping("/{customerId}")
-	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
+	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
+			Locale locale) throws Exception {
 		Customer customer = (Customer) session.getAttribute("customer");
 		if (customer == null || customer.getId() != customerId)
 			customer = serviceCustomer.get(customerId);
@@ -198,8 +207,7 @@ public class ControllerCustomer {
 	 * @return
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			Customer customer = new Customer();
@@ -219,10 +227,15 @@ public class ControllerCustomer {
 				else
 					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
 			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed() || !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed())
-				&& (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
+					&& (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
-				errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
+				errors.put("canBeUsed",
+						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
+			if (errors.isEmpty())
+				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer",
+						String.format("Customer: %s, action: add/update, username:", customer.getOrganisation(), principal.getName()), customer.getOrganisation(),
+						principal.getName());
 		} catch (Exception e) {
 			errors.put("customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
@@ -236,24 +249,14 @@ public class ControllerCustomer {
 	 * 
 	 * */
 	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
+	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 		try {
-			Customer customer = serviceCustomer.get(customerId);
-			if (customer == null)
-				return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
-
-			if (!customer.isCanBeUsed())
-				return JsonMessage.Error(messageSource.getMessage("error.customer.delete.profile", null, "Customer Profile cannot be deleted", locale));
-
-			customDelete.deleteCustomer(customer);
+			customDelete.deleteCustomer(customerId, principal.getName());
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
-
 		} catch (TrickException e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
-
 	}
 
 	/**

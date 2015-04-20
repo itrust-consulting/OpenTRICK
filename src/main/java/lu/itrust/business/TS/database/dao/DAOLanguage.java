@@ -38,4 +38,6 @@ public interface DAOLanguage {
 	public void delete(Integer languageID) throws Exception;
 
 	public void delete(Language language) throws Exception;
+
+	public boolean isInUse(Language language);
 }

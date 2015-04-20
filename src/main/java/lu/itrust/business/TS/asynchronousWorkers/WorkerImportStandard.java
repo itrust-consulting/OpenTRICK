@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
@@ -19,6 +20,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
@@ -94,7 +96,9 @@ public class WorkerImportStandard implements Worker {
 					return;
 				working = true;
 			}
+
 			session = sessionFactory.openSession();
+
 			initialiseDAO(session);
 
 			transaction = session.beginTransaction();
@@ -103,16 +107,19 @@ public class WorkerImportStandard implements Worker {
 
 			transaction.commit();
 
-			messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", null, 100);
+			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", null, 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_standard\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
-
+			String username = serviceTaskFeedback.findUsernameById(this.getId());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard",
+					String.format("Standard: %s, version: %d, action: import, username: %s", newstandard.getLabel(), newstandard.getVersion(), username), newstandard.getLabel(),
+					String.valueOf(newstandard.getVersion()), username);
 		} catch (Exception e) {
 			this.error = e;
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null, e));
 			e.printStackTrace();
 			try {
-				if (transaction != null)
+				if (transaction != null && transaction.isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -166,14 +173,16 @@ public class WorkerImportStandard implements Worker {
 			getMeasures();
 			System.out.println("Import Standard Done!");
 		} else {
-			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null, "The Excel file containing Standard to import is malformed. Please check its content!");
+			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null,
+					"The Excel file containing Standard to import is malformed. Please check its content!");
 			serviceTaskFeedback.send(id, messageHandler);
 		}
 	}
 
 	/**
 	 * getStandard: <br>
-	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the Excel <br/>
+	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the
+	 * Excel <br/>
 	 * workbook and get information of the Standard to import
 	 * 
 	 */
@@ -203,14 +212,13 @@ public class WorkerImportStandard implements Worker {
 
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								if (daoStandard.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1)
-										.getNumericCellValue())) {
-									newstandard =
-										daoStandard.getStandardByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(
-												startColSheet + 1).getNumericCellValue());
-									messageHandler =
-										new MessageHandler("error.import.norm.exists", new Object[] { newstandard.getLabel(), newstandard.getVersion() }, "Standard label (" + newstandard.getLabel()
-											+ ") and version (" + newstandard.getVersion() + ") already exist, updating existing Standard");
+								if (daoStandard.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(),
+										(int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue())) {
+									newstandard = daoStandard.getStandardByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(),
+											(int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
+									messageHandler = new MessageHandler("error.import.norm.exists", new Object[] { newstandard.getLabel(), newstandard.getVersion() },
+											"Standard label (" + newstandard.getLabel() + ") and version (" + newstandard.getVersion()
+													+ ") already exist, updating existing Standard");
 									serviceTaskFeedback.send(id, messageHandler);
 									System.out.println("Updating existing Standard (" + newstandard.getLabel() + " - " + newstandard.getVersion() + ")...");
 								} else {
@@ -238,7 +246,8 @@ public class WorkerImportStandard implements Worker {
 
 	/**
 	 * getMeasures: <br>
-	 * This function browse sheet (NormData) and table (TableNormData) of the Excel <br/>
+	 * This function browse sheet (NormData) and table (TableNormData) of the
+	 * Excel <br/>
 	 * workbook and get information of the measures to import
 	 * 
 	 */
@@ -263,14 +272,9 @@ public class WorkerImportStandard implements Worker {
 
 			sheet = workbook.getSheetAt(indexSheet);
 
-			// System.out.println(sheet.getSheetName());
-
 			if (sheet.getSheetName().equals("NormData")) {
-
 				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-
 					table = sheet.getTables().get(indexTable);
-					// System.out.println(table.getName());
 					if (table.getName().equals("TableNormData")) {
 						startColSheet = table.getStartCellReference().getCol();
 						endColSheet = table.getEndCellReference().getCol();
@@ -329,10 +333,12 @@ public class WorkerImportStandard implements Worker {
 												}
 
 												if (daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId())) {
-													measureDescriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId());
+													measureDescriptionText = daoMeasureDescriptionText
+															.getForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId());
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1)
+															.getStringCellValue() : "";
 
 													if (domain.isEmpty() || measureDescription.isComputable() && description.isEmpty())
 														System.out.println("Measuredescriptiontext not valid! Skipping...");
@@ -347,7 +353,8 @@ public class WorkerImportStandard implements Worker {
 													measureDescriptionText.setLanguage(lang);
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1)
+															.getStringCellValue() : "";
 
 													if (!domain.isEmpty())
 														measureDescriptionText.setDomain(domain);

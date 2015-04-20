@@ -5,6 +5,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
@@ -14,6 +15,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.ExportAnalysisReport;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -124,6 +126,10 @@ public class WorkerExportWordReport implements Worker {
 			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", null, 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport(\"" + report.getId() + "\")", null));
 			exportAnalysisReport.getServiceTaskFeedback().send(id, messageHandler);
+			String username = exportAnalysisReport.getServiceTaskFeedback().findUsernameById(this.getId());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word",
+					String.format("Analyis: %s, version: %s, action: export report, username: %s", analysis.getIdentifier(), analysis.getVersion(), username),
+					analysis.getIdentifier(), analysis.getVersion(), username);
 		} catch (Exception e) {
 			try {
 				if (session.getTransaction().isInitiator())

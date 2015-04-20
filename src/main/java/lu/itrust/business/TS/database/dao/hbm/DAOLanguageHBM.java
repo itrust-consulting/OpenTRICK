@@ -86,7 +86,8 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@Override
 	public Language getFromAnalysis(Integer idAnalysis) throws Exception {
-		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis).uniqueResult();
+		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
+				.uniqueResult();
 	}
 
 	/**
@@ -178,5 +179,10 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	@Override
 	public void delete(Language language) throws Exception {
 		getSession().delete(language);
+	}
+
+	@Override
+	public boolean isInUse(Language language) {
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Analysis where language = :language").setParameter("language", language).uniqueResult();
 	}
 }

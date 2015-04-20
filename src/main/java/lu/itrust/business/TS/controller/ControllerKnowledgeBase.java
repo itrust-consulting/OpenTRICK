@@ -65,16 +65,4 @@ public class ControllerKnowledgeBase {
 		model.addAttribute("KowledgeBaseView", true);
 		return "analysis/analyses";
 	}
-
-	public void setServiceLanguage(ServiceLanguage serviceLanguage) {
-		this.serviceLanguage = serviceLanguage;
-	}
-
-	public void setServiceCustomer(ServiceCustomer serviceCustomer) {
-		this.serviceCustomer = serviceCustomer;
-	}
-
-	public void setServiceStandard(ServiceStandard serviceStandard) {
-		this.serviceStandard = serviceStandard;
-	}
 }

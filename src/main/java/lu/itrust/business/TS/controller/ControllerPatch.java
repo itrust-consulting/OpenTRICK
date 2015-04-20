@@ -1,11 +1,13 @@
 package lu.itrust.business.TS.controller;
 
+import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -22,6 +24,8 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -91,7 +95,7 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody String updateAllScenario(Locale locale) {
+	public @ResponseBody String updateAllScenario(Principal principal, Locale locale) {
 		try {
 
 			System.out.println("Reset scenario category value");
@@ -117,12 +121,15 @@ public class ControllerPatch {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(e.getMessage());
+		} finally {
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+					String.format("Runtime: %s: action: apply, username: %s", "Scenario-category-value", principal.getName()), "Scenario-category-value", principal.getName());
 		}
 	}
 
 	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody Map<String, String> updateAssessments(Locale locale) {
+	public @ResponseBody Map<String, String> updateAssessments(Principal principal, Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -151,13 +158,15 @@ public class ControllerPatch {
 			errors.put("error", e.getMessage());
 			e.printStackTrace();
 			return errors;
+		} finally {
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+					String.format("Runtime: %s: action: apply, username: %s", "Update-assessment", principal.getName()), "Update-assessment", principal.getName());
 		}
 	}
 
-	
 	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody String updateMeasureAssetTypes(Locale locale) {
+	public @ResponseBody String updateMeasureAssetTypes(Principal principal, Locale locale) {
 
 		try {
 
@@ -190,7 +199,7 @@ public class ControllerPatch {
 							}
 
 						}
-						//serviceMeasure.saveOrUpdate(normalMeasure);
+						// serviceMeasure.saveOrUpdate(normalMeasure);
 					}
 
 				}
@@ -205,6 +214,11 @@ public class ControllerPatch {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(e.getMessage());
+		} finally {
+			TrickLogManager
+					.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+							String.format("Runtime: %s: action: apply, username: %s", "Update-measure-asset-types", principal.getName()), "Update-measure-asset-types",
+							principal.getName());
 		}
 	}
 

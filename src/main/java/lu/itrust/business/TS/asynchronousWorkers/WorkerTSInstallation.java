@@ -5,6 +5,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.IOException;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -13,6 +14,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.LogType;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -90,6 +92,9 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			daoTrickService.saveOrUpdate(trickService);
 			session.getTransaction().commit();
 			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.install.update.version", "Update install version", null, 98));
+			String username = getImportAnalysis().getServiceTaskFeedback().findUsernameById(this.getId());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.system.install",
+					String.format("System: TRCIK Service, version: %s, action: install, username: %s", trickService.getVersion(), username), trickService.getVersion(), username);
 		} catch (Exception e) {
 			if (session != null && session.getTransaction().isInitiator())
 				session.getTransaction().rollback();

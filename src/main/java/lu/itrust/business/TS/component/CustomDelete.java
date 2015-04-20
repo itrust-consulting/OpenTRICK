@@ -183,40 +183,46 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void deleteCustomer(Customer customer) throws Exception {
+	public void deleteCustomer(int idcustomer, String username) throws Exception {
+		Customer customer = daoCustomer.get(idcustomer);
+		if(customer == null)
+			throw new TrickException("error.customer.not_found","Customer cannot be found");
 		if (!customer.isCanBeUsed())
-			return;
-		List<Analysis> analyses = daoAnalysis.getAllFromCustomer(customer);
-		if (analyses.size() > 0)
+			throw new TrickException("error.customer.delete.profile", "Customer Profile cannot be deleted");
+		if (daoCustomer.isInUsed(customer))
 			throw new TrickException("error.delete.customer.has_analyses", "Customer could not be deleted: there are still analyses of this customer!");
-
-		for (Analysis analysis : analyses)
-			daoAnalysis.delete(analysis);
 		List<User> users = daoUser.getAllFromCustomer(customer);
 		for (User user : users) {
 			user.getCustomers().remove(customer);
 			daoUser.saveOrUpdate(user);
 		}
 		daoCustomer.delete(customer);
+		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.customer",
+				String.format("Customer: %s, action: delete, username: %s", customer.getOrganisation(), username), customer.getOrganisation(), username);
+		
 	}
 
 	@Transactional
-	public void removeCustomerByUser(Customer customer, String userName) throws Exception {
-
-		if (!customer.isCanBeUsed())
+	public void removeCustomerByUser(int customerId, String userName, String adminUsername) throws Exception {
+		Customer customer = daoCustomer.get(customerId);
+		if (customer== null ||!customer.isCanBeUsed())
 			return;
-
-		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
-
 		User user = daoUser.get(userName);
+		if(user == null)
+			return;
+		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
+		
 		for (Analysis analysis : analyses) {
 			analysis.removeRights(user);
 			daoAnalysis.saveOrUpdate(analysis);
 		}
-
-		user.getCustomers().remove(customer);
-		if (!user.containsCustomer(customer))
-			daoUser.saveOrUpdate(user);
+		
+		if (!(user.containsCustomer(customer) && user.getCustomers().remove(customer)))
+			return;
+		daoUser.saveOrUpdate(user);
+		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.remove.access.to.customer",
+				String.format("Customer: %s, action: remove access, grantee: %s, username: %s", customer.getOrganisation(), user.getLogin(), adminUsername),
+				customer.getOrganisation(), user.getLogin(), adminUsername);
 	}
 
 	@Transactional

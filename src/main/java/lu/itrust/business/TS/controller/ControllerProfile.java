@@ -9,12 +9,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
@@ -25,6 +30,7 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -83,6 +89,12 @@ public class ControllerProfile {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
+	
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+	
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	/**
 	 * profile: <br>
@@ -178,26 +190,26 @@ public class ControllerProfile {
 		return "user/reports";
 
 	}
-	
+
 	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String deleteSqlite(@PathVariable Integer id, Principal principal, Locale locale) throws Exception{
+	public @ResponseBody String deleteSqlite(@PathVariable Integer id, Principal principal, Locale locale) throws Exception {
 		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
-		if(userSQLite == null)
+		if (userSQLite == null)
 			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
 		serviceUserSqLite.delete(userSQLite);
 		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
 	}
-	
+
 	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String deleteReport(@PathVariable Integer id, Principal principal, Locale locale){
+	public @ResponseBody String deleteReport(@PathVariable Integer id, Principal principal, Locale locale) {
 		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
-		if(report == null)
+		if (report == null)
 			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
 		serviceWordReport.delete(report);
 		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
-		
+
 	}
-	
+
 	/**
 	 * download: <br>
 	 * Description
@@ -209,7 +221,7 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Sqlite/{idFile}/Download")
-	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response) throws Exception {
+	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response,Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
@@ -217,7 +229,10 @@ public class ControllerProfile {
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)
 			return "errors/404";
-
+		
+		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(), userSqLite.getVersion());
+		if(idAnalysis==null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis,principal.getName(), AnalysisRight.READ))
+			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		// set response contenttype to sqlite
 		response.setContentType("sqlite");
 
@@ -236,6 +251,12 @@ public class ControllerProfile {
 		// client side the sqlite file)
 		FileCopyUtils.copy(userSqLite.getSqLite(), response.getOutputStream());
 
+		TrickLogManager.Persist(
+				LogType.ANALYSIS,
+				"log.analysis.store.data.download",
+				String.format("Analysis: %s, version: %s, action: download data, exported at: %s, username: %s", userSqLite.getIdentifier(), userSqLite.getVersion(),
+						userSqLite.getExportTime(), principal.getName()), userSqLite.getIdentifier(), userSqLite.getVersion(), String.valueOf(userSqLite.getExportTime()),
+				principal.getName());
 		// return
 		return null;
 	}
@@ -251,7 +272,7 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Report/{id}/Download")
-	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response) throws Exception {
+	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response,Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
@@ -259,7 +280,12 @@ public class ControllerProfile {
 		// if file could not be found retrun 404 error
 		if (wordReport == null)
 			return "errors/404";
-
+		
+		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(), wordReport.getVersion());
+		
+		if(idAnalysis==null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis,principal.getName(), AnalysisRight.READ))
+			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		
 		// set response contenttype to sqlite
 		response.setContentType("docm");
 
@@ -274,10 +300,16 @@ public class ControllerProfile {
 		// client side the sqlite file)
 		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
 
+		TrickLogManager.Persist(
+				LogType.ANALYSIS,
+				"log.analysis.store.report.download",
+				String.format("Analysis: %s, version: %s, action: download report, exported at: %s, username: %s", wordReport.getIdentifier(), wordReport.getVersion(),
+						wordReport.getCreated(), principal.getName()), wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()),
+				principal.getName());
+
 		// return
 		return null;
 	}
-
 
 	/**
 	 * save: <br>
@@ -314,8 +346,7 @@ public class ControllerProfile {
 			return errors;
 		}
 	}
-	
-	
+
 	/**
 	 * buildCustomer: <br>
 	 * Description

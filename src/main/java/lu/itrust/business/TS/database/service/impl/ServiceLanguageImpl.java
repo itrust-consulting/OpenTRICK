@@ -217,4 +217,9 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	public void delete(Language language) throws Exception {
 		daoLanguage.delete(language);
 	}
+
+	@Override
+	public boolean isInUse(Language language) {
+		return daoLanguage.isInUse(language);
+	}
 }

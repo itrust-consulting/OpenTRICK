@@ -20,6 +20,7 @@ import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
@@ -29,7 +30,10 @@ import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
@@ -195,7 +199,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Map<String, String> save(@RequestBody String value, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 
 		// init errors list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -213,6 +217,9 @@ public class ControllerKnowledgeBaseStandard {
 
 				try {
 					serviceStandard.save(standard);
+					TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.add",
+							String.format("Standard: %s, version: %d, action: add, username: %s", standard.getLabel(), standard.getVersion(), principal.getName()),
+							standard.getLabel(), String.valueOf(standard.getVersion()), principal.getName());
 				} catch (Exception e) {
 					e.printStackTrace();
 					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
@@ -223,8 +230,12 @@ public class ControllerKnowledgeBaseStandard {
 				Standard tmpStandard = serviceStandard.get(standard.getId());
 				if (tmpStandard == null)
 					errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
-				else if (!tmpStandard.isAnalysisOnly())
+				else if (!tmpStandard.isAnalysisOnly()){
 					serviceStandard.saveOrUpdate(tmpStandard.update(standard));
+					TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.update",
+							String.format("Standard: %s, version: %d, action: update, username: %s", standard.getLabel(), standard.getVersion(), principal.getName()),
+							standard.getLabel(), String.valueOf(standard.getVersion()), principal.getName());
+				}
 				else
 					errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
 							"This standard can only be managed within the selected analysis where this standard belongs!", locale));
@@ -249,29 +260,30 @@ public class ControllerKnowledgeBaseStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard, Locale locale) throws Exception {
+	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard,Principal principal, Locale locale) throws Exception {
 
 		try {
-
 			Standard standard = serviceStandard.get(idStandard);
-
 			if (standard.isAnalysisOnly())
 				return JsonMessage.Error(messageSource.getMessage("error.norm.manage_analysis_standard", null,
 						"This standard can only be managed within the selected analysis where this standard belongs!", locale));
-
 			// try to delete the standard
 			customDelete.deleteStandard(standard);
-
+			TrickLogManager.Persist(LogLevel.WARNING,LogType.ANALYSIS, "log.standard.delete",
+					String.format("Standard: %s, version: %d, action: delete, username: %s", standard.getLabel(), standard.getVersion(), principal.getName()),
+					standard.getLabel(), String.valueOf(standard.getVersion()), principal.getName());
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Standard was deleted successfully", locale));
-		} catch (Exception e) {
-
+		} catch(TrickException e){
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		catch (Exception e) {
 			// return error message
 			e.printStackTrace();
 			String[] parts = e.getMessage().split(":");
 			String code = parts[0];
 			String defaultmessage = parts[1];
-
 			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
 		}
 	}
@@ -402,6 +414,7 @@ public class ControllerKnowledgeBaseStandard {
 				break;
 			}
 		}
+	
 
 		List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
 
@@ -582,6 +595,10 @@ public class ControllerKnowledgeBaseStandard {
 		OutputStream out = response.getOutputStream();
 
 		out.write(standardFile.toByteArray());
+		
+		TrickLogManager.Persist(LogLevel.WARNING,LogType.ANALYSIS, "log.export.standard",
+				String.format("Standard: %s, version: %d, action: export, username: %s", standard.getLabel(), standard.getVersion(), principal.getName()), standard.getLabel(),
+				String.valueOf(standard.getVersion()), principal.getName());
 
 		// return
 		return null;

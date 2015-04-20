@@ -14,6 +14,7 @@ import java.sql.SQLException;
 
 import javax.servlet.ServletContext;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
@@ -27,6 +28,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.ExportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -174,6 +176,10 @@ public class WorkerExportAnalysis implements Worker {
 			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved",null, 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqLite(\"" + userSqLite.getId() + "\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
+			String username = serviceTaskFeedback.findUsernameById(this.getId());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export",
+					String.format("Analyis: %s, version: %s, action: export, username: %s", analysis.getIdentifier(), analysis.getVersion(), username),
+					analysis.getIdentifier(), analysis.getVersion(), username);
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {

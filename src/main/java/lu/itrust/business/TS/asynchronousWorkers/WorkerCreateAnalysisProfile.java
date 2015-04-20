@@ -6,6 +6,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.util.List;
 
 import lu.itrust.business.TS.component.Duplicator;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -17,6 +18,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.HibernateException;
@@ -50,7 +52,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 
 	private List<Integer> standards;
 
-	private String username= null;
+	private String username = null;
 
 	/**
 	 * @param serviceTaskFeedback
@@ -101,6 +103,12 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			daoAnalysis.saveOrUpdate(copy);
 			transaction.commit();
 			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", null, 100));
+			TrickLogManager.Persist(
+					LogType.ANALYSIS,
+					"log.analysis.profile.create",
+					String.format("Analyis: %s, version: %s, action: create profile, username: %s.\nProfile: %s, name:%s, version: %s", analysis.getIdentifier(),
+							analysis.getVersion(), username, copy.getIdentifier(), copy.getLabel(), copy.getVersion()), analysis.getIdentifier(), analysis.getVersion(), username,
+					copy.getIdentifier(), copy.getLabel(), copy.getVersion());
 		} catch (TrickException e) {
 			try {
 				this.error = e;

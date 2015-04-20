@@ -1,16 +1,21 @@
 package lu.itrust.business.TS.controller;
 
+import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.validator.LanguageValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -53,7 +58,7 @@ public class ControllerLanguage {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	/**
 	 * 
 	 * Display all Language
@@ -85,14 +90,14 @@ public class ControllerLanguage {
 	 * 
 	 * */
 	@RequestMapping("/{languageId}")
-	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
+	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
+			Locale locale) throws Exception {
 		Language language = (Language) session.getAttribute("language");
 		if (language == null || language.getId() != languageId)
 			language = serviceLanguage.get(languageId);
 		if (language == null) {
-			String msg = messageSource.getMessage("errors.language.not_exist", null, "Language does not exist", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
+			String msg = messageSource.getMessage("error.language.not_exist", null, "Language does not exist", locale);
+			redirectAttributes.addFlashAttribute("error", msg);
 			return "redirect:/KnowLedgeBase/Language";
 		}
 		model.put("language", language);
@@ -108,8 +113,7 @@ public class ControllerLanguage {
 	 * @return
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	Map<String, String> save(@RequestBody String value, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 			Language language = new Language();
@@ -122,10 +126,12 @@ public class ControllerLanguage {
 					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
 				if (serviceLanguage.existsByName(language.getName()))
 					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
-				if (errors.isEmpty())
-					serviceLanguage.save(language);
-			} else
+			}
+			if (errors.isEmpty()) {
 				serviceLanguage.saveOrUpdate(language);
+				TrickLogManager.Persist(LogType.ANALYSIS, "log.language.add_or_update",
+						String.format("Language: %s, action: add/update, username: %s", language.getAlpha3(), principal.getName()), language.getAlpha3(), principal.getName());
+			}
 		} catch (Exception e) {
 			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
@@ -139,16 +145,22 @@ public class ControllerLanguage {
 	 * 
 	 * */
 	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	String[] deleteLanguage(@PathVariable("languageId") Integer languageId, Locale locale) throws Exception {
-		
-		// TODO: check if analysis has language (add dao method and service method)
-		
-		// TODO: check if language is used inside measure descriptiontexts(add dao and service method)
-		
-		serviceLanguage.delete(languageId);
-		return new String[] { "success", messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale) };
-
+	public @ResponseBody String deleteLanguage(@PathVariable("languageId") Integer languageId,Principal principal, Locale locale) {
+		try {
+			Language language = serviceLanguage.get(languageId);
+			if(language == null)
+				return JsonMessage.Error( messageSource.getMessage("error.language.not_exist",null, "Language does not exist", locale));
+			if(serviceLanguage.isInUse(language))
+				return JsonMessage.Error( messageSource.getMessage("error.language.in_use",null, "Language is still used", locale));
+			serviceLanguage.delete(language);
+			TrickLogManager.Persist(LogLevel.WARNING,LogType.ANALYSIS, "log.language.delete",
+					String.format("Language: %s, action: delete, username: %s", language.getAlpha3(), principal.getName()), language.getAlpha3(), principal.getName());
+			return JsonMessage.Success( messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale) );
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error( messageSource.getMessage("error.language.in_use",null,"Language is still used.", locale));
+		}
 	}
 
 	/**

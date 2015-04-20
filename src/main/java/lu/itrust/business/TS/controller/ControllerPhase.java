@@ -244,9 +244,8 @@ public class ControllerPhase {
 					}
 
 					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
-
+					
 					nextphase = analysis.getPhaseByNumber(phase.getNumber() + 1);
-
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
 						errors.add(new String[] {

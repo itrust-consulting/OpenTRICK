@@ -23,12 +23,12 @@ function unknowError(jqXHR, textStatus, errorThrown) {
 }
 
 function downloadWordReport(id) {
-	$.fileDownload(context + '/Profile/Report/' + id + "/Download").fail(unknowError);
+	window.location = context + '/Profile/Report/' + id + "/Download";
 	return false;
 }
 
 function downloadExportedSqLite(id) {
-	$.fileDownload(context + '/Profile/Sqlite/' + id + "/Download").fail(unknowError);
+	window.location = context + '/Profile/Sqlite/' + id + "/Download";
 	return false;
 }
 

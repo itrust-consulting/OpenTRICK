@@ -3,6 +3,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.io.File;
 import java.io.IOException;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
@@ -11,7 +12,9 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Session;
@@ -198,6 +201,11 @@ public class WorkerAnalysisImport implements Worker {
 			setAsyncCallback(new AsyncCallback("window.location.assign(context+\"/Analysis\")", null));
 		getMessageHandler().setAsyncCallback(getAsyncCallback());
 		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
+		Analysis analysis = importAnalysis.getAnalysis();
+		String username = importAnalysis.getServiceTaskFeedback().findUsernameById(this.getId());
+		TrickLogManager.Persist(LogType.ANALYSIS,"log.analysis.import",
+				String.format("Analyis: %s, version: %s, action: import, username: %s", analysis.getIdentifier(), analysis.getVersion(), username), analysis.getIdentifier(),
+				analysis.getVersion(), username);
 	}
 
 	@Override
@@ -232,7 +240,7 @@ public class WorkerAnalysisImport implements Worker {
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();
-			}finally{
+			} finally {
 				importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
 			}
 		} catch (Exception e) {
@@ -251,7 +259,7 @@ public class WorkerAnalysisImport implements Worker {
 					session.close();
 			} catch (Exception e) {
 				e.printStackTrace();
-			}finally{
+			} finally {
 				synchronized (this) {
 					working = false;
 					File file = new File(fileName);

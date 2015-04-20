@@ -48,4 +48,7 @@ public interface DAOCustomer {
 	public Customer getFromUsernameAndId(String username, int idCustomer);
 
 	public boolean exists(int idCustomer);
+
+	public boolean isInUsed(Customer customer);
+
 }

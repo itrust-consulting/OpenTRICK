@@ -12,12 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.database.service.ServiceResetPassword;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -80,7 +83,7 @@ public class ControllerRegister {
 
 	@Value("${app.settings.time.to.valid.reset.password}")
 	private int timeoutValue;
-	
+
 	@Value("${app.settings.time.attempt.tiemout}")
 	private int attemptTimeout;
 
@@ -229,6 +232,9 @@ public class ControllerRegister {
 		}
 
 		try {
+			String ipAdress = request.getHeader("X-FORWARDED-FOR");
+			if (ipAdress == null)
+				ipAdress = request.getRemoteAddr();
 			User user = StringUtils.isEmpty(resetPassword.getUsername()) ? serviceUser.getByEmail(resetPassword.getEmail()) : serviceUser.get(resetPassword.getUsername());
 			if (user != null) {
 				ResetPassword resetPassword2 = serviceResetPassword.get(user);
@@ -239,7 +245,13 @@ public class ControllerRegister {
 						String.valueOf(new Random(System.currentTimeMillis()).nextDouble())), new Timestamp(System.currentTimeMillis() + timeoutValue));
 				serviceResetPassword.saveOrUpdate(resetPassword2);
 				serviceEmailSender.sendResetPassword(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
-			}
+				
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.request.reset.password",
+						String.format("User: %s, action: request to reset password, from: %s", user.getLogin(), ipAdress), user.getLogin(), ipAdress);
+			}else 
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.bad.request.rest.password",
+						String.format("User: %s, action: Bad request to reset password, from: %s", resetPassword.getData() , ipAdress), resetPassword.getData(), ipAdress);
+			
 			attributes.addFlashAttribute("success",
 					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have one hour to do.", locale));
 
@@ -313,11 +325,17 @@ public class ControllerRegister {
 		}
 
 		try {
+			String username = resetPassword.getUser().getLogin();
 			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 			resetPassword.getUser().setPassword(passwordEncoder.encodePassword(changePassword.getPassword(), resetPassword.getUser().getLogin()));
 			serviceUser.saveOrUpdate(resetPassword.getUser());
 			serviceResetPassword.delete(resetPassword);
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
+			String ipAdress = request.getHeader("X-FORWARDED-FOR");
+			if (ipAdress == null)
+				ipAdress = request.getRemoteAddr();
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.reset.password",
+					String.format("User: %s, action: reset password, from: %s", username, ipAdress), username, ipAdress);
 		} catch (Exception e) {
 			e.printStackTrace();
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));

@@ -227,4 +227,9 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	public boolean exists(int idCustomer) {
 		return (boolean) getSession().createQuery("Select count(*)>0 From Customer where id = :idCustomer").setInteger("idCustomer", idCustomer).uniqueResult();
 	}
+
+	@Override
+	public boolean isInUsed(Customer customer) {
+		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where customer = :customer").setParameter("customer", customer).uniqueResult();
+	}
 }
