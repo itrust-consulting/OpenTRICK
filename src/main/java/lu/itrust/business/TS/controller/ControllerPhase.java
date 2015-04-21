@@ -258,7 +258,7 @@ public class ControllerPhase {
 							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale) });
 						return errors;
 					} else if (nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
-						errors.add(new String[] { "Date",
+						errors.add(new String[] { "date",
 							messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", customLocale != null ? customLocale : locale) });
 						return errors;
 					}
@@ -269,14 +269,12 @@ public class ControllerPhase {
 			}
 
 		} catch (TrickException e) {
-
 			e.printStackTrace();
-			errors.add(new String[] { "endDate", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale) });
+			errors.add(new String[] { "phase", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale) });
 		} catch (Exception e) {
-
 			// return errors
 			e.printStackTrace();
-			errors.add(new String[] { "endDate", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale) });
+			errors.add(new String[] { "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale) });
 		}
 		// return empty errors (no errors -> success)
 		return errors;

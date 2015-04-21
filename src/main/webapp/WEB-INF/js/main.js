@@ -109,7 +109,7 @@ $(function() {
 			}
 			$("#tabOption").hide();
 		});
-	}else {
+	} else {
 		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 			var target = $(e.target).attr("href");
 			if ($(target).attr("data-update-required") == "true") {
@@ -278,23 +278,24 @@ function hasRight(action) {
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
-function hasCreateVersion(){
+function hasCreateVersion() {
 	return canCreateNewVersion($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"));
 }
 
-function canCreateNewVersion(idAnalysis){
-	if(application.rights[idAnalysis] != undefined)
+function canCreateNewVersion(idAnalysis) {
+	if (application.rights[idAnalysis] != undefined)
 		return application.rights[idAnalysis];
-	else application.rights[idAnalysis] = false;
+	else
+		application.rights[idAnalysis] = false;
 	$.ajax({
-		url : context + "/Can-create-version/"+idAnalysis,
+		url : context + "/Can-create-version/" + idAnalysis,
 		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			return application.rights[idAnalysis] = response===true;
+			return application.rights[idAnalysis] = response === true;
 		}
 	});
-	return  application.rights[idAnalysis];
+	return application.rights[idAnalysis];
 }
 
 function canManageAccess() {
@@ -556,7 +557,12 @@ function serializeForm(form) {
 
 function parseJson(data) {
 	try {
-		return JSON.parse(data);
+		if (typeof data == 'object')
+			return data;
+		else if (data === false)
+			return false
+		else
+			return JSON.parse(data);
 	} catch (e) {
 		return undefined;
 	}

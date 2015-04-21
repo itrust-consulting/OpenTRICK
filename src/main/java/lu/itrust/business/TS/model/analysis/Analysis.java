@@ -2210,7 +2210,7 @@ public class Analysis implements Cloneable {
 	 * @param newRight
 	 */
 	public void editUserRight(User user, AnalysisRight newRight) {
-		userRights.get(userRights.indexOf(getRightsforUser(user))).setRight(newRight);
+		addUserRight(user, newRight);
 	}
 
 	/**

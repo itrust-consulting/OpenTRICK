@@ -138,7 +138,7 @@ function editPhase(phaseid) {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			startDate : phasestartlimit != null ? phasestartlimit : '',
+			/*startDate : phasestartlimit != null ? phasestartlimit : '',*/
 			endDate : phaseendlimit != null ? phaseendlimit : '',
 		}).on('changeDate', beginDateChanged);
 
@@ -148,7 +148,7 @@ function editPhase(phaseid) {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			startDate : $("#addPhaseModel #phase_begin_date").prop("value"),
+			/*startDate : $("#addPhaseModel #phase_begin_date").prop("value"),*/
 			endDate : phaseendlimit != null ? phaseendlimit : '',
 		}).on('changeDate', endDateChanged);
 
@@ -176,8 +176,8 @@ function beginDateChanged() {
 
 	$("#addPhaseModel #phase_end_date").datepicker('setStartDate', dt1);
 
-	if (dt2 < dt1)
-		$("#addPhaseModel #phase_end_date").datepicker('setDate', dt1);
+	/*if (dt2 < dt1)
+		$("#addPhaseModel #phase_end_date").datepicker('setDate', dt1);*/
 }
 
 function endDateChanged() {
@@ -204,20 +204,30 @@ function savePhase(form) {
 		async : true,
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var previewError = $("#addPhaseModel .alert");
 			if (previewError.length)
 				previewError.remove();
-			var data = "";
-			for ( var error in response)
-				data += response[error][1] + "\n";
-
-			result = data == "" ? true : false;
-			if (result) {
+			var data = parseJson(response);
+			if (data === undefined) {
+				unknowError();
 				$("#addPhaseModel").modal("hide");
-				reloadSection("section_phase");
 			} else {
-				showError(document.getElementById(form), data);
+				for ( var error in data) {
+					switch (error) {
+					case "endDate":
+					case "beginDate":
+						$("<label class='alert alert-error'>" + response[error] + "</label>").appendTo("##addPhaseModel .modal-body");
+						break;
+					default:
+						$("<label class='alert alert-error'>" + response[error] + "</label>").appendTo("##addPhaseModel .modal-body");
+					}
+				}
+
+				if (!$("#addPhaseModel .alert").length) {
+					reloadSection("section_phase");
+					$("#addPhaseModel").modal("hide");
+				}
 			}
 		},
 		error : unknowError
@@ -240,7 +250,7 @@ function deletePhase(idPhase) {
 			url : context + "/Analysis/Phase/Delete/" + idPhase,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					setTimeout(function() {
 						reloadSection("section_phase");
