@@ -23,6 +23,7 @@ import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
@@ -89,10 +90,10 @@ public class ControllerProfile {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-	
+
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
@@ -221,7 +222,7 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Sqlite/{idFile}/Download")
-	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response,Locale locale) throws Exception {
+	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
@@ -229,9 +230,9 @@ public class ControllerProfile {
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)
 			return "errors/404";
-		
+
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(), userSqLite.getVersion());
-		if(idAnalysis==null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis,principal.getName(), AnalysisRight.READ))
+		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		// set response contenttype to sqlite
 		response.setContentType("sqlite");
@@ -251,12 +252,12 @@ public class ControllerProfile {
 		// client side the sqlite file)
 		FileCopyUtils.copy(userSqLite.getSqLite(), response.getOutputStream());
 
-		TrickLogManager.Persist(
-				LogType.ANALYSIS,
-				"log.analysis.store.data.download",
-				String.format("Analysis: %s, version: %s, action: download data, exported at: %s, username: %s", userSqLite.getIdentifier(), userSqLite.getVersion(),
-						userSqLite.getExportTime(), principal.getName()), userSqLite.getIdentifier(), userSqLite.getVersion(), String.valueOf(userSqLite.getExportTime()),
-				principal.getName());
+		/**
+		 * Log
+		 */
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store.data.download",
+				String.format("Analysis: %s, version: %s, exported at: %s, type: data", userSqLite.getIdentifier(), userSqLite.getVersion(), userSqLite.getExportTime()),
+				principal.getName(), LogAction.DOWNLOAD, userSqLite.getIdentifier(), userSqLite.getVersion(), String.valueOf(userSqLite.getExportTime()));
 		// return
 		return null;
 	}
@@ -272,7 +273,7 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Report/{id}/Download")
-	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response,Locale locale) throws Exception {
+	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
@@ -280,12 +281,12 @@ public class ControllerProfile {
 		// if file could not be found retrun 404 error
 		if (wordReport == null)
 			return "errors/404";
-		
+
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(), wordReport.getVersion());
-		
-		if(idAnalysis==null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis,principal.getName(), AnalysisRight.READ))
+
+		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-		
+
 		// set response contenttype to sqlite
 		response.setContentType("docm");
 
@@ -300,12 +301,12 @@ public class ControllerProfile {
 		// client side the sqlite file)
 		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
 
-		TrickLogManager.Persist(
-				LogType.ANALYSIS,
-				"log.analysis.store.report.download",
-				String.format("Analysis: %s, version: %s, action: download report, exported at: %s, username: %s", wordReport.getIdentifier(), wordReport.getVersion(),
-						wordReport.getCreated(), principal.getName()), wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()),
-				principal.getName());
+		/**
+		 * Log
+		 */
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store.report.download",
+				String.format("Analysis: %s, version: %s, exported at: %s, type: report", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated()),
+				principal.getName(), LogAction.DOWNLOAD, wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()));
 
 		// return
 		return null;

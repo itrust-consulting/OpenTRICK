@@ -26,6 +26,7 @@ import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -122,8 +123,11 @@ public class ControllerPatch {
 			e.printStackTrace();
 			return JsonMessage.Error(e.getMessage());
 		} finally {
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
-					String.format("Runtime: %s: action: apply, username: %s", "Scenario-category-value", principal.getName()), "Scenario-category-value", principal.getName());
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Scenario-category-value"), principal.getName(),
+					LogAction.APPLY, "Scenario-category-value");
 		}
 	}
 
@@ -159,8 +163,11 @@ public class ControllerPatch {
 			e.printStackTrace();
 			return errors;
 		} finally {
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
-					String.format("Runtime: %s: action: apply, username: %s", "Update-assessment", principal.getName()), "Update-assessment", principal.getName());
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-assessment"), principal.getName(), LogAction.APPLY,
+					"Update-assessment");
 		}
 	}
 
@@ -215,10 +222,12 @@ public class ControllerPatch {
 			e.printStackTrace();
 			return JsonMessage.Error(e.getMessage());
 		} finally {
+			/**
+			 * Log
+			 */
 			TrickLogManager
 					.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
-							String.format("Runtime: %s: action: apply, username: %s", "Update-measure-asset-types", principal.getName()), "Update-measure-asset-types",
-							principal.getName());
+							String.format("Runtime: %s", "Update-measure-asset-types"),principal.getName(), LogAction.APPLY, "Update-measure-asset-types");
 		}
 	}
 

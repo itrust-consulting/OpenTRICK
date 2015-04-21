@@ -27,12 +27,13 @@
 			<tbody>
 				<c:forEach items="${phases}" var="phase">
 					<c:if test="${phase.number>0}">
-						<tr data-trick-id='${phase.id}' data-trick-class="Phase">
+						<tr data-trick-id='${phase.id}' data-trick-class="Phase" ${not empty previousEndDate and phase.beginDate < previousEndDate? "class='warning'":""}>
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_phase','#menu_phase');"></td>
 							<td><spring:message text="${phase.number}" /></td>
 							<td class="success" data-trick-field="beginDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.beginDate}" /></td>
 							<td class="success" data-trick-field="endDate" data-trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.endDate}" /></td>
 						</tr>
+						<c:set var="previousEndDate" value="${phase.endDate}"/>
 					</c:if>
 				</c:forEach>
 			</tbody>

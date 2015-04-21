@@ -19,6 +19,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.HibernateException;
@@ -103,12 +104,15 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			daoAnalysis.saveOrUpdate(copy);
 			transaction.commit();
 			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", null, 100));
+			/**
+			 * Log
+			 */
 			TrickLogManager.Persist(
 					LogType.ANALYSIS,
 					"log.analysis.profile.create",
-					String.format("Analyis: %s, version: %s, action: create profile, username: %s.\nProfile: %s, name:%s, version: %s", analysis.getIdentifier(),
-							analysis.getVersion(), username, copy.getIdentifier(), copy.getLabel(), copy.getVersion()), analysis.getIdentifier(), analysis.getVersion(), username,
-					copy.getIdentifier(), copy.getLabel(), copy.getVersion());
+					String.format("Analyis: %s, version: %s, profile: %s, name: %s, version: %s", analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
+							copy.getLabel(), copy.getVersion()), username, LogAction.CREATE, analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
+					copy.getLabel(), copy.getVersion());
 		} catch (TrickException e) {
 			try {
 				this.error = e;

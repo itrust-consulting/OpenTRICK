@@ -16,6 +16,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,11 +50,11 @@ public class ManageAnalysisRight {
 		List<User> users = daoUser.getAll();
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		for (User user : users) {
-
 			if (user.getLogin().equals(principal.getName()) && !analysis.getOwner().getLogin().equals(principal.getName()))
 				continue;
-
+			
 			int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
+			
 			if (analysis.getOwner().equals(user) && !AnalysisRight.isValid(useraccess))
 				continue;
 
@@ -62,15 +63,35 @@ public class ManageAnalysisRight {
 				if (useraccess == -1) {
 					analysis.getUserRights().remove(uar);
 					daoUserAnalysisRight.delete(uar);
-					TrickLogManager.Persist(LogType.ANALYSIS, "info.remove.analysis.access.right", String.format("Analysis: %s, version: %s, %s removed %s access to %s",
-							analysis.getIdentifier(), analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin()), analysis.getIdentifier(),
-							analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin());
+					/**
+					 * Log
+					 */
+					TrickLogManager.Persist(LogType.ANALYSIS, "info.remove.analysis.access.right", String.format("Analysis: %s, version: %s, access: %s, target: %s",
+							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin()), principal.getName(), LogAction.REMOVE_ACCESS,
+							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin());
 				} else {
-					uar.setRight(AnalysisRight.valueOf(useraccess));
-					daoUserAnalysisRight.saveOrUpdate(uar);
-					TrickLogManager.Persist(LogType.ANALYSIS, "info.grante.analysis.access.right", String.format("Analysis: %s, version: %s, %s granted %s access to %s",
-							analysis.getIdentifier(), analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin()), analysis.getIdentifier(),
-							analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin());
+					AnalysisRight analysisRight = AnalysisRight.valueOf(useraccess);
+					if (analysisRight != uar.getRight()) {
+						uar.setRight(analysisRight);
+						daoUserAnalysisRight.saveOrUpdate(uar);
+						/**
+						 * Log
+						 */
+						if (uar.getUser().getLogin().equals(principal.getName()))
+							TrickLogManager.Persist(
+									LogType.ANALYSIS,
+									"info.grante.analysis.access.right",
+									String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name()
+											.toLowerCase(), user.getLogin()), principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar
+											.getRight().name().toLowerCase(), user.getLogin());
+						else
+							TrickLogManager.Persist(
+									LogType.ANALYSIS,
+									"info.grante.analysis.access.right",
+									String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name()
+											.toLowerCase(), user.getLogin()), principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar
+											.getRight().name().toLowerCase(), user.getLogin());
+					}
 				}
 			} else {
 				if (useraccess != -1) {
@@ -78,9 +99,12 @@ public class ManageAnalysisRight {
 						user.addCustomer(analysis.getCustomer());
 					uar = analysis.addUserRight(user, AnalysisRight.valueOf(useraccess));
 					daoUserAnalysisRight.save(uar);
-					TrickLogManager.Persist(LogType.ANALYSIS, "info.give.analysis.access.right", String.format("Analysis: %s, version: %s, %s gave %s access to %s",
-							analysis.getIdentifier(), analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin()), analysis.getIdentifier(),
-							analysis.getVersion(), principal.getName(), uar.getRight().name().toLowerCase(), user.getLogin());
+					/**
+					 * Log
+					 */
+					TrickLogManager.Persist(LogType.ANALYSIS, "info.give.analysis.access.right", String.format("Analysis: %s, version: %s, access: %s, target: %s",
+							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
+							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin());
 				}
 
 			}
@@ -103,7 +127,5 @@ public class ManageAnalysisRight {
 	public void setDaoUser(DAOUser daoUser) {
 		this.daoUser = daoUser;
 	}
-	
-	
 
 }

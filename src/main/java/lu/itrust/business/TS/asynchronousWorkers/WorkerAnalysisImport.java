@@ -15,6 +15,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Session;
@@ -203,9 +204,11 @@ public class WorkerAnalysisImport implements Worker {
 		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
 		Analysis analysis = importAnalysis.getAnalysis();
 		String username = importAnalysis.getServiceTaskFeedback().findUsernameById(this.getId());
-		TrickLogManager.Persist(LogType.ANALYSIS,"log.analysis.import",
-				String.format("Analyis: %s, version: %s, action: import, username: %s", analysis.getIdentifier(), analysis.getVersion(), username), analysis.getIdentifier(),
-				analysis.getVersion(), username);
+		/**
+		 * Log
+		 */
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.import", String.format("Analyis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
+				LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
 	}
 
 	@Override

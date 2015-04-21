@@ -20,6 +20,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.CustomerValidator;
@@ -92,9 +93,12 @@ public class ControllerCustomer {
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/{customerID}/Users")
 	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
-		model.addAttribute("customer", serviceCustomer.get(customerID));
-		model.addAttribute("users", serviceUser.getAll());
-		model.addAttribute("customerusers", serviceUser.getAllFromCustomer(customerID));
+		if (!model.containsAttribute("customer"))
+			model.addAttribute("customer", serviceCustomer.get(customerID));
+		if (!model.containsAttribute("users"))
+			model.addAttribute("users", serviceUser.getAll());
+		if (!model.containsAttribute("customerusers"))
+			model.addAttribute("customerusers", serviceUser.getAllFromCustomer(customerID));
 		return "knowledgebase/customer/customerusers";
 	}
 
@@ -117,7 +121,6 @@ public class ControllerCustomer {
 		try {
 
 			Customer customer = serviceCustomer.get(customerID);
-
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
@@ -130,10 +133,10 @@ public class ControllerCustomer {
 						user.addCustomer(customer);
 						serviceUser.saveOrUpdate(user);
 						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
-								String.format("Customer: %s, action: give access, grantee: %s, username: %s", customer.getOrganisation(), user.getLogin(), principal.getName()),
-								customer.getOrganisation(), user.getLogin(), principal.getName());
+								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
+								customer.getOrganisation(), user.getLogin());
 					}
-				} else 
+				} else
 					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
 			}
 
@@ -232,10 +235,12 @@ public class ControllerCustomer {
 			else
 				errors.put("canBeUsed",
 						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
+			/**
+			 * Log
+			 */
 			if (errors.isEmpty())
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer",
-						String.format("Customer: %s, action: add/update, username:", customer.getOrganisation(), principal.getName()), customer.getOrganisation(),
-						principal.getName());
+				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
+						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
 			errors.put("customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();

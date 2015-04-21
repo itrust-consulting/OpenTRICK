@@ -107,6 +107,7 @@ public class ControllerAnalysisManageAccess {
 			Analysis analysis = serviceAnalysis.get(analysisID);
 			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
 			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
+			serviceUser.getAllOthers(userrights.keySet()).forEach(user -> userrights.put(user, null));
 			model.addAttribute("success",
 					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 			model.addAttribute("analysisRights", AnalysisRight.values());

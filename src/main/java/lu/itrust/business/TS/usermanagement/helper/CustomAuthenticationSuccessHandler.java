@@ -14,6 +14,7 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
-	
+
 	@Override
 	@Transactional
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
@@ -54,25 +55,26 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			User myUser = serviceUser.get(user.getUsername());
 
 			Locale locale = null;
-			
-			if(myUser.getLocale()==null){
+
+			if (myUser.getLocale() == null) {
 				myUser.setLocale("en");
 				serviceUser.saveOrUpdate(myUser);
 			}
-			
+
 			locale = new Locale(myUser.getLocale());
-				
+
 			localeResolver.setLocale(request, response, locale);
-			
+
 			DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
 			Date date = new Date();
 			String stringdate = dateFormat.format(date);
 			String remoteaddr = request.getRemoteAddr();
-			
-			System.out.println(stringdate +" CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '"+request.getParameter("j_username") +"'! Requesting IP: "+remoteaddr);
-			TrickLogManager.Persist(LogType.AUTHENTICATION, "sucess.user.connect", String.format("%s connects from %s", request.getParameter("j_username"),
-					remoteaddr), request.getParameter("j_username"), remoteaddr);
-			
+
+			System.out.println(stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + request.getParameter("j_username") + "'! Requesting IP: "
+					+ remoteaddr);
+			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", request.getParameter("j_username"), remoteaddr),
+					request.getParameter("j_username"), LogAction.SIGN_IN, remoteaddr);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ServletException(e.getMessage());

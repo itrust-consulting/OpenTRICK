@@ -42,7 +42,7 @@ body {
 }
 
 .nav-analysis, .nav-tab {
-	z-index: 1030;
+	z-index: 1029;
 	background-color: white;
 	padding-top: 5px;
 	max-width: 94.5%;

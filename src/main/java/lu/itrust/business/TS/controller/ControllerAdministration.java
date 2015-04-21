@@ -33,6 +33,7 @@ import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -81,6 +82,10 @@ public class ControllerAdministration {
 
 	private static final String LOG_FILTER_PAGE_SIZE = "LOG-FILTER-PAGE-SIZE";
 
+	private static final String LOG_FILTER_ACTION = "LOG-FILTER-ACTION";
+
+	private static final String LOG_FILTER_AUTHOR = "LOG-FILTER-AUTHOR";
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -113,7 +118,7 @@ public class ControllerAdministration {
 
 	@Autowired
 	private CustomerManager customerManager;
-	
+
 	@Autowired
 	private ServiceTrickLog serviceTrickLog;
 
@@ -172,6 +177,8 @@ public class ControllerAdministration {
 		model.put("logFilter", loadLogFilter(session, principal.getName()));
 		model.put("logLevels", LogLevel.values());
 		model.put("logTypes", LogType.values());
+		model.put("actions", LogAction.values());
+		model.put("authors", serviceTrickLog.getDistinctAuthor());
 
 		return "admin/administration";
 	}
@@ -181,8 +188,8 @@ public class ControllerAdministration {
 		if (filter != null)
 			return filter;
 		User user = serviceUser.get(username);
-		filter = new TrickLogFilter(user.getInteger(LOG_FILTER_PAGE_SIZE), user.getSetting(LOG_FILTER_LEVEL), user.getSetting(LOG_FILTER_TYPE),
-				user.getSetting(LOG_FILTER_SORT_DIRECTION));
+		filter = new TrickLogFilter(user.getInteger(LOG_FILTER_PAGE_SIZE), user.getSetting(LOG_FILTER_LEVEL), user.getSetting(LOG_FILTER_TYPE), user.getSetting(LOG_FILTER_ACTION),
+				user.getSetting(LOG_FILTER_AUTHOR), user.getSetting(LOG_FILTER_SORT_DIRECTION));
 		session.setAttribute(TRICK_LOG_FILTER, filter);
 		return filter;
 	}
@@ -248,12 +255,12 @@ public class ControllerAdministration {
 	}
 
 	@RequestMapping(value = "/Analysis/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids,Principal principal, HttpSession session) {
+	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids, Principal principal, HttpSession session) {
 		try {
 			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 			if (selected != null && ids.contains(selected))
 				session.removeAttribute("selectedAnalysis");
-			return customDelete.deleteAnalysis(ids,principal.getName());
+			return customDelete.deleteAnalysis(ids, principal.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -269,13 +276,15 @@ public class ControllerAdministration {
 		}
 		return "admin/log/section";
 	}
-	
+
 	@RequestMapping(value = "/Log/Filter/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String updateLogFilter(@RequestBody TrickLogFilter logFilter,Principal principal, HttpSession session,Locale locale) {
+	public @ResponseBody String updateLogFilter(@RequestBody TrickLogFilter logFilter, Principal principal, HttpSession session, Locale locale) {
 		try {
 			User user = serviceUser.get(principal.getName());
 			user.setSetting(LOG_FILTER_LEVEL, logFilter.getLevel());
 			user.setSetting(LOG_FILTER_TYPE, logFilter.getType());
+			user.setSetting(LOG_FILTER_AUTHOR, logFilter.getAuthor());
+			user.setSetting(LOG_FILTER_ACTION, logFilter.getAction());
 			user.setSetting(LOG_FILTER_PAGE_SIZE, logFilter.getSize());
 			user.setSetting(LOG_FILTER_SORT_DIRECTION, logFilter.getDirection());
 			session.setAttribute(TRICK_LOG_FILTER, logFilter);
@@ -370,7 +379,7 @@ public class ControllerAdministration {
 			return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 		else if (!serviceCustomer.exists(idCustomer))
 			return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
-		customerManager.switchCustomer(identifier, idCustomer,principal.getName());
+		customerManager.switchCustomer(identifier, idCustomer, principal.getName());
 		return JsonMessage.Success(messageSource.getMessage("success.analyses.updated", null, "Analyses have been updated", locale));
 	}
 
@@ -570,19 +579,23 @@ public class ControllerAdministration {
 			if (!errors.isEmpty())
 				return errors;
 			RoleType userAccess = user.getAccess();
-			
-			String userRole = userAccess == null? "none" : userAccess.name().toLowerCase().replace("role_", "");
-			
+
+			String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
+
 			if (user.getId() < 1) {
 				serviceUser.save(user);
-				TrickLogManager.Persist(LogLevel.WARNING,LogType.ADMINISTRATION, "log.info.user.open.analysis",
-						String.format("User: %s, access: %s, action: add, username: %s", user.getLogin(), userRole, principal.getName()),
-						user.getLogin(), userAccess == null?"none" : userAccess.name(), principal.getName());
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("User: %s, access: %s", user.getLogin(), userRole),
+						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
 			} else {
 				serviceUser.saveOrUpdate(user);
-				TrickLogManager.Persist(LogLevel.WARNING,LogType.ADMINISTRATION, "log.info.user.open.analysis",
-						String.format("User: %s, access: %s, action: update, username: %s", user.getLogin(), userRole, principal.getName()),
-						user.getLogin(), userAccess == null?"none" : userAccess.name(), principal.getName());
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.user", String.format("User: %s, access: %s", user.getLogin(), userRole),
+						principal.getName(), LogAction.UPDATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
 			}
 			return errors;
 
@@ -609,11 +622,13 @@ public class ControllerAdministration {
 			User user = serviceUser.get(userId);
 			if (!user.getLogin().equals(principal.getName())) {
 				RoleType userAccess = user.getAccess();
-				String userRole = userAccess == null? "none" : userAccess.name().toLowerCase().replace("role_", "");
+				String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
 				customDelete.deleteUser(user);
-				TrickLogManager.Persist(LogLevel.WARNING,LogType.ADMINISTRATION, "log.info.user.open.analysis",
-						String.format("User: %s, access: %s, action: delete, username: %s", user.getLogin(), userRole, principal.getName()),
-						user.getLogin(), userAccess == null?"none" : userAccess.name(), principal.getName());
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.delete.user", String.format("User: %s, access: %s", user.getLogin(), userRole),
+						principal.getName(), LogAction.DELETE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
 			} else {
 				errors.put("error", messageSource.getMessage("error.user.delete_your_account", null, "You cannot delete your own account!", locale));
 				return errors;

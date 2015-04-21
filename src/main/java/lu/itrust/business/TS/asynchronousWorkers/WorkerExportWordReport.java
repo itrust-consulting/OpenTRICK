@@ -17,6 +17,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.HibernateException;
@@ -127,9 +128,11 @@ public class WorkerExportWordReport implements Worker {
 			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport(\"" + report.getId() + "\")", null));
 			exportAnalysisReport.getServiceTaskFeedback().send(id, messageHandler);
 			String username = exportAnalysisReport.getServiceTaskFeedback().findUsernameById(this.getId());
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word",
-					String.format("Analyis: %s, version: %s, action: export report, username: %s", analysis.getIdentifier(), analysis.getVersion(), username),
-					analysis.getIdentifier(), analysis.getVersion(), username);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word", String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(), analysis.getVersion()),
+					username, LogAction.EXPORT, analysis.getIdentifier(), analysis.getVersion());
 		} catch (Exception e) {
 			try {
 				if (session.getTransaction().isInitiator())

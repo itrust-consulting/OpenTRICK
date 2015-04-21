@@ -18,6 +18,7 @@ import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.history.History;
 
 import org.hibernate.HibernateException;
@@ -144,9 +145,12 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", language, 100));
 
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.create.analysis.version", String.format(
-						"Analysis: %s, version: %s, action: create version (%s), username: %s", analysis.getIdentifier(), analysis.getVersion(), copy.getVersion(), userName),
-						analysis.getIdentifier(), analysis.getVersion(), copy.getVersion(), userName);
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.create.analysis.version",
+						String.format("Analysis: %s, version: %s, new version: (%s)", analysis.getIdentifier(), analysis.getVersion(), copy.getVersion()), userName,
+						LogAction.CREATE, analysis.getIdentifier(), analysis.getVersion(), copy.getVersion());
 			}
 
 		} catch (InterruptedException e) {

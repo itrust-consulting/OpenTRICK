@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.database.dao.DAORole;
@@ -255,5 +256,10 @@ public class ServiceUserImpl implements ServiceUser {
 	@Override
 	public User getByEmail(String email) {
 		return daoUser.getByEmail(email);
+	}
+
+	@Override
+	public List<User> getAllOthers(Collection<User> users) {
+		return daoUser.getAllOthers(users);
 	}
 }

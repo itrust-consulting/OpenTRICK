@@ -21,6 +21,7 @@ import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -245,13 +246,16 @@ public class ControllerRegister {
 						String.valueOf(new Random(System.currentTimeMillis()).nextDouble())), new Timestamp(System.currentTimeMillis() + timeoutValue));
 				serviceResetPassword.saveOrUpdate(resetPassword2);
 				serviceEmailSender.sendResetPassword(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
-				
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.request.reset.password",
-						String.format("User: %s, action: request to reset password, from: %s", user.getLogin(), ipAdress), user.getLogin(), ipAdress);
-			}else 
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.bad.request.rest.password",
-						String.format("User: %s, action: Bad request to reset password, from: %s", resetPassword.getData() , ipAdress), resetPassword.getData(), ipAdress);
-			
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.INFO, LogType.AUTHENTICATION, "log.request.reset.password", String.format("from: %s", ipAdress), user.getLogin(),
+						LogAction.REQUEST_TO_RESET_PASSWORD, ipAdress);
+			} else
+				// Log
+				TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.bad.request.rest.password", String.format("from: %s", ipAdress), resetPassword.getData(),
+						LogAction.REQUEST_TO_RESET_PASSWORD, ipAdress);
+
 			attributes.addFlashAttribute("success",
 					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have one hour to do.", locale));
 
@@ -331,11 +335,14 @@ public class ControllerRegister {
 			serviceUser.saveOrUpdate(resetPassword.getUser());
 			serviceResetPassword.delete(resetPassword);
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
+			
+			/**
+			 * Log
+			 */
 			String ipAdress = request.getHeader("X-FORWARDED-FOR");
 			if (ipAdress == null)
 				ipAdress = request.getRemoteAddr();
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.reset.password",
-					String.format("User: %s, action: reset password, from: %s", username, ipAdress), username, ipAdress);
+			TrickLogManager.Persist(LogLevel.INFO, LogType.AUTHENTICATION, "log.reset.password", String.format("from: %s", ipAdress), username, LogAction.RESET_PASSWORD, ipAdress);
 		} catch (Exception e) {
 			e.printStackTrace();
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));

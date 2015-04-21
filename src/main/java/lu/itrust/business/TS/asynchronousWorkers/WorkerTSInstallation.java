@@ -15,6 +15,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -41,9 +42,9 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		super.run();
 	}
 
-
-	public WorkerTSInstallation(String version, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String filename, int customerId, String ownerUsername) throws IOException {
-		super(sessionFactory,serviceTaskFeedback, filename,customerId, ownerUsername);
+	public WorkerTSInstallation(String version, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String filename, int customerId, String ownerUsername)
+			throws IOException {
+		super(sessionFactory, serviceTaskFeedback, filename, customerId, ownerUsername);
 		setCurrentVersion(version);
 		setCanDeleteFile(false);
 	}
@@ -93,8 +94,11 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			session.getTransaction().commit();
 			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.install.update.version", "Update install version", null, 98));
 			String username = getImportAnalysis().getServiceTaskFeedback().findUsernameById(this.getId());
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.system.install",
-					String.format("System: TRCIK Service, version: %s, action: install, username: %s", trickService.getVersion(), username), trickService.getVersion(), username);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.system.install", String.format("System: TRCIK Service, version: %s", trickService.getVersion()), username,
+					LogAction.INSTALL, trickService.getVersion());
 		} catch (Exception e) {
 			if (session != null && session.getTransaction().isInitiator())
 				session.getTransaction().rollback();

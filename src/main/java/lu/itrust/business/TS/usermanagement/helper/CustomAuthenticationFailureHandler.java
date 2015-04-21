@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -39,13 +40,21 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + request.getParameter("j_username") + "' does not exist! Requesting IP: "
 					+ remoteaddr);
 			request.getSession().setAttribute("LOGIN_ERROR", "error.bad.credential");
-			TrickLogManager.Persist(LogLevel.WARNING,LogType.AUTHENTICATION, "log.user.bad.credential", String.format("%s attempts to connect from %s", request.getParameter("j_username"),
-					remoteaddr), request.getParameter("j_username"), remoteaddr);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential",
+					String.format("%s attempts to connect from %s", request.getParameter("j_username"), remoteaddr), request.getParameter("j_username"), LogAction.AUTHENTICATE,
+					remoteaddr);
 		} else if (exception.getClass().isAssignableFrom(DisabledException.class)) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: User '" + request.getParameter("j_username") + "' is disabled! Requesting IP: "
 					+ remoteaddr);
-			TrickLogManager.Persist(LogLevel.WARNING,LogType.AUTHENTICATION, "log.user.account.disabled", String.format("%s's account is disabled but he tries to connect from %s", request.getParameter("j_username"),
-					remoteaddr), request.getParameter("j_username"), remoteaddr);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.account.disabled",
+					String.format("%s's account is disabled but he tries to connect from %s", request.getParameter("j_username"), remoteaddr), request.getParameter("j_username"),
+					LogAction.AUTHENTICATE, remoteaddr);
 		} else if (exception.getClass().isAssignableFrom(InternalAuthenticationServiceException.class)) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: Database Connection Failed!");
 			request.getSession().setAttribute("LOGIN_ERROR", "error.database.connection_failed");

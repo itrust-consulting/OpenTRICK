@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.database.dao.DAOUser;
@@ -217,5 +218,11 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	@Override
 	public User getByEmail(String email) {
 		return (User) getSession().createQuery("From User where email = :email").setString("email", email).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> getAllOthers(Collection<User> users) {
+		return getSession().createQuery("From User user where user not in :users").setParameterList("users", users).list();
 	}
 }

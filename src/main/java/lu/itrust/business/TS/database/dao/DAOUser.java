@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.model.general.Customer;
@@ -46,4 +47,6 @@ public interface DAOUser {
 	public void delete(User user) throws Exception;
 
 	public User getByEmail(String email);
+
+	public List<User> getAllOthers(Collection<User> users);
 }

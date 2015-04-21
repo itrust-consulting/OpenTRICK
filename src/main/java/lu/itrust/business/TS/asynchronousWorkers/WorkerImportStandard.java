@@ -21,6 +21,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
@@ -111,9 +112,11 @@ public class WorkerImportStandard implements Worker {
 			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_standard\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
 			String username = serviceTaskFeedback.findUsernameById(this.getId());
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard",
-					String.format("Standard: %s, version: %d, action: import, username: %s", newstandard.getLabel(), newstandard.getVersion(), username), newstandard.getLabel(),
-					String.valueOf(newstandard.getVersion()), username);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()),
+					username, LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
 		} catch (Exception e) {
 			this.error = e;
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null, e));

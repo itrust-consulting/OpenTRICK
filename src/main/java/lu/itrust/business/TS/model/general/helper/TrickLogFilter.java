@@ -15,6 +15,10 @@ public class TrickLogFilter extends TrickFilter {
 	private LogType type;
 	
 	private LogLevel level;
+	
+	private LogAction action;
+	
+	private String author;
 
 	/**
 	 * 
@@ -28,16 +32,29 @@ public class TrickLogFilter extends TrickFilter {
 	 * @param type
 	 * @param level
 	 */
-	public TrickLogFilter(LogType type, LogLevel level,String direction, int size) {
+	public TrickLogFilter(LogType type, LogLevel level, LogAction action, String author,String direction, int size) {
 		super(direction, size);
-		this.type = type;
-		this.level = level;
+		setLevel(level);
+		setType(type);
+		setAction(action);
+		setAuthor(author);
 	}
 
-	public TrickLogFilter(Integer size, String level, String type, String direction) {
+	public TrickLogFilter(Integer size, String level, String type,String action, String author, String direction) {
 		super(CheckDirection(direction)? direction : "asc", size == null || size<60? 60:  size);
 		setLevel(TryParseLevel(level));
 		setType(TryParseType(type));
+		setAction(TryParse(action));
+		setAuthor(author);
+	}
+
+	private LogAction TryParse(String action) {
+		try {
+			return action == null? null : LogAction.valueOf(action);
+		} catch (Exception e) {
+			return null;
+		}
+		
 	}
 
 	private LogType TryParseType(String type) {
@@ -74,6 +91,22 @@ public class TrickLogFilter extends TrickFilter {
 	
 	public boolean isOrderDescending() {
 		return getDirection()!=null && getDirection().equalsIgnoreCase("desc");
+	}
+
+	public LogAction getAction() {
+		return action;
+	}
+
+	public void setAction(LogAction action) {
+		this.action = action;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 	
 }

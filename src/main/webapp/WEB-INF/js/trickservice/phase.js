@@ -22,8 +22,23 @@ $(function() {
 
 		if (l_lang != "en")
 			$.getScript(context + "/js/bootstrap/locales/bootstrap-datepicker." + l_lang + ".js");
+
+		$("#addPhaseModel").on("hidden.bs.modal", function() {
+			$("#addPhaseModel .label").remove();
+			clearPhaseInterval();
+		});
 	}
 });
+
+
+function clearPhaseInterval() {
+	$("#addPhaseModel .modal-footer .btn-danger").hide();
+	$("#addPhaseModel .modal-footer .btn-danger").unbind();
+	$("#addPhaseModel #phase-Modal-title-info").text("");
+	if (application["phase_interval"] != undefined)
+		clearInterval(application["phase_interval"]);
+	application["phase_interval"] = undefined;
+}
 
 function newPhase() {
 
@@ -138,7 +153,7 @@ function editPhase(phaseid) {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			/*startDate : phasestartlimit != null ? phasestartlimit : '',*/
+			/* startDate : phasestartlimit != null ? phasestartlimit : '', */
 			endDate : phaseendlimit != null ? phaseendlimit : '',
 		}).on('changeDate', beginDateChanged);
 
@@ -148,7 +163,7 @@ function editPhase(phaseid) {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			/*startDate : $("#addPhaseModel #phase_begin_date").prop("value"),*/
+			/* startDate : $("#addPhaseModel #phase_begin_date").prop("value"), */
 			endDate : phaseendlimit != null ? phaseendlimit : '',
 		}).on('changeDate', endDateChanged);
 
@@ -176,8 +191,10 @@ function beginDateChanged() {
 
 	$("#addPhaseModel #phase_end_date").datepicker('setStartDate', dt1);
 
-	/*if (dt2 < dt1)
-		$("#addPhaseModel #phase_end_date").datepicker('setDate', dt1);*/
+	/*
+	 * if (dt2 < dt1) $("#addPhaseModel #phase_end_date").datepicker('setDate',
+	 * dt1);
+	 */
 }
 
 function endDateChanged() {
@@ -198,6 +215,7 @@ function endDateChanged() {
  * @returns
  */
 function savePhase(form) {
+	clearPhaseInterval();
 	$.ajax({
 		url : context + "/Analysis/Phase/Save",
 		type : "post",
@@ -205,28 +223,50 @@ function savePhase(form) {
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var previewError = $("#addPhaseModel .alert");
-			if (previewError.length)
-				previewError.remove();
+			$("#addPhaseModel .label").remove();
 			var data = parseJson(response);
 			if (data === undefined) {
 				unknowError();
 				$("#addPhaseModel").modal("hide");
 			} else {
 				for ( var error in data) {
+					console.log(error);
 					switch (error) {
 					case "endDate":
 					case "beginDate":
-						$("<label class='alert alert-error'>" + response[error] + "</label>").appendTo("##addPhaseModel .modal-body");
+						if($("#addPhaseModel #phaseid").val() !=-1)
+							$("<label class='label label-warning' style='margin-left:10px;'>" + response[error] + "</label>").appendTo("#addPhaseModel .modal-body");
 						break;
 					default:
-						$("<label class='alert alert-error'>" + response[error] + "</label>").appendTo("##addPhaseModel .modal-body");
+						$("<label class='label label-danger' style='margin-left:10px;'>" + response[error] + "</label>").appendTo("#addPhaseModel .modal-body");
 					}
 				}
 
-				if (!$("#addPhaseModel .alert").length) {
+				if (!$("#addPhaseModel .label-danger").length) {
 					reloadSection("section_phase");
-					$("#addPhaseModel").modal("hide");
+					if (!$("#addPhaseModel .label-warning").length)
+						$("#addPhaseModel").modal("hide");
+					else {
+						var phaseInterval = {
+							max : 11,
+							current : 0,
+							iteration : 1000,
+							text : $("#addPhaseModel #phase-Modal-title-info").attr("data-lang-text")
+						}
+						application["phase_interval"] = setInterval(function(e) {
+							phaseInterval["worker"]();
+						}, phaseInterval.iteration);
+
+						phaseInterval["worker"] = function() {
+							phaseInterval.current++;
+							if (phaseInterval.current > phaseInterval.max)
+								$("#addPhaseModel").modal("hide");
+							 else
+								$("#addPhaseModel #phase-Modal-title-info").text(phaseInterval.text.replace("%d", phaseInterval.max - phaseInterval.current));
+						}
+						$("#addPhaseModel .modal-footer .btn-danger").click(clearPhaseInterval);
+						$("#addPhaseModel .modal-footer .btn-danger").show();
+					}
 				}
 			}
 		},

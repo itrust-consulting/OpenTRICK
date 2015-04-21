@@ -37,5 +37,7 @@ public interface DAOTrickLog {
 
 	void delete(TrickLog trickLog);
 
-	List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter);
+	List<TrickLog> getAll(Integer page, TrickLogFilter filter);
+
+	List<String> getDistinctAuthor();
 }

@@ -531,9 +531,10 @@ public class User implements Serializable {
 	}
 
 	public RoleType getAccess() {
-		for (RoleType roleType : RoleType.values()){
-			if(hasRole(roleType))
-				return roleType;
+		RoleType[] roleTypes = RoleType.values();
+		for (int i = roleTypes.length - 1; i >= 0; i--) {
+			if (hasRole(roleTypes[i]))
+				return roleTypes[i];
 		}
 		return null;
 	}

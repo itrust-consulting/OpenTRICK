@@ -119,8 +119,13 @@ public class ServiceTrickLogImpl implements ServiceTrickLog {
 	}
 
 	@Override
-	public List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter) {
+	public List<TrickLog> getAll(Integer page, TrickLogFilter filter) {
 		return daoTrickLog.getAll(page,filter);
+	}
+
+	@Override
+	public List<String> getDistinctAuthor() {
+		return daoTrickLog.getDistinctAuthor();
 	}
 
 }

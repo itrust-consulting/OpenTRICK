@@ -8,9 +8,11 @@
 	<table class="table table-hover table-condensed table-fixed-header-analysis">
 		<thead>
 			<tr>
-				<th width="13%"><spring:message code="label.log.date.created" text="Created" /></th>
+				<th width="14%"><spring:message code="label.log.date.created" text="Created" /></th>
 				<th width="5%"><spring:message code="label.log.level" text="Level" /></th>
-				<th width="7%"><spring:message code="label.log.type" text="Type" /></th>
+				<th width="8%"><spring:message code="label.log.type" text="Type" /></th>
+				<th width="8%"><spring:message code="label.log.action" text="Action" /></th>
+				<th width="8%"><spring:message code="label.log.author" text="Author" /></th>
 				<th><spring:message code="label.log.message" text="Message" /></th>
 			</tr>
 		</thead>
@@ -41,6 +43,18 @@
 							<spring:message code="label.log.type.${fn:toLowerCase(trickLog.type)}" text="${fn:toLowerCase(trickLog.type)}" />
 						</c:if>
 					</td>
+					<td>
+						<c:choose>
+							<c:when test="${empty trickLog.action}">
+								-
+							</c:when>
+							<c:otherwise>
+								<spring:message code="label.action.${fn:toLowerCase(trickLog.action)}" text="${fn:replace(fn:toLowerCase(trickLog.action),'_',' ')}"/>
+							</c:otherwise>
+						</c:choose>
+						
+					</td>
+					<td><spring:message  text="${trickLog.author}"/></td>
 					<td>
 						<spring:message code="${trickLog.code}" arguments="${trickLog.parameters}" text="${trickLog.message}"/>
 					</td>

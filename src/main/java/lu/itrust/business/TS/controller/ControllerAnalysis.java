@@ -61,6 +61,7 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -266,8 +267,9 @@ public class ControllerAnalysis {
 			if (hasPermission) {
 				// initialise analysis
 				TrickLogManager.Persist(LogType.ANALYSIS, "log.info.user.open.analysis",
-						String.format("Analysis: %s, version: %s, action: open, username: %s", analysis.getIdentifier(), analysis.getVersion(), user.getLogin()),
-						analysis.getIdentifier(), analysis.getVersion(), user.getLogin());
+						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.OPEN, analysis.getIdentifier(),
+						analysis.getVersion());
+
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
@@ -281,9 +283,9 @@ public class ControllerAnalysis {
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 
 			} else {
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.info.user.try.open.analysis",
-						String.format("Analysis: %s, version:%s, action: deny access, username: %s", analysis.getIdentifier(), analysis.getVersion(), user.getLogin()),
-						analysis.getIdentifier(), analysis.getVersion(), user.getLogin());
+				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.info.user.try.open.analysis",
+						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.DENY_ACCESS,
+						analysis.getIdentifier(), analysis.getVersion());
 				attributes.addFlashAttribute("error", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("error"));
 			}
@@ -1026,10 +1028,13 @@ public class ControllerAnalysis {
 					}
 				} else
 					analysis = serviceAnalysis.get(id);
-				if(analysis!=null)
-					TrickLogManager.Persist(LogLevel.WARNING,LogType.ANALYSIS, "log.user.edit.analysis.information", String.format(
-							"Analysis: %s, version: %s, action: edit information, username: %s", analysis.getIdentifier(), analysis.getVersion(),
-							 owner.getLogin()), analysis.getIdentifier(), analysis.getVersion(), owner.getLogin());
+				/**
+				 * Log
+				 */
+				if (analysis != null)
+					TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.edit.analysis.information",
+							String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), owner.getLogin(), LogAction.UPDATE,
+							analysis.getIdentifier(), analysis.getVersion());
 			} else {
 				if (idCustomer < 1)
 					errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));

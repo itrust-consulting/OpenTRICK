@@ -37,6 +37,7 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -185,8 +186,8 @@ public class CustomDelete {
 	@Transactional
 	public void deleteCustomer(int idcustomer, String username) throws Exception {
 		Customer customer = daoCustomer.get(idcustomer);
-		if(customer == null)
-			throw new TrickException("error.customer.not_found","Customer cannot be found");
+		if (customer == null)
+			throw new TrickException("error.customer.not_found", "Customer cannot be found");
 		if (!customer.isCanBeUsed())
 			throw new TrickException("error.customer.delete.profile", "Customer Profile cannot be deleted");
 		if (daoCustomer.isInUsed(customer))
@@ -197,32 +198,35 @@ public class CustomDelete {
 			daoUser.saveOrUpdate(user);
 		}
 		daoCustomer.delete(customer);
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.customer",
-				String.format("Customer: %s, action: delete, username: %s", customer.getOrganisation(), username), customer.getOrganisation(), username);
-		
+		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.customer", String.format("Customer: %s", customer.getOrganisation()), username, LogAction.DELETE,
+				customer.getOrganisation());
+
 	}
 
 	@Transactional
 	public void removeCustomerByUser(int customerId, String userName, String adminUsername) throws Exception {
 		Customer customer = daoCustomer.get(customerId);
-		if (customer== null ||!customer.isCanBeUsed())
+		if (customer == null || !customer.isCanBeUsed())
 			return;
 		User user = daoUser.get(userName);
-		if(user == null)
+		if (user == null)
 			return;
 		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
-		
+
 		for (Analysis analysis : analyses) {
 			analysis.removeRights(user);
 			daoAnalysis.saveOrUpdate(analysis);
 		}
-		
+
 		if (!(user.containsCustomer(customer) && user.getCustomers().remove(customer)))
 			return;
 		daoUser.saveOrUpdate(user);
+		/**
+		 * Log
+		 */
 		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.remove.access.to.customer",
-				String.format("Customer: %s, action: remove access, grantee: %s, username: %s", customer.getOrganisation(), user.getLogin(), adminUsername),
-				customer.getOrganisation(), user.getLogin(), adminUsername);
+				String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), adminUsername, LogAction.REMOVE_ACCESS, customer.getOrganisation(),
+				user.getLogin());
 	}
 
 	@Transactional
@@ -323,9 +327,12 @@ public class CustomDelete {
 		}
 
 		daoAnalysis.delete(analysis);
+		/**
+		 * Log
+		 */
 		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.analysis",
-				String.format("Analysis: %s, version: %s, action: delete, username: %s", analysis.getIdentifier(), analysis.getVersion(), username), analysis.getIdentifier(),
-				analysis.getVersion(), username);
+				String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.DELETE, analysis.getIdentifier(),
+				analysis.getVersion());
 		if (lastVersion != null)
 			daoAnalysis.saveOrUpdate(lastVersion);
 		else
@@ -354,11 +361,14 @@ public class CustomDelete {
 		if (analyses.stream().anyMatch(analysis -> analysis.hasData()))
 			return;
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
-		for (Analysis analysis : analyses){
+		for (Analysis analysis : analyses) {
 			daoAnalysis.delete(analysis);
+			/**
+			 * Log
+			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.analysis",
-					String.format("Analysis: %s, version: %s, action: delete, username: %s", analysis.getIdentifier(), analysis.getVersion(), username), analysis.getIdentifier(),
-					analysis.getVersion(), username);
+					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.DELETE, analysis.getIdentifier(),
+					analysis.getVersion());
 		}
 	}
 

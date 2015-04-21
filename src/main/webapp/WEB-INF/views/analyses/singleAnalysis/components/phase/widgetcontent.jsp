@@ -8,9 +8,13 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="phaseNewModal-title">
-					<fmt:message key="label.title.phase.add" />
-				</h4>
+				<div class="modal-title">
+					<h4  id="phaseNewModal-title" class="col-md-6">
+						<fmt:message key="label.title.phase.add" />
+					</h4>
+					<label class="col-md-5" id="phase-Modal-title-info" style="margin-top: 8px" data-lang-text='<fmt:message key="label.close_x_sec" />'></label>
+					<div class="clearfix"></div>
+				</div>
 			</div>
 			<div class="modal-body">
 				<form name="phase" action="${pageContext.request.contextPath}/Phase/Save" class="form-horizontal" id="phase_form">
@@ -30,8 +34,12 @@
 						</div>
 					</div>
 				</form>
+
 			</div>
 			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" style="display: none;">
+					<fmt:message key="label.action.cancel_close" />
+				</button>
 				<button id="addphasemodelbutton" type="button" class="btn btn-primary" onclick="savePhase('phase_form')">
 					<fmt:message key="label.action.save" />
 				</button>

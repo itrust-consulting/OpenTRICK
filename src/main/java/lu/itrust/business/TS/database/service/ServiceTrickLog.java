@@ -23,7 +23,7 @@ public interface ServiceTrickLog {
 	
 	List<TrickLog> getAll();
 	
-	List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter);
+	List<TrickLog> getAll(Integer page, TrickLogFilter filter);
 	
 	List<TrickLog> getAllByLevel(LogLevel level, int page, int size);
 	
@@ -38,5 +38,7 @@ public interface ServiceTrickLog {
 	void delete(Long id);
 
 	void delete(TrickLog trickLog);
+
+	List<String> getDistinctAuthor();
 
 }

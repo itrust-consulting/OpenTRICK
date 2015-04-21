@@ -36,6 +36,30 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label for="action" class="col-sm-5 control-label"> <spring:message code="label.action.filter.action" text="Filter by action" /></label>
+					<div class="col-sm-7">
+						<select name="action" class="form-control" onchange="updateLogFilter()">
+							<option ${empty logFilter.action?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
+							<c:forEach items="${actions}" var="action">
+								<option value="${action}" ${logFilter.action == action?'selected="selected"':''}><spring:message code="label.log.action.${fn:toLowerCase(action)}"
+										text="${fn:replace(fn:toLowerCase(action),'_',' ')}" /></option>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="author" class="col-sm-5 control-label"> <spring:message code="label.action.filter.author" text="Filter by author" /></label>
+					<div class="col-sm-7">
+						<select name="author" class="form-control" onchange="updateLogFilter()">
+							<option ${empty logFilter.action?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
+							<c:forEach items="${authors}" var="author">
+								<option value="${author}" ${logFilter.author == author?'selected="selected"':''}><spring:message
+										text="${author}" /></option>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
 					<label for="pageSize" class="col-sm-5 control-label"> <spring:message code="label.page.size" text="Page size" />
 					</label>
 					<div class="col-sm-7">

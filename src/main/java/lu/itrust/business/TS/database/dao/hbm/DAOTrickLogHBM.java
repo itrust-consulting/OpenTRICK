@@ -5,14 +5,16 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.TrickLog;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
+
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Property;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author eomar
@@ -96,20 +98,32 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<TrickLogFilter> getAll(Integer page, TrickLogFilter filter) {
-		Query query;
-		if (filter.getLevel() == null) {
-			if (filter.getType() == null)
-				query = getSession().createQuery(String.format("From TrickLog order by created %s", filter.isOrderDescending() ? "desc" : "asc"));
-			else
-				query = getSession().createQuery(String.format("From TrickLog where type = :type order by created %s", filter.isOrderDescending() ? "desc" : "asc")).setParameter(
-						"type", filter.getType());
-		} else if (filter.getType() == null)
-			query = getSession().createQuery(String.format("From TrickLog where level = :level order by created %s", filter.isOrderDescending() ? "desc" : "asc")).setParameter(
-					"level", filter.getLevel());
+	public List<TrickLog> getAll(Integer page, TrickLogFilter filter) {
+		
+		Criteria criteria = getSession().createCriteria(TrickLog.class);
+		if (filter.isOrderDescending())
+			criteria.addOrder(Order.desc("created"));
 		else
-			query = getSession().createQuery(String.format("From TrickLog where level = :level and type = :type order by created %s", filter.isOrderDescending() ? "desc" : "asc"))
-					.setParameter("level", filter.getLevel()).setParameter("type", filter.getType());
-		return query.setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
+			criteria.addOrder(Order.asc("created"));
+		
+		if(filter.getLevel()!=null)
+			criteria.add(Property.forName("level").eq(filter.getLevel()));
+		
+		if (filter.getType()!=null)
+			criteria.add(Property.forName("type").eq(filter.getType()));
+		
+		if(filter.getAuthor()!=null)
+			criteria.add(Property.forName("author").eq(filter.getAuthor()));
+		
+		if(filter.getAction()!=null)
+			criteria.add(Property.forName("action").eq(filter.getAction()));
+
+		return criteria.setFirstResult((page - 1) *filter.getSize()).setMaxResults(filter.getSize()).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getDistinctAuthor() {
+		return getSession().createQuery("Select distinct author From TrickLog").list();
 	}
 }

@@ -9,9 +9,10 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -172,15 +173,15 @@ public class ControllerPhase {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody List<String[]> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Map<String,String> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create result array
-		List<String[]> errors = new LinkedList<>();
+		Map<String,String> errors = new LinkedHashMap<String, String>();
 
 		// check if analysis exists
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null) {
-			errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) });
+			errors.put("analysis",messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) );
 			return errors;
 		}
 
@@ -196,7 +197,7 @@ public class ControllerPhase {
 				// load analysis
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 				if (analysis == null) {
-					errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) });
+					errors.put("analysis", messageSource.getMessage("error.analysis.no_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) );
 					return errors;
 				}
 
@@ -214,27 +215,23 @@ public class ControllerPhase {
 
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.add(new String[] {
+						errors.put(
 							"beginDate",
 							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale != null
-								? customLocale : locale) });
-						return errors;
+								? customLocale : locale));
 					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.add(new String[] { "endDate",
-							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale) });
-						return errors;
+						errors.put( "endDate",
+							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale));
 					}
-
 					// add phase to analysis
 					analysis.addPhase(phase);
 				} else {
 
 					if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {
-						errors.add(new String[] { "phase",
-							messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", customLocale != null ? customLocale : locale) });
+						errors.put("phase",
+							messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", customLocale != null ? customLocale : locale));
 						return errors;
 					}
-
 					for (Phase tphase : analysis.getPhases()) {
 						if (tphase.getId() == phase.getId()) {
 							tphase.setDates(phase.getBeginDate(), phase.getEndDate());
@@ -242,24 +239,22 @@ public class ControllerPhase {
 							break;
 						}
 					}
-
+					
 					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
 					
 					nextphase = analysis.getPhaseByNumber(phase.getNumber() + 1);
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.add(new String[] {
+						errors.put(
 							"beginDate",
 							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale != null
-								? customLocale : locale) });
-						return errors;
+								? customLocale : locale) );
 					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.add(new String[] { "endDate",
-							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale) });
-						return errors;
+						errors.put("endDate",
+							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale));
 					} else if (nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
-						errors.add(new String[] { "date",
-							messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", customLocale != null ? customLocale : locale) });
+						errors.put("date",
+							messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", customLocale != null ? customLocale : locale));
 						return errors;
 					}
 				}
@@ -270,11 +265,11 @@ public class ControllerPhase {
 
 		} catch (TrickException e) {
 			e.printStackTrace();
-			errors.add(new String[] { "phase", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale) });
+			errors.put("phase", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return errors
 			e.printStackTrace();
-			errors.add(new String[] { "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale) });
+			errors.put( "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 		}
 		// return empty errors (no errors -> success)
 		return errors;
@@ -291,46 +286,41 @@ public class ControllerPhase {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildPhase(List<String[]> errors, Phase phase, String source, Locale locale) {
-
+	private boolean buildPhase(Map<String,String> errors, Phase phase, String source, Locale locale) {
 		try {
-
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-
 			// set date format
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 			phase.setId(jsonNode.get("id").asInt());
-			phase.setBeginDate(new Date(format.parse(jsonNode.get("beginDate").asText()).getTime()));
-			phase.setEndDate(new Date(format.parse(jsonNode.get("endDate").asText()).getTime()));
+			phase.setDates(new Date(format.parse(jsonNode.get("beginDate").asText()).getTime()), new Date(format.parse(jsonNode.get("endDate").asText()).getTime()));
 			// return success
 			return true;
 		} catch (JsonProcessingException e) {
-
 			// set error
-			errors.add(new String[] { "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
-
 		} catch (IOException e) {
-
 			// set error
-			errors.add(new String[] { "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
-
 		} catch (IllegalArgumentException e) {
-
 			// set error
-			errors.add(new String[] { "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put( "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
-
-		} catch (Exception e) {
-
+		}
+		catch(TrickException e){
+			errors.put( "date", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
+			return false;
+		}
+		catch (Exception e) {
 			// set error
-			errors.add(new String[] { "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put( "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
 		}
