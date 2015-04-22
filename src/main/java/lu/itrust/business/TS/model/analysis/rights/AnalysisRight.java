@@ -11,7 +11,8 @@ import lu.itrust.business.TS.exception.TrickException;
  * @since Jan 9, 2014
  */
 public enum AnalysisRight {
-	ALL(0), DELETE(1), CALCULATE_RISK_REGISTER(2), CALCULATE_ACTIONPLAN(3), MODIFY(4), EXPORT(5), READ(6);
+	
+	ALL(0), EXPORT(1), MODIFY(2),READ(3);
 
 	/**
 	 * Constructor:<br>

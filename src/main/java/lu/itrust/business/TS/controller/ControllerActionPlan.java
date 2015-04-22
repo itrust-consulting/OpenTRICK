@@ -175,7 +175,7 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model) throws Exception {
 
 		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
@@ -214,7 +214,7 @@ public class ControllerActionPlan {
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 		// verify if user is authorized to compute the actionplan
-		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
+		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
 
 			// retrieve options selected by the user
 

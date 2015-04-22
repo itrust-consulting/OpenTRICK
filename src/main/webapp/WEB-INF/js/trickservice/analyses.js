@@ -161,7 +161,7 @@ function deleteAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
+	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
 		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 		$("#deleteAnalysisModel .btn").unbind();
 		$("#deleteanalysisbuttonNo").click(function() {
@@ -614,7 +614,7 @@ function editSingleAnalysis(analysisId) {
 	return false;
 }
 
-function selectAnalysis(analysisId) {
+function selectAnalysis(analysisId, selectionOnly, isReadOnly) {
 
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
@@ -623,7 +623,7 @@ function selectAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.READ))
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select");
+		window.location.replace(context + "/Analysis/" + analysisId + "/Select?readOnly=" + (isReadOnly === true));
 	else
 		permissionError();
 }
@@ -636,7 +636,7 @@ function calculateActionPlan(analysisId) {
 			return false;
 		while (selectedAnalysis.length) {
 			rowTrickId = selectedAnalysis.pop();
-			if (userCan(rowTrickId, ANALYSIS_RIGHT.CALCULATE_ACTIONPLAN)) {
+			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ)) {
 				analysisID = rowTrickId;
 			} else
 				permissionError();
@@ -646,7 +646,7 @@ function calculateActionPlan(analysisId) {
 		analysisID = analysisId;
 	}
 
-	if (userCan(analysisID, ANALYSIS_RIGHT.CALCULATE_ACTIONPLAN)) {
+	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
 
 		var data = {};
 
@@ -685,7 +685,7 @@ function calculateRiskRegister(analysisId) {
 			return false;
 		while (selectedAnalysis.length) {
 			rowTrickId = selectedAnalysis.pop();
-			if (userCan(rowTrickId, ANALYSIS_RIGHT.CALCULATE_RISK_REGISTER)) {
+			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ)) {
 				analysisID = rowTrickId;
 			} else
 				permissionError();
@@ -695,7 +695,7 @@ function calculateRiskRegister(analysisId) {
 		analysisID = analysisId;
 	}
 
-	if (userCan(analysisID, ANALYSIS_RIGHT.CALCULATE_RISK_REGISTER)) {
+	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
 
 		var data = {};
 

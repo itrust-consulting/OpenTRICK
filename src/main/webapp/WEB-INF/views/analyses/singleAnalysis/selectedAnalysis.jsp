@@ -78,5 +78,10 @@
 		<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
 	</c:if>
+	<script type="text/javascript">
+		<!-- 
+			application.isReadOnly =  ${isReadOnly}; 
+		-->
+	</script>
 </body>
 </html>

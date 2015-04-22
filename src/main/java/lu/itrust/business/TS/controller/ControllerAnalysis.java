@@ -121,6 +121,8 @@ public class ControllerAnalysis {
 
 	private static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 
+	private static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
+
 	@Autowired
 	private ServiceUser serviceUser;
 
@@ -243,6 +245,7 @@ public class ControllerAnalysis {
 
 		// retrieve analysisId if an analysis was already selected
 		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		Boolean isReadOnly = (Boolean) session.getAttribute(SELECTED_ANALYSIS_READ_ONLY);
 
 		// check if an analysis is selected
 		if (selected != null) {
@@ -280,6 +283,7 @@ public class ControllerAnalysis {
 				model.addAttribute("soa", measures.get("27002"));
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
+				model.addAttribute("isReadOnly", isReadOnly == null? false : isReadOnly);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 
 			} else {
@@ -468,9 +472,11 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/{analysisId}/Select")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly,
+			HttpSession session) throws Exception {
 		// select the analysis
 		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
 		return "redirect:/Analysis";
 	}
 
@@ -489,9 +495,11 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
+			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session) throws Exception {
 		// select the analysis
 		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
 		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
 
@@ -511,6 +519,7 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
+		session.removeAttribute(SELECTED_ANALYSIS_READ_ONLY);
 		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (integer != null) {
 			session.removeAttribute(SELECTED_ANALYSIS);
@@ -659,7 +668,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).DELETE)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
 			throws Exception {
 		try {

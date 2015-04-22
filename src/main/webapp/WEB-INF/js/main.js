@@ -220,28 +220,16 @@ var ANALYSIS_RIGHT = {
 		value : 0,
 		name : "ALL"
 	},
-	DELETE : {
-		value : 1,
-		name : "DELETE"
-	},
-	CALCULATE_RISK_REGISTER : {
-		value : 2,
-		name : "CALCULATE_RISK_REGISTER"
-	},
-	CALCULATE_ACTIONPLAN : {
-		value : 3,
-		name : "CALCULATE_ACTIONPLAN"
-	},
-	MODIFY : {
-		value : 4,
-		name : "MODIFY"
-	},
 	EXPORT : {
-		value : 5,
+		value : 1,
 		name : "EXPORT"
 	},
+	MODIFY : {
+		value : 2,
+		name : "MODIFY"
+	},
 	READ : {
-		value : 6,
+		value : 3,
 		name : "READ"
 	}
 };
@@ -266,9 +254,14 @@ function findRight(idAnalysis) {
 }
 
 function userCan(idAnalysis, action) {
+	console.log("Here: "+application.isReadOnly);
 	var right = findRight(idAnalysis);
-	if (right != undefined && action.value != undefined)
-		return right.value <= action.value;
+	if (right != undefined && action.value != undefined) {
+		if (application.isReadOnly === true)
+			return action == ANALYSIS_RIGHT.READ
+		else
+			return right.value <= action.value;
+	}
 	return false;
 }
 

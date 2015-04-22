@@ -224,7 +224,7 @@ public class ControllerAsset {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).DELETE)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
 		try {
 			// delete asset ( delete asset from from assessments) then from
