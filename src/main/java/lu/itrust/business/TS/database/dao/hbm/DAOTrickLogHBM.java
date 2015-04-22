@@ -6,7 +6,9 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
+import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TrickLog;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 
@@ -112,18 +114,36 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 		if (filter.getType()!=null)
 			criteria.add(Property.forName("type").eq(filter.getType()));
 		
-		if(filter.getAuthor()!=null)
+		if(!(filter.getAuthor()==null || filter.getAuthor().isEmpty()))
 			criteria.add(Property.forName("author").eq(filter.getAuthor()));
 		
 		if(filter.getAction()!=null)
 			criteria.add(Property.forName("action").eq(filter.getAction()));
 
-		return criteria.setFirstResult((page - 1) *filter.getSize()).setMaxResults(filter.getSize()).list();
+		return criteria.setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getDistinctAuthor() {
-		return getSession().createQuery("Select distinct author From TrickLog").list();
+		return getSession().createQuery("Select distinct author From TrickLog order by author").list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<LogLevel> getDistinctLevel() {
+		return getSession().createQuery("Select distinct level From TrickLog order by level").list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<LogType> getDistinctType() {
+		return getSession().createQuery("Select distinct type From TrickLog order by type").list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<LogAction> getDistinctAction() {
+		return getSession().createQuery("Select distinct action From TrickLog order by action").list();
 	}
 }

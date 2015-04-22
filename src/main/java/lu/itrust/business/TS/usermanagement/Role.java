@@ -82,6 +82,10 @@ import javax.persistence.Transient;
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
+	
+	public String getRoleName() {
+		return type.name().replace("ROLE_", "");
+	}
 
 	@Override
 	public boolean equals(Object obj) {

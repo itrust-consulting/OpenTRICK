@@ -48,15 +48,12 @@
 			<tfoot></tfoot>
 			<tbody>
 				<c:forEach items="${scenarios}" var="scenario" varStatus="status">
-					<c:set var="cssClass">
-							${scenario.selected? 'success' : ''}
-						</c:set>
-					<tr data-trick-id="${scenario.id}" data-trick-selected="${scenario.selected}" data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
+					<tr data-trick-id="${scenario.id}" data-trick-selected="${scenario.selected}" ${scenario.selected? 'class="success"' : ''} data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
 						<c:set var="ale" value="${scenarioALE[scenario.id]}" />
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 						<td>${status.index+1}</td>
-						<td class="${cssClass}"><spring:message text="${scenario.name}" /></td>
-						<td class="${cssClass}"><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
+						<td><spring:message text="${scenario.name}" /></td>
+						<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
 						<fmt:setLocale value="fr" scope="session" />
 						<c:choose>
 							<c:when test="${show_uncertainty}">
@@ -73,7 +70,7 @@
 							</c:otherwise>
 						</c:choose>
 						<fmt:setLocale value="${language}" scope="session" />
-						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre  data-trick-field="description" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.description}" /></pre></td>
+						<td onclick="editField(this.firstElementChild);"><pre  data-trick-field="description" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.description}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>

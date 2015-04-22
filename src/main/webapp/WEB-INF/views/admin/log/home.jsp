@@ -41,7 +41,7 @@
 						<select name="action" class="form-control" onchange="updateLogFilter()">
 							<option ${empty logFilter.action?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
 							<c:forEach items="${actions}" var="action">
-								<option value="${action}" ${logFilter.action == action?'selected="selected"':''}><spring:message code="label.log.action.${fn:toLowerCase(action)}"
+								<option value="${action}" ${logFilter.action == action?'selected="selected"':''}><spring:message code="label.action.${fn:toLowerCase(action)}"
 										text="${fn:replace(fn:toLowerCase(action),'_',' ')}" /></option>
 							</c:forEach>
 						</select>

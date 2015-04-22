@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,9 +32,9 @@ import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -175,9 +176,9 @@ public class ControllerAdministration {
 		}
 
 		model.put("logFilter", loadLogFilter(session, principal.getName()));
-		model.put("logLevels", LogLevel.values());
-		model.put("logTypes", LogType.values());
-		model.put("actions", LogAction.values());
+		model.put("logLevels", serviceTrickLog.getDistinctLevel());
+		model.put("logTypes", serviceTrickLog.getDistinctType());
+		model.put("actions", serviceTrickLog.getDistinctAction());
 		model.put("authors", serviceTrickLog.getDistinctAuthor());
 
 		return "admin/administration";
@@ -453,9 +454,10 @@ public class ControllerAdministration {
 	 * @param customer
 	 * @param source
 	 * @param locale
+	 * @param userRoles 
 	 * @return
 	 */
-	private User buildUser(Map<String, String> errors, String source, Locale locale, Principal principal) {
+	private User buildUser(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) {
 
 		User user = null;
 		String error = null;
@@ -523,6 +525,8 @@ public class ControllerAdministration {
 
 			if (!principal.getName().equals(user.getLogin())) {
 
+				user.getRoles().forEach(role -> userRoles.add(role));
+				
 				user.disable();
 
 				RoleType[] roletypes = RoleType.values();
@@ -575,27 +579,48 @@ public class ControllerAdministration {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			User user = buildUser(errors, value, locale, principal);
+			List<Role> userRoles = new LinkedList<Role>();
+			User user = buildUser(errors, value, locale,userRoles, principal);
 			if (!errors.isEmpty())
 				return errors;
 			RoleType userAccess = user.getAccess();
-
 			String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
-
 			if (user.getId() < 1) {
 				serviceUser.save(user);
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("User: %s, access: %s", user.getLogin(), userRole),
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
 						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
+				//give access
+				user.getRoles()
+						.stream()
+						.filter(role -> role.getType() != userAccess)
+						.forEach(
+								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.get.access",
+										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GIVE_ACCESS,
+										user.getLogin(), role.getType().name()));
 			} else {
 				serviceUser.saveOrUpdate(user);
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.user", String.format("User: %s, access: %s", user.getLogin(), userRole),
-						principal.getName(), LogAction.UPDATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
+				//remove access
+				userRoles
+						.stream()
+						.filter(role -> !user.hasRole(role))
+						.forEach(
+								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
+										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
+										user.getLogin(), role.getType().name()));
+				//give access
+				user.getRoles()
+						.stream()
+						.filter(role -> !userRoles.contains(role))
+						.forEach(
+								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.grant.access",
+										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
+										user.getLogin(), role.getType().name()));
 			}
 			return errors;
 

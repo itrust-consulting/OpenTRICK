@@ -51,7 +51,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="value" class="col-sm-2 control-label"> <fmt:message key="label.asset.value" />
+						<label for="value" class="col-sm-2 control-label"> <fmt:message key="label.form.asset.value" />
 						</label>
 						<div class="col-sm-10">
 							<div class="input-group">

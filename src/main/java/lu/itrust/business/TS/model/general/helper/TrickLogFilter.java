@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.model.general.helper;
 
+import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 
@@ -34,14 +35,14 @@ public class TrickLogFilter extends TrickFilter {
 	 */
 	public TrickLogFilter(LogType type, LogLevel level, LogAction action, String author,String direction, int size) {
 		super(direction, size);
-		setLevel(level);
 		setType(type);
+		setLevel(level);
 		setAction(action);
 		setAuthor(author);
 	}
 
 	public TrickLogFilter(Integer size, String level, String type,String action, String author, String direction) {
-		super(CheckDirection(direction)? direction : "asc", size == null || size<60? 60:  size);
+		super(CheckDirection(direction)? direction : "asc", size == null || size < 60 ? 60:  size);
 		setLevel(TryParseLevel(level));
 		setType(TryParseType(type));
 		setAction(TryParse(action));
@@ -108,5 +109,14 @@ public class TrickLogFilter extends TrickFilter {
 	public void setAuthor(String author) {
 		this.author = author;
 	}
+
+	@Override
+	public String toString() {
+		return "TrickLogFilter [type=" + type + ", level=" + level + ", action=" + action + ", author=" + author + ", size=" + getSize() + ", direction="
+				+ getDirection() + "]";
+	}
+
+	
+	
 	
 }

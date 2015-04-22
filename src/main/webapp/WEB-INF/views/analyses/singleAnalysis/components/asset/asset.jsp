@@ -47,16 +47,17 @@
 			</thead>
 			<tfoot></tfoot>
 			<tbody>
+				<c:set var="totalAssetValue" value="0" />
 				<c:forEach items="${assets}" var="asset" varStatus="status">
-					<tr data-trick-id="${asset.id}" data-trick-selected="${asset.selected}" data-trick-class="Asset" ondblclick="return editAsset('${asset.id}');">
+					<tr data-trick-id="${asset.id}" data-trick-selected="${asset.selected}" data-trick-class="Asset" ${asset.selected? asset.value < 1 ? 'class="warning"' : 'class="success"' : ''} ondblclick="return editAsset('${asset.id}');">
 						<c:set var="ale" value="${assetALE[asset.id]}" />
-						<c:set var="cssClass">${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}</c:set>
+						<c:set var="totalAssetValue" value="${totalAssetValue + asset.value}" />
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
 						<td>${status.index+1}</td>
-						<td class="${cssClass}"><spring:message text="${asset.name}" /></td>
-						<td class="${cssClass}"><spring:message text="${asset.assetType.type}" /></td>
+						<td><spring:message text="${asset.name}" /></td>
+						<td><spring:message text="${asset.assetType.type}" /></td>
 						<fmt:setLocale value="fr" scope="session" />
-						<td class="${cssClass}" title='<fmt:formatNumber value="${fct:round(asset.value,0)}" /> &euro;'><fmt:formatNumber
+						<td title='<fmt:formatNumber value="${fct:round(asset.value,0)}" /> &euro;'><fmt:formatNumber
 								value="${fct:round(asset.value*0.001,0)}" /></td>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
@@ -73,28 +74,25 @@
 							</c:otherwise>
 						</c:choose>
 						<fmt:setLocale value="${language}" scope="session" />
-						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.comment}" /></pre></td>
-						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></pre></td>
+						<td onclick="editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.comment}" /></pre></td>
+						<td onclick="editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>
 			<tfoot>
 				<tr class="panel-footer" style="font-weight: bold;">
 					<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
-					<td colspan="5"><fmt:message key="label.total.ale" /></td>
+					<td colspan="4"><fmt:message key="label.total.ale" /></td>
 					<fmt:setLocale value="fr" scope="session" />
+					<td title='<fmt:formatNumber value="${fct:round(totalAssetValue,0)}" /> &euro;'><fmt:formatNumber value="${fct:round(totalAssetValue*0.001,0)}" /></td>
 					<c:choose>
 						<c:when test="${show_uncertainty}">
-							<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber
-									value="${fct:round(ale[0].value*0.001,1)}" /></td>
-							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"/> &euro;"><fmt:formatNumber
-									value="${fct:round(ale[1].value*0.001,1)}" /></td>
-							<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" /> &euro;"><fmt:formatNumber
-									value="${fct:round(ale[2].value*0.001,1)}" /></td>
+							<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
+							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"/> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
+							<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[2].value*0.001,1)}" /></td>
 						</c:when>
 						<c:otherwise>
-							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber
-									value="${fct:round(ale[1].value*0.001,1)}" /></td>
+							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
 						</c:otherwise>
 					</c:choose>
 					<fmt:setLocale value="${language}" scope="session" />

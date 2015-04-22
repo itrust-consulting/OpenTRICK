@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
+import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TrickLog;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 
@@ -126,6 +128,21 @@ public class ServiceTrickLogImpl implements ServiceTrickLog {
 	@Override
 	public List<String> getDistinctAuthor() {
 		return daoTrickLog.getDistinctAuthor();
+	}
+
+	@Override
+	public List<LogLevel> getDistinctLevel() {
+		return daoTrickLog.getDistinctLevel();
+	}
+
+	@Override
+	public List<LogType> getDistinctType() {
+		return daoTrickLog.getDistinctType();
+	}
+
+	@Override
+	public List<LogAction> getDistinctAction() {
+		return daoTrickLog.getDistinctAction();
 	}
 
 }

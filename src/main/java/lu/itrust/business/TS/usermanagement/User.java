@@ -527,7 +527,12 @@ public class User implements Serializable {
 	}
 
 	public void setSetting(String name, Object value) {
-		this.userSettings.put(name, String.valueOf(value));
+		if (name == null)
+			return;
+		else if (value == null)
+			this.userSettings.put(name, null);
+		else
+			this.userSettings.put(name, String.valueOf(value));
 	}
 
 	public RoleType getAccess() {
@@ -537,6 +542,10 @@ public class User implements Serializable {
 				return roleTypes[i];
 		}
 		return null;
+	}
+
+	public boolean hasRole(Role role) {
+		return role == null || roles == null || roles.isEmpty()? false : roles.contains(role);
 	}
 
 }

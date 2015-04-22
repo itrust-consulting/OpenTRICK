@@ -9,10 +9,10 @@ import java.util.Queue;
 
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.database.dao.hbm.DAOTrickLogHBM;
+import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TrickLog;
-import lu.itrust.business.TS.model.general.helper.LogAction;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;

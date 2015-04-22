@@ -5,7 +5,9 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
+import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TrickLog;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 
@@ -40,4 +42,10 @@ public interface DAOTrickLog {
 	List<TrickLog> getAll(Integer page, TrickLogFilter filter);
 
 	List<String> getDistinctAuthor();
+
+	List<LogLevel> getDistinctLevel();
+
+	List<LogType> getDistinctType();
+
+	List<LogAction> getDistinctAction();
 }

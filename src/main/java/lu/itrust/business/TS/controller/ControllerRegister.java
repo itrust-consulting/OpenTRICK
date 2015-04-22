@@ -19,9 +19,9 @@ import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.database.service.ServiceResetPassword;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.helper.LogAction;
 import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -253,8 +253,9 @@ public class ControllerRegister {
 						LogAction.REQUEST_TO_RESET_PASSWORD, ipAdress);
 			} else
 				// Log
-				TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.bad.request.rest.password", String.format("from: %s", ipAdress), resetPassword.getData(),
-						LogAction.REQUEST_TO_RESET_PASSWORD, ipAdress);
+				TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.bad.request.rest.password",
+						String.format("Target: %s, from: %s", resetPassword.getData(), ipAdress), "anonymous", LogAction.REQUEST_TO_RESET_PASSWORD, resetPassword.getData(),
+						ipAdress);
 
 			attributes.addFlashAttribute("success",
 					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have one hour to do.", locale));
@@ -335,7 +336,7 @@ public class ControllerRegister {
 			serviceUser.saveOrUpdate(resetPassword.getUser());
 			serviceResetPassword.delete(resetPassword);
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
-			
+
 			/**
 			 * Log
 			 */
