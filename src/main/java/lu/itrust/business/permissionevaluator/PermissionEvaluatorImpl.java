@@ -7,7 +7,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import lu.itrust.business.TS.component.GeneralComperator;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -104,7 +107,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right){
+	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
 		try {
 
 			if (analysisId == null || analysisId <= 0)
@@ -287,5 +290,27 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	@Override
+	public boolean userIsAuthorized(HttpSession session,Integer elementId, String className, Principal principal, AnalysisRight right) {
+		Integer analysisId = isAuthorised(session, principal, right);
+		return analysisId!=null && userIsAuthorized(analysisId,elementId, className, principal, right);
+	}
+
+	@Override
+	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
+		Integer analysisId = isAuthorised(session, principal, right);
+		return analysisId!=null && userIsAuthorized(analysisId, principal, right);
+	}
+	
+	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
+		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		if (analysisId == null || principal == null || right == null)
+			return null;
+		if (isReadOnly != null && isReadOnly && right != AnalysisRight.READ)
+			return null;
+		return analysisId;
 	}
 }

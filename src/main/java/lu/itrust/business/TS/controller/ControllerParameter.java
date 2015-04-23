@@ -56,11 +56,11 @@ public class ControllerParameter {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
 
@@ -82,12 +82,12 @@ public class ControllerParameter {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Maturity/ImplementationRate", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody
 	List<Parameter> maturityImplementationRate(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
 

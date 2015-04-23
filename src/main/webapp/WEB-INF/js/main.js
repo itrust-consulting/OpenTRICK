@@ -254,7 +254,6 @@ function findRight(idAnalysis) {
 }
 
 function userCan(idAnalysis, action) {
-	console.log("Here: "+application.isReadOnly);
 	var right = findRight(idAnalysis);
 	if (right != undefined && action.value != undefined) {
 		if (application.isReadOnly === true)

@@ -50,12 +50,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 public class ControllerPhase {
 
+	private static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
+
 	@Autowired
 	private ServicePhase servicePhase;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
@@ -73,16 +75,17 @@ public class ControllerPhase {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
-		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+		Boolean isReadOnly = (Boolean) session.getAttribute(SELECTED_ANALYSIS_READ_ONLY);
+		if (isReadOnly == null)
+			isReadOnly = false;
+		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (integer == null)
 			return null;
-
-		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
-		
+		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		// add phases of this analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
 
@@ -101,11 +104,11 @@ public class ControllerPhase {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Phase', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable Integer elementID, HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
 			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
@@ -147,16 +150,18 @@ public class ControllerPhase {
 			}
 
 			// return result
-			return phase == null ? JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", customLocale != null ? customLocale : locale)) : JsonMessage
+			return phase == null ? JsonMessage
+					.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", customLocale != null ? customLocale : locale)) : JsonMessage
 					.Success(messageSource.getMessage("success.delete.phase", null, "Phase was successfully deleted", customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", customLocale != null ? customLocale
+					: locale));
 		}
 	}
 
@@ -172,16 +177,16 @@ public class ControllerPhase {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String,String> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) throws Exception {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Map<String, String> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create result array
-		Map<String,String> errors = new LinkedHashMap<String, String>();
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		// check if analysis exists
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null) {
-			errors.put("analysis",messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) );
+			errors.put("analysis", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 			return errors;
 		}
 
@@ -197,7 +202,7 @@ public class ControllerPhase {
 				// load analysis
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 				if (analysis == null) {
-					errors.put("analysis", messageSource.getMessage("error.analysis.no_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) );
+					errors.put("analysis", messageSource.getMessage("error.analysis.no_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale));
 					return errors;
 				}
 
@@ -206,30 +211,28 @@ public class ControllerPhase {
 				Phase nextphase = null;
 
 				if (phase.getId() == -1) {
-					
+
 					phase.setAnalysis(analysis);
-					
+
 					phase.setNumber(analysis.getPhases().size() + 1);
 
 					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
 
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.put(
-							"beginDate",
-							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale != null
-								? customLocale : locale));
+						errors.put("beginDate", messageSource.getMessage("error.phase.beginDate.less_previous", null,
+								"Phase begin time has to be greater than previous phase end time", customLocale != null ? customLocale : locale));
 					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.put( "endDate",
-							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale));
+						errors.put("endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time",
+								customLocale != null ? customLocale : locale));
 					}
 					// add phase to analysis
 					analysis.addPhase(phase);
 				} else {
 
 					if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {
-						errors.put("phase",
-							messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", customLocale != null ? customLocale : locale));
+						errors.put("phase", messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis",
+								customLocale != null ? customLocale : locale));
 						return errors;
 					}
 					for (Phase tphase : analysis.getPhases()) {
@@ -239,22 +242,20 @@ public class ControllerPhase {
 							break;
 						}
 					}
-					
+
 					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
-					
+
 					nextphase = analysis.getPhaseByNumber(phase.getNumber() + 1);
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.put(
-							"beginDate",
-							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale != null
-								? customLocale : locale) );
+						errors.put("beginDate", messageSource.getMessage("error.phase.beginDate.less_previous", null,
+								"Phase begin time has to be greater than previous phase end time", customLocale != null ? customLocale : locale));
 					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.put("endDate",
-							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale));
+						errors.put("endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time",
+								customLocale != null ? customLocale : locale));
 					} else if (nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
-						errors.put("date",
-							messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", customLocale != null ? customLocale : locale));
+						errors.put("date", messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time",
+								customLocale != null ? customLocale : locale));
 						return errors;
 					}
 				}
@@ -269,7 +270,7 @@ public class ControllerPhase {
 		} catch (Exception e) {
 			// return errors
 			e.printStackTrace();
-			errors.put( "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
+			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 		}
 		// return empty errors (no errors -> success)
 		return errors;
@@ -286,7 +287,7 @@ public class ControllerPhase {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildPhase(Map<String,String> errors, Phase phase, String source, Locale locale) {
+	private boolean buildPhase(Map<String, String> errors, Phase phase, String source, Locale locale) {
 		try {
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
@@ -309,18 +310,16 @@ public class ControllerPhase {
 			return false;
 		} catch (IllegalArgumentException e) {
 			// set error
-			errors.put( "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
-		}
-		catch(TrickException e){
-			errors.put( "date", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (TrickException e) {
+			errors.put("date", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			// set error
-			errors.put( "phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
 		}

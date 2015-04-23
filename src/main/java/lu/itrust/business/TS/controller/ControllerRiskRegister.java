@@ -94,12 +94,12 @@ public class ControllerRiskRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping
 	public String showRiskRegister(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
 
 		// retrieve analysis ID
-		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// load all actionplans from the selected analysis
 		List<RiskRegisterItem> riskregister = serviceRiskRegister.getAllFromAnalysis(selected);
@@ -126,7 +126,7 @@ public class ControllerRiskRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 		return showRiskRegister(session, model, principal);
@@ -148,11 +148,11 @@ public class ControllerRiskRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String computeRiskRegister(HttpSession session, Principal principal) throws Exception {
 		
-		Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 

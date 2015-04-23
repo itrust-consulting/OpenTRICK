@@ -258,9 +258,9 @@ public class ControllerAdministration {
 	@RequestMapping(value = "/Analysis/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids, Principal principal, HttpSession session) {
 		try {
-			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+			Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (selected != null && ids.contains(selected))
-				session.removeAttribute("selectedAnalysis");
+				session.removeAttribute(Constant.SELECTED_ANALYSIS);
 			return customDelete.deleteAnalysis(ids, principal.getName());
 		} catch (Exception e) {
 			e.printStackTrace();

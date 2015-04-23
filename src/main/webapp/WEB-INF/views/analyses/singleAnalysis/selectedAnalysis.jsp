@@ -12,7 +12,7 @@
 <jsp:include page="../../template/header.jsp" />
 <body>
 	<div id="wrap">
-		<c:set var="isEditable" value="${analysis.getRightsforUserString(login).right.ordinal()<5}" scope="request" />
+		<c:set var="isEditable" value="${analysis.getRightsforUserString(login).right.ordinal()<3 && not isReadOnly}" scope="request" />
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="analysisMenu.jsp" />
@@ -80,7 +80,7 @@
 	</c:if>
 	<script type="text/javascript">
 		<!-- 
-			application.isReadOnly =  ${isReadOnly}; 
+			application.isReadOnly =  ${!isEditable}; 
 		-->
 	</script>
 </body>

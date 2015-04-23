@@ -6,7 +6,7 @@ function register(form) {
 	}
 
 	if(counter > 0)
-		return;	
+		return false;	
 	
 	$.ajax({
 		url : context + "/DoRegister",
@@ -81,6 +81,7 @@ function register(form) {
 				});
 
 			}
+			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			var alert = $("#" + form + " .label-danger");

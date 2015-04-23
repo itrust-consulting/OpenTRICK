@@ -103,9 +103,9 @@ public class ControllerRRF {
 	 * @throws Exception
 	 */
 	@RequestMapping(method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Measure> measures = serviceMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
 		Map<Chapter, List<Measure>> splittedmeasures = MeasureManager.SplitByChapter(measures);
@@ -204,9 +204,9 @@ public class ControllerRRF {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String loadRRFScenario(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Scenario scenario = DAOHibernate.Initialise(serviceScenario.getFromAnalysisById(idAnalysis, elementID));
 		for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues())
 			assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
@@ -230,10 +230,10 @@ public class ControllerRRF {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID,'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID,'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String loadRRFScenarioChart(@RequestBody String requestBody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
 			Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(requestBody);
@@ -290,10 +290,10 @@ public class ControllerRRF {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Standard/{standardID}/Measure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadRRFMeasure(@PathVariable int standardID, @PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 
@@ -375,10 +375,10 @@ public class ControllerRRF {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String loadRRFStandardChart(@RequestBody String requestbody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
 			Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(requestbody);
@@ -416,10 +416,10 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
 	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
 		List<Integer> idStandards = new ArrayList<Integer>(standards.size());
 		for (Standard standard : standards) {
@@ -433,7 +433,7 @@ public class ControllerRRF {
 
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	@RequestMapping(value = "/Import/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
 		try {
@@ -441,7 +441,7 @@ public class ControllerRRF {
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_profile", null, "No profile", locale));
 			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
-			measureManager.importStandard((Integer) session.getAttribute("selectedAnalysis"), rrfForm);
+			measureManager.importStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
 
 			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
 		} catch (Exception e) {

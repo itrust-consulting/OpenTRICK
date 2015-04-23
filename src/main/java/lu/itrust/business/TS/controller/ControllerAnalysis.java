@@ -115,13 +115,9 @@ public class ControllerAnalysis {
 
 	private static final String ANALYSIS_TASK_ID = "analysis_task_id";
 
-	private static final String SELECTED_ANALYSIS = "selectedAnalysis";
-
 	private static final String CURRENT_CUSTOMER = "currentCustomer";
 
 	private static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
-
-	private static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -244,8 +240,8 @@ public class ControllerAnalysis {
 	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 
 		// retrieve analysisId if an analysis was already selected
-		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
-		Boolean isReadOnly = (Boolean) session.getAttribute(SELECTED_ANALYSIS_READ_ONLY);
+		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
 
 		// check if an analysis is selected
 		if (selected != null) {
@@ -433,9 +429,9 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
@@ -475,8 +471,8 @@ public class ControllerAnalysis {
 	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly,
 			HttpSession session) throws Exception {
 		// select the analysis
-		session.setAttribute(SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
 		return "redirect:/Analysis";
 	}
 
@@ -498,9 +494,9 @@ public class ControllerAnalysis {
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
 			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session) throws Exception {
 		// select the analysis
-		session.setAttribute(SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
-		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
+		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		return session.getAttribute(Constant.SELECTED_ANALYSIS) == analysisId;
 	}
 
 	/**
@@ -519,10 +515,10 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
-		session.removeAttribute(SELECTED_ANALYSIS_READ_ONLY);
-		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		session.removeAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (integer != null) {
-			session.removeAttribute(SELECTED_ANALYSIS);
+			session.removeAttribute(Constant.SELECTED_ANALYSIS);
 			if (serviceAnalysis.isProfile(integer))
 				return "redirect:/KnowledgeBase";
 			else
@@ -680,10 +676,10 @@ public class ControllerAnalysis {
 
 			customDelete.deleteAnalysis(analysisId, principal.getName());
 
-			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+			Integer selectedAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
-				session.removeAttribute(SELECTED_ANALYSIS);
+				session.removeAttribute(Constant.SELECTED_ANALYSIS);
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));

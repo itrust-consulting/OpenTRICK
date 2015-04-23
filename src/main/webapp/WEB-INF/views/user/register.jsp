@@ -17,7 +17,7 @@
 			</h2>
 			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
 			<span id="success" hidden="hidden"></span>
-			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister">
+			<form id="registerform" name="registerform" class="form-horizontal" method="post">
 				<div class="form-group">
 					<label for="login" class="col-sm-3 control-label">
 						<spring:message code="label.user.login" text="Username" />
@@ -83,7 +83,7 @@
 				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-9">
-						<button class="btn btn-default" type="submit" onclick="return register('registerform');">
+						<button class="btn btn-default" onclick="return register('registerform');">
 							<spring:message code="label.action.sign_up.user" text="Signup" />
 						</button>
 					</div>
