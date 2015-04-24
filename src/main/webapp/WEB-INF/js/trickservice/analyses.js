@@ -615,17 +615,15 @@ function editSingleAnalysis(analysisId) {
 }
 
 function selectAnalysis(analysisId, selectionOnly, isReadOnly) {
-
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.READ))
+	var right = isReadOnly === true? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
+	if (userCan(analysisId, right))
 		window.location.replace(context + "/Analysis/" + analysisId + "/Select?readOnly=" + (isReadOnly === true));
-	else
-		permissionError();
 }
 
 function calculateActionPlan(analysisId) {
