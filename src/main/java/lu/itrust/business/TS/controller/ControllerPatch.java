@@ -170,6 +170,8 @@ public class ControllerPatch {
 					"Update-assessment");
 		}
 	}
+	
+	//public 
 
 	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)

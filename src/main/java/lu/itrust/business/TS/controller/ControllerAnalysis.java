@@ -260,13 +260,18 @@ public class ControllerAnalysis {
 
 			User user = serviceUser.get(principal.getName());
 
+			if(isReadOnly == null)
+				isReadOnly = false;
+			
 			hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
-					principal, AnalysisRight.READ);
-
+					principal, isReadOnly ?  AnalysisRight.READ : AnalysisRight.MODIFY);
 			if (hasPermission) {
 				// initialise analysis
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.info.user.open.analysis",
-						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.OPEN, analysis.getIdentifier(),
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogType.ANALYSIS, isReadOnly? "log.open.analysis" : "log.edit.analysis",
+						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), isReadOnly? LogAction.OPEN : LogAction.EDIT, analysis.getIdentifier(),
 						analysis.getVersion());
 
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
@@ -279,11 +284,11 @@ public class ControllerAnalysis {
 				model.addAttribute("soa", measures.get("27002"));
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
-				model.addAttribute("isReadOnly", isReadOnly == null? false : isReadOnly);
+				model.addAttribute("isReadOnly", isReadOnly);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 
 			} else {
-				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.info.user.try.open.analysis",
+				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",
 						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.DENY_ACCESS,
 						analysis.getIdentifier(), analysis.getVersion());
 				attributes.addFlashAttribute("error", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));

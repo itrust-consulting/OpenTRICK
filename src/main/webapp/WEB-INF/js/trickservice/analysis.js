@@ -19,7 +19,7 @@ function findAnalysisId() {
 	return $("#nav-container").attr("data-trick-id");
 }
 
-function isEditable(){
+function isEditable() {
 	return userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY);
 }
 
@@ -32,7 +32,7 @@ function updateSettings(element, entryKey) {
 			'value' : !$(element).hasClass('glyphicon-ok')
 		},
 		async : false,
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response == undefined || response !== true)
 				unknowError();
 			else {
@@ -64,7 +64,7 @@ function reloadMeasureRow(idMeasure, standard) {
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var element = document.createElement("div");
 			$(element).html(response);
 			var tag = $(element).find("tr[data-trick-id='" + idMeasure + "']");
@@ -93,7 +93,7 @@ function compliances() {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		async : true,
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 
 			if (response.standards == undefined || response.standards == null)
 				return;
@@ -128,7 +128,7 @@ function compliance(standard) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
 				$('#chart_compliance_' + standard).highcharts(response);
@@ -150,7 +150,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
@@ -172,7 +172,7 @@ function budgetByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_budget_' + actionPlanType).highcharts(response);
@@ -198,7 +198,7 @@ function summaryCharts() {
 	return false;
 }
 
-function loadChartEvolution(){
+function loadChartEvolution() {
 	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
@@ -210,7 +210,7 @@ function loadChartEvolution(){
 	return false;
 }
 
-function loadChartBudget(){
+function loadChartBudget() {
 	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
@@ -239,7 +239,7 @@ function loadChartAsset() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_asset').highcharts(response);
 				},
 				error : unknowError
@@ -253,7 +253,7 @@ function loadChartAsset() {
 				url : context + "/Analysis/Asset/Chart/Type/Ale",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_asset_type').highcharts(response);
 				},
 				error : unknowError
@@ -272,7 +272,7 @@ function loadChartScenario() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_scenario_type').highcharts(response);
 				},
 				error : unknowError
@@ -287,7 +287,7 @@ function loadChartScenario() {
 				url : context + "/Analysis/Scenario/Chart/Ale",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_scenario').highcharts(response);
 				},
 				error : unknowError
@@ -307,74 +307,26 @@ function chartALE() {
 	return false;
 }
 
-function measureSortTable(element) {
-	// check if datatable has to be initialised
-	var tables = $(element).find("table");
-	if (!tables.length)
-		return false;
-	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
-
-	// flag to check for case sensitive comparation
-	Array.AlphanumericSortIgnoreCase = true;
-
-	// call the tablesorter plugin and apply the uitheme widget
-	$(tables).tablesorter({
-		headers : {
-			0 : {
-				sorter : false,
-			}
-		},
-		textSorter : {
-			1 : Array.AlphanumericSort,
-			2 : function(a, b, direction, column, table) {
-				if (table.config.sortLocaleCompare)
-					return a.localeCompare(b);
-				return versionComparator(a, b);
-			},
-			3 : $.tablesorter.sortNatural
-		},
-		theme : "bootstrap",
-		headerTemplate : '{icon} {content}',
-		widthFixed : true,
-		widgets : [ "uitheme" ]
-	});
-}
-
 // common
 
-function navToogled(section, navSelected, fixedHeader) {
-	var currentMenu = $("#" + section + " *[data-trick-nav-control='" + navSelected + "']");
+function navToogled(section,parentMenu, navSelected, fixedHeader) {
+	var currentMenu = $(parentMenu + " li[data-trick-nav-control='" + navSelected + "']");
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	var controls = $("#" + section + " *[data-trick-nav-control]");
-	var data = $("#" + section + " *[data-trick-nav-data]");
-
-	for (var i = 0; i < controls.length; i++) {
-		if ($(controls[i]).attr("data-trick-nav-control") == navSelected)
-			$(controls[i]).addClass("disabled");
+	$(parentMenu + " li[data-trick-nav-control]").each(function() {
+		if ($(this).attr("data-trick-nav-control") == navSelected)
+			$(this).addClass("disabled");
+		else $(this).removeClass("disabled");
+	});
+	
+	$(section + " *[data-trick-nav-content]").each(function() {
+		if ($(this).attr("data-trick-nav-content") == navSelected)
+			$(this).show();
 		else
-			$(controls[i]).removeClass("disabled");
-		if ($(data[i]).attr("data-trick-nav-data") != navSelected) {
-			/*if (fixedHeader) {
-				var table = $(data[i]).find("table");
-				if (table.length && $(table).destroy != undefined)
-					$(table).destroy();
-			}*/
-			$(data[i]).hide();
-		} else {
-			$(data[i]).show();
-			/*if (fixedHeader) {
-				var table = $(data[i]).find("table");
-				if (table.length){
-					$(table).stickyTableHeaders({
-						cssTopOffset : ".nav-analysis",
-						fixedOffset : 6
-					});
-				}
-			}*/
-		}
-	}
+			$(this).hide();
+	});
+	
+	$(window).scroll();
 	return false;
 
 }

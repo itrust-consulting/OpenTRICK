@@ -37,7 +37,6 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -327,12 +326,7 @@ public class ImportAnalysis {
 				}
 			});
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.switch.read.only.previous", "Turn on readonly all previous version", null, 95));
-			Integer idAnalysis = daoAnalysis.getIdFromIdentifierAndVersion(analysis.getIdentifier(), versions.get(0));
-			ManageAnalysisRight manageAnalysisRight = new ManageAnalysisRight();
-			manageAnalysisRight.setDaoAnalysis(daoAnalysis);
-			manageAnalysisRight.setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
-			manageAnalysisRight.switchAnalysisToReadOnly(analysis.getIdentifier(), idAnalysis);
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.commit.transcation", "Commit transaction", null, 95));
 			if (session != null) {
 				session.getTransaction().commit();
 				serviceTaskFeedback.send(idTask, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", null, 100));

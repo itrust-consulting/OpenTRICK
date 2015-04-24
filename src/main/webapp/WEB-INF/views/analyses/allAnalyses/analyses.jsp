@@ -63,7 +63,7 @@
 							<select id="nameSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
 								<option value="ALL"><spring:message code="label.all" text="ALL" /></option>
 								<c:forEach items="${names}" var="name">
-									<option value="${name}" ${not empty(analysisSelectedName) && analysisSelectedName == name? 'selected':'' }>
+									<option value='<spring:message text="${name}" />' ${not empty(analysisSelectedName) && analysisSelectedName == name? 'selected':'' }>
 										<spring:message text="${name}" />
 									</option>
 								</c:forEach>

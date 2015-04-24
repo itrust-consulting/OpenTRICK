@@ -1,5 +1,8 @@
 package lu.itrust.business.TS.model.analysis.rights;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -11,8 +14,8 @@ import lu.itrust.business.TS.exception.TrickException;
  * @since Jan 9, 2014
  */
 public enum AnalysisRight {
-	
-	ALL(0), EXPORT(1), MODIFY(2),READ(3);
+
+	ALL(0), EXPORT(1), MODIFY(2), READ(3);
 
 	/**
 	 * Constructor:<br>
@@ -54,5 +57,15 @@ public enum AnalysisRight {
 
 	public static boolean isValid(int value) {
 		return value > -1 && value < values().length;
+	}
+
+	public static List<AnalysisRight> highRightFrom(AnalysisRight right) {
+		List<AnalysisRight> rights = new LinkedList<AnalysisRight>();
+		if (right != null) {
+			AnalysisRight[] values = values();
+			for (int i = 0; i <= right.ordinal(); i++)
+				rights.add(values[i]);
+		}
+		return rights;
 	}
 }

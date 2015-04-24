@@ -48,6 +48,8 @@ public interface DAOUserAnalysisRight {
 
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int analysisId);
 
+	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right);
+
 	
 	
 }
