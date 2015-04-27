@@ -350,6 +350,7 @@ public class ControllerAdministration {
 			Analysis analysis = serviceAnalysis.get(analysisID);
 			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
 			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
+			serviceUser.getAllOthers(userrights.keySet()).forEach(user -> userrights.put(user, null));
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);

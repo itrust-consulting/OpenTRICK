@@ -156,6 +156,10 @@ public class UserAnalysisRight implements Cloneable {
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
 	}
+	
+	public String rightToString(){
+		return right == null? null : right.name();
+	}
 
 	/**
 	 * userIsAuthorized: <br>
@@ -194,6 +198,10 @@ public class UserAnalysisRight implements Cloneable {
 		UserAnalysisRight copy = (UserAnalysisRight) super.clone();
 		copy.setId(-1);
 		return copy;
+	}
+
+	public String rightToLower() {
+		return right == null? null : right.name().toLowerCase();
 	}
 
 }

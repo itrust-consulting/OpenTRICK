@@ -68,4 +68,8 @@ public enum AnalysisRight {
 		}
 		return rights;
 	}
+	
+	public String toLower() {
+		return name().toLowerCase();
+	}
 }

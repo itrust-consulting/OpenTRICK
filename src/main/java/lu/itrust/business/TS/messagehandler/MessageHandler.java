@@ -278,4 +278,12 @@ public class MessageHandler {
 	public void setAsyncCallback(AsyncCallback asyncCallback) {
 		this.asyncCallback = asyncCallback;
 	}
+
+	public void update(String code, String message, int progress) {
+		this.parameters = null;
+		this.asyncCallback = null;
+		this.code = code;
+		this.message = message;
+		this.progress = progress;
+	}
 }

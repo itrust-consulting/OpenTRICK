@@ -126,4 +126,8 @@ public interface DAOAnalysis {
 	public List<String> getAllVersion(Integer analysisId);
 
 	public List<Analysis> getAll(List<Integer> ids);
+
+	public Long countNotProfileDistinctIdentifier();
+
+	public List<String> getNotProfileIdentifiers(int page, int size);
 }

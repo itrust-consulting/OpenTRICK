@@ -644,4 +644,15 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Analysis> getAll(List<Integer> ids) {
 		return getSession().createQuery("From Analysis analysis where analysis.id in :analysisIds").setParameterList("analysisIds", ids).list();
 	}
+
+	@Override
+	public Long countNotProfileDistinctIdentifier() {
+		return (Long) getSession().createQuery("Select count(distinct identifier) From Analysis where  profile = false").uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getNotProfileIdentifiers(int page, int size) {
+		return getSession().createQuery("Select distinct identifier From Analysis where  profile = false").setFirstResult((page-1)*size).setMaxResults(size).list();
+	}
 }

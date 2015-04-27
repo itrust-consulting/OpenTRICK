@@ -287,7 +287,7 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Rollback = function() {
-		$(this.element).html(this.defaultValue);
+		$(this.element).text(this.defaultValue);
 		if (!$(this.element).is("td")) {
 			$(this.element).closest("td").css("padding", "5px");
 			$(this.element).closest("td").css("min-width", "");
