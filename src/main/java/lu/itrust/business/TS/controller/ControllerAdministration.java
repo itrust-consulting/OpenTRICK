@@ -233,6 +233,84 @@ public class ControllerAdministration {
 
 	}
 
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String uiSwitchAnalysisOwner(@PathVariable Integer idAnalysis, Model model, Principal principal, RedirectAttributes attributes, Locale locale) {
+		try {
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+			if (analysis == null || analysis.isProfile()) {
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return "redirect:/Error";
+			}
+			model.addAttribute("analysis", analysis);
+			Map<User, AnalysisRight> userAnalysisRights = new LinkedHashMap<User, AnalysisRight>();
+			analysis.getUserRights().forEach(userRight -> userAnalysisRights.put(userRight.getUser(), userRight.getRight()));
+			serviceUser.getAllOthers(userAnalysisRights.keySet()).forEach(user -> userAnalysisRights.put(user, null));
+			userAnalysisRights.remove(analysis.getOwner());
+			model.addAttribute("userAnalysisRights", userAnalysisRights);
+			return "admin/analysis/switch-owner";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/Error";
+		}
+	}
+
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner/{idOwner}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String switchAnalysisOwner(@PathVariable Integer idAnalysis, @PathVariable Integer idOwner, Model model, Principal principal,
+			RedirectAttributes attributes, Locale locale) {
+		try {
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			if (analysis == null || analysis.isProfile())
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			else if (analysis.getOwner().getId() == idOwner)
+				return JsonMessage.Success(messageSource.getMessage("info.nothing.changed", null, "Nothing was changed", locale));
+			User owner = serviceUser.get(idOwner);
+			if (owner == null)
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			User previousOwner = analysis.getOwner();
+			analysis.setOwner(owner);
+			AnalysisRight right = null; // for log
+			UserAnalysisRight userAnalysisRight = analysis.getRightsforUser(owner);
+			if (userAnalysisRight == null)
+				analysis.addUserRight(owner, AnalysisRight.ALL);
+			else if ((right = userAnalysisRight.getRight()) != AnalysisRight.ALL)
+				userAnalysisRight.setRight(AnalysisRight.ALL);
+			boolean hasAccess;//for log
+			if (!(hasAccess = owner.containsCustomer(analysis.getCustomer())))
+				owner.addCustomer(analysis.getCustomer());
+			serviceAnalysis.saveOrUpdate(analysis);
+
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.switch.owner",
+					String.format("Analysis: %s, version: %s, old: %s, new: %s", analysis.getIdentifier(), analysis.getVersion(), previousOwner.getLogin(), owner.getLogin()),
+					principal.getName(), LogAction.SWITCH_OWNER, analysis.getIdentifier(), analysis.getVersion(), previousOwner.getLogin(), owner.getLogin());
+			if (right == null)
+				TrickLogManager.Persist(
+						LogType.ANALYSIS,
+						"log.give.analysis.access.right",
+						String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
+								owner.getLogin()), principal.getName(), LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
+						owner.getLogin());
+			else if (right != AnalysisRight.ALL)
+				TrickLogManager.Persist(
+						LogType.ANALYSIS,
+						"log.grant.analysis.access.right",
+						String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
+								owner.getLogin()), principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
+						owner.getLogin());
+			if (!hasAccess)
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer", String.format("Customer: %s, target: %s", analysis.getCustomer()
+						.getOrganisation(), owner.getLogin()), principal.getName(), LogAction.GIVE_ACCESS, analysis.getCustomer().getOrganisation(), owner.getLogin());
+
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null, "Analysis owner was successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+	}
+
 	/**
 	 * section: <br>
 	 * reload customer section by page index
@@ -455,7 +533,7 @@ public class ControllerAdministration {
 	 * @param customer
 	 * @param source
 	 * @param locale
-	 * @param userRoles 
+	 * @param userRoles
 	 * @return
 	 */
 	private User buildUser(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) {
@@ -527,7 +605,7 @@ public class ControllerAdministration {
 			if (!principal.getName().equals(user.getLogin())) {
 
 				user.getRoles().forEach(role -> userRoles.add(role));
-				
+
 				user.disable();
 
 				RoleType[] roletypes = RoleType.values();
@@ -581,7 +659,7 @@ public class ControllerAdministration {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			List<Role> userRoles = new LinkedList<Role>();
-			User user = buildUser(errors, value, locale,userRoles, principal);
+			User user = buildUser(errors, value, locale, userRoles, principal);
 			if (!errors.isEmpty())
 				return errors;
 			RoleType userAccess = user.getAccess();
@@ -593,7 +671,7 @@ public class ControllerAdministration {
 				 */
 				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
 						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-				//give access
+				// give access
 				user.getRoles()
 						.stream()
 						.filter(role -> role.getType() != userAccess)
@@ -606,7 +684,7 @@ public class ControllerAdministration {
 				/**
 				 * Log
 				 */
-				//remove access
+				// remove access
 				userRoles
 						.stream()
 						.filter(role -> !user.hasRole(role))
@@ -614,7 +692,7 @@ public class ControllerAdministration {
 								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
 										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
 										user.getLogin(), role.getType().name()));
-				//give access
+				// give access
 				user.getRoles()
 						.stream()
 						.filter(role -> !userRoles.contains(role))

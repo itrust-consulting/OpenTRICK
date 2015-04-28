@@ -80,7 +80,7 @@
 				<button id="deleteuserbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
 					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
-				<button id="deleteuserbuttonCancel" type="button" class="btn" data-dismiss="modal">
+				<button id="deleteuserbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>

@@ -262,4 +262,9 @@ public class ServiceUserImpl implements ServiceUser {
 	public List<User> getAllOthers(Collection<User> users) {
 		return daoUser.getAllOthers(users);
 	}
+
+	@Override
+	public List<User> getAllOthers(User user) {
+		return daoUser.getAllOthers(user);
+	}
 }

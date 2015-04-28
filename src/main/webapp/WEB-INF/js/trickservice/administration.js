@@ -48,9 +48,12 @@ function switchCustomer(section) {
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#switchCustomerModal");
 			if ($content.length) {
-				$content.appendTo($("#widget"))
-				$content.find(".modal-footer>button").on("click", function() {
-					$content.find(".label-error").remove();
+				if ($("#switchCustomerModal").length)
+					$("#switchCustomerModal").replaceWith($content);
+				else
+					$content.appendTo($("#widget"));
+				$content.find(".modal-footer>button[name='save']").on("click", function() {
+					$content.find(".label").remove();
 					$.ajax({
 						url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Customer/" + $content.find("select").val(),
 						type : "get",
@@ -60,7 +63,7 @@ function switchCustomer(section) {
 								adminCustomerChange($("#tab_analyses").find("select"));
 								$content.modal("hide");
 							} else if (response["error"] != undefined)
-								$("<label class='label label-error'>" + response["error"] + "</label>").appendTo($content.find(".modal-body"));
+								$("<label class='label label-danger'>" + response["error"] + "</label>").appendTo($content.find("select").parent());
 							else
 								unknowError();
 						},
@@ -76,8 +79,56 @@ function switchCustomer(section) {
 	return false;
 }
 
+function switchOwner(section) {
+	var selectedAnalysis = findSelectItemIdBySection(section);
+	if (!isProfile("#" + section) || selectedAnalysis.length != 1)
+		return false;
+	var idAnalysis = selectedAnalysis[0];
+	$.ajax({
+		url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Owner",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else {
+				var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#switchOwnerModal");
+				if ($content.length) {
+					if ($("#switchOwnerModal").length)
+						$("#switchOwnerModal").replaceWith($content);
+					else
+						$content.appendTo($("#widget"));
+					$content.find(".modal-footer>button[name='save']").on("click", function() {
+						$content.find(".label").remove();
+						$.ajax({
+							url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Owner/" + $content.find("select").val(),
+							type : "get",
+							contentType : "application/json;charset=UTF-8",
+							success : function(response, textStatus, jqXHR) {
+								if (response["success"] != undefined){
+									$("#tab_analyses").find("select").change();
+									$content.modal("hide");
+								}
+								else if (response["error"] != undefined)
+									$("<label class='label label-danger'>" + response["error"] + "</label>").appendTo($content.find("select").parent());
+								else
+									unknowError();
+							},
+							error : unknowError
+						});
+					});
+					new Modal($content).Show();
+				} else
+					unknowError();
+			}
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 function manageAnalysisAccess(analysisId, section_analysis) {
-	if (!isProfile(section_analysis))
+	if (!isProfile("#"+section_analysis))
 		return false;
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection(section_analysis);

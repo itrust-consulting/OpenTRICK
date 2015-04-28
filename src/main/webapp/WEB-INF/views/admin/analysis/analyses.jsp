@@ -15,6 +15,10 @@
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return switchCustomer('section_admin_analysis');"> <span class="fa fa-exchange fa-sw primary"></span> <spring:message code="label.menu.switch.customer"
 						text="Switch customer" /></a></li>
+						
+			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+				onclick="return switchOwner('section_admin_analysis');"> <span class="fa fa-exchange fa-sw primary"></span> <spring:message code="label.menu.switch.owner"
+						text="Switch owner" /></a></li>
 
 			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span class="glyphicon glyphicon-remove"></span> <spring:message

@@ -12,7 +12,7 @@
 			<b><spring:message text="${customer.organisation}"/></b>
 			<hr />
 		</div>
-		<div class="panel-body">
+		<div class="panel-body" >
 			<c:choose>
 				<c:when test="${!empty users}">
 					<select multiple id="usercustomer" name="usercustomer" class="form-control">

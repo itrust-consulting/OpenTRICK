@@ -225,4 +225,10 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	public List<User> getAllOthers(Collection<User> users) {
 		return getSession().createQuery("From User user where user not in :users").setParameterList("users", users).list();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> getAllOthers(User user) {
+		return getSession().createQuery("From User user where user <> :user").setParameter("user", user).list();
+	}
 }

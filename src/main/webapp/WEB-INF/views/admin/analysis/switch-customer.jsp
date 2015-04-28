@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="switchCustomerModal" tabindex="-1" role="dialog" data-aria-labelledby="switchCustomerModal" data-aria-hidden="true">
+<div class="modal fade" id="switchCustomerModal" tabindex="-1" role="dialog" data-aria-labelledby="switchCustomerModal" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -43,7 +43,10 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button id="manageAnalysisAccessModelButton" type="button" class="btn btn-primary">
+				<button type="button" name="cancel"  class="btn btn-danger" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
+				<button  type="button" name="save" class="btn btn-primary">
 					<spring:message code="label.action.save" text="Save" />
 				</button>
 			</div>

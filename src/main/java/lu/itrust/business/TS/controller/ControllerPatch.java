@@ -138,7 +138,7 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null, "Scenarios were successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(e.getMessage());
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
@@ -175,7 +175,7 @@ public class ControllerPatch {
 
 			return errors;
 		} catch (Exception e) {
-			errors.put("error", e.getMessage());
+			errors.put("error", messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
 			e.printStackTrace();
 			return errors;
 		} finally {
@@ -200,7 +200,7 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.start.restore.analysis.right", null, "Restoring analysis rights", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
 		}finally{
 			/**
 			 * Log
@@ -259,7 +259,7 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.matv.update", null, "MeasureAssetTypeValues successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(e.getMessage());
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log

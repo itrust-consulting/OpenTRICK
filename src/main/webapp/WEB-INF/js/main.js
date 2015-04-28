@@ -15,10 +15,15 @@ function Application() {
 	this.localesMessages = {};
 }
 
+function showDialog(dialog, message){
+	$(dialog).find(".modal-body").text(message);
+	return $(dialog).modal("show");
+}
+
 function unknowError(jqXHR, textStatus, errorThrown) {
 	if (typeof exception != 'undefined' && exception === 'abort' || application["isReloading"])
 		return false;
-	new Modal($("#alert-dialog").clone(), MessageResolver("error.unknown.occurred", "An unknown error occurred")).Show();
+	showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 	return true;
 }
 
@@ -235,8 +240,7 @@ var ANALYSIS_RIGHT = {
 };
 
 function permissionError() {
-	var language = $("#nav-container").attr("data-trick-language");
-	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!", null, language)).Show();
+	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!", null, $("#nav-container").attr("data-trick-language")));
 	return false;
 }
 

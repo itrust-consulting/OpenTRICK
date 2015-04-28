@@ -101,8 +101,11 @@
 					<spring:message code="label.customer.manage.users" text="Manage customer users" />
 				</h4>
 			</div>
-			<div class="modal-body" id="customerusersbody"></div>
-			<div class="modal-footer">
+			<div class="modal-body" id="customerusersbody" style="margin: 0px;"></div>
+			<div class="modal-footer" style="margin-top: 0px;">
+				<button type="button" name="cancel"  class="btn btn-danger" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 				<button id="customerusersbutton" type="button" class="btn btn-primary" onclick="">
 					<spring:message code="label.action.update" text="Update" />
 				</button>

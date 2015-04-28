@@ -1,5 +1,5 @@
 function initUserCustomerList() {
-	$('#usercustomer').hide().after("<ul class='list-group'></ul>");
+	$('#usercustomer').hide().after("<ul class='list-group' style='max-height: 300px; padding: 5px;margin:0; overflow: auto;'></ul>");
 	$('#usercustomer option').each(function() {
 		var selected = "";
 
