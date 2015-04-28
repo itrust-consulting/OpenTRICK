@@ -253,37 +253,3 @@ function deleteMeasure(measureId, reference, standard) {
 	deleteModal.Show();
 	return false;
 }
-
-function measureSortTable(element) {
-	// check if datatable has to be initialised
-	var tables = $(element).find("table");
-	if (!tables.length)
-		return false;
-	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
-
-	// flag to check for case sensitive comparation
-	Array.AlphanumericSortIgnoreCase = true;
-
-	// call the tablesorter plugin and apply the uitheme widget
-	$(tables).tablesorter({
-		headers : {
-			0 : {
-				sorter : false,
-			}
-		},
-		textSorter : {
-			1 : Array.AlphanumericSort,
-			2 : function(a, b, direction, column, table) {
-				if (table.config.sortLocaleCompare)
-					return a.localeCompare(b);
-				return versionComparator(a, b);
-			},
-			3 : $.tablesorter.sortNatural
-		},
-		theme : "bootstrap",
-		headerTemplate : '{icon} {content}',
-		widthFixed : true,
-		widgets : [ "uitheme" ]
-	});
-}

@@ -67,7 +67,7 @@
 		<ul class="dropdown-menu" id="actionmenu">
 			<li class="dropdown-header"><fmt:message key="label.analysis" /></li>
 			<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <fmt:message key="label.action.close.analysis" /></a></li>
-			<c:if test="${analysis.isProfile() || isEditable }">
+			<c:if test="${analysis.isProfile() || isEditable}">
 				<li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.title.edit_mode" /></li>
 				<li role="enterEditMode"><a href="#" onclick="return enableEditMode()"><fmt:message key="label.action.edit_mode.open" /></a></li>
@@ -76,10 +76,10 @@
 			<li class="divider"></li>
 			<li class="dropdown-header"><fmt:message key="label.title.rrf" /></li>
 			<li><a href="#" onclick="return loadRRF();"> <fmt:message key="label.action.open" /></a></li>
-			<c:if test="${analysis.isProfile() || isEditable }">
+			<c:if test="${analysis.isProfile() || isEditable}">
 				<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import.rrf" /></a></li>
 			</c:if>
-			<c:if test="${!analysis.isProfile() && isEditable }">
+			<c:if test="${!analysis.isProfile()}">
 				<li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.title.computation" /></li>
 				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.action.compute.action_plan" />
@@ -87,10 +87,12 @@
 				<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.action.compute.risk_register" /></a></li>
 				<li class="divider"></li>
 				<li><a href="#" onclick="return reloadCharts();"> <fmt:message key="label.action.reload.charts" /></a></li>
-				<li class="divider"></li>
-				<li class="dropdown-header"><fmt:message key="label.title.assessment" /></li>
-				<li><a href="#" onclick="return computeAssessment();"> <fmt:message key="label.action.generate.missing" /></a></li>
-				<li><a href="#" onclick="return refreshAssessment();"><fmt:message key="label.action.refresh.assessment" /></a></li>
+				<c:if test="${isEditable}">
+					<li class="divider"></li>
+					<li class="dropdown-header"><fmt:message key="label.title.assessment" /></li>
+					<li><a href="#" onclick="return computeAssessment();"> <fmt:message key="label.action.generate.missing" /></a></li>
+					<li><a href="#" onclick="return refreshAssessment();"><fmt:message key="label.action.refresh.assessment" /></a></li>
+				</c:if>
 			</c:if>
 		</ul></li>
 

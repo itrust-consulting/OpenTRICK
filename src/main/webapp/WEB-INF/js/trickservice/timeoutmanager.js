@@ -26,7 +26,7 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 		secondtext = MessageResolver("info.session.second", "second"),
 		secondstext = MessageResolver("info.session.seconds", "seconds");
 		
-		($("#nav-container").attr("data-trick-id") != undefined) ? expireSessionUrl = context + "/Analysis/" + $("#nav-container").attr("data-trick-id") + "/Select" : expireSessionUrl = window.location.href;
+		($("#nav-container").attr("data-trick-id") != undefined) ? expireSessionUrl = context + "/Analysis/" + $("#nav-container").attr("data-trick-id") + "/Select?readOnly=" + (application.isReloading === true) : expireSessionUrl = window.location.href;
 
 		var sessionTimeoutSeconds = 15.05 * 60, countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds,
 		displayCountdownIntervalId, promptToExtendSessionTimeoutId, count = countdownSeconds, extendSessionUrl = context + '/IsAuthenticate';

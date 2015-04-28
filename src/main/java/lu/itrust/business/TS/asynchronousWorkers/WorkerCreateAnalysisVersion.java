@@ -7,13 +7,11 @@ import java.sql.Timestamp;
 
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -131,15 +129,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				duplicator.getDaoAnalysis().saveOrUpdate(copy);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.switch.read.only.previous", "Turn on readonly all previous version", language, 98));
-
-				ManageAnalysisRight manageAnalysisRight = new ManageAnalysisRight();
-
-				manageAnalysisRight.setDaoAnalysis(duplicator.getDaoAnalysis());
-
-				manageAnalysisRight.setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
-
-				manageAnalysisRight.switchAnalysisToReadOnly(copy.getIdentifier(), copy.getId());
+				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", language, 98));
 
 				session.getTransaction().commit();
 

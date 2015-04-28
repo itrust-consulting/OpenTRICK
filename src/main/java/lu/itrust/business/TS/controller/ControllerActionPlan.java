@@ -100,11 +100,11 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String showActionPlan(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
 
 		// retrieve analysis ID
-		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
@@ -133,11 +133,11 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis ID
-		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
@@ -175,10 +175,10 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model) throws Exception {
 
-		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
+		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		model.put("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(analysisID));
 		model.put("show_cssf", serviceAnalysis.isAnalysisCssf(analysisID));
@@ -214,7 +214,7 @@ public class ControllerActionPlan {
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 		// verify if user is authorized to compute the actionplan
-		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
+		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
 
 			// retrieve options selected by the user
 
@@ -230,7 +230,7 @@ public class ControllerActionPlan {
 						standards.add(analysisStandard.getId());
 			}
 
-			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;
+			boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
 			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
 			worker.setPoolManager(workersPoolManager);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))

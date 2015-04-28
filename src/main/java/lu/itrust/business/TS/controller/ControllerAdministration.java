@@ -258,9 +258,9 @@ public class ControllerAdministration {
 	@RequestMapping(value = "/Analysis/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids, Principal principal, HttpSession session) {
 		try {
-			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+			Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (selected != null && ids.contains(selected))
-				session.removeAttribute("selectedAnalysis");
+				session.removeAttribute(Constant.SELECTED_ANALYSIS);
 			return customDelete.deleteAnalysis(ids, principal.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -350,6 +350,7 @@ public class ControllerAdministration {
 			Analysis analysis = serviceAnalysis.get(analysisID);
 			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
 			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
+			serviceUser.getAllOthers(userrights.keySet()).forEach(user -> userrights.put(user, null));
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);

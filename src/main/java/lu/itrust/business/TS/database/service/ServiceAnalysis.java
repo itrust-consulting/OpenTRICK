@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -70,7 +71,7 @@ public interface ServiceAnalysis {
 
 	public List<String> getAllVersion(String identifier);
 
-	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier);
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights);
 
 	public Integer getCustomerIdByIdAnalysis(int analysisId);
 
@@ -84,7 +85,7 @@ public interface ServiceAnalysis {
 
 	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) throws Exception;
 
-	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name);
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights);
 
 	public String getIdentifierByIdAnalysis(int analysisId);
 

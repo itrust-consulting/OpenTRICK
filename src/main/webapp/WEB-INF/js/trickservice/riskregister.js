@@ -9,7 +9,7 @@ function calculateRiskRegister(analysisId) {
 			return false;
 		while (selectedAnalysis.length) {
 			rowTrickId = selectedAnalysis.pop();
-			if (userCan(rowTrickId, ANALYSIS_RIGHT.CALCULATE_RISK_REGISTER)) {
+			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ)) {
 				analysisID = rowTrickId;
 			} else
 				permissionError();
@@ -19,7 +19,7 @@ function calculateRiskRegister(analysisId) {
 		analysisID = analysisId;
 	}
 
-	if (userCan(analysisID, ANALYSIS_RIGHT.CALCULATE_RISK_REGISTER)) {
+	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
 
 		var data = {};
 

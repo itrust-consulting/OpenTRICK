@@ -80,11 +80,11 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Refresh", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String refreshAssessment(HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 			// retrieve analysis id
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 
@@ -110,14 +110,14 @@ public class ControllerAssessment {
 					+ messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", customLocale != null ? customLocale : locale) + "\"}");
 		} catch (TrickException e) {
 			e.printStackTrace();
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
@@ -136,11 +136,11 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateAssessment(HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 			// retrieve analysis id
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// check if analysis is not null
@@ -164,14 +164,14 @@ public class ControllerAssessment {
 					+ messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", customLocale != null ? customLocale : locale) + "\"}");
 		} catch (TrickException e) {
 			e.printStackTrace();
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
@@ -181,12 +181,12 @@ public class ControllerAssessment {
 	}
 
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateAle(HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 
 			// retrieve analysis id
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// check if analysis is not null
@@ -213,7 +213,7 @@ public class ControllerAssessment {
 
 			// return error
 			e.printStackTrace();
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return new String("{\"error\":\""
@@ -234,11 +234,11 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadAssessmentsOfAsset(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		// get analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
 
@@ -267,13 +267,13 @@ public class ControllerAssessment {
 	 * @return
 	 */
 	@RequestMapping(value = "/Asset/{elementID}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String updateAsset(@PathVariable int elementID, Model model, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
 			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
@@ -334,11 +334,11 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadByScenario(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
 
@@ -367,13 +367,13 @@ public class ControllerAssessment {
 	 * @return
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String updateByScenario(@PathVariable int elementID, Model model, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
 			// load analysis id
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 

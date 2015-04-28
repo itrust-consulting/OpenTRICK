@@ -34,7 +34,7 @@
 
 			base.$el.each(function() {
 				var $this = $(this);
-
+				
 				// remove padding on <table> to fix issue #7
 				$this.css('padding', 0);
 
@@ -100,7 +100,6 @@
 				var $this = $(this);
 
 				var $header = $this.find("thead");
-
 				var newTopOffset = isNaN(base.options.fixedOffset) ? base.options.fixedOffset.height() : base.options.fixedOffset;
 				var offset = $this.offset();
 				var scrollTop = base.$window.scrollTop() + newTopOffset;

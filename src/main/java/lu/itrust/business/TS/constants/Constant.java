@@ -742,7 +742,15 @@ public class Constant {
 	public static final String RI_ACRO = "acro";
 	public static final String RI_NAME = "name";
 
+	
+
 	/***********************************************************************************************
 	 * SQLITE CONSTANT FIELDS - END
 	 **********************************************************************************************/
+	
+	/** Controller */
+	public static final String SELECTED_ANALYSIS = "selectedAnalysis";
+	
+	public static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
+	
 }

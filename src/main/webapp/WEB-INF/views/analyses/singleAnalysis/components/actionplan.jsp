@@ -13,7 +13,7 @@
 		<ul class="nav nav-pills bordered-bottom" id="menu_actionplan">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
-					onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('section_actionplans','${apt}',true);"> <fmt:message
+					onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('#section_actionplans','#menu_actionplan','${apt}',true);"> <fmt:message
 							key="label.action_plan_type.${fn:toLowerCase(apt)}" />
 				</a></li>
 			</c:forEach>
@@ -24,7 +24,7 @@
 			</c:if>
 		</ul>
 		<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
-			<div data-trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
+			<div data-trick-nav-content="${apt}" ${status.index!=0? "hidden='true'" : "" }>
 				<table class="table table-hover table-condensed table-fixed-header-analysis" id="actionplantable_${apt}">
 					<thead>
 						<tr>

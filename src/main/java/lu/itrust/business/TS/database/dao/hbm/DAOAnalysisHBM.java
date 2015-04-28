@@ -11,6 +11,7 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -466,11 +467,11 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name) {
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights) {
 		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
-		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and ";
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.data = true and ";
 		query += "analysis.customer.id = :customer group by analysis.identifier order by analysis.identifier";
-		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameter("customer", id).list();
+		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameterList("rights", rights).setParameter("customer", id).list();
 		for (Analysis analysis : analyses)
 			analysisBaseInfos.add(new AnalysisBaseInfo(analysis));
 		return analysisBaseInfos;
@@ -478,11 +479,12 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier) {
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights) {
 		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
-		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.identifier = :identifier  and analysis.data = true and ";
+		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.identifier = :identifier  and analysis.data = true and ";
 		query += "analysis.customer.id = :customer order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc";
-		Iterator<Analysis> iterator = getSession().createQuery(query).setParameter("username", username).setString("identifier", identifier).setParameter("customer", id).iterate();
+		Iterator<Analysis> iterator = getSession().createQuery(query).setParameter("username", username).setParameterList("rights", rights).setString("identifier", identifier)
+				.setParameter("customer", id).iterate();
 		while (iterator.hasNext())
 			analysisBaseInfos.add(new AnalysisBaseInfo(iterator.next()));
 		return analysisBaseInfos;
@@ -641,5 +643,16 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<Analysis> getAll(List<Integer> ids) {
 		return getSession().createQuery("From Analysis analysis where analysis.id in :analysisIds").setParameterList("analysisIds", ids).list();
+	}
+
+	@Override
+	public Long countNotProfileDistinctIdentifier() {
+		return (Long) getSession().createQuery("Select count(distinct identifier) From Analysis where  profile = false").uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getNotProfileIdentifiers(int page, int size) {
+		return getSession().createQuery("Select distinct identifier From Analysis where  profile = false").setFirstResult((page-1)*size).setMaxResults(size).list();
 	}
 }
