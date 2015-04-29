@@ -653,7 +653,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
@@ -719,29 +719,21 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/User/Delete/{userId}")
-	public @ResponseBody Map<String, String> deleteUser(@PathVariable("userId") int userId, Principal principal, Locale locale) throws Exception {
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+	@RequestMapping(value="/User/{idUser}/Prepare-to-delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8" )
+	public String deleteUser(@PathVariable int idUser,Model model, RedirectAttributes attributes, Locale locale) {
 		try {
-			User user = serviceUser.get(userId);
-			if (!user.getLogin().equals(principal.getName())) {
-				RoleType userAccess = user.getAccess();
-				String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
-				customDelete.deleteUser(user);
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.delete.user", String.format("User: %s, access: %s", user.getLogin(), userRole),
-						principal.getName(), LogAction.DELETE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-			} else {
-				errors.put("error", messageSource.getMessage("error.user.delete_your_account", null, "You cannot delete your own account!", locale));
-				return errors;
+			User user = serviceUser.get(idUser);
+			if(user == null){
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return "redirect:/Error";
 			}
+			model.addAttribute("user", user);
+			model.addAttribute("users", serviceUser.getAllOthers(user));
+			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
+			return "admin/user/delete-dialog";
 		} catch (Exception e) {
 			e.printStackTrace();
-			errors.put("error", messageSource.getMessage("error.user.delete_failed", null, "Could not delete the account! Make sure the user does not own any analyses!", locale));
+			return "redirect:/Error";
 		}
-		return errors;
-
 	}
 }

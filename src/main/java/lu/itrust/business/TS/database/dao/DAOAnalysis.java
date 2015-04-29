@@ -130,4 +130,6 @@ public interface DAOAnalysis {
 	public Long countNotProfileDistinctIdentifier();
 
 	public List<String> getNotProfileIdentifiers(int page, int size);
+
+	public List<Analysis> getAllFromOwner(User user);
 }

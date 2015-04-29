@@ -1,6 +1,6 @@
 function saveUser(form) {
 	result = "";
-	var idUser = $("#"+form).find("#user_id");
+	var idUser = $("#" + form).find("#user_id");
 	if (!idUser.length)
 		idUser = -1;
 	else
@@ -93,28 +93,25 @@ function deleteUser(userId, name) {
 		userId = selectedScenario[0];
 		name = $("#section_user tbody tr[data-trick-id='" + userId + "'] td:nth-child(2)").text();
 	}
-	$("#deleteUserBody").html(MessageResolver("label.user.question.delete", "Are you sure that you want to delete the user") + "&nbsp;<strong>" + name + "</strong>?");
-	$("#deleteuserbuttonYes").click(function() {
-		$.ajax({
-			url : context + "/Admin/User/Delete/" + userId,
-			type : "POST",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-
-				if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				} else {
-					reloadSection("section_user");
-				}
-				return false;
-			},
-			error : unknowError
-		});
-		$("#deleteUserModel").modal('hide');
-		return false;
+	$.ajax({
+		url : context + "/Admin/User/" + userId+"/Prepare-to-delete",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (response["error"] != undefined)
+				showDialog("#alert-dialog", response["error"]);
+			else {
+				var $deleteUserDialog = $(new DOMParser().parseFromString(response, "text/html")).find("#deleteUserModel");
+				if($deleteUserDialog.length){
+					if($("#deleteUserModel").length)
+						$("#deleteUserModel").replaceWith($deleteUserDialog);
+					else $deleteUserDialog.appendTo("#dialog-body");
+					new Modal($deleteUserDialog).Show();
+				}else unknowError();
+			}
+			return false;
+		},
+		error : unknowError
 	});
-	$("#deleteUserModel").modal('show');
 	return false;
 }
 

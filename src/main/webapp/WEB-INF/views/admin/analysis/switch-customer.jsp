@@ -29,7 +29,7 @@
 						</ul>
 					</div>
 					<div class="form-group">
-						<label class="col-xs-4"> <spring:message code="label.customers" text="Customers" />
+						<label class="col-xs-4"> <spring:message code="label.new.customer" text="New customer" />
 						</label>
 						<div class="list-group col-xs-8">
 							<select name="customer" class="form-control">

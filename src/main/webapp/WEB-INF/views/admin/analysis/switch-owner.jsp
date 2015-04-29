@@ -20,11 +20,11 @@
 						<label class="col-xs-4"> <spring:message code="label.current.owner" text="Current owner" />
 						</label>
 						<div class="list-group col-xs-8">
-							<label><spring:message code="label.current.owner" text="${analysis.owner.firstName} ${analysis.owner.lastName}" /></label>
+							<label><spring:message text="${analysis.owner.firstName} ${analysis.owner.lastName}" /></label>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-xs-4"> <spring:message code="label.users" text="Users" />
+						<label class="col-xs-4"> <spring:message code="label.new.owner" text="New owner" />
 						</label>
 						<div class="list-group col-xs-8">
 							<select name="owner" class="form-control">

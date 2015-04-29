@@ -655,4 +655,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<String> getNotProfileIdentifiers(int page, int size) {
 		return getSession().createQuery("Select distinct identifier From Analysis where  profile = false").setFirstResult((page-1)*size).setMaxResults(size).list();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromOwner(User user) {
+		return getSession().createQuery("From Analysis where owner = :owner").setParameter("owner", user).list();
+	}
 }

@@ -19,7 +19,7 @@
 					<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.build.analysis"
 								text="Build an analysis" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined, 'true', true)"> <span
-							class="glyphicon glyphicon-folder-open"></span> &nbsp;<spring:message code="label.action.read_only" text="Read only" /></a></li>
+							class="glyphicon glyphicon-eye-open"></span> &nbsp;<spring:message code="label.action.read_only" text="Read only" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span
 							class="glyphicon glyphicon-edit"></span> &nbsp;<spring:message code="label.action.edit" text="Edit" /></a></li>
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
@@ -76,9 +76,9 @@
 						<tr>
 							<th width="1%"></th>
 							<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
-							<th width="40%"><spring:message code="label.analysis.comment" text="Comment" /></th>
+							<th width="35%"><spring:message code="label.analysis.comment" text="Comment" /></th>
 							<th><spring:message code="label.analysis.version" text="version" /></th>
-							<th><spring:message code="label.analysis.creation_date" text="Create date" /></th>
+							<th width="8%"><spring:message code="label.analysis.creation_date" text="Create date" /></th>
 							<th><spring:message code="label.analysis.author" text="Author" /></th>
 							<th><spring:message code="label.analysis.based_on_analysis" text="Based on" /></th>
 							<th><spring:message code="label.analysis.language" text="Language" /></th>

@@ -125,4 +125,6 @@ public interface ServiceAnalysis {
 
 	public List<String> getAllVersion(Integer analysisId);
 
+	public List<Analysis> getAllFromOwner(User user);
+
 }

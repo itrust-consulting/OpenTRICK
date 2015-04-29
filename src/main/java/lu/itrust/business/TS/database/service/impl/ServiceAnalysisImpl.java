@@ -584,4 +584,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<String> getAllVersion(Integer analysisId) {
 		return daoAnalysis.getAllVersion(analysisId);
 	}
+
+	@Override
+	public List<Analysis> getAllFromOwner(User user) {
+		return daoAnalysis.getAllFromOwner(user);
+	}
 }
