@@ -256,7 +256,7 @@ public class CustomDelete {
 				while (iterator.hasNext()) {
 					Measure measure = iterator.next();
 					if (measure.getMeasureDescription().equals(measureDescription)) {
-						standard.get().getMeasures().remove(measure);
+						iterator.remove();
 						daoMeasure.delete(measure);
 						/**
 						 * Log
