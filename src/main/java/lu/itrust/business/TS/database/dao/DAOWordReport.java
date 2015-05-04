@@ -43,6 +43,8 @@ public interface DAOWordReport {
 
 	List<String> getDistinctIdentifierByUser(User user);
 
+	void deeleteByUser(User user);
+
 	
 
 }

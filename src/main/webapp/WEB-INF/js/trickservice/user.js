@@ -107,10 +107,13 @@ function deleteUser(userId, name) {
 					else
 						$deleteUserDialog.appendTo("#dialog-body");
 					var $form = $deleteUserDialog.find("form");
+					var $progress = $deleteUserDialog.find(".progress");
 					var $submitInput = $deleteUserDialog.find("input[type='submit']");
 					var $deleteButton = $deleteUserDialog.find("button[name='delete']").click(function() {
 						$submitInput.click();
 					});
+					
+					$progress.hide();
 
 					function fadeOutComplete() {
 						return $(this).remove();
@@ -133,6 +136,8 @@ function deleteUser(userId, name) {
 							else
 								data.switchOwners[name] = value;
 						});
+						
+						$progress.show();
 
 						$.ajax({
 							url : context + "/Admin/User/Delete",
@@ -142,28 +147,30 @@ function deleteUser(userId, name) {
 							success : function(response, textStatus, jqXHR) {
 								var result = parseJson(response);
 								if (result == undefined)
-									$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(
+									$("<label class='label label-danger'></label>").appendTo($("#deleteUserErrors")).text(
 											MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
-								if (result.success != undefined)
+								if (result.success != undefined) {
 									$deleteUserDialog.modal("hide");
-								else if (result.error != undefined)
-									$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(result.error).fadeOut(15000, fadeOutComplete);
+									reloadSection([ 'section_user', 'section_admin_analysis' ]);
+								} else if (result.error != undefined)
+									$("<label class='label label-danger'></label>").appendTo($("#deleteUserErrors")).text(result.error).fadeOut(15000, fadeOutComplete);
 								else {
 									for ( var key in result) {
 										var $select = $deleteUserDialog.find("select[name=" + key + "]");
 										if ($select.length)
-											$("<label class='label label-danger'></label>").after($select).text(result[key]);
+											$("<label class='label label-danger'></label>").appendTo($select.parent()).text(result[key]);
 										else
-											$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(result.error);
+											$("<label class='label label-danger'></label>").appendTo($("#deleteUserErrors")).text(result.error);
 									}
 								}
 							},
 							error : function(jqXHR, textStatus, errorThrown) {
-								$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(
+								$("<label class='label label-danger'></label>").appendTo($("#deleteUserErrors")).text(
 										MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
 							},
 							complete : function() {
 								$deleteButton.prop('disabled', false);
+								$progress.hide();
 							}
 						});
 						return false;

@@ -471,7 +471,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
 		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.data = true and ";
 		query += "analysis.customer.id = :customer group by analysis.identifier order by analysis.identifier";
-		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameterList("rights", rights).setParameter("customer", id).list();
+		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameterList("rights", rights).setParameter("customer", id)
+				.list();
 		for (Analysis analysis : analyses)
 			analysisBaseInfos.add(new AnalysisBaseInfo(analysis));
 		return analysisBaseInfos;
@@ -653,12 +654,18 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getNotProfileIdentifiers(int page, int size) {
-		return getSession().createQuery("Select distinct identifier From Analysis where  profile = false").setFirstResult((page-1)*size).setMaxResults(size).list();
+		return getSession().createQuery("Select distinct identifier From Analysis where  profile = false").setFirstResult((page - 1) * size).setMaxResults(size).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllFromOwner(User user) {
 		return getSession().createQuery("From Analysis where owner = :owner").setParameter("owner", user).list();
+	}
+
+	@Override
+	public boolean hasData(String identifier) {
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Analysis where identifier = :identifier and data = true").setString("identifier", identifier)
+				.uniqueResult();
 	}
 }

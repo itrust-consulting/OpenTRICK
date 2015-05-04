@@ -13,6 +13,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -38,12 +41,14 @@ public class UserAnalysisRight implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiUser", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private User user;
 
 	/** Analysis */
 	@ManyToOne
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Analysis analysis;
 	
 	/** rights */

@@ -254,4 +254,9 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))")
 				.setInteger("idAnalysis", idAnalysis).setString("username", username).setParameterList("rights", AnalysisRight.highRightFrom(right)).uniqueResult();
 	}
+
+	@Override
+	public void deleteByUser(User user) {
+		getSession().createQuery("Delete from UserAnalysisRight where user = :user").setParameter("user", user).executeUpdate();
+	}
 }

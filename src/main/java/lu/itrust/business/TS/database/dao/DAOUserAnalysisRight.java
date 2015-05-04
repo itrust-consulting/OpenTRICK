@@ -50,6 +50,8 @@ public interface DAOUserAnalysisRight {
 
 	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right);
 
+	public void deleteByUser(User user);
+
 	
 	
 }

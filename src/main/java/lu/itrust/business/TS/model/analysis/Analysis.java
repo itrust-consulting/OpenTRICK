@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -2194,12 +2195,13 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight getRightsforUserString(String login) {
-		for (UserAnalysisRight userRight : userRights) {
-			if (userRight.getUser().getLogin().equals(login)) {
-				return userRight;
-			}
-		}
-		return null;
+		Optional<UserAnalysisRight> optional = userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny();
+		return optional.isPresent() ? optional.get() : null;
+	}
+
+	public AnalysisRight getRightValue(User user) {
+		UserAnalysisRight analysisRight = getRightsforUser(user);
+		return analysisRight == null ? null : analysisRight.getRight();
 	}
 
 	/**

@@ -167,13 +167,10 @@ public abstract class Measure implements Cloneable {
 	 */
 	public void setStatus(String status) {
 
-		if ((status == null) || (status.trim().isEmpty())) {
+		if ((status == null) || (status.trim().isEmpty()) || !status.trim().matches(Constant.REGEXP_VALID_MEASURE_STATUS))
 			this.status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
-		} else if (!status.trim().matches(Constant.REGEXP_VALID_MEASURE_STATUS)) {
-			throw new IllegalArgumentException("Measure Status value needs to be one of these values (AP, NA, M)!");
-		} else {
+		 else 
 			this.status = status.trim();
-		}
 	}
 
 	/**

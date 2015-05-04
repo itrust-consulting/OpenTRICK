@@ -132,4 +132,6 @@ public interface DAOAnalysis {
 	public List<String> getNotProfileIdentifiers(int page, int size);
 
 	public List<Analysis> getAllFromOwner(User user);
+
+	public boolean hasData(String identifier);
 }

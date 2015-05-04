@@ -186,4 +186,9 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 					.setParameter("username", username).setString("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
 					.list();
 	}
+
+	@Override
+	public void deeleteByUser(User user) {
+		getSession().createQuery("Delete From UserSQLite where user =:user").setParameter("user", user).executeUpdate();
+	}
 }

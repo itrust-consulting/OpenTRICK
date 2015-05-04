@@ -196,4 +196,9 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 					.list();
 	}
 
+	@Override
+	public void deeleteByUser(User user) {
+		getSession().createQuery("Delete From WordReport where user =:user").setParameter("user", user).executeUpdate();
+	}
+
 }

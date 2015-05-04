@@ -60,6 +60,7 @@ import lu.itrust.business.TS.validator.AssessmentValidator;
 import lu.itrust.business.TS.validator.ExtendedParameterValidator;
 import lu.itrust.business.TS.validator.HistoryValidator;
 import lu.itrust.business.TS.validator.MaturityParameterValidator;
+import lu.itrust.business.TS.validator.MeasureValidator;
 import lu.itrust.business.TS.validator.ParameterValidator;
 import lu.itrust.business.TS.validator.RiskInformationValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
@@ -1283,6 +1284,14 @@ public class ControllerEditField {
 					Object value = FieldValue(fieldEditor, null);
 					if (value == null)
 						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+
+					// get validator
+					if (!serviceDataValidation.isRegistred(Measure.class))
+						serviceDataValidation.register(new MeasureValidator());
+
+					String error = serviceDataValidation.validate(measure, fieldEditor.getFieldName(), value);
+					if (error != null)
+						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
 
 					if (fieldEditor.getFieldName().equals("implementationRate"))
 						if ((Double) value < 0. || (Double) value > 100.)
