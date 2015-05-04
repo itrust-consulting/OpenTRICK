@@ -642,4 +642,13 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Analysis> getAll(List<Integer> ids) {
 		return getSession().createQuery("From Analysis analysis where analysis.id in :analysisIds").setParameterList("analysisIds", ids).list();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllContains(MeasureDescription measureDescription) {
+		return getSession()
+				.createQuery(
+						"Select analysis From Analysis analysis inner join analysis.analysisStandards as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard = :standard and measure.measureDescription = :measureDescription")
+				.setParameter("standard", measureDescription.getStandard()).setParameter("measureDescription", measureDescription).list();
+	}
 }

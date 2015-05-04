@@ -187,4 +187,9 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	public boolean existsForMeasureByReferenceAndAnalysisStandardId(String reference, int idAnalysisStandard) {
 		return daoMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(reference,idAnalysisStandard);
 	}
+
+	@Override
+	public boolean exists(int idMeasureDescription, int idStandard) {
+		return daoMeasureDescription.exists(idMeasureDescription, idStandard);
+	}
 }

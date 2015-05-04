@@ -205,10 +205,10 @@ function deleteMeasure(measureId, reference, standard) {
 		alert.remove();
 
 	if (measureId == null || measureId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_measure_description");
-		if (selectedScenario.length != 1)
+		var selectedMeasure = findSelectItemIdBySection("section_measure_description");
+		if (selectedMeasure.length != 1)
 			return false;
-		measureId = selectedScenario[0];
+		measureId = selectedMeasure[0];
 	}
 
 	idStandard = $("#section_measure_description #measures_header #idStandard").val();
@@ -248,6 +248,56 @@ function deleteMeasure(measureId, reference, standard) {
 			error : unknowError
 		});
 		delete deleteModal;
+		return true;
+	});
+	deleteModal.Show();
+	return false;
+}
+
+function forceDeleteMeasure(measureId, reference, standard) {
+
+	var alert = $("#addMeasureModel .label-danger");
+	if (alert.length)
+		alert.remove();
+
+	if (measureId == null || measureId == undefined) {
+		var selectedMeasure = findSelectItemIdBySection("section_measure_description");
+		if (selectedMeasure.length != 1)
+			return false;
+		measureId = selectedMeasure[0];
+	}
+
+	idStandard = $("#section_measure_description #measures_header #idStandard").val();
+
+	if (standard == null || standard == undefined)
+		standard = $("#section_measure_description #measures_header #standardLabel").val();
+
+	var measure = $("#section_measure_description #measures_body tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
+	reference = $(measure[1]).text();
+	var deleteModal = new Modal($("#deleteMeasureModel").clone());
+	deleteModal.setBody(MessageResolver("label.measure.question.force.delete", "Are you sure that you want to force deleting of the measure with the Reference: <strong>" + reference
+			+ "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ]));
+	$(deleteModal.modal_footer).find("#deletemeasurebuttonYes").click(function() {
+		$(this).attr("disabled", true);
+		$(this).unbind();
+		$.ajax({
+			url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Force/Delete/" + measureId,
+			type : "POST",
+			contentType : "application/json",
+			async : false,
+			success : function(response, textStatus, jqXHR) {
+				if (response.success!=undefined)
+					showMeasures(idStandard, $("#measures_body #languageselect").val());
+				else if (response.error!=undefined) 
+					showDialog("#alert-dialog", response.error)
+				else
+					unknowError();
+				return true;
+			},
+			error : unknowError
+		}).complete(function() {
+			deleteModal.Destroy();
+		});
 		return true;
 	});
 	deleteModal.Show();

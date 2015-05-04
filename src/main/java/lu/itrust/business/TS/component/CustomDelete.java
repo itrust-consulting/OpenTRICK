@@ -3,11 +3,14 @@
  */
 package lu.itrust.business.TS.component;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -42,6 +45,7 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
@@ -230,6 +234,48 @@ public class CustomDelete {
 	}
 
 	@Transactional
+	public void forceDeleteMeasureDescription(int idMeasureDescription, Principal principal) throws Exception {
+		MeasureDescription measureDescription = daoMeasureDescription.get(idMeasureDescription);
+		List<Analysis> analysis = daoAnalysis.getAllContains(measureDescription);
+		deleteActionPlanAndMeasure(analysis, measureDescription, principal);
+		delete(measureDescription);
+	}
+
+	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription, Principal principal) throws Exception {
+		for (Analysis analysis : analyses) {
+			while (!analysis.getSummaries().isEmpty())
+				daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
+			while (!analysis.getActionPlans().isEmpty())
+				daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
+			analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
+					.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+			Optional<AnalysisStandard> standard = analysis.getAnalysisStandards().stream()
+					.filter(analysisStandard -> analysisStandard.getStandard().equals(measureDescription.getStandard())).findAny();
+			if (standard.isPresent()) {
+				Iterator<Measure> iterator = standard.get().getMeasures().iterator();
+				while (iterator.hasNext()) {
+					Measure measure = iterator.next();
+					if (measure.getMeasureDescription().equals(measureDescription)) {
+						standard.get().getMeasures().remove(measure);
+						daoMeasure.delete(measure);
+						/**
+						 * Log
+						 */
+						TrickLogManager.Persist(
+								LogLevel.WARNING,
+								LogType.ANALYSIS,
+								"log.delete.measure",
+								String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(),
+										measureDescription.getReference(), measureDescription.getStandard().getLabel()), principal.getName(), LogAction.DELETE,
+								analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getLabel());
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	@Transactional
 	public void delete(MeasureDescription measureDescription) throws Exception {
 		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
 		while (iterator.hasNext()) {
@@ -371,5 +417,4 @@ public class CustomDelete {
 					analysis.getVersion());
 		}
 	}
-
 }

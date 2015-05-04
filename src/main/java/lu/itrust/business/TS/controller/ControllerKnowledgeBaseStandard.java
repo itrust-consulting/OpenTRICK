@@ -888,6 +888,32 @@ public class ControllerKnowledgeBaseStandard {
 	}
 
 	/**
+	 * deleteMeasureDescription: <br>
+	 * Description
+	 * 
+	 * @param idStandard
+	 * @param measureid
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody String forceDeleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasureDescription") int idMeasureDescription,
+			Principal principal, Locale locale) {
+		try {
+			if (!serviceMeasureDescription.exists(idMeasureDescription, idStandard))
+				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+			customDelete.forceDeleteMeasureDescription(idMeasureDescription, principal);
+			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
+		} catch (Exception e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
+		}
+	}
+
+	/**
 	 * buildMeasureDescription: <br>
 	 * Description
 	 * 

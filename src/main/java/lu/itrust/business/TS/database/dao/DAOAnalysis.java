@@ -8,6 +8,7 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -125,4 +126,6 @@ public interface DAOAnalysis {
 	public List<String> getAllVersion(Integer analysisId);
 
 	public List<Analysis> getAll(List<Integer> ids);
+
+	public List<Analysis> getAllContains(MeasureDescription measureDescription);
 }

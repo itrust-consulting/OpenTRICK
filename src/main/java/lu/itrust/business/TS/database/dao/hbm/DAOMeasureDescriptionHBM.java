@@ -190,4 +190,12 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 						"Select count(measure)>0 From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.id = :idAnalysisStandard and measure.measureDescription.reference = :reference ")
 				.setInteger("idAnalysisStandard", idAnalysisStandard).setString("reference", reference).uniqueResult();
 	}
+
+	@Override
+	public boolean exists(int idMeasureDescription, int idStandard) {
+		return (boolean) getSession()
+				.createQuery(
+						"Select count(*) > 0 From MeasureDescription where id = :idMeasureDescription and standard.id = :idStandard")
+				.setInteger("idMeasureDescription", idMeasureDescription).setInteger("idStandard", idStandard).uniqueResult();
+	}
 }
