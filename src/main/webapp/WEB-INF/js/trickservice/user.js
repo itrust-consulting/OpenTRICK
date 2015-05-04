@@ -94,19 +94,84 @@ function deleteUser(userId, name) {
 		name = $("#section_user tbody tr[data-trick-id='" + userId + "'] td:nth-child(2)").text();
 	}
 	$.ajax({
-		url : context + "/Admin/User/" + userId+"/Prepare-to-delete",
+		url : context + "/Admin/User/" + userId + "/Prepare-to-delete",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["error"] != undefined)
 				showDialog("#alert-dialog", response["error"]);
 			else {
-				var $deleteUserDialog = $(new DOMParser().parseFromString(response, "text/html")).find("#deleteUserModel");
-				if($deleteUserDialog.length){
-					if($("#deleteUserModel").length)
-						$("#deleteUserModel").replaceWith($deleteUserDialog);
-					else $deleteUserDialog.appendTo("#dialog-body");
+				var $deleteUserDialog = $(new DOMParser().parseFromString(response, "text/html")).find("#deleteUserModal");
+				if ($deleteUserDialog.length) {
+					if ($("#deleteUserModal").length)
+						$("#deleteUserModal").replaceWith($deleteUserDialog);
+					else
+						$deleteUserDialog.appendTo("#dialog-body");
+					var $form = $deleteUserDialog.find("form");
+					var $submitInput = $deleteUserDialog.find("input[type='submit']");
+					var $deleteButton = $deleteUserDialog.find("button[name='delete']").click(function() {
+						$submitInput.click();
+					});
+
+					function fadeOutComplete() {
+						return $(this).remove();
+					}
+
+					$form.on("submit", function() {
+
+						$deleteUserDialog.find(".label").remove();
+
+						$deleteButton.prop('disabled', true);
+						var data = {
+							idUser : $form.find("input[name='idUser']").val(),
+							switchOwners : {},
+							deleteAnalysis : []
+						}
+						$form.find("select").each(function() {
+							var $this = $(this), value = $this.val(), name = $this.attr("name");
+							if (value < 1)
+								data.deleteAnalysis.push(name);
+							else
+								data.switchOwners[name] = value;
+						});
+
+						$.ajax({
+							url : context + "/Admin/User/Delete",
+							type : "post",
+							contentType : "application/json;charset=UTF-8",
+							data : JSON.stringify(data),
+							success : function(response, textStatus, jqXHR) {
+								var result = parseJson(response);
+								if (result == undefined)
+									$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(
+											MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
+								if (result.success != undefined)
+									$deleteUserDialog.modal("hide");
+								else if (result.error != undefined)
+									$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(result.error).fadeOut(15000, fadeOutComplete);
+								else {
+									for ( var key in result) {
+										var $select = $deleteUserDialog.find("select[name=" + key + "]");
+										if ($select.length)
+											$("<label class='label label-danger'></label>").after($select).text(result[key]);
+										else
+											$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(result.error);
+									}
+								}
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("<label class='label label-danger'></label>").appendTo("#deleteUserErrors").text(
+										MessageResolver("error.unknown.occurred", "An unknown error occurred")).fadeOut(15000, fadeOutComplete);
+							},
+							complete : function() {
+								$deleteButton.prop('disabled', false);
+							}
+						});
+						return false;
+					});
+
 					new Modal($deleteUserDialog).Show();
-				}else unknowError();
+				} else
+					unknowError();
 			}
 			return false;
 		},

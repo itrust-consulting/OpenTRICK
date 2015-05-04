@@ -3,10 +3,16 @@
  */
 package lu.itrust.business.TS.component;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
@@ -46,8 +52,10 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.usermanagement.helper.UserDeleteHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -345,17 +353,6 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void deleteUser(User user) throws Exception {
-		user.disable();
-		ResetPassword resetPassword = daoResetPassword.get(user);
-		if (resetPassword != null)
-			daoResetPassword.delete(resetPassword);
-		user.getCustomers().clear();
-		daoUser.saveOrUpdate(user);
-		daoUser.delete(user.getId());
-	}
-
-	@Transactional
 	public void customDeleteEmptyAnalysis(String identifier, String username) throws Exception {
 		List<Analysis> analyses = daoAnalysis.getAllByIdentifier(identifier);
 		if (analyses.stream().anyMatch(analysis -> analysis.hasData()))
@@ -370,6 +367,49 @@ public class CustomDelete {
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.DELETE, analysis.getIdentifier(),
 					analysis.getVersion());
 		}
+	}
+
+	@Transactional
+	public void deleteUser(UserDeleteHelper deleteHelper, Map<Object, String> errors, Principal principal, MessageSource messageSource, Locale locale) throws Exception {
+		try {
+			User user = daoUser.get(deleteHelper.getIdUser());
+			if (user == null)
+				errors.put("user", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			else {
+				if (deleteHelper.hasAnalysesToSwitch()) {
+					SwitchAnalysisOwnerHelper switchAnalysisOwnerHelper = new SwitchAnalysisOwnerHelper(daoAnalysis);
+					for (Entry<Integer, Integer> entry : deleteHelper.getSwitchOwners().entrySet()) {
+						try {
+							Analysis analysis = daoAnalysis.get(entry.getKey());
+							User owner = daoUser.get(entry.getValue());
+							switchAnalysisOwnerHelper.switchOwner(principal, analysis, owner);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				if (deleteHelper.hasAnalysesToDelete()) {
+
+				}
+				try {
+					deleteUser(user);
+				} catch (Exception e) {
+					errors.put("user", messageSource.getMessage("error.user.delete", null, "User cannot be deleted", locale));
+					throw e;
+				}
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	protected void deleteUser(User user) throws Exception {
+		user.disable();
+		ResetPassword resetPassword = daoResetPassword.get(user);
+		if (resetPassword != null)
+			daoResetPassword.delete(resetPassword);
+		daoUser.saveOrUpdate(user);
+		daoUser.delete(user);
 	}
 
 }

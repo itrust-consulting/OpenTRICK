@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.SwitchAnalysisOwnerHelper;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -39,6 +40,7 @@ import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.usermanagement.helper.UserDeleteHelper;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -267,49 +269,15 @@ public class ControllerAdministration {
 			User owner = serviceUser.get(idOwner);
 			if (owner == null)
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
-			User previousOwner = analysis.getOwner();
-			analysis.setOwner(owner);
-			AnalysisRight right = null; // for log
-			UserAnalysisRight userAnalysisRight = analysis.getRightsforUser(owner);
-			if (userAnalysisRight == null)
-				analysis.addUserRight(owner, AnalysisRight.ALL);
-			else if ((right = userAnalysisRight.getRight()) != AnalysisRight.ALL)
-				userAnalysisRight.setRight(AnalysisRight.ALL);
-			boolean hasAccess;//for log
-			if (!(hasAccess = owner.containsCustomer(analysis.getCustomer())))
-				owner.addCustomer(analysis.getCustomer());
-			serviceAnalysis.saveOrUpdate(analysis);
-
-			/**
-			 * Log
-			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.switch.owner",
-					String.format("Analysis: %s, version: %s, old: %s, new: %s", analysis.getIdentifier(), analysis.getVersion(), previousOwner.getLogin(), owner.getLogin()),
-					principal.getName(), LogAction.SWITCH_OWNER, analysis.getIdentifier(), analysis.getVersion(), previousOwner.getLogin(), owner.getLogin());
-			if (right == null)
-				TrickLogManager.Persist(
-						LogType.ANALYSIS,
-						"log.give.analysis.access.right",
-						String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
-								owner.getLogin()), principal.getName(), LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
-						owner.getLogin());
-			else if (right != AnalysisRight.ALL)
-				TrickLogManager.Persist(
-						LogType.ANALYSIS,
-						"log.grant.analysis.access.right",
-						String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
-								owner.getLogin()), principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
-						owner.getLogin());
-			if (!hasAccess)
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer", String.format("Customer: %s, target: %s", analysis.getCustomer()
-						.getOrganisation(), owner.getLogin()), principal.getName(), LogAction.GIVE_ACCESS, analysis.getCustomer().getOrganisation(), owner.getLogin());
-
+			new SwitchAnalysisOwnerHelper(serviceAnalysis). switchOwner(principal, analysis, owner);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null, "Analysis owner was successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
+
+	
 
 	/**
 	 * section: <br>
@@ -719,11 +687,11 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/User/{idUser}/Prepare-to-delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8" )
-	public String deleteUser(@PathVariable int idUser,Model model, RedirectAttributes attributes, Locale locale) {
+	@RequestMapping(value = "/User/{idUser}/Prepare-to-delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String deleteUser(@PathVariable int idUser, Model model, RedirectAttributes attributes, Locale locale) {
 		try {
 			User user = serviceUser.get(idUser);
-			if(user == null){
+			if (user == null) {
 				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 				return "redirect:/Error";
 			}
@@ -736,4 +704,20 @@ public class ControllerAdministration {
 			return "redirect:/Error";
 		}
 	}
+
+	@RequestMapping(value = "/User/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Object deleteUser(@RequestBody UserDeleteHelper deleteHelper, Principal principal, Locale locale) {
+		Map<Object, String> errors = new LinkedHashMap<Object, String>();
+		try {
+			customDelete.deleteUser(deleteHelper, errors, principal, messageSource, locale);
+			if (errors.isEmpty())
+				return JsonMessage.Success(messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (errors.isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+		return errors;
+	}
+
 }
