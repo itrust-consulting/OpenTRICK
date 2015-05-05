@@ -170,18 +170,13 @@ function editSingleCustomer(customerId) {
 	if (alert.length)
 		alert.remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] td:not(:first-child)");
+	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] td[data-trick-name]").each(function() {
+		if ($(this).attr("data-real-value") == undefined)
+			$("#customer_" + $(this).attr("data-trick-name")).prop("value", $(this).text());
+		else
+			$("#customer_" + $(this).attr("data-trick-name")).prop("checked", $(this).attr("data-real-value") == 'false');
+	});
 	$("#customer_id").prop("value", customerId);
-	$("#customer_organisation").prop("value", $(rows[0]).text());
-	$("#customer_contactPerson").prop("value", $(rows[1]).text());
-	$("#customer_phoneNumber").prop("value", $(rows[2]).text());
-	$("#customer_email").prop("value", $(rows[3]).text());
-	$("#customer_address").prop("value", $(rows[4]).text());
-	$("#customer_city").prop("value", $(rows[5]).text());
-	$("#customer_ZIPCode").prop("value", $(rows[6]).text());
-	$("#customer_country").prop("value", $(rows[7]).text());
-	if ($("#customer_canBeUsed").length)
-		$("#customer_canBeUsed").prop("checked", $(rows[8]).attr("data-real-value") == "false");
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Update", "Update a Customer"));
 	$("#addcustomerbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#customer_form").prop("action", "Customer/Edit/" + customerId);

@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="addCustomerModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewCustomer" data-aria-hidden="true">
-	<div class="modal-dialog">
+	<div class="modal-dialog" style="width: 800px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -14,74 +14,69 @@
 			</div>
 			<div class="modal-body">
 				<form name="customer" action="Customer/Create" class="form-horizontal" id="customer_form">
-					<input type="hidden" name="id" value="-1" id="customer_id">
-					<div class="form-group">
-						<label for="organisation" class="col-sm-2 control-label"> <spring:message code="label.customer.organisation" text="Company" />
-						</label>
-						<div class="col-sm-10">
-							<input name="organisation" id="customer_organisation" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="contactPerson" class="col-sm-2 control-label"> <spring:message code="label.customer.contact_person" text="Contact person" />
-						</label>
-						<div class="col-sm-10">
-							<input name="contactPerson" id="customer_contactPerson" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="phoneNumber" class="col-sm-2 control-label"> <spring:message code="label.customer.phone_number" text="Phone number" />
-						</label>
-						<div class="col-sm-10">
-							<input name="phoneNumber" id="customer_phoneNumber" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="email" class="col-sm-2 control-label"> <spring:message code="label.customer.email" text="Email address" />
-						</label>
-						<div class="col-sm-10">
-							<input name="email" id="customer_email" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="address" class="col-sm-2 control-label"> <spring:message code="label.customer.address" text="Address" />
-						</label>
-						<div class="col-sm-10">
-							<input name="address" id="customer_address" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="city" class="col-sm-2 control-label"> <spring:message code="label.customer.city" text="City" />
-						</label>
-						<div class="col-sm-10">
-							<input name="city" id="customer_city" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="ZIPCode" class="col-sm-2 control-label"> <spring:message code="label.customer.zip_code" text="Zip code" />
-						</label>
-						<div class="col-sm-10">
-							<input name="ZIPCode" id="customer_ZIPCode" class="form-control" type="text" />
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="country" class="col-sm-2 control-label"> <spring:message code="label.customer.country" text="Country" />
-						</label>
-						<div class="col-sm-10">
-							<input name="country" id="customer_country" class="form-control" type="text" />
-						</div>
-					</div>
-					<c:if test="${!empty(adminView)}">
-						<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-							<div class="form-group">
-								<label for="country" class="col-sm-2 control-label"> <spring:message code="label.customer.can_be_used" text="Profile only" />
-								</label>
-								<div class="col-md-offset-6" style="margin-top: 10px;">
-									<input name="canBeUsed" id="customer_canBeUsed" class="checkbox" type="checkbox" />
-								</div>
+					<fieldset>
+						<legend><spring:message code='label.contact' text='Contact'/></legend>
+						<input type="hidden" name="id" value="-1" id="customer_id">
+						<div class="form-group">
+							<label for="organisation" class="col-sm-3 control-label"> <spring:message code="label.customer.organisation" text="Company" />
+							</label>
+							<div class="col-sm-9">
+								<input name="organisation" id="customer_organisation" class="form-control" type="text" />
 							</div>
-						</sec:authorize>
-					</c:if>
+						</div>
+						<div class="form-group">
+							<label for="contactPerson" class="col-sm-3 control-label"> <spring:message code="label.customer.contact_person" text="Contact person" />
+							</label>
+							<div class="col-sm-9">
+								<input name="contactPerson" id="customer_contactPerson" class="form-control" type="text" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="phoneNumber" class="col-sm-3 control-label"> <spring:message code="label.customer.phone_number" text="Phone number" />
+							</label>
+							<div class="col-sm-9">
+								<input name="phoneNumber" id="customer_phoneNumber" class="form-control" type="text" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="email" class="col-sm-3 control-label"> <spring:message code="label.customer.email" text="Email address" />
+							</label>
+							<div class="col-sm-9">
+								<input name="email" id="customer_email" class="form-control" type="text" />
+							</div>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend><spring:message code="label.address" text="Address"/></legend>
+						<div class="form-group">
+							<label for="address" class="col-sm-3 control-label"> <spring:message code="label.customer.address" text="Address" />
+							</label>
+							<div class="col-sm-9">
+								<input name="address" id="customer_address" class="form-control" type="text" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="ZIPCode" class="col-sm-3 control-label"> <spring:message code="label.customer.zip_code" text="Zip code" />
+							</label>
+							<div class="col-sm-9">
+								<input name="ZIPCode" id="customer_ZIPCode" class="form-control" type="text" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="city" class="col-sm-3 control-label"> <spring:message code="label.customer.city" text="City" />
+							</label>
+							<div class="col-sm-9">
+								<input name="city" id="customer_city" class="form-control" type="text" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="country" class="col-sm-3 control-label"> <spring:message code="label.customer.country" text="Country" />
+							</label>
+							<div class="col-sm-9">
+								<input name="country" id="customer_country" class="form-control" type="text" />
+							</div>
+						</div>
+					</fieldset>
 				</form>
 			</div>
 			<div class="modal-footer">
