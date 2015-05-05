@@ -43,11 +43,11 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" name="cancel"  class="btn btn-danger" data-dismiss="modal">
-					<spring:message code="label.action.cancel" text="Cancel" />
-				</button>
 				<button  type="button" name="save" class="btn btn-primary">
 					<spring:message code="label.action.save" text="Save" />
+				</button>
+				<button type="button" name="cancel"  class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>

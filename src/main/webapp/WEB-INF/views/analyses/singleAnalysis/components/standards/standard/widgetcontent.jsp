@@ -89,6 +89,9 @@
 				<button id="createstandardbutton" type="button" class="btn btn-primary" onclick="doCreateStandard('standard_form')">
 					<fmt:message key="label.action.create" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -113,7 +116,7 @@
 					<button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
 						<fmt:message key="label.yes" />
 					</button>
-					<button id="deletestandardbuttonCancel" type="button" class="btn" data-dismiss="modal">
+					<button id="deletestandardbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
 						<fmt:message key="label.action.cancel" />
 					</button>
 				</div>

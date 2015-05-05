@@ -76,11 +76,11 @@
 			<div class="modal-footer" style="margin-top: 0px;">
 				<div id="deleteUserErrors" class="col-xs-7" align="left"></div>
 				<div class="col-xs-5">
-					<button type="submit" name="cancel" class="btn btn-default" data-dismiss="modal">
-						<spring:message code="label.action.cancel" text="Cancel" />
-					</button>
 					<button type="button" name="delete" class="btn btn-danger">
 						<spring:message code="label.action.delete" text="Delete" />
+					</button>
+					<button type="submit" name="cancel" class="btn btn-default" data-dismiss="modal">
+						<spring:message code="label.action.cancel" text="Cancel" />
 					</button>
 				</div>
 			</div>

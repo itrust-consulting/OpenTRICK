@@ -40,6 +40,9 @@
 				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">
 					<spring:message code="label.action.add.norm" text="Add" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -58,7 +61,7 @@
 				<button id="deletemeasurebuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
 					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
-				<button id="deletemeasurebuttonCancel" type="button" class="btn" data-dismiss="modal">
+				<button id="deletemeasurebuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>

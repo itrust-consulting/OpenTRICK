@@ -42,6 +42,9 @@
 				<button id="addlanguagebutton" type="button" class="btn btn-primary" onclick="saveLanguage('language_form')">
 					<spring:message code="label.action.add.language" text="Add" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -60,7 +63,7 @@
 				<button id="deletelanguagebuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
 					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
-				<button id="deletelanguagebuttonCancel" type="button" class="btn" data-dismiss="modal">
+				<button id="deletelanguagebuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>

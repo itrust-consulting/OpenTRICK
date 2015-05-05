@@ -25,6 +25,9 @@
 				<button id="editAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
 					<spring:message code="label.action.edit" text="Edit" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -49,6 +52,9 @@
 			<div class="modal-footer">
 				<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
 					<spring:message code="label.action.confirm.yes" text="Yes" />
+				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>

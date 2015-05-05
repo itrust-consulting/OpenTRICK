@@ -18,7 +18,7 @@
 				<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 			</button>
 		</div>
-		<sec:authorize access="isAuthenticated()">
+		<sec:authorize access="authenticated">
 			<a class="navbar-brand" style="color: #ffffff; font-weight: bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">

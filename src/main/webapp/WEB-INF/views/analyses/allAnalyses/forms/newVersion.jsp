@@ -50,6 +50,9 @@
 				<button type="button" class="btn btn-primary" id="history_submit_button" onclick="return duplicateAnalysis('history_form', '${analysisId}')">
 					<spring:message code="label.action.save" text="Save" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>

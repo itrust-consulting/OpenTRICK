@@ -88,6 +88,9 @@
 				<button id="addcustomerbutton" type="button" class="btn btn-primary" onclick="saveCustomer('customer_form')">
 					<spring:message code="label.action.add.customer" text="Add Customer" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -103,11 +106,11 @@
 			</div>
 			<div class="modal-body" id="customerusersbody" style="margin: 0px;"></div>
 			<div class="modal-footer" style="margin-top: 0px;">
-				<button type="button" name="cancel"  class="btn btn-danger" data-dismiss="modal">
-					<spring:message code="label.action.cancel" text="Cancel" />
-				</button>
 				<button id="customerusersbutton" type="button" class="btn btn-primary" onclick="">
 					<spring:message code="label.action.update" text="Update" />
+				</button>
+				<button type="button" name="cancel"  class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>
@@ -127,7 +130,7 @@
 				<button id="deletecustomerbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
 					<spring:message code="label.yes_no.yes" text="Yes" />
 				</button>
-				<button id="deletecustomerbuttonCancel" type="button" class="btn" data-dismiss="modal">
+				<button id="deletecustomerbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>

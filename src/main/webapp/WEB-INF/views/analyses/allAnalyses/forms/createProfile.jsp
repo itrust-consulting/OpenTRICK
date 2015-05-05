@@ -47,6 +47,9 @@
 				<button type="button" class="btn btn-primary" onclick="saveAnalysisProfile('analysisProfileform')">
 					<spring:message code="label.action.save" text="Save" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 		<!-- /.modal-content -->

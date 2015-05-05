@@ -28,7 +28,7 @@
 				</c:if>
 
 				<jsp:include page="../template/successErrors.jsp" />
-				<form id="login_form" method="post" action="<c:url value='${pageContext.request.contextPath}/j_spring_security_check'/>">
+				<form id="login_form" method="post" action="${pageContext.request.contextPath}/j_spring_security_check">
 					<div class="form-group">
 						<input id="username" name="j_username" value="${(!empty (j_username))? j_username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
 							required="required" class="form-control" />

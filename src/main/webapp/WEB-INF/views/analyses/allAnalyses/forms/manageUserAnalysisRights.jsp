@@ -47,11 +47,11 @@
 				</c:if>
 			</div>
 			<div class="modal-footer">
-				<button type="button" name="cancel"  class="btn btn-danger" data-dismiss="modal">
-					<spring:message code="label.action.cancel" text="Cancel" />
-				</button>
 				<button id="manageAnalysisAccessModelButton" type="button" class="btn btn-primary" onclick="updatemanageAnalysisAccess('userrightsform')">
 					<spring:message code="label.action.update" text="Update" />
+				</button>
+				<button type="button" name="cancel"  class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>
