@@ -519,14 +519,17 @@ function customAnalysis(element) {
 											break;
 										case "riskInformation":
 										case "scope":
-											$(errorElement).appendTo($(modal.modal_body).find("#analysis-build-" + error));
-											break;
 										case "asset":
 										case "scenario":
 										case "standard":
 										case "parameter":
-											$(errorElement).appendTo($(modal.modal_body).find("#analysis-build-" + error + "s"));
+											$(errorElement).appendTo($(modal.modal_body).find("[data-trick-name='" + error + "']"));
 											break;
+										default:
+											$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response[error])).css({
+												'margin-bottom' : '0',
+												'padding' : '6px 10px'
+											});
 										}
 									}
 								}
@@ -621,7 +624,7 @@ function selectAnalysis(analysisId, selectionOnly, isReadOnly) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var right = isReadOnly === true? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
+	var right = isReadOnly === true ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
 	if (userCan(analysisId, right))
 		window.location.replace(context + "/Analysis/" + analysisId + "/Select?readOnly=" + (isReadOnly === true));
 }

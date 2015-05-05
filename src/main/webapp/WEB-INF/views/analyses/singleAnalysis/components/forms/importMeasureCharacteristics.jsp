@@ -16,37 +16,64 @@
 			</div>
 			<div class="modal-body">
 				<form action="${pageContext.request.contextPath}/Analysis/RRF/Import/Save" class="form">
-					<label><fmt:message key="label.profiles" /></label> <select class="form-control" name="profile">
-						<c:forEach items="${profiles}" var="profile">
-							<option value="${profile.id}" title='<spring:message text="${profile.label}"/>'><spring:message text="${profile.label}" />
-							</option>
-						</c:forEach>
-					</select>
-					<hr>
-					<label><fmt:message key="label.standards" /></label> <select class="form-control" name="standards" multiple="multiple">
-						<c:forEach items="${profiles}" var="profile">
-							<c:forEach items="${profile.analysisStandards}" var="analysisStandard">
-								<c:if test="${idStandards.contains(analysisStandard.standard.id)}">
-									<option title="${analysisStandard.standard.label} - v. ${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" data-trick-id="${profile.id}"><spring:message
-											text="${analysisStandard.standard.label}" /></option>
-								</c:if>
+					<div class="form-group">
+						<label> <fmt:message key="label.customers" />
+						</label> <select class="form-control" name="customer">
+							<c:forEach items="${customers}" var="customer">
+								<option value="${customer.id}">
+									<spring:message text="${customer.organisation}" />
+								</option>
 							</c:forEach>
-						</c:forEach>
-					</select>
+						</select>
+
+
+					</div>
+					<div class="form-group">
+						<label><fmt:message key="label.profiles" /></label> <select class="form-control" name="analysis">
+							<c:forEach items="${analyses}" var="analysis">
+								<c:choose>
+									<c:when test="${analysis.profile}">
+										<option value="${analysis.id}" title='<spring:message text="${analysis.label}"/>' data-trick-id='${analysis.customer.id}'><spring:message
+												text="${analysis.label}" />
+										</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${analysis.id}" title='<spring:message text="${analysis.label} - v.${analysis.version}"/>' data-trick-id='${analysis.customer.id}'><spring:message
+												text="${analysis.label} - v.${analysis.version}" />
+										</option>
+									</c:otherwise>
+								</c:choose>
+
+							</c:forEach>
+						</select>
+
+					</div>
+					<div class="form-group">
+						<label><fmt:message key="label.standards" /></label> <select class="form-control" name="standards" multiple="multiple">
+							<c:forEach items="${analyses}" var="analysis">
+								<c:forEach items="${analysis.analysisStandards}" var="analysisStandard">
+									<c:if test="${standards.contains(analysisStandard.standard)}">
+										<option title="${analysisStandard.standard.label} - v.${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" data-trick-id="${analysis.id}"><spring:message
+												text="${analysisStandard.standard.label}" /></option>
+									</c:if>
+								</c:forEach>
+							</c:forEach>
+						</select>
+					</div>
 				</form>
-				<div class="progress progress-striped active" hidden="true" style="margin-top:10px;margin-bottom:-15px">
+				<div class="progress progress-striped active" hidden="true" style="margin-top: 10px; margin-bottom: -15px">
 					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger pull-left" name="show_rrf">
-					<fmt:message key="label.action.switch.rrf"  />
+					<fmt:message key="label.action.switch.rrf" />
 				</button>
 				<button type="button" class="btn btn-primary" name="import">
-					<fmt:message key="label.action.import"  />
+					<fmt:message key="label.action.import" />
 				</button>
 				<button type="button" class="btn btn-default" name="cancel">
-					<fmt:message key="label.action.cancel"  />
+					<fmt:message key="label.action.cancel" />
 				</button>
 			</div>
 		</div>

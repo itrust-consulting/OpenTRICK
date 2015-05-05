@@ -589,4 +589,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> getAllFromOwner(User user) {
 		return daoAnalysis.getAllFromOwner(user);
 	}
+
+	@Override
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards) {
+		return daoAnalysis.getAllHasRightsAndContainsStandard(username,rights,  standards);
+	}
 }

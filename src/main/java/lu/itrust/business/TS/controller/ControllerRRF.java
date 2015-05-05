@@ -20,8 +20,10 @@ import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
+import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.rrf.ImportRRFForm;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -421,14 +423,14 @@ public class ControllerRRF {
 	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
-		List<Integer> idStandards = new ArrayList<Integer>(standards.size());
-		for (Standard standard : standards) {
-			if (!Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()))
-				idStandards.add(standard.getId());
-		}
-		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsStandard(standards);
-		model.addAttribute("idStandards", idStandards);
-		model.addAttribute("profiles", profiles);
+		standards.removeIf(standard -> Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()));
+		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards);
+		analyses.addAll(serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards));
+		List<Customer> customers = new ArrayList<Customer>();
+		analyses.stream().map(analysis -> analysis.getCustomer()).distinct().forEach(customer -> customers.add(customer));
+		model.addAttribute("standards", standards);
+		model.addAttribute("customers", customers);
+		model.addAttribute("analyses", analyses);
 		return "analyses/singleAnalysis/components/forms/importMeasureCharacteristics";
 
 	}

@@ -20,7 +20,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2013
  */
 public interface ServiceAnalysis {
-	
+
 	public Long countByIdentifier(String identifier);
 
 	public void delete(Analysis analysis) throws Exception;
@@ -32,7 +32,7 @@ public interface ServiceAnalysis {
 	public boolean exists(String identifier);
 
 	public boolean exists(String identifier, String version) throws Exception;
-	
+
 	public Analysis get(Integer idAnalysis) throws Exception;
 
 	public List<Analysis> getAll() throws Exception;
@@ -58,11 +58,11 @@ public interface ServiceAnalysis {
 	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception;
 
 	public List<Analysis> getAllNotEmpty() throws Exception;
-	
+
 	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) throws Exception;
-	
+
 	public List<String> getAllNotEmptyVersion(int analysisId);
-	
+
 	public List<String> getAllNotEmptyVersion(String identfier);
 
 	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards);
@@ -115,7 +115,7 @@ public interface ServiceAnalysis {
 
 	public List<Customer> getCustomersByIdAnalysis(int analysisId);
 
-	public boolean isAnalysisCustomer(int idAnalysis ,int idCustomer);
+	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer);
 
 	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer);
 
@@ -126,5 +126,7 @@ public interface ServiceAnalysis {
 	public List<String> getAllVersion(Integer analysisId);
 
 	public List<Analysis> getAllFromOwner(User user);
+
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
 
 }

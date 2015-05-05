@@ -134,4 +134,7 @@ public interface DAOAnalysis {
 	public List<Analysis> getAllFromOwner(User user);
 
 	public boolean hasData(String identifier);
+
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
+
 }
