@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class ImportRRFForm {
 
-	private int profile;
+	private int analysis;
 	
 	private List<Integer> standards;
 	
@@ -21,12 +21,12 @@ public class ImportRRFForm {
 	public ImportRRFForm() {
 	}
 
-	public int getProfile() {
-		return profile;
+	public int getAnalysis() {
+		return analysis;
 	}
 
-	public void setProfile(int profile) {
-		this.profile = profile;
+	public void setAnalysis(int analysis) {
+		this.analysis = analysis;
 	}
 
 	public List<Integer> getStandards() {

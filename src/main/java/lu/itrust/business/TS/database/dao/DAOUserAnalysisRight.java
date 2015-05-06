@@ -16,41 +16,43 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 9, 2014
  */
 public interface DAOUserAnalysisRight {
+	public void delete(Integer id) throws Exception;
+
+	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
+
+	public void deleteByUser(User user);
+
 	public UserAnalysisRight get(Integer id) throws Exception;
 
-	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) throws Exception;
-
-	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
-
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception;
-
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) throws Exception;
+	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) throws Exception;
 	
-	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right)throws Exception;
-
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
-
 	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) throws Exception;
 
-	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) throws Exception;
+	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int analysisId);
 
 	public List<UserAnalysisRight> getAllFromUser(String login) throws Exception;
 
 	public List<UserAnalysisRight> getAllFromUser(User user) throws Exception;
 
-	public void save(UserAnalysisRight userAnalysisRight) throws Exception;
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
 
-	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception;
-
-	public void delete(Integer id) throws Exception;
-
-	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
-
-	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int analysisId);
+	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) throws Exception;
 
 	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right);
 
-	public void deleteByUser(User user);
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
+
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights);
+
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception;
+
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) throws Exception;
+
+	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right)throws Exception;
+
+	public void save(UserAnalysisRight userAnalysisRight) throws Exception;
+
+	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception;
 
 	
 	

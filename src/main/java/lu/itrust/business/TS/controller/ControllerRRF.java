@@ -2,6 +2,7 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -19,7 +20,9 @@ import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
@@ -92,6 +95,9 @@ public class ControllerRRF {
 
 	@Autowired
 	private ServiceStandard serviceStandard;
+
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	/**
 	 * rrf: <br>
@@ -426,6 +432,8 @@ public class ControllerRRF {
 		standards.removeIf(standard -> Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()));
 		List<Analysis> analyses = serviceAnalysis.getAllProfileContainsStandard(standards);
 		analyses.addAll(serviceAnalysis.getAllHasRightsAndContainsStandard(principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY), standards));
+		analyses.removeIf(analysis -> analysis.getId() == idAnalysis);
+		Collections.sort(analyses, new AnalysisComparator());
 		List<Customer> customers = new ArrayList<Customer>();
 		analyses.stream().map(analysis -> analysis.getCustomer()).distinct().forEach(customer -> customers.add(customer));
 		model.addAttribute("standards", standards);
@@ -439,12 +447,16 @@ public class ControllerRRF {
 	@RequestMapping(value = "/Import/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
 		try {
-			if (rrfForm.getProfile() < 1)
-				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_profile", null, "No profile", locale));
+			if (rrfForm.getAnalysis() < 1)
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_analysis", null, "No analysis selected", locale));
 			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
+			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis()) || serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(),
+					AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			else if (!rrfForm.getStandards().stream().allMatch(idStandard -> serviceStandard.belongToAnalysis(idStandard, rrfForm.getAnalysis())))
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 			measureManager.importStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
-
 			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
 		} catch (Exception e) {
 			e.printStackTrace();

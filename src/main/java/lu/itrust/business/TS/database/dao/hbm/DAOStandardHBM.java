@@ -73,8 +73,8 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@Override
 	public Standard getStandardNotCustomByName(String label) throws Exception {
-		return (Standard) getSession().createQuery("from Standard where label = :label and label != :custom").setParameter("label", label).setParameter("custom", Constant.STANDARD_CUSTOM)
-				.uniqueResult();
+		return (Standard) getSession().createQuery("from Standard where label = :label and label != :custom").setParameter("label", label)
+				.setParameter("custom", Constant.STANDARD_CUSTOM).uniqueResult();
 	}
 
 	/**
@@ -88,19 +88,21 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@Override
 	public Standard getStandardByNameAndVersion(String label, Integer version) throws Exception {
-		return (Standard) getSession().createQuery("from Standard where label = :label and version = :version").setParameter("label", label).setParameter("version", version).uniqueResult();
+		return (Standard) getSession().createQuery("from Standard where label = :label and version = :version").setParameter("label", label).setParameter("version", version)
+				.uniqueResult();
 	}
 
 	/**
 	 * existsByNameAndVersion: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#existsByNameAndVersion(java.lang.String, int)
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#existsByNameAndVersion(java.lang.String,
+	 *      int)
 	 */
 	@Override
 	public boolean existsByNameAndVersion(String label, Integer version) throws Exception {
-		return ((Long) getSession().createQuery("select count(*) from Standard where label = :label and version = :version").setParameter("label", label).setParameter("version", version)
-				.uniqueResult()).intValue() != 0;
+		return ((Long) getSession().createQuery("select count(*) from Standard where label = :label and version = :version").setParameter("label", label)
+				.setParameter("version", version).uniqueResult()).intValue() != 0;
 	}
 
 	/**
@@ -126,8 +128,8 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllFromAnalysis(Integer analysisId) throws Exception {
-		return getSession().createQuery("Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId").setParameter(
-				"analysisId", analysisId).list();
+		return getSession().createQuery("Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId")
+				.setParameter("analysisId", analysisId).list();
 	}
 
 	/**
@@ -155,8 +157,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
-		String query =
-			"Select standard From Standard standard where standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId)";
+		String query = "Select standard From Standard standard where standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId)";
 
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
@@ -237,14 +238,22 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 
 	@Override
 	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception {
-		return (Integer) getSession().createQuery("select max(standard.version) from Standard standard where standard.label = :label and standard.type = :type").setParameter("label", label)
-				.setParameter("type", standardType).uniqueResult();
+		return (Integer) getSession().createQuery("select max(standard.version) from Standard standard where standard.label = :label and standard.type = :type")
+				.setParameter("label", label).setParameter("type", standardType).uniqueResult();
 	}
 
 	@Override
 	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception {
-		return ((Long) getSession().createQuery("select count(*) from Standard where label = :label and version = :version and type = :type").setParameter("label", label).setParameter("version",
-				version).setParameter("type", type).uniqueResult()).intValue() != 0;
+		return (boolean) getSession().createQuery("select count(*)>0 from Standard where label = :label and version = :version and type = :type").setParameter("label", label)
+				.setParameter("version", version).setParameter("type", type).uniqueResult();
+	}
+
+	@Override
+	public boolean belongToAnalysis(Integer idStandard, int idAnalysis) {
+		return (boolean) getSession()
+				.createQuery(
+						"select count(*)>0 from Analysis analysis inner join analysis.analysisStandards as analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
+				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResult();
 	}
 
 }

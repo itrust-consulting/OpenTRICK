@@ -213,4 +213,9 @@ public class ServiceStandardImpl implements ServiceStandard {
 		return daoStandard.existsByNameVersionType(label, version, type);
 	}
 
+	@Override
+	public boolean belongToAnalysis(Integer idStandard, int idAnalysis) {
+		return daoStandard.belongToAnalysis(idStandard,idAnalysis );
+	}
+
 }

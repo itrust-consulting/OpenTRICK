@@ -674,7 +674,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards) {
 		return getSession()
 				.createQuery(
-						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where userAnalysisRight.user.login = :username and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
+						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
 				.setString("username", username).setParameterList("rights", rights).setParameterList("standards", standards).list();
 	}
 }

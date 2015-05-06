@@ -48,4 +48,7 @@ public interface ServiceUserAnalysisRight {
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int AnalysisId);
 
 	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right);
+
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights);
+
 }

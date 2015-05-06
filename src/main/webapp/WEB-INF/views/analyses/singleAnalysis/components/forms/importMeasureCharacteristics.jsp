@@ -29,7 +29,7 @@
 
 					</div>
 					<div class="form-group">
-						<label><fmt:message key="label.profiles" /></label> <select class="form-control" name="analysis">
+						<label><fmt:message key="label.analyses" /></label> <select class="form-control" name="analysis">
 							<c:forEach items="${analyses}" var="analysis">
 								<c:choose>
 									<c:when test="${analysis.profile}">

@@ -265,7 +265,7 @@ public class MeasureManager {
 	@Transactional
 	public void importStandard(Integer idAnalysis, ImportRRFForm rrfForm) throws Exception {
 		for (Integer idStandard : rrfForm.getStandards()) {
-			Map<String, Measure> profileMeasures = daoMeasure.mappingAllFromAnalysisAndStandard(rrfForm.getProfile(), idStandard);
+			Map<String, Measure> profileMeasures = daoMeasure.mappingAllFromAnalysisAndStandard(rrfForm.getAnalysis(), idStandard);
 			List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, idStandard);
 			for (Measure measure : measures) {
 				NormalMeasure normalMeasure = (NormalMeasure) profileMeasures.get(measure.getMeasureDescription().getReference());
