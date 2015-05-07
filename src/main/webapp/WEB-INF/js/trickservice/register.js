@@ -1,13 +1,4 @@
 function register(form) {
-	var counter = 0;
-	var f = document.getElementsByTagName('form')[0];
-	if (!f.checkValidity()) {
-		counter++;
-	}
-
-	if(counter > 0)
-		return false;	
-	
 	$.ajax({
 		url : context + "/DoRegister",
 		type : "post",
