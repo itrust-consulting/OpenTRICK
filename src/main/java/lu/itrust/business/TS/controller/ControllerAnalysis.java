@@ -63,6 +63,7 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.history.History;
+import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -267,13 +268,7 @@ public class ControllerAnalysis {
 					principal, isReadOnly ?  AnalysisRight.READ : AnalysisRight.MODIFY);
 			if (hasPermission) {
 				// initialise analysis
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogType.ANALYSIS, isReadOnly? "log.open.analysis" : "log.edit.analysis",
-						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), isReadOnly? LogAction.OPEN : LogAction.EDIT, analysis.getIdentifier(),
-						analysis.getVersion());
-
+				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
@@ -286,6 +281,13 @@ public class ControllerAnalysis {
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("isReadOnly", isReadOnly);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
+				
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogType.ANALYSIS, isReadOnly? "log.open.analysis" : "log.edit.analysis",
+						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), isReadOnly? LogAction.OPEN : LogAction.EDIT, analysis.getIdentifier(),
+						analysis.getVersion());
 
 			} else {
 				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",

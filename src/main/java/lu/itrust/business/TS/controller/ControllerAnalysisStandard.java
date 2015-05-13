@@ -315,11 +315,15 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
+		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		if(isReadOnly == null)
+			isReadOnly = false;
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
-		model.addAttribute("analysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
+		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
+		model.addAttribute("isEditable",!isReadOnly && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
@@ -1127,6 +1131,16 @@ public class ControllerAnalysisStandard {
 				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(), measureForm.getDescription(), language));
 			}
 			measure.setMeasureDescription(description);
+		}else if(!description.getReference().equals(measureForm.getReference())){
+			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(), measure.getAnalysisStandard().getId())) {
+				errors.put(
+						"reference",
+						messageSource.getMessage("error.measure_description.reference.duplicated", new String[] { measure.getAnalysisStandard().getStandard().getLabel() },
+								String.format("The reference already exists for %s", measure.getAnalysisStandard().getStandard().getLabel()), locale));
+				return errors;
+			}
+			description.setReference(measureForm.getReference());
+			description.setLevel(measureForm.getLevel());
 		}
 		if (description.getId() > 0) {
 			MeasureDescriptionText descriptionText = description.findByLanguage(language);

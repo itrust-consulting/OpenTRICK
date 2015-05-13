@@ -45,7 +45,7 @@
 				<thead>
 					<tr>
 						<c:if test="${analysisOnly and isEditable}">
-							<th width="1%"><input disabled="disabled" type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
+							<th width="1%"></th>
 						</c:if>
 						<th width="5%"><fmt:message key="label.measure.ref" /></th>
 						<th width="15%"><fmt:message key="label.measure.domain" /></th>
@@ -87,7 +87,7 @@
 								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 									data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 									<c:if test="${analysisOnly and isEditable}">
-										<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
