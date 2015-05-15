@@ -65,12 +65,14 @@ function reloadMeasureRow(idMeasure, standard) {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var element = document.createElement("div");
-			$(element).html(response);
-			var tag = $(element).find("tr[data-trick-id='" + idMeasure + "']");
-			if (tag.length) {
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith(tag);
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
+			var $newData = $("<div/>").html(response.trim()).find('tr');
+			if (!$newData.length)
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").addClass("danger").attr("title",
+						MessageResolver("error.ui.no.synchronise", "User interface does not update"));
+			else {
+				$(".popover").remove();
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith($newData);
+				$newData.find("td[data-toggle='popover']").popover("hide");
 			}
 		},
 		error : unknowError
@@ -309,23 +311,24 @@ function chartALE() {
 
 // common
 
-function navToogled(section,parentMenu, navSelected, fixedHeader) {
+function navToogled(section, parentMenu, navSelected, fixedHeader) {
 	var currentMenu = $(parentMenu + " li[data-trick-nav-control='" + navSelected + "']");
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
 	$(parentMenu + " li[data-trick-nav-control]").each(function() {
 		if ($(this).attr("data-trick-nav-control") == navSelected)
 			$(this).addClass("disabled");
-		else $(this).removeClass("disabled");
+		else
+			$(this).removeClass("disabled");
 	});
-	
+
 	$(section + " *[data-trick-nav-content]").each(function() {
 		if ($(this).attr("data-trick-nav-content") == navSelected)
 			$(this).show();
 		else
 			$(this).hide();
 	});
-	
+
 	$(window).scroll();
 	return false;
 

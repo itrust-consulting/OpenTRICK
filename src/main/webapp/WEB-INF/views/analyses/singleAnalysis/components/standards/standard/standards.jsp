@@ -21,8 +21,8 @@
 								<spring:message text="${standard}" />
 							</h3></li>
 						<c:if test="${isEditable}">
-							<li><a onclick="return addMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return addMeasure(${standardid});" href="#"><span
+							<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
 									class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
 							<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
 								href="#"><span class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
@@ -79,7 +79,7 @@
 						<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 						<c:set var="dblclickaction">
 							<c:if test="${isEditable and ( analysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
-								ondblclick="return addMeasure(${standardid},${measure.id});"
+								ondblclick="return editMeasure(this,${standardid},${measure.id});"
 							</c:if>
 						</c:set>
 						<c:choose>
