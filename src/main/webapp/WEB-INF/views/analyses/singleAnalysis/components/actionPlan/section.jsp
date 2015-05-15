@@ -18,8 +18,8 @@
 				</a></li>
 			</c:forEach>
 			<c:if test="${!actionplansplitted.isEmpty()}">
-				<li class="pull-right"><a id="actionplanassetsmenulink" href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span
-						class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message code="label.action_plan_assets.show" />
+				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"> <span
+						class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message code="label.action_plan_assets.show" />
 				</a></li>
 			</c:if>
 		</ul>
@@ -40,10 +40,6 @@
 							<th style="width:3%;"><fmt:message key="label.measure.ew" /></th>
 							<th style="width:3%;"><fmt:message key="label.measure.inv" /></th>
 							<th style="width:3%;"><fmt:message key="label.action_plan.phase" /></th>
-							<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
-							<c:forEach items="${actionplanassets}" var="asset">
-								<th class="actionplanasset actionplanassethidden"><spring:message text="${asset.name}" /></th>
-							</c:forEach>
 						</tr>
 					</thead>
 					<tbody>
@@ -60,22 +56,6 @@
 									<fmt:formatNumber value="${fct:round(computedALE*0.001,0)}" maxFractionDigits="0" />
 								</td>
 								<td colspan="7">&nbsp;</td>
-								<c:forEach items="${actionplanassets}" var="asset">
-									<c:choose>
-										<c:when test="${apt == 'APPO'}">
-											<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALEO}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-													value="${asset.ALEO*0.001}" maxFractionDigits="2" /></td>
-										</c:when>
-										<c:when test="${apt == 'APPP'}">
-											<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALEP}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-													value="${asset.ALEP*0.001}" maxFractionDigits="0" /></td>
-										</c:when>
-										<c:otherwise>
-											<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-													value="${asset.ALE*0.001}" maxFractionDigits="0" /></td>
-										</c:otherwise>
-									</c:choose>
-								</c:forEach>
 							</tr>
 						</c:if>
 						<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
@@ -115,10 +95,6 @@
 										</c:otherwise>
 									</c:choose>
 								</td>
-								<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)" var="actionPlanAssets" />
-								<c:forEach items="${actionPlanAssets}" var="apa">
-									<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${fct:round(apa.currentALE*0.001,0)}" maxFractionDigits="0" /></td>
-								</c:forEach>
 							</tr>
 						</c:forEach>
 						<fmt:setLocale value="${language}" scope="session" />

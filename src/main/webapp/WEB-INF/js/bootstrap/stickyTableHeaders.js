@@ -14,7 +14,7 @@
 		// Access to jQuery and DOM versions of element
 		base.$el = $(el);
 		base.el = el;
-
+		base.hasResized = false;
 		// Listen for destroyed, call teardown
 		base.$el.bind('destroyed', $.proxy(base.teardown, base));
 
@@ -34,7 +34,7 @@
 
 			base.$el.each(function() {
 				var $this = $(this);
-				
+
 				// remove padding on <table> to fix issue #7
 				$this.css('padding', 0);
 
@@ -55,7 +55,6 @@
 
 			base.updateWidth();
 			base.toggleHeaders();
-
 			base.bind();
 		};
 
@@ -124,11 +123,10 @@
 						'z-index' : 1, // #18: opacity bug
 						'background-color' : 'white'
 					});
-					base.$clonedHeader.css('display', '');
 					base.isSticky = true;
 					base.leftOffset = newLeft;
 					base.topOffset = newTopOffset;
-
+					base.$clonedHeader.css('display', '');
 					// make sure the width is correct: the user might have
 					// resized the browser while in static mode
 					base.updateWidth();
@@ -142,28 +140,29 @@
 
 		base.updateWidth = function() {
 			if (!base.isSticky) {
+				base.hasResized = true;
 				return;
 			}
-			// Copy cell widths from clone
-			var $origHeaders = $('th,td', base.$originalHeader);
-			$('th,td', base.$clonedHeader).each(function(index) {
-
-				var width, $this = $(this);
-
-				if ($this.css('box-sizing') === 'border-box') {
-					width = $this.outerWidth(); // #39: border-box bug
-				} else {
-					width = $this.width();
-				}
-
-				$origHeaders.eq(index).css({
-					'min-width' : width,
-					'max-width' : width
+			
+			if (base.hasResized) {
+				// Copy cell widths from clone
+				var $origHeaders = $('th,td', base.$originalHeader);
+				$('th,td', base.$clonedHeader).each(function(index) {
+					var width, $this = $(this);
+					if ($this.css('box-sizing') === 'border-box') {
+						width = $this.outerWidth(); // #39: border-box bug
+					} else {
+						width = $this.width();
+					}
+					$origHeaders.eq(index).css({
+						'min-width' : width,
+						'max-width' : width
+					});
 				});
-			});
-
-			// Copy row width from whole table
-			base.$originalHeader.css('width', base.$clonedHeader.width());
+				// Copy row width from whole table
+				base.$originalHeader.css('width', base.$clonedHeader.width());
+				base.hasResized = false;
+			}
 		};
 
 		base.updateOptions = function(options) {

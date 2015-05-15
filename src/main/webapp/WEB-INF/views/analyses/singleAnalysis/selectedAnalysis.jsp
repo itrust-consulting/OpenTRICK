@@ -47,7 +47,7 @@
 				<c:if test="${!analysis.isProfile()}">
 					<jsp:include page="./components/soa.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
-					<jsp:include page="./components/actionplan.jsp" />
+					<jsp:include page="./components/actionPlan/section.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
 					<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />

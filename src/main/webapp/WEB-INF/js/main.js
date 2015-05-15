@@ -60,7 +60,9 @@ $(function() {
 				var optionMenu = tabContainer.find(".tab-pane.active ul.nav.nav-pills");
 				var tableFloatingHeader = tabContainer.find(".tab-pane.active table .tableFloatingHeader");
 				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-					option.hide()
+					option.fadeOut(function(){
+						option.hide();
+					});
 				else {
 					if (!option.find("#" + optionMenu.prop("id")).length) {
 						option.find("ul").remove();
@@ -70,7 +72,9 @@ $(function() {
 						cloneOption.find("li").removeClass("pull-right")
 						cloneOption.addClass("dropdown-menu")
 					}
-					option.show();
+					option.fadeIn(function(){
+						option.show();
+					});
 				}
 			}
 
