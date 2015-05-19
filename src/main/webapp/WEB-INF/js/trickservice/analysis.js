@@ -92,28 +92,17 @@ function compliances() {
 	$.ajax({
 		url : context + "/Analysis/Standard/Compliances",
 		type : "get",
-		async : true,
 		contentType : "application/json;charset=UTF-8",
-		async : true,
 		success : function(response, textStatus, jqXHR) {
-
 			if (response.standards == undefined || response.standards == null)
 				return;
-
-			var panelbody = $("#chart_compliance_body");
-
-			$(panelbody).html("");
-
+			var $complianceBody = $("#chart_compliance_body").empty();
 			$.each(response.standards, function(key, data) {
-
-				// console.log(key);
-
-				$(panelbody).append("<div id='chart_compliance_" + key + "'></div>");
-
+				if($complianceBody.children().length)
+					$complianceBody.append("<hr class='col-xs-12' style='margin: 30px 0;'> <div id='chart_compliance_" + key + "'></div>");
+				else $complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
 				$('div[id="chart_compliance_' + key + '"]').highcharts(data[0]);
-
 			});
-
 		},
 		error : unknowError
 	});
@@ -310,25 +299,25 @@ function chartALE() {
 }
 
 // common
-
-function navToogled(section, parentMenu, navSelected, fixedHeader) {
-	var currentMenu = $(parentMenu + " li[data-trick-nav-control='" + navSelected + "']");
+function navToogled(section, parentMenu, navSelected) {
+	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']",parentMenu);
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	$(parentMenu + " li[data-trick-nav-control]").each(function() {
-		if ($(this).attr("data-trick-nav-control") == navSelected)
-			$(this).addClass("disabled");
-		else
-			$(this).removeClass("disabled");
+	$("li[data-trick-nav-control]",parentMenu).each(function() {
+		var $this = $(this);
+		if ($this.attr("data-trick-nav-control") == navSelected)
+			$this.addClass("disabled");
+		else if($this.hasClass('disabled'))
+			$this.removeClass("disabled");
 	});
 
-	$(section + " *[data-trick-nav-content]").each(function() {
-		if ($(this).attr("data-trick-nav-content") == navSelected)
-			$(this).show();
-		else
-			$(this).hide();
+	$("[data-trick-nav-content]",section).each(function() {
+		var $this = $(this);
+		if ($this.attr("data-trick-nav-content") == navSelected)
+			$this.show();
+		else if($this.is(":visible"))
+			$this.hide();
 	});
-
 	$(window).scroll();
 	return false;
 

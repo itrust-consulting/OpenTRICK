@@ -9,27 +9,27 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="actionPlanAssets" tabindex="-1" role="dialog" data-aria-labelledby="actionPlanAssets" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 100%;">
-		<div class="modal-content">
-			<div class="modal-header">
+		<div class="modal-content" style="padding:0 5px 20px 5px">
+			<div class="modal-header" style="padding-bottom: 2px">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4>
 						<fmt:message key="label.title.actionplan.assets" />
 					</h4>
 					<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
-					<ul class="nav nav-pills bordered-bottom" id="menu_actionplan">
+					<ul class="nav nav-pills" id="menu_asset_actionplan">
 						<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 							<li ${selectedApt == apt? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
-								onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('#section_actionplans','#menu_actionplan','${apt}',true);"> <fmt:message
+								onclick="return navToogled('#section_actionplans,#actionPlanAssets','#menu_actionplan,#tabOption,#menu_asset_actionplan','${apt}',true);"> <fmt:message
 										key="label.action_plan_type.${fn:toLowerCase(apt)}" />
 							</a></li>
 						</c:forEach>
 					</ul>
 				</div>
 			</div>
-			<div class="modal-body" >
+			<div class="modal-body" style="padding-top: 0;overflow-x: auto;">
 				<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
-					<div data-trick-nav-content="${apt}" ${selectedApt == apt? "" : "hidden='true'" } style="overflow-x: auto;">
+					<div data-trick-nav-content="${apt}" ${selectedApt == apt? "" : "hidden='true'"}>
 						<table class="table table-hover table-condensed table-fixed-header-analysis" id="actionplantable_${apt}">
 							<thead>
 								<tr>
@@ -46,28 +46,24 @@
 							<tbody>
 								<c:if test="${actionplansplitted.get(apt).size()>0}">
 									<tr>
-										<td>&nbsp;</td>
 										<td colspan="3"><fmt:message key="label.action_plan.current_ale" /></td>
 										<fmt:setLocale value="fr" scope="session" />
 										<c:set var="totalALE">
-									${fct:round(actionplansplitted.get(apt).get(0).totalALE,2)+ fct:round(actionplansplitted.get(apt).get(0).deltaALE,2)}
-								</c:set>
+											${fct:round(actionplansplitted.get(apt).get(0).totalALE,2) + fct:round(actionplansplitted.get(apt).get(0).deltaALE,2)}
+										</c:set>
 										<fmt:parseNumber var="computedALE" type="number" value="${totalALE}" />
-										<td ${computedALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${computedALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+										<td  align="right" ${computedALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${computedALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 												value="${fct:round(computedALE*0.001,0)}" maxFractionDigits="0" /></td>
 										<c:forEach items="${actionplanassets}" var="asset">
 											<c:choose>
 												<c:when test="${apt == 'APPO'}">
-													<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALEO}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-															value="${asset.ALEO*0.001}" maxFractionDigits="2" /></td>
+													<td  align="right" title='<fmt:formatNumber value="${asset.ALEO}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALEO*0.001}" maxFractionDigits="2" /></td>
 												</c:when>
 												<c:when test="${apt == 'APPP'}">
-													<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALEP}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-															value="${asset.ALEP*0.001}" maxFractionDigits="0" /></td>
+													<td  align="right" title='<fmt:formatNumber value="${asset.ALEP}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALEP*0.001}" maxFractionDigits="0" /></td>
 												</c:when>
 												<c:otherwise>
-													<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-															value="${asset.ALE*0.001}" maxFractionDigits="0" /></td>
+													<td align="right" title='<fmt:formatNumber value="${asset.ALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALE*0.001}" maxFractionDigits="0" /></td>
 												</c:otherwise>
 											</c:choose>
 										</c:forEach>
@@ -79,13 +75,13 @@
 										<td><spring:message text="${ape.order}" /></td>
 										<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
 										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
-										<td ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+										<td  align="right" ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 												value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>
 										<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)"
 											var="actionPlanAssets" />
 										<c:forEach items="${actionPlanAssets}" var="apa">
-											<td title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
-													value="${fct:round(apa.currentALE*0.001,0)}" maxFractionDigits="0" /></td>
+											<td  align="right" title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${fct:round(apa.currentALE*0.001,0)}"
+													maxFractionDigits="0" /></td>
 										</c:forEach>
 									</tr>
 								</c:forEach>

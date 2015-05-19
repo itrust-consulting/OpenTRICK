@@ -2,6 +2,18 @@ AssessmentViewer.prototype = new Modal();
 
 function AssessmentViewer() {
 
+	AssessmentViewer.prototype.FixHeader = function() {
+		var instance = this;
+		/*setTimeout(function(){
+			$("table", instance.modal_body).floatThead({
+				useAbsolutePositioning: true,
+				scrollContainer : function($table) {
+					return $table.is(':visible') ? $table.closest('.modal-body') : $table;
+				}
+			});
+		},500);*/
+	}
+	
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
 		$(this.modal_dialog).prop("style", "width: 100%;");
@@ -193,7 +205,7 @@ function AssessmentAssetViewer(assetId) {
 				if (assessments.length) {
 					$(instance.modal_body).html($(assessments).html());
 					instance.setTitle($(assessments).attr("data-trick-name"));
-					var table = $(instance.modal_body).find('table');
+					instance.FixHeader();
 					if (callback != null && $.isFunction(callback))
 						return callback();
 				} else
@@ -219,6 +231,7 @@ function AssessmentAssetViewer(assetId) {
 					if (instance.SmartUpdate.apply(instance, assessments)) {
 						instance.setBody(assessments);
 						instance.setTitle($(assessments).attr("data-trick-name"));
+						instance.FixHeader();
 					}
 				} else
 					unknowError();
@@ -252,6 +265,7 @@ function AssessmentScenarioViewer(scenarioId) {
 				if (assessments.length) {
 					$(instance.modal_body).html($(assessments).html());
 					instance.setTitle($(assessments).attr("data-trick-name"));
+					instance.FixHeader();
 					if (callback != null && $.isFunction(callback))
 						return callback();
 				} else
@@ -276,6 +290,7 @@ function AssessmentScenarioViewer(scenarioId) {
 					if (instance.SmartUpdate.apply(instance, assessments)) {
 						instance.setBody(assessments);
 						instance.setTitle($(assessments).attr("data-trick-name"));
+						instance.FixHeader();
 					}
 				} else
 					unknowError();

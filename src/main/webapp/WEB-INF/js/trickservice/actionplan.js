@@ -103,6 +103,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) 
 }
 
 function displayActionPlanAssets() {
+	$("#progress-dialog").modal("show");
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/Assets",
 		data : {
@@ -114,9 +115,10 @@ function displayActionPlanAssets() {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionPlanAssets");
 			if ($content.length) {
 				var $oldView = $("#actionPlanAssets");
-				if(!$oldView.length)
+				if (!$oldView.length)
 					$content.appendTo($("#widgets"))
-				else $oldView.replaceWith($content);
+				else
+					$oldView.replaceWith($content);
 				var $body = $content.find(".modal-body");
 				var resizer = function() {
 					var height = $(window).height();
@@ -125,8 +127,6 @@ function displayActionPlanAssets() {
 						'max-height' : (height * multi) + 'px',
 						'overflow' : 'auto'
 					});
-					
-					console.log(multi);
 				}
 				$(window).on('resize.actionPlanAssets', resizer);
 				resizer.apply(resizer, null);
@@ -137,7 +137,10 @@ function displayActionPlanAssets() {
 			} else
 				unknowError();
 		},
-		error : unknowError
+		error : unknowError,
+		complete:function(){
+			$("#progress-dialog").modal("hide");
+		}
 	});
 	return false;
 }

@@ -15,7 +15,7 @@ function Application() {
 	this.localesMessages = {};
 }
 
-function showDialog(dialog, message){
+function showDialog(dialog, message) {
 	$(dialog).find(".modal-body").text(message);
 	return $(dialog).modal("show");
 }
@@ -60,7 +60,7 @@ $(function() {
 				var optionMenu = tabContainer.find(".tab-pane.active ul.nav.nav-pills");
 				var tableFloatingHeader = tabContainer.find(".tab-pane.active table .tableFloatingHeader");
 				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-					option.fadeOut(function(){
+					option.fadeOut(function() {
 						option.hide();
 					});
 				else {
@@ -72,7 +72,7 @@ $(function() {
 						cloneOption.find("li").removeClass("pull-right")
 						cloneOption.addClass("dropdown-menu")
 					}
-					option.fadeIn(function(){
+					option.fadeIn(function() {
 						option.show();
 					});
 				}
@@ -124,14 +124,6 @@ $(function() {
 			if ($(target).attr("data-update-required") == "true") {
 				window[$(target).attr("data-trigger")].apply();
 				$(target).attr("data-update-required", "false");
-			}
-		});
-	}
-
-	if ($('.table-fixed-header').length) {
-		$('table.table-fixed-header').floatThead({
-			scrollContainer : function($table) {
-				return $table.closest('.panel-body');
 			}
 		});
 	}
@@ -433,10 +425,10 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	if (sender) {
 		if ($(sender).is(":checked")) {
 			$(sender).parent().parent().addClass("info")
-			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $(idMenu + " li[data-trick-selectable='multi']") : $(application[appModalVar].modal)
-					.find(idMenu + " li[data-trick-selectable='multi']")).length == 0;
+			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $("li[data-trick-selectable='multi']", idMenu) : $(idMenu
+					+ " li[data-trick-selectable='multi']", application[appModalVar].modal)).length == 0;
 			if (multiSelectNotAllowed) {
-				var items = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked");
+				var items = $("tbody :checked", ((appModalVar == undefined || appModalVar == null) ? idsection : application[appModalVar].modal));
 				for (var i = 0; i < items.length; i++) {
 					if (sender == $(items[i])[0])
 						continue;
