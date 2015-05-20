@@ -16,23 +16,16 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 
 	// SessionManager Module
 	var SessionManager = function() {
-
 		var originalTitle = document.title;
-		
-		console.log(originalTitle);
-		
 		var minutetext = MessageResolver("info.session.minute", "minute"),
 		minutestext = MessageResolver("info.session.minutes", "minutes"),
 		secondtext = MessageResolver("info.session.second", "second"),
 		secondstext = MessageResolver("info.session.seconds", "seconds");
-		
 		($("#nav-container").attr("data-trick-id") != undefined) ? expireSessionUrl = context + "/Analysis/" + $("#nav-container").attr("data-trick-id") + "/Select?readOnly=" + (application.isReloading === true) : expireSessionUrl = window.location.href;
-
-		var sessionTimeoutSeconds = 15.05 * 60, countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds,
+		var sessionTimeoutSeconds = 15.005 * 60, countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds,
 		displayCountdownIntervalId, promptToExtendSessionTimeoutId, count = countdownSeconds, extendSessionUrl = context + '/IsAuthenticate';
 
 		var endSession = function() {
-			// $dlg.dialog('close');
 			location.href = expireSessionUrl;
 		};
 
@@ -112,9 +105,8 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 	}();
 
 	SessionManager.start();
-
-	$.ajaxSetup({
-		beforeSend : SessionManager.extend()
+	
+	$(document).ajaxStart(function(){
+		SessionManager.extend();
 	});
-
 });

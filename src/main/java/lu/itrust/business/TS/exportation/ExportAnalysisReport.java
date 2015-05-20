@@ -831,15 +831,18 @@ public class ExportAnalysisReport {
 	}
 
 	private void generateAssets() {
+		generateAssets("<Asset>", analysis.findAssetSelected());
+		generateAssets("<Asset-no-selected>", analysis.findNoAssetSelected());
+	}
+	
+	private void generateAssets(String name,List<Asset> assets){
 		XWPFParagraph paragraph = null;
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<Asset>");
+		paragraph = findParagraphByText(name);
 
-		List<Asset> assets = analysis.getSelectedAssets();
-
-		if (paragraph != null && assets.size() > 0) {
+		if (paragraph != null) {
 
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);

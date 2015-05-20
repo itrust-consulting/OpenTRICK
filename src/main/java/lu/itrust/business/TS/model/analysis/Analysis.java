@@ -2531,4 +2531,10 @@ public class Analysis implements Cloneable {
 				actionPlanMeasures.put(planEntry.getMeasure().getId(), true);
 		return actionPlanMeasures;
 	}
+
+	public List<Asset> findNoAssetSelected() {
+		List<Asset> assets = new ArrayList<Asset>();
+		this.assets.stream().filter(asset-> !asset.isSelected()).forEach(asset -> assets.add(asset));
+		return assets;
+	}
 }
