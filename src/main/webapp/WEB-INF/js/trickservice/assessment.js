@@ -2,14 +2,12 @@ AssessmentViewer.prototype = new Modal();
 
 function AssessmentViewer() {
 
-	AssessmentViewer.prototype.FixHeader = function() {
-		var instance = this;
-		/*setTimeout(function(){
-			$("table", instance.modal_body).floatThead({
-				useAbsolutePositioning: true,
-				scrollContainer : function($table) {
-					return $table.is(':visible') ? $table.closest('.modal-body') : $table;
-				}
+	AssessmentViewer.prototype.FixHeader = function(container) {
+		/*var instance = this;
+		setTimeout(function(){
+			$("table", instance.modal_body).stickyTableHeaders({
+				cssTopOffset : container,
+				fixedOffset : application.fixedOffset
 			});
 		},500);*/
 	}
@@ -205,7 +203,7 @@ function AssessmentAssetViewer(assetId) {
 				if (assessments.length) {
 					$(instance.modal_body).html($(assessments).html());
 					instance.setTitle($(assessments).attr("data-trick-name"));
-					instance.FixHeader();
+					instance.FixHeader("#section_asset_assessment .modal-body");
 					if (callback != null && $.isFunction(callback))
 						return callback();
 				} else
@@ -231,7 +229,7 @@ function AssessmentAssetViewer(assetId) {
 					if (instance.SmartUpdate.apply(instance, assessments)) {
 						instance.setBody(assessments);
 						instance.setTitle($(assessments).attr("data-trick-name"));
-						instance.FixHeader();
+						instance.FixHeader("#section_asset_assessment .modal-body");
 					}
 				} else
 					unknowError();
@@ -259,13 +257,11 @@ function AssessmentScenarioViewer(scenarioId) {
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_scenario_assessment']");
+				var assessments = $("#section_scenario_assessment",new DOMParser().parseFromString(reponse, "text/html"));
 				if (assessments.length) {
 					$(instance.modal_body).html($(assessments).html());
 					instance.setTitle($(assessments).attr("data-trick-name"));
-					instance.FixHeader();
+					instance.FixHeader("#section_scenario_assessment .modal-body");
 					if (callback != null && $.isFunction(callback))
 						return callback();
 				} else
@@ -290,7 +286,7 @@ function AssessmentScenarioViewer(scenarioId) {
 					if (instance.SmartUpdate.apply(instance, assessments)) {
 						instance.setBody(assessments);
 						instance.setTitle($(assessments).attr("data-trick-name"));
-						instance.FixHeader();
+						instance.FixHeader("#section_scenario_assessment .modal-body");
 					}
 				} else
 					unknowError();

@@ -66,23 +66,6 @@ function hideActionplanAssets(sectionactionplan, menu) {
 
 }
 
-function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
-	var actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
-	var table = $("#actionplantable_" + actionplantype);
-	$(table).stickyTableHeaders("destroy");
-	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
-	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
-		$(menu + " a#actionplanassetsmenulink").html(
-				"<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
-		$(table).stickyTableHeaders({
-			cssTopOffset : ".nav-analysis",
-			fixedOffset : 6
-		});
-	} else {
-		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
-	}
-	return false;
-}
 
 function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({

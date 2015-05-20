@@ -13,6 +13,7 @@ function Application() {
 	this.data = {};
 	this.rights = {}
 	this.localesMessages = {};
+	this.fixedOffset = 5
 }
 
 function showDialog(dialog, message) {
@@ -102,23 +103,7 @@ $(function() {
 		});
 	}
 
-	if ($("ul.nav-analysis").length) {
-		$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-			var $target = $(e.currentTarget);
-			if ($target.find("li.active").length && !$target.hasClass("active"))
-				$target.addClass("active");
-		});
-
-		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-			disableEditMode();
-			var target = $(e.target).attr("href");
-			if ($(target).attr("data-update-required") == "true") {
-				window[$(target).attr("data-trigger")].apply();
-				$(target).attr("data-update-required", "false");
-			}
-			$("#tabOption").hide();
-		});
-	} else {
+	if (!$("ul.nav-analysis").length) {
 		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 			var target = $(e.target).attr("href");
 			if ($(target).attr("data-update-required") == "true") {
@@ -127,11 +112,6 @@ $(function() {
 			}
 		});
 	}
-
-	$("table.table-fixed-header-analysis").stickyTableHeaders({
-		cssTopOffset : ".nav-analysis",
-		fixedOffset : 6
-	});
 
 });
 
@@ -303,11 +283,6 @@ function canManageAccess() {
  * @returns
  */
 function MessageResolver(code, defaulttext, params, language) {
-	var uniqueCode = "|^|" + code + "__uPu_*+*_*+*_+*+_PuP__" + params + "|$|";// mdr
-	if (application.localesMessages[uniqueCode] != undefined)
-		return application.localesMessages[uniqueCode];
-	else
-		application.localesMessages[uniqueCode] = defaulttext;
 
 	if (language == undefined || language == null) {
 		language = $("[data-trick-language]").attr("data-trick-language");
@@ -315,12 +290,19 @@ function MessageResolver(code, defaulttext, params, language) {
 			language = $("html").attr("lang");
 	}
 
+	var uniqueCode = "|^|" + code + "__uPu_*-" + language + "-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	if (application.localesMessages[uniqueCode] != undefined)
+		return application.localesMessages[uniqueCode];
+	else
+		application.localesMessages[uniqueCode] = defaulttext;
+
 	var data = {
 		"code" : code,
 		"message" : defaulttext,
 		"language" : language,
 		parameters : []
 	}
+
 	if ($.isArray(params))
 		data.parameters = params;
 	else if (params && params.length)

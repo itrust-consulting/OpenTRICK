@@ -13,6 +13,33 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 
 	$("input[type='checkbox']").removeAttr("checked");
+	
+	$("table.table-fixed-header-analysis").stickyTableHeaders({
+		cssTopOffset : ".nav-analysis",
+		fixedOffset : application.fixedOffset
+	});
+	
+	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
+		var $target = $(e.currentTarget);
+		if ($target.find("li.active").length && !$target.hasClass("active"))
+			$target.addClass("active");
+	});
+
+	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+		disableEditMode();
+		var target = $(e.target).attr("href");
+		if ($(target).attr("data-update-required") == "true") {
+			window[$(target).attr("data-trigger")].apply();
+			$(target).attr("data-update-required", "false");
+		}
+		$("#tabOption").hide();
+	});
+	Highcharts.setOptions({
+		lang : {
+			decimalPoint : ',',
+			thousandsSep : ' '
+		}
+	});
 });
 
 function findAnalysisId() {
@@ -320,15 +347,5 @@ function navToogled(section, parentMenu, navSelected) {
 	});
 	$(window).scroll();
 	return false;
-
 }
 
-$(function() {
-	Highcharts.setOptions({
-		lang : {
-			decimalPoint : ',',
-			thousandsSep : ' '
-		}
-	});
-
-});

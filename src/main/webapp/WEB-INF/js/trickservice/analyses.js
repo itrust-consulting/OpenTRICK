@@ -892,8 +892,7 @@ function customerChange(customer, nameFilter) {
 				$(document).ready(function() {
 					$("input[type='checkbox']").removeAttr("checked");
 					$("#section_analysis table").stickyTableHeaders({
-						cssTopOffset : "#container",
-						fixedOffset : 6
+						cssTopOffset : ".navbar-fixed-top"
 					});
 				});
 			} else

@@ -169,7 +169,7 @@ function loadUserSqlite(update) {
 				setTimeout(function() {
 					$("#section_sqlite>table").stickyTableHeaders({
 						cssTopOffset : ".nav-tab",
-						fixedOffset : 6
+						fixedOffset : application.fixedOffset
 					});
 				}, 500);
 			}
@@ -201,7 +201,7 @@ function loadUserReport(update) {
 				setTimeout(function() {
 					$("#section_report table").stickyTableHeaders({
 						cssTopOffset : ".nav-tab",
-						fixedOffset : 6
+						fixedOffset : application.fixedOffset
 					});
 				}, 500);
 			}

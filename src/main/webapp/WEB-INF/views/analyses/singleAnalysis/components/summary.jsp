@@ -16,6 +16,7 @@
 					onclick="return navToogled('#section_summary','#menu_summary','${actionPlanType.name}', true);"><fmt:message key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
 			</c:forEach>
 		</ul>
+		<c:set var="euroByYear"><fmt:message key="label.metric.euro_by_year" /></c:set>
 		<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 			<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 			<div data-trick-nav-content="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
@@ -110,7 +111,7 @@
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(deltaales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${deltaales.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
+								<td class="text-right" title='<fmt:formatNumber value="${deltaales.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
@@ -119,7 +120,7 @@
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(rosis.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${rosis.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
+								<td class="text-right" title='<fmt:formatNumber value="${rosis.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
@@ -128,7 +129,7 @@
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(relativerosis.get(i),0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
+								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" />'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>

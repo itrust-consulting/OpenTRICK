@@ -4,7 +4,7 @@ $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
 	$("#tab-container table").stickyTableHeaders({
 		cssTopOffset : ".nav-tab",
-		fixedOffset : 6
+		fixedOffset : application.fixedOffset
 	});
 });
 
@@ -219,7 +219,7 @@ function adminCustomerChange(selector) {
 				$("#section_admin_analysis").replaceWith($newSection);
 				$("#section_admin_analysis table").stickyTableHeaders({
 					cssTopOffset : ".nav-tab",
-					fixedOffset : 6
+					fixedOffset : application.fixedOffset
 				});
 			} else
 				unknowError();
@@ -318,7 +318,7 @@ function loadSystemLog() {
 				$("#section_log").replaceWith(section);
 				$("#section_log table.table-fixed-header-analysis").stickyTableHeaders({
 					cssTopOffset : ".nav-tab",
-					fixedOffset : 6
+					fixedOffset : application.fixedOffset
 				});
 			} else
 				unknowError();
