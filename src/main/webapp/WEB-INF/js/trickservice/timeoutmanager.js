@@ -28,7 +28,7 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 		var endSession = function() {
 			location.href = expireSessionUrl;
 		};
-
+		
 		var displayCountdown = function() {
 			var countdown = function() {
 				var cd = new Date(count * 1000);
@@ -81,8 +81,6 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 
 		var refreshSession = function() {
 			window.clearInterval(displayCountdownIntervalId);
-			var img = new Image(1, 1);
-			img.src = extendSessionUrl;
 			document.title = originalTitle;
 			window.clearTimeout(promptToExtendSessionTimeoutId);
 			startSessionManager();
