@@ -107,7 +107,7 @@ function initialiseScenarioSliders() {
 				var previousValue = $("#rrfEditor #control_rrf_scenario #scenario_" + field + "_value").attr("value");
 				var displayvalue = fieldValue;
 				if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
-					displayvalue = fieldValue.toFixed(1);
+					displayvalue = fieldValue.toFixed(2);
 				$("#rrfEditor #control_rrf_scenario #scenario_" + field + "_value").attr("value", displayvalue);
 				return updateScenarioProperty(field, fieldValue, previousValue, $(this));
 			});
@@ -120,7 +120,7 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 	if (idScenario == null || idScenario == undefined)
 		return false;
 	if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective")
-		value = value.toFixed(1);
+		value = value.toFixed(2);
 	$.ajax({
 		url : context + "/Analysis/EditField/Scenario/" + idScenario,
 		type : "post",
@@ -141,7 +141,7 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 				if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective") {
 					var result = +$("#control_rrf_scenario #scenario_preventive_value").val() + +$("#control_rrf_scenario #scenario_detective_value").val()
 							+ +$("#control_rrf_scenario #scenario_limitative_value").val() + +$("#control_rrf_scenario #scenario_corrective_value").val();
-					result = result.toFixed(1);
+					result = result.toFixed(2);
 					$("#control_rrf_scenario .pdlc").removeClass("success");
 					$("#control_rrf_scenario .pdlc").removeClass("danger");
 					if (result == 1)
