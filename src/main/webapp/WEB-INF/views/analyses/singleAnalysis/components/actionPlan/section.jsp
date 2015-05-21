@@ -19,7 +19,7 @@
 			</c:forEach>
 			<c:if test="${!actionplansplitted.isEmpty()}">
 				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"> <span
-						class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message code="label.action_plan_assets.show" />
+						class="glyphicon glyphicon-new-window"></span>&nbsp;<fmt:message key="label.action_plan_assets.show" />
 				</a></li>
 			</c:if>
 		</ul>
