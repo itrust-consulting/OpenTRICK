@@ -2369,9 +2369,7 @@ public class Analysis implements Cloneable {
 		List<Asset> selectedAssets = new ArrayList<>();
 		if (assets == null)
 			return selectedAssets;
-		for (Asset asset : assets)
-			if (asset.isSelected())
-				selectedAssets.add(asset);
+		assets.stream().filter(asset -> asset.isSelected()).forEach(asset-> selectedAssets.add(asset));
 		return selectedAssets;
 	}
 
