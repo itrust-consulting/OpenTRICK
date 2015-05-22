@@ -269,7 +269,7 @@ public class WorkerComputeActionPlan implements Worker {
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.clear.soa", "Erasing of SAO", lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", lang, null));
 
 		analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
 				.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));

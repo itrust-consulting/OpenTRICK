@@ -246,4 +246,25 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 					.createQuery("Select count(*)>0 From Analysis analysis where analysis.identifier = :identifier and analysis.version = :version and analysis.owner = :owner")
 					.setParameter("identifier", identifier).setString("version", version).setParameter("owner", owner).uniqueResult();
 	}
+
+	@Override
+	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right) {
+		return (boolean) getSession()
+				.createQuery(
+						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))")
+				.setInteger("idAnalysis", idAnalysis).setString("username", username).setParameterList("rights", AnalysisRight.highRightFrom(right)).uniqueResult();
+	}
+
+	@Override
+	public void deleteByUser(User user) {
+		getSession().createQuery("Delete from UserAnalysisRight where user = :user").setParameter("user", user).executeUpdate();
+	}
+
+	@Override
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights) {
+		return (boolean) getSession()
+				.createQuery(
+						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and userRight.user.login = :username and userRight.right in (:rights)")
+				.setInteger("idAnalysis", idAnalysis).setString("username", username).setParameterList("rights", rights).uniqueResult();
+	}
 }

@@ -12,7 +12,7 @@
 <jsp:include page="../../template/header.jsp" />
 <body>
 	<div id="wrap">
-		<c:set var="isEditable" value="${analysis.getRightsforUserString(login).right.ordinal()<5}" scope="request" />
+		<c:set var="isEditable" value="${analysis.getRightsforUserString(login).right.ordinal()<3 && not isReadOnly}" scope="request" />
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="analysisMenu.jsp" />
@@ -47,7 +47,7 @@
 				<c:if test="${!analysis.isProfile()}">
 					<jsp:include page="./components/soa.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
-					<jsp:include page="./components/actionplan.jsp" />
+					<jsp:include page="./components/actionPlan/section.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
 					<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
@@ -78,5 +78,10 @@
 		<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
 	</c:if>
+	<script type="text/javascript">
+		<!-- 
+			application.isReadOnly =  ${!isEditable}; 
+		-->
+	</script>
 </body>
 </html>

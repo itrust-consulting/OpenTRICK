@@ -1,9 +1,23 @@
+function rrfError(message) {
+	if (message == undefined)
+		message = MessageResolver("error.unknown.occurred", "An unknown error occurred");
+	$("#rrfEditor #rrf-error .label").remove();
+	var alert = $("<label class='label label-danger'>" + message
+			+ " <a href='#' style='margin-left:10px;color:#fff;'   onclick='return $(this).parent().remove();'>&times;</a></label>");
+	alert.appendTo($("#rrfEditor #rrf-error"));
+	setTimeout(function() {
+		alert.remove();
+	}, 10000);
+	return false;
+}
+
 function loadRRF() {
+	$("#progress-dialog").modal("show");
 	$.ajax({
 		url : context + "/Analysis/RRF",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			newSection = $(doc).find("*[id ='rrfEditor']");
@@ -24,10 +38,13 @@ function loadRRF() {
 				$("#rrfEditor").modal("show");
 				setTimeout(function() {
 					loadMeasureChart();
+					$('#rrfEditor #chart-container-pending').remove();
 				}, 500);
 			}
 		},
 		error : unknowError
+	}).complete(function() {
+		$("#progress-dialog").modal("hide");
 	});
 
 	return false;
@@ -35,13 +52,18 @@ function loadRRF() {
 
 function initialiseMeasureSliders() {
 	$("#rrfEditor #control_rrf_measure .slider").slider().each(function() {
-		$(this).on("slideStop", function(event) {
-			var field = event.target.name;
-			var fieldValue = event.value;
-			var previousValue = $("#rrfEditor #control_rrf_measure #measure_" + field + "_value").attr("value");
-			$("#rrfEditor #control_rrf_measure input[id='measure_" + field + "_value']").attr("value", fieldValue);
-			return updateMeasureProperty(field, fieldValue, previousValue, $(this));
-		})
+		if (application.isReadOnly === true) {
+			$(this).prop("disabled", true);
+			$(this).addClass("disabled");
+		} else {
+			$(this).on("slideStop", function(event) {
+				var field = event.target.name;
+				var fieldValue = event.value;
+				var previousValue = $("#rrfEditor #control_rrf_measure #measure_" + field + "_value").attr("value");
+				$("#rrfEditor #control_rrf_measure input[id='measure_" + field + "_value']").attr("value", fieldValue);
+				return updateMeasureProperty(field, fieldValue, previousValue, $(this));
+			});
+		}
 	});
 }
 
@@ -59,32 +81,37 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 			"type" : "numeric"
 		}),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
-			if (response.error != undefined) {
+		success : function(response, textStatus, jqXHR) {
+			if (response.success == undefined) {
 				$("#rrfEditor #control_rrf_measure #measure_" + property + "_value").attr("value", previousValue);
-				console.log("error: " + response.error);
 				$(slider).slider('setValue', previousValue);
-			} else {
+				rrfError(response.error == undefined ? undefined : response.error);
+			} else
 				loadMeasureChart();
-			}
-
 		},
-		error : unknowError
+		error : function() {
+			rrfError();
+		}
 	});
 }
 
 function initialiseScenarioSliders() {
 	$("#rrfEditor #control_rrf_scenario .slider").slider().each(function() {
-		$(this).on("slideStop", function(event) {
-			var field = event.target.name;
-			var fieldValue = event.value;
-			var previousValue = $("#rrfEditor #control_rrf_scenario #scenario_" + field + "_value").attr("value");
-			var displayvalue = fieldValue;
-			if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
-				displayvalue = fieldValue.toFixed(1);
-			$("#rrfEditor #control_rrf_scenario #scenario_" + field + "_value").attr("value", displayvalue);
-			return updateScenarioProperty(field, fieldValue, previousValue, $(this));
-		})
+		if (application.isReadOnly === true) {
+			$(this).prop("disabled", true);
+			$(this).addClass("disabled");
+		} else {
+			$(this).on("slideStop", function(event) {
+				var field = event.target.name;
+				var fieldValue = event.value;
+				var previousValue = $("#rrfEditor #control_rrf_scenario #scenario_" + field + "_value").attr("value");
+				var displayvalue = fieldValue;
+				if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
+					displayvalue = fieldValue.toFixed(2);
+				$("#rrfEditor #control_rrf_scenario #scenario_" + field + "_value").attr("value", displayvalue);
+				return updateScenarioProperty(field, fieldValue, previousValue, $(this));
+			});
+		}
 	});
 }
 
@@ -93,7 +120,7 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 	if (idScenario == null || idScenario == undefined)
 		return false;
 	if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective")
-		value = value.toFixed(1);
+		value = value.toFixed(2);
 	$.ajax({
 		url : context + "/Analysis/EditField/Scenario/" + idScenario,
 		type : "post",
@@ -104,17 +131,17 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 			"type" : "numeric"
 		}),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
-			if (response.error != undefined) {
+		success : function(response, textStatus, jqXHR) {
+			if (response.success == undefined) {
 				$("#rrfEditor #control_rrf_scenario #scenario_" + property + "_value").attr("value", previousValue);
-				console.log("error: " + response.error);
+				rrfError(response.error == undefined ? undefined : response.error);
 				$(slider).slider('setValue', previousValue);
 			} else {
 
 				if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective") {
 					var result = +$("#control_rrf_scenario #scenario_preventive_value").val() + +$("#control_rrf_scenario #scenario_detective_value").val()
 							+ +$("#control_rrf_scenario #scenario_limitative_value").val() + +$("#control_rrf_scenario #scenario_corrective_value").val();
-					result = result.toFixed(1);
+					result = result.toFixed(2);
 					$("#control_rrf_scenario .pdlc").removeClass("success");
 					$("#control_rrf_scenario .pdlc").removeClass("danger");
 					if (result == 1)
@@ -127,7 +154,9 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 			}
 
 		},
-		error : unknowError
+		error : function() {
+			rrfError();
+		}
 	});
 }
 
@@ -159,12 +188,9 @@ function initialiseScenariosClick() {
 
 			// select measure parent
 			$(this).parent().parent().find("h4 a").addClass("active");
-			// $("#rrfEditor #selectable_rrf_measures_chapter_controls
-			// .active[data-trick-class='Measure']").removeClass("active");
 			loadScenario();
 			loadScenarioChart();
 		}
-		// console.log(classname + "::" + trickid);
 	});
 }
 
@@ -197,13 +223,9 @@ function initialiseMeasuresClick() {
 			// select measure parent
 			$(this).parent().parent().find("h4 a").addClass("active");
 
-			// $("#rrfEditor #selectable_rrf_scenario_controls
-			// .active[data-trick-class='Scenario']").removeClass("active");
-
 			loadMeasure();
 			loadMeasureChart();
 		}
-		// console.log(classname + "::" + trickid);
 	});
 }
 
@@ -218,7 +240,7 @@ function loadMeasure() {
 		url : context + "/Analysis/RRF/Standard/" + idStandard + "/Measure/" + idMeasure,
 		type : "GET",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
@@ -228,8 +250,6 @@ function loadMeasure() {
 
 			$("#rrfEditor #control_rrf_measure").html($(measurerrf).html());
 
-			// $("#rrfEditor #control_rrf_measure .slider").slider();
-
 			initialiseMeasureSliders();
 
 			$("#rrfEditor #control_rrf_measure").removeAttr("hidden");
@@ -238,7 +258,7 @@ function loadMeasure() {
 
 		},
 		error : function() {
-			unknowError;
+			rrfError();
 			return false;
 		}
 	});
@@ -253,37 +273,29 @@ function loadMeasureChart() {
 	if (idScenarioType == null || idScenarioType == undefined)
 		return false;
 	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
-	$
-			.ajax({
-				url : context + "/Analysis/RRF/Measure/" + idMeasure + "/Chart",
-				type : "POST",
-				data : JSON.stringify({
-					"scenariotype" : idScenarioType,
-					"scenario" : idScenario
-				}),
-				async : true,
-				contentType : "application/json;charset=UTF-8",
-				success : function(response,textStatus,jqXHR) {
-					$("#rrfEditor #chart_rrf").css("padding-right", "");
-					if (response.chart != null && response.chart != undefined) {
-						$("#rrfEditor #chart-container").highcharts(response).highcharts();
-						$("#rrfEditor #chart_rrf").css("padding-right", "14px");
-					} else if (response.error != undefined) {
-
-						$("#rrfEditor #chart-container")
-								.html(
-										'<div style="width: 100%; min-height: 340px; padding-top: 150px;padding-left:15px;padding-right:15px;"><div class="alert alert-danger" role="alert"><a data-dismiss="alert" href="#" class="close">x</a><p style="text-align: left">'
-												+ response.error + '</p></div></div>');
-
-					} else
-						unknowError();
-					return false;
-				},
-				error : function() {
-					unknowError;
-					return false;
-				}
-			});
+	$.ajax({
+		url : context + "/Analysis/RRF/Measure/" + idMeasure + "/Chart",
+		type : "POST",
+		data : JSON.stringify({
+			"scenariotype" : idScenarioType,
+			"scenario" : idScenario
+		}),
+		async : true,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			$("#rrfEditor #chart_rrf").css("padding-right", "");
+			if (response.chart != null && response.chart != undefined) {
+				$("#rrfEditor #chart-container").highcharts(response).highcharts();
+				$("#rrfEditor #chart_rrf").css("padding-right", "14px");
+			} else
+				rrfError(response.error == undefined ? undefined : response.error);
+			return false;
+		},
+		error : function() {
+			rrfError();
+			return false;
+		}
+	});
 	return false;
 }
 
@@ -295,7 +307,7 @@ function loadScenario() {
 		url : context + "/Analysis/RRF/Scenario/" + idScenario,
 		type : "GET",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
@@ -305,8 +317,6 @@ function loadScenario() {
 
 			$("#rrfEditor #control_rrf_scenario").html($(scenariorrf).html());
 
-			// $("#rrfEditor #control_rrf_scenario .slider").slider();
-
 			initialiseScenarioSliders();
 
 			$("#rrfEditor #control_rrf_scenario").removeAttr("hidden");
@@ -315,7 +325,7 @@ function loadScenario() {
 
 		},
 		error : function() {
-			unknowError;
+			rrfError();
 			return false;
 		}
 	});
@@ -338,41 +348,34 @@ function loadScenarioChart() {
 	if (idScenario == null || idScenario == undefined)
 		return null;
 
-	$
-			.ajax({
-				url : context + "/Analysis/RRF/Scenario/" + idScenario + "/Chart",
-				type : "POST",
-				data : JSON.stringify({
-					"idStandard" : idStandard,
-					"chapter" : chapter,
-					"idMeasure" : idMeasure,
-				}),
-				async : true,
-				contentType : "application/json;charset=UTF-8",
-				success : function(response,textStatus,jqXHR) {
-					$("#rrfEditor #chart_rrf").css("padding-right", "");
-					if (response.chart != null && response.chart != undefined) {
-						$("#rrfEditor #chart-container").highcharts(response).highcharts();
-						$("#rrfEditor #chart_rrf").css("padding-right", "14px");
-					} else if (response.error != undefined) {
-						$("#rrfEditor #chart-container")
-								.html(
-										'<div style="width: 100%; min-height: 340px; padding-top: 150px;padding-left:15px;padding-right:15px;"><div class="alert alert-danger" role="alert"><a data-dismiss="alert" href="#" class="close">x</a><p style="text-align: left">'
-												+ response.error + '</p></div></div>');
-					} else
-						unknowError();
-					return false;
-				},
-				error : function() {
-					unknowError;
-					return false;
-				}
-			});
+	$.ajax({
+		url : context + "/Analysis/RRF/Scenario/" + idScenario + "/Chart",
+		type : "POST",
+		data : JSON.stringify({
+			"idStandard" : idStandard,
+			"chapter" : chapter,
+			"idMeasure" : idMeasure,
+		}),
+		async : true,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			$("#rrfEditor #chart_rrf").css("padding-right", "");
+			if (response.chart != null && response.chart != undefined) {
+				$("#rrfEditor #chart-container").highcharts(response).highcharts();
+				$("#rrfEditor #chart_rrf").css("padding-right", "14px");
+			} else
+				rrfError(response.error == undefined ? undefined : response.error);
+			return false;
+		},
+		error : function() {
+			rrfError();
+			return false;
+		}
+	});
 	return false;
 }
 
-function initialiseStandardFilter()
-{
+function initialiseStandardFilter() {
 	$("#section_rrf [name='chapterselection']").change(function() {
 		var filter = $("option:selected", this).attr("value");
 		$("#selectable_rrf_measures_chapter_controls [class='list-group'][data-trick-filter-value]").css("display", "none");

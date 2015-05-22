@@ -40,4 +40,6 @@ public interface DAOUserSqLite {
 	public List<String> getDistinctIdentifierByUser(User user);
 
 	public List<UserSQLite> getAllFromUserByPageAndFilterControl(String username, Integer page, FilterControl filter);
+
+	public void deeleteByUser(User user);
 }

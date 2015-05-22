@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -17,7 +18,7 @@
 			</h2>
 			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
 			<span id="success" hidden="hidden"></span>
-			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister">
+			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister" onsubmit="return register('registerform')">
 				<div class="form-group">
 					<label for="login" class="col-sm-3 control-label">
 						<spring:message code="label.user.login" text="Username" />
@@ -76,14 +77,14 @@
 								English
 							</option>
 							<option value="fr" class="list-group-item pull-left" style="margin-right: 5px;background: white url(${pageContext.request.contextPath}/images/flags/fr.png) no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;" >
-								Français
+								FranÃ§ais
 							</option>
 						</select>
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-9">
-						<button class="btn btn-default" type="submit" onclick="return register('registerform');">
+						<button class="btn btn-default" type="submit">
 							<spring:message code="label.action.sign_up.user" text="Signup" />
 						</button>
 					</div>

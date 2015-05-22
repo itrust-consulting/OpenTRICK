@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -6,21 +7,21 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
-<c:set var="isAnalysisOnly" value="${measure.analysisStandard.standard.analysisOnly}"/>
 <c:set var="css">
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 </c:set>
+<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
-	<c:if test="${isAnalysisOnly || measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY' && measure.measureDescription.computable }">
-		ondblclick="return addMeasure(${standardid},${measure.id});"
+	<c:if test="${isEditable && (isAnalysisOnly || measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY' && measure.measureDescription.computable) }">
+		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>
 <c:choose>
 	<c:when test="${measure.measureDescription.computable==false}">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-			<c:if test="${isAnalysisOnly}">
-				<td><input disabled="disabled" type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+			<c:if test="${isAnalysisOnly and isEditable}">
+				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td><spring:message text="${measure.measureDescription.reference}" /></td>
 			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
@@ -30,7 +31,7 @@
 	<c:otherwise>
 		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-			<c:if test="${isAnalysisOnly}">
+			<c:if test="${isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
 			</c:if>
 			<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"

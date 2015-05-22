@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Locale"%>
 <%@page import="javax.servlet.http.HttpServletResponse"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -18,12 +19,12 @@
 					<a role="changeUILanguage" style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/en_disabled.png" />" />
 						English</a>&nbsp;
    				<a href="?lang=fr" role="changeUILanguage" style="color: #ffffff; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/fr.png" />" />
-						Français</a>
+						FranÃ§ais</a>
 				</c:when>
 				<c:when test="${languagecode.getISO3Language()=='fra'}">
 					<a href="?lang=en" role="changeUILanguage" style="color: #ffffff; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/en.png" />" /> English</a>&nbsp;
    				<a role="changeUILanguage" style="color: #c3c3c3; display: inline-block; padding: 5px;"><img src="<spring:url value="/images/flags/fr_disabled.png" />" />
-						Français</a>
+						FranÃ§ais</a>
 				</c:when>
 			</c:choose>
 		</div>

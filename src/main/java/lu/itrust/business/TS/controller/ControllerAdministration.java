@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.SwitchAnalysisOwnerHelper;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -39,6 +40,7 @@ import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.usermanagement.helper.UserDeleteHelper;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -233,6 +235,50 @@ public class ControllerAdministration {
 
 	}
 
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String uiSwitchAnalysisOwner(@PathVariable Integer idAnalysis, Model model, Principal principal, RedirectAttributes attributes, Locale locale) {
+		try {
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+			if (analysis == null || analysis.isProfile()) {
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return "redirect:/Error";
+			}
+			model.addAttribute("analysis", analysis);
+			Map<User, AnalysisRight> userAnalysisRights = new LinkedHashMap<User, AnalysisRight>();
+			analysis.getUserRights().forEach(userRight -> userAnalysisRights.put(userRight.getUser(), userRight.getRight()));
+			serviceUser.getAllOthers(userAnalysisRights.keySet()).forEach(user -> userAnalysisRights.put(user, null));
+			userAnalysisRights.remove(analysis.getOwner());
+			model.addAttribute("userAnalysisRights", userAnalysisRights);
+			return "admin/analysis/switch-owner";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/Error";
+		}
+	}
+
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner/{idOwner}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String switchAnalysisOwner(@PathVariable Integer idAnalysis, @PathVariable Integer idOwner, Model model, Principal principal,
+			RedirectAttributes attributes, Locale locale) {
+		try {
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			if (analysis == null || analysis.isProfile())
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			else if (analysis.getOwner().getId() == idOwner)
+				return JsonMessage.Success(messageSource.getMessage("info.nothing.changed", null, "Nothing was changed", locale));
+			User owner = serviceUser.get(idOwner);
+			if (owner == null)
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			new SwitchAnalysisOwnerHelper(serviceAnalysis). switchOwner(principal, analysis, owner);
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null, "Analysis owner was successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+	}
+
+	
+
 	/**
 	 * section: <br>
 	 * reload customer section by page index
@@ -258,9 +304,9 @@ public class ControllerAdministration {
 	@RequestMapping(value = "/Analysis/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids, Principal principal, HttpSession session) {
 		try {
-			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+			Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (selected != null && ids.contains(selected))
-				session.removeAttribute("selectedAnalysis");
+				session.removeAttribute(Constant.SELECTED_ANALYSIS);
 			return customDelete.deleteAnalysis(ids, principal.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -350,6 +396,7 @@ public class ControllerAdministration {
 			Analysis analysis = serviceAnalysis.get(analysisID);
 			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
 			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
+			serviceUser.getAllOthers(userrights.keySet()).forEach(user -> userrights.put(user, null));
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
@@ -454,7 +501,7 @@ public class ControllerAdministration {
 	 * @param customer
 	 * @param source
 	 * @param locale
-	 * @param userRoles 
+	 * @param userRoles
 	 * @return
 	 */
 	private User buildUser(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) {
@@ -526,7 +573,7 @@ public class ControllerAdministration {
 			if (!principal.getName().equals(user.getLogin())) {
 
 				user.getRoles().forEach(role -> userRoles.add(role));
-				
+
 				user.disable();
 
 				RoleType[] roletypes = RoleType.values();
@@ -574,13 +621,13 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			List<Role> userRoles = new LinkedList<Role>();
-			User user = buildUser(errors, value, locale,userRoles, principal);
+			User user = buildUser(errors, value, locale, userRoles, principal);
 			if (!errors.isEmpty())
 				return errors;
 			RoleType userAccess = user.getAccess();
@@ -592,7 +639,7 @@ public class ControllerAdministration {
 				 */
 				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
 						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-				//give access
+				// give access
 				user.getRoles()
 						.stream()
 						.filter(role -> role.getType() != userAccess)
@@ -605,7 +652,7 @@ public class ControllerAdministration {
 				/**
 				 * Log
 				 */
-				//remove access
+				// remove access
 				userRoles
 						.stream()
 						.filter(role -> !user.hasRole(role))
@@ -613,7 +660,7 @@ public class ControllerAdministration {
 								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
 										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
 										user.getLogin(), role.getType().name()));
-				//give access
+				// give access
 				user.getRoles()
 						.stream()
 						.filter(role -> !userRoles.contains(role))
@@ -640,29 +687,37 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/User/Delete/{userId}")
-	public @ResponseBody Map<String, String> deleteUser(@PathVariable("userId") int userId, Principal principal, Locale locale) throws Exception {
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+	@RequestMapping(value = "/User/{idUser}/Prepare-to-delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String deleteUser(@PathVariable int idUser, Model model, RedirectAttributes attributes, Locale locale) {
 		try {
-			User user = serviceUser.get(userId);
-			if (!user.getLogin().equals(principal.getName())) {
-				RoleType userAccess = user.getAccess();
-				String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
-				customDelete.deleteUser(user);
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.delete.user", String.format("User: %s, access: %s", user.getLogin(), userRole),
-						principal.getName(), LogAction.DELETE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-			} else {
-				errors.put("error", messageSource.getMessage("error.user.delete_your_account", null, "You cannot delete your own account!", locale));
-				return errors;
+			User user = serviceUser.get(idUser);
+			if (user == null) {
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return "redirect:/Error";
 			}
+			model.addAttribute("user", user);
+			model.addAttribute("users", serviceUser.getAllOthers(user));
+			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
+			return "admin/user/delete-dialog";
 		} catch (Exception e) {
 			e.printStackTrace();
-			errors.put("error", messageSource.getMessage("error.user.delete_failed", null, "Could not delete the account! Make sure the user does not own any analyses!", locale));
+			return "redirect:/Error";
+		}
+	}
+
+	@RequestMapping(value = "/User/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Object deleteUser(@RequestBody UserDeleteHelper deleteHelper, Principal principal, Locale locale) {
+		Map<Object, String> errors = new LinkedHashMap<Object, String>();
+		try {
+			customDelete.deleteUser(deleteHelper, errors, principal, messageSource, locale);
+			if (errors.isEmpty())
+				return JsonMessage.Success(messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (errors.isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
-
 	}
+
 }

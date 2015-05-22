@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -42,6 +43,9 @@
 				<button id="addlanguagebutton" type="button" class="btn btn-primary" onclick="saveLanguage('language_form')">
 					<spring:message code="label.action.add.language" text="Add" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -60,7 +64,7 @@
 				<button id="deletelanguagebuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
 					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
-				<button id="deletelanguagebuttonCancel" type="button" class="btn" data-dismiss="modal">
+				<button id="deletelanguagebuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>

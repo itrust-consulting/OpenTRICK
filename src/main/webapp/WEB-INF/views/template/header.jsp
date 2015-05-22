@@ -19,4 +19,9 @@
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
+<script type="text/javascript">
+<!--
+	var context = '${pageContext.request.contextPath}';
+	-->
+</script>
 </head>

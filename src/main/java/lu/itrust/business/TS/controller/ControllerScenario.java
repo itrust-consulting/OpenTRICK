@@ -112,12 +112,12 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
 
 		try {
 
-			Integer analysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha2());
 
@@ -136,7 +136,7 @@ public class ControllerScenario {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.successfully", null, "Scenario was updated successfully", customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 
-			Integer analysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha2());
 			// return error message
@@ -156,7 +156,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) throws Exception {
 
 		// set error list
@@ -166,7 +166,7 @@ public class ControllerScenario {
 
 			for (Integer id : ids) {
 
-				Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+				Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
@@ -179,7 +179,7 @@ public class ControllerScenario {
 
 			// parse each scenario id
 			for (Integer id : ids) {
-				Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+				Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 				// select elements
@@ -192,7 +192,7 @@ public class ControllerScenario {
 			return errors;
 
 		} catch (Exception e) {
-			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			// return error message
@@ -214,11 +214,11 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).DELETE)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
 		try {
 
-			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
@@ -228,7 +228,7 @@ public class ControllerScenario {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null, "Scenario was deleted successfully", customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 
-			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
@@ -249,20 +249,23 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
-		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (integer == null)
 			return null;
+		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		if(isReadOnly == null)
+			isReadOnly = false;
 
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
-		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/singleAnalysis/components/scenario/scenario";
@@ -277,9 +280,9 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Add")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
+		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (serviceAnalysis.isAnalysisCssf(analysisID))
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
@@ -298,10 +301,10 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Edit/{elementID}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		if (idAnalysis == null)
 			return null;
@@ -318,10 +321,10 @@ public class ControllerScenario {
 	}
 
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteDuplicationAssetTypeValue(HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
-			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisId);
@@ -329,7 +332,7 @@ public class ControllerScenario {
 			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null, "Duplication were successfully deleted", customLocale != null ? customLocale
 				: locale));
 		} catch (Exception e) {
-			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			e.printStackTrace();
@@ -350,7 +353,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create errors list
@@ -359,7 +362,7 @@ public class ControllerScenario {
 		try {
 
 			// get analysis id
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			if (idAnalysis == null) {
 				errors.put("scenario", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
@@ -411,7 +414,7 @@ public class ControllerScenario {
 			return errors;
 
 		} catch (TrickException e) {
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis != null) {
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
@@ -420,7 +423,7 @@ public class ControllerScenario {
 			e.printStackTrace();
 			return errors;
 		} catch (Exception e) {
-			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
+			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
@@ -441,10 +444,10 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		if (idAnalysis == null)
 			return null;
@@ -465,9 +468,9 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
 

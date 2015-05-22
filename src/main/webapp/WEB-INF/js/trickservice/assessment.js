@@ -2,20 +2,37 @@ AssessmentViewer.prototype = new Modal();
 
 function AssessmentViewer() {
 
+	AssessmentViewer.prototype.FixHeader = function(container) {
+		/*var instance = this;
+		setTimeout(function(){
+			$("table", instance.modal_body).stickyTableHeaders({
+				cssTopOffset : container,
+				fixedOffset : application.fixedOffset
+			});
+		},500);*/
+	}
+	
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 100%;");
+		$(this.modal_dialog).css({"width": "100%"});
 		var lang = $("#nav-container").attr("data-trick-language");
-	
+
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
 		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
-		var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
-		var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
-		$(this.modal_title).replaceWith(
-				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
-						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale
-						+ "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>" + enableEditModeText
-						+ "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
+		if (application.isReadOnly !== true) {
+			var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
+			var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
+			$(this.modal_title).replaceWith(
+					$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
+							+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale
+							+ "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>" + enableEditModeText
+							+ "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
+		} else {
+			$(this.modal_title).replaceWith(
+					$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
+							+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><ul></div>"));
+		}
+
 		$(this.modal_footer).remove();
 		this.dialogError = $("#alert-dialog").clone();
 		$(this.dialogError).removeAttr("id");
@@ -59,12 +76,12 @@ function AssessmentViewer() {
 				'overflow' : 'auto'
 			});
 		}
-		
-		$(window).on('resize.assessment',resizer);
+
+		$(window).on('resize.assessment', resizer);
 		resizer.apply(resizer, null);
 		$(this.modal).on("hidden.bs.modal", function() {
 			application.modal["AssessmentViewer"] = undefined;
-			$(window).off('resize.assessment',resizer)
+			$(window).off('resize.assessment', resizer)
 		});
 
 		$(this.modal).find(".modal-content").css({
@@ -186,7 +203,7 @@ function AssessmentAssetViewer(assetId) {
 				if (assessments.length) {
 					$(instance.modal_body).html($(assessments).html());
 					instance.setTitle($(assessments).attr("data-trick-name"));
-					var table = $(instance.modal_body).find('table');
+					instance.FixHeader("#section_asset_assessment .modal-body");
 					if (callback != null && $.isFunction(callback))
 						return callback();
 				} else
@@ -212,6 +229,7 @@ function AssessmentAssetViewer(assetId) {
 					if (instance.SmartUpdate.apply(instance, assessments)) {
 						instance.setBody(assessments);
 						instance.setTitle($(assessments).attr("data-trick-name"));
+						instance.FixHeader("#section_asset_assessment .modal-body");
 					}
 				} else
 					unknowError();
@@ -239,12 +257,11 @@ function AssessmentScenarioViewer(scenarioId) {
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_scenario_assessment']");
+				var assessments = $("#section_scenario_assessment",new DOMParser().parseFromString(reponse, "text/html"));
 				if (assessments.length) {
 					$(instance.modal_body).html($(assessments).html());
 					instance.setTitle($(assessments).attr("data-trick-name"));
+					instance.FixHeader("#section_scenario_assessment .modal-body");
 					if (callback != null && $.isFunction(callback))
 						return callback();
 				} else
@@ -269,6 +286,7 @@ function AssessmentScenarioViewer(scenarioId) {
 					if (instance.SmartUpdate.apply(instance, assessments)) {
 						instance.setBody(assessments);
 						instance.setTitle($(assessments).attr("data-trick-name"));
+						instance.FixHeader("#section_scenario_assessment .modal-body");
 					}
 				} else
 					unknowError();
@@ -305,7 +323,7 @@ function computeAssessment(silent) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
@@ -336,7 +354,7 @@ function refreshAssessment() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					if (response['error'] != undefined) {
 						$("#info-dialog .modal-body").text(response['error']);
 						$("#info-dialog").modal("toggle");
@@ -365,7 +383,7 @@ function updateAssessmentAle(silent) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");

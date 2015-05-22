@@ -13,12 +13,18 @@ function Application() {
 	this.data = {};
 	this.rights = {}
 	this.localesMessages = {};
+	this.fixedOffset = 5
+}
+
+function showDialog(dialog, message) {
+	$(dialog).find(".modal-body").text(message);
+	return $(dialog).modal("show");
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
 	if (typeof exception != 'undefined' && exception === 'abort' || application["isReloading"])
 		return false;
-	new Modal($("#alert-dialog").clone(), MessageResolver("error.unknown.occurred", "An unknown error occurred")).Show();
+	showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 	return true;
 }
 
@@ -55,7 +61,9 @@ $(function() {
 				var optionMenu = tabContainer.find(".tab-pane.active ul.nav.nav-pills");
 				var tableFloatingHeader = tabContainer.find(".tab-pane.active table .tableFloatingHeader");
 				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-					option.hide()
+					option.fadeOut(function() {
+						option.hide();
+					});
 				else {
 					if (!option.find("#" + optionMenu.prop("id")).length) {
 						option.find("ul").remove();
@@ -65,7 +73,9 @@ $(function() {
 						cloneOption.find("li").removeClass("pull-right")
 						cloneOption.addClass("dropdown-menu")
 					}
-					option.show();
+					option.fadeIn(function() {
+						option.show();
+					});
 				}
 			}
 
@@ -93,23 +103,7 @@ $(function() {
 		});
 	}
 
-	if ($("ul.nav-analysis").length) {
-		$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-			var $target = $(e.currentTarget);
-			if ($target.find("li.active").length && !$target.hasClass("active"))
-				$target.addClass("active");
-		});
-
-		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-			disableEditMode();
-			var target = $(e.target).attr("href");
-			if ($(target).attr("data-update-required") == "true") {
-				window[$(target).attr("data-trigger")].apply();
-				$(target).attr("data-update-required", "false");
-			}
-			$("#tabOption").hide();
-		});
-	} else {
+	if (!$("ul.nav-analysis").length) {
 		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 			var target = $(e.target).attr("href");
 			if ($(target).attr("data-update-required") == "true") {
@@ -118,19 +112,6 @@ $(function() {
 			}
 		});
 	}
-
-	if ($('.table-fixed-header').length) {
-		$('table.table-fixed-header').floatThead({
-			scrollContainer : function($table) {
-				return $table.closest('.panel-body');
-			}
-		});
-	}
-
-	$("table.table-fixed-header-analysis").stickyTableHeaders({
-		cssTopOffset : ".nav-analysis",
-		fixedOffset : 6
-	});
 
 });
 
@@ -220,35 +201,22 @@ var ANALYSIS_RIGHT = {
 		value : 0,
 		name : "ALL"
 	},
-	DELETE : {
-		value : 1,
-		name : "DELETE"
-	},
-	CALCULATE_RISK_REGISTER : {
-		value : 2,
-		name : "CALCULATE_RISK_REGISTER"
-	},
-	CALCULATE_ACTIONPLAN : {
-		value : 3,
-		name : "CALCULATE_ACTIONPLAN"
-	},
-	MODIFY : {
-		value : 4,
-		name : "MODIFY"
-	},
 	EXPORT : {
-		value : 5,
+		value : 1,
 		name : "EXPORT"
 	},
+	MODIFY : {
+		value : 2,
+		name : "MODIFY"
+	},
 	READ : {
-		value : 6,
+		value : 3,
 		name : "READ"
 	}
 };
 
 function permissionError() {
-	var language = $("#nav-container").attr("data-trick-language");
-	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!", null, language)).Show();
+	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!", null, $("#nav-container").attr("data-trick-language")));
 	return false;
 }
 
@@ -267,8 +235,12 @@ function findRight(idAnalysis) {
 
 function userCan(idAnalysis, action) {
 	var right = findRight(idAnalysis);
-	if (right != undefined && action.value != undefined)
-		return right.value <= action.value;
+	if (right != undefined && action.value != undefined) {
+		if (application.isReadOnly === true)
+			return action == ANALYSIS_RIGHT.READ
+		else
+			return right.value <= action.value;
+	}
 	return false;
 }
 
@@ -311,11 +283,6 @@ function canManageAccess() {
  * @returns
  */
 function MessageResolver(code, defaulttext, params, language) {
-	var uniqueCode = "|^|" + code + "__uPu_*+*_*+*_+*+_PuP__" + params + "|$|";// mdr
-	if (application.localesMessages[uniqueCode] != undefined)
-		return application.localesMessages[uniqueCode];
-	else
-		application.localesMessages[uniqueCode] = defaulttext;
 
 	if (language == undefined || language == null) {
 		language = $("[data-trick-language]").attr("data-trick-language");
@@ -323,12 +290,19 @@ function MessageResolver(code, defaulttext, params, language) {
 			language = $("html").attr("lang");
 	}
 
+	var uniqueCode = "|^|" + code + "__uPu_*-" + language + "-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	if (application.localesMessages[uniqueCode] != undefined)
+		return application.localesMessages[uniqueCode];
+	else
+		application.localesMessages[uniqueCode] = defaulttext;
+
 	var data = {
 		"code" : code,
 		"message" : defaulttext,
 		"language" : language,
 		parameters : []
 	}
+
 	if ($.isArray(params))
 		data.parameters = params;
 	else if (params && params.length)
@@ -433,10 +407,10 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	if (sender) {
 		if ($(sender).is(":checked")) {
 			$(sender).parent().parent().addClass("info")
-			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $(idMenu + " li[data-trick-selectable='multi']") : $(application[appModalVar].modal)
-					.find(idMenu + " li[data-trick-selectable='multi']")).length == 0;
+			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $("li[data-trick-selectable='multi']", idMenu) : $(idMenu
+					+ " li[data-trick-selectable='multi']", application[appModalVar].modal)).length == 0;
 			if (multiSelectNotAllowed) {
-				var items = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked");
+				var items = $("tbody :checked", ((appModalVar == undefined || appModalVar == null) ? idsection : application[appModalVar].modal));
 				for (var i = 0; i < items.length; i++) {
 					if (sender == $(items[i])[0])
 						continue;

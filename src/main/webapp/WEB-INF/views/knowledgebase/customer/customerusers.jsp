@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -12,7 +13,7 @@
 			<b><spring:message text="${customer.organisation}"/></b>
 			<hr />
 		</div>
-		<div class="panel-body">
+		<div class="panel-body" >
 			<c:choose>
 				<c:when test="${!empty users}">
 					<select multiple id="usercustomer" name="usercustomer" class="form-control">

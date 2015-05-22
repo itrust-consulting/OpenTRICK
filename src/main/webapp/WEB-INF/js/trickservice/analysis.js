@@ -13,13 +13,40 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 
 	$("input[type='checkbox']").removeAttr("checked");
+	
+	$("table.table-fixed-header-analysis").stickyTableHeaders({
+		cssTopOffset : ".nav-analysis",
+		fixedOffset : application.fixedOffset
+	});
+	
+	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
+		var $target = $(e.currentTarget);
+		if ($target.find("li.active").length && !$target.hasClass("active"))
+			$target.addClass("active");
+	});
+
+	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+		disableEditMode();
+		var target = $(e.target).attr("href");
+		if ($(target).attr("data-update-required") == "true") {
+			window[$(target).attr("data-trigger")].apply();
+			$(target).attr("data-update-required", "false");
+		}
+		$("#tabOption").hide();
+	});
+	Highcharts.setOptions({
+		lang : {
+			decimalPoint : ',',
+			thousandsSep : ' '
+		}
+	});
 });
 
 function findAnalysisId() {
 	return $("#nav-container").attr("data-trick-id");
 }
 
-function isEditable(){
+function isEditable() {
 	return userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY);
 }
 
@@ -32,7 +59,7 @@ function updateSettings(element, entryKey) {
 			'value' : !$(element).hasClass('glyphicon-ok')
 		},
 		async : false,
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response == undefined || response !== true)
 				unknowError();
 			else {
@@ -64,13 +91,15 @@ function reloadMeasureRow(idMeasure, standard) {
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
-			var element = document.createElement("div");
-			$(element).html(response);
-			var tag = $(element).find("tr[data-trick-id='" + idMeasure + "']");
-			if (tag.length) {
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith(tag);
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
+		success : function(response, textStatus, jqXHR) {
+			var $newData = $("<div/>").html(response.trim()).find('tr');
+			if (!$newData.length)
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").addClass("danger").attr("title",
+						MessageResolver("error.ui.no.synchronise", "User interface does not update"));
+			else {
+				$(".popover").remove();
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith($newData);
+				$newData.find("td[data-toggle='popover']").popover("hide");
 			}
 		},
 		error : unknowError
@@ -90,28 +119,17 @@ function compliances() {
 	$.ajax({
 		url : context + "/Analysis/Standard/Compliances",
 		type : "get",
-		async : true,
 		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response,textStatus,jqXHR) {
-
+		success : function(response, textStatus, jqXHR) {
 			if (response.standards == undefined || response.standards == null)
 				return;
-
-			var panelbody = $("#chart_compliance_body");
-
-			$(panelbody).html("");
-
+			var $complianceBody = $("#chart_compliance_body").empty();
 			$.each(response.standards, function(key, data) {
-
-				// console.log(key);
-
-				$(panelbody).append("<div id='chart_compliance_" + key + "'></div>");
-
+				if($complianceBody.children().length)
+					$complianceBody.append("<hr class='col-xs-12' style='margin: 30px 0;'> <div id='chart_compliance_" + key + "'></div>");
+				else $complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
 				$('div[id="chart_compliance_' + key + '"]').highcharts(data[0]);
-
 			});
-
 		},
 		error : unknowError
 	});
@@ -128,7 +146,7 @@ function compliance(standard) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
 				$('#chart_compliance_' + standard).highcharts(response);
@@ -150,7 +168,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
@@ -172,7 +190,7 @@ function budgetByActionPlanType(actionPlanType) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_budget_' + actionPlanType).highcharts(response);
@@ -198,7 +216,7 @@ function summaryCharts() {
 	return false;
 }
 
-function loadChartEvolution(){
+function loadChartEvolution() {
 	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
@@ -210,7 +228,7 @@ function loadChartEvolution(){
 	return false;
 }
 
-function loadChartBudget(){
+function loadChartBudget() {
 	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
@@ -239,7 +257,7 @@ function loadChartAsset() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_asset').highcharts(response);
 				},
 				error : unknowError
@@ -253,7 +271,7 @@ function loadChartAsset() {
 				url : context + "/Analysis/Asset/Chart/Type/Ale",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_asset_type').highcharts(response);
 				},
 				error : unknowError
@@ -272,7 +290,7 @@ function loadChartScenario() {
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_scenario_type').highcharts(response);
 				},
 				error : unknowError
@@ -287,7 +305,7 @@ function loadChartScenario() {
 				url : context + "/Analysis/Scenario/Chart/Ale",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
-				success : function(response,textStatus,jqXHR) {
+				success : function(response, textStatus, jqXHR) {
 					$('#chart_ale_scenario').highcharts(response);
 				},
 				error : unknowError
@@ -307,84 +325,27 @@ function chartALE() {
 	return false;
 }
 
-function measureSortTable(element) {
-	// check if datatable has to be initialised
-	var tables = $(element).find("table");
-	if (!tables.length)
-		return false;
-	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
-
-	// flag to check for case sensitive comparation
-	Array.AlphanumericSortIgnoreCase = true;
-
-	// call the tablesorter plugin and apply the uitheme widget
-	$(tables).tablesorter({
-		headers : {
-			0 : {
-				sorter : false,
-			}
-		},
-		textSorter : {
-			1 : Array.AlphanumericSort,
-			2 : function(a, b, direction, column, table) {
-				if (table.config.sortLocaleCompare)
-					return a.localeCompare(b);
-				return versionComparator(a, b);
-			},
-			3 : $.tablesorter.sortNatural
-		},
-		theme : "bootstrap",
-		headerTemplate : '{icon} {content}',
-		widthFixed : true,
-		widgets : [ "uitheme" ]
-	});
-}
-
 // common
-
-function navToogled(section, navSelected, fixedHeader) {
-	var currentMenu = $("#" + section + " *[data-trick-nav-control='" + navSelected + "']");
+function navToogled(section, parentMenu, navSelected) {
+	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']",parentMenu);
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	var controls = $("#" + section + " *[data-trick-nav-control]");
-	var data = $("#" + section + " *[data-trick-nav-data]");
-
-	for (var i = 0; i < controls.length; i++) {
-		if ($(controls[i]).attr("data-trick-nav-control") == navSelected)
-			$(controls[i]).addClass("disabled");
-		else
-			$(controls[i]).removeClass("disabled");
-		if ($(data[i]).attr("data-trick-nav-data") != navSelected) {
-			/*if (fixedHeader) {
-				var table = $(data[i]).find("table");
-				if (table.length && $(table).destroy != undefined)
-					$(table).destroy();
-			}*/
-			$(data[i]).hide();
-		} else {
-			$(data[i]).show();
-			/*if (fixedHeader) {
-				var table = $(data[i]).find("table");
-				if (table.length){
-					$(table).stickyTableHeaders({
-						cssTopOffset : ".nav-analysis",
-						fixedOffset : 6
-					});
-				}
-			}*/
-		}
-	}
-	return false;
-
-}
-
-$(function() {
-	Highcharts.setOptions({
-		lang : {
-			decimalPoint : ',',
-			thousandsSep : ' '
-		}
+	$("li[data-trick-nav-control]",parentMenu).each(function() {
+		var $this = $(this);
+		if ($this.attr("data-trick-nav-control") == navSelected)
+			$this.addClass("disabled");
+		else if($this.hasClass('disabled'))
+			$this.removeClass("disabled");
 	});
 
-});
+	$("[data-trick-nav-content]",section).each(function() {
+		var $this = $(this);
+		if ($this.attr("data-trick-nav-content") == navSelected)
+			$this.show();
+		else if($this.is(":visible"))
+			$this.hide();
+	});
+	$(window).scroll();
+	return false;
+}
+

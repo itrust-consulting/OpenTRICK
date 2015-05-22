@@ -430,21 +430,23 @@ function removeStandard() {
 }
 
 // management of measures of analysis only standards
+function addMeasure(element,idStandard) {
+	if ($(element).parent().hasClass("disabled") || idStandard == undefined || idStandard == null || !$.isNumeric(idStandard))
+		return false;
+	return manageMeasure(context + "/Analysis/Standard/" + idStandard + "/Measure/New");
+}
 
-function addMeasure(idStandard, idMeasure) {
-	if (idStandard == undefined || idStandard == null) {
-		idStandard = $(".tab-pane.active").attr("data-trick-id");
-		if (idStandard == undefined || idStandard == null)
-			return false;
-	}
-
+function editMeasure(element,idStandard,idMeasure){
+	if ($(element).parent().hasClass("disabled") || idStandard == undefined || idStandard == null || !$.isNumeric(idStandard))
+		return false;
 	if (idMeasure == null || idMeasure == undefined)
 		idMeasure = findSelectItemIdBySection("section_standard_" + idStandard);
+	if (idMeasure == null || idMeasure == undefined || !$.isNumeric(idStandard))
+		return false;
+	return manageMeasure(context + "/Analysis/Standard/Measure/" + idMeasure + "/Edit");
+}
 
-	var url = context + "/Analysis/Standard/" + idStandard + "/Measure/New";
-	if (!(idMeasure == null || idMeasure == undefined) && $.isNumeric(idMeasure))
-		url = context + "/Analysis/Standard/Measure/" + idMeasure + "/Edit";
-
+function manageMeasure(url) {
 	$.ajax({
 		url : url,
 		type : "get",
@@ -458,7 +460,6 @@ function addMeasure(idStandard, idMeasure) {
 					$content.appendTo($("#widgets"));
 				$content.find("#measure_form_tabs").tab();
 				var $assetTab = $content.find("#tab_asset");
-
 				if ($assetTab.length) {
 
 					var onSelectedAsset = function(asset) {

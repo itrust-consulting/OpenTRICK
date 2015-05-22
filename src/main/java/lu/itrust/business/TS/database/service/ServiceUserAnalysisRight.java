@@ -16,6 +16,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 9, 2013
  */
 public interface ServiceUserAnalysisRight {
+	
 	public UserAnalysisRight get(Integer id) throws Exception;
 
 	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) throws Exception;
@@ -45,4 +46,9 @@ public interface ServiceUserAnalysisRight {
 	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
 
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int AnalysisId);
+
+	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right);
+
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights);
+
 }

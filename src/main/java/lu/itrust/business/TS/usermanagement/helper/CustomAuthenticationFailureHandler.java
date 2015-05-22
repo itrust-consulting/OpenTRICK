@@ -35,7 +35,9 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
 		Date date = new Date();
 		String stringdate = dateFormat.format(date);
-		String remoteaddr = request.getRemoteAddr();
+		String remoteaddr = request.getHeader("X-FORWARDED-FOR");
+		if (remoteaddr == null)
+			remoteaddr = request.getRemoteAddr();
 		if (exception.getClass().isAssignableFrom(BadCredentialsException.class)) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + request.getParameter("j_username") + "' does not exist! Requesting IP: "
 					+ remoteaddr);

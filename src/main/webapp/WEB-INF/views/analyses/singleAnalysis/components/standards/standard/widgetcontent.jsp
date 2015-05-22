@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -89,6 +90,9 @@
 				<button id="createstandardbutton" type="button" class="btn btn-primary" onclick="doCreateStandard('standard_form')">
 					<fmt:message key="label.action.create" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -113,7 +117,7 @@
 					<button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
 						<fmt:message key="label.yes" />
 					</button>
-					<button id="deletestandardbuttonCancel" type="button" class="btn" data-dismiss="modal">
+					<button id="deletestandardbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
 						<fmt:message key="label.action.cancel" />
 					</button>
 				</div>

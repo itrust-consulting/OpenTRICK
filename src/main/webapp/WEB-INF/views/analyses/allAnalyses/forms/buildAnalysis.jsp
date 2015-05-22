@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -130,7 +131,7 @@
 							<div class="form-group">
 								<label for="scope" class="col-sm-3 control-label"> <spring:message code="label.analysis.scope" text="Scope" />
 								</label>
-								<div class="col-sm-9" id="analysis-build-scope" name="scope" dropzone="true">
+								<div class="col-sm-9" id="analysis-build-scope" data-trick-name="scope" dropzone="true">
 									<div class="well well-sm">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
@@ -140,7 +141,7 @@
 							<div class="form-group">
 								<label for="riskInformation" class="col-sm-3 control-label"> <spring:message code="label.analysis.risk_information" text="Risk information" />
 								</label>
-								<div class="col-sm-9" id="analysis-build-riskInformation" name="riskInformation" dropzone="true">
+								<div class="col-sm-9" id="analysis-build-riskInformation" data-trick-name="riskInformation" dropzone="true">
 									<div class="well well-sm">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
@@ -150,7 +151,7 @@
 							<div class="form-group">
 								<label for="parameters" class="col-sm-3 control-label"> <spring:message code="label.analysis.parameters" text="Parameters" />
 								</label>
-								<div class="col-sm-9" id="analysis-build-parameters" name="parameter" dropzone="true">
+								<div class="col-sm-9" id="analysis-build-parameters" data-trick-name="parameter" dropzone="true">
 									<div class="well well-sm">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
@@ -160,7 +161,7 @@
 							<div class="form-group">
 								<label for="assets" class="col-sm-3 control-label"> <spring:message code="label.analysis.assets" text="Assets" />
 								</label>
-								<div class="col-sm-9" id="analysis-build-assets" name="asset" dropzone="true">
+								<div class="col-sm-9" id="analysis-build-assets" data-trick-name="asset" dropzone="true">
 									<div class="well well-sm">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
@@ -170,7 +171,7 @@
 							<div class="form-group">
 								<label for="scenarios" class="col-sm-3 control-label"> <spring:message code="label.analysis.scenarios" text="Scenarios" />
 								</label>
-								<div class="col-sm-9" id="analysis-build-scenarios" dropzone="true" name="scenario">
+								<div class="col-sm-9" id="analysis-build-scenarios" dropzone="true" data-trick-name="scenario">
 									<div class="well well-sm">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
@@ -186,7 +187,7 @@
 							</div>
 							<div class="form-group">
 								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
-								<div class="col-sm-9" id="analysis-build-standards" name="standard" dropzone="true">
+								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standard" dropzone="true">
 									<div class="well well-sm">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>

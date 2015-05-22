@@ -2,7 +2,7 @@ $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
 	$("#tab-container table").stickyTableHeaders({
 		cssTopOffset : ".nav-tab",
-		fixedOffset : 6
+		fixedOffset : application.fixedOffset
 	});
 	
 	var resizer = function() {

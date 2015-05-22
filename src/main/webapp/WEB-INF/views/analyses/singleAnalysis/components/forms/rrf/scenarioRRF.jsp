@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -29,16 +30,16 @@
 					<tbody>
 						<tr style="height: 200px;">
 							<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="${selectedScenario.preventive}" data-slider-min="0"
-								data-slider-max="1" data-slider-step="0.1" data-slider-value="${selectedScenario.preventive}" data-slider-orientation="vertical" data-slider-selection="after"
+								data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.preventive}" data-slider-orientation="vertical" data-slider-selection="after"
 								name="preventive" data-slider-tooltip="show"></td>
 							<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="${selectedScenario.detective}" data-slider-min="0"
-								data-slider-max="1" data-slider-step="0.1" data-slider-value="${selectedScenario.detective}" name="detective" data-slider-orientation="vertical"
+								data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.detective}" name="detective" data-slider-orientation="vertical"
 								data-slider-selection="after" data-slider-tooltip="show"></td>
 							<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="${selectedScenario.limitative}" data-slider-min="0"
-								data-slider-max="1" data-slider-step="0.1" data-slider-value="${selectedScenario.limitative}" data-slider-orientation="vertical" data-slider-selection="after"
+								data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.limitative}" data-slider-orientation="vertical" data-slider-selection="after"
 								name="limitative" data-slider-tooltip="show"></td>
 							<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="${selectedScenario.corrective}" data-slider-min="0"
-								data-slider-max="1" data-slider-step="0.1" data-slider-value="${selectedScenario.corrective}" name="corrective" data-slider-orientation="vertical"
+								data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.corrective}" name="corrective" data-slider-orientation="vertical"
 								data-slider-selection="after" data-slider-tooltip="show"></td>
 								
 							<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="${selectedScenario.intentional}" data-slider-min="0"

@@ -60,6 +60,7 @@ import lu.itrust.business.TS.validator.AssessmentValidator;
 import lu.itrust.business.TS.validator.ExtendedParameterValidator;
 import lu.itrust.business.TS.validator.HistoryValidator;
 import lu.itrust.business.TS.validator.MaturityParameterValidator;
+import lu.itrust.business.TS.validator.MeasureValidator;
 import lu.itrust.business.TS.validator.ParameterValidator;
 import lu.itrust.business.TS.validator.RiskInformationValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
@@ -147,14 +148,14 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/ItemInformation/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ItemInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ItemInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String itemInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -190,7 +191,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -202,7 +203,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -214,7 +215,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (InvocationTargetException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -226,7 +227,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (RuntimeException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -238,7 +239,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -249,7 +250,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -263,12 +264,12 @@ public class ControllerEditField {
 	}
 
 	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String asset(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 
 			// retrieve analysis
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
@@ -305,7 +306,7 @@ public class ControllerEditField {
 
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -316,7 +317,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -339,14 +340,14 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Parameter/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String parameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -399,7 +400,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 		} catch (NoSuchFieldException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -411,7 +412,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -423,7 +424,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -435,7 +436,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -447,7 +448,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -459,7 +460,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -473,7 +474,7 @@ public class ControllerEditField {
 
 		catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -486,7 +487,7 @@ public class ControllerEditField {
 
 		catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -510,13 +511,13 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/ExtendedParameter/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
 
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -591,7 +592,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 		} catch (NoSuchFieldException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -603,7 +604,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -615,7 +616,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -627,7 +628,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -639,7 +640,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -651,7 +652,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -663,7 +664,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -675,7 +676,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -689,14 +690,14 @@ public class ControllerEditField {
 	}
 
 	@RequestMapping(value = "/MaturityParameter/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String maturityparameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -750,7 +751,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 		} catch (NoSuchFieldException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -762,7 +763,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -774,7 +775,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -786,7 +787,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -798,7 +799,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -810,7 +811,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -822,7 +823,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -834,7 +835,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -858,14 +859,14 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Assessment/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Assessment', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Assessment', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -940,7 +941,7 @@ public class ControllerEditField {
 					: locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -952,7 +953,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -976,14 +977,14 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/History/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'History', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'History', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String history(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
@@ -1028,7 +1029,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 		} catch (NoSuchFieldException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1040,7 +1041,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1052,7 +1053,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1064,7 +1065,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.format.number", null, "Number expected", cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1076,7 +1077,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1088,7 +1089,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1100,7 +1101,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.format.date", null, "Date expected", cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1112,7 +1113,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1138,13 +1139,13 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String scenario(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
 
 			// retrieve analysis
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
@@ -1200,7 +1201,7 @@ public class ControllerEditField {
 
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1211,7 +1212,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1235,14 +1236,14 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Measure/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String measure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
@@ -1283,6 +1284,14 @@ public class ControllerEditField {
 					Object value = FieldValue(fieldEditor, null);
 					if (value == null)
 						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+
+					// get validator
+					if (!serviceDataValidation.isRegistred(Measure.class))
+						serviceDataValidation.register(new MeasureValidator());
+
+					String error = serviceDataValidation.validate(measure, fieldEditor.getFieldName(), value);
+					if (error != null)
+						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
 
 					if (fieldEditor.getFieldName().equals("implementationRate"))
 						if ((Double) value < 0. || (Double) value > 100.)
@@ -1422,7 +1431,7 @@ public class ControllerEditField {
 
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1433,7 +1442,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1457,13 +1466,13 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/SOA/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String soa(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		try {
 
 			// retrieve analysis
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
@@ -1496,7 +1505,7 @@ public class ControllerEditField {
 
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1508,7 +1517,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1532,14 +1541,14 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/MaturityMeasure/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String maturityMeasure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
@@ -1590,7 +1599,7 @@ public class ControllerEditField {
 				return measure(elementID, fieldEditor, session, cutomLocale != null ? cutomLocale : locale, principal);
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1602,7 +1611,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1627,14 +1636,14 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/ActionPlanEntry/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String actionplanentry(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 
 		try {
 
 			// retrieve analysis
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
@@ -1668,7 +1677,7 @@ public class ControllerEditField {
 
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1680,7 +1689,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1704,13 +1713,13 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Phase/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Phase', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String phase(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		try {
 
 			// retrieve analysis
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
@@ -1738,7 +1747,7 @@ public class ControllerEditField {
 
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1752,11 +1761,11 @@ public class ControllerEditField {
 	}
 
 	@RequestMapping(value = "/RiskInformation/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'RiskInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String riskInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (idAnalysis == null)
@@ -1788,7 +1797,7 @@ public class ControllerEditField {
 					cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1800,7 +1809,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
 			if (id == null)
@@ -1813,10 +1822,10 @@ public class ControllerEditField {
 	}
 
 	@RequestMapping(value = "/RiskRegister/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String riskRegister(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		if (fieldEditor.getFieldName().matches("strategy|owner")) {
 			RiskRegisterItem registerItem = serviceRiskRegister.get(elementID);

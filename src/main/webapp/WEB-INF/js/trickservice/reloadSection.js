@@ -82,7 +82,7 @@ function reloadSection(section, subSection, refreshOnly) {
 						if(tableFixedHeader.length){
 							$(tableFixedHeader).stickyTableHeaders({
 								cssTopOffset : ".nav-analysis",
-								fixedOffset : 6
+								fixedOffset : application.fixedOffset
 							});
 						}
 					}

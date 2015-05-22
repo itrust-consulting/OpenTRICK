@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -24,7 +25,7 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'customer')" disabled="disabled"></th>
+							<th></th>
 							<th><spring:message code="label.customer.organisation" text="Company"/></th>
 							<th><spring:message code="label.customer.contact_person" text="Contact person"/></th>
 							<th><spring:message code="label.customer.phone_number" text="Phone number"/></th>
@@ -44,17 +45,17 @@
 						<c:forEach items="${customers}" var="customer">
 							<tr data-trick-id="${customer.id}" data-trick-is-profile="${not customer.canBeUsed}" ondblclick="return editSingleCustomer('${customer.id}');">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_customer','#menu_customer');"></td>
-								<td><spring:message text="${customer.organisation}" /></td>
-								<td><spring:message text="${customer.contactPerson}" /></td>
-								<td><spring:message text="${customer.phoneNumber}" /></td>
-								<td><spring:message text="${customer.email}" /></td>
-								<td><spring:message text="${customer.address}" /></td>
-								<td><spring:message text="${customer.city}" /></td>
-								<td><spring:message text="${customer.ZIPCode}" /></td>
-								<td><spring:message text="${customer.country}" /></td>
+								<td data-trick-name='organisation'><spring:message text="${customer.organisation}" /></td>
+								<td data-trick-name='contactPerson'><spring:message text="${customer.contactPerson}" /></td>
+								<td data-trick-name='phoneNumber'><spring:message text="${customer.phoneNumber}" /></td>
+								<td data-trick-name='email'><spring:message text="${customer.email}" /></td>
+								<td data-trick-name='address'><spring:message text="${customer.address}" /></td>
+								<td data-trick-name='ZIPCode'><spring:message text="${customer.ZIPCode}" /></td>
+								<td data-trick-name='city'><spring:message text="${customer.city}" /></td>
+								<td data-trick-name='country'><spring:message text="${customer.country}" /></td>
 								<c:if test="${!empty(adminView)}">
 									<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-										<td data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}" text="${customer.canBeUsed?'No':'Yes'}" /></td>
+										<td data-trick-name='canBeUsed' data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}" text="${customer.canBeUsed?'No':'Yes'}" /></td>
 									</sec:authorize>
 								</c:if>
 							</tr>

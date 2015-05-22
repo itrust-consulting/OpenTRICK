@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -5,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="editAnalysisModel" tabindex="-1" role="dialog" data-aria-labelledby="editAnalysis" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog">
+	<div class="modal-dialog" style="width: 800px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -22,6 +23,9 @@
 			<div class="modal-footer">
 				<button id="editAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
 					<spring:message code="label.action.save" text="Save" />
+				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>

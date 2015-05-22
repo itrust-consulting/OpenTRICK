@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -29,7 +30,7 @@
 							</strong>
 							<form class="form-horizontal" name="sqliteControl" id="formSqliteControl">
 								<div class="form-group">
-									<label for="sort" class="col-sm-4 control-label"><spring:message code="label.action.sort" text="Sort" /></label>
+									<label for="sort" class="col-sm-4 control-label"><spring:message code="label.action.sort.over" text="Sort by" /></label>
 									<div class="col-sm-8">
 										<select name="sort" class="form-control" onchange="updateSqliteControl()">
 											<option value="identifier" ${sqliteControl.sort == 'identifier'?'selected="selected"':''}><spring:message code="label.analysis.identifier" text="TRICK name" /></option>
@@ -41,16 +42,16 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="direction" class="col-sm-4 control-label"><spring:message code="label.action.sort_direction" text="Direction" /></label>
+									<label for="direction" class="col-sm-4 control-label"><spring:message code="label.action.sort" text="Sort" /></label>
 									<div class="col-sm-8">
 										<div class="btn-group" data-toggle="buttons">
 											<label class="btn btn-default ${sqliteControl.direction=='asc'? 'active':'' }"
 												title='<spring:message
-													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" value="asc"
+													code="label.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" value="asc"
 												${sqliteControl.direction=='asc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-270"></i>
 											</label> <label class="btn btn-default ${sqliteControl.direction=='desc'? 'active':'' }"
 												title='<spring:message
-													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction" value="desc"
+													code="label.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction" value="desc"
 												${sqliteControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-90"></i>
 											</label>
 										</div>
@@ -70,7 +71,7 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.analysis.identifier" text="TRICK Name" />
+									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.action.show" text="Show" />
 									</label>
 									<div class="col-sm-8">
 										<select name="filter" class="form-control" onchange="updateSqliteControl()">
@@ -98,7 +99,7 @@
 							</strong>
 							<form class="form-horizontal" name="reportControl" id="formReportControl">
 								<div class="form-group">
-									<label for="sort" class="col-sm-4 control-label"><spring:message code="label.action.sort" text="Sort" /></label>
+									<label for="sort" class="col-sm-4 control-label"><spring:message code="label.action.sort.over" text="Sort by" /></label>
 									<div class="col-sm-8">
 										<select name="sort" class="form-control" onchange="updateReportControl()">
 											<option value="identifier" ${reportControl.sort == 'identifier'?'selected="selected"':''}><spring:message code="label.analysis.identifier" text="TRICK name" /></option>
@@ -110,16 +111,16 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="direction" class="col-sm-4 control-label"><spring:message code="label.action.sort_direction" text="Direction" /></label>
+									<label for="direction" class="col-sm-4 control-label"><spring:message code="label.action.sort" text="Sort" /></label>
 									<div class="col-sm-8">
 										<div class="btn-group" data-toggle="buttons">
 											<label class="btn btn-default ${reportControl.direction=='asc'? 'active':'' }"
 												title='<spring:message
-													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" autocomplete="off"
+													code="label.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" autocomplete="off"
 												${reportControl.direction=='asc'? 'checked="checked"':'' } value="asc" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-270"></i>
 											</label> <label class="btn btn-default ${reportControl.direction=='desc'? 'active':'' }"
 												title='<spring:message
-													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction"
+													code="label.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction"
 												${reportControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" value="desc" onchange="updateReportControl(this)"><i
 												class="fa fa-play fa-rotate-90"></i>
 											</label>
@@ -140,7 +141,7 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.analysis.identifier" text="TRICK Name" /></label>
+									<label for="filter" class="col-sm-4 control-label"> <spring:message code="label.action.show" text="Show" /></label>
 									<div class="col-sm-8">
 										<select name="filter" class="form-control" onchange="updateReportControl()">
 											<option value="ALL" ${reportControl.filter == 'ALL'?'selected="selected"':''}><spring:message code="label.all" text="All" /></option>

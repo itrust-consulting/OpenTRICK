@@ -72,12 +72,12 @@ public class ControllerSummary {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping("/Section")
 	public String section(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
 
 		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// add phases of analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(idAnalysis));
@@ -102,11 +102,11 @@ public class ControllerSummary {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Evolution/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// retireve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// load all phases of analysis
 		List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
@@ -125,7 +125,7 @@ public class ControllerSummary {
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		// generate chart
-		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute("selectedAnalysis"), summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);
+		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);
 	}
 
 	/**
@@ -140,11 +140,11 @@ public class ControllerSummary {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// retrieve phases
 		List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);

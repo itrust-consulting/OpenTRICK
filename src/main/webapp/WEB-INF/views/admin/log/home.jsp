@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -12,7 +13,7 @@
 			</strong>
 			<form name="logFilter" id="logFilterForm" class="form-horizontal">
 				<div class="form-group">
-					<label for="sort" class="col-sm-5 control-label"><spring:message code="label.action.filter.level" text="Filter by level" /></label>
+					<label for="sort" class="col-sm-5 control-label"><spring:message code="label.filter.level" text="Filter by level" /></label>
 					<div class="col-sm-7">
 						<select name="level" class="form-control" onchange="updateLogFilter()">
 							<option ${empty logFilter.level?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
@@ -24,7 +25,7 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="type" class="col-sm-5 control-label"> <spring:message code="label.action.filter.type" text="Filter by type" /></label>
+					<label for="type" class="col-sm-5 control-label"> <spring:message code="label.filter.type" text="Filter by type" /></label>
 					<div class="col-sm-7">
 						<select name="type" class="form-control" onchange="updateLogFilter()">
 							<option ${empty logFilter.type?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
@@ -36,7 +37,7 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="action" class="col-sm-5 control-label"> <spring:message code="label.action.filter.action" text="Filter by action" /></label>
+					<label for="action" class="col-sm-5 control-label"> <spring:message code="label.filter.action" text="Filter by action" /></label>
 					<div class="col-sm-7">
 						<select name="action" class="form-control" onchange="updateLogFilter()">
 							<option ${empty logFilter.action?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
@@ -48,7 +49,7 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="author" class="col-sm-5 control-label"> <spring:message code="label.action.filter.author" text="Filter by author" /></label>
+					<label for="author" class="col-sm-5 control-label"> <spring:message code="label.filter.author" text="Filter by author" /></label>
 					<div class="col-sm-7">
 						<select name="author" class="form-control" onchange="updateLogFilter()">
 							<option ${empty logFilter.action?'selected="selected"':''} value="ALL"><spring:message code="label.all" /></option>
@@ -74,16 +75,16 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="direction" class="col-sm-5 control-label"><spring:message code="label.action.sort_direction" text="Direction" /></label>
+					<label for="direction" class="col-sm-5 control-label"><spring:message code="label.action.sort" text="Sort" /></label>
 					<div class="col-sm-7">
 						<div class="btn-group" data-toggle="buttons">
 							<label class="btn btn-default ${logFilter.direction=='asc'? 'active':'' }"
 								title='<spring:message
-													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" value="asc"
+													code="label.sort_direction.ascending" text="Ascending" />'> <input type="radio" name="direction" value="asc"
 								${logFilter.direction=='asc'? 'checked="checked"':'' } autocomplete="off" onchange="updateLogFilter(this)"><i class="fa fa-play fa-rotate-270"></i>
 							</label> <label class="btn btn-default ${logFilter.direction=='desc'? 'active':'' }"
 								title='<spring:message
-													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction" value="desc"
+													code="label.sort_direction.descending" text="Descending" />'> <input type="radio" name="direction" value="desc"
 								${logFilter.direction=='desc'? 'checked="checked"':'' } autocomplete="off"  onchange="updateLogFilter(this)"><i class="fa fa-play fa-rotate-90"></i>
 							</label>
 						</div>

@@ -48,4 +48,6 @@ public interface DAOStandard {
 	public void saveOrUpdate(Standard standard) throws Exception;
 
 	public void delete(Standard standard) throws Exception;
+
+	public boolean belongToAnalysis(Integer idStandard, int idAnalysis);
 }

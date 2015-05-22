@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerRestoreAnalyisRight;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -17,8 +19,10 @@ import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -34,8 +38,10 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 
 import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,9 +99,20 @@ public class ControllerPatch {
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
+	
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+	
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+	
+	@Autowired
+	private TaskExecutor executor;
+	
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	public @ResponseBody String updateAllScenario(Principal principal, Locale locale) {
 		try {
 
@@ -121,7 +138,7 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null, "Scenarios were successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(e.getMessage());
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
@@ -132,7 +149,6 @@ public class ControllerPatch {
 	}
 
 	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	public @ResponseBody Map<String, String> updateAssessments(Principal principal, Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -159,7 +175,7 @@ public class ControllerPatch {
 
 			return errors;
 		} catch (Exception e) {
-			errors.put("error", e.getMessage());
+			errors.put("error", messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
 			e.printStackTrace();
 			return errors;
 		} finally {
@@ -170,9 +186,32 @@ public class ControllerPatch {
 					"Update-assessment");
 		}
 	}
-
+	
+	@RequestMapping(value = "/Restore/Analysis/Right", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	public @ResponseBody String RestoreAnalysisRights(Principal principal, Locale locale) {
+		try {
+			Worker worker = new WorkerRestoreAnalyisRight(principal.getName(),workersPoolManager,sessionFactory,serviceTaskFeedback);
+			worker.setPoolManager(workersPoolManager);
+			// register worker to tasklist
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+			// execute task
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.start.restore.analysis.right", null, "Restoring analysis rights", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
+		}finally{
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Restore-analysis-Right"), principal.getName(), LogAction.APPLY,
+					"Restore-analysis-Right");
+		}
+	}
+	
+	//public
 	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	public @ResponseBody String updateMeasureAssetTypes(Principal principal, Locale locale) {
 
 		try {
@@ -220,7 +259,7 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.matv.update", null, "MeasureAssetTypeValues successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(e.getMessage());
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log

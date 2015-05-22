@@ -49,4 +49,6 @@ public interface ServiceUser {
 	public User getByEmail(String email);
 
 	public List<User> getAllOthers(Collection<User> users);
+
+	public List<User> getAllOthers(User owner);
 }

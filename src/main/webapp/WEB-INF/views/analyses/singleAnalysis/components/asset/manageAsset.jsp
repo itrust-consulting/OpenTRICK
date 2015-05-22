@@ -96,6 +96,9 @@
 				<button type="button" class="btn btn-primary" onclick="saveAsset('asset_form')">
 					<fmt:message key="label.action.save" />
 				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>

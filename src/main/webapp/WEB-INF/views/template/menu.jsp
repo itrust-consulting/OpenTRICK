@@ -18,7 +18,7 @@
 				<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 			</button>
 		</div>
-		<sec:authorize access="isAuthenticated()">
+		<sec:authorize access="authenticated">
 			<a class="navbar-brand" style="color: #ffffff; font-weight: bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
@@ -51,6 +51,8 @@
 								</a></li>
 								<li class="divider"></li>
 								<li class="dropdown-header"><spring:message code="label.runtime.dropdown_header.Major" text="Major patches" /></li>
+								<li><a href="#" onclick="return restoreAnalysisRights()"> <spring:message code="label.restore.analysis.right" text="Restore analysis rights" />
+								</a></li>
 							</ul></li>
 					</sec:authorize>
 					<li><a href="${pageContext.request.contextPath}/j_spring_security_logout"> <spring:message code="label.menu.logout" text="Logout" /></a></li>

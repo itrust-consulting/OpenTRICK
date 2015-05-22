@@ -154,13 +154,13 @@ public class ControllerAnalysisCreate {
 
 			customAnalysisForm.setDefaultProfile(defaultProfileId);
 
-			if (customAnalysisForm.getAsset() > 0 && !serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getAsset(), principal.getName(), AnalysisRight.READ))
+			if (customAnalysisForm.getAsset() > 0 && !serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getAsset(), principal.getName(), AnalysisRight.MODIFY))
 				errors.put("asset", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (customAnalysisForm.getScenario() > 0 && !serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScenario(), principal.getName(), AnalysisRight.READ))
+			if (customAnalysisForm.getScenario() > 0 && !(customAnalysisForm.getScenario()==defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getScenario(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("scenario", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (customAnalysisForm.getStandard() > 0 && !serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getStandard(), principal.getName(), AnalysisRight.READ))
+			if (customAnalysisForm.getStandard() > 0 && !(customAnalysisForm.getStandard()==defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getStandard(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("standard", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (customAnalysisForm.isAssessment() && (customAnalysisForm.getScenario() < 1 || customAnalysisForm.getScenario() != customAnalysisForm.getAsset()))
@@ -170,22 +170,22 @@ public class ControllerAnalysisCreate {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("scope", messageSource.getMessage("error.analysis_custom.scope.empty", null, "No default profile, scope cannot be empty", locale));
-			} else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScope(), principal.getName(), AnalysisRight.READ)))
+			} else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getScope(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (customAnalysisForm.getParameter() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("parameter", messageSource.getMessage("error.analysis_custom.parameter.empty", null, "No default profile, parameter cannot be empty", locale));
-			} else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getParameter(), principal.getName(), AnalysisRight.READ)))
+			} else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getParameter(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("parameter", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (customAnalysisForm.getRiskInformation() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("riskInformation", messageSource.getMessage("error.analysis_custom.risk_information.empty", null, "No default profile, risk information cannot be empty", locale));
-			} else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getRiskInformation(), principal.getName(),
-					AnalysisRight.READ)))
+			} else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getRiskInformation(), principal.getName(),
+					AnalysisRight.MODIFY)))
 				errors.put("riskInformation", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			Customer customer = null;
@@ -389,11 +389,11 @@ public class ControllerAnalysisCreate {
 
 	@RequestMapping(value = "/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable Integer id, Principal principal) {
-		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName());
+		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(),AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
 	}
 
 	@RequestMapping(value = "/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable Integer id, @PathVariable String identifier, Principal principal) {
-		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier);
+		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier,AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
 	}
 }

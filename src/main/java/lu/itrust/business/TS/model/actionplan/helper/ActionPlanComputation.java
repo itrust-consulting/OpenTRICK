@@ -16,7 +16,6 @@ import javax.naming.directory.InvalidAttributesException;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
-import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -26,13 +25,13 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.Maintenance;
+import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurrentInvestment;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.RRF;
@@ -46,7 +45,6 @@ import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 
@@ -94,6 +92,8 @@ public class ActionPlanComputation {
 
 	@Autowired
 	private MessageSource messageSource;
+
+	private Map<Integer, MaintenanceRecurrentInvestment> preImplementedMeasures;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -350,6 +350,23 @@ public class ActionPlanComputation {
 			// send feedback
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary",
 					language, progress));
+
+			preImplementedMeasures = new LinkedHashMap<Integer, MaintenanceRecurrentInvestment>();
+
+			this.standards
+					.stream()
+					.flatMap(standard -> standard.getMeasures().stream())
+					.filter(measure -> measure.getImplementationRateValue() >= 100)
+					.forEach(
+							measure -> {
+								MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = preImplementedMeasures.get(measure.getPhase().getNumber());
+								if (maintenanceRecurrentInvestment == null)
+									preImplementedMeasures.put(
+											measure.getPhase().getNumber(),
+											new MaintenanceRecurrentInvestment(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment()));
+								else
+									maintenanceRecurrentInvestment.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+							});
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -1074,7 +1091,7 @@ public class ActionPlanComputation {
 
 		if (!entry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
 			return;
-		
+
 		NormalMeasure measure = ((NormalMeasure) entry.getMeasure());
 
 		for (TMA tma : TMAList) {
@@ -1130,9 +1147,10 @@ public class ActionPlanComputation {
 	 * 
 	 * @throws InvalidAttributesException
 	 * @throws TrickException
+	 * @throws CloneNotSupportedException
 	 */
 	private List<ActionPlanEntry> generateTemporaryActionPlan(List<Measure> usedMeasures, ActionPlanType actionPlanType, List<TMA> TMAList) throws InvalidAttributesException,
-			TrickException {
+			TrickException, CloneNotSupportedException {
 
 		// ****************************************************************
 		// * variables initialisation
@@ -1167,9 +1185,10 @@ public class ActionPlanComputation {
 	 *            The Temporary Action Plan with all usable Entries
 	 * @throws InvalidAttributesException
 	 * @throws TrickException
+	 * @throws CloneNotSupportedException
 	 */
 	private void generateNormalActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, ActionPlanType actionPlanType, List<Measure> usedMeasures, List<TMA> TMAList)
-			throws InvalidAttributesException, TrickException {
+			throws InvalidAttributesException, TrickException, CloneNotSupportedException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1317,9 +1336,10 @@ public class ActionPlanComputation {
 	 *            The list of TMA
 	 * @throws InvalidAttributesException
 	 * @throws TrickException
+	 * @throws CloneNotSupportedException
 	 */
 	private void generateMaturtiyChapterActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, List<Measure> usedMeasures, List<TMA> TMAList) throws InvalidAttributesException,
-			TrickException {
+			TrickException, CloneNotSupportedException {
 
 		// ****************************************************************
 		// * inistialise variables
@@ -1594,13 +1614,14 @@ public class ActionPlanComputation {
 	 * 
 	 * @throws InvalidAttributesException
 	 * @throws TrickException
+	 * @throws CloneNotSupportedException
 	 */
-	private List<ActionPlanAsset> createSelectedAssetsList() throws InvalidAttributesException, TrickException {
+	private List<ActionPlanAsset> createSelectedAssetsList() throws InvalidAttributesException, TrickException, CloneNotSupportedException {
 
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		Asset tmpAsset = null;
+
 		List<ActionPlanAsset> tmpAssets = new ArrayList<ActionPlanAsset>();
 
 		// ****************************************************************
@@ -1608,28 +1629,38 @@ public class ActionPlanComputation {
 		// ****************************************************************
 
 		// parse assets
-		for (int asc = 0; asc < this.analysis.getAssets().size(); asc++) {
+		/*
+		 * for (int asc = 0; asc < this.analysis.getAssets().size(); asc++) {
+		 * 
+		 * // selected asset -> YES if
+		 * (this.analysis.getAnAsset(asc).isSelected() &&
+		 * !tmpAssets.contains(this.analysis.getAnAsset(asc))) {
+		 * 
+		 * // ****************************************************************
+		 * // * create new asset object //
+		 * ****************************************************************
+		 * 
+		 * Asset tmpAsset = new Asset();
+		 * tmpAsset.setComment(this.analysis.getAnAsset(asc).getComment());
+		 * tmpAsset.setId(this.analysis.getAnAsset(asc).getId());
+		 * tmpAsset.setName(this.analysis.getAnAsset(asc).getName());
+		 * tmpAsset.setSelected(this.analysis.getAnAsset(asc).isSelected());
+		 * tmpAsset.setAssetType(new
+		 * AssetType(this.analysis.getAnAsset(asc).getAssetType().getType()));
+		 * tmpAsset.setValue(this.analysis.getAnAsset(asc).getValue());
+		 * 
+		 * // ****************************************************************
+		 * // * add asset to the list //
+		 * ****************************************************************
+		 * tmpAssets.add(new ActionPlanAsset(null, tmpAsset, 0)); } }
+		 */
 
-			// selected asset -> YES
-			if (this.analysis.getAnAsset(asc).isSelected() && !tmpAssets.contains(this.analysis.getAnAsset(asc))) {
-
-				// ****************************************************************
-				// * create new asset object
-				// ****************************************************************
-
-				tmpAsset = new Asset();
-				tmpAsset.setComment(this.analysis.getAnAsset(asc).getComment());
-				tmpAsset.setId(this.analysis.getAnAsset(asc).getId());
-				tmpAsset.setName(this.analysis.getAnAsset(asc).getName());
-				tmpAsset.setSelected(this.analysis.getAnAsset(asc).isSelected());
-				tmpAsset.setAssetType(new AssetType(this.analysis.getAnAsset(asc).getAssetType().getType()));
-				tmpAsset.setValue(this.analysis.getAnAsset(asc).getValue());
-
-				// ****************************************************************
-				// * add asset to the list
-				// ****************************************************************
-				tmpAssets.add(new ActionPlanAsset(null, tmpAsset, 0));
-			}
+		// ****************************************************************
+		// * add asset to the list
+		// ****************************************************************
+		for (Asset asset : this.analysis.getAssets()) {
+			if (asset.isSelected())
+				tmpAssets.add(new ActionPlanAsset(null, asset.clone(), 0));
 		}
 
 		// ****************************************************************
@@ -2811,7 +2842,6 @@ public class ActionPlanComputation {
 		// update recurrent cost
 		// tmpval.recurrentCost += ape.getMeasure().getInvestment() *
 		// ape.getMeasure().getMaintenance() / 100.;
-
 	}
 
 	/**
@@ -2885,10 +2915,6 @@ public class ActionPlanComputation {
 			for (int i = 0; i < helper.standard.getMeasures().size(); i++) {
 
 				measure = helper.standard.getMeasures().get(i);
-
-				Hibernate.initialize(measure);
-
-				measure = DAOHibernate.Initialise(measure);
 
 				double imprate = 0;
 
@@ -2969,6 +2995,13 @@ public class ActionPlanComputation {
 
 		}
 
+		MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = preImplementedMeasures == null || !preImplementedMeasures.containsKey(phasenumber) ? new MaintenanceRecurrentInvestment()
+				: preImplementedMeasures.get(phasenumber);
+
+		tmpval.internalMaintenance += maintenanceRecurrentInvestment.getInternalMaintenance();
+		tmpval.externalMaintenance += maintenanceRecurrentInvestment.getExternalMaintenance();
+		tmpval.recurrentInvestment += maintenanceRecurrentInvestment.getRecurrentInvestment();
+
 		Maintenance maintenance = maintenances.containsKey(phasenumber - 1) ? maintenances.get(phasenumber - 1) : new Maintenance();
 
 		if (maintenances.containsKey(phasenumber))
@@ -3001,8 +3034,8 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
-		aStage.setInternalMaintenance(maintenance.getInternalMaintenance() * phasetime);
-		aStage.setExternalMaintenance(maintenance.getExternalMaintenance() * phasetime);
+		aStage.setInternalMaintenance((maintenance.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime);
+		aStage.setExternalMaintenance((maintenance.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime);
 		aStage.setRecurrentInvestment(tmpval.recurrentInvestment * phasetime);
 
 		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
@@ -3021,10 +3054,12 @@ public class ActionPlanComputation {
 		// phasetime and with internal and external setup as well as investment
 		// with phasetime
 		if (phasetime > 0)
-			tmpval.totalCost += (maintenance.getInternalMaintenance() * phasetime * ir) + (maintenance.getExternalMaintenance() * phasetime * er)
+			tmpval.totalCost += ((maintenance.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime * ir)
+					+ ((maintenance.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime * er)
 					+ (tmpval.recurrentInvestment * phasetime);
 		else
-			tmpval.totalCost += (maintenance.getInternalMaintenance() * ir) + (maintenance.getExternalMaintenance() * er) + tmpval.recurrentInvestment;
+			tmpval.totalCost += ((maintenance.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime * ir)
+					+ ((maintenance.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime * er) + tmpval.recurrentInvestment;
 
 		aStage.setTotalCostofStage(tmpval.totalCost);
 

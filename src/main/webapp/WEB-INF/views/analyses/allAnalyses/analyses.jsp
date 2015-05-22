@@ -18,8 +18,10 @@
 				<ul class="nav nav-pills bordered-bottom" style="margin-top: 5px; margin-bottom: 5px;" id="menu_analysis">
 					<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.build.analysis"
 								text="Build an analysis" /></a></li>
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ','open')"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span
-							class="glyphicon glyphicon-folder-open"></span> &nbsp;<spring:message code="label.menu.open.analysis" text="Open analysis" /></a></li>
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined, 'true', true)"> <span
+							class="glyphicon glyphicon-eye-open"></span> &nbsp;<spring:message code="label.action.read_only" text="Read only" /></a></li>
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span
+							class="glyphicon glyphicon-edit"></span> &nbsp;<spring:message code="label.action.edit" text="Edit" /></a></li>
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
 						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
 								code="label.menu.manage.access.analysis" text="Manage Access Rights" /></a></li>
@@ -34,7 +36,7 @@
 							class="glyphicon glyphicon-download-alt"></span> <spring:message code="label.menu.export.analysis" text="Export" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysisReport()"> <span
 							class="glyphicon glyphicon-download-alt"></span> <spring:message code="label.menu.export.report" text="Export Report" /></a></li>
-					<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="hasRight('DELETE')"><a href="#" onclick="return deleteAnalysis();" class="text-danger">
+					<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return deleteAnalysis();" class="text-danger">
 							<span class="glyphicon glyphicon-remove"></span> <spring:message code="label.menu.delete.analysis" text="Delete" />
 					</a></li>
 				</ul>
@@ -61,7 +63,7 @@
 							<select id="nameSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
 								<option value="ALL"><spring:message code="label.all" text="ALL" /></option>
 								<c:forEach items="${names}" var="name">
-									<option value="${name}" ${not empty(analysisSelectedName) && analysisSelectedName == name? 'selected':'' }>
+									<option value='<spring:message text="${name}" />' ${not empty(analysisSelectedName) && analysisSelectedName == name? 'selected':'' }>
 										<spring:message text="${name}" />
 									</option>
 								</c:forEach>
@@ -74,9 +76,9 @@
 						<tr>
 							<th width="1%"></th>
 							<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
-							<th width="40%"><spring:message code="label.analysis.comment" text="Comment" /></th>
+							<th width="35%"><spring:message code="label.analysis.comment" text="Comment" /></th>
 							<th><spring:message code="label.analysis.version" text="version" /></th>
-							<th><spring:message code="label.analysis.creation_date" text="Create date" /></th>
+							<th width="8%"><spring:message code="label.analysis.creation_date" text="Create date" /></th>
 							<th><spring:message code="label.analysis.author" text="Author" /></th>
 							<th><spring:message code="label.analysis.based_on_analysis" text="Based on" /></th>
 							<th><spring:message code="label.analysis.language" text="Language" /></th>

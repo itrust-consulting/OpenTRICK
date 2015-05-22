@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -20,7 +21,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since 16 janv. 2013
  */
 public interface DAOAnalysis {
-	
+
 	public Long countByIdentifier(String identifier);
 
 	public void delete(Analysis analysis) throws Exception;
@@ -32,7 +33,7 @@ public interface DAOAnalysis {
 	public boolean exists(String identifier);
 
 	public boolean exists(String identifier, String version) throws Exception;
-	
+
 	public Analysis get(Integer idAnalysis) throws Exception;
 
 	public List<Analysis> getAll() throws Exception;
@@ -58,11 +59,11 @@ public interface DAOAnalysis {
 	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception;
 
 	public List<Analysis> getAllNotEmpty() throws Exception;
-	
+
 	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) throws Exception;
-	
+
 	public List<String> getAllNotEmptyVersion(int analysisId);
-	
+
 	public List<String> getAllNotEmptyVersion(String identfier);
 
 	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards);
@@ -71,7 +72,7 @@ public interface DAOAnalysis {
 
 	public List<String> getAllVersion(String identifier);
 
-	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier);
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights);
 
 	public Integer getCustomerIdByIdAnalysis(int analysisId);
 
@@ -85,7 +86,7 @@ public interface DAOAnalysis {
 
 	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) throws Exception;
 
-	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name);
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights);
 
 	public String getIdentifierByIdAnalysis(int analysisId);
 
@@ -128,4 +129,15 @@ public interface DAOAnalysis {
 	public List<Analysis> getAll(List<Integer> ids);
 
 	public List<Analysis> getAllContains(MeasureDescription measureDescription);
+
+	public Long countNotProfileDistinctIdentifier();
+
+	public List<String> getNotProfileIdentifiers(int page, int size);
+
+	public List<Analysis> getAllFromOwner(User user);
+
+	public boolean hasData(String identifier);
+
+	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
+
 }

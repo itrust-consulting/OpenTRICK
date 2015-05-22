@@ -10,15 +10,16 @@
 <div class="tab-pane" id="tabSummary">
 	<div class="section" id="section_summary">
 		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
-		<ul class="nav nav-pills bordered-bottom">
+		<ul id="menu_summary" class="nav nav-pills bordered-bottom">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
-					onclick="return navToogled('section_summary','${actionPlanType.name}', true);"><fmt:message key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
+					onclick="return navToogled('#section_summary','#menu_summary','${actionPlanType.name}', true);"><fmt:message key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
 			</c:forEach>
 		</ul>
+		<c:set var="euroByYear"><fmt:message key="label.metric.euro_by_year" /></c:set>
 		<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 			<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
-			<div data-trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
+			<div data-trick-nav-content="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
 				<table class="table table-hover table-condensed table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 					<thead>
 						<tr>
@@ -110,7 +111,7 @@
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(deltaales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${deltaales.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
+								<td class="text-right" title='<fmt:formatNumber value="${deltaales.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
@@ -119,7 +120,7 @@
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(rosis.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${rosis.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
+								<td class="text-right" title='<fmt:formatNumber value="${rosis.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
@@ -128,7 +129,7 @@
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(relativerosis.get(i),0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
+								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" />'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>

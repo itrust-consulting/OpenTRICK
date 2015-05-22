@@ -257,4 +257,14 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int AnalysisId) {
 		return this.daoUserAnalysisRight.getAllFromIdenfierExceptAnalysisIdAndRightNotRead(identifier, AnalysisId);
 	}
+
+	@Override
+	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right) {
+		return daoUserAnalysisRight.hasRightOrOwner(idAnalysis, username,right );
+	}
+
+	@Override
+	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights) {
+		return daoUserAnalysisRight.isUserAuthorized(idAnalysis, username,rights );
+	}
 }

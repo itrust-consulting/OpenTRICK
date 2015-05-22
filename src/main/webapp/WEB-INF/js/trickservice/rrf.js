@@ -10,9 +10,18 @@ function importRRF(idAnalysis) {
 				var doc = parser.parseFromString(response, "text/html");
 				if ($(doc).find("#importMeasureCharacteristics").length) {
 					var modal = new Modal($(doc).find("#importMeasureCharacteristics").clone());
+					var $customers = $(modal.modal_body).find("select[name='customer']");
+					var $analyses = $(modal.modal_body).find("select[name='analysis']");
 					var $standards = $(modal.modal_body).find("select[name='standards']");
-					var $profileSelector = $(modal.modal_body).find("select[name='profile']");
-					$profileSelector.on("change", function(e) {
+					
+					$customers.change(function() {
+						var value = $(this).val();
+						$analyses.find("option[data-trick-id!='" + value + "']").hide().prop("selected", false);
+						$($analyses.find("option[data-trick-id='" + value + "']").show()[0]).prop("selected", true);
+						$analyses.change();
+					});
+					
+					$analyses.on("change", function(e) {
 						var value = $(e.target).val();
 						if (value == undefined)
 							value = -1;
@@ -78,7 +87,7 @@ function importRRF(idAnalysis) {
 						return false;
 					});
 
-					$profileSelector.change();
+					$customers.change();
 
 					modal.Show();
 				} else

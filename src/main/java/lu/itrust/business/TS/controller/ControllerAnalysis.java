@@ -63,6 +63,7 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.history.History;
+import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -114,8 +115,6 @@ public class ControllerAnalysis {
 	private static final String LAST_SELECTED_ANALYSIS_NAME = "last-selected-analysis-name";
 
 	private static final String ANALYSIS_TASK_ID = "analysis_task_id";
-
-	private static final String SELECTED_ANALYSIS = "selectedAnalysis";
 
 	private static final String CURRENT_CUSTOMER = "currentCustomer";
 
@@ -242,7 +241,8 @@ public class ControllerAnalysis {
 	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 
 		// retrieve analysisId if an analysis was already selected
-		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
 
 		// check if an analysis is selected
 		if (selected != null) {
@@ -261,15 +261,14 @@ public class ControllerAnalysis {
 
 			User user = serviceUser.get(principal.getName());
 
+			if(isReadOnly == null)
+				isReadOnly = false;
+			
 			hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
-					principal, AnalysisRight.READ);
-
+					principal, isReadOnly ?  AnalysisRight.READ : AnalysisRight.MODIFY);
 			if (hasPermission) {
 				// initialise analysis
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.info.user.open.analysis",
-						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.OPEN, analysis.getIdentifier(),
-						analysis.getVersion());
-
+				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
@@ -280,10 +279,18 @@ public class ControllerAnalysis {
 				model.addAttribute("soa", measures.get("27002"));
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
+				model.addAttribute("isReadOnly", isReadOnly);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
+				
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogType.ANALYSIS, isReadOnly? "log.open.analysis" : "log.edit.analysis",
+						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), isReadOnly? LogAction.OPEN : LogAction.EDIT, analysis.getIdentifier(),
+						analysis.getVersion());
 
 			} else {
-				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.info.user.try.open.analysis",
+				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",
 						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.DENY_ACCESS,
 						analysis.getIdentifier(), analysis.getVersion());
 				attributes.addFlashAttribute("error", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
@@ -429,9 +436,9 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
@@ -468,9 +475,11 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/{analysisId}/Select")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly,
+			HttpSession session) throws Exception {
 		// select the analysis
-		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
 		return "redirect:/Analysis";
 	}
 
@@ -489,10 +498,12 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
+			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session) throws Exception {
 		// select the analysis
-		session.setAttribute(SELECTED_ANALYSIS, analysisId);
-		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
+		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		return session.getAttribute(Constant.SELECTED_ANALYSIS) == analysisId;
 	}
 
 	/**
@@ -511,9 +522,10 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
-		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		session.removeAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (integer != null) {
-			session.removeAttribute(SELECTED_ANALYSIS);
+			session.removeAttribute(Constant.SELECTED_ANALYSIS);
 			if (serviceAnalysis.isProfile(integer))
 				return "redirect:/KnowledgeBase";
 			else
@@ -659,7 +671,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).DELETE)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
 			throws Exception {
 		try {
@@ -671,10 +683,10 @@ public class ControllerAnalysis {
 
 			customDelete.deleteAnalysis(analysisId, principal.getName());
 
-			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+			Integer selectedAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
-				session.removeAttribute(SELECTED_ANALYSIS);
+				session.removeAttribute(Constant.SELECTED_ANALYSIS);
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));

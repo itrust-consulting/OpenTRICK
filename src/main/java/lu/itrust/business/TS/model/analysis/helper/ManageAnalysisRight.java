@@ -52,9 +52,9 @@ public class ManageAnalysisRight {
 		for (User user : users) {
 			if (user.getLogin().equals(principal.getName()) && !analysis.getOwner().getLogin().equals(principal.getName()))
 				continue;
-			
+
 			int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-			
+
 			if (analysis.getOwner().equals(user) && !AnalysisRight.isValid(useraccess))
 				continue;
 
@@ -66,9 +66,12 @@ public class ManageAnalysisRight {
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogType.ANALYSIS, "info.remove.analysis.access.right", String.format("Analysis: %s, version: %s, access: %s, target: %s",
-							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin()), principal.getName(), LogAction.REMOVE_ACCESS,
-							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin());
+					TrickLogManager.Persist(
+							LogType.ANALYSIS,
+							"log.remove.analysis.access.right",
+							String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(),
+									user.getLogin()), principal.getName(), LogAction.REMOVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(),
+							user.getLogin());
 				} else {
 					AnalysisRight analysisRight = AnalysisRight.valueOf(useraccess);
 					if (analysisRight != uar.getRight()) {
@@ -78,19 +81,13 @@ public class ManageAnalysisRight {
 						 * Log
 						 */
 						if (uar.getUser().getLogin().equals(principal.getName()))
-							TrickLogManager.Persist(
-									LogType.ANALYSIS,
-									"info.grante.analysis.access.right",
-									String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name()
-											.toLowerCase(), user.getLogin()), principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar
-											.getRight().name().toLowerCase(), user.getLogin());
+							TrickLogManager.Persist(LogType.ANALYSIS, "log.auto.grant.analysis.access.right",
+									String.format("Analysis: %s, version: %s, access: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower()),
+									principal.getName(), LogAction.AUTO_GRANT, analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower());
 						else
-							TrickLogManager.Persist(
-									LogType.ANALYSIS,
-									"info.grante.analysis.access.right",
-									String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name()
-											.toLowerCase(), user.getLogin()), principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar
-											.getRight().name().toLowerCase(), user.getLogin());
+							TrickLogManager.Persist(LogType.ANALYSIS, "log.grant.analysis.access.right", String.format("Analysis: %s, version: %s, access: %s, target: %s",
+									analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(), user.getLogin()), principal.getName(), LogAction.GRANT_ACCESS,
+									analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(), user.getLogin());
 					}
 				}
 			} else {
@@ -102,7 +99,7 @@ public class ManageAnalysisRight {
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogType.ANALYSIS, "info.give.analysis.access.right", String.format("Analysis: %s, version: %s, access: %s, target: %s",
+					TrickLogManager.Persist(LogType.ANALYSIS, "log.give.analysis.access.right", String.format("Analysis: %s, version: %s, access: %s, target: %s",
 							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
 							analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin());
 				}

@@ -68,8 +68,9 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
 			Date date = new Date();
 			String stringdate = dateFormat.format(date);
-			String remoteaddr = request.getRemoteAddr();
-
+			String remoteaddr = request.getHeader("X-FORWARDED-FOR");
+			if (remoteaddr == null)
+				remoteaddr = request.getRemoteAddr();
 			System.out.println(stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + request.getParameter("j_username") + "'! Requesting IP: "
 					+ remoteaddr);
 			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", request.getParameter("j_username"), remoteaddr),

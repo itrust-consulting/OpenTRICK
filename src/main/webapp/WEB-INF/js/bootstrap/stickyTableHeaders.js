@@ -14,7 +14,7 @@
 		// Access to jQuery and DOM versions of element
 		base.$el = $(el);
 		base.el = el;
-
+		base.hasResized = false;
 		// Listen for destroyed, call teardown
 		base.$el.bind('destroyed', $.proxy(base.teardown, base));
 
@@ -28,7 +28,7 @@
 		base.leftOffset = null;
 		base.topOffset = null;
 		base.cssTargetTopOffset = options.cssTopOffset;
-
+		base.$targetTopOffset = $(options.cssTopOffset);
 		base.init = function() {
 			base.options = $.extend({}, defaults, options);
 
@@ -55,7 +55,6 @@
 
 			base.updateWidth();
 			base.toggleHeaders();
-
 			base.bind();
 		};
 
@@ -70,12 +69,10 @@
 			}
 			$.removeData(base.el, 'plugin_' + name);
 			base.unbind();
-
 			base.$clonedHeader.remove();
 			base.$originalHeader.removeClass('tableFloatingHeaderOriginal');
 			base.$originalHeader.css('visibility', 'visible');
 			base.$printStyle.remove();
-
 			base.el = null;
 			base.$el = null;
 		};
@@ -83,7 +80,6 @@
 		base.bind = function() {
 			base.$window.on('scroll.' + name, base.toggleHeaders);
 			base.$window.on('resize.' + name, base.toggleHeaders);
-			base.$window.on('resize.' + name, base.updateWidth);
 		};
 
 		base.unbind = function() {
@@ -95,40 +91,58 @@
 			base.$el.find('*').off('.' + name);
 		};
 
-		base.toggleHeaders = function() {
+		base.topPosistion = function() {
+			if (base.$targetTopOffset.length) {
+				var $targetOffset = base.$targetTopOffset.position(), $targetHeight = base.$targetTopOffset.height();
+				base.$originalHeader.css({
+					'top' : ($targetOffset.top + $targetHeight) + (isNaN(base.options.fixedOffset) ? 0 : base.options.fixedOffset)
+				});
+			} else {
+				base.$originalHeader.css({
+					'top' : 5
+				});
+			}
+		}
+
+		base.canFix = function(scrollTop, headerPosition, headerData) {
+			if (!base.$targetTopOffset.length)
+				return scrollTop > headerPosition;
+			return (base.$targetTopOffset.offset().top + base.$targetTopOffset.height()) >= (headerData.top + headerData.height * 0.1);
+		}
+
+		base.toggleHeaders = function(e) {
+			if (e && e.type === "resize")
+				base.hasResized = true;
+			if (!base.$el.is(":visible"))
+				return;
 			base.$el.each(function() {
 				var $this = $(this);
-
 				var $header = $this.find("thead");
-
 				var newTopOffset = isNaN(base.options.fixedOffset) ? base.options.fixedOffset.height() : base.options.fixedOffset;
-				var offset = $this.offset();
+				var offset = $this.offset(), data = {
+					top : offset.top,
+					left : offset.left,
+					height : $header.height()
+				};
 				var scrollTop = base.$window.scrollTop() + newTopOffset;
 				var scrollLeft = base.$window.scrollLeft();
-				var headerPosition = offset.top - $header.height() * 2;
-				var fixedOffet = scrollTop > offset.top || base.cssTargetTopOffset == undefined || $(base.cssTargetTopOffset).offset() == undefined ? 0
-						: $(base.cssTargetTopOffset).offset().top;
-
-				if (scrollTop > headerPosition && (scrollTop < (offset.top - fixedOffet) + $this.height() - base.$clonedHeader.height())) {
+				var headerPosition = offset.top - data.height * 2;
+				if (base.canFix(scrollTop, headerPosition, data)) {
 					var newLeft = offset.left - scrollLeft;
 					if (base.isSticky && (newLeft === base.leftOffset) && (newTopOffset === base.topOffset)) {
 						return;
 					}
-
-					var marginTop = base.cssTargetTopOffset == undefined ? 0 : $(base.cssTargetTopOffset).height() + $(base.cssTargetTopOffset).position().top;
-
 					base.$originalHeader.css({
 						'position' : 'fixed',
-						'top' : newTopOffset,
-						'margin-top' : marginTop,
 						'left' : newLeft,
 						'z-index' : 1, // #18: opacity bug
 						'background-color' : 'white'
 					});
-					base.$clonedHeader.css('display', '');
+					base.topPosistion();
 					base.isSticky = true;
 					base.leftOffset = newLeft;
 					base.topOffset = newTopOffset;
+					base.$clonedHeader.css('display', '');
 
 					// make sure the width is correct: the user might have
 					// resized the browser while in static mode
@@ -143,28 +157,30 @@
 
 		base.updateWidth = function() {
 			if (!base.isSticky) {
+				base.hasResized = true;
 				return;
 			}
-			// Copy cell widths from clone
-			var $origHeaders = $('th,td', base.$originalHeader);
-			$('th,td', base.$clonedHeader).each(function(index) {
 
-				var width, $this = $(this);
-
-				if ($this.css('box-sizing') === 'border-box') {
-					width = $this.outerWidth(); // #39: border-box bug
-				} else {
-					width = $this.width();
-				}
-
-				$origHeaders.eq(index).css({
-					'min-width' : width,
-					'max-width' : width
+			if (base.hasResized) {
+				// Copy cell widths from clone
+				var $origHeaders = $('th,td', base.$originalHeader);
+				$('th,td', base.$clonedHeader).each(function(index) {
+					var width, $this = $(this);
+					if ($this.css('box-sizing') === 'border-box') {
+						width = $this.outerWidth(); // #39: border-box bug
+					} else {
+						width = $this.width();
+					}
+					$origHeaders.eq(index).css({
+						'min-width' : width,
+						'max-width' : width
+					});
 				});
-			});
-
-			// Copy row width from whole table
-			base.$originalHeader.css('width', base.$clonedHeader.width());
+				// Copy row width from whole table
+				base.$originalHeader.css('width', base.$clonedHeader.width());
+				base.$originalHeader.css('height', base.$clonedHeader.height());
+				base.hasResized = false;
+			}
 		};
 
 		base.updateOptions = function(options) {

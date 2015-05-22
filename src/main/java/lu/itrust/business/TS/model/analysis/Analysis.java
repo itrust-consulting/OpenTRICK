@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -2194,12 +2195,13 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight getRightsforUserString(String login) {
-		for (UserAnalysisRight userRight : userRights) {
-			if (userRight.getUser().getLogin().equals(login)) {
-				return userRight;
-			}
-		}
-		return null;
+		Optional<UserAnalysisRight> optional = userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny();
+		return optional.isPresent() ? optional.get() : null;
+	}
+
+	public AnalysisRight getRightValue(User user) {
+		UserAnalysisRight analysisRight = getRightsforUser(user);
+		return analysisRight == null ? null : analysisRight.getRight();
 	}
 
 	/**
@@ -2367,9 +2369,7 @@ public class Analysis implements Cloneable {
 		List<Asset> selectedAssets = new ArrayList<>();
 		if (assets == null)
 			return selectedAssets;
-		for (Asset asset : assets)
-			if (asset.isSelected())
-				selectedAssets.add(asset);
+		assets.stream().filter(asset -> asset.isSelected()).forEach(asset-> selectedAssets.add(asset));
 		return selectedAssets;
 	}
 
@@ -2528,5 +2528,11 @@ public class Analysis implements Cloneable {
 			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
 				actionPlanMeasures.put(planEntry.getMeasure().getId(), true);
 		return actionPlanMeasures;
+	}
+
+	public List<Asset> findNoAssetSelected() {
+		List<Asset> assets = new ArrayList<Asset>();
+		this.assets.stream().filter(asset-> !asset.isSelected()).forEach(asset -> assets.add(asset));
+		return assets;
 	}
 }
