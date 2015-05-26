@@ -247,6 +247,23 @@ function reloadCharts() {
 	return false;
 };
 
+function displayChart(id,response) {
+	var $element = $(id);
+	if($.isArray(response)){
+		$element.empty();
+		for (var i = 0; i < response.length; i++){
+			if(i == 0)
+				$("<div/>").appendTo($element).highcharts(response[i]);
+			else {
+				$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
+				$("<div></div>").appendTo($element).highcharts(response[i]);
+			}
+		}
+	}
+	else
+		$element.highcharts(response);
+}
+
 function loadChartAsset() {
 
 	if ($('#chart_ale_asset').length) {
@@ -258,7 +275,7 @@ function loadChartAsset() {
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					$('#chart_ale_asset').highcharts(response);
+					displayChart('#chart_ale_asset',response);
 				},
 				error : unknowError
 			});
@@ -272,7 +289,7 @@ function loadChartAsset() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					$('#chart_ale_asset_type').highcharts(response);
+					displayChart('#chart_ale_asset_type',response);
 				},
 				error : unknowError
 			});
@@ -291,7 +308,7 @@ function loadChartScenario() {
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					$('#chart_ale_scenario_type').highcharts(response);
+					displayChart('#chart_ale_scenario_type',response);
 				},
 				error : unknowError
 			});
@@ -306,7 +323,7 @@ function loadChartScenario() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					$('#chart_ale_scenario').highcharts(response);
+					displayChart('#chart_ale_scenario',response);
 				},
 				error : unknowError
 			});

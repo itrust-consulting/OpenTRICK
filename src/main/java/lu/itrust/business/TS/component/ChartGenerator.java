@@ -2,6 +2,7 @@ package lu.itrust.business.TS.component;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -106,75 +107,41 @@ public class ChartGenerator {
 	public String aleByAsset(int idAnalysis, Locale locale) throws Exception {
 
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
+		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales = new ArrayList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getId());
+			ALE ale = mappedALEs.get(assessment.getAsset().getId());
 			if (ale == null) {
-				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
-				ales2.add(ale);
+				mappedALEs.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
+				ales.add(ale);
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
-		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
+		Collections.sort(ales, new AssetComparatorByALE());
 
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale) + "\"}";
-
-		String pane = "\"pane\": {\"size\": \"100%\"}";
-
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
-
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
-
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
-
-		if (ales2.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
-
-		ALE assetMax = ales2.get(0);
-
-		double max = assetMax.getValue();
-
-		String xAxis = "";
-
-		String series = "";
-
-		String categories = "[";
-
-		String dataALEs = "[";
-
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
-
-		for (ALE ale : ales2) {
-			categories += "\"" + ale.getAssetName() + "\",";
-			dataALEs += ale.getValue() + ",";
+		try {
+			if (ales.size() <= 14)
+				return aleChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
+			Distribution distribution = Distribution.Distribut(ales.size(), 10, 12);
+			String result = "";
+			int multiplicator = ales.size() / distribution.getDivisor();
+			for (int i = 0; i < multiplicator; i++) {
+				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+				if (aleSubList.get(0).getValue() == 0)
+					break;
+				result += (result.isEmpty() ? "" : ",")
+						+ aleChart(
+								locale,
+								messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
+										String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList);
+			}
+			return String.format("[%s]", result);
+		} finally {
+			assessments.clear();
+			mappedALEs.clear();
+			ales.clear();
 		}
-
-		if (categories.endsWith(",")) {
-			categories = categories.substring(0, categories.length() - 1);
-			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-		}
-		categories += "]";
-		dataALEs += "]";
-
-		if (ales2.size() >= 10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
-		else
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
-
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
-
-		ales.clear();
-
-		ales2.clear();
-
-		assessments.clear();
-
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}")
-				.replaceAll("\r|\n", " ");
-
 	}
 
 	/**
@@ -241,10 +208,7 @@ public class ChartGenerator {
 		categories += "]";
 		dataALEs += "]";
 
-		if (ales2.size() >= 10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
-		else
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
 
 		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
 
@@ -350,21 +314,45 @@ public class ChartGenerator {
 	 */
 	public String aleByScenario(Integer idAnalysis, Locale locale) throws Exception {
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
+		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getId());
+			ALE ale = mappedALEs.get(assessment.getScenario().getId());
 			if (ale == null) {
-				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
-				ales2.add(ale);
+				mappedALEs.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
+				ales.add(ale);
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
-		Collections.sort(ales2, new AssetComparatorByALE());
+		Collections.sort(ales, new AssetComparatorByALE());
+		try {
+			if (ales.size() <= 14)
+				return aleChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
+			Distribution distribution = Distribution.Distribut(ales.size(), 10, 12);
+			String result = "";
+			int multiplicator = ales.size() / distribution.getDivisor();
+			for (int i = 0; i < multiplicator; i++) {
+				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+				if (aleSubList.get(0).getValue() == 0)
+					break;
+				result += (result.isEmpty() ? "" : ",")
+						+ aleChart(
+								locale,
+								messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
+										String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList);
+			}
+			return String.format("[%s]", result);
+		} finally {
+			assessments.clear();
+			mappedALEs.clear();
+			ales.clear();
+		}
+	}
 
+	private String aleChart(Locale locale, String chartitle, List<ALE> ales) {
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale) + "\"}";
+		String title = "\"title\": {\"text\":\"" + chartitle + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -374,10 +362,10 @@ public class ChartGenerator {
 
 		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }";
 
-		if (ales2.isEmpty())
+		if (ales.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
 
-		ALE assetMax = ales2.get(0);
+		ALE assetMax = ales.get(0);
 
 		double max = assetMax.getValue();
 
@@ -391,7 +379,7 @@ public class ChartGenerator {
 
 		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
 
-		for (ALE ale : ales2) {
+		for (ALE ale : ales) {
 			categories += "\"" + ale.getAssetName() + "\",";
 			dataALEs += ale.getValue() + ",";
 		}
@@ -403,18 +391,12 @@ public class ChartGenerator {
 		categories += "]";
 		dataALEs += "]";
 
-		if (ales2.size() >= 10)
+		if (ales.size() >= 10)
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
 		else
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales.size() - 1) + "\"}";
 
 		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
-
-		ales.clear();
-
-		ales2.clear();
-
-		assessments.clear();
 
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}")
 				.replaceAll("\r|\n", " ");
