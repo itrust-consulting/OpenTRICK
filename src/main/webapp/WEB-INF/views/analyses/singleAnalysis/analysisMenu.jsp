@@ -77,7 +77,7 @@
 			<li class="dropdown-header"><fmt:message key="label.title.rrf" /></li>
 			<li><a href="#" onclick="return loadRRF();"> <fmt:message key="label.action.open" /></a></li>
 			<c:if test="${analysis.isProfile() || isEditable}">
-				<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import.rrf" /></a></li>
+				<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import" /></a></li>
 			</c:if>
 			<c:if test="${!analysis.isProfile()}">
 				<li class="divider"></li>

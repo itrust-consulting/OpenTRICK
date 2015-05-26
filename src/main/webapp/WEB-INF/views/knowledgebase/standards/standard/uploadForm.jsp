@@ -33,7 +33,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" onclick="importNewStandard()">
-					<spring:message code="label.action.import.norm" text="Import" />
+					<spring:message code="label.action.import" text="Import" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />

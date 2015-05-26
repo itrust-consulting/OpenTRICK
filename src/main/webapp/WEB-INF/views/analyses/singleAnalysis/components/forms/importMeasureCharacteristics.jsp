@@ -26,8 +26,6 @@
 								</option>
 							</c:forEach>
 						</select>
-
-
 					</div>
 					<div class="form-group">
 						<label><fmt:message key="label.analyses" /></label> <select class="form-control" name="analysis">
