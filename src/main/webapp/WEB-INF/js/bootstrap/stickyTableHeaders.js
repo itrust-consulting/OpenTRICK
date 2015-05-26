@@ -22,6 +22,8 @@
 		base.$window = $(window);
 		base.$clonedHeader = null;
 		base.$originalHeader = null;
+		base.scrollDirection = 0;
+		base.scrollTop = 0;
 
 		// Keep track of state
 		base.isSticky = false;
@@ -107,6 +109,8 @@
 		base.canFix = function(scrollTop, headerPosition, headerData) {
 			if (!base.$targetTopOffset.length)
 				return scrollTop > headerPosition;
+			if (base.isSticky && base.scrollDirection > -1)
+				return true;
 			return (base.$targetTopOffset.offset().top + base.$targetTopOffset.height()) >= (headerData.top + headerData.height * 0.1);
 		}
 
@@ -121,10 +125,13 @@
 				var newTopOffset = isNaN(base.options.fixedOffset) ? base.options.fixedOffset.height() : base.options.fixedOffset;
 				var offset = $this.offset(), data = {
 					top : offset.top,
+					scrollTop : base.$window.scrollTop(),
 					left : offset.left,
 					height : $header.height()
 				};
-				var scrollTop = base.$window.scrollTop() + newTopOffset;
+				base.scrollDirection = data.scrollTop > base.scrollTop ? 1 : data.scrollTop == base.scrollTop ? 0 : -1;
+				base.scrollTop = data.scrollTop;
+				var scrollTop = data.scrollTop + newTopOffset;
 				var scrollLeft = base.$window.scrollLeft();
 				var headerPosition = offset.top - data.height * 2;
 				if (base.canFix(scrollTop, headerPosition, data)) {
@@ -139,11 +146,12 @@
 						'background-color' : 'white'
 					});
 					base.topPosistion();
+					if(!base.isSticky)// fix scroll up when header is fixed
+						base.scrollTop = 0;
 					base.isSticky = true;
 					base.leftOffset = newLeft;
 					base.topOffset = newTopOffset;
 					base.$clonedHeader.css('display', '');
-
 					// make sure the width is correct: the user might have
 					// resized the browser while in static mode
 					base.updateWidth();
