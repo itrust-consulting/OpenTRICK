@@ -46,6 +46,7 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -93,6 +94,15 @@ public class ChartGenerator {
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
+	@Value("${app.settings.ale.chart.content.size}")
+	private int aleChartSize;
+
+	@Value("${app.settings.ale.chart.content.max.size}")
+	private int aleChartMaxSize;
+
+	@Value("${app.settings.ale.chart.single.content.max.size}")
+	private int aleChartSingleMaxSize;
+
 	private String exporting = "\"exporting\":{\"sourceWidth\":1500,\"sourceHeight\": 600,\"chartOptions\": {\"legend\": {\"enabled\": true,\"title\": { \"text\": \"\"  }, \"itemHiddenStyle\": { \"display\": \"none\" } }, \"rangeSelector\": {\"enabled\": false },\"navigator\": {\"enabled\": false},\"scrollbar\": {\"enabled\": false}}}";
 
 	/**
@@ -121,9 +131,9 @@ public class ChartGenerator {
 		Collections.sort(ales, new AssetComparatorByALE());
 
 		try {
-			if (ales.size() <= 14)
-				return aleChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
-			Distribution distribution = Distribution.Distribut(ales.size(), 10, 12);
+			if (ales.size() <= aleChartSingleMaxSize)
+				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale), ales);
+			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			String result = "";
 			int multiplicator = ales.size() / distribution.getDivisor();
 			for (int i = 0; i < multiplicator; i++) {
@@ -131,7 +141,7 @@ public class ChartGenerator {
 				if (aleSubList.get(0).getValue() == 0)
 					break;
 				result += (result.isEmpty() ? "" : ",")
-						+ aleChart(
+						+ generateALEChart(
 								locale,
 								messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
 										String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList);
@@ -153,73 +163,41 @@ public class ChartGenerator {
 	 * @return
 	 */
 	public String aleByAssetType(int idAnalysis, Locale locale) throws Exception {
-
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
-			if (ale == null) {
-				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
-				ales2.add(ale);
+		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales = new LinkedList<ALE>();
+		try {
+			for (Assessment assessment : assessments) {
+				ALE ale = mappedALEs.get(assessment.getAsset().getAssetType().getId());
+				if (ale == null) {
+					mappedALEs.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
+					ales.add(ale);
+				}
+				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+			Collections.sort(ales, new AssetComparatorByALE());
+
+			if (ales.size() <= aleChartSingleMaxSize)
+				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale), ales);
+			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
+			String result = "";
+			int multiplicator = ales.size() / distribution.getDivisor();
+			for (int i = 0; i < multiplicator; i++) {
+				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+				if (aleSubList.get(0).getValue() == 0)
+					break;
+				result += (result.isEmpty() ? "" : ",")
+						+ generateALEChart(
+								locale,
+								messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, multiplicator },
+										String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+			}
+			return String.format("[%s]", result);
+		} finally {
+			assessments.clear();
+			mappedALEs.clear();
+			ales.clear();
 		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
-
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale) + "\"}";
-
-		String pane = "\"pane\": {\"size\": \"100%\"}";
-
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
-
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
-
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
-
-		if (ales2.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
-
-		ALE assetMax = ales2.get(0);
-
-		double max = assetMax.getValue();
-
-		String xAxis = "";
-
-		String series = "";
-
-		String categories = "[";
-
-		String dataALEs = "[";
-
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
-
-		for (ALE ale : ales2) {
-			categories += "\"" + ale.getAssetName() + "\",";
-			dataALEs += ale.getValue() + ",";
-		}
-
-		if (categories.endsWith(",")) {
-			categories = categories.substring(0, categories.length() - 1);
-			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-		}
-		categories += "]";
-		dataALEs += "]";
-
-		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
-
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
-
-		ales.clear();
-
-		ales2.clear();
-
-		assessments.clear();
-
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}")
-				.replaceAll("\r|\n", " ");
 	}
 
 	/**
@@ -233,74 +211,40 @@ public class ChartGenerator {
 	 */
 	public String aleByScenarioType(Integer idAnalysis, Locale locale) throws Exception {
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getType().getValue());
-			if (ale == null) {
-				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
-				ales2.add(ale);
+		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales = new LinkedList<ALE>();
+		try {
+			for (Assessment assessment : assessments) {
+				ALE ale = mappedALEs.get(assessment.getScenario().getType().getValue());
+				if (ale == null) {
+					mappedALEs.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
+					ales.add(ale);
+				}
+				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+			Collections.sort(ales, new AssetComparatorByALE());
+
+			if (ales.size() <= aleChartSingleMaxSize)
+				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale), ales);
+			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
+			String result = "";
+			int multiplicator = ales.size() / distribution.getDivisor();
+			for (int i = 0; i < multiplicator; i++) {
+				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
+				if (aleSubList.get(0).getValue() == 0)
+					break;
+				result += (result.isEmpty() ? "" : ",")
+						+ generateALEChart(
+								locale,
+								messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, multiplicator },
+										String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+			}
+			return String.format("[%s]", result);
+		} finally {
+			assessments.clear();
+			mappedALEs.clear();
+			ales.clear();
 		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
-
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale) + "\"}";
-
-		String pane = "\"pane\": {\"size\": \"100%\"}";
-
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
-
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
-
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
-
-		if (ales2.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
-
-		ALE assetMax = ales2.get(0);
-
-		double max = assetMax.getValue();
-
-		String xAxis = "";
-
-		String series = "";
-
-		String categories = "[";
-
-		String dataALEs = "[";
-
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
-
-		for (ALE ale : ales2) {
-			categories += "\"" + ale.getAssetName() + "\",";
-			dataALEs += ale.getValue() + ",";
-		}
-
-		if (categories.endsWith(",")) {
-			categories = categories.substring(0, categories.length() - 1);
-			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-		}
-		categories += "]";
-		dataALEs += "]";
-
-		if (ales2.size() >= 10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
-		else
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
-
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
-
-		ales.clear();
-
-		ales2.clear();
-
-		assessments.clear();
-
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}")
-				.replaceAll("\r|\n", " ");
 	}
 
 	/**
@@ -316,19 +260,20 @@ public class ChartGenerator {
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> mappedALEs = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = mappedALEs.get(assessment.getScenario().getId());
-			if (ale == null) {
-				mappedALEs.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
-				ales.add(ale);
-			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
-		}
-		Collections.sort(ales, new AssetComparatorByALE());
 		try {
-			if (ales.size() <= 14)
-				return aleChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
-			Distribution distribution = Distribution.Distribut(ales.size(), 10, 12);
+			for (Assessment assessment : assessments) {
+				ALE ale = mappedALEs.get(assessment.getScenario().getId());
+				if (ale == null) {
+					mappedALEs.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
+					ales.add(ale);
+				}
+				ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+			}
+			Collections.sort(ales, new AssetComparatorByALE());
+
+			if (ales.size() <= aleChartSingleMaxSize)
+				return generateALEChart(locale, messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale), ales);
+			Distribution distribution = Distribution.Distribut(ales.size(), aleChartSize, aleChartMaxSize);
 			String result = "";
 			int multiplicator = ales.size() / distribution.getDivisor();
 			for (int i = 0; i < multiplicator; i++) {
@@ -336,7 +281,7 @@ public class ChartGenerator {
 				if (aleSubList.get(0).getValue() == 0)
 					break;
 				result += (result.isEmpty() ? "" : ",")
-						+ aleChart(
+						+ generateALEChart(
 								locale,
 								messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
 										String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList);
@@ -349,7 +294,7 @@ public class ChartGenerator {
 		}
 	}
 
-	private String aleChart(Locale locale, String chartitle, List<ALE> ales) {
+	private String generateALEChart(Locale locale, String chartitle, List<ALE> ales) {
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + chartitle + "\"}";
@@ -391,10 +336,7 @@ public class ChartGenerator {
 		categories += "]";
 		dataALEs += "]";
 
-		if (ales.size() >= 10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
-		else
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales.size() - 1) + "\"}";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales.size() - 1) + "\"}";
 
 		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
 
