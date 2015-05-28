@@ -24,7 +24,7 @@
 						<spring:message code="label.user.login" text="Username" />
 					</label>
 					<div class="col-sm-9">
-						<input type="text" id="login" name="login" class="form-control" required />
+						<input type="text" id="login" name="login" class="form-control" required pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}"/>
 					</div>
 				</div>
 				<div class="form-group">
@@ -48,7 +48,7 @@
 						<spring:message code="label.user.first_name" text="Firstname" />
 					</label>
 					<div class="col-sm-9">
-						<input type="text" id="firstName" name="firstName" class="form-control" required />
+						<input type="text" id="firstName" name="firstName" class="form-control" required/>
 					</div>
 				</div>
 				<div class="form-group">

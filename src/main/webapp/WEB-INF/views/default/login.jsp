@@ -32,7 +32,7 @@
 				<form id="login_form" method="post" action="${pageContext.request.contextPath}/j_spring_security_check">
 					<div class="form-group">
 						<input id="username" name="j_username" value="${(!empty (j_username))? j_username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
-							required="required" class="form-control" />
+							required="required" class="form-control" pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}" />
 					</div>
 					<div class="form-group">
 						<input name="j_password" value="${(!empty (j_password))? j_password : ''}" type="password" class="form-control"
