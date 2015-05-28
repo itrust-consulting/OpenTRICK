@@ -344,118 +344,174 @@ function customAnalysis(element) {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var doc = new DOMParser().parseFromString(response, "text/html");
-			if ($(doc).find("#buildAnalysisModal").length) {
-				var modal = new Modal($(doc).find("#buildAnalysisModal").clone());
-
-				// Event user select a customer
-				$(modal.modal_body).find("#selector-customer").on("change", function(e) {
-					$(modal.modal_body).find("#selector-analysis").find("option[value!=-1]").remove();
-					$(modal.modal_body).find("#analysis-versions li[class!='disabled']").remove();
-					if ($(e.target).val() < 1)
-						$(modal.modal_body).find("#selector-analysis").find("option[value=-1]").prop("selected", true);
-					else {
+			var $modalContent = $("#buildAnalysisModal", new DOMParser().parseFromString(response, "text/html"));
+			if (!$modalContent.length)
+				unknowError();
+			else {
+				var $old = $("#buildAnalysisModal");
+				if ($old.length)
+					$old.replaceWith($modalContent);
+				else
+					$modalContent.appendTo("#widget");
+				var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
+				var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
+				var $removeText = MessageResolver("label.action.delete", "Delete");
+				// load data from database and manage caching
+				var analysesCaching = {
+					versions : {},
+					identifiers : {},
+					customers : {},
+					cloneWidth : undefined,
+					saveVersions : function(identifier, data) {
+						for (var i = 0; i < data.length; i++)
+							this.versions[data[i].id] = data[i];
+						this.identifiers[identifier] = data;
+						return this;
+					},
+					saveIdentifier : function(idCustomer, data) {
+						if (!this.cloneWidth)
+							this.cloneWidth = this.cloneWidth = $("#analysis-build-standards").width();
+						this.customers[idCustomer] = data;
+						return this;
+					},
+					updateAnalysisVersions : function(idCustomer, identifier) {
+						if (this.identifiers[identifier] == undefined)
+							this.loadByCustomerIdAndIdentifier(idCustomer, identifier);
+						else
+							this.updateVersionSelector(identifier);
+						return this;
+					},
+					updateAnalysisIdentifiers : function(idCustomer) {
+						if (this.customers[idCustomer] == undefined)
+							this.loadByCustomerId(idCustomer);
+						else
+							this.updateAnalysisSelector(idCustomer);
+						return this;
+					},
+					findAnalysisById : function(idAnalysis) {
+						return versions[idAnalysis];
+					},
+					loadByCustomerIdAndIdentifier : function(idCustomer, identifier) {
+						var instance = this;
 						$.ajax({
-							url : context + "/Analysis/Build/Customer/" + $(e.target).val(),
+							url : context + "/Analysis/Build/Customer/" + idCustomer + "/Identifier/" + identifier,
 							type : "get",
 							contentType : "application/json;charset=UTF-8",
 							success : function(response, textStatus, jqXHR) {
-								if (typeof response == 'object') {
-									var $analysisSelector = $(modal.modal_body).find("#selector-analysis");
-									for (var i = 0; i < response.length; i++)
-										$("<option value='" + response[i].identifier + "'>" + response[i].label + "</option>").appendTo($analysisSelector);
-								} else
+								if (typeof response == 'object')
+									instance.saveVersions(identifier, response).updateVersionSelector(identifier);
+								else
 									unknowError();
-							},
-							error : unknowError
+							}
 						});
-					}
-				});
+					},
+					loadByCustomerId : function(idCustomer) {
+						var instance = this;
+						$.ajax({
+							url : context + "/Analysis/Build/Customer/" + idCustomer,
+							type : "get",
+							contentType : "application/json;charset=UTF-8",
+							success : function(response, textStatus, jqXHR) {
+								if (typeof response == 'object')
+									instance.saveIdentifier(idCustomer, response).updateAnalysisIdentifiers(idCustomer);
+								else
+									unknowError();
+							}
+						});
+					},
+					updateVersionSelector : function(identifier) {
+						var instance = this;
+						var versions = this.identifiers[identifier];
+						var $analysisVersions = $("#analysis-versions", $modalBody);
+						for (var i = 0; i < versions.length; i++) {
+							var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' title='" + versions[i].label + " v." + versions[i].version + "'>"
+									+ versions[i].version + "</li>");
+							$li.appendTo($analysisVersions);
+						}
 
-				var $emptyText = $(modal.modal_body).find("*[dropzone='true']>div:first").text();
-
-				var $removeText = MessageResolver("label.action.delete", "Delete");
-
-				$(modal.modal_body).find("#selector-analysis").on(
-						"change",
-						function(e) {
-							$(modal.modal_body).find("#analysis-versions li[class!='disabled']").remove();
-							if ($(e.target).val() != -1) {
-								$.ajax({
-									url : context + "/Analysis/Build/Customer/" + $(modal.modal_body).find("#selector-customer").val() + "/Identifier/" + $(e.target).val(),
-									type : "get",
-									contentType : "application/json;charset=UTF-8",
-									success : function(response, textStatus, jqXHR) {
-										if (typeof response == 'object') {
-											var $analysisVersions = $(modal.modal_body).find("#analysis-versions");
-											for (var i = 0; i < response.length; i++) {
-												var $li = $("<li class='list-group-item' data-trick-id='" + response[i].id + "' title='" + response[i].label + " v."
-														+ response[i].version + "'>" + response[i].version + "</li>");
-												$li.appendTo($analysisVersions);
-											}
-											$(modal.modal_body).find("#analysis-versions li").hover(function() {
-												$(this).css('cursor', 'move');
-											})
-											$(modal.modal_body).find("#analysis-versions li").draggable({
-												helper : "clone",
-												cancel : "span.glyphicon-remove-sign",
-												revert : "invalid",
-												containment : "#buildAnalysisModal #group_2",
-												accept : "*[dropzone='true']",
-												cursor : "move",
-												start : function(e, ui) {
-													$(ui.helper).css({
-														'z-index' : '1085',
-														'min-width' : '232px'
-													});
-												}
-											});
-										} else
-											unknowError();
-									},
-									error : unknowError
+						$("#analysis-versions li", $modalBody).hover(function() {
+							$(this).css('cursor', 'move');
+						}).draggable({
+							helper : "clone",
+							cancel : "span.glyphicon-remove-sign",
+							revert : "invalid",
+							containment : "#buildAnalysisModal #group_2",
+							accept : "*[dropzone='true']",
+							cursor : "move",
+							start : function(e, ui) {
+								$(ui.helper).css({
+									'z-index' : '1085',
+									'min-width' : instance.cloneWidth,
+									'border-radius': "5px"
 								});
 							}
 						});
+						return this;
+					},
+					updateAnalysisSelector : function(idCustomer) {
+						var identifiers = this.customers[idCustomer];
+						var $analysisSelector = $("#selector-analysis");
+						for (var i = 0; i < identifiers.length; i++)
+							$("<option value='" + identifiers[i].identifier + "'>" + identifiers[i].label + "</option>").appendTo($analysisSelector);
+						return this;
+					}
+				};
+
+				// Event user select a customer
+				$("#selector-customer").on("change", function(e) {
+					$("#selector-analysis option[value!=-1]").remove();
+					$("#analysis-versions li[class!='disabled']").remove();
+					var idCustomer = $(e.target).val();
+					if (idCustomer < 0)
+						$("#selector-analysis option[value=-1]").prop("selected", true);
+					else
+						analysesCaching.updateAnalysisIdentifiers(idCustomer);
+				});
+
+				$("#selector-analysis").on("change", function(e) {
+					$("#analysis-versions li[class!='disabled']", $modalBody).remove();
+					var identifier = $(e.target).val();
+					if (identifier != -1)
+						analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
+				});
 
 				var checkPhase = function() {
-					$(modal.modal_body).find("input[name='phase']")
-							.prop("disabled", $(modal.modal_body).find("#analysis-build-standards .well").attr("data-trick-id") == undefined);
-					$(modal.modal_body).find("input[name='phase']").prop("checked", false);
+					$modalBody.find("input[name='phase']").prop("disabled", $modalBody.find("#analysis-build-standards .well").attr("data-trick-id") == undefined);
+					$modalBody.find("input[name='phase']").prop("checked", false);
 				}
 
 				var checkEstimation = function() {
-					var trick_id_asset = $(modal.modal_body).find("#analysis-build-assets .well").attr("data-trick-id");
-					var trick_id_scenario = $(modal.modal_body).find("#analysis-build-scenarios .well").attr("data-trick-id");
-					$(modal.modal_body).find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
-					$(modal.modal_body).find("input[name='assessment']").prop("checked", false);
+					var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id");
+					var trick_id_scenario = $("#analysis-build-scenarios .well").attr("data-trick-id");
+					$modalBody.find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
+					$modalBody.find("input[name='assessment']").prop("checked", false);
 				}
 
-				$(modal.modal_body).find("#analysis-build-scenarios").attr("data-trick-callback", "checkEstimation()");
-				$(modal.modal_body).find("#analysis-build-assets").attr("data-trick-callback", "checkEstimation()");
-				$(modal.modal_body).find("#analysis-build-standards").attr("data-trick-callback", "checkPhase()");
+				$("#analysis-build-scenarios").attr("data-trick-callback", "checkEstimation()");
+				$("#analysis-build-assets").attr("data-trick-callback", "checkEstimation()");
+				$("#analysis-build-standards").attr("data-trick-callback", "checkPhase()");
 
-				$(modal.modal_body).find("*[dropzone='true']>div").droppable(
+				$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
 						{
 							accept : "li.list-group-item",
 							activeClass : "warning",
 							drop : function(event, ui) {
-								$(this).attr("data-trick-id", ui.draggable.attr("data-trick-id"));
-								$(this).attr("title", ui.draggable.attr("title"));
-								$(this).text(ui.draggable.attr("title"));
-								$(this).addClass("success");
-								$(this).parent().find('input').attr("value", ui.draggable.attr("data-trick-id"));
-								var callback = $(this).parent().attr("data-trick-callback");
+								var $this = $(this), $parent = $this.parent();
+								$this.attr("data-trick-id", ui.draggable.attr("data-trick-id"));
+								$this.attr("title", ui.draggable.attr("title"));
+								$this.text(ui.draggable.attr("title"));
+								$this.addClass("success");
+								$parent.find('input').attr("value", ui.draggable.attr("data-trick-id"));
+								var callback = $parent.attr("data-trick-callback");
 								$(
 										"<a href='#' class='pull-right text-danger' title='" + $removeText
-												+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($(this)).click(function() {
-									var $parent = $(this).parent();
-									$(this).remove();
-									$parent.removeAttr("data-trick-id");
-									$parent.removeAttr("title");
-									$parent.removeClass("success");
-									$parent.text($emptyText);
-									$parent.parent().find('input').attr("value", '-1');
+												+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(function() {
+									var $newParent = $(this).parent();
+									$newParent.removeAttr("data-trick-id");
+									$newParent.removeAttr("title");
+									$newParent.removeClass("success");
+									$newParent.text($emptyText);
+									$newParent.parent().find('input').attr("value", '-1');
 									if (callback != undefined)
 										eval(callback);
 									return false;
@@ -465,9 +521,16 @@ function customAnalysis(element) {
 									eval(callback);
 							}
 						});
+
+				$("#analysis-build-standards div").droppable({
+					accept : "li.list-group-item",
+					activeClass : "warning"
+
+				})
+
 				var $saveButton = $(modal.modal_footer).find("button[name='save']");
 				var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
-				var $progress_bar = $(modal.modal_body).find(".progress");
+				var $progress_bar = $modalBody.find(".progress");
 				$cancelButton.click(function() {
 					if (!$cancelButton.is(":disabled"))
 						modal.Destroy();
@@ -481,7 +544,7 @@ function customAnalysis(element) {
 					$.ajax({
 						url : context + "/Analysis/Build/Save",
 						type : "post",
-						data : $(modal.modal_body).find("form").serialize(),
+						data : $modalBody.find("form").serialize(),
 						async : false,
 						success : function(response, textStatus, jqXHR) {
 							if (typeof response == 'object') {
@@ -515,7 +578,7 @@ function customAnalysis(element) {
 										case "assessment":
 										case "profile":
 										case "name":
-											$(errorElement).appendTo($(modal.modal_body).find("form *[name='" + error + "']").parent());
+											$(errorElement).appendTo($modalBody.find("form *[name='" + error + "']").parent());
 											break;
 										case "riskInformation":
 										case "scope":
@@ -523,7 +586,7 @@ function customAnalysis(element) {
 										case "scenario":
 										case "standard":
 										case "parameter":
-											$(errorElement).appendTo($(modal.modal_body).find("[data-trick-name='" + error + "']"));
+											$(errorElement).appendTo($modalBody.find("[data-trick-name='" + error + "']"));
 											break;
 										default:
 											$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response[error])).css({
@@ -543,8 +606,7 @@ function customAnalysis(element) {
 				});
 
 				modal.Show();
-			} else
-				unknowError();
+			}
 			return false;
 		},
 		error : unknowError

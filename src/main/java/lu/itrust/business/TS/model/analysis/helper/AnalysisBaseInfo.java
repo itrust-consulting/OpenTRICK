@@ -3,6 +3,9 @@
  */
 package lu.itrust.business.TS.model.analysis.helper;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import lu.itrust.business.TS.model.analysis.Analysis;
 
 
@@ -30,7 +33,9 @@ public class AnalysisBaseInfo {
 
 	/** flag to determine if analysis has data */
 	private boolean empty;
-
+	
+	private List<AnalysisStandardBaseInfo> analysisStandardBaseInfo;
+ 
 	/**
 	 * 
 	 */
@@ -45,6 +50,8 @@ public class AnalysisBaseInfo {
 		setVersion(analysis.getVersion());
 		setLabel(analysis.getLabel());
 		setEmpty(!analysis.hasData());
+		setAnalysisStandardBaseInfo(new LinkedList<AnalysisStandardBaseInfo>());
+		analysis.getAnalysisStandards().forEach(analysisStandard-> analysisStandardBaseInfo.add(new AnalysisStandardBaseInfo(analysis.getId(),analysisStandard)));
 	}
 
 	public int getId() {
@@ -105,6 +112,20 @@ public class AnalysisBaseInfo {
 
 	public boolean hasData() {
 		return !isEmpty();
+	}
+
+	/**
+	 * @return the analysisStandardBaseInfo
+	 */
+	public List<AnalysisStandardBaseInfo> getAnalysisStandardBaseInfo() {
+		return analysisStandardBaseInfo;
+	}
+
+	/**
+	 * @param analysisStandardBaseInfo the analysisStandardBaseInfo to set
+	 */
+	public void setAnalysisStandardBaseInfo(List<AnalysisStandardBaseInfo> analysisStandardBaseInfo) {
+		this.analysisStandardBaseInfo = analysisStandardBaseInfo;
 	}
 
 }

@@ -187,11 +187,12 @@
 							</div>
 							<div class="form-group">
 								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
-								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standard" dropzone="true">
-									<div class="well well-sm">
+								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
+									<div class="well well-lg">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
-									<input name="standard" value="-1" hidden="true">
+									<select name="standards" hidden="true">
+									</select>
 								</div>
 							</div>
 							<div class="form-group">
