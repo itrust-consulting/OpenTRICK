@@ -339,278 +339,376 @@ function saveAnalysisProfile(form) {
 function customAnalysis(element) {
 	if ($(element).parent().hasClass("disabled"))
 		return false;
-	$.ajax({
-		url : context + "/Analysis/Build",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var $modalContent = $("#buildAnalysisModal", new DOMParser().parseFromString(response, "text/html"));
-			if (!$modalContent.length)
-				unknowError();
-			else {
-				var $old = $("#buildAnalysisModal");
-				if ($old.length)
-					$old.replaceWith($modalContent);
-				else
-					$modalContent.appendTo("#widget");
-				var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
-				var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
-				var $removeText = MessageResolver("label.action.delete", "Delete");
-				// load data from database and manage caching
-				var analysesCaching = {
-					versions : {},
-					identifiers : {},
-					customers : {},
-					cloneWidth : undefined,
-					saveVersions : function(identifier, data) {
-						for (var i = 0; i < data.length; i++)
-							this.versions[data[i].id] = data[i];
-						this.identifiers[identifier] = data;
-						return this;
-					},
-					saveIdentifier : function(idCustomer, data) {
-						if (!this.cloneWidth)
-							this.cloneWidth = this.cloneWidth = $("#analysis-build-standards").width();
-						this.customers[idCustomer] = data;
-						return this;
-					},
-					updateAnalysisVersions : function(idCustomer, identifier) {
-						if (this.identifiers[identifier] == undefined)
-							this.loadByCustomerIdAndIdentifier(idCustomer, identifier);
+	$
+			.ajax({
+				url : context + "/Analysis/Build",
+				type : "get",
+				contentType : "application/json;charset=UTF-8",
+				success : function(response, textStatus, jqXHR) {
+					var $modalContent = $("#buildAnalysisModal", new DOMParser().parseFromString(response, "text/html"));
+					if (!$modalContent.length)
+						unknowError();
+					else {
+						var $old = $("#buildAnalysisModal");
+						if ($old.length)
+							$old.replaceWith($modalContent);
 						else
-							this.updateVersionSelector(identifier);
-						return this;
-					},
-					updateAnalysisIdentifiers : function(idCustomer) {
-						if (this.customers[idCustomer] == undefined)
-							this.loadByCustomerId(idCustomer);
-						else
-							this.updateAnalysisSelector(idCustomer);
-						return this;
-					},
-					findAnalysisById : function(idAnalysis) {
-						return versions[idAnalysis];
-					},
-					loadByCustomerIdAndIdentifier : function(idCustomer, identifier) {
-						var instance = this;
-						$.ajax({
-							url : context + "/Analysis/Build/Customer/" + idCustomer + "/Identifier/" + identifier,
-							type : "get",
-							contentType : "application/json;charset=UTF-8",
-							success : function(response, textStatus, jqXHR) {
-								if (typeof response == 'object')
-									instance.saveVersions(identifier, response).updateVersionSelector(identifier);
+							$modalContent.appendTo("#widget");
+						var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
+						var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
+						var $removeText = MessageResolver("label.action.delete", "Delete");
+						// load data from database and manage caching
+						var analysesCaching = {
+							versions : {},
+							identifiers : {},
+							customers : {},
+							cloneWidth : undefined,
+							saveVersions : function(identifier, data) {
+								for (var i = 0; i < data.length; i++)
+									this.versions[data[i].id] = data[i];
+								this.identifiers[identifier] = data;
+								return this;
+							},
+							saveIdentifier : function(idCustomer, data) {
+								if (!this.cloneWidth)
+									this.cloneWidth = this.cloneWidth = $("#analysis-build-standards").width();
+								this.customers[idCustomer] = data;
+								return this;
+							},
+							updateAnalysisVersions : function(idCustomer, identifier) {
+								if (this.identifiers[identifier] == undefined)
+									this.loadByCustomerIdAndIdentifier(idCustomer, identifier);
 								else
-									unknowError();
-							}
-						});
-					},
-					loadByCustomerId : function(idCustomer) {
-						var instance = this;
-						$.ajax({
-							url : context + "/Analysis/Build/Customer/" + idCustomer,
-							type : "get",
-							contentType : "application/json;charset=UTF-8",
-							success : function(response, textStatus, jqXHR) {
-								if (typeof response == 'object')
-									instance.saveIdentifier(idCustomer, response).updateAnalysisIdentifiers(idCustomer);
+									this.updateVersionSelector(identifier);
+								return this;
+							},
+							updateAnalysisIdentifiers : function(idCustomer) {
+								if (this.customers[idCustomer] == undefined)
+									this.loadByCustomerId(idCustomer);
 								else
-									unknowError();
-							}
-						});
-					},
-					updateVersionSelector : function(identifier) {
-						var instance = this;
-						var versions = this.identifiers[identifier];
-						var $analysisVersions = $("#analysis-versions", $modalBody);
-						for (var i = 0; i < versions.length; i++) {
-							var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' title='" + versions[i].label + " v." + versions[i].version + "'>"
-									+ versions[i].version + "</li>");
-							$li.appendTo($analysisVersions);
-						}
-
-						$("#analysis-versions li", $modalBody).hover(function() {
-							$(this).css('cursor', 'move');
-						}).draggable({
-							helper : "clone",
-							cancel : "span.glyphicon-remove-sign",
-							revert : "invalid",
-							containment : "#buildAnalysisModal #group_2",
-							accept : "*[dropzone='true']",
-							cursor : "move",
-							start : function(e, ui) {
-								$(ui.helper).css({
-									'z-index' : '1085',
-									'min-width' : instance.cloneWidth,
-									'border-radius': "5px"
+									this.updateAnalysisSelector(idCustomer);
+								return this;
+							},
+							findAnalysisById : function(idAnalysis) {
+								return this.versions[idAnalysis];
+							},
+							loadByCustomerIdAndIdentifier : function(idCustomer, identifier) {
+								var instance = this;
+								$.ajax({
+									url : context + "/Analysis/Build/Customer/" + idCustomer + "/Identifier/" + identifier,
+									type : "get",
+									contentType : "application/json;charset=UTF-8",
+									success : function(response, textStatus, jqXHR) {
+										if (typeof response == 'object')
+											instance.saveVersions(identifier, response).updateVersionSelector(identifier);
+										else
+											unknowError();
+									}
 								});
-							}
-						});
-						return this;
-					},
-					updateAnalysisSelector : function(idCustomer) {
-						var identifiers = this.customers[idCustomer];
-						var $analysisSelector = $("#selector-analysis");
-						for (var i = 0; i < identifiers.length; i++)
-							$("<option value='" + identifiers[i].identifier + "'>" + identifiers[i].label + "</option>").appendTo($analysisSelector);
-						return this;
-					}
-				};
-
-				// Event user select a customer
-				$("#selector-customer").on("change", function(e) {
-					$("#selector-analysis option[value!=-1]").remove();
-					$("#analysis-versions li[class!='disabled']").remove();
-					var idCustomer = $(e.target).val();
-					if (idCustomer < 0)
-						$("#selector-analysis option[value=-1]").prop("selected", true);
-					else
-						analysesCaching.updateAnalysisIdentifiers(idCustomer);
-				});
-
-				$("#selector-analysis").on("change", function(e) {
-					$("#analysis-versions li[class!='disabled']", $modalBody).remove();
-					var identifier = $(e.target).val();
-					if (identifier != -1)
-						analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
-				});
-
-				var checkPhase = function() {
-					$modalBody.find("input[name='phase']").prop("disabled", $modalBody.find("#analysis-build-standards .well").attr("data-trick-id") == undefined);
-					$modalBody.find("input[name='phase']").prop("checked", false);
-				}
-
-				var checkEstimation = function() {
-					var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id");
-					var trick_id_scenario = $("#analysis-build-scenarios .well").attr("data-trick-id");
-					$modalBody.find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
-					$modalBody.find("input[name='assessment']").prop("checked", false);
-				}
-
-				$("#analysis-build-scenarios").attr("data-trick-callback", "checkEstimation()");
-				$("#analysis-build-assets").attr("data-trick-callback", "checkEstimation()");
-				$("#analysis-build-standards").attr("data-trick-callback", "checkPhase()");
-
-				$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
-						{
-							accept : "li.list-group-item",
-							activeClass : "warning",
-							drop : function(event, ui) {
-								var $this = $(this), $parent = $this.parent();
-								$this.attr("data-trick-id", ui.draggable.attr("data-trick-id"));
-								$this.attr("title", ui.draggable.attr("title"));
-								$this.text(ui.draggable.attr("title"));
-								$this.addClass("success");
-								$parent.find('input').attr("value", ui.draggable.attr("data-trick-id"));
-								var callback = $parent.attr("data-trick-callback");
-								$(
-										"<a href='#' class='pull-right text-danger' title='" + $removeText
-												+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(function() {
-									var $newParent = $(this).parent();
-									$newParent.removeAttr("data-trick-id");
-									$newParent.removeAttr("title");
-									$newParent.removeClass("success");
-									$newParent.text($emptyText);
-									$newParent.parent().find('input').attr("value", '-1');
-									if (callback != undefined)
-										eval(callback);
-									return false;
+							},
+							loadByCustomerId : function(idCustomer) {
+								var instance = this;
+								$.ajax({
+									url : context + "/Analysis/Build/Customer/" + idCustomer,
+									type : "get",
+									contentType : "application/json;charset=UTF-8",
+									success : function(response, textStatus, jqXHR) {
+										if (typeof response == 'object')
+											instance.saveIdentifier(idCustomer, response).updateAnalysisIdentifiers(idCustomer);
+										else
+											unknowError();
+									}
 								});
+							},
+							updateVersionSelector : function(identifier) {
+								var instance = this;
+								var versions = this.identifiers[identifier];
+								var $analysisVersions = $("#analysis-versions", $modalBody);
+								for (var i = 0; i < versions.length; i++) {
+									var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' title='" + versions[i].label + " v." + versions[i].version
+											+ "'>" + versions[i].version + "</li>");
+									$li.appendTo($analysisVersions);
+								}
 
-								if (callback != undefined)
+								$("#analysis-versions li", $modalBody).hover(function() {
+									$(this).css('cursor', 'move');
+								}).draggable({
+									helper : "clone",
+									cancel : "span.glyphicon-remove-sign",
+									revert : "invalid",
+									containment : "#buildAnalysisModal #group_2",
+									accept : "*[dropzone='true']",
+									cursor : "move",
+									start : function(e, ui) {
+										$(ui.helper).css({
+											'z-index' : '1085',
+											'min-width' : instance.cloneWidth,
+											'border-radius' : "5px"
+										});
+									}
+								});
+								return this;
+							},
+							updateAnalysisSelector : function(idCustomer) {
+								var identifiers = this.customers[idCustomer];
+								var $analysisSelector = $("#selector-analysis");
+								for (var i = 0; i < identifiers.length; i++)
+									$("<option value='" + identifiers[i].identifier + "'>" + identifiers[i].label + "</option>").appendTo($analysisSelector);
+								return this;
+							},
+
+							applyCallback : function(callback) {
+								if (callback == undefined)
+									return;
+								if ($.isArray(callback)) {
+									for (var i = 0; i < callback.length; i++)
+										eval(callback[i]);
+								} else
 									eval(callback);
+								return this;
+							},
+							checkPhase : function() {
+								$modalBody.find("input[name='phase']").prop("disabled", $modalBody.find("#analysis-build-standards .well").attr("data-trick-id") == undefined);
+								$modalBody.find("input[name='phase']").prop("checked", false);
+								return this;
+							},
+							checkEstimation : function() {
+								var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id");
+								var trick_id_scenario = $("#analysis-build-scenarios .well").attr("data-trick-id");
+								$modalBody.find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
+								$modalBody.find("input[name='assessment']").prop("checked", false);
+								return this;
+							},
+							checkAssetStandard : function() {
+								var analysisAsset = $("#analysis-build-assets input").val();
+								if (analysisAsset == -1)
+									return this;
+								var $parent = $("#analysis-build-standards"), $label = $("#analysis-build-standards label[data-trick-type='ASSET'][data-trick-id!='"
+										+ analysisAsset + "']");
+								$label.each(function() {
+									var $this = $(this);
+									$("[data-trick-id='" + $this.attr("data-trick-id") + "'][data-trick-owner-id='" + $this.attr("data-trick-owner-id") + "']", $parent).remove();
+								});
+								if ($label.length)
+									this.nameAnalysisStandard();
+								return this;
+							},
+							nameAnalysisStandard : function() {
+								$("#analysis-build-standards label").each(
+										function(i) {
+											var $this = $(this);
+											$(
+													"#analysis-build-standards input[data-trick-id='" + $this.attr("data-trick-id") + "'][data-trick-owner-id='"
+															+ $this.attr("data-trick-owner-id") + "']").each(function() {
+												var $input = $(this), fieldName = $input.attr('data-trick-field');
+												$input.attr("name", "standards[" + i + "]." + fieldName);
+												switch (fieldName) {
+												case "idAnalysis":
+													$input.val($this.attr("data-trick-id"));
+													break;
+												case "idAnalysisStandard":
+													$input.val($this.attr("data-trick-owner"));
+													break;
+												default:
+													$input.val($this.attr("data-trick-" + fieldName));
+												}
+											});
+										});
 							}
+						};
+
+						// Event user select a customer
+						$("#selector-customer").on("change", function(e) {
+							$("#selector-analysis option[value!=-1]").remove();
+							$("#analysis-versions li[class!='disabled']").remove();
+							var idCustomer = $(e.target).val();
+							if (idCustomer < 0)
+								$("#selector-analysis option[value=-1]").prop("selected", true);
+							else
+								analysesCaching.updateAnalysisIdentifiers(idCustomer);
 						});
 
-				$("#analysis-build-standards div").droppable({
-					accept : "li.list-group-item",
-					activeClass : "warning"
+						$("#selector-analysis").on("change", function(e) {
+							$("#analysis-versions li[class!='disabled']", $modalBody).remove();
+							var identifier = $(e.target).val();
+							if (identifier != -1)
+								analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
+						});
 
-				})
+						$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkEstimation()");
+						$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkEstimation().checkAssetStandard()");
+						$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
 
-				var $saveButton = $(modal.modal_footer).find("button[name='save']");
-				var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
-				var $progress_bar = $modalBody.find(".progress");
-				$cancelButton.click(function() {
-					if (!$cancelButton.is(":disabled"))
-						modal.Destroy();
-					return false;
-				});
+						$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
+								{
+									accept : "li.list-group-item",
+									activeClass : "warning",
+									drop : function(event, ui) {
+										var $this = $(this), $parent = $this.parent();
+										$this.attr("data-trick-id", ui.draggable.attr("data-trick-id"));
+										$this.attr("title", ui.draggable.attr("title"));
+										$this.text(ui.draggable.attr("title"));
+										$this.addClass("success");
+										$parent.find('input').attr("value", ui.draggable.attr("data-trick-id"));
+										var callback = $parent.attr("data-trick-callback");
+										$(
+												"<a href='#' class='pull-right text-danger' title='" + $removeText
+														+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(function() {
+											var $newParent = $(this).parent();
+											$newParent.removeAttr("data-trick-id");
+											$newParent.removeAttr("title");
+											$newParent.removeClass("success");
+											$newParent.text($emptyText);
+											$newParent.parent().find('input').attr("value", '-1');
+											analysesCaching.applyCallback(callback);
+											return false;
+										});
 
-				$saveButton.click(function() {
-					$(modal.modal).find(".label-danger, .alert").remove();
-					$(modal.modal_dialog).find("button").prop("disabled", true);
-					$progress_bar.show();
-					$.ajax({
-						url : context + "/Analysis/Build/Save",
-						type : "post",
-						data : $modalBody.find("form").serialize(),
-						async : false,
-						success : function(response, textStatus, jqXHR) {
-							if (typeof response == 'object') {
+										analysesCaching.applyCallback(callback);
+									}
+								});
 
-								if (response.error != undefined)
-									$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
-										'margin-bottom' : '0',
-										'padding' : '6px 10px'
-									});
-								else if (response.success != undefined) {
-									$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
-										'margin-bottom' : '0',
-										'padding' : '6px 10px'
-									});
-									setTimeout(function() {
-										modal.Destroy();
-										reloadSection("section_analysis");
-									}, 3000);
-									$saveButton.unbind();
-								} else {
-									for ( var error in response) {
-										var errorElement = document.createElement("label");
-										errorElement.setAttribute("class", "label label-danger");
-										$(errorElement).text(response[error]);
-										switch (error) {
-										case "customer":
-										case "language":
-										case "comment":
-										case "author":
-										case "version":
-										case "assessment":
-										case "profile":
-										case "name":
-											$(errorElement).appendTo($modalBody.find("form *[name='" + error + "']").parent());
-											break;
-										case "riskInformation":
-										case "scope":
-										case "asset":
-										case "scenario":
-										case "standard":
-										case "parameter":
-											$(errorElement).appendTo($modalBody.find("[data-trick-name='" + error + "']"));
-											break;
-										default:
-											$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response[error])).css({
+						$("#analysis-build-standards div")
+								.droppable(
+										{
+											accept : "li.list-group-item",
+											activeClass : "warning",
+											drop : function(event, ui) {
+												var $this = $(this), $parent = $this.parent();
+												var isEmpty = $("input", $parent).length;
+												var callback = $parent.attr("data-trick-callback");
+												if (!isEmpty) {
+													$this.empty();
+													$this.addClass("success");
+												}
+												$(analysesCaching.findAnalysisById(ui.draggable.attr("data-trick-id")).analysisStandardBaseInfo)
+														.each(
+																function() {
+																	if ($("label[data-trick-id='" + this.idAnalysis + "'][data-trick-owner-id='" + this.idAnalysisStandard + "']",
+																			$this).length)
+																		return this;
+																	var data = this, $current = $("label[data-trick-name='" + data.name + "']", $this), $content = $("<label style='width:100%'></label>"), $inputs = $("<input data-trick-field='idAnalysis' hidden>"
+																			+ "<input data-trick-field='idAnalysisStandard' hidden>"
+																			+ "<input data-trick-field='name' hidden>"
+																			+ "<input data-trick-field='version' hidden>" + "<input data-trick-field='type' hidden>");
+																	$content.attr("data-trick-name", data.name).attr("data-trick-version", data.version);
+																	$content.attr("data-trick-id", data.idAnalysis).attr("data-trick-type", data.type);
+																	$content.attr("data-trick-owner-id", data.idAnalysisStandard).text(
+																			ui.draggable.attr("title") + " - " + data.name + " v" + data.version);
+																	$inputs.attr("data-trick-id", data.idAnalysis).attr("data-trick-owner-id", data.idAnalysisStandard).appendTo(
+																			$parent);
+																	if ($current.length) {
+																		$(
+																				"input[data-trick-id='" + $current.attr('data-trick-id') + "']" + "[data-trick-owner-id='"
+																						+ $current.attr('data-trick-owner-id') + "']", $parent).remove();
+																		$current.replaceWith($content)
+																	} else
+																		$content.appendTo($this);
+																	$(
+																			"<a href='#' class='pull-right text-danger' title='" + $removeText
+																					+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
+																			.appendTo($content).click(
+																					function() {
+																						$(
+																								"[data-trick-id='" + data.idAnalysis + "'][data-trick-owner-id='"
+																										+ data.idAnalysisStandard + "']", $parent).remove();
+																						if (!$("input", $parent).length) {
+																							$this.text($emptyText)
+																							$this.removeClass("success");
+																						}
+
+																						analysesCaching.applyCallback(callback).nameAnalysisStandard();
+
+																						return false;
+																					});
+																});
+												analysesCaching.applyCallback(callback).nameAnalysisStandard();
+											}
+										});
+
+						var $saveButton = $(modal.modal_footer).find("button[name='save']");
+						var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
+						var $progress_bar = $modalBody.find(".progress");
+						$cancelButton.click(function() {
+							if (!$cancelButton.is(":disabled"))
+								modal.Destroy();
+							return false;
+						});
+
+						$saveButton.click(function() {
+							$(modal.modal).find(".label-danger, .alert").remove();
+							$(modal.modal_dialog).find("button").prop("disabled", true);
+							$progress_bar.show();
+							$.ajax({
+								url : context + "/Analysis/Build/Save",
+								type : "post",
+								data : $("form", $modalBody).serialize(),
+								async : false,
+								success : function(response, textStatus, jqXHR) {
+									if (typeof response == 'object') {
+
+										if (response.error != undefined)
+											$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
 												'margin-bottom' : '0',
 												'padding' : '6px 10px'
 											});
+										else if (response.success != undefined) {
+											$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
+												'margin-bottom' : '0',
+												'padding' : '6px 10px'
+											});
+											setTimeout(function() {
+												modal.Destroy();
+												reloadSection("section_analysis");
+											}, 3000);
+											$saveButton.unbind();
+										} else {
+											for ( var error in response) {
+												var errorElement = document.createElement("label");
+												errorElement.setAttribute("class", "label label-danger");
+												$(errorElement).text(response[error]);
+												switch (error) {
+												case "customer":
+												case "language":
+												case "comment":
+												case "author":
+												case "version":
+												case "assessment":
+												case "profile":
+												case "name":
+													$(errorElement).appendTo($modalBody.find("form *[name='" + error + "']").parent());
+													break;
+												case "riskInformation":
+												case "scope":
+												case "asset":
+												case "scenario":
+												case "standard":
+												case "parameter":
+													$(errorElement).appendTo($modalBody.find("[data-trick-name='" + error + "']"));
+													break;
+												default:
+													$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response[error])).css({
+														'margin-bottom' : '0',
+														'padding' : '6px 10px'
+													});
+												}
+											}
 										}
-									}
-								}
-							} else
-								unknowError();
-						},
-						error : unknowError
-					});
-					$(modal.modal_dialog).find("button").prop("disabled", false);
-					$progress_bar.hide();
-				});
+									} else
+										unknowError();
+								},
+								error : unknowError
+							});
+							$(modal.modal_dialog).find("button").prop("disabled", false);
+							$progress_bar.hide();
+						});
 
-				modal.Show();
-			}
-			return false;
-		},
-		error : unknowError
-	});
+						modal.Show();
+					}
+					return false;
+				},
+				error : unknowError
+			});
 	return false;
 }
 

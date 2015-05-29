@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.model.analysis.helper;
 
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.StandardType;
 
 public class AnalysisStandardBaseInfo {
 	
@@ -12,6 +13,8 @@ public class AnalysisStandardBaseInfo {
 	
 	private int version;
 	
+	private StandardType type;
+	
 	public AnalysisStandardBaseInfo() {
 	}
 	
@@ -20,6 +23,7 @@ public class AnalysisStandardBaseInfo {
 		setIdAnalysisStandard(analysisStandard.getId());
 		setName(analysisStandard.getStandard().getLabel());
 		setVersion(analysisStandard.getStandard().getVersion());
+		setType(analysisStandard.getStandard().getType());
 	}
 
 	/**
@@ -76,6 +80,20 @@ public class AnalysisStandardBaseInfo {
 	 */
 	public void setVersion(int version) {
 		this.version = version;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public StandardType getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(StandardType type) {
+		this.type = type;
 	}
 
 }
