@@ -646,7 +646,6 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return getSession().createQuery("From Analysis analysis where analysis.id in :analysisIds").setParameterList("analysisIds", ids).list();
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllContains(MeasureDescription measureDescription) {
@@ -655,7 +654,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						"Select analysis From Analysis analysis inner join analysis.analysisStandards as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard = :standard and measure.measureDescription = :measureDescription")
 				.setParameter("standard", measureDescription.getStandard()).setParameter("measureDescription", measureDescription).list();
 	}
-	
+
 	@Override
 	public Long countNotProfileDistinctIdentifier() {
 		return (Long) getSession().createQuery("Select count(distinct identifier) From Analysis where  profile = false").uniqueResult();
@@ -686,5 +685,11 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.createQuery(
 						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis.analysisStandards as analysisStandard  where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights and analysisStandard.standard in :standards")
 				.setString("username", username).setParameterList("rights", rights).setParameterList("standards", standards).list();
+	}
+
+	@Override
+	public boolean existsByNameAndCustomerId(String name, int idCustomer) {
+		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis analysis where analysis.customer.id = :idCustomer and analysis.label = :name").setString("name", name)
+				.setInteger("idCustomer", idCustomer).uniqueResult();
 	}
 }

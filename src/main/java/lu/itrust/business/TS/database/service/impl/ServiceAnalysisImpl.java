@@ -594,4 +594,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards) {
 		return daoAnalysis.getAllHasRightsAndContainsStandard(username,rights,  standards);
 	}
+
+	@Override
+	public boolean existsByNameAndCustomerId(String name, int idCustomer) {
+		return daoAnalysis.existsByNameAndCustomerId(name,idCustomer);
+	}
 }

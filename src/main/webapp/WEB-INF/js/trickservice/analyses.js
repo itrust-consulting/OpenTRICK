@@ -468,8 +468,24 @@ function customAnalysis(element) {
 								return this;
 							},
 							checkPhase : function() {
-								$modalBody.find("input[name='phase']").prop("disabled", $modalBody.find("#analysis-build-standards .well").attr("data-trick-id") == undefined);
-								$modalBody.find("input[name='phase']").prop("checked", false);
+								var $phaseInput = $("input[name='phase']", $modalBody), $standards = $("#analysis-build-standards>div>label");
+								if (!$standards.length) {
+									$phaseInput.prop("disabled", true);
+									$phaseInput.prop("checked", false);
+								} else {
+									$phaseInput.prop("disabled", false);
+									var idAnalysis = -1;
+									for (var i = 0; i < $standards.length; i++) {
+										var currentIdAnalysis = $($standards[i]).attr("data-trick-id");
+										if (i == 0)
+											idAnalysis = currentIdAnalysis;
+										else if (currentIdAnalysis != idAnalysis) {
+											$phaseInput.prop("disabled", true);
+											$phaseInput.prop("checked", false);
+											break;
+										}
+									}
+								}
 								return this;
 							},
 							checkEstimation : function() {
@@ -507,7 +523,7 @@ function customAnalysis(element) {
 													$input.val($this.attr("data-trick-id"));
 													break;
 												case "idAnalysisStandard":
-													$input.val($this.attr("data-trick-owner"));
+													$input.val($this.attr("data-trick-owner-id"));
 													break;
 												default:
 													$input.val($this.attr("data-trick-" + fieldName));
@@ -563,7 +579,6 @@ function customAnalysis(element) {
 											analysesCaching.applyCallback(callback);
 											return false;
 										});
-
 										analysesCaching.applyCallback(callback);
 									}
 								});
@@ -663,6 +678,7 @@ function customAnalysis(element) {
 											}, 3000);
 											$saveButton.unbind();
 										} else {
+											var errorContainer = document.getElementById("build-analysis-modal-error");
 											for ( var error in response) {
 												var errorElement = document.createElement("label");
 												errorElement.setAttribute("class", "label label-danger");
@@ -676,18 +692,18 @@ function customAnalysis(element) {
 												case "assessment":
 												case "profile":
 												case "name":
-													$(errorElement).appendTo($modalBody.find("form *[name='" + error + "']").parent());
+													$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent());
 													break;
 												case "riskInformation":
 												case "scope":
 												case "asset":
 												case "scenario":
-												case "standard":
+												case "standards":
 												case "parameter":
-													$(errorElement).appendTo($modalBody.find("[data-trick-name='" + error + "']"));
+													$(errorElement).appendTo($("[data-trick-name='" + error + "']", $modalBody));
 													break;
 												default:
-													$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response[error])).css({
+													$(showError(errorContainer, response[error])).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});

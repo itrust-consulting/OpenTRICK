@@ -26,6 +26,10 @@ public class AnalysisStandardBaseInfo {
 		setType(analysisStandard.getStandard().getType());
 	}
 
+	public AnalysisStandardBaseInfo(int idAnalysis) {
+		setIdAnalysis(idAnalysis);
+	}
+
 	/**
 	 * @return the idAnalysis
 	 */
