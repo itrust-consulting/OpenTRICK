@@ -394,9 +394,7 @@ public class ControllerAnalysisCreate {
 		for (AnalysisStandardBaseInfo standardBaseInfo : customAnalysisForm.getStandards()) {
 			String company = serviceAnalysis.getCustomerNameFromId(standardBaseInfo.getIdAnalysis()), label = serviceAnalysis.getLabelFromId(standardBaseInfo.getIdAnalysis()), version = serviceAnalysis
 					.getVersionOfAnalysis(standardBaseInfo.getIdAnalysis()), StandardName = serviceAnalysisStandard.getStandardNameById(standardBaseInfo.getIdAnalysisStandard());
-			baseAnalysis += "\n"
-					+ messageSource.getMessage("label.analysis_custom.origin.standard", new Object[] { StandardName, label, company, version },
-							String.format("Standard (%s) based on: %s, customer: %s, version: %s", StandardName, label, company, version), analysisLocale);
+
 			if (isFirst) {
 				if (customAnalysisForm.isPhase()) {
 					baseAnalysis += "\n"
@@ -405,6 +403,11 @@ public class ControllerAnalysisCreate {
 				}
 				isFirst = false;
 			}
+
+			baseAnalysis += "\n"
+					+ messageSource.getMessage("label.analysis_custom.origin.standard", new Object[] { StandardName, label, company, version },
+							String.format("Standard (%s) based on: %s, customer: %s, version: %s", StandardName, label, company, version), analysisLocale);
+
 		}
 		return baseAnalysis;
 	}
