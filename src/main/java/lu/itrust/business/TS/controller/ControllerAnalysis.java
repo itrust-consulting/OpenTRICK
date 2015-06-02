@@ -261,11 +261,11 @@ public class ControllerAnalysis {
 
 			User user = serviceUser.get(principal.getName());
 
-			if(isReadOnly == null)
+			if (isReadOnly == null)
 				isReadOnly = false;
-			
+
 			hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
-					principal, isReadOnly ?  AnalysisRight.READ : AnalysisRight.MODIFY);
+					principal, isReadOnly ? AnalysisRight.READ : AnalysisRight.MODIFY);
 			if (hasPermission) {
 				// initialise analysis
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
@@ -281,13 +281,14 @@ public class ControllerAnalysis {
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("isReadOnly", isReadOnly);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
-				
+				session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
+
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogType.ANALYSIS, isReadOnly? "log.open.analysis" : "log.edit.analysis",
-						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), isReadOnly? LogAction.OPEN : LogAction.EDIT, analysis.getIdentifier(),
-						analysis.getVersion());
+				TrickLogManager.Persist(LogType.ANALYSIS, isReadOnly ? "log.open.analysis" : "log.edit.analysis",
+						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), isReadOnly ? LogAction.OPEN : LogAction.EDIT,
+						analysis.getIdentifier(), analysis.getVersion());
 
 			} else {
 				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",
@@ -499,9 +500,11 @@ public class ControllerAnalysis {
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
-			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session) throws Exception {
+			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session,Locale locale) throws Exception {
 		// select the analysis
+		Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
 		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, language == null ? locale.getISO3Country() : language.getAlpha2());
 		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
 		return session.getAttribute(Constant.SELECTED_ANALYSIS) == analysisId;
 	}

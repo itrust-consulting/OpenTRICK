@@ -13,37 +13,62 @@ function rrfError(message) {
 
 function loadRRF() {
 	$("#progress-dialog").modal("show");
-	$.ajax({
-		url : context + "/Analysis/RRF",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			newSection = $(doc).find("*[id ='rrfEditor']");
-			if (!newSection.length) {
-				unknowError();
-				return false;
-			} else {
-				$("#rrfEditor").replaceWith(newSection);
+	$.ajax(
+			{
+				url : context + "/Analysis/RRF",
+				type : "get",
+				contentType : "application/json;charset=UTF-8",
+				success : function(response, textStatus, jqXHR) {
+					var $rrfUI = $("#rrfEditor", new DOMParser().parseFromString(response, "text/html"));
 
-				initialiseMeasureSliders();
+					if (!$rrfUI.length) {
+						unknowError();
+						return false;
+					} else {
+						$("#rrfEditor").replaceWith($rrfUI);
 
-				initialiseMeasuresClick();
+						initialiseMeasureSliders();
 
-				initialiseScenariosClick();
+						initialiseMeasuresClick();
 
-				initialiseStandardFilter();
+						initialiseScenariosClick();
 
-				$("#rrfEditor").modal("show");
-				setTimeout(function() {
-					loadMeasureChart();
-					$('#rrfEditor #chart-container-pending').remove();
-				}, 500);
-			}
-		},
-		error : unknowError
-	}).complete(function() {
+						initialiseStandardFilter();
+
+						$("#measure-control-apply-sub-chapter", $rrfUI)
+								.on(
+										"click",
+										function() {
+											var $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), $parent = $selectedMeasure
+													.parent(), level = $selectedMeasure.attr("data-trick-value"), data = [];
+											$("[data-trick-value^='" + level + ".']", $parent).each(function() {
+												data.push($(this).attr("data-trick-id"));
+											});
+											if (data.length) {
+												$.ajax({
+													url : context + "/Analysis/RRF/Measure/" + $selectedMeasure.attr("data-trick-id") + "/Update-child",
+													type : "post",
+													data : JSON.stringify(data),
+													contentType : "application/json;charset=UTF-8",
+													success : function(response, textStatus, jqXHR) {
+														if (response.success == undefined)
+															rrfError(response.error == undefined ? undefined : response.error);
+													},
+													error : function() {
+														rrfError();
+													}
+												});
+											}
+										});
+						$rrfUI.modal("show");
+						setTimeout(function() {
+							loadMeasureChart();
+							$('#rrfEditor #chart-container-pending').remove();
+						}, 500);
+					}
+				},
+				error : unknowError
+			}).complete(function() {
 		$("#progress-dialog").modal("hide");
 	});
 
@@ -51,6 +76,13 @@ function loadRRF() {
 }
 
 function initialiseMeasureSliders() {
+
+	var $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), level = $selectedMeasure.attr("data-trick-value")
+	if ($("[data-trick-value^='" + level + ".']", $selectedMeasure.parent()).length)
+		$("#measure-control-apply-sub-chapter").show();
+	else
+		$("#measure-control-apply-sub-chapter").hide();
+
 	$("#rrfEditor #control_rrf_measure .slider").slider().each(function() {
 		if (application.isReadOnly === true) {
 			$(this).prop("disabled", true);
@@ -202,11 +234,11 @@ function initialiseMeasuresClick() {
 		$("#rrfEditor #selectable_rrf_measures_chapter_controls a.active").removeClass("active");
 
 		// get current element data
-		var classname = $(this).attr("data-trick-class");
-		var trickid = $(this).attr("data-trick-id");
+		var $this = $(this), classname = $this.attr("data-trick-class");
+		var trickid = $this.attr("data-trick-id");
 
 		// select current
-		$(this).addClass("active");
+		$this.addClass("active");
 
 		if (classname === "Standard") {
 			var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
@@ -219,10 +251,8 @@ function initialiseMeasuresClick() {
 			loadScenario();
 			loadScenarioChart();
 		} else if (classname === "Measure") {
-
 			// select measure parent
-			$(this).parent().parent().find("h4 a").addClass("active");
-
+			$this.parent().parent().find("h4 a").addClass("active");
 			loadMeasure();
 			loadMeasureChart();
 		}
@@ -241,21 +271,16 @@ function loadMeasure() {
 		type : "GET",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var measurerrf = $(doc).find("*[id='control_rrf_measure']");
-			if (!measurerrf.length)
+			var $measurerrf = $("[data-trick-controller-name='measure']", new DOMParser().parseFromString(response, "text/html"));
+			if (!$measurerrf.length)
 				return true;
-
-			$("#rrfEditor #control_rrf_measure").html($(measurerrf).html());
-
+			$("[data-trick-controller-name='measure']").replaceWith($measurerrf);
 			initialiseMeasureSliders();
-
-			$("#rrfEditor #control_rrf_measure").removeAttr("hidden");
-
-			$("#rrfEditor #control_rrf_scenario").attr("hidden", true);
-
+			var $controlMeasure = $("#control_rrf_measure");
+			if (!$controlMeasure.is(":visible")) {
+				$("#control_rrf_scenario").hide();
+				$controlMeasure.show();
+			}
 		},
 		error : function() {
 			rrfError();
@@ -308,21 +333,16 @@ function loadScenario() {
 		type : "GET",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var scenariorrf = $(doc).find("*[id='control_rrf_scenario']");
-			if (!scenariorrf.length)
+			var $scenariorrf = $("[data-trick-controller-name='scenario']", new DOMParser().parseFromString(response, "text/html"))
+			if (!$scenariorrf.length)
 				return true;
-
-			$("#rrfEditor #control_rrf_scenario").html($(scenariorrf).html());
-
+			$("[data-trick-controller-name='scenario']").replaceWith($scenariorrf);
 			initialiseScenarioSliders();
-
-			$("#rrfEditor #control_rrf_scenario").removeAttr("hidden");
-
-			$("#rrfEditor #control_rrf_measure").attr("hidden", true);
-
+			var $scenarioControl = $("#control_rrf_scenario");
+			if (!$scenarioControl.is(":visible")) {
+				$("#control_rrf_measure").hide();
+				$scenarioControl.show();
+			}
 		},
 		error : function() {
 			rrfError();

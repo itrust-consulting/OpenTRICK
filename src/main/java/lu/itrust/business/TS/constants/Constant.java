@@ -754,5 +754,7 @@ public class Constant {
 	public static final String SELECTED_ANALYSIS = "selectedAnalysis";
 	
 	public static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
+
+	public static final String SELECTED_ANALYSIS_LANGUAGE = "selected-analysis-language";
 	
 }
