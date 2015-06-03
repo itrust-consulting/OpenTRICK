@@ -221,7 +221,6 @@ public class MeasureManager {
 			if (found == false) {
 
 				Analysis analysis = daoAnalysis.get(daoAnalysisStandard.getAnalysisIDFromAnalysisStandard(astandard.getId()));
-
 				Measure measure = null;
 				Object implementationRate = null;
 				if (astandard instanceof NormalStandard) {

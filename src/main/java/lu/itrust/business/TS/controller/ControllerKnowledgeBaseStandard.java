@@ -840,7 +840,6 @@ public class ControllerKnowledgeBaseStandard {
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale)) {
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
-
 				measureManager.createNewMeasureForAllAnalyses(measureDescription);
 			}
 

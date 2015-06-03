@@ -151,9 +151,7 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ItemInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String itemInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
-
 		try {
-
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 

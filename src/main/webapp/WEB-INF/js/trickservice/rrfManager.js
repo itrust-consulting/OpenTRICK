@@ -35,9 +35,11 @@ function loadRRF() {
 
 						initialiseStandardFilter();
 
-						$("#measure-control-apply-sub-chapter", $rrfUI)
-								.on(
-										"click",
+						if (!application.isReadOnly) {
+							var $controlApplySubChapter = $("#measure-control-apply-sub-chapter", $rrfUI), $selectetiveControlApplySubChapter = $(
+									"#measure-control-selective-apply-sub-chapter", $rrfUI);
+							if ($controlApplySubChapter.length) {
+								$controlApplySubChapter.on("click",
 										function() {
 											var $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), $parent = $selectedMeasure
 													.parent(), level = $selectedMeasure.attr("data-trick-value"), data = [];
@@ -60,6 +62,20 @@ function loadRRF() {
 												});
 											}
 										});
+							}
+							
+							if($selectetiveControlApplySubChapter.length){
+								$selectetiveControlApplySubChapter.on("click", function(){
+									var $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']"), $parent = $selectedMeasure
+									.parent(), level = $selectedMeasure.attr("data-trick-value"), $child = $("<form class='form-horizontal'></form>");
+									$("[data-trick-value^='" + level + ".']", $parent).each(function(){
+										var $this = $(this);
+										$("div class='form-group'><labal></label><input></div>")
+									});
+									
+								});
+							}
+						}
 						$rrfUI.modal("show");
 						setTimeout(function() {
 							loadMeasureChart();
