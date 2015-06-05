@@ -297,12 +297,11 @@ function MessageResolver(code, defaulttext, params, language) {
 		application.localesMessages[uniqueCode] = defaulttext;
 
 	var data = {
-		"code" : code,
-		"message" : defaulttext,
-		"language" : language,
+		code : code,
+		message : defaulttext,
+		language : language,
 		parameters : []
 	}
-
 	if ($.isArray(params))
 		data.parameters = params;
 	else if (params && params.length)
@@ -315,11 +314,10 @@ function MessageResolver(code, defaulttext, params, language) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (!(response.message == undefined || response.message == null || !response.message.length))
-				application.localesMessages[uniqueCode] = response.message
-			return false;
+				data.message = application.localesMessages[uniqueCode] = response.message;
 		}
 	});
-	return application.localesMessages[uniqueCode];
+	return data.message;
 }
 
 function fixedTableHeader(table) {

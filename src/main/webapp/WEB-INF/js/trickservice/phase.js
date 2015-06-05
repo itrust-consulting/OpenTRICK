@@ -16,20 +16,14 @@ $(function() {
 		else
 			l_lang = "en";
 
-		if (l_lang == "en-US") {
-			l_lang = "en";
-		}
-
-		if (l_lang != "en")
+		if (!(l_lang=="en" || l_lang=="en-GB" || l_lang == "en-US"))
 			$.getScript(context + "/js/bootstrap/locales/bootstrap-datepicker." + l_lang + ".js");
-
 		$("#addPhaseModel").on("hidden.bs.modal", function() {
 			$("#addPhaseModel .label").remove();
 			clearPhaseInterval();
 		});
 	}
 });
-
 
 function clearPhaseInterval() {
 	$("#addPhaseModel .modal-footer .btn-danger").hide();
@@ -234,7 +228,7 @@ function savePhase(form) {
 					switch (error) {
 					case "endDate":
 					case "beginDate":
-						if($("#addPhaseModel #phaseid").val() !=-1)
+						if ($("#addPhaseModel #phaseid").val() != -1)
 							$("<label class='label label-warning' style='margin-left:10px;'>" + response[error] + "</label>").appendTo("#addPhaseModel .modal-body");
 						break;
 					default:
@@ -261,7 +255,7 @@ function savePhase(form) {
 							phaseInterval.current++;
 							if (phaseInterval.current > phaseInterval.max)
 								$("#addPhaseModel").modal("hide");
-							 else
+							else
 								$("#addPhaseModel #phase-Modal-title-info").text(phaseInterval.text.replace("%d", phaseInterval.max - phaseInterval.current));
 						}
 						$("#addPhaseModel .modal-footer .btn-danger").click(clearPhaseInterval);

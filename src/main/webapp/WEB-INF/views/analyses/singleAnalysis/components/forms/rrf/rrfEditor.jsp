@@ -112,7 +112,10 @@
 										<div class="panel-footer" style="padding: 0px">
 											<ul class="nav nav-pills">
 												<li class="disabled text"><a style="cursor: default; color: inherit;"><fmt:message key="label.rrf.control.measure" /></a></li>
-												<li id='measure-control-apply-sub-chapter' class="pull-right"><a href="#"><fmt:message key="label.rrf.control.measure.apply.sub.chapter" /></a></li>
+												<li id='measure-control-apply-sub-chapter' class="pull-right text-danger"><a href="#"><fmt:message key="label.rrf.control.measure.apply.sub.chapter" /></a></li>
+												<li id='measure-control-apply-selective-sub-chapter' class="pull-right text-danger"><a href="#"><fmt:message key="label.rrf.control.measure.apply.selective.sub.chapter" /></a></li>
+												
+											
 											</ul>
 										</div>
 									</div>
