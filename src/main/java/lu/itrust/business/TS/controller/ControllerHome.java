@@ -42,8 +42,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class ControllerHome {
 
-	private static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
-
 	@Autowired
 	private ServiceUser serviceUser;
 
@@ -68,7 +66,7 @@ public class ControllerHome {
 		return "default/home";
 	}
 
-	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
 		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().length() == 2 ? message.getLanguage() : message.getLanguage().substring(0, 2))
 				: null;
@@ -76,7 +74,7 @@ public class ControllerHome {
 				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
 	}
 	
-	@RequestMapping(value = "/Can-create-version/{idAnalysis}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Can-create-version/{idAnalysis}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody boolean canCreateVersion(@PathVariable Integer idAnalysis, Principal principal){
 		return permissionEvaluator.canCreateNewVersion(idAnalysis, principal, AnalysisRight.READ);
 	}
@@ -97,7 +95,7 @@ public class ControllerHome {
 		return "default/login";
 	}
 
-	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response) throws Exception {
 		if (principal == null)
 			return false;
@@ -120,12 +118,12 @@ public class ControllerHome {
 		return "redirect:/j_spring_security_logout";
 	}
 
-	@RequestMapping(value = "/Success", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Success", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String success(@ModelAttribute("success") String success) {
 		return JsonMessage.Success(success);
 	}
 
-	@RequestMapping(value = "/Error", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Error", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String error(@ModelAttribute("error") String error) {
 		return JsonMessage.Error(error);
 	}
