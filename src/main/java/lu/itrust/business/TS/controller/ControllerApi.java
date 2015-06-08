@@ -6,6 +6,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
+import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 
@@ -43,16 +44,17 @@ public class ControllerApi {
 	@ResponseStatus(value = HttpStatus.FORBIDDEN)
 	@ExceptionHandler(TrickException.class)
 	private Object handleTrickException(Exception ex) {
-		// Nothing to do; Spring does all the magic.
-		return ex.getMessage();
+		// Return the error message to the client (JSON).
+		// -1 denotes general errors.
+		return new ApiResult(-1, ex.getMessage());
 	}
 
 	/**
-	 * Home of the API. Always returns "It works".
+	 * Home of the API. Always returns success.
 	 */
 	@RequestMapping
-	public String home() {
-		return "It works.";		
+	public Object home() {
+		return new ApiResult(0);
 	}
 	
 	/**
