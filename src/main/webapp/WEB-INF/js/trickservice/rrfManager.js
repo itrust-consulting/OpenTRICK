@@ -89,7 +89,7 @@ function loadRRF() {
 															if ($input.length) {
 																var parentText = $selectedMeasure.text().replace("\t", "").replace("\n", " ").trim(), modal = new Modal(undefined,
 																		$form).setTitle(MessageResolver("label.title.rrf.apply.measure.characteristics",
-																		"RRF: apply measure ({0})  characteristics".replace("{0}", parentText), parentText));
+																		"RRF: Apply measure ({0})  characteristics".replace("{0}", parentText), parentText));
 
 																$("button[data-control-type='ok']", modal.modal_footer).on("click", function() {
 																	var data = []
