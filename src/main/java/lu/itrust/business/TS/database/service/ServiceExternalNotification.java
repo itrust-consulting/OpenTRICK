@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.service;
 
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 
@@ -10,18 +11,47 @@ import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
  * @since Jun 8, 2015
  */
 public interface ServiceExternalNotification {
-	/** Retrieves an entity from the database. */
+	/**
+	 * Retrieves the given external notification from the database.
+	 * @param id The unique identifier of the external notification to retrieve.
+	 */
 	public ExternalNotification get(Integer id) throws Exception;
 
-	/** Retrieves all entities from the database. */
+	/**
+	 * Retrieves a list of all external notifications from the database.
+	 */
 	public List<ExternalNotification> getAll() throws Exception;
 
-	/** Saves an entity into the database. */
+	/**
+	 * Saves the gives external notification into the database.
+	 * @param externalNotification The object to save.
+	 */
 	public void save(ExternalNotification externalNotification) throws Exception;
 
-	/** Saves an entity into the database, or updates it. */
+	/**
+	 * Inserts the given external notification into the database or updates it.
+	 * @param externalNotification The object to save/update.
+	 */
 	public void saveOrUpdate(ExternalNotification externalNotification) throws Exception;
 
-	/** Removes an entity from the database. */
+	/**
+	 * Removes the given external notification from the database.
+	 * @param externalNotification The object to delete.
+	 */
 	public void delete(ExternalNotification externalNotification) throws Exception;
+
+	/**
+	 * Fetch the frequencies of all notification categories over the given time span.
+	 * @param categories The categories which notifications must have in order to be included in the result.
+	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
+	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
+	 * @param unitDuration The duration (in seconds) of a 'unit' in the definition of the frequency.
+	 * For example, if unitDuration is 3600.0 (= 1 hour), the returned frequency values are to be
+	 * interpreted as 'number of times per hour'.
+	 * @return Returns the occurrence for each category specified in the 'categories' parameter.
+	 * The keys of the returned Map<String, Double> are exactly the values in 'categories';
+	 * unknown categories get assigned a default value of 0.
+	 * Here, 'occurrence' denotes the sum of all 'number' fields of the considered notifications.
+	 */
+	public Map<String, Double> getFrequencies(List<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
 }

@@ -4,8 +4,14 @@ import java.util.List;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
+import lu.itrust.business.TS.model.externalnotification.ExternalNotificationOccurrence;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -31,51 +37,53 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		super(session);
 	}
 
-	/**
-	 * Retrieves the given external notification from the database.
-	 * @param id The unique identifier of the external notification to retrieve.
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public ExternalNotification get(Integer id) throws Exception {
 		return (ExternalNotification) getSession().get(ExternalNotification.class, id);
 	}
 
-	/**
-	 * Retrieves a list of all external notifications from the database.
-	 */
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ExternalNotification> getAll() throws Exception {
 		return (List<ExternalNotification>) getSession().createQuery("From ExternalNotification").list();
 	}
 
-	/**
-	 * Saves the gives external notification into the database.
-	 * @param externalNotification The object to save.
-	 * @throws Exception
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public void save(ExternalNotification externalNotification) throws Exception {
 		getSession().save(externalNotification);
 	}
 
-	/**
-	 * Inserts the given external notification into the database or updates it.
-	 * @param externalNotification The object to save/update.
-	 * @throws Exception
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public void saveOrUpdate(ExternalNotification externalNotification) throws Exception {
 		getSession().saveOrUpdate(externalNotification);
 	}
 
-	/**
-	 * Removes the given external notification from the database.
-	 * @param externalNotification The object to delete.
-	 * @throws Exception
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delete(ExternalNotification externalNotification) throws Exception {
 		getSession().delete(externalNotification);
+	}
+
+	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ExternalNotificationOccurrence> countAll(List<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
+		// Define what will be part of the result (SELECT)
+		ProjectionList projections = Projections.projectionList();
+		projections.add(Projections.property("dtCategory"));
+		projections.add(Projections.sum("dtNumber"));
+		
+		// Define filters acting on result set (WHERE)
+		Criteria criteria = getSession()
+				.createCriteria(ExternalNotification.class)
+				.add(Restrictions.between("dtTimestamp", minTimestamp, maxTimestamp))
+				.setProjection(projections)
+				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
+
+		return (List<ExternalNotificationOccurrence>) criteria.list();
 	}
 }

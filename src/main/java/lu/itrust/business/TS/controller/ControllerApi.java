@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
@@ -89,5 +91,21 @@ public class ControllerApi {
 			serviceExternalNotification.save(newObj);
 		}
 		return 0;
+	}
+	
+	@RequestMapping(value = "/test", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public Object test() throws Exception {
+		String expr = "some_event";
+		List<String> variablesInvolved = new ArrayList<String>();
+		variablesInvolved.add(expr);
+		
+		final long timespan = 30 * 24 * 60 * 60; // 30 days
+		final long maxTimestamp = java.time.Instant.now().getEpochSecond(); // now
+		final long minTimestamp = maxTimestamp - timespan;
+		final double secondsPerYear = 365 * 24 * 60 * 60;
+		
+		// Get all notifications from the past month
+		Map<String, Double> count = serviceExternalNotification.getFrequencies(variablesInvolved, minTimestamp, maxTimestamp, secondsPerYear);
+		return count;
 	}
 }
