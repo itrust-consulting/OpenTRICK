@@ -27,6 +27,25 @@ function updateFieldValue(element, value, type) {
 	$(element).parent().text(defaultValueByType(value, type));
 }
 
+function FieldValidator(){
+	FieldValidator.prototype.Validate = function(){
+		throw "Not implemented";
+	};
+}
+
+FieldBoundedValidator = new FieldValidator();
+
+function FieldBoundedValidator(min,max){
+	FieldValidator.call(this);
+	this.minValue = min;
+	this.maxValue = max;
+	
+	FieldBoundedValidator.prototype.Validate = function(){
+		
+	}
+	
+}
+
 function FieldEditor(element, validator) {
 	this.element = element;
 	this.validator = validator;
@@ -40,50 +59,50 @@ function FieldEditor(element, validator) {
 	this.classId = null;
 	this.fieldType = null;
 	this.callback = null;
+	this.orginalStyle = null;
 	this.async = true;
 
 	FieldEditor.prototype.GeneratefieldEditor = function() {
-		if ($(this.element).find("input").length || $(this.element).find("select").length || $(this.element).find("textarea").length)
+		var $element = $(this.element);
+		if ($element.find("input").length || $element.find("select").length || $element.find("textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
+		this.orginalStyle = $element.attr("style");
 		if (!this.choose.length) {
-
-			var width = 0;
-			var height = 0;
-
-			var rows = 2;
-
-			if (!$(this.element).is("td")) {
-				width = $(this.element).closest("td").outerWidth();
-				height = $(this.element).closest("td").outerHeight();
-				$(this.element).closest("td").css("width", width);
-				$(this.element).closest("td").css("height", height);
-				rows = $(this.element).html().split(/\n/).length;
+			var height = 0, rows = 2;
+			if ($element.is("td")) {
+				$element.css("width", $element.outerWidth());
+				$element.css("height", height = $element.outerHeight());
+			} else {
+				var $td = $element.closest("td");
+				this.orginalStyle = $td.attr("style");
+				$td.css("width", $td.outerWidth());
+				$td.css("height", height = $td.outerHeight());
+				rows = $element.text().split(/\n/).length;
 				if (rows == 1)
 					rows = 2;
-			} else {
-				width = $(this.element).outerWidth();
-				height = $(this.element).outerHeight();
-				$(this.element).css("width", width);
-				$(this.element).css("height", height);
 			}
-
-			if (this.defaultValue.length > 100 || $(this.element).attr("data-trick-content") == "text") {
+			if (this.defaultValue.length > 100 || $element.attr("data-trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
-				var elementheight = height - 8;
-				this.fieldEditor.setAttribute("style", "width:100%;height:" + elementheight + "px; padding:2px;");
+				this.fieldEditor.setAttribute("style", "width:100%; height:" + (height - 8) + "px; padding:2px;");
 			} else {
 				this.fieldEditor = document.createElement("input");
-				this.realValue = this.element.hasAttribute("data-real-value") ? $(this.element).attr("data-real-value") : null;
-				this.fieldEditor.setAttribute("style", "width:100%; height:34px;padding:2px;");
+				this.realValue = this.element.hasAttribute("data-real-value") ? $element.attr("data-real-value") : null;
+				this.fieldEditor.setAttribute("style", "width:100%; height:34px; padding:2px;");
+				var minValue = $element.attr("data-trick-min-value"), maxValue = $element.attr("data-trick-max-value");
+				if(minValue!=undefined && maxValue!=undefined){
+					
+					
+				}
+				
+		
 			}
 		} else {
-
-			$(this.element).css("min-width", "40px");
-			$(this.element).css("height", "34px");
+			$element.css("min-width", "40px");
+			$element.css("height", "34px");
 			this.fieldEditor = document.createElement("select");
-			this.fieldEditor.setAttribute("style", "width:100%;height:34px;padding:2px;");
+			this.fieldEditor.setAttribute("style", "width:100%; height:34px; padding:2px;");
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
@@ -99,12 +118,18 @@ function FieldEditor(element, validator) {
 				$(option).appendTo($(this.fieldEditor));
 			}
 		}
+		
+		
+		
 		var that = this;
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
-		if (!application.editMode || $(this.element).attr("data-trick-content") != "text") {
+		if (!application.editMode || $element.attr("data-trick-content") != "text") {
 			$(this.fieldEditor).blur(function() {
-				return that.Save(that);
+				if(that.Validate())
+					return that.Save(that);
+				else
+					$(this).addClass("has-error").focus();
 			});
 		}
 		return false;
@@ -135,8 +160,8 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.__findChooseTranslate = function(element) {
-		if ($(element).attr("data-data-trick-choose-translate") != undefined)
-			return $(element).attr("data-data-trick-choose-translate").split(",");
+		if ($(element).attr("data-trick-choose-translate") != undefined)
+			return $(element).attr("data-trick-choose-translate").split(",");
 		return [];
 	};
 
@@ -191,10 +216,10 @@ function FieldEditor(element, validator) {
 			$(this.element).closest("td").css("padding", "3px");
 		else
 			$(this.element).css("padding", "3px");
-		
+
 		if (!application.editMode || $(this.element).attr("data-trick-content") != "text")
 			$(this.fieldEditor).focus();
-		
+
 		return false;
 	};
 
@@ -220,25 +245,20 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.UpdateUI = function() {
-		var value = $(this.fieldEditor).prop("value");
+		var $element = $(this.element), value = $(this.fieldEditor).prop("value"), $td = $element.is("td") ? $element : $element.closest("td");
 		if (this.choose.length && this.chooseTranslate.length) {
 			for (var i = 0; i < this.choose.length; i++) {
 				if (this.choose[i] == value) {
-					$(this.element).text(this.chooseTranslate[i]);
+					$element.text(this.chooseTranslate[i]);
 					break;
 				}
 			}
 		} else
-			$(this.element).text(value);
-		if (!$(this.element).is("td")) {
-			$(this.element).closest("td").css("padding", "5px");
-			$(this.element).closest("td").css("min-width", "");
-			$(this.element).closest("td").css("height", "");
-		} else {
-			$(this.element).css("padding", "5px");
-			$(this.element).css("min-width", "");
-			$(this.element).css("height", "");
-		}
+			$element.text(value);
+		if (this.orginalStyle)
+			$td.attr("style", this.orginalStyle);
+		else
+			$td.removeAttr("style");
 		return false;
 	};
 
@@ -258,7 +278,7 @@ function FieldEditor(element, validator) {
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
-					success : function(response,textStatus,jqXHR) {
+					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
 							if (that.callback != null && that.callback != undefined)
@@ -287,16 +307,12 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Rollback = function() {
-		$(this.element).text(this.defaultValue);
-		if (!$(this.element).is("td")) {
-			$(this.element).closest("td").css("padding", "5px");
-			$(this.element).closest("td").css("min-width", "");
-			$(this.element).closest("td").css("height", "");
-		} else {
-			$(this.element).css("padding", "5px");
-			$(this.element).css("min-width", "");
-			$(this.element).css("height", "");
-		}
+		var $element = $(this.element), $td = $element.is("td") ? $element : $element.closest("td");
+		$element.text(this.defaultValue);
+		if (this.orginalStyle)
+			$td.attr("style", this.orginalStyle);
+		else
+			$td.removeAttr("style");
 		return false;
 	};
 }
@@ -355,6 +371,7 @@ function ExtendedFieldEditor(element) {
 
 	FieldEditor.call(this, element);
 	this.controllor = "ExtendedParameter";
+	
 	ExtendedFieldEditor.prototype.Save = function(that) {
 		if (!that.Validate()) {
 			that.Rollback();
@@ -367,7 +384,7 @@ function ExtendedFieldEditor(element) {
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
-					success : function(response,textStatus,jqXHR) {
+					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							reloadSection("section_parameter");
 							if (that.fieldName == "value" || that.fieldName == "acronym")
@@ -464,7 +481,7 @@ function AssessmentFieldEditor(element) {
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
-					success : function(response,textStatus,jqXHR) {
+					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							if (application.modal["AssessmentViewer"] != undefined)
 								application.modal["AssessmentViewer"].Update();
@@ -687,7 +704,7 @@ function disableEditMode() {
 	application.editMode = false
 	$("li[role='enterEditMode']").removeClass("disabled");
 	$("li[role='leaveEditMode']").addClass("disabled");
-	
+
 	$(application.fieldEditors).each(function() {
 		this.async = false;
 		this.Save(this);

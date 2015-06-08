@@ -33,7 +33,8 @@
 							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
 								<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-								<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
+								<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
+										text="${parameter.acronym}" /></td>
 								<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 										text="${parameter.description}" /></td>
 								<td data-trick-field="value" data-trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
@@ -84,7 +85,8 @@
 							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
 								<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-								<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
+								<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
+										text="${parameter.acronym}" /></td>
 								<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 										text="${parameter.description}" /></td>
 								<c:set var="parameterValue">
@@ -182,8 +184,18 @@
 						<fmt:setLocale value="fr" scope="session" />
 						<tr>
 							<c:forEach items="${simpleParameters[0]}" var="parameter">
-								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
-										value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+								<c:choose>
+									<c:when test="${parameter.description=='max_rrf' or parameter.description=='soaThreshold'}">
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
+											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
+												pattern="#" /></td>
+									</c:when>
+									<c:otherwise>
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double"
+											onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+									</c:otherwise>
+								</c:choose>
+
 							</c:forEach>
 						</tr>
 						<fmt:setLocale value="${language}" scope="session" />
@@ -214,8 +226,8 @@
 						<tr>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach items="${simpleParameters[1]}" var="parameter">
-								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
-										value="${parameter.value}" maxFractionDigits="0" /></td>
+								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double"
+									onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
@@ -243,8 +255,8 @@
 							<tr data-trick-class="Parameter" data-trick-id="${parameter.id}">
 								<td class="textaligncenter"><fmt:message key="label.parameter.simple.smt.level_${parameter.description}" /></td>
 								<fmt:setLocale value="fr" scope="session" />
-								<td data-trick-field="value" data-trick-field-type="double" class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}"
-										maxFractionDigits="0" /></td>
+								<td data-trick-field="value" data-trick-field-type="double" class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber
+										value="${parameter.value}" maxFractionDigits="0" /></td>
 								<fmt:setLocale value="${language}" scope="session" />
 							</tr>
 						</c:forEach>

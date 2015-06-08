@@ -96,7 +96,7 @@
 								<c:set value="reduce" var="strategy" />
 							</c:if>
 							<td class="success" data-trick-id="${item.id}" data-trick-field="strategy" onclick="return editField(this);" data-trick-class="RiskRegister"
-								data-trick-choose="accept,reduce,transfer,avoid" data-data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><fmt:message
+								data-trick-choose="accept,reduce,transfer,avoid" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><fmt:message
 									key="label.risk_register.strategy.${strategy}" /></td>
 							<td class="success" data-trick-id="${item.id}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="RiskRegister"
 								data-trick-field-type="string"><spring:message text="${item.owner}"/> </td>
