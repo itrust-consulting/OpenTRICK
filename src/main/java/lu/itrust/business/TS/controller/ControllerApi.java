@@ -3,14 +3,21 @@ package lu.itrust.business.TS.controller;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.model.api.ApiResult;
-import lu.itrust.business.TS.model.api.ExternalNotification;
+import lu.itrust.business.TS.database.service.ServiceExternalNotification;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.api.ApiExternalNotification;
+import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
+import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * ControllerApi.java: <br>
@@ -19,17 +26,44 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *     probabilities that certain events happen, are deduced and stored in
  *     variables ready to be used within the TRICK service user interface
  *     (asset/scenario estimation).
- * @author SMU, itrust consulting s.à r.l.
+ * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 4, 2015
  */
 @Controller
 @RequestMapping("/Api")
 @ResponseBody
 public class ControllerApi {
+	@Autowired
+	private ServiceExternalNotification serviceExternalNotification;
 
+	/**
+	 * Method is called whenever an exception of type TrickException
+	 * is thrown in this controller.
+	 */
+	@ResponseStatus(value = HttpStatus.FORBIDDEN)
+	@ExceptionHandler(TrickException.class)
+	private Object handleTrickException(Exception ex) {
+		// Nothing to do; Spring does all the magic.
+		return ex.getMessage();
+	}
+
+	/**
+	 * Home of the API. Always returns "It works".
+	 */
 	@RequestMapping
 	public String home() {
 		return "It works.";		
+	}
+	
+	/**
+	 * Lists all the external notifications in the database.
+	 * Used for debugging purposes; this method will be removed in the production version.
+	 */
+	@RequestMapping(value = "/list", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public Object list() throws Exception {
+		// Fetch all entities from the database
+		// and convert them to exportable API objects
+		return ExternalNotificationHelper.convertList(serviceExternalNotification.getAll());		
 	}
 	
 	/**
@@ -38,11 +72,20 @@ public class ControllerApi {
 	 * probabilities that certain events happen, are deduced and stored in
 	 * variables ready to be used within the TRICK service user interface
 	 * (asset/scenario estimation).
-	 * @param data One of multiple notification sent to TRICK Service.
+	 * @param data One or multiple notifications sent to TRICK Service.
 	 * @return Returns an error code (0 = success).
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public Object notify(@RequestBody List<ExternalNotification> data) {
-		return new ApiResult(0);
+	public Object notify(@RequestBody List<ApiExternalNotification> data) throws Exception {
+		// For each of the given external notifications
+		for (ApiExternalNotification apiObj : data) {
+			// Create a new entity based on given object
+			ExternalNotification newObj = ExternalNotificationHelper.createEntityBasedOn(apiObj);
+			
+			// Insert it into database
+			serviceExternalNotification.save(newObj);
+		}
+		return 0;
 	}
 }

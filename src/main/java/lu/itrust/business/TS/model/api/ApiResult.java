@@ -5,7 +5,8 @@ package lu.itrust.business.TS.model.api;
 
 /**
  * Represents an object describing the outcome of an API call.
- * @author SMU, itrust consulting s.à r.l.
+ * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @since Jun 5, 2015
  */
 public class ApiResult {
 	/**
