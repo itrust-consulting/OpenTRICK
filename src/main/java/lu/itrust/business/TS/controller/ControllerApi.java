@@ -136,7 +136,7 @@ public class ControllerApi {
 			return value;
 		}
 		catch (InvalidExpressionException ex) {
-			throw new TrickException("error.api.invalid_expression", "Invalid expression.");
+			throw new TrickException("error.api.invalid_expression", "Invalid expression: syntax error.");
 		}
 	}
 }

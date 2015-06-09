@@ -61,7 +61,7 @@ public class ExternalNotification {
 	 */
 	public void setCategory(String category) throws TrickException {
 		if (category == null || category.trim().isEmpty())
-			throw new TrickException("error.externalnotification.category_null", "External notification category cannot be empty");
+			throw new TrickException("error.externalnotification.category_null", "External notification category cannot be empty.");
 
 		this.category = category;
 	}
@@ -78,7 +78,7 @@ public class ExternalNotification {
 	 */
 	public void setTimestamp(long timestamp) throws TrickException {
 		if (timestamp < 0)
-			throw new TrickException("error.externalnotification.timestamp_negative", "External notification creation timestamp cannot be negative");
+			throw new TrickException("error.externalnotification.timestamp_negative", "External notification creation timestamp cannot be negative.");
 
 		this.timestamp = timestamp;
 	}
@@ -95,7 +95,7 @@ public class ExternalNotification {
 	 */
 	public void setNumber(int number) throws TrickException {
 		if (number < 0)
-			throw new TrickException("error.externalnotification.number_negative", "Number of external notifications cannot be negative");
+			throw new TrickException("error.externalnotification.number_negative", "Number of external notifications cannot be negative.");
 		this.number = number;
 	}
 	
