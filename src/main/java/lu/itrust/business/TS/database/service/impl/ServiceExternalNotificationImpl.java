@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,16 +57,13 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Double> getFrequencies(List<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception {
+	public Map<String, Double> getFrequencies(Collection<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception {
 		if (maxTimestamp <= minTimestamp) {
 			throw new IllegalArgumentException("minTimestamp must be strictly smaller than maxTimestamp.");
 		}
 		if (unitDuration <= 0) {
 			throw new IllegalArgumentException("unitDuration must be positive.");
 		}
-		
-		// Count all notifications. Note that certain values in 'categories' may not be among the keys of 'countResult'. 
-		List<ExternalNotificationOccurrence> countResult = daoExternalNotification.countAll(categories, minTimestamp, maxTimestamp);
 		
 		// Init default values
 		HashMap<String, Double> frequencies = new HashMap<String, Double>(categories.size());
@@ -75,6 +73,9 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 		
 		// Compute the time span between min & max in the given time unit
 		final double timespanInUnits = (maxTimestamp - minTimestamp) / unitDuration;
+		
+		// Count all notifications. Note that certain values in 'categories' may not be among the keys of 'countResult'. 
+		List<ExternalNotificationOccurrence> countResult = daoExternalNotification.countAll(categories, minTimestamp, maxTimestamp);
 		
 		// Compute frequencies
 		for (ExternalNotificationOccurrence entry : countResult) {

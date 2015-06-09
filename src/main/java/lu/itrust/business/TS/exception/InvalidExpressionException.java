@@ -1,0 +1,29 @@
+package lu.itrust.business.TS.exception;
+
+/**
+ * Exception thrown if an expression could not be parsed.
+ * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @since Jun 9, 2015
+ */
+public class InvalidExpressionException extends Exception {
+	private static final long serialVersionUID = 1L;
+
+	public InvalidExpressionException() {
+	}
+	
+	public InvalidExpressionException(String arg0) {
+		super(arg0);
+	}
+
+	public InvalidExpressionException(String arg0, Throwable arg1) {
+		super(arg0, arg1);
+	}
+
+	public InvalidExpressionException(String arg0, Throwable arg1, boolean arg2, boolean arg3) {
+		super(arg0, arg1, arg2, arg3);
+	}
+	
+	public InvalidExpressionException(Throwable arg0) {
+		super(arg0);
+	}
+}

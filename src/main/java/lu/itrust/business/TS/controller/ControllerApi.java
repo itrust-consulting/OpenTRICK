@@ -1,16 +1,19 @@
 package lu.itrust.business.TS.controller;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
+import lu.itrust.business.TS.exception.InvalidExpressionException;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.api.ApiExpression;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -93,19 +96,47 @@ public class ControllerApi {
 		return 0;
 	}
 	
-	@RequestMapping(value = "/test", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public Object test() throws Exception {
-		String expr = "some_event";
-		List<String> variablesInvolved = new ArrayList<String>();
-		variablesInvolved.add(expr);
+	/**
+	 * Evaluates the given expression by plugging in the real-time values of the variables.
+	 */
+	@RequestMapping(value = "/eval", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public Object eval(@RequestBody ApiExpression data) throws Exception {
+		// Verify data passed to API
+		if (data.getTimespan() <= 0)
+			throw new TrickException("error.api.timespan_negative", "Timespan must be positive.");
+		if (data.getUnitDuration() <= 0)
+			throw new TrickException("error.api.unit_duration_negative", "Unit duration must be positive.");
 		
-		final long timespan = 30 * 24 * 60 * 60; // 30 days
+		// Read request data
 		final long maxTimestamp = java.time.Instant.now().getEpochSecond(); // now
-		final long minTimestamp = maxTimestamp - timespan;
-		final double secondsPerYear = 365 * 24 * 60 * 60;
+		final long minTimestamp = maxTimestamp - data.getTimespan(); // some time ago
+		final long unitDuration = data.getUnitDuration();
+		StringExpressionParser exprParser = new StringExpressionParser(data.getExpression());
 		
-		// Get all notifications from the past month
-		Map<String, Double> count = serviceExternalNotification.getFrequencies(variablesInvolved, minTimestamp, maxTimestamp, secondsPerYear);
-		return count;
+		try {
+			// Compute frequencies for all involved variables
+			Collection<String> variablesInvolved = exprParser.getInvolvedVariables();
+			Map<String, Double> variableValues = serviceExternalNotification.getFrequencies(variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
+
+			/*
+			System.out.println("variablesInvolved:");
+			for (String k:variablesInvolved)
+				System.out.println("- " + k);
+			System.out.println("end.");
+
+			System.out.println("variableValues:");
+			for (String k:variableValues.keySet())
+				System.out.println("- " + k + " => " + variableValues.get(k));
+			System.out.println("end.");
+			//*/
+			
+			// Evaluate expression itself
+			double value = exprParser.evaluate(variableValues);
+			// Do something with it
+			return value;
+		}
+		catch (InvalidExpressionException ex) {
+			throw new TrickException("error.api.invalid_expression", "Invalid expression.");
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
@@ -71,19 +72,27 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExternalNotificationOccurrence> countAll(List<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
+	public List<ExternalNotificationOccurrence> countAll(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
 		// Define what will be part of the result (SELECT)
 		ProjectionList projections = Projections.projectionList();
-		projections.add(Projections.property("dtCategory"));
-		projections.add(Projections.sum("dtNumber"));
+		projections.add(Projections.groupProperty("category"), "category");
+		projections.add(Projections.sum("number"), "occurrence");
 		
 		// Define filters acting on result set (WHERE)
 		Criteria criteria = getSession()
 				.createCriteria(ExternalNotification.class)
-				.add(Restrictions.between("dtTimestamp", minTimestamp, maxTimestamp))
+				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
+				.add(Restrictions.in("category", categories))
 				.setProjection(projections)
 				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
 
+		/*
+		System.out.println("DAO:");
+		for (ExternalNotificationOccurrence k:(List<ExternalNotificationOccurrence>) criteria.list())
+			System.out.println("- " + k.getCategory() + " => " + k.getOccurrence());
+		System.out.println("end.");
+		//*/
+		
 		return (List<ExternalNotificationOccurrence>) criteria.list();
 	}
 }

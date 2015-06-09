@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
@@ -30,5 +31,5 @@ public interface DAOExternalNotification {
 	 * If a category is unknown or has no associated notifications, it may be omitted in the list.
 	 * Here, 'occurrence' denotes the sum of all 'number' columns of the considered notifications.
 	 */
-	public List<ExternalNotificationOccurrence> countAll(List<String> categories, long minTimestamp, long maxTimestamp) throws Exception;
+	public List<ExternalNotificationOccurrence> countAll(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception;
 }

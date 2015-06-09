@@ -14,7 +14,7 @@ public class ExternalNotificationOccurrence {
 	/**
 	 * The total number of external notifications represented by this instance.
 	 */
-	private Integer occurrence;
+	private long occurrence;
 
 	/**
 	 * Gets the unique category of all external notifications this instance represents.
@@ -33,14 +33,14 @@ public class ExternalNotificationOccurrence {
 	/**
 	 * Gets total number of external notifications represented by this instance.
 	 */
-	public Integer getOccurrence() {
+	public long getOccurrence() {
 		return this.occurrence;
 	}
 
 	/**
 	 * Sets total number of external notifications represented by this instance.
 	 */
-	public void setOccurrence(Integer occurrence) {
+	public void setOccurrence(long occurrence) {
 		this.occurrence = occurrence;
 	}
 }

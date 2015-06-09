@@ -19,7 +19,7 @@ public class ExternalNotification {
 	 */
 	@Id
 	@GeneratedValue
-	@Column(name = "id", nullable = false)
+	@Column(name = "idExternalNotification", nullable = false)
 	private Integer id;
 
 	/**

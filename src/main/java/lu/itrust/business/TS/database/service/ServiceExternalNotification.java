@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public interface ServiceExternalNotification {
 
 	/**
 	 * Fetch the frequencies of all notification categories over the given time span.
-	 * @param categories The categories which notifications must have in order to be included in the result.
+	 * @param variablesInvolved The categories which notifications must have in order to be included in the result.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
 	 * @param unitDuration The duration (in seconds) of a 'unit' in the definition of the frequency.
@@ -53,5 +54,5 @@ public interface ServiceExternalNotification {
 	 * unknown categories get assigned a default value of 0.
 	 * Here, 'occurrence' denotes the sum of all 'number' fields of the considered notifications.
 	 */
-	public Map<String, Double> getFrequencies(List<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
+	public Map<String, Double> getFrequencies(Collection<String> variablesInvolved, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
 }
