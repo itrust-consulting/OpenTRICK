@@ -307,11 +307,13 @@ function deletePhase(idPhase) {
 
 // phase
 
-function extractPhase(that) {
-	var phases = $("#section_phase *[data-trick-class='Phase']>*:nth-child(2)");
-	if (!$(phases).length)
+function extractPhase(that,defaultPhase) {
+	var $phases = $("#section_phase *[data-trick-class='Phase']>*:nth-child(2)");
+	if(defaultPhase)
+		that.choose.push("0");
+	if (!that.choose.length)
 		return true;
-	for (var i = 0; i < phases.length; i++)
-		that.choose.push($(phases[i]).text());
+	for (var i = 0; i < $phases.length; i++)
+		that.choose.push($($phases[i]).text());
 	return false;
 }
