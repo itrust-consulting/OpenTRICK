@@ -40,7 +40,7 @@
 					<th style="width:3%"><fmt:message key="label.row.index" /></th>
 					<th style="width:25%"><fmt:message key="label.asset.name" /></th>
 					<th style="width:5%"><fmt:message key="label.asset.type" /></th>
-					<th style="width:5%"><fmt:message key="label.asset.value" /></th>
+					<th style="width:6%"><fmt:message key="label.asset.value" /></th>
 					<c:choose>
 						<c:when test="${show_uncertainty}">
 							<th style="width:5%"><fmt:message key="label.asset.aleo" /></th>
