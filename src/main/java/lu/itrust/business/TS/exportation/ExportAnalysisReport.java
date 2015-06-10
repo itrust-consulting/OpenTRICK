@@ -306,16 +306,16 @@ public class ExportAnalysisReport {
 				row.addNewTableCell();
 
 			row.getCell(0).setText(getMessage("report.action_plan.row_number", null, "Nr", locale));
-			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Standard", locale));
+			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Stds", locale));
 			row.getCell(2).setText(getMessage("report.action_plan.reference", null, "Ref.", locale));
 			row.getCell(3).setText(getMessage("report.action_plan.description", null, "Description", locale));
-			row.getCell(4).setText(getMessage("report.action_plan.ale", null, "ALE (k€/y)", locale));
-			row.getCell(5).setText(getMessage("report.action_plan.delta_ale", null, "Delta ALE (k€/y)", locale));
-			row.getCell(6).setText(getMessage("report.action_plan.cost", null, "CS (k€/y)", locale));
-			row.getCell(7).setText(getMessage("report.action_plan.rosi", null, "ROSI (k€/y)", locale));
+			row.getCell(4).setText(getMessage("report.action_plan.ale", null, "ALE", locale));
+			row.getCell(5).setText(getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
+			row.getCell(6).setText(getMessage("report.action_plan.cost", null, "CS", locale));
+			row.getCell(7).setText(getMessage("report.action_plan.rosi", null, "ROSI", locale));
 			row.getCell(8).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
 			row.getCell(9).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
-			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV (k€)", locale));
+			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV", locale));
 			row.getCell(11).setText(getMessage("report.action_plan.probability", null, "P", locale));
 			int nr = 0;
 			// set data
@@ -1337,7 +1337,7 @@ public class ExportAnalysisReport {
 				row.getCell(11).setText(getMessage("report.measure.cost", null, "CS(k€)", locale));
 				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
 				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
-				row.getCell(14).setText(getMessage("report.measure.responsible", null, "Responsible", locale));
+				row.getCell(14).setText(getMessage("report.measure.responsible", null, "Resp.", locale));
 				// set data
 				Collections.sort(analysisStandard.getMeasures(), comparator);
 
