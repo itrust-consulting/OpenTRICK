@@ -82,6 +82,7 @@
 		base.bind = function() {
 			base.$window.on('scroll.' + name, base.toggleHeaders);
 			base.$window.on('resize.' + name, base.toggleHeaders);
+			base.$window.on('resize.' + name, base.updateWidth);
 		};
 
 		base.unbind = function() {
