@@ -27,7 +27,7 @@ import lu.itrust.business.TS.model.parameter.helper.Bounds;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idExtendedParameter")
-public class ExtendedParameter extends Parameter implements Cloneable {
+public class ExtendedParameter extends AcronymParameter implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -36,10 +36,6 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 	/** The Extended Parameter Level (default: 0-5 or 0-6 -> NOT restricted) */
 	@Column(name = "dtLevel", nullable = false)
 	private int level = 0;
-
-	/** The Extended Parameter Acronym */
-	@Column(name = "dtAcronym", nullable = false)
-	private String acronym = "";
 
 	/** Extended Parameter From And To values */
 	@Embedded
@@ -71,27 +67,6 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		if (level < 0 || level > 10)
 			throw new TrickException("error.extended_parameter.level", "Level needs to be between 0 and 10 included!");
 		this.level = level;
-	}
-
-	/**
-	 * getAcronym: <br>
-	 * Returns the "acronym" field value
-	 * 
-	 * @return The Acronym
-	 */
-	public String getAcronym() {
-		return acronym;
-	}
-
-	/**
-	 * setAcronym: <br>
-	 * Sets the "acronym" field with a value
-	 * 
-	 * @param acronym
-	 *            The value to set the Acronym
-	 */
-	public void setAcronym(String acronym) {
-		this.acronym = acronym;
 	}
 
 	/**
