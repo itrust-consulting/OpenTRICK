@@ -39,6 +39,7 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -2058,6 +2059,22 @@ public class Analysis implements Cloneable {
 				extendedParameters.add((ExtendedParameter) parameter);
 		}
 		return extendedParameters;
+	}
+
+	/**
+	 * Gets a list of all parameters that are considered to be used as variable
+	 * when evaluating an arithmetic expression. The parameter acronym is then
+	 * replaced by the value of the respective parameter.
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 10, 2015
+	 */
+	public List<AcronymParameter> findExpressionParametersByAnalysis() {
+		List<AcronymParameter> acronymParameters = new ArrayList<>();
+		for (Parameter parameter : parameters) {
+			if (parameter instanceof AcronymParameter)
+				acronymParameters.add((AcronymParameter) parameter);
+		}
+		return acronymParameters;
 	}
 
 	public Map<Integer, List<Assessment>> findAssessmentByAssetAndSelected() {

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
@@ -431,5 +432,15 @@ public class ServiceParameterImpl implements ServiceParameter {
 	@Override
 	public Parameter getByAnalysisIdAndDescription(Integer idAnalysis, String description) {
 		return daoParameter.getByAnalysisIdAndDescription(idAnalysis, description);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 10, 2015
+	 */
+	@Override
+	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 	}
 }

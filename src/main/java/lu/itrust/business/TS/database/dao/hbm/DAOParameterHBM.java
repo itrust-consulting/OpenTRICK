@@ -1,9 +1,12 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOParameter;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
@@ -376,5 +379,28 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 				.createQuery(
 						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.description = :description")
 				.setParameter("analysisId", idAnalysis).setParameter("description", Constant.SOA_THRESHOLD).uniqueResult();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 10, 2015
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception {
+		// We assume that all parameters that have an acronym can be used in an expression
+		// Maybe we want to change this in the future (checking parameter.type); then this is the place to act.
+		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis";
+		Iterator<Parameter> iterator = getSession().createQuery(query)
+				.setParameter("idAnalysis", idAnalysis)
+				.iterate();
+		List<AcronymParameter> result = new ArrayList<>();
+		while (iterator.hasNext()) {
+			Parameter parameter = iterator.next();
+			if (parameter instanceof AcronymParameter)
+				result.add((AcronymParameter)parameter);
+		}
+		return result;
 	}
 }

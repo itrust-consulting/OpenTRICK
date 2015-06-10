@@ -8,10 +8,8 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -45,6 +43,7 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -922,16 +921,11 @@ public class ControllerEditField {
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 
-			// retrieve parameters
-			Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
-
-			// parse parameters
-			for (ExtendedParameter parameter : serviceParameter.getAllExtendedFromAnalysis(id))
-				// add parameter into map
-				parameters.put(parameter.getAcronym(), parameter);
+			// retrieve parameters which are considered in the expression evaluation
+			List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(id);
 
 			// compute new ALE
-			AssessmentManager.ComputeAlE(assessment, parameters);
+			AssessmentManager.ComputeAlE(assessment, expressionParameters);
 
 			// update assessment
 			serviceAssessment.saveOrUpdate(assessment);

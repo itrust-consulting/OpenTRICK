@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
@@ -285,8 +286,8 @@ public class ControllerAssessment {
 
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 
-			// retrieve extended paramters of analysis
-			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
+			// retrieve parameters which are considered in the expression evaluation
+			List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 
 			// retrieve assessments of analysis
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
@@ -306,7 +307,7 @@ public class ControllerAssessment {
 			}
 
 			// compute ALE
-			AssessmentManager.ComputeAlE(assessments, parameters);
+			AssessmentManager.ComputeAlE(assessments, expressionParameters);
 
 			// update assessments
 			serviceAssessment.saveOrUpdate(assessments);
@@ -384,8 +385,8 @@ public class ControllerAssessment {
 
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 
-			// load extended parameters
-			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
+			// retrieve parameters which are considered in the expression evaluation
+			List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 
 			// load assessments
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromScenario(scenario);
@@ -405,7 +406,7 @@ public class ControllerAssessment {
 			}
 
 			// compute ALE
-			AssessmentManager.ComputeAlE(assessments, parameters);
+			AssessmentManager.ComputeAlE(assessments, expressionParameters);
 
 			// update assessments
 			serviceAssessment.saveOrUpdate(assessments);

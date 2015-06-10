@@ -2,6 +2,7 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
@@ -66,5 +67,15 @@ public interface DAOParameter {
 	public void delete(Parameter parameter) throws Exception;
 
 	public Parameter getByAnalysisIdAndDescription(Integer idAnalysis, String description);
+
+	/**
+	 * Gets a list of all parameters that are considered to be used as variable
+	 * when evaluating an arithmetic expression. The parameter acronym is then
+	 * replaced by the value of the respective parameter.
+	 * @param idAnalysis The identifier of the analysis for which parameters shall be retrieved.
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 10, 2015
+	 */
+	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception;
 	
 }

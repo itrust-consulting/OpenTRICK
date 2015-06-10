@@ -16,8 +16,8 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,17 +206,13 @@ public class AssessmentManager {
 		Map<String, Boolean> assessmentMapper = new LinkedHashMap<>();
 		for (Assessment assessment : analysis.getAssessments())
 			assessmentMapper.put(assessment.getAsset().getId() + "_" + assessment.getScenario().getId(), true);
-		Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
-
-		for (Parameter parameter : analysis.getParameters())
-			if (parameter instanceof ExtendedParameter)
-				parameters.put(((ExtendedParameter) parameter).getAcronym(), (ExtendedParameter) parameter);
+		List<AcronymParameter> expressionParameters = analysis.findExpressionParametersByAnalysis();
 		for (Asset asset : analysis.getAssets()) {
 			for (Scenario scenario : analysis.getScenarios()) {
 				if (!assessmentMapper.containsKey(asset.getId() + "_" + scenario.getId())) {
 					Assessment assessment = new Assessment(asset, scenario);
 					analysis.getAssessments().add(assessment);
-					ComputeAlE(assessment, parameters);
+					ComputeAlE(assessment, expressionParameters);
 				}
 			}
 		}
@@ -257,21 +253,18 @@ public class AssessmentManager {
 	 */
 	@Transactional
 	public void UpdateAssetALE(Analysis analysis) throws Exception {
-		List<ExtendedParameter> extendedParameters = analysis.findExtendedByAnalysis();
-		Map<String, ExtendedParameter> parametersMapping = new LinkedHashMap<>(extendedParameters.size());
+		List<AcronymParameter> epxressionParameters = analysis.findExpressionParametersByAnalysis();
 		List<Asset> assets = analysis.findAssessmentBySelected();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
 		try {
 			double ale = 0, alep = 0, aleo;
-			for (ExtendedParameter extendedParameter : extendedParameters)
-				parametersMapping.put(extendedParameter.getAcronym(), extendedParameter);
 			for (Asset asset : assets) {
 				ale = alep = aleo = 0;
 				List<Assessment> assessments = assessmentsByAsset.get(asset.getId());
 				if (assessments == null)
 					continue;
 				for (Assessment assessment : assessments) {
-					ComputeAlE(assessment, parametersMapping);
+					ComputeAlE(assessment, epxressionParameters);
 					ale += assessment.getALE();
 					aleo += assessment.getALEO();
 					alep += assessment.getALEP();
@@ -284,8 +277,7 @@ public class AssessmentManager {
 		} finally {
 			assets.clear();
 			assessmentsByAsset.clear();
-			parametersMapping.clear();
-			extendedParameters.clear();
+			epxressionParameters.clear();
 		}
 	}
 
@@ -310,34 +302,48 @@ public class AssessmentManager {
 		}
 	}
 
-	private static double StringToDouble(String value, Map<String, ExtendedParameter> parameters) {
+	/**
+	 * Parses the given expression and replaces any of the given parameters by their respective value.
+	 * @param expression The expression to parse.
+	 * @param parameters A list of parameters which are known to the expression evaluation engine.
+	 * The latter replaces each encountered parameter name in an expression by its respective value.
+	 * @return Returns the computed value.
+	 */
+	private static double StringToDouble(String expression, List<AcronymParameter> parameters) {
 		try {
-			if (parameters.containsKey(value.trim().toLowerCase()))
-				return parameters.get(value.trim().toLowerCase()).getValue();
-			return Double.parseDouble(value);
+			for (AcronymParameter parameter : parameters)
+				if (parameter.getAcronym().equalsIgnoreCase(expression))
+					return parameter.getValue();
+			return Double.parseDouble(expression);
 		} catch (Exception e) {
 			return 0;
 		}
 	}
 
-	public static void ComputeAlE(List<Assessment> assessments, List<ExtendedParameter> parameters) throws TrickException {
-		Map<String, ExtendedParameter> parametersMapping = new LinkedHashMap<>(parameters.size());
-		try {
-			for (ExtendedParameter extendedParameter : parameters)
-				parametersMapping.put(extendedParameter.getAcronym(), extendedParameter);
-			for (Assessment assessment : assessments)
-				ComputeAlE(assessment, parametersMapping);
-		} finally {
-			parametersMapping.clear();
-		}
+	/**
+	 * Computes the ALE values of the given assessments.
+	 * @param assessments The assessments whose ALE values are computed.
+	 * @param expressionParameters A list of parameters which are known to the expression evaluation engine.
+	 * The latter replaces each encountered parameter name in an expression by its respective value.
+	 * @throws TrickException
+	 */
+	public static void ComputeAlE(List<Assessment> assessments, List<AcronymParameter> expressionParameters) throws TrickException {
+		for (Assessment assessment : assessments)
+			ComputeAlE(assessment, expressionParameters);
 	}
 
-	public static void ComputeAlE(Assessment assessment, Map<String, ExtendedParameter> parameters) throws TrickException {
-		double impactRep = StringToDouble(assessment.getImpactRep(), parameters);
-		double impactOP = StringToDouble(assessment.getImpactOp(), parameters);
-		double impactLeg = StringToDouble(assessment.getImpactLeg(), parameters);
-		double impactFin = StringToDouble(assessment.getImpactFin(), parameters);
-		double probability = StringToDouble(assessment.getLikelihood(), parameters);
+	/**
+	 * Computes the ALE values of the given assessment.
+	 * @param assessment The assessment whose ALE values are computed.
+	 * @param expressionParameters A list of parameters which are known to the expression evaluation engine.
+	 * The latter replaces each encountered parameter name in an expression by its respective value.
+	 */
+	public static void ComputeAlE(Assessment assessment, List<AcronymParameter> expressionParameters) throws TrickException {
+		double impactRep = StringToDouble(assessment.getImpactRep(), expressionParameters);
+		double impactOP = StringToDouble(assessment.getImpactOp(), expressionParameters);
+		double impactLeg = StringToDouble(assessment.getImpactLeg(), expressionParameters);
+		double impactFin = StringToDouble(assessment.getImpactFin(), expressionParameters);
+		double probability = StringToDouble(assessment.getLikelihood(), expressionParameters);
 		assessment.setImpactReal(Math.max(impactRep, Math.max(impactOP, Math.max(impactLeg, impactFin))));
 		assessment.setLikelihoodReal(probability);
 		assessment.setALE(assessment.getImpactReal() * probability);
