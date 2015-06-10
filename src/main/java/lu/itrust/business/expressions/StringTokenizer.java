@@ -1,6 +1,5 @@
 package lu.itrust.business.expressions;
 
-import lu.itrust.business.TS.exception.InvalidExpressionException;
 
 /**
  * Simple implementation of the Tokenizer interface, which reads tokens from a given string.

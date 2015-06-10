@@ -3,8 +3,6 @@ package lu.itrust.business.expressions;
 import java.util.Collection;
 import java.util.Map;
 
-import lu.itrust.business.TS.exception.InvalidExpressionException;
-
 /**
  * Interface for a parser of basic arithmetical expressions containing variables.
  * @author Steve Muller (SMU), itrust consulting s.à r.l.

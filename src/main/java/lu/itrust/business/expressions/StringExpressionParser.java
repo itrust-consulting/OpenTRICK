@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import lu.itrust.business.TS.exception.InvalidExpressionException;
-
 /**
  * Represents a simple expression parser with support for variables and basic arithmetic operations.
  * @author Steve Muller (SMU), itrust consulting s.à r.l.

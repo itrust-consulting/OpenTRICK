@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.exception;
+package lu.itrust.business.expressions;
 
 /**
  * Exception thrown if an expression could not be parsed.

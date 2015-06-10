@@ -6,13 +6,13 @@ import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
-import lu.itrust.business.TS.exception.InvalidExpressionException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExpression;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
+import lu.itrust.business.expressions.InvalidExpressionException;
 import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.springframework.beans.factory.annotation.Autowired;

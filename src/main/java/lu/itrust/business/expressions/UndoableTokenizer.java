@@ -2,8 +2,6 @@ package lu.itrust.business.expressions;
 
 import java.util.Stack;
 
-import lu.itrust.business.TS.exception.InvalidExpressionException;
-
 /**
  * Represents a tokenizer with support of undoing reading tokens.
  * This allows to look ahead at the next token and to put it back in case it is not the one one is looking for. 

@@ -1,6 +1,5 @@
 package lu.itrust.business.expressions;
 
-import lu.itrust.business.TS.exception.InvalidExpressionException;
 
 /**
  * Represents a class which continuously reads semantic tokens from a source.
