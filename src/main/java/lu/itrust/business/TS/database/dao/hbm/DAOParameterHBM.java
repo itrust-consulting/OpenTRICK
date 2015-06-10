@@ -7,10 +7,12 @@ import java.util.List;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
 
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -402,5 +404,16 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 				result.add((AcronymParameter)parameter);
 		}
 		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 10, 2015
+	 */
+	@Override
+	public DynamicParameterScope getDynamicParameterScopeByLabel(String label) throws NonUniqueResultException {
+		String query = "From DynamicParameterScope as dpScope Where dpScope.label = :label";
+		return (DynamicParameterScope) getSession().createQuery(query).setParameter("label", label).uniqueResult();
 	}
 }

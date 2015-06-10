@@ -3,9 +3,12 @@ package lu.itrust.business.TS.database.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
+
+import org.hibernate.NonUniqueResultException;
 
 /**
  * DAOParameter.java: <br>
@@ -78,4 +81,11 @@ public interface DAOParameter {
 	 */
 	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception;
 	
+	/**
+	 * Gets the database entity representing the given scope.
+	 * @param label The human-readable label of the scope.
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 10, 2015
+	 */
+	public DynamicParameterScope getDynamicParameterScopeByLabel(String label) throws NonUniqueResultException;
 }

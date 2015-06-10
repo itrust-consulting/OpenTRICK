@@ -6,15 +6,18 @@ import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
+import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExpression;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
+import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
 import lu.itrust.business.expressions.InvalidExpressionException;
 import lu.itrust.business.expressions.StringExpressionParser;
 
+import org.hibernate.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -41,6 +44,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class ControllerApi {
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
+
+	@Autowired
+	private ServiceParameter serviceParameter;
 
 	/**
 	 * Method is called whenever an exception of type TrickException
@@ -87,8 +93,17 @@ public class ControllerApi {
 	public Object notify(@RequestBody List<ApiExternalNotification> data) throws Exception {
 		// For each of the given external notifications
 		for (ApiExternalNotification apiObj : data) {
+			// Determine the notification scope
+			DynamicParameterScope scope;
+			try {
+				scope = serviceParameter.getDynamicParameterScopeByLabel(apiObj.getS());
+			}
+			catch (NonUniqueResultException ex) {
+				throw new TrickException("error.api.unknwon_notification_scope", "Unknown notification scope: {0}", new Object[] { apiObj.getS() });
+			}
+
 			// Create a new entity based on given object
-			ExternalNotification newObj = ExternalNotificationHelper.createEntityBasedOn(apiObj);
+			ExternalNotification newObj = ExternalNotificationHelper.createEntityBasedOn(apiObj, scope);
 			
 			// Insert it into database
 			serviceExternalNotification.save(newObj);

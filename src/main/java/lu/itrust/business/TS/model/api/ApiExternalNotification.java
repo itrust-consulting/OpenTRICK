@@ -9,10 +9,18 @@ package lu.itrust.business.TS.model.api;
  */
 public class ApiExternalNotification {
 	/**
+	 * Represents the scope of the notification that has been sent.
+	 * Scopes are mainly used to identify the source of notifications
+	 * and grant appropriate access rights. The notifications scope agrees
+	 * with the scope of the generated dynamic parameters.
+	 */
+	private String scope;
+	
+	/**
 	 * Represents the type of the notification that has been sent.
 	 */
 	private String category;
-	
+
 	/**
 	 * Represents the time when the notification was originally issued
 	 * by the external provider.
@@ -25,6 +33,26 @@ public class ApiExternalNotification {
 	 * into a single one, thus saving traffic/storage space.
 	 */
 	private int number;
+
+	/**
+	 * Gets the 'scope' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it getS() instead of getScope(),
+	 * we may use {"s":...} instead of {"scope":...} in JSON data.
+	 */
+	public String getS() {
+		return this.scope;
+	}
+
+	/**
+	 * Sets the 'scope' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it setS() instead of setScope(),
+	 * we may use {"s":...} instead of {"scope":...} in JSON data.
+	 */
+	public void setS(String scope) {
+		this.scope = scope;
+	}
 
 	/**
 	 * Gets the 'category' parameter of this notification.

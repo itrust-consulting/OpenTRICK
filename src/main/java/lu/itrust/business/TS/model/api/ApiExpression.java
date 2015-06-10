@@ -8,6 +8,8 @@ package lu.itrust.business.TS.model.api;
 public class ApiExpression {
 	/** The expression to parse. */
 	private String expression;
+	/** The scope to retrieve the notifications/parameters from. */
+	private String scope;
 	/**
 	 * The maximum age (in seconds) of notifications that shall be considered in the frequency computation.
 	 */
@@ -18,7 +20,13 @@ public class ApiExpression {
 	 * frequency value of 3.54 in interpreted as 3.54 events per _hour_.   
 	 */
 	private long unitDuration;
-	
+
+	public String getScope() {
+		return scope;
+	}
+	public void setScope(String scope) {
+		this.scope = scope;
+	}
 	public String getExpression() {
 		return expression;
 	}

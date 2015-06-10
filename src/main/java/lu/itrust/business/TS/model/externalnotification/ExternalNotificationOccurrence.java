@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.externalnotification;
 
 /**
  * Represents an aggregated set of external notifications.
+ * Useful in combination with summing over database entries.
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 8, 2015
  */
