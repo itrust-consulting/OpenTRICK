@@ -73,6 +73,7 @@ $(function() {
 						cloneOption.find("li").removeClass("pull-right")
 						cloneOption.addClass("dropdown-menu")
 					}
+					
 					if (!$option.is(":visible")) {
 						$option.fadeIn(function() {
 							$option.show();
