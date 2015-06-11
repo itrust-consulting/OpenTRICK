@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -72,7 +73,14 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExternalNotificationOccurrence> countAll(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
+	public List<ExternalNotificationOccurrence> countAll(String scopeLabel, Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
+		// NB: if the 'categories' list is empty, the HQL constructed below will not work
+		// because we use Restrictions.in() - it will produce something like "WHERE category IN ()"
+		// which is a syntax error.
+		// However, if no categories have been specified, we know that the result is going to be empty anyway.
+		if (categories.size() == 0)
+			return new ArrayList<>();
+		
 		// Define what will be part of the result (SELECT)
 		ProjectionList projections = Projections.projectionList();
 		projections.add(Projections.groupProperty("category"), "category");
@@ -81,17 +89,12 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// Define filters acting on result set (WHERE)
 		Criteria criteria = getSession()
 				.createCriteria(ExternalNotification.class)
+				.createAlias("scope", "scope")
 				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
 				.add(Restrictions.in("category", categories))
+				.add(Restrictions.eq("scope.label", scopeLabel))
 				.setProjection(projections)
 				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
-
-		/*
-		System.out.println("DAO:");
-		for (ExternalNotificationOccurrence k:(List<ExternalNotificationOccurrence>) criteria.list())
-			System.out.println("- " + k.getCategory() + " => " + k.getOccurrence());
-		System.out.println("end.");
-		//*/
 		
 		return (List<ExternalNotificationOccurrence>) criteria.list();
 	}

@@ -43,6 +43,7 @@ public interface ServiceExternalNotification {
 
 	/**
 	 * Fetch the frequencies of all notification categories over the given time span.
+	 * @param scopeLabel The label of the notification scope. Only variables in this scope are considered.
 	 * @param variablesInvolved The categories which notifications must have in order to be included in the result.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
@@ -54,5 +55,5 @@ public interface ServiceExternalNotification {
 	 * unknown categories get assigned a default value of 0.
 	 * Here, 'occurrence' denotes the sum of all 'number' fields of the considered notifications.
 	 */
-	public Map<String, Double> getFrequencies(Collection<String> variablesInvolved, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
+	public Map<String, Double> getFrequencies(String scopeLabel, Collection<String> variablesInvolved, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
 }

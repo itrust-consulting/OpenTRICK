@@ -57,7 +57,7 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Double> getFrequencies(Collection<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception {
+	public Map<String, Double> getFrequencies(String scopeLabel, Collection<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception {
 		if (maxTimestamp <= minTimestamp) {
 			throw new IllegalArgumentException("minTimestamp must be strictly smaller than maxTimestamp.");
 		}
@@ -75,7 +75,7 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 		final double timespanInUnits = (maxTimestamp - minTimestamp) / unitDuration;
 		
 		// Count all notifications. Note that certain values in 'categories' may not be among the keys of 'countResult'. 
-		List<ExternalNotificationOccurrence> countResult = daoExternalNotification.countAll(categories, minTimestamp, maxTimestamp);
+		List<ExternalNotificationOccurrence> countResult = daoExternalNotification.countAll(scopeLabel, categories, minTimestamp, maxTimestamp);
 		
 		// Compute frequencies
 		for (ExternalNotificationOccurrence entry : countResult) {

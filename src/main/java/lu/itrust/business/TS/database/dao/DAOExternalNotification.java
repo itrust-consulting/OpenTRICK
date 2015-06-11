@@ -24,6 +24,7 @@ public interface DAOExternalNotification {
 
 	/**
 	 * Counts all notifications (summing over the 'number' column) in the database in the given time range.
+	 * @param scopeLabel The label of the notification scope. Only variables in this scope are considered.
 	 * @param categories The categories which notifications must have in order to be included in the result.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
@@ -31,5 +32,5 @@ public interface DAOExternalNotification {
 	 * If a category is unknown or has no associated notifications, it may be omitted in the list.
 	 * Here, 'occurrence' denotes the sum of all 'number' columns of the considered notifications.
 	 */
-	public List<ExternalNotificationOccurrence> countAll(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception;
+	public List<ExternalNotificationOccurrence> countAll(String scopeLabel, Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception;
 }

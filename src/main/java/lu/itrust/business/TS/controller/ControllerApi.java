@@ -101,10 +101,12 @@ public class ControllerApi {
 			catch (NonUniqueResultException ex) {
 				throw new TrickException("error.api.unknwon_notification_scope", "Unknown notification scope: {0}", new Object[] { apiObj.getS() });
 			}
-
+			
 			// Create a new entity based on given object
 			ExternalNotification newObj = ExternalNotificationHelper.createEntityBasedOn(apiObj, scope);
 			
+			// TODO Check access rights
+
 			// Insert it into database
 			serviceExternalNotification.save(newObj);
 		}
@@ -126,25 +128,14 @@ public class ControllerApi {
 		final long maxTimestamp = java.time.Instant.now().getEpochSecond(); // now
 		final long minTimestamp = maxTimestamp - data.getTimespan(); // some time ago
 		final long unitDuration = data.getUnitDuration();
+		final String scopeLabel = data.getScope();
 		StringExpressionParser exprParser = new StringExpressionParser(data.getExpression());
 		
 		try {
 			// Compute frequencies for all involved variables
 			Collection<String> variablesInvolved = exprParser.getInvolvedVariables();
-			Map<String, Double> variableValues = serviceExternalNotification.getFrequencies(variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
+			Map<String, Double> variableValues = serviceExternalNotification.getFrequencies(scopeLabel, variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
 
-			/*
-			System.out.println("variablesInvolved:");
-			for (String k:variablesInvolved)
-				System.out.println("- " + k);
-			System.out.println("end.");
-
-			System.out.println("variableValues:");
-			for (String k:variableValues.keySet())
-				System.out.println("- " + k + " => " + variableValues.get(k));
-			System.out.println("end.");
-			//*/
-			
 			// Evaluate expression itself
 			double value = exprParser.evaluate(variableValues);
 			// Do something with it
