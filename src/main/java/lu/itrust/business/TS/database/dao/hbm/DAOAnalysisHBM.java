@@ -692,4 +692,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis analysis where analysis.customer.id = :idCustomer and analysis.label = :name").setString("name", name)
 				.setInteger("idCustomer", idCustomer).uniqueResult();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights) {
+		return getSession()
+				.createQuery("Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight where userAnalysisRight.user.login = :username and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights")
+				.setString("username", userName)
+				.setParameterList("rights", rights)
+				.list();
+	}
 }

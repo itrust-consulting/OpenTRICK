@@ -142,4 +142,6 @@ public interface DAOAnalysis {
 
 	public boolean existsByNameAndCustomerId(String name, int idCustomer);
 
+	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
+
 }

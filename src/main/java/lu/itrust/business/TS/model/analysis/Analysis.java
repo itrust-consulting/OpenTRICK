@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -40,6 +41,7 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -2551,5 +2553,13 @@ public class Analysis implements Cloneable {
 		List<Asset> assets = new ArrayList<Asset>();
 		this.assets.stream().filter(asset-> !asset.isSelected()).forEach(asset -> assets.add(asset));
 		return assets;
+	}
+
+	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
+		return parameters.stream()
+				.filter(parameter -> parameter instanceof DynamicParameter)
+				.collect(Collectors.toMap(
+						parameter -> ((DynamicParameter)parameter).getAcronym(),
+						parameter -> (DynamicParameter)parameter));
 	}
 }

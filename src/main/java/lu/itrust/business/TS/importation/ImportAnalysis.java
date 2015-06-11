@@ -1413,6 +1413,22 @@ public class ImportAnalysis {
 
 		// close result
 		rs.close();
+		
+		// ****************************************************************
+		// * Create parameter type for dynamic parameters
+		// ****************************************************************
+
+		// Retrieve parameter type if it exists
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
+		if (parameterType == null) {
+			// It does not exist; create it
+			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
+			parameterType.setId(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
+
+			// Save parameter type into database
+			daoParameterType.save(parameterType);
+		}
+
 	}
 
 	/**

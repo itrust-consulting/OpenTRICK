@@ -131,4 +131,6 @@ public interface ServiceAnalysis {
 
 	public boolean existsByNameAndCustomerId(String name, int idCustomer);
 
+	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
+
 }

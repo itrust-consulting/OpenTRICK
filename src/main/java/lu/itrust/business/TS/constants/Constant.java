@@ -268,6 +268,7 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE = 4;
 	public final static int PARAMETERTYPE_TYPE_MAX_EFF = 5;
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
+	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 7;
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -276,6 +277,7 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_MAX_EFF_NAME = "MAXEFF";
 	public final static String PARAMETERTYPE_TYPE_PROPABILITY_NAME = "PROBA";
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
+	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";

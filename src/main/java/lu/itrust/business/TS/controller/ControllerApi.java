@@ -1,23 +1,22 @@
 package lu.itrust.business.TS.controller;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.api.ApiExpression;
+import lu.itrust.business.TS.model.api.ApiExpressionRequest;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
+import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiResult;
-import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
-import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
 import lu.itrust.business.expressions.InvalidExpressionException;
 import lu.itrust.business.expressions.StringExpressionParser;
 
-import org.hibernate.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -48,6 +47,12 @@ public class ControllerApi {
 	@Autowired
 	private ServiceParameter serviceParameter;
 
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private DynamicParameterComputer _dpc;
+	
 	/**
 	 * Method is called whenever an exception of type TrickException
 	 * is thrown in this controller.
@@ -90,34 +95,28 @@ public class ControllerApi {
 	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public Object notify(@RequestBody List<ApiExternalNotification> data) throws Exception {
+	public Object notify(@RequestBody ApiNotifyRequest request) throws Exception {
 		// For each of the given external notifications
-		for (ApiExternalNotification apiObj : data) {
-			// Determine the notification scope
-			DynamicParameterScope scope;
-			try {
-				scope = serviceParameter.getDynamicParameterScopeByLabel(apiObj.getS());
-			}
-			catch (NonUniqueResultException ex) {
-				throw new TrickException("error.api.unknwon_notification_scope", "Unknown notification scope: {0}", new Object[] { apiObj.getS() });
-			}
-			
-			// Create a new entity based on given object
-			ExternalNotification newObj = ExternalNotificationHelper.createEntityBasedOn(apiObj, scope);
-			
-			// TODO Check access rights
-
-			// Insert it into database
-			serviceExternalNotification.save(newObj);
+		for (ApiExternalNotification apiObj : request.getData()) {
+			// Create entity and insert it into database
+			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj));
 		}
-		return 0;
+
+		// TODO run worker which computes the dynamic parameters
+		// TODO For now, we use a hard-coded user; consider authenticating
+		String userName = "admin";
+		_dpc.computeForAllAnalysesOfUser(userName, 86400);
+		
+		// Success
+		return new ApiResult(0);
 	}
 	
 	/**
 	 * Evaluates the given expression by plugging in the real-time values of the variables.
+	 * THIS IS A DEBUG METHOD WHICH DOES NOT PERFORM ACCESS RIGHT VERIFICATION.
 	 */
 	@RequestMapping(value = "/eval", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public Object eval(@RequestBody ApiExpression data) throws Exception {
+	public Object eval(@RequestBody ApiExpressionRequest data) throws Exception {
 		// Verify data passed to API
 		if (data.getTimespan() <= 0)
 			throw new TrickException("error.api.timespan_negative", "Timespan must be positive.");
@@ -128,13 +127,12 @@ public class ControllerApi {
 		final long maxTimestamp = java.time.Instant.now().getEpochSecond(); // now
 		final long minTimestamp = maxTimestamp - data.getTimespan(); // some time ago
 		final long unitDuration = data.getUnitDuration();
-		final String scopeLabel = data.getScope();
 		StringExpressionParser exprParser = new StringExpressionParser(data.getExpression());
 		
 		try {
 			// Compute frequencies for all involved variables
 			Collection<String> variablesInvolved = exprParser.getInvolvedVariables();
-			Map<String, Double> variableValues = serviceExternalNotification.getFrequencies(scopeLabel, variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
+			Map<String, Double> variableValues = serviceExternalNotification.getFrequencies(variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
 
 			// Evaluate expression itself
 			double value = exprParser.evaluate(variableValues);

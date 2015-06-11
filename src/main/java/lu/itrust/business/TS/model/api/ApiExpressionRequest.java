@@ -5,7 +5,7 @@ package lu.itrust.business.TS.model.api;
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
-public class ApiExpression {
+public class ApiExpressionRequest {
 	/** The expression to parse. */
 	private String expression;
 	/** The scope to retrieve the notifications/parameters from. */
