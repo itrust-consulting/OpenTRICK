@@ -73,7 +73,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExternalNotificationOccurrence> countAll(String scopeLabel, Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
+	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
 		// NB: if the 'categories' list is empty, the HQL constructed below will not work
 		// because we use Restrictions.in() - it will produce something like "WHERE category IN ()"
 		// which is a syntax error.
@@ -89,10 +89,27 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// Define filters acting on result set (WHERE)
 		Criteria criteria = getSession()
 				.createCriteria(ExternalNotification.class)
-				.createAlias("scope", "scope")
 				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
 				.add(Restrictions.in("category", categories))
-				.add(Restrictions.eq("scope.label", scopeLabel))
+				.setProjection(projections)
+				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
+		
+		return (List<ExternalNotificationOccurrence>) criteria.list();
+	}
+
+	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp) throws Exception {
+		// Define what will be part of the result (SELECT)
+		ProjectionList projections = Projections.projectionList();
+		projections.add(Projections.groupProperty("category"), "category");
+		projections.add(Projections.sum("number"), "occurrence");
+		
+		// Define filters acting on result set (WHERE)
+		Criteria criteria = getSession()
+				.createCriteria(ExternalNotification.class)
+				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
 				.setProjection(projections)
 				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
 		

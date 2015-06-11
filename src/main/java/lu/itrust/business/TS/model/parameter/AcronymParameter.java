@@ -17,7 +17,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 public class AcronymParameter extends Parameter implements Cloneable {
 
 	/** The acronym which can be used to refer to this parameter (e.g. in expressions). */
-	@Column(name = "dtAcronym", nullable = false)
+	@Column(name = "dtAcronym", nullable = false, unique = true)
 	private String acronym = "";
 
 	/**

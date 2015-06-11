@@ -6,7 +6,6 @@ import java.util.List;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
-import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
 
 /**
  * Provides helper functionality for external notification instances.
@@ -23,11 +22,10 @@ public class ExternalNotificationHelper {
 	 * @return Returns the created entity.
 	 * @throws TrickException
 	 */
-	public static ExternalNotification createEntityBasedOn(ApiExternalNotification apiObj, DynamicParameterScope objScope) throws TrickException {
+	public static ExternalNotification createEntityBasedOn(ApiExternalNotification apiObj) throws TrickException {
 		ExternalNotification modelObj = new ExternalNotification();
 		// Copy all properties from API object to a new entity
 		modelObj.setCategory(apiObj.getC());
-		modelObj.setScope(objScope);
 		modelObj.setTimestamp(apiObj.getT());
 		modelObj.setNumber(apiObj.getN());
 		return modelObj;
@@ -45,7 +43,6 @@ public class ExternalNotificationHelper {
 			// Copy all relevant properties from entity to API object
 			// We silently omit the unique identifier here
 			apiObj.setC(obj.getCategory());
-			apiObj.setS(obj.getScope().getLabel());
 			apiObj.setT(obj.getTimestamp());
 			apiObj.setN(obj.getNumber());
 			apiList.add(apiObj);

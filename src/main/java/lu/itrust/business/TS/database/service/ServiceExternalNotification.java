@@ -43,17 +43,30 @@ public interface ServiceExternalNotification {
 
 	/**
 	 * Fetch the frequencies of all notification categories over the given time span.
-	 * @param scopeLabel The label of the notification scope. Only variables in this scope are considered.
-	 * @param variablesInvolved The categories which notifications must have in order to be included in the result.
+	 * @param scope The notification scope. Only variables in this scope are considered.
+	 * @param categories The categories which notifications must have in order to be included in the result.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
 	 * @param unitDuration The duration (in seconds) of a 'unit' in the definition of the frequency.
 	 * For example, if unitDuration is 3600.0 (= 1 hour), the returned frequency values are to be
 	 * interpreted as 'number of times per hour'.
-	 * @return Returns the occurrence for each category specified in the 'categories' parameter.
+	 * @return Returns the frequency for each category specified in the 'categories' parameter.
 	 * The keys of the returned Map<String, Double> are exactly the values in 'categories';
 	 * unknown categories get assigned a default value of 0.
-	 * Here, 'occurrence' denotes the sum of all 'number' fields of the considered notifications.
+	 * Here, 'frequency' denotes the sum of all 'number' fields of the considered notifications divided by the specified time span.
 	 */
-	public Map<String, Double> getFrequencies(String scopeLabel, Collection<String> variablesInvolved, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
+	public Map<String, Double> getFrequencies(Collection<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
+
+	/**
+	 * Fetch the frequencies of all notification categories over the given time span.
+	 * @param scope The notification scope. Only variables in this scope are considered.
+	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
+	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
+	 * @param unitDuration The duration (in seconds) of a 'unit' in the definition of the frequency.
+	 * For example, if unitDuration is 3600.0 (= 1 hour), the returned frequency values are to be
+	 * interpreted as 'number of times per hour'.
+	 * @return Returns the frequency for each category in the scope.
+	 * Here, 'frequency' denotes the sum of all 'number' fields of the considered notifications divided by the specified time span.
+	 */
+	public Map<String, Double> getAllFrequencies(long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
 }

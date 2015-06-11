@@ -3,12 +3,10 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
-
-import org.hibernate.NonUniqueResultException;
 
 /**
  * ServiceParameter.java: <br>
@@ -82,10 +80,10 @@ public interface ServiceParameter {
 	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception;
 
 	/**
-	 * Gets the database entity representing the given scope.
-	 * @param label The human-readable label of the scope.
+	 * Gets all dynamic parameters for the given analysis.
+	 * @param idAnalysis The identifier of the analysis for which parameters shall be retrieved.
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @since Jun 10, 2015
+	 * @since Jun 11, 2015
 	 */
-	public DynamicParameterScope getDynamicParameterScopeByLabel(String label) throws NonUniqueResultException;
+	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) throws Exception;
 }

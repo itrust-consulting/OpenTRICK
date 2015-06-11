@@ -1,20 +1,11 @@
 package lu.itrust.business.TS.model.externalnotification;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Represents a notification sent by an external provider (e.g. an IDS).
@@ -30,15 +21,6 @@ public class ExternalNotification {
 	@GeneratedValue
 	@Column(name = "idExternalNotification")
 	private Integer id;
-
-	/**
-	 * Represents the scope of this notification, used to group notifications coming from the same source together.
-	 */
-	@Access(AccessType.FIELD)
-	@ManyToOne(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.SAVE_UPDATE)
-	@JoinColumn(name = "fiDynamicParameterScope", nullable = false)
-	private DynamicParameterScope scope;
 
 	/**
 	 * Represents the type of the notification that has been sent.
@@ -66,20 +48,6 @@ public class ExternalNotification {
 	}
 
 	/* Changing id is not supported: public void setId(Integer id); */
-
-	/**
-	 * Gets the notification scope of the database entity.
-	 */
-	public DynamicParameterScope getScope() {
-		return scope;
-	}
-
-	/**
-	 * Sets the notification scope of the database entity.
-	 */
-	public void setScope(DynamicParameterScope scope) {
-		this.scope = scope;
-	}
 
 	/**
 	 * Gets the notification category from the database entity.

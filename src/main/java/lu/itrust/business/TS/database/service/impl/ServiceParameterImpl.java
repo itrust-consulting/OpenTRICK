@@ -2,18 +2,19 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import org.hibernate.NonUniqueResultException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lu.itrust.business.TS.database.dao.DAOParameter;
+import lu.itrust.business.TS.database.dao.DAOParameterType;
+import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameterScope;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceParameterImpl.java: <br>
@@ -28,6 +29,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 
 	@Autowired
 	private DAOParameter daoParameter;
+
+	@Autowired
+	private DAOParameterType daoParameterType;
+
+	@Autowired
+	private ServiceExternalNotification serviceExternalNotification;
 
 	/**
 	 * get: <br>
@@ -452,7 +459,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @since Jun 10, 2015
 	 */
 	@Override
-	public DynamicParameterScope getDynamicParameterScopeByLabel(String label) throws NonUniqueResultException {
-		return daoParameter.getDynamicParameterScopeByLabel(label);
+	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoParameter.getDynamicParametersFromAnalysis(idAnalysis);
 	}
 }
