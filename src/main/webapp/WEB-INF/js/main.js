@@ -48,7 +48,7 @@ $(function() {
 	if ($("#tab-container").length || $("#nav-container").length) {
 		var tabMenu = $(".nav-tab").length ? $(".nav-tab") : $(".nav-analysis");
 		var tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container");
-		var option = tabMenu.find("#tabOption")
+		var $option = tabMenu.find("#tabOption")
 		$(window).on("resize.window", function() {
 			tabContainer.css({
 				"margin-top" : tabMenu.height() + 12
@@ -56,29 +56,30 @@ $(function() {
 			});
 		});
 
-		if (option.length) {
+		if ($option.length) {
 			var updateOption = function() {
 				var optionMenu = tabContainer.find(".tab-pane.active ul.nav.nav-pills");
 				var tableFloatingHeader = tabContainer.find(".tab-pane.active table .tableFloatingHeader");
 				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-					option.fadeOut(function() {
-						option.hide();
+					$option.fadeOut(function() {
+						$option.hide();
 					});
 				else {
-					if (!option.find("#" + optionMenu.prop("id")).length) {
-						option.find("ul").remove();
+					if (!$option.find("#" + optionMenu.prop("id")).length) {
+						$option.find("ul").remove();
 						var cloneOption = optionMenu.clone();
-						cloneOption.appendTo(option);
+						cloneOption.appendTo($option);
 						cloneOption.removeClass();
 						cloneOption.find("li").removeClass("pull-right")
 						cloneOption.addClass("dropdown-menu")
 					}
-					option.fadeIn(function() {
-						option.show();
-					});
+					if (!$option.is(":visible")) {
+						$option.fadeIn(function() {
+							$option.show();
+						});
+					}
 				}
 			}
-
 			tabMenu.find('a[data-toggle="tab"]').on('shown.bs.tab', function() {
 				$(window).scroll();
 			});

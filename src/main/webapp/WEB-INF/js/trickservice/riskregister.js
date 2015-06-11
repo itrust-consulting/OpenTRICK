@@ -20,15 +20,10 @@ function calculateRiskRegister(analysisId) {
 	}
 
 	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-
-		var data = {};
-
-		data["id"] = analysisID;
-
 		$.ajax({
 			url : context + "/Analysis/RiskRegister/Compute",
 			type : "post",
-			data : JSON.stringify(data),
+			data : JSON.stringify({id:analysisID }),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
