@@ -55,8 +55,8 @@ public class DynamicParameterComputer {
 		// but the value does not have to be that precise anyway.
 		final double unitDuration = 86400 * 365;
 		
-		// Determine frequency of each notification category in the database
-		Map<String, Double> frequencies = serviceExternalNotification.getAllFrequencies(minTimestamp, maxTimestamp, unitDuration);
+		// Determine likelihood of each notification category in the database
+		Map<String, Double> likelihoods = serviceExternalNotification.getLikelihoods(minTimestamp, maxTimestamp, unitDuration);
 
 		// Deduce parameter values for each analysis
 		for (Analysis analysis : analyses) {
@@ -64,16 +64,16 @@ public class DynamicParameterComputer {
 			// and map them by their acronym
 			Map<String, DynamicParameter> dynamicParameters = analysis.findDynamicParametersByAnalysisAsMap();
 			
-			// Make sure that there is a frequency value for each parameter.
-			// If there is none, it exactly means that the frequency is zero.
+			// Make sure that there is a likelihood value for each parameter.
+			// If there is none, it exactly means that the likelihood is zero.
 			for (String acronym : dynamicParameters.keySet())
-				frequencies.putIfAbsent(acronym, 0.0);
+				likelihoods.putIfAbsent(acronym, 0.0);
 
-			// Now every parameter has an associated frequency value.
+			// Now every parameter has an associated likelihood value.
 			// For each computed frequency:
 			// - update existing dynamic parameters with the respective value in the frequencies collection; or
-			// - create parameter if none exists.
-			for (String acronym : frequencies.keySet()) {
+			// - create parameter if it does not exist.
+			for (String acronym : likelihoods.keySet()) {
 				DynamicParameter newParameter = dynamicParameters.get(acronym);
 				if (newParameter == null) {
 					newParameter = new DynamicParameter();
@@ -82,7 +82,9 @@ public class DynamicParameterComputer {
 					newParameter.setType(dynamicParameterType);
 					analysis.getParameters().add(newParameter);
 				}
-				newParameter.setValue(frequencies.get(acronym));
+				
+				// TODO Consider using a minimum value?
+				newParameter.setValue(likelihoods.get(acronym));
 			}
 
 			// Save everything

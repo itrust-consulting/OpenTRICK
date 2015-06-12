@@ -20,6 +20,13 @@ public class ApiExternalNotification {
 	private long timestamp;
 	
 	/**
+	 * Represents the severity of the notification.
+	 * Values lie in the range [0,10] where 0 is least and 10 is most severe.
+	 * The scale is logarithmic.
+	 */
+	private int severity;
+	
+	/**
 	 * Represents the number of notifications incorporated by this object.
 	 * In fact, this parameter allows the aggregation of equivalent notifications
 	 * into a single one, thus saving traffic/storage space.
@@ -64,6 +71,26 @@ public class ApiExternalNotification {
 	 */
 	public void setT(long timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	/**
+	 * Gets the 'severity' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it getS() instead of getSeverity(),
+	 * we may use {"s":...} instead of {"severity":...} in JSON data.
+	 */
+	public int getS() {
+		return this.severity;
+	}
+
+	/**
+	 * Sets the 'severity' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it setS() instead of setSeverity(),
+	 * we may use {"s":...} instead of {"severity":...} in JSON data.
+	 */
+	public void setS(int severity) {
+		this.severity = severity;
 	}
 
 	/**

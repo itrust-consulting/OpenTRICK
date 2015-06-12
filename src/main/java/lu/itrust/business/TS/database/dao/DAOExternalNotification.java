@@ -23,7 +23,8 @@ public interface DAOExternalNotification {
 	public void delete(ExternalNotification externalNotification) throws Exception;
 
 	/**
-	 * Counts all notifications (summing over the 'number' column) in the database in the given time range.
+	 * Counts all notifications (summing over the 'number' column) in the database in the given time range,
+	 * grouping by category and severity.
 	 * @param categories The categories which notifications must have in order to be included in the result.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
@@ -34,7 +35,8 @@ public interface DAOExternalNotification {
 	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception;
 
 	/**
-	 * Counts all notifications (summing over the 'number' column) in the database in the given time range.
+	 * Counts all notifications (summing over the 'number' column) in the database in the given time range,
+	 * grouping by category and severity.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
 	 * @return Returns the occurrence for each category in the given scope.

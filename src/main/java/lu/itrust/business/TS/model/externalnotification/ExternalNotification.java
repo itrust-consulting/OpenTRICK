@@ -43,6 +43,14 @@ public class ExternalNotification {
 	@Column(name = "dtNumber", nullable = false)
 	private int number;
 
+	/**
+	 * Represents the severity of the notification.
+	 * Values lie in the range [0,10] where 0 is least and 10 is most severe.
+	 * The scale is logarithmic.
+	 */
+	@Column(name = "dtSeverity", nullable = false)
+	private int severity;
+
 	public Integer getId() {
 		return id;
 	}
@@ -98,5 +106,20 @@ public class ExternalNotification {
 			throw new TrickException("error.externalnotification.number_negative", "Number of external notifications cannot be negative.");
 		this.number = number;
 	}
-	
+
+	/**
+	 * Gets the severity of this notification.
+	 */
+	public int getSeverity() {
+		return severity;
+	}
+
+	/**
+	 * Sets the severity of this notification.
+	 */
+	public void setSeverity(int severity) throws TrickException {
+		if (severity < 0 || severity > 10)
+			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [0,10].");
+		this.severity = severity;
+	}
 }

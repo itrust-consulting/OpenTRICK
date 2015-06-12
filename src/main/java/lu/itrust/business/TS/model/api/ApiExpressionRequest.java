@@ -8,12 +8,12 @@ package lu.itrust.business.TS.model.api;
 public class ApiExpressionRequest {
 	/** The expression to parse. */
 	private String expression;
-	/** The scope to retrieve the notifications/parameters from. */
-	private String scope;
+	
 	/**
 	 * The maximum age (in seconds) of notifications that shall be considered in the frequency computation.
 	 */
 	private long timespan;
+	
 	/**
 	 * The duration (in seconds) of the time unit in the definition of the frequency.
 	 * For example, say the unit duration is set to 3600 seconds (1 hour), then a
@@ -21,12 +21,6 @@ public class ApiExpressionRequest {
 	 */
 	private long unitDuration;
 
-	public String getScope() {
-		return scope;
-	}
-	public void setScope(String scope) {
-		this.scope = scope;
-	}
 	public String getExpression() {
 		return expression;
 	}

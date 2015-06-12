@@ -104,6 +104,7 @@ public class ControllerApi {
 
 		// TODO run worker which computes the dynamic parameters
 		// TODO For now, we use a hard-coded user; consider authenticating
+		// TODO hardcoded timespan value, consider using parameter
 		String userName = "admin";
 		_dpc.computeForAllAnalysesOfUser(userName, 86400);
 		
@@ -132,7 +133,7 @@ public class ControllerApi {
 		try {
 			// Compute frequencies for all involved variables
 			Collection<String> variablesInvolved = exprParser.getInvolvedVariables();
-			Map<String, Double> variableValues = serviceExternalNotification.getFrequencies(variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
+			Map<String, Double> variableValues = serviceExternalNotification.getLikelihoods(variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
 
 			// Evaluate expression itself
 			double value = exprParser.evaluate(variableValues);

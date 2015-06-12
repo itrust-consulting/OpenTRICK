@@ -84,6 +84,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// Define what will be part of the result (SELECT)
 		ProjectionList projections = Projections.projectionList();
 		projections.add(Projections.groupProperty("category"), "category");
+		projections.add(Projections.groupProperty("severity"), "severity");
 		projections.add(Projections.sum("number"), "occurrence");
 		
 		// Define filters acting on result set (WHERE)
@@ -104,6 +105,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// Define what will be part of the result (SELECT)
 		ProjectionList projections = Projections.projectionList();
 		projections.add(Projections.groupProperty("category"), "category");
+		projections.add(Projections.groupProperty("severity"), "severity");
 		projections.add(Projections.sum("number"), "occurrence");
 		
 		// Define filters acting on result set (WHERE)

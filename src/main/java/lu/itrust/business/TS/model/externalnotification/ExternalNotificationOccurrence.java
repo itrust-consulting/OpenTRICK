@@ -11,7 +11,12 @@ public class ExternalNotificationOccurrence {
 	 * The unique category of all external notifications this instance represents.
 	 */
 	private String category;
-	
+
+	/**
+	 * The severity of all external notifications represented by this instance.
+	 */
+	private int severity;
+
 	/**
 	 * The total number of external notifications represented by this instance.
 	 */
@@ -29,6 +34,20 @@ public class ExternalNotificationOccurrence {
 	 */
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	/**
+	 * Gets the severity of all external notifications this instance represents.
+	 */
+	public int getSeverity() {
+		return severity;
+	}
+
+	/**
+	 * Sets the severity of all external notifications this instance represents.
+	 */
+	public void setSeverity(int severity) {
+		this.severity = severity;
 	}
 
 	/**

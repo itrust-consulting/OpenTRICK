@@ -42,7 +42,7 @@ public interface ServiceExternalNotification {
 	public void delete(ExternalNotification externalNotification) throws Exception;
 
 	/**
-	 * Fetch the frequencies of all notification categories over the given time span.
+	 * Fetches the occurrence likelihoods of each notification category, weighted by severity, over the given time span.
 	 * @param scope The notification scope. Only variables in this scope are considered.
 	 * @param categories The categories which notifications must have in order to be included in the result.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
@@ -55,10 +55,10 @@ public interface ServiceExternalNotification {
 	 * unknown categories get assigned a default value of 0.
 	 * Here, 'frequency' denotes the sum of all 'number' fields of the considered notifications divided by the specified time span.
 	 */
-	public Map<String, Double> getFrequencies(Collection<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
+	public Map<String, Double> getLikelihoods(Collection<String> categories, long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
 
 	/**
-	 * Fetch the frequencies of all notification categories over the given time span.
+	 * Fetches the occurrence likelihoods of each notification category, weighted by severity, over the given time span.
 	 * @param scope The notification scope. Only variables in this scope are considered.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
@@ -68,5 +68,5 @@ public interface ServiceExternalNotification {
 	 * @return Returns the frequency for each category in the scope.
 	 * Here, 'frequency' denotes the sum of all 'number' fields of the considered notifications divided by the specified time span.
 	 */
-	public Map<String, Double> getAllFrequencies(long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
+	public Map<String, Double> getLikelihoods(long minTimestamp, long maxTimestamp, double unitDuration) throws Exception;
 }
