@@ -386,12 +386,15 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * {@inheritDoc}
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 10, 2015
+	 * @see lu.itrust.business.TS.model.analysis.Analysis#getExpressionParameters()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception {
 		// We assume that all parameters that have an acronym can be used in an expression
 		// Maybe we want to change this in the future (checking parameter.type); then this is the place to act.
+		// In that case, lu.itrust.business.TS.model.analysis.Analysis#getExpressionParameters() must also be updated.
+		
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis";
 		Iterator<Parameter> iterator = getSession().createQuery(query)
 				.setParameter("idAnalysis", idAnalysis)

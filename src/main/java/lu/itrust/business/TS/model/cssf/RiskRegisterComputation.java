@@ -19,18 +19,21 @@ import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.expressions.ExpressionParser;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
  * RiskRegisterComputation: <br>
  * Computes NET Evaluation, RAW Evaluation and Expected Importance.
  * 
- * @author itrust consulting s.�.rl. : BJA, EOM, SME
+ * @author itrust consulting s.�.rl. : BJA, EOM, SME, SMU
  * @version 0.1
  * @since 11 d�c. 2012
  */
@@ -118,7 +121,7 @@ public class RiskRegisterComputation {
 			// ****************************************************************
 			// * calculate RiskRegister using CSSFComputation
 			// ****************************************************************
-			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis), this.analysis.getParameters()));
+			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis), this.analysis.getParameters(), this.analysis.getExpressionParameters()));
 
 			// print risk register into console
 			printRegister(this.analysis.getRiskRegisters());
@@ -213,8 +216,8 @@ public class RiskRegisterComputation {
 	 *            The List of Assessments
 	 * @param tmas
 	 *            The List of TMA Entries
-	 * @param parameters
-	 *            The List of Parameters
+	 * @param allParameters List of all parameters associated to the analysis.
+	 * @param expressionParameters All parameters of the analysis which shall be taken into consideration when evaluating expressions for likelihood.
 	 * 
 	 * @return The Risk Register as a List of RiskRegisterItems
 	 * @throws TrickException
@@ -222,7 +225,7 @@ public class RiskRegisterComputation {
 	 * @see CSSFTools#sortByGroup(Map)
 	 * @see CSSFTools#sortAndConcatenateGroup(Map)
 	 */
-	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final List<Parameter> parameters) throws TrickException {
+	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final List<Parameter> allParameters, final List<AcronymParameter> expressionParameters) throws TrickException {
 
 		// initialise ALE Array (this array will contain all net ALE's of each Risk)
 		// Integer: Scenario ID, Double: ALE of the Scenario, calculated by Inet*Pnet)
@@ -244,13 +247,13 @@ public class RiskRegisterComputation {
 		Map<String, Double> deltaALEs = new HashMap<String, Double>();
 
 		// calculate the NET Evaluation
-		netEvaluationComputationData(riskRegisters, netALEs, impacts, assessments, parameters);
+		netEvaluationComputationData(riskRegisters, netALEs, impacts, assessments, allParameters, expressionParameters);
 
 		// calculate RawALEs, DeltaALEs and Probability Relative Impacts
-		computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(probabilityRelativeImpacts, impacts, rawALEs, deltaALEs, netALEs, tmas, parameters);
+		computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(probabilityRelativeImpacts, impacts, rawALEs, deltaALEs, netALEs, tmas, allParameters, expressionParameters);
 
 		// compute
-		cssfFinalComputation(riskRegisters, netALEs, impacts, probabilityRelativeImpacts, rawALEs, deltaALEs, parameters);
+		cssfFinalComputation(riskRegisters, netALEs, impacts, probabilityRelativeImpacts, rawALEs, deltaALEs, allParameters);
 
 		// set register items into three groups direct, indirect and others
 		Map<String, List<RiskRegisterItemGroup>> results = CSSFSort.sortByGroup(riskRegisters);
@@ -353,12 +356,12 @@ public class RiskRegisterComputation {
 	 *            The List of Impacts for each Risk
 	 * @param assessments
 	 *            The Array of Assessments
-	 * @param parameters
-	 *            The Array of Analysis Parameters
+	 * @param allParameters List of all parameters associated to the analysis.
+	 * @param expressionParameters All parameters of the analysis which shall be taken into consideration when evaluating expressions for likelihood.
 	 * @throws TrickException
 	 */
 	public static void netEvaluationComputationData(Map<String, RiskRegisterItem> riskRegisters, Map<String, Double> netALE, Map<String, Impact> impacts, final List<Assessment> assessments,
-			final List<Parameter> parameters) throws TrickException {
+			final List<Parameter> allParameters, final List<AcronymParameter> expressionParameters) throws TrickException {
 
 		// ********************************************************
 		// * first step: generate the sum of each impact category Categories are: reputation ,
@@ -367,7 +370,7 @@ public class RiskRegisterComputation {
 
 		// set the impacts of each category (this will parse all assessment and will make a sum of
 		// each impact category (inside the Impact class) for each Scenario)
-		impacts.putAll(computeImpactGeneric(assessments, parameters));
+		impacts.putAll(computeImpactGeneric(assessments, allParameters));
 
 		// ********************************************************
 		// * second step: For each Scenario identify the biggest Impact Category
@@ -375,7 +378,7 @@ public class RiskRegisterComputation {
 
 		// calculates the ALE inside the netALE array (using the biggest Impact and probability) for
 		// each Scenario and initialise the netEvaluation result (prepare the Array with size)
-		riskRegisters.putAll(computeNetALE(netALE, impacts, assessments, parameters));
+		riskRegisters.putAll(computeNetALE(netALE, impacts, assessments, allParameters, expressionParameters));
 
 		// ********************************************************
 		// * last step: calculate netALE/maxImpact for each Scenario and store result as
@@ -479,13 +482,12 @@ public class RiskRegisterComputation {
 	 *            The List of Impacts for each Scenario (Impact List)
 	 * @param assessments
 	 *            The Assessments List
-	 * @param parameters
-	 *            The parameters List
-	 * 
+	 * @param allParameters List of all parameters associated to the analysis.
+	 * @param expressionParameters All parameters of the analysis which shall be taken into consideration when evaluating expressions for likelihood.
 	 * @return The initialised list of the risk register
 	 * @throws TrickException
 	 */
-	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments, final List<Parameter> parameters)
+	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments, final List<Parameter> parameters, final List<AcronymParameter> expressionParameters)
 			throws TrickException {
 
 		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
@@ -514,7 +516,7 @@ public class RiskRegisterComputation {
 				double netALE = (netALEs.containsKey(key) ? netALEs.get(key) : 0);
 
 				// identify biggest impact and calculate the numerator (ALe using P*I)
-				netALE += computeALE(impacts, assessment, mapParameters);
+				netALE += computeALE(impacts, assessment, mapParameters, expressionParameters);
 
 				// update ALE numerator
 				netALEs.put(key, netALE);
@@ -682,10 +684,11 @@ public class RiskRegisterComputation {
 	 * 
 	 * @param impacts
 	 * @param assessment
-	 * @param parameters
+	 * @param extendedParameters Map of all parameters associated to the analysis, assigning an acronym to the respective parameter.
+	 * @param expressionParameters All parameters of the analysis which shall be taken into consideration when evaluating expressions for likelihood.
 	 * @return
 	 */
-	private static double computeALE(Map<String, Impact> impacts, Assessment assessment, Map<String, Parameter> parameters) {
+	private static double computeALE(Map<String, Impact> impacts, Assessment assessment, Map<String, Parameter> extendedParameters, List<AcronymParameter> expressionParameters) {
 
 		String key = assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
 		int index = getMaxImpactCode(impacts.get(key));
@@ -703,16 +706,16 @@ public class RiskRegisterComputation {
 		switch (index) {
 
 			case MAX_IMPACT_REPUTATION:
-				ALE = Impact.convertStringImpactToDouble(assessment.getImpactRep(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+				ALE = Impact.convertStringImpactToDouble(assessment.getImpactRep(), extendedParameters) * likelihoodToNumeric(assessment.getLikelihood(), expressionParameters);
 				break;
 			case MAX_IMPACT_OPERATIONAL:
-				ALE = Impact.convertStringImpactToDouble(assessment.getImpactOp(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+				ALE = Impact.convertStringImpactToDouble(assessment.getImpactOp(), extendedParameters) * likelihoodToNumeric(assessment.getLikelihood(), expressionParameters);
 				break;
 			case MAX_IMPACT_LEGAL:
-				ALE = Impact.convertStringImpactToDouble(assessment.getImpactLeg(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+				ALE = Impact.convertStringImpactToDouble(assessment.getImpactLeg(), extendedParameters) * likelihoodToNumeric(assessment.getLikelihood(), expressionParameters);
 				break;
 			case MAX_IMPACT_FINANCIAL:
-				ALE = Impact.convertStringImpactToDouble(assessment.getImpactFin(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+				ALE = Impact.convertStringImpactToDouble(assessment.getImpactFin(), extendedParameters) * likelihoodToNumeric(assessment.getLikelihood(), expressionParameters);
 				break;
 			default:
 				throw new IllegalArgumentException("RiskRegisterComputation#computeProbability: index should be between 0 and 3");
@@ -744,22 +747,27 @@ public class RiskRegisterComputation {
 	}
 
 	/**
-	 * likelihoodToNumeric: <br>
-	 * Retrieve value of likelihood (Acronym).
-	 * 
-	 * @param likelihood
-	 *            The Acronym
-	 * @param parameters
-	 *            List of parameter
-	 * 
-	 * @return The likelihood value
+	 * Parses the given expression and evaluates it by plugging in the parameter values.
+	 * @param expression The expression to parse.
+	 * @param expressionParameters A collection of acronymed parameters.
+	 * In the expression, each acronym is replaced by the value of the associated parameter.
+	 * @return Returns the value resulting from the evaluation of the expression.
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 12, 2015
 	 */
-	public static double likelihoodToNumeric(String likelihood, Map<String, Parameter> parameters) {
-
-		if (parameters.containsKey(likelihood))
-			return parameters.get(likelihood).getValue();
-		// throw error if at this moment the parameter was not yet found
-		throw new IllegalArgumentException("RiskRegisterComputation#likelihoodToNumeric: Acronym cannot be find :" + likelihood);
+	public static double likelihoodToNumeric(String expression, List<AcronymParameter> expressionParameters) {
+		// Create map which assigns a value to a parameter acronym from the given parameter list
+		Map<String, Double> variableValueMap = new HashMap<>();
+		for (AcronymParameter parameter : expressionParameters)
+			variableValueMap.put(parameter.getAcronym(), parameter.getValue());
+		
+		// Parse expression
+		ExpressionParser exprParser = new StringExpressionParser(expression);
+		try {
+			return exprParser.evaluate(variableValueMap);
+		} catch (Exception e) {
+			return 0.0;
+		}
 	}
 
 	/***********************************************************************************************
@@ -793,8 +801,8 @@ public class RiskRegisterComputation {
 	 *            List of calculated netALE nominators (calculated inside netEvaluation)
 	 * @param tmas
 	 *            List of TMA entries generated from the Analysis
-	 * @param parameters
-	 *            List of Parameters of Analysis
+	 * @param allParameters List of all parameters associated to the analysis.
+	 * @param expressionParameters All parameters of the analysis which shall be taken into consideration when evaluating expressions for likelihood.
 	 * @throws TrickException
 	 * 
 	 * @see #computeDeltaALEs(Map, Map, TMA, List)
@@ -802,11 +810,11 @@ public class RiskRegisterComputation {
 	 * @see #computeProbabilityRelativeImpact(Map, Scenario, Measure)
 	 */
 	private static void computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(Map<String, double[]> probabilityRelativeImpacts, Map<String, Impact> impacts, Map<String, Double> rawALEs,
-			Map<String, Double> deltaALEs, final Map<String, Double> netALEs, final List<TMA> tmas, final List<Parameter> parameters) throws TrickException {
+			Map<String, Double> deltaALEs, final Map<String, Double> netALEs, final List<TMA> tmas, final List<Parameter> allParameters, final List<AcronymParameter> expressionParameters) throws TrickException {
 
 		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
 
-		for (Parameter parameter : parameters)
+		for (Parameter parameter : allParameters)
 			if ((parameter instanceof ExtendedParameter))
 				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
 
@@ -836,15 +844,15 @@ public class RiskRegisterComputation {
 				// Integer: The Scenario ID, Integer : Code that defines the biggest Category 0:
 				// reputation, 1: operational, 2: legal, 3: financial
 
-				double ALE = computeALE(impacts, tma.getAssessment(), mapParameters);
+				double ALE = computeALE(impacts, tma.getAssessment(), mapParameters, expressionParameters);
 
 				// System.out.println("Scenario id: "+scenario.getName());
 
 				// compute deltaALE
-				computeDeltaALEs(deltaALEs, ALE, tma, parameters);
+				computeDeltaALEs(deltaALEs, ALE, tma, allParameters);
 
 				// compute RawALE
-				computeRawALE(rawALEs, netALEs, tma, parameters);
+				computeRawALE(rawALEs, netALEs, tma, allParameters);
 
 				// Compute Relative Probability and Relative Impact
 				computeProbabilityRelativeImpact(probabilityRelativeImpacts, key, scenario);

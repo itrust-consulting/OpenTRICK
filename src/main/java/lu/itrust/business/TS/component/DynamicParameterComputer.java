@@ -63,9 +63,16 @@ public class DynamicParameterComputer {
 			// Fetch instance of all (existing) dynamic parameters
 			// and map them by their acronym
 			Map<String, DynamicParameter> dynamicParameters = analysis.findDynamicParametersByAnalysisAsMap();
+			
+			// Make sure that there is a frequency value for each parameter.
+			// If there is none, it exactly means that the frequency is zero.
+			for (String acronym : dynamicParameters.keySet())
+				frequencies.putIfAbsent(acronym, 0.0);
 
-			// Update dynamic parameters with the respective value in the frequencies collection
-			// and create parameter whenever none exists
+			// Now every parameter has an associated frequency value.
+			// For each computed frequency:
+			// - update existing dynamic parameters with the respective value in the frequencies collection; or
+			// - create parameter if none exists.
 			for (String acronym : frequencies.keySet()) {
 				DynamicParameter newParameter = dynamicParameters.get(acronym);
 				if (newParameter == null) {
@@ -77,7 +84,7 @@ public class DynamicParameterComputer {
 				}
 				newParameter.setValue(frequencies.get(acronym));
 			}
-			
+
 			// Save everything
 			daoAnalysis.saveOrUpdate(analysis);
 		}

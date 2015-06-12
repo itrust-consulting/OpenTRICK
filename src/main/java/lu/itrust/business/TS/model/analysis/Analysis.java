@@ -74,7 +74,7 @@ import org.hibernate.annotations.CascadeType;
  * </ul>
  * 
  * 
- * @author itrust consulting s.a r.l. - SME,BJA
+ * @author itrust consulting s.a r.l. - SME,BJA,SMU
  * @version 0.1
  * @since 2012-08-21
  */
@@ -1203,6 +1203,24 @@ public class Analysis implements Cloneable {
 	 */
 	public List<Parameter> getParameters() {
 		return parameters;
+	}
+
+	/**
+	 * Gets the list of all parameters that shall be taken into consideration
+	 * whenever an expression (e.g. for likelihood) is evaluated.
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
+	 */
+	public List<AcronymParameter> getExpressionParameters() {
+		// We assume that all parameters that have an acronym can be used in an expression
+		// Maybe we want to change this in the future (checking parameter.type); then this is the place to act.
+		// In that case, we must update
+		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer), so in particular
+		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
+		List<AcronymParameter> expressionParameters = new ArrayList<>();
+		for (Parameter parameter : this.parameters)
+			if (parameter instanceof AcronymParameter)
+				expressionParameters.add((AcronymParameter)parameter);
+		return expressionParameters;
 	}
 
 	/**

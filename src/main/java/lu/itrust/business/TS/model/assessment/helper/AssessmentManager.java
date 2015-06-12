@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.model.assessment.helper;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -19,6 +20,8 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.expressions.ExpressionParser;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -308,15 +311,21 @@ public class AssessmentManager {
 	 * @param parameters A list of parameters which are known to the expression evaluation engine.
 	 * The latter replaces each encountered parameter name in an expression by its respective value.
 	 * @return Returns the computed value.
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 12, 2015
 	 */
 	private static double StringToDouble(String expression, List<AcronymParameter> parameters) {
+		// Create map which assigns a value to a parameter acronym from the given parameter list
+		Map<String, Double> variableValueMap = new HashMap<>();
+		for (AcronymParameter parameter : parameters)
+			variableValueMap.put(parameter.getAcronym(), parameter.getValue());
+		
+		// Parse expression
+		ExpressionParser exprParser = new StringExpressionParser(expression);
 		try {
-			for (AcronymParameter parameter : parameters)
-				if (parameter.getAcronym().equalsIgnoreCase(expression))
-					return parameter.getValue();
-			return Double.parseDouble(expression);
+			return exprParser.evaluate(variableValueMap);
 		} catch (Exception e) {
-			return 0;
+			return 0.0;
 		}
 	}
 
