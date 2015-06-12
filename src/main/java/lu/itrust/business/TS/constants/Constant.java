@@ -671,6 +671,18 @@ public class Constant {
 	public static final String PARAMETER_LIFETIME_DEFAULT = "lifetime_default";
 	public static final String PARAMETER_EXTERNAL_SETUP_RATE = "external_setup_rate";
 	public static final String PARAMETER_INTERNAL_SETUP_RATE = "internal_setup_rate";
+	/**
+	 * The name of the parameter which defines the time span over which notifications
+	 * shall be aggregated in order to compute the associated dynamic parameters.
+	 */
+	public static final String PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = "dynamic_parameter_timespan";
+	/**
+	 * The name of the parameter specifying the probability that an incident occurs after
+	 * an external notification of a given severity has been issued.
+	 * <br>
+	 * This constant contains a placeholder "{0}" where the severity level should be plugged in.
+	 */
+	public static final String PARAMETER_EXTERNAL_NOTIFICATION_SEVERITY_PROBABILITY = "external_notification_severity{0}";
 
 	/** List of Constants for the Sqlite Table "assessment" */
 	public static final String ASSESSMENT_COMMENT = MEASURE_COMMENT;
@@ -758,5 +770,22 @@ public class Constant {
 	public static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
 
 	public static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
+
+
+	/* **********************************************************************************************
+	   EXTERNAL NOTIFICATIONS & DYNAMIC PARAMETERS
+	   **********************************************************************************************/
+
+	/** The minimum value of the severity which an external notification can have. */
+	public static final int EXTERNAL_NOTIFICATION_MIN_SEVERITY = 0;
+
+	/** The maximum value of the severity which an external notification can have. */
+	public static final int EXTERNAL_NOTIFICATION_MAX_SEVERITY = 5;
+
+	/**
+	 * The default value for the PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN parameter.
+	 * Unit: seconds
+	 */
+	public static final int DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = 86400 * 30; // 1 month
 	
 }

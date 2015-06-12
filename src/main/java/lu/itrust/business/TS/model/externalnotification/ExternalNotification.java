@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -45,8 +46,7 @@ public class ExternalNotification {
 
 	/**
 	 * Represents the severity of the notification.
-	 * Values lie in the range [0,10] where 0 is least and 10 is most severe.
-	 * The scale is logarithmic.
+	 * Values lie in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
 	 */
 	@Column(name = "dtSeverity", nullable = false)
 	private int severity;
@@ -118,8 +118,8 @@ public class ExternalNotification {
 	 * Sets the severity of this notification.
 	 */
 	public void setSeverity(int severity) throws TrickException {
-		if (severity < 0 || severity > 10)
-			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [0,10].");
+		if (severity < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || severity > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
+			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY, Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY });
 		this.severity = severity;
 	}
 }

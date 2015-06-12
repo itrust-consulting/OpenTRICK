@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.controller;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.component.DynamicParameterComputer;
@@ -13,6 +15,7 @@ import lu.itrust.business.TS.model.api.ApiExpressionRequest;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiResult;
+import lu.itrust.business.TS.model.externalnotification.ExternalNotificationOccurrence;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.expressions.InvalidExpressionException;
 import lu.itrust.business.expressions.StringExpressionParser;
@@ -104,9 +107,8 @@ public class ControllerApi {
 
 		// TODO run worker which computes the dynamic parameters
 		// TODO For now, we use a hard-coded user; consider authenticating
-		// TODO hardcoded timespan value, consider using parameter
 		String userName = "admin";
-		_dpc.computeForAllAnalysesOfUser(userName, 86400);
+		_dpc.computeForAllAnalysesOfUser(userName);
 		
 		// Success
 		return new ApiResult(0);
@@ -127,13 +129,15 @@ public class ControllerApi {
 		// Read request data
 		final long maxTimestamp = java.time.Instant.now().getEpochSecond(); // now
 		final long minTimestamp = maxTimestamp - data.getTimespan(); // some time ago
-		final long unitDuration = data.getUnitDuration();
+		final double unitDuration = data.getUnitDuration();
+		final double timespanInUnits = data.getTimespan() / unitDuration;
 		StringExpressionParser exprParser = new StringExpressionParser(data.getExpression());
 		
 		try {
 			// Compute frequencies for all involved variables
 			Collection<String> variablesInvolved = exprParser.getInvolvedVariables();
-			Map<String, Double> variableValues = serviceExternalNotification.getLikelihoods(variablesInvolved, minTimestamp, maxTimestamp, unitDuration);
+			Map<String, List<ExternalNotificationOccurrence>> occurrencesByCategory = serviceExternalNotification.getOccurrences(variablesInvolved, minTimestamp, maxTimestamp);
+			Map<String, Double> variableValues = ExternalNotificationHelper.computeLikelihoods(occurrencesByCategory, timespanInUnits, new HashMap<>());
 
 			// Evaluate expression itself
 			double value = exprParser.evaluate(variableValues);
