@@ -607,6 +607,7 @@ function AssessmentImpactFieldEditor(element) {
 	};
 }
 
+/*
 AssessmentProbaFieldEditor.prototype = new FieldEditor();
 
 function AssessmentProbaFieldEditor(element) {
@@ -664,6 +665,12 @@ function AssessmentProbaFieldEditor(element) {
 		return new AssessmentFieldEditor().Save(that);
 	};
 
+}
+*/
+
+AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
+function AssessmentProbaFieldEditor(element) {
+	FieldEditor.call(this, element);
 }
 
 function SelectText(element) {

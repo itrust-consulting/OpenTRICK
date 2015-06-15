@@ -896,7 +896,8 @@ public class ControllerEditField {
 					e.printStackTrace();
 				}
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
-				chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+				//chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+				chooses = serviceParameter.getAllExpressionParameterAcronymsFromAnalysis(id);
 				if (fieldEditor.getValue().equals("NA"))
 					fieldEditor.setValue("0");
 			}

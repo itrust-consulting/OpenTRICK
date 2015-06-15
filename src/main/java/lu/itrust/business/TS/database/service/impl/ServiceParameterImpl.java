@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
@@ -461,5 +462,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	@Override
 	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) throws Exception {
 		return daoParameter.getDynamicParametersFromAnalysis(idAnalysis);
+	}
+
+	@Override
+	public List<String> getAllExpressionParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoParameter
+				.getAllExpressionParametersFromAnalysis(idAnalysis).stream()
+				.map(parameter -> parameter.getAcronym())
+				.collect(Collectors.toList());
 	}
 }

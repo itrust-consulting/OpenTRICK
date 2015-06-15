@@ -4,12 +4,15 @@
 package lu.itrust.business.TS.validator.field;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.expressions.ExpressionParser;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
  * @author eomar
@@ -26,7 +29,30 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 		return false;
 	}
 	
+	/**
+	 * Wrapper for the #IsValidExpression(String expression, List<String> variables) method
+	 * which only performs casting of the arguments.
+	 * @param expression An arithmetic expression involving basic operations, parentheses and literals.
+	 * @param variables The set of allowed variables in the expression.
+	 * @return Returns true iff the expression has no syntax errors and no unknown variables.
+	 */
+	protected static boolean IsValidExpression(Object expression, Object[] variables) {
+		List<String> variablesAsString = new ArrayList<>();
+		for (int i = 0; i < variables.length; i++)
+			variablesAsString.add(variables[i].toString());
+		return IsValidExpression(expression.toString(), variablesAsString);
+	}
 	
+	/**
+	 * Checks the given expression for syntax errors.
+	 * @param expression An arithmetic expression involving basic operations, parentheses and literals.
+	 * @param variables The set of allowed variables in the expression.
+	 * @return Returns true iff the expression has no syntax errors and no unknown variables.
+	 */
+	protected static boolean IsValidExpression(String expression, List<String> variables) {
+		ExpressionParser exprParser = new StringExpressionParser(expression);
+		return exprParser.isValid(variables);
+	}
 
 	@Override
 	public String validate(Object o, String fieldName, Object candidate) throws TrickException {

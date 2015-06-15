@@ -1,7 +1,9 @@
 package lu.itrust.business.expressions;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -142,8 +144,7 @@ public class StringExpressionParser implements ExpressionParser {
 			if (token.getType().equals(TokenType.TimesOperator)) {
 				value *= this.evaluateParentheses(source, variableValueMap);
 			}
-			// If token is '/', divide by the next factor
-			// TODO: not sure how to handle division by zero (exception? infinity?)
+			// If token is '/', divide by the next factor. Note that division by zero yields Double.Infinity.
 			else if (token.getType().equals(TokenType.DivideOperator)) {
 				value /= this.evaluateParentheses(source, variableValueMap);
 			}
@@ -194,5 +195,23 @@ public class StringExpressionParser implements ExpressionParser {
 		
 		// Return the result of the computation
 		return value;
+	}
+
+	/** @{inheritDoc} */
+	@Override
+	public boolean isValid(List<String> variables) {
+		// Assign an arbitrary value to each variable.
+		// Since we are dealing with doubles, dividing by zero does not throw exceptions.
+		Map<String, Double> values = new HashMap<>();
+		for (String variable : variables)
+			values.put(variable, 0.0);
+		
+		// Evaluate. If this succeeds, the expression is valid.
+		try {
+			this.evaluate(values);
+			return true;
+		} catch (Exception ex) {
+			return false;
+		}
 	}
 }

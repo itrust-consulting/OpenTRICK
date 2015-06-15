@@ -123,7 +123,7 @@ public class AssessmentValidator extends ValidatorFieldImpl {
 		case "likelihood":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.assessment.probability.null::Probability cannot be empty";
-			else if (Double.isNaN(toNumeric(candidate.toString())) && !Contains(choose, candidate))
+			else if (Double.isNaN(toNumeric(candidate.toString())) && !IsValidExpression(candidate, choose))
 				return "error.assessment.invalid.probability::Probability is not valid";
 			break;
 		}

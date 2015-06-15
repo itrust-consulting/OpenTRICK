@@ -306,7 +306,30 @@ public class AssessmentManager {
 	}
 
 	/**
-	 * Parses the given expression and replaces any of the given parameters by their respective value.
+	 * Parses the given expression for an assessment IMPACT and replaces any of the given parameters by their respective value.
+	 * @param expression The expression to parse.
+	 * @param parameters A list of parameters which are known to the expression evaluation engine.
+	 * The latter replaces each encountered parameter name in an expression by its respective value.
+	 * @return Returns the computed value.
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 15, 2015
+	 */
+	private static double ImpactStringToDouble(String expression, List<AcronymParameter> parameters) {
+		// Parse number
+		try {
+			return Double.parseDouble(expression);
+		}
+		catch (NumberFormatException ex) {
+			// Parse parameter
+			for (AcronymParameter parameter : parameters)
+				if (parameter.getAcronym().equals(expression))
+					return parameter.getValue();
+			return 0.0;
+		}
+	}
+	
+	/**
+	 * Parses the given expression for an assessment PROBABILITY and replaces any of the given parameters by their respective value.
 	 * @param expression The expression to parse.
 	 * @param parameters A list of parameters which are known to the expression evaluation engine.
 	 * The latter replaces each encountered parameter name in an expression by its respective value.
@@ -314,7 +337,7 @@ public class AssessmentManager {
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 12, 2015
 	 */
-	private static double StringToDouble(String expression, List<AcronymParameter> parameters) {
+	private static double ProbabilityStringToDouble(String expression, List<AcronymParameter> parameters) {
 		// Create map which assigns a value to a parameter acronym from the given parameter list
 		Map<String, Double> variableValueMap = new HashMap<>();
 		for (AcronymParameter parameter : parameters)
@@ -348,11 +371,11 @@ public class AssessmentManager {
 	 * The latter replaces each encountered parameter name in an expression by its respective value.
 	 */
 	public static void ComputeAlE(Assessment assessment, List<AcronymParameter> expressionParameters) throws TrickException {
-		double impactRep = StringToDouble(assessment.getImpactRep(), expressionParameters);
-		double impactOP = StringToDouble(assessment.getImpactOp(), expressionParameters);
-		double impactLeg = StringToDouble(assessment.getImpactLeg(), expressionParameters);
-		double impactFin = StringToDouble(assessment.getImpactFin(), expressionParameters);
-		double probability = StringToDouble(assessment.getLikelihood(), expressionParameters);
+		double impactRep = ImpactStringToDouble(assessment.getImpactRep(), expressionParameters);
+		double impactOP = ImpactStringToDouble(assessment.getImpactOp(), expressionParameters);
+		double impactLeg = ImpactStringToDouble(assessment.getImpactLeg(), expressionParameters);
+		double impactFin = ImpactStringToDouble(assessment.getImpactFin(), expressionParameters);
+		double probability = ProbabilityStringToDouble(assessment.getLikelihood(), expressionParameters);
 		assessment.setImpactReal(Math.max(impactRep, Math.max(impactOP, Math.max(impactLeg, impactFin))));
 		assessment.setLikelihoodReal(probability);
 		assessment.setALE(assessment.getImpactReal() * probability);

@@ -1,6 +1,7 @@
 package lu.itrust.business.expressions;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,4 +25,11 @@ public interface ExpressionParser {
 	 * @throws IllegalArgumentException Throws an exception if a variable has no assigned value.
 	 */
 	public double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException, IllegalArgumentException;
+
+	/**
+	 * Checks the given expression for syntax errors.
+	 * @param variables The set of allowed variables in the expression.
+	 * @return Returns true iff the expression has no syntax errors and no unknown variables.
+	 */
+	public boolean isValid(List<String> variables);
 }
