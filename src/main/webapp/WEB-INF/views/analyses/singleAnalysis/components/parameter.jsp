@@ -110,6 +110,35 @@
 			</div>
 		</div>
 	</div>
+	<div class="col-md-6">
+		<span id="anchorParameter_Probability" class="anchor"></span>
+		<div class="panel panel-default" id="Scale_Probability">
+			<div class="panel-heading">
+				<fmt:message key="label.parameter.dynamic.probability" />
+			</div>
+			<div class="panel-body">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th class="textaligncenter"><fmt:message key="label.parameter.acronym" /></th>
+							<th class="textaligncenter"><fmt:message key="label.parameter.value" /> <fmt:message key="label.assessment.likelihood.unit" /></th>
+						</tr>
+					</thead>
+					<tbody>
+						<fmt:setLocale value="fr" scope="session" />
+						<c:forEach items="${simpleParameters[3]}" var="parameter" varStatus="status">
+							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
+								<!--<td>${itemInformation.id}</td>-->
+								<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
+								<td class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
+							</tr>
+						</c:forEach>
+						<fmt:setLocale value="${language}" scope="session" />
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="row tab-pane" id="tabParameterOther">
 	<div class="col-md-6">
@@ -176,6 +205,7 @@
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.soa" /></th>
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.mandatory_phase" /></th>
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.importance_threshold" /></th>
+							<th class="textaligncenter"><fmt:message key="label.parameter.simple.dynamic_parameter_timespan" /></th>
 						</tr>
 					</thead>
 					<tbody>

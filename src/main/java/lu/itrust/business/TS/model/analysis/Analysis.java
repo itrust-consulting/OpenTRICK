@@ -1844,15 +1844,18 @@ public class Analysis implements Cloneable {
 
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitSimpleParameters(List<Parameter> parameters) {
-		List<?>[] splits = new List<?>[3];
+		List<?>[] splits = new List<?>[4];
 		splits[0] = new ArrayList<Parameter>();
 		splits[1] = new ArrayList<ExtendedParameter>();
 		splits[2] = new ArrayList<MaturityParameter>();
+		splits[3] = new ArrayList<DynamicParameter>();
 		for (Parameter parameter : parameters) {
-			if (parameter.getType().getLabel().equals("SINGLE"))
+			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME))
 				((List<Parameter>) splits[0]).add(parameter);
-			else if (parameter.getType().getLabel().equals("MAXEFF"))
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
 				((List<Parameter>) splits[1]).add(parameter);
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
+				((List<Parameter>) splits[3]).add(parameter);
 			else
 				((List<Parameter>) splits[2]).add(parameter);
 		}

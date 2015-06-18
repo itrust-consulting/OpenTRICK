@@ -1429,6 +1429,16 @@ public class ImportAnalysis {
 			daoParameterType.save(parameterType);
 		}
 
+		// ****************************************************************
+		// * Create simple parameter DYNAMIC_PARAMETER_TIMESPAN
+		// * (which is never part of an imported analysis)
+		// ****************************************************************
+
+		parameter = new Parameter();
+		parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
+		parameter.setType(daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SINGLE));
+		parameter.setValue(Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
+		this.analysis.addAParameter(parameter);
 	}
 
 	/**
