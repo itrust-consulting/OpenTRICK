@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExpressionRequest;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
@@ -21,7 +23,9 @@ import lu.itrust.business.expressions.InvalidExpressionException;
 import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,9 +57,18 @@ public class ControllerApi {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	@Value("${app.settings.dynamicparameters.computationdelayseconds}")
+	private Integer computationDelayInSeconds;
+
 	@Autowired
-	private DynamicParameterComputer _dpc;
-	
+	private DynamicParameterComputer dynamicParameterComputer;
+
+	@Autowired
+	private ThreadPoolTaskScheduler taskScheduler;
+
+	@Autowired
+	private WorkersPoolManager poolManager;
+
 	/**
 	 * Method is called whenever an exception of type TrickException
 	 * is thrown in this controller.
@@ -105,11 +118,13 @@ public class ControllerApi {
 			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj));
 		}
 
-		// TODO run worker which computes the dynamic parameters
 		// TODO For now, we use a hard-coded user; consider authenticating
 		String userName = "admin";
-		_dpc.computeForAllAnalysesOfUser(userName);
-		
+
+		// Trigger execution of worker which computes dynamic parameters.
+		// This method only schedules the task if it does not have been scheduled yet for the given user.
+		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+
 		// Success
 		return new ApiResult(0);
 	}
