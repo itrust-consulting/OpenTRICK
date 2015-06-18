@@ -1,9 +1,12 @@
 package lu.itrust.business.TS.controller;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
@@ -26,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -85,19 +89,11 @@ public class ControllerApi {
 	 * Home of the API. Always returns success.
 	 */
 	@RequestMapping
-	public Object home() {
-		return new ApiResult(0);
-	}
-	
-	/**
-	 * Lists all the external notifications in the database.
-	 * Used for debugging purposes; this method will be removed in the production version.
-	 */
-	@RequestMapping(value = "/list", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public Object list() throws Exception {
-		// Fetch all entities from the database
-		// and convert them to exportable API objects
-		return ExternalNotificationHelper.convertList(serviceExternalNotification.getAll());		
+	public Object home(Principal principal) {
+		if (principal == null)
+			return new ApiResult(0, "<not logged in>");
+		else
+			return new ApiResult(0, principal.getName());
 	}
 	
 	/**
@@ -111,26 +107,38 @@ public class ControllerApi {
 	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
-	public Object notify(@RequestBody ApiNotifyRequest request) throws Exception {
+	@PreAuthorize(Constant.ROLE_MIN_USER)
+	// TODO create role ROLE_EXTERNALSOURCE or something
+	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
 		// For each of the given external notifications
 		for (ApiExternalNotification apiObj : request.getData()) {
 			// Create entity and insert it into database
 			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj));
 		}
 
-		// TODO For now, we use a hard-coded user; consider authenticating
-		String userName = "admin";
-
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been scheduled yet for the given user.
-		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+		WorkerComputeDynamicParameters.trigger(principal.getName(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
 
 		// Success
 		return new ApiResult(0);
 	}
+
+	/**
+	 * Lists all the external notifications in the database.
+	 * Used for debugging purposes; this method will be removed in the production version.
+	 * THIS IS A DEBUG METHOD WHICH DOES NOT PERFORM ACCESS RIGHT VERIFICATION.
+	 */
+	@RequestMapping(value = "/list", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public Object list() throws Exception {
+		// Fetch all entities from the database
+		// and convert them to exportable API objects
+		return ExternalNotificationHelper.convertList(serviceExternalNotification.getAll());		
+	}
 	
 	/**
 	 * Evaluates the given expression by plugging in the real-time values of the variables.
+	 * Used for debugging purposes; this method will be removed in the production version.
 	 * THIS IS A DEBUG METHOD WHICH DOES NOT PERFORM ACCESS RIGHT VERIFICATION.
 	 */
 	@RequestMapping(value = "/eval", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

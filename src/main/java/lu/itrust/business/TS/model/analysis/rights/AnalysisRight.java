@@ -9,13 +9,13 @@ import lu.itrust.business.TS.exception.TrickException;
  * AnalysisRight: <br>
  * Detailed description...
  *
- * @author smenghi, itrust consulting s.à.rl. :
+ * @author smenghi, smuller, itrust consulting s.à.rl.
  * @version
  * @since Jan 9, 2014
  */
 public enum AnalysisRight {
 
-	ALL(0), EXPORT(1), MODIFY(2), READ(3);
+	ALL(0), EXPORT(1), MODIFY(2), READ(3), SETDYNAMICPARAMETERS(4);
 
 	/**
 	 * Constructor:<br>
