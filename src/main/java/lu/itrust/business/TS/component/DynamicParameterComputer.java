@@ -11,6 +11,7 @@ import lu.itrust.business.TS.database.dao.DAOParameterType;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -31,9 +32,12 @@ public class DynamicParameterComputer {
 
 	@Autowired
 	private DAOParameterType daoParameterType;
-	
+
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
+
+	@Autowired
+	private AssessmentManager assessmentManager;
 	
 	/**
 	 * Computes all dynamic parameters for all analyses for the given user.
@@ -98,18 +102,21 @@ public class DynamicParameterComputer {
 			// - update existing dynamic parameters with the respective value in the frequencies collection; or
 			// - create parameter if it does not exist.
 			for (String acronym : likelihoods.keySet()) {
-				DynamicParameter newParameter = dynamicParameters.get(acronym);
-				if (newParameter == null) {
-					newParameter = new DynamicParameter();
-					newParameter.setAcronym(acronym);
-					newParameter.setDescription("dynamic:" + acronym); // we won't need this, it just looks nice
-					newParameter.setType(dynamicParameterType);
-					analysis.getParameters().add(newParameter);
+				DynamicParameter parameter = dynamicParameters.get(acronym);
+				if (parameter == null) {
+					parameter = new DynamicParameter();
+					parameter.setAcronym(acronym);
+					parameter.setDescription("dynamic:" + acronym); // we won't need this, it just looks nice
+					parameter.setType(dynamicParameterType);
+					analysis.getParameters().add(parameter);
 				}
 				
 				// TODO Consider using a minimum value?
-				newParameter.setValue(likelihoods.get(acronym));
+				parameter.setValue(likelihoods.get(acronym));
 			}
+
+			// Update assessment to reflect the new values of the dynamic parameters
+			assessmentManager.UpdateAssessment(analysis);
 
 			// Save everything
 			daoAnalysis.saveOrUpdate(analysis);
