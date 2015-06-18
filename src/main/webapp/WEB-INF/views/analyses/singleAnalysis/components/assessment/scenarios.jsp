@@ -21,7 +21,7 @@
 				<c:if test="${!show_cssf}">
 					<th style="width: 5%"><fmt:message key="label.assessment.impact" /></th>
 				</c:if>
-				<th style="width: 5%"><fmt:message key="label.assessment.likelihood" /></th>
+				<th style="width: 10%"><fmt:message key="label.assessment.likelihood" /></th>
 				<c:choose>
 					<c:when test="${show_uncertainty}">
 						<th style="width: 5%"><fmt:message key="label.assessment.uncertainty" /></th>
@@ -135,7 +135,7 @@
 								onclick="return editField(this);"><spring:message text="${assessment.likelihood}" /></td>
 						</c:when>
 						<c:otherwise>
-							<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);" data-real-value="${fct:round(assessment.likelihood,2)}"><c:catch>
+							<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);" data-real-value="${assessment.likelihood}"><c:catch>
 									<fmt:formatNumber value="${fct:round(assessment.likelihood,2)}" maxFractionDigits="2" var="likelihood" />
 								</c:catch> <c:choose>
 									<c:when test="${not empty likelihood }">
