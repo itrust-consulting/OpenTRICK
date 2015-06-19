@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +47,7 @@ public class DynamicParameterComputer {
 	 */
 	public void computeForAllAnalysesOfUser(String userName, String prefix) throws Exception {
 		// Fetch all analyses which the user can access
-		List<AnalysisRight> rightsRequired = new ArrayList<>();
-		rightsRequired.add(AnalysisRight.SETDYNAMICPARAMETERS);
-		List<Analysis> analyses = daoAnalysis.getFromUserNameAndNotEmpty("admin", rightsRequired);
+		List<Analysis> analyses = daoAnalysis.getFromUserNameAndNotEmpty("admin", AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
 
 		// Fetch the 'DYNAMIC' parameter type or create it, if if does not exist yet/anymore
 		ParameterType dynamicParameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);

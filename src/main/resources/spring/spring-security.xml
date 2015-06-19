@@ -12,6 +12,7 @@
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
+		<intercept-url pattern="/Api/**" access="ROLE_IDS" />
 		<form-login login-page="/Login" default-target-url="/Home" username-parameter="j_username" password-parameter="j_password" login-processing-url="/j_spring_security_check"
 			authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
 		<logout logout-success-url="/Home" logout-url="/j_spring_security_logout" />

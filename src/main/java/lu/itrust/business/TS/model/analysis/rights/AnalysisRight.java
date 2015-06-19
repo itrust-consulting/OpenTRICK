@@ -15,7 +15,7 @@ import lu.itrust.business.TS.exception.TrickException;
  */
 public enum AnalysisRight {
 
-	ALL(0), EXPORT(1), MODIFY(2), READ(3), SETDYNAMICPARAMETERS(4);
+	ALL(0), EXPORT(1), MODIFY(2), READ(3);
 
 	/**
 	 * Constructor:<br>
