@@ -28,6 +28,13 @@ public class ExternalNotification {
 	 */
 	@Column(name = "dtCategory", nullable = false)
 	private String category;
+
+	/**
+	 * Represents the name of the user who reported the notification.
+	 * Used to identify the notification source.
+	 */
+	@Column(name = "dtSourceUserName", nullable = false)
+	private String sourceUserName;
 	
 	/**
 	 * Represents the time when the notification was originally issued
@@ -122,4 +129,19 @@ public class ExternalNotification {
 			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY, Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY });
 		this.severity = severity;
 	}
+
+	/**
+	 * Gets the name of the reporting user.
+	 */
+	public String getSourceUserName() {
+		return sourceUserName;
+	}
+
+	/**
+	 * Sets the name of the reporting user.
+	 */
+	public void setSourceUserName(String sourceUserName) {
+		this.sourceUserName = sourceUserName;
+	}
+
 }

@@ -107,15 +107,17 @@ public class ControllerApi {
 	 */
 	@RequestMapping(value = "/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
+		String userName = principal.getName();
+
 		// For each of the given external notifications
 		for (ApiExternalNotification apiObj : request.getData()) {
 			// Create entity and insert it into database
-			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj));
+			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, userName));
 		}
 
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been scheduled yet for the given user.
-		WorkerComputeDynamicParameters.trigger(principal.getName(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
 
 		// Success
 		return new ApiResult(0);
@@ -139,7 +141,9 @@ public class ControllerApi {
 	 * THIS IS A DEBUG METHOD WHICH DOES NOT PERFORM ACCESS RIGHT VERIFICATION.
 	 */
 	@RequestMapping(value = "/eval", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public Object eval(@RequestBody ApiExpressionRequest data) throws Exception {
+	public Object eval(Principal principal, @RequestBody ApiExpressionRequest data) throws Exception {
+		String userName = principal.getName();
+
 		// Verify data passed to API
 		if (data.getTimespan() <= 0)
 			throw new TrickException("error.api.timespan_negative", "Timespan must be positive.");
@@ -156,7 +160,7 @@ public class ControllerApi {
 		try {
 			// Compute frequencies for all involved variables
 			Collection<String> variablesInvolved = exprParser.getInvolvedVariables();
-			Map<String, List<ExternalNotificationOccurrence>> occurrencesByCategory = serviceExternalNotification.getOccurrences(variablesInvolved, minTimestamp, maxTimestamp);
+			Map<String, List<ExternalNotificationOccurrence>> occurrencesByCategory = serviceExternalNotification.getOccurrences(variablesInvolved, minTimestamp, maxTimestamp, userName);
 			Map<String, Double> variableValues = ExternalNotificationHelper.computeLikelihoods(occurrencesByCategory, timespanInUnits, new HashMap<>());
 
 			// Evaluate expression itself

@@ -99,7 +99,7 @@ public class DynamicParameterComputer {
 			final double timespanInUnits = timespan / unitDuration;
 			
 			// Compute likelihoods
-			Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(minTimestamp, maxTimestamp), timespanInUnits, allParameterValues);
+			Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(minTimestamp, maxTimestamp, userName), timespanInUnits, allParameterValues);
 
 			// Fetch instances of all (existing) dynamic parameters
 			// and map them by their acronym
@@ -108,7 +108,8 @@ public class DynamicParameterComputer {
 			// Make sure that there is a likelihood value for each parameter.
 			// If there is none, it exactly means that the likelihood is zero.
 			for (String key : dynamicParameters.keySet())
-				likelihoods.putIfAbsent(key, 0.0);
+				if (key.startsWith(prefix))
+					likelihoods.putIfAbsent(key.substring(prefix.length()), 0.0);
 
 			// Now every parameter has an associated likelihood value.
 			// For each computed frequency:
@@ -126,7 +127,7 @@ public class DynamicParameterComputer {
 					parameter.setType(dynamicParameterType);
 					analysis.getParameters().add(parameter);
 				}
-				
+
 				// TODO Consider using a minimum value?
 				parameter.setValue(likelihoods.get(key));
 			}

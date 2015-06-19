@@ -26,13 +26,14 @@ public class ExternalNotificationHelper {
 	 * @return Returns the created entity.
 	 * @throws TrickException
 	 */
-	public static ExternalNotification createEntityBasedOn(ApiExternalNotification apiObj) throws TrickException {
+	public static ExternalNotification createEntityBasedOn(ApiExternalNotification apiObj, String userName) throws TrickException {
 		ExternalNotification modelObj = new ExternalNotification();
 		// Copy all properties from API object to a new entity
 		modelObj.setCategory(apiObj.getC());
 		modelObj.setTimestamp(apiObj.getT());
 		modelObj.setNumber(apiObj.getN());
 		modelObj.setSeverity(apiObj.getS());
+		modelObj.setSourceUserName(userName);
 		return modelObj;
 	}
 

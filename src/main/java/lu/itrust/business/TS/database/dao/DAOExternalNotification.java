@@ -28,19 +28,21 @@ public interface DAOExternalNotification {
 	 * @param categories The categories which notifications must have in order to be included in the result.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
+	 * @param sourceUserName The name of the user who has reported the notifications to consider.
 	 * @return Returns the occurrence for each category specified in the 'categories' parameter.
 	 * If a category is unknown or has no associated notifications, it may be omitted in the list.
 	 * Here, 'occurrence' denotes the sum of all 'number' columns of the considered notifications.
 	 */
-	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception;
+	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception;
 
 	/**
 	 * Counts all notifications (summing over the 'number' column) in the database in the given time range,
 	 * grouping by category and severity.
 	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
 	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
+	 * @param sourceUserName The name of the user who has reported the notifications to consider.
 	 * @return Returns the occurrence for each category in the given scope.
 	 * Here, 'occurrence' denotes the sum of all 'number' columns of the considered notifications.
 	 */
-	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp) throws Exception;
+	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception;
 }

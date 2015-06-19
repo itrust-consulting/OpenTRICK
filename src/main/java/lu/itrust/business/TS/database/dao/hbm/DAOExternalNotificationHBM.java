@@ -73,7 +73,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp) throws Exception {
+	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception {
 		// NB: if the 'categories' list is empty, the HQL constructed below will not work
 		// because we use Restrictions.in() - it will produce something like "WHERE category IN ()"
 		// which is a syntax error.
@@ -92,6 +92,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 				.createCriteria(ExternalNotification.class)
 				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
 				.add(Restrictions.in("category", categories))
+				.add(Restrictions.eq("sourceUserName", sourceUserName))
 				.setProjection(projections)
 				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
 		
@@ -101,7 +102,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp) throws Exception {
+	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception {
 		// Define what will be part of the result (SELECT)
 		ProjectionList projections = Projections.projectionList();
 		projections.add(Projections.groupProperty("category"), "category");
@@ -112,6 +113,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		Criteria criteria = getSession()
 				.createCriteria(ExternalNotification.class)
 				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
+				.add(Restrictions.eq("sourceUserName", sourceUserName))
 				.setProjection(projections)
 				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
 		
