@@ -17,6 +17,7 @@ import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificat
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.expressions.StringExpressionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,8 +44,9 @@ public class DynamicParameterComputer {
 	/**
 	 * Computes all dynamic parameters for all analyses for the given user.
 	 * @param userName The name of the user to compute the dynamic parameters for.
+	 * @param prefix The prefix to be added in front of the name of each parameter.
 	 */
-	public void computeForAllAnalysesOfUser(String userName) throws Exception {
+	public void computeForAllAnalysesOfUser(String userName, String prefix) throws Exception {
 		// Fetch all analyses which the user can access
 		List<AnalysisRight> rightsRequired = new ArrayList<>();
 		rightsRequired.add(AnalysisRight.SETDYNAMICPARAMETERS);
@@ -97,25 +99,26 @@ public class DynamicParameterComputer {
 			
 			// Make sure that there is a likelihood value for each parameter.
 			// If there is none, it exactly means that the likelihood is zero.
-			for (String acronym : dynamicParameters.keySet())
-				likelihoods.putIfAbsent(acronym, 0.0);
+			for (String key : dynamicParameters.keySet())
+				likelihoods.putIfAbsent(key, 0.0);
 
 			// Now every parameter has an associated likelihood value.
 			// For each computed frequency:
 			// - update existing dynamic parameters with the respective value in the frequencies collection; or
 			// - create parameter if it does not exist.
-			for (String acronym : likelihoods.keySet()) {
-				DynamicParameter parameter = dynamicParameters.get(acronym);
+			for (String key : likelihoods.keySet()) {
+				String parameterName = StringExpressionHelper.makeValidVariable(prefix + key);
+				DynamicParameter parameter = dynamicParameters.get(parameterName);
 				if (parameter == null) {
 					parameter = new DynamicParameter();
-					parameter.setAcronym(acronym);
-					parameter.setDescription("dynamic:" + acronym); // we won't need this, it just looks nice
+					parameter.setAcronym(parameterName);
+					parameter.setDescription(Constant.EMPTY_STRING);
 					parameter.setType(dynamicParameterType);
 					analysis.getParameters().add(parameter);
 				}
 				
 				// TODO Consider using a minimum value?
-				parameter.setValue(likelihoods.get(acronym));
+				parameter.setValue(likelihoods.get(parameterName));
 			}
 
 			// Update assessment to reflect the new values of the dynamic parameters

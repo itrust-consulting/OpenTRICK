@@ -79,7 +79,7 @@ public class WorkerComputeDynamicParameters implements Worker {
 				working = true;
 			}
 			
-			dynamicParameterComputer.computeForAllAnalysesOfUser(userName);
+			dynamicParameterComputer.computeForAllAnalysesOfUser(userName, userName + "_");
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
