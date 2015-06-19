@@ -120,7 +120,9 @@ public class DynamicParameterComputer {
 				if (parameter == null) {
 					parameter = new DynamicParameter();
 					parameter.setAcronym(parameterName);
-					parameter.setDescription(Constant.EMPTY_STRING);
+					// The description/label of dynamic parameters is never used within TRICK service,
+					// we will set a value nevertheless to ease the work for a database maintainer. :-) 
+					parameter.setDescription(String.format("dynamic:%s:%s", userName, key));
 					parameter.setType(dynamicParameterType);
 					analysis.getParameters().add(parameter);
 				}
