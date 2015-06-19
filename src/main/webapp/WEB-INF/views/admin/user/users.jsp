@@ -8,7 +8,8 @@
 	<div class="section" id="section_user">
 		<c:if test="${!empty users}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_user">
-				<li><a href="#" onclick="return newUser();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
+				<li><a href="#" onclick="return newUser(false);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
+				<li><a href="#" onclick="return newUser(true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.addids" text="Add IDS" /> </a></li>
 				<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleUser();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.action.edit" text="Edit" /> </a></li>
 				<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteUser();"><span class="glyphicon glyphicon-remove"></span>

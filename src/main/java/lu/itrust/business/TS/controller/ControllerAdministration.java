@@ -610,6 +610,77 @@ public class ControllerAdministration {
 
 	}
 
+	private User buildUserIDS(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) {
+
+		User user = null;
+		String error = null;
+		String login = "";
+		String password = "";
+		String firstname = "";
+		boolean newUser = false;
+		try {
+			ValidatorField validator = serviceDataValidation.findByClass(User.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new UserValidator());
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			login = jsonNode.get("login").asText();
+			password = jsonNode.get("password").asText();
+			firstname = jsonNode.get("firstName").asText();
+
+			int id = jsonNode.get("id").asInt();
+
+			if (id > 0) {
+				user = serviceUser.get(jsonNode.get("id").asInt());
+			} else {
+				newUser = true;
+				user = new User();
+				user.setLastName(Constant.EMPTY_STRING);
+				user.setEmail(Constant.EMPTY_STRING);
+				user.addRole(serviceRole.getByName(RoleType.ROLE_IDS.name()));
+				userRoles.addAll(user.getRoles());
+				error = validator.validate(user, "login", login);
+				if (error != null)
+					errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
+				else {
+					user.setLogin(login);
+				}
+			}
+
+			if (newUser || !password.equals(Constant.EMPTY_STRING)) {
+
+				error = validator.validate(user, "password", password);
+				if (error != null)
+					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+				else {
+					user.setPassword(password);
+					ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+					user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+				}
+			}
+			error = validator.validate(user, "firstName", firstname);
+			if (error != null)
+				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setFirstName(firstname);
+
+			if (errors.isEmpty())
+				return user;
+			else
+				return null;
+
+		} catch (TrickException e) {
+			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
+			return null;
+		} catch (Exception e) {
+
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return null;
+		}
+
+	}
 	/**
 	 * save: <br>
 	 * Description
@@ -679,6 +750,63 @@ public class ControllerAdministration {
 
 	}
 
+	@RequestMapping(value = "/User/SaveIDS", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Map<String, String> saveUserIDS(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+
+		Map<String, String> errors = new LinkedHashMap<>();
+		try {
+			List<Role> userRoles = new LinkedList<Role>();
+			User user = buildUserIDS(errors, value, locale, userRoles, principal);
+			if (!errors.isEmpty())
+				return errors;
+			RoleType userAccess = RoleType.ROLE_IDS;
+			String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
+			if (user.getId() < 1) {
+				serviceUser.save(user);
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
+						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
+				// give access
+				user.getRoles()
+						.stream()
+						.filter(role -> role.getType() != userAccess)
+						.forEach(
+								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.get.access",
+										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GIVE_ACCESS,
+										user.getLogin(), role.getType().name()));
+			} else {
+				serviceUser.saveOrUpdate(user);
+				/**
+				 * Log
+				 */
+				// remove access
+				userRoles
+						.stream()
+						.filter(role -> !user.hasRole(role))
+						.forEach(
+								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
+										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
+										user.getLogin(), role.getType().name()));
+				// give access
+				user.getRoles()
+						.stream()
+						.filter(role -> !userRoles.contains(role))
+						.forEach(
+								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.grant.access",
+										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
+										user.getLogin(), role.getType().name()));
+			}
+			return errors;
+
+		} catch (Exception e) {
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return errors;
+		}
+
+	}
 	/**
 	 * delete: <br>
 	 * Description

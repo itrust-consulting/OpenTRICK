@@ -1,4 +1,6 @@
 function saveUser(form) {
+	isIDSUser = !!$("#user_form").data("trick-isIDSUser");
+
 	result = "";
 	var idUser = $("#" + form).find("#user_id");
 	if (!idUser.length)
@@ -7,7 +9,7 @@ function saveUser(form) {
 		idUser = parseInt(idUser.val());
 
 	$.ajax({
-		url : context + "/Admin/User/Save",
+		url : context + (!isIDSUser ? "/Admin/User/Save" : "/Admin/User/SaveIDS"),
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
@@ -187,7 +189,11 @@ function deleteUser(userId, name) {
 	return false;
 }
 
-function newUser() {
+function newUser(isIDSUser) {
+	isIDSUser = !!isIDSUser;
+
+	$("#user_form").data("trick-isIDSUser", isIDSUser);
+
 	if (findSelectItemIdBySection(("section_user")).length > 0)
 		return false;
 	$("#addUserModel").find(".alert").remove()
@@ -199,6 +205,11 @@ function newUser() {
 	$("#user_lastName").prop("value", "");
 	$("#user_email").prop("value", "");
 
+	if (isIDSUser)
+		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").hide();
+	else
+		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").show();
+
 	$.ajax({
 		url : context + "/Admin/Roles",
 		type : "get",
@@ -209,7 +220,10 @@ function newUser() {
 		error : unknowError
 	});
 
-	$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
+	if (isIDSUser)
+		$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
+	else
+		$("#addUserModel-title").text(MessageResolver("title.administration.idsuser.add", "Add a new IDS User"));
 	$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#user_form").prop("action", "/Save");
 	$("#addUserModel").modal('toggle');
@@ -223,6 +237,7 @@ function editSingleUser(userId) {
 			return false;
 		userId = selectedScenario[0];
 	}
+
 	$("#addUserModel").find(".alert").remove()
 	var rows = $("#section_user").find("tr[data-trick-id='" + userId + "'] td:not(:first-child)");
 	$("#user_id").prop("value", userId);
@@ -232,6 +247,13 @@ function editSingleUser(userId) {
 	$("#user_firstName").prop("value", $(rows[1]).text());
 	$("#user_lastName").prop("value", $(rows[2]).text());
 	$("#user_email").prop("value", $(rows[3]).text());
+
+	var isIDSUser = $(rows[3]).text().trim().length == 0;
+	if (isIDSUser)
+		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").hide();
+	else
+		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").show();
+	$("#user_form").data("trick-isIDSUser", isIDSUser);
 
 	$.ajax({
 		url : context + "/Admin/User/Roles/" + userId,
