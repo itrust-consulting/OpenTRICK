@@ -13,6 +13,8 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
@@ -47,7 +49,7 @@ public class DynamicParameterComputer {
 	 */
 	public void computeForAllAnalysesOfUser(String userName, String prefix) throws Exception {
 		// Fetch all analyses which the user can access
-		List<Analysis> analyses = daoAnalysis.getFromUserNameAndNotEmpty("admin", AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
+		List<Analysis> analyses = daoAnalysis.getFromUserNameAndNotEmpty(userName, AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
 
 		// Fetch the 'DYNAMIC' parameter type or create it, if if does not exist yet/anymore
 		ParameterType dynamicParameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
@@ -65,6 +67,15 @@ public class DynamicParameterComputer {
 
 		// Deduce dynamic parameter values for each analysis
 		for (Analysis analysis : analyses) {
+			// Log
+			TrickLogManager.Persist(
+					LogType.ANALYSIS,
+					"log.analysis.compute.dynamicparameters",
+					String.format("Updating dynamic parameters for analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
+					userName,
+					LogAction.UPDATE,
+					analysis.getIdentifier(), analysis.getVersion());
+			
 			// Get all parameters (in particular those which define the severity probabilities)
 			Map<String, Double> allParameterValues = new HashMap<>();
 			for (Parameter parameter : analysis.getParameters())
@@ -115,7 +126,7 @@ public class DynamicParameterComputer {
 				}
 				
 				// TODO Consider using a minimum value?
-				parameter.setValue(likelihoods.get(parameterName));
+				parameter.setValue(likelihoods.get(key));
 			}
 
 			// Update assessment to reflect the new values of the dynamic parameters
