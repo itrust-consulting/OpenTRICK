@@ -111,8 +111,37 @@
 		</div>
 	</div>
 	<div class="col-md-6">
-		<span id="anchorParameter_Probability" class="anchor"></span>
-		<div class="panel panel-default" id="Scale_Probability">
+		<span id="anchorParameter_Severity" class="anchor"></span>
+		<div class="panel panel-default" id="Scale_Severity">
+			<div class="panel-heading">
+				<fmt:message key="label.title.parameter.simple.severity" />
+			</div>
+			<div class="panel-body">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>
+							<th class="textaligncenter"><fmt:message key="label.parameter.value" /> <fmt:message key="label.assessment.severity.unit" /></th>
+						</tr>
+					</thead>
+					<tbody>
+						<fmt:setLocale value="fr" scope="session" />
+						<c:forEach items="${simpleParameters[4]}" var="parameter" varStatus="status">
+							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
+								<!--<td>${itemInformation.id}</td>-->
+								<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
+								<td class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="0" /></td>
+							</tr>
+						</c:forEach>
+						<fmt:setLocale value="${language}" scope="session" />
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<span id="anchorParameter_Dynamic" class="anchor"></span>
+		<div class="panel panel-default" id="DynamicParameters">
 			<div class="panel-heading">
 				<fmt:message key="label.parameter.dynamic.probability" />
 			</div>

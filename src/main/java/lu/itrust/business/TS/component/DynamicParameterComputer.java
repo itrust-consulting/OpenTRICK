@@ -16,6 +16,7 @@ import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificat
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.expressions.StringExpressionHelper;
@@ -58,6 +59,13 @@ public class DynamicParameterComputer {
 			dynamicParameterType.setId(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
 		}
 
+		// Fetch the 'SEVERITY' parameter type or create it, if if does not exist yet/anymore
+		ParameterType severityParameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
+		if (severityParameterType == null) {
+			severityParameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
+			severityParameterType.setId(Constant.PARAMETERTYPE_TYPE_SEVERITY);
+		}
+
 		/**
 		 * All frequencies within TRICK service are to be understood with respect to 1 year.
 		 * 1 year is defined here to be 365 days, which is not entirely correct,
@@ -78,8 +86,13 @@ public class DynamicParameterComputer {
 			
 			// Get all parameters (in particular those which define the severity probabilities)
 			Map<String, Double> allParameterValues = new HashMap<>();
-			for (Parameter parameter : analysis.getParameters())
+			for (Parameter parameter : analysis.getParameters()) {
 				allParameterValues.put(parameter.getDescription(), parameter.getValue());
+			}
+			Map<Integer, Double> severityProbabilities = new HashMap<>();
+			for (ExtendedParameter parameter : analysis.getOrCreateSeverityParameters(severityParameterType)) {
+				severityProbabilities.put(parameter.getLevel(), parameter.getValue());
+			}
 			
 			/** The time span over which all notifications shall be considered in the computation of the dynamic parameter. */
 			final long timespan = (long)(double)allParameterValues.getOrDefault(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN, (double)Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
@@ -99,7 +112,7 @@ public class DynamicParameterComputer {
 			final double timespanInUnits = timespan / unitDuration;
 			
 			// Compute likelihoods
-			Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(minTimestamp, maxTimestamp, userName), timespanInUnits, allParameterValues);
+			Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(minTimestamp, maxTimestamp, userName), timespanInUnits, severityProbabilities);
 
 			// Fetch instances of all (existing) dynamic parameters
 			// and map them by their acronym

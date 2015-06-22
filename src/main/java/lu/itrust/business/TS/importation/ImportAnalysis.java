@@ -44,6 +44,7 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
@@ -235,9 +236,10 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", null, 10));
 
 			// ****************************************************************
-			// * import simple parameters
+			// * import simple and dynamic parameters
 			// ****************************************************************
 			importSimpleParameters();
+			importParametersRelatedToDynamicParameters();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", null, 15));
 
@@ -1413,13 +1415,16 @@ public class ImportAnalysis {
 
 		// close result
 		rs.close();
-		
+	}
+	
+	private void importParametersRelatedToDynamicParameters() throws Exception {
+
 		// ****************************************************************
 		// * Create parameter type for dynamic parameters
 		// ****************************************************************
 
 		// Retrieve parameter type if it exists
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
+		ParameterType parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
 		if (parameterType == null) {
 			// It does not exist; create it
 			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
@@ -1430,15 +1435,47 @@ public class ImportAnalysis {
 		}
 
 		// ****************************************************************
+		// * Create parameter type for severity levels
+		// ****************************************************************
+
+		// Retrieve parameter type if it exists
+		ParameterType parameterTypeSeverity = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SEVERITY);
+		if (parameterTypeSeverity == null) {
+			// It does not exist; create it
+			parameterTypeSeverity = new ParameterType(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
+			parameterTypeSeverity.setId(Constant.PARAMETERTYPE_TYPE_SEVERITY);
+
+			// Save parameter type into database
+			daoParameterType.save(parameterTypeSeverity);
+		}
+
+		// ****************************************************************
 		// * Create simple parameter DYNAMIC_PARAMETER_TIMESPAN
 		// * (which is never part of an imported analysis)
 		// ****************************************************************
 
-		parameter = new Parameter();
+		Parameter parameter = new Parameter();
 		parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
 		parameter.setType(daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SINGLE));
 		parameter.setValue(Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
 		this.analysis.addAParameter(parameter);
+
+		// ****************************************************************
+		// * Create simple parameters for severity probabilities
+		// * initialized with default values.
+		// ****************************************************************
+
+		ExtendedParameter parameterSeverity;
+		for (int severity = Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY; severity <= Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY; severity++) {
+			String label = String.format(Constant.PARAMETER_SEVERITY_NAME_PATTERN, severity);
+			parameterSeverity = new ExtendedParameter();
+			parameterSeverity.setDescription(label);
+			parameterSeverity.setAcronym(label);
+			parameterSeverity.setType(parameterTypeSeverity);
+			parameterSeverity.setValue(ExternalNotificationHelper.getDefaultSeverityProbability(severity));
+			parameterSeverity.setBounds(new Bounds(-1, -1));
+			this.analysis.addAParameter(parameterSeverity);
+		}
 	}
 
 	/**

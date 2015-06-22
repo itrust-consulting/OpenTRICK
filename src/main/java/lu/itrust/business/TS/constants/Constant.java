@@ -269,6 +269,7 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_MAX_EFF = 5;
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
 	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 7;
+	public final static int PARAMETERTYPE_TYPE_SEVERITY = 8;
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -278,6 +279,7 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_PROPABILITY_NAME = "PROBA";
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
+	public final static String PARAMETERTYPE_TYPE_SEVERITY_NAME = "SEVERITY";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
@@ -671,18 +673,6 @@ public class Constant {
 	public static final String PARAMETER_LIFETIME_DEFAULT = "lifetime_default";
 	public static final String PARAMETER_EXTERNAL_SETUP_RATE = "external_setup_rate";
 	public static final String PARAMETER_INTERNAL_SETUP_RATE = "internal_setup_rate";
-	/**
-	 * The name of the parameter which defines the time span over which notifications
-	 * shall be aggregated in order to compute the associated dynamic parameters.
-	 */
-	public static final String PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = "dynamic_parameter_timespan";
-	/**
-	 * The name of the parameter specifying the probability that an incident occurs after
-	 * an external notification of a given severity has been issued.
-	 * <br>
-	 * This constant contains a placeholder "{0}" where the severity level should be plugged in.
-	 */
-	public static final String PARAMETER_EXTERNAL_NOTIFICATION_SEVERITY_PROBABILITY = "external_notification_severity{0}";
 
 	/** List of Constants for the Sqlite Table "assessment" */
 	public static final String ASSESSMENT_COMMENT = MEASURE_COMMENT;
@@ -782,10 +772,19 @@ public class Constant {
 	/** The maximum value of the severity which an external notification can have. */
 	public static final int EXTERNAL_NOTIFICATION_MAX_SEVERITY = 5;
 
+	/** The pattern for the label and acronym of the severity parameters. */
+	public static final String PARAMETER_SEVERITY_NAME_PATTERN = "s%d";
+
 	/**
 	 * The default value for the PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN parameter.
 	 * Unit: seconds
 	 */
 	public static final int DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = 86400 * 30; // 1 month
-	
+
+	/**
+	 * The name of the parameter which defines the time span over which notifications
+	 * shall be aggregated in order to compute the associated dynamic parameters.
+	 */
+	public static final String PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = "dynamic_parameter_timespan";
+
 }
