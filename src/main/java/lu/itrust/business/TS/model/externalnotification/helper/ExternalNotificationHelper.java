@@ -113,6 +113,8 @@ public class ExternalNotificationHelper {
 		if (level > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) return 1.0;
 
 		// Use an exponential formula to deduce a probability
-		return Math.exp((level - Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) * Math.log(2));
+		double prob = Math.exp((level - Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) * Math.log(2));
+		// Round to 4 decimals
+		return Math.round(prob * 10000.0) / 10000.0;
 	}
 }

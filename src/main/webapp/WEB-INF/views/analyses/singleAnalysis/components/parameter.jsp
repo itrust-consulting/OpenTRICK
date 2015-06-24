@@ -121,16 +121,21 @@
 					<thead>
 						<tr>
 							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>
+							<th class="textaligncenter"><fmt:message key="label.parameter.acronym" /></th>
 							<th class="textaligncenter"><fmt:message key="label.parameter.value" /> <fmt:message key="label.assessment.severity.unit" /></th>
 						</tr>
 					</thead>
 					<tbody>
 						<fmt:setLocale value="fr" scope="session" />
-						<c:forEach items="${simpleParameters[4]}" var="parameter" varStatus="status">
+						<c:forEach items="${extendedParameters[2]}" var="parameter" varStatus="status">
 							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
 								<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-								<td class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="0" /></td>
+								<td class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
+								<c:set var="parameterValueWithPercentSign"><fmt:formatNumber value="${parameter.value*100}" /> <fmt:message key="label.assessment.severity.unit" /></c:set>
+								<c:set var="parameterValue"><fmt:formatNumber value="${parameter.value*100}" /></c:set>
+								<td data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);" class="success textaligncenter" title="${parameterValueWithPercentSign}"
+									data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value*100}" maxFractionDigits="2" minFractionDigits="2" /></td>
 							</tr>
 						</c:forEach>
 						<fmt:setLocale value="${language}" scope="session" />

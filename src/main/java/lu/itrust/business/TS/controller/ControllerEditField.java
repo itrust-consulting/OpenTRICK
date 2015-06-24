@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.component.FieldEditor;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
@@ -136,6 +137,9 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
+
+	@Autowired
+	private DynamicParameterComputer dynamicParameterComputer;
 
 	/**
 	 * itemInformation: <br>
@@ -516,19 +520,19 @@ public class ControllerEditField {
 		try {
 
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			// check if analysis exist
-			if (id == null)
+			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
-			if (!serviceAnalysis.exists(id))
+			if (!serviceAnalysis.exists(idAnalysis))
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", cutomLocale != null ? cutomLocale : locale));
 
 			// retrieve parameter
-			ExtendedParameter parameter = (ExtendedParameter) serviceParameter.getFromAnalysisById(id, elementID);
+			ExtendedParameter parameter = (ExtendedParameter) serviceParameter.getFromAnalysisById(idAnalysis, elementID);
 			if (parameter == null)
 				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", cutomLocale != null ? cutomLocale : locale));
 
@@ -550,8 +554,17 @@ public class ControllerEditField {
 
 			// set field
 			Field field = null;
+			for (Class<?> clazz = parameter.getClass(); clazz.isAssignableFrom(Parameter.class); clazz = clazz.getSuperclass()) {
+				try {
+					field = clazz.getDeclaredField(fieldEditor.getFieldName());
+					break;
+				}
+				catch (NoSuchFieldException ex) {
+					// continue
+				}
+			}
 			if ("value id type description".contains(fieldEditor.getFieldName()))
-				field = parameter.getClass().getSuperclass().getDeclaredField(fieldEditor.getFieldName());
+				field = Parameter.class.getDeclaredField(fieldEditor.getFieldName());
 			else
 				field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
@@ -560,10 +573,12 @@ public class ControllerEditField {
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				if ("value".equals(fieldEditor.getFieldName()) && Constant.PARAMETERTYPE_TYPE_IMPACT_NAME.equalsIgnoreCase(parameter.getType().getLabel()))
 					parameter.setValue(parameter.getValue() * 1000);
+				if ("value".equals(fieldEditor.getFieldName()) && Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME.equalsIgnoreCase(parameter.getType().getLabel()))
+					parameter.setValue(parameter.getValue() / 100.0);
 
 				if (field.getName().equals("acronym")) {
 					try {
-						assessmentManager.UpdateAcronym(id, parameter, acronym);
+						assessmentManager.UpdateAcronym(idAnalysis, parameter, acronym);
 					} catch (Exception e) {
 						e.printStackTrace();
 						return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, parameter.getAcronym() },
@@ -573,14 +588,21 @@ public class ControllerEditField {
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
 
-				// retrieve parameters
-				List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysisAndType(id, parameter.getType());
-
-				// update impact value
-				ParameterManager.ComputeImpactValue(parameters);
-
-				// update parameters
-				serviceParameter.saveOrUpdate(parameters);
+				// Update bounds for IMPACT and PROBABILITY
+				if (parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME) ||
+					parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
+					// retrieve parameters
+					List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysisAndType(idAnalysis, parameter.getType());
+	
+					// update impact value
+					ParameterManager.ComputeImpactValue(parameters);
+	
+					// update parameters
+					serviceParameter.saveOrUpdate(parameters);
+				}
+				else if (parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME)) {
+					dynamicParameterComputer.computeForAnalysis(serviceAnalysis.get(idAnalysis));
+				}
 
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.extendedParameter.update", null, "Parameter was successfully update",
