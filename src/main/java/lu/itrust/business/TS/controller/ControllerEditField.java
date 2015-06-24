@@ -554,7 +554,7 @@ public class ControllerEditField {
 
 			// set field
 			Field field = null;
-			for (Class<?> clazz = parameter.getClass(); clazz.isAssignableFrom(Parameter.class); clazz = clazz.getSuperclass()) {
+			for (Class<?> clazz = parameter.getClass(); Parameter.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass()) {
 				try {
 					field = clazz.getDeclaredField(fieldEditor.getFieldName());
 					break;
@@ -563,10 +563,6 @@ public class ControllerEditField {
 					// continue
 				}
 			}
-			if ("value id type description".contains(fieldEditor.getFieldName()))
-				field = Parameter.class.getDeclaredField(fieldEditor.getFieldName());
-			else
-				field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
 
 			// set field data
