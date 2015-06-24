@@ -44,7 +44,6 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
@@ -53,6 +52,7 @@ import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.history.helper.ComparatorHistoryVersion;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -239,7 +239,7 @@ public class ImportAnalysis {
 			// * import simple and dynamic parameters
 			// ****************************************************************
 			importSimpleParameters();
-			importParametersRelatedToDynamicParameters();
+			importDynamicParameters();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", null, 15));
 
@@ -1163,7 +1163,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
+		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase, importanceThreshold, dynamic_parameter_timespan FROM scope";
 
 		// execute query
 		rs = sqlite.query(query, null);
@@ -1268,6 +1268,16 @@ public class ImportAnalysis {
 			parameter.setDescription(Constant.MANDATORY_PHASE);
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getInt(Constant.MANDATORY_PHASE));
+			this.analysis.addAParameter(parameter);
+
+			// ****************************************************************
+			// * create instance of dynamic_parameter_timespan
+			// *****************************************************************
+
+			parameter = new Parameter();
+			parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
+			parameter.setType(parameterType);
+			parameter.setValue(rs.getInt(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN));
 			this.analysis.addAParameter(parameter);
 
 			/*
@@ -1417,7 +1427,7 @@ public class ImportAnalysis {
 		rs.close();
 	}
 	
-	private void importParametersRelatedToDynamicParameters() throws Exception {
+	private void importDynamicParameters() throws Exception {
 
 		// ****************************************************************
 		// * Create parameter type for dynamic parameters
@@ -1434,48 +1444,17 @@ public class ImportAnalysis {
 			daoParameterType.save(parameterType);
 		}
 
-		// ****************************************************************
-		// * Create parameter type for severity levels
-		// ****************************************************************
-
-		// Retrieve parameter type if it exists
-		ParameterType parameterTypeSeverity = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SEVERITY);
-		if (parameterTypeSeverity == null) {
-			// It does not exist; create it
-			parameterTypeSeverity = new ParameterType(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
-			parameterTypeSeverity.setId(Constant.PARAMETERTYPE_TYPE_SEVERITY);
-
-			// Save parameter type into database
-			daoParameterType.save(parameterTypeSeverity);
+		// Import dynamic parameters
+		ResultSet rs = sqlite.query("SELECT * FROM dynamic_parameter", null);
+		while (rs.next()) {
+			final AcronymParameter acronymParameter = new AcronymParameter();
+			acronymParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
+			acronymParameter.setType(parameterType);
+			acronymParameter.setAcronym(rs.getString(Constant.ACRO_PARAMETER));
+			acronymParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
+			this.analysis.addAParameter(acronymParameter);
 		}
-
-		// ****************************************************************
-		// * Create simple parameter DYNAMIC_PARAMETER_TIMESPAN
-		// * (which is never part of an imported analysis)
-		// ****************************************************************
-
-		Parameter parameter = new Parameter();
-		parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
-		parameter.setType(daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SINGLE));
-		parameter.setValue(Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
-		this.analysis.addAParameter(parameter);
-
-		// ****************************************************************
-		// * Create simple parameters for severity probabilities
-		// * initialized with default values.
-		// ****************************************************************
-
-		ExtendedParameter parameterSeverity;
-		for (int severity = Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY; severity <= Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY; severity++) {
-			String label = String.format(Constant.PARAMETER_SEVERITY_NAME_PATTERN, severity);
-			parameterSeverity = new ExtendedParameter();
-			parameterSeverity.setDescription(label);
-			parameterSeverity.setAcronym(label);
-			parameterSeverity.setType(parameterTypeSeverity);
-			parameterSeverity.setValue(ExternalNotificationHelper.getDefaultSeverityProbability(severity));
-			parameterSeverity.setBounds(new Bounds(-1, -1));
-			this.analysis.addAParameter(parameterSeverity);
-		}
+		rs.close();
 	}
 
 	/**
@@ -1562,6 +1541,33 @@ public class ImportAnalysis {
 		}
 
 		// close result
+		rs.close();
+
+
+		// ****************************************************************
+		// * Import Severity
+		// ****************************************************************
+
+		// Create SEVERITY parameter type unless it exists
+		ParameterType parameterTypeSeverity = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SEVERITY);
+		if (parameterTypeSeverity == null) {
+			parameterTypeSeverity = new ParameterType(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
+			parameterTypeSeverity.setId(Constant.PARAMETERTYPE_TYPE_SEVERITY);
+			daoParameterType.save(parameterTypeSeverity);
+		}
+
+		// Load values
+		rs = sqlite.query("SELECT * FROM severity", null);
+		while (rs.next()) {
+			final ExtendedParameter severityParameter = new ExtendedParameter();
+			severityParameter.setDescription(rs.getString(Constant.NAME_SEVERITY));
+			severityParameter.setType(parameterTypeSeverity);
+			severityParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_SEVERITY)));
+			severityParameter.setAcronym(rs.getString(Constant.ACRO_SEVERITY));
+			severityParameter.setValue(rs.getDouble(Constant.VALUE_SEVERITY));
+			severityParameter.setBounds(new Bounds(rs.getDouble(Constant.VALUE_FROM_SEVERITY), rs.getDouble(Constant.VALUE_TO_SEVERITY)));
+			this.analysis.addAParameter(severityParameter);
+		}
 		rs.close();
 
 		// ****************************************************************

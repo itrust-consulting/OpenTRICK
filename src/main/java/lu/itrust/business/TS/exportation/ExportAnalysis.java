@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -44,7 +45,7 @@ import org.hibernate.Session;
  * This class is used to export a specific Analysis into a SQLite file to be
  * used inside TRICK Light.
  * 
- * @author itrust consulting s.��� r.l. - SME,BJA,EOM
+ * @author itrust consulting s.à r.l. - SME,BJA,EOM,SMU
  * @version 0.1
  * @since 2012-12-17
  */
@@ -856,65 +857,73 @@ public class ExportAnalysis {
 	 * exportExtendedParameters: <br>
 	 * Export Extended Parameters to an Sqlite File using a Sqlite Database
 	 * Handler.
-	 * 
-	 * @throws Exception
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 */
 	private void exportExtendedParameters() throws Exception {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		List<Object> params = new ArrayList<Object>();
-		String query = "";
-		ExtendedParameter extendedParameter = null;
-
-		// ****************************************************************
-		// * parse parameters and export impact and propability only
-		// ****************************************************************
-
-		// parse parameters
-		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
-
-			// check if impact OR propability -> YES
-			if ((this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					|| (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
-
-				// store parameter in object
-				extendedParameter = (ExtendedParameter) this.analysis.getAParameter(index);
-
-				// ****************************************************************
-				// * export parameter
-				// ****************************************************************
-
-				// build query
-
-				// check if propability -> YES
-				if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
-
-					// build the query
-					query = DatabaseHandler.generateInsertQuery("potentiality", 7);
-
-				} else {
-
-					// check if propability -> NO --> can only be impact
-
-					// build the query
+		// Export all extended parameters of type IMPACT, PROBABILITY and SEVERITY
+		for (Parameter parameter : this.analysis.getParameters()) {
+			// Determine insert query
+			String query = null;
+			switch (parameter.getType().getLabel()) {
+				case Constant.PARAMETERTYPE_TYPE_IMPACT_NAME:
 					query = DatabaseHandler.generateInsertQuery("impact", 7);
-				}
-
-				// add parameters
-				params.clear();
-				params.add(null);
-				params.add(extendedParameter.getLevel());
-				params.add(extendedParameter.getDescription());
-				params.add(extendedParameter.getAcronym());
-				params.add(extendedParameter.getValue());
-				params.add(extendedParameter.getBounds().getFrom());
-				params.add(extendedParameter.getBounds().getTo());
-
-				// execute query
-				sqlite.query(query, params);
+					break;
+				case Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME:
+					query = DatabaseHandler.generateInsertQuery("potentiality", 7);
+					break;
+				case Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME:
+					query = DatabaseHandler.generateInsertQuery("severity", 7);
+					break;
 			}
+
+			// Exclude all other extended parameters (there should be none)
+			if (query == null) continue;
+			
+			// Cast object (we know it is of the good type)
+			ExtendedParameter extendedParameter = (ExtendedParameter)parameter;
+			
+			// Determine insert query parameters
+			final List<Object> queryParameters = new ArrayList<Object>();
+			queryParameters.add(null); // id
+			queryParameters.add(extendedParameter.getLevel());
+			queryParameters.add(extendedParameter.getDescription());
+			queryParameters.add(extendedParameter.getAcronym());
+			queryParameters.add(extendedParameter.getValue());
+			queryParameters.add(extendedParameter.getBounds().getFrom());
+			queryParameters.add(extendedParameter.getBounds().getTo());
+
+			// Execute query
+			sqlite.query(query, queryParameters);
+		}
+	}
+
+	/**
+	 * exportDynamicParameters: <br>
+	 * Export Dynamic Parameters to an Sqlite File using a Sqlite Database
+	 * Handler.
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 */
+	private void exportDynamicParameters() throws Exception {
+		// Export all acronym parameters of type DYNAMIC
+		for (Parameter parameter : this.analysis.getParameters()) {
+			if (!parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
+				continue;
+			
+			// Determine insert query
+			String query = DatabaseHandler.generateInsertQuery("dynamic_parameter", 4);
+
+			// Cast object (we know it is of the good type)
+			AcronymParameter acronymParameter = (AcronymParameter)parameter;
+			
+			// Determine insert query parameters
+			final List<Object> queryParameters = new ArrayList<Object>();
+			queryParameters.add(null); // id
+			queryParameters.add(acronymParameter.getDescription());
+			queryParameters.add(acronymParameter.getAcronym());
+			queryParameters.add(acronymParameter.getValue());
+
+			// Execute query
+			sqlite.query(query, queryParameters);
 		}
 	}
 
@@ -1066,6 +1075,11 @@ public class ExportAnalysis {
 		// * export extended parameters
 		// ****************************************************************
 		exportExtendedParameters();
+
+		// ****************************************************************
+		// * export dynamic parameters
+		// ****************************************************************
+		exportDynamicParameters();
 
 		// ****************************************************************
 		// * export maturity parameters

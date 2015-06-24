@@ -787,4 +787,17 @@ public class Constant {
 	 */
 	public static final String PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = "dynamic_parameter_timespan";
 
+	/* SQLite columns of table "severity" */
+	public static final String NAME_SEVERITY = "name_severity";
+	public static final String SCALE_SEVERITY = "scale_severity";
+	public static final String ACRO_SEVERITY = "acro_severity";
+	public static final String VALUE_SEVERITY = "value_severity";
+	public static final String VALUE_FROM_SEVERITY = "value_from_severity";
+	public static final String VALUE_TO_SEVERITY = "value_to_severity";
+
+	/* SQLite columns of table "dynamic_parameter" */
+	public static final String NAME_PARAMETER = "name_parameter";
+	public static final String ACRO_PARAMETER = "acro_parameter";
+	public static final String VALUE_PARAMETER = "value_parameter";
+
 }
