@@ -770,7 +770,7 @@ public class Constant {
 	public static final int EXTERNAL_NOTIFICATION_MIN_SEVERITY = 0;
 
 	/** The maximum value of the severity which an external notification can have. */
-	public static final int EXTERNAL_NOTIFICATION_MAX_SEVERITY = 5;
+	public static final int EXTERNAL_NOTIFICATION_MAX_SEVERITY = 10;
 
 	/** The pattern for the label and acronym of the severity parameters. */
 	public static final String PARAMETER_SEVERITY_NAME_PATTERN = "s%d";

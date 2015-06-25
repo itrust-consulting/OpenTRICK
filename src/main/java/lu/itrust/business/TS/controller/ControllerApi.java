@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -78,10 +79,10 @@ public class ControllerApi {
 	 */
 	@ResponseStatus(value = HttpStatus.FORBIDDEN)
 	@ExceptionHandler(TrickException.class)
-	private Object handleTrickException(Exception ex) {
+	private Object handleTrickException(TrickException ex) {
 		// Return the error message to the client (JSON).
 		// -1 denotes general errors.
-		return new ApiResult(-1, ex.getMessage());
+		return new ApiResult(-1, MessageFormat.format(ex.getMessage(), ex.getParameters()));
 	}
 
 	/**
