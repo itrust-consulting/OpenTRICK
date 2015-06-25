@@ -3,7 +3,6 @@ package lu.itrust.business.TS.model.analysis;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -48,7 +47,6 @@ import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -2592,37 +2590,26 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * Gets or creates all parameters of type PARAMETERTYPE_TYPE_SEVERITY_NAME.
-	 * Returns a parameter for each severity level between EXTERNAL_NOTIFICATION_MIN_SEVERITY and EXTERNAL_NOTIFICATION_MAX_SEVERITY,
-	 * either by retrieving the parameter which exists in the database, or by creating a new one initialized with a default value.
+	 * Gets the values of all parameters of type PARAMETERTYPE_TYPE_SEVERITY_NAME.
+	 * Returns a value for each severity level between EXTERNAL_NOTIFICATION_MIN_SEVERITY and EXTERNAL_NOTIFICATION_MAX_SEVERITY,
+	 * either by retrieving the parameter which exists in the database, or using a default value.
 	 * The default value is determined by {@link lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper#getDefaultSeverityProbability(int)}.
 	 * @param severityParameterType The parameter type which shall be used by the created parameters.
 	 * @return
 	 */
-	public Collection<ExtendedParameter> getOrCreateSeverityParameters(ParameterType severityParameterType) {
-		Map<Integer, ExtendedParameter> severityParameters = new HashMap<>();
+	public Map<Integer, Double> getSeverityParameterValuesOrDefault() {
+		Map<Integer, Double> severityParameterValues = new HashMap<>();
 		
 		// Load existing parameters
 		for (Parameter parameter : this.parameters)
 			if (parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME))
-				severityParameters.put(((ExtendedParameter)parameter).getLevel(), (ExtendedParameter)parameter);
+				severityParameterValues.put(((ExtendedParameter)parameter).getLevel(), parameter.getValue());
 		
-		// Create default values for those that do not exist
-		ExtendedParameter parameterSeverity;
-		for (int severity = Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY; severity <= Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY; severity++) {
-			if (!severityParameters.containsKey(severity)) {
-				String label = String.format(Constant.PARAMETER_SEVERITY_NAME_PATTERN, severity);
-				parameterSeverity = new ExtendedParameter();
-				parameterSeverity.setDescription(label);
-				parameterSeverity.setAcronym(label);
-				parameterSeverity.setType(severityParameterType);
-				parameterSeverity.setValue(ExternalNotificationHelper.getDefaultSeverityProbability(severity));
-				parameterSeverity.setBounds(new Bounds(-1, -1));
-				severityParameters.put(severity, parameterSeverity);
-				this.addAParameter(parameterSeverity);
-			}
-		}
+		// Use default values for those that do not exist
+		for (int severity = Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY; severity <= Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY; severity++)
+			if (!severityParameterValues.containsKey(severity))
+				severityParameterValues.put(severity, ExternalNotificationHelper.getDefaultSeverityProbability(severity));
 		
-		return severityParameters.values();
+		return severityParameterValues;
 	}
 }

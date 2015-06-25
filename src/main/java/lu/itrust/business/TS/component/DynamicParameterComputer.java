@@ -21,7 +21,6 @@ import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificat
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -136,10 +135,7 @@ public class DynamicParameterComputer {
 		for (Parameter parameter : analysis.getParameters()) {
 			allParameterValues.put(parameter.getDescription(), parameter.getValue());
 		}
-		Map<Integer, Double> severityProbabilities = new HashMap<>();
-		for (ExtendedParameter parameter : analysis.getOrCreateSeverityParameters(severityParameterType)) {
-			severityProbabilities.put(parameter.getLevel(), parameter.getValue());
-		}
+		Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
 		
 		/** The time span over which all notifications shall be considered in the computation of the dynamic parameter. */
 		final long timespan = (long)(double)allParameterValues.getOrDefault(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN, (double)Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
