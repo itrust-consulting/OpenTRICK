@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.DatabaseHandler;
@@ -52,7 +53,7 @@ import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.history.helper.ComparatorHistoryVersion;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -211,56 +212,61 @@ public class ImportAnalysis {
 
 			System.out.println("Importing...");
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", null, 0));
-
 			// ****************************************************************
 			// * create analysis id, analysis label, analysis language and
 			// * Histories. Creates Analysis Entries into the Database
 			// ****************************************************************
-			importAnalyses();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", null, 1));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", null, 0));
+			importAnalyses();
 
 			// ****************************************************************
 			// * import risk information
 			// ****************************************************************
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", null, 1));
 			importRiskInformation();
-
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", null, 5));
 
 			// ****************************************************************
 			// * import item information
 			// ****************************************************************
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", null, 5));
 			importItemInformation();
 
+			// ****************************************************************
+			// * import simple parameters
+			// ****************************************************************
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", null, 10));
-
-			// ****************************************************************
-			// * import simple and dynamic parameters
-			// ****************************************************************
 			importSimpleParameters();
-			importDynamicParameters();
+			
+			// ****************************************************************
+			// * import dynamic parameters
+			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", null, 15));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.dynamic_parameters.importing", "Import dynamic parameters", null, 15));
+			importDynamicParameters();
 
 			// ****************************************************************
 			// * import extended parameters
 			// ****************************************************************
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", null, 20));
 			importExtendedParameters();
 
 			// ****************************************************************
 			// * import maturity parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", null, 20));
-
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", null, 25));
 			importMaturityParameters();
 
 			// ****************************************************************
 			// * import assets
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset.importing", "Import assets", null, 25));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset.importing", "Import assets", null, 30));
 			importAssets();
 
 			// ****************************************************************
@@ -313,6 +319,10 @@ public class ImportAnalysis {
 
 			// save or update analysis
 			daoAnalysis.save(this.analysis);
+
+			// Update values of dynamic parameters
+			DynamicParameterComputer dynamicParameterComputer = new DynamicParameterComputer(session, asm);
+			dynamicParameterComputer.computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
 			asm.UpdateAssessment(this.analysis);
@@ -1447,12 +1457,12 @@ public class ImportAnalysis {
 		// Import dynamic parameters
 		ResultSet rs = sqlite.query("SELECT * FROM dynamic_parameter", null);
 		while (rs.next()) {
-			final AcronymParameter acronymParameter = new AcronymParameter();
-			acronymParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
-			acronymParameter.setType(parameterType);
-			acronymParameter.setAcronym(rs.getString(Constant.ACRO_PARAMETER));
-			acronymParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
-			this.analysis.addAParameter(acronymParameter);
+			final DynamicParameter dynamicParameter = new DynamicParameter();
+			dynamicParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
+			dynamicParameter.setType(parameterType);
+			dynamicParameter.setAcronym(rs.getString(Constant.ACRO_PARAMETER));
+			dynamicParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
+			this.analysis.addAParameter(dynamicParameter);
 		}
 		rs.close();
 	}

@@ -22,6 +22,7 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.Duplicator;
+import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -200,6 +201,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceRole serviceRole;
+	
+	@Autowired
+	private DynamicParameterComputer dynamicParameterComputer;
 
 	@Autowired
 	private MeasureManager measureManager;

@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
+import lu.itrust.business.TS.database.dao.hbm.DAOExternalNotificationHBM;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationOccurrence;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,13 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 
 	@Autowired
 	private DAOExternalNotification daoExternalNotification;
+
+	public ServiceExternalNotificationImpl() {
+	}
+
+	public ServiceExternalNotificationImpl(Session session) {
+		this.daoExternalNotification = new DAOExternalNotificationHBM(session);
+	}
 
 	/** {@inheritDoc} */
 	@Override

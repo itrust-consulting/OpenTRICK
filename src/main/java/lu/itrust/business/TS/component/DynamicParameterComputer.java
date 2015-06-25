@@ -9,7 +9,11 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
+import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
+import lu.itrust.business.TS.database.service.impl.ServiceExternalNotificationImpl;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
@@ -23,6 +27,7 @@ import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.expressions.StringExpressionHelper;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +49,18 @@ public class DynamicParameterComputer {
 
 	@Autowired
 	private AssessmentManager assessmentManager;
-	
+
+	public DynamicParameterComputer() {
+	}
+
+	public DynamicParameterComputer(Session session, AssessmentManager assessmentManager) {
+		this.daoAnalysis = new DAOAnalysisHBM(session);
+		this.daoParameter = new DAOParameterHBM(session);
+		this.daoParameterType = new DAOParameterTypeHBM(session);
+		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
+		this.assessmentManager = assessmentManager;
+	}
+
 	/**
 	 * Computes all dynamic parameters for all analyses for the given user.
 	 * @param userName The name of the user to compute the dynamic parameters for.
