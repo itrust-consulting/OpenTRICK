@@ -19,12 +19,14 @@ function AssessmentViewer() {
 
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
 		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
+		var dynamicParametersList = MessageResolver("label.menu.show.dynamic_parameters_list", "List of dynamic parameters", null, lang);
 		if (application.isReadOnly !== true) {
 			var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
 			var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
 			$(this.modal_title).replaceWith(
 					$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
 							+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale
+							+ "</a></li><li role='dynamic_parameters_list'><a href='#'>" + dynamicParametersList
 							+ "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>" + enableEditModeText
 							+ "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
 		} else {
@@ -62,6 +64,17 @@ function AssessmentViewer() {
 			$(view.modal_footer).remove();
 			view.setTitle(MessageResolver("label.title.probability_scale", "Probability scale", null, lang));
 			view.setBody($("#Scale_Probability .panel-body").html());
+			$(view.modal_body).find("td").removeAttributes();
+			view.Show();
+			return false;
+		});
+
+		$(this.modal_header).find("*[role='dynamic_parameters_list']").on("click", function() {
+			var view = new Modal();
+			view.Intialise();
+			$(view.modal_footer).remove();
+			view.setTitle(MessageResolver("label.parameter.dynamic.probability", "Dynamic probability parameters", null, lang));
+			view.setBody($("#DynamicParameters .panel-body").html());
 			$(view.modal_body).find("td").removeAttributes();
 			view.Show();
 			return false;
