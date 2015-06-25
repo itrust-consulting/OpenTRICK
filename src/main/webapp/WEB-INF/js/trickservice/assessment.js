@@ -395,7 +395,6 @@ function updateAssessmentAle(silent) {
 			url : context + "/Analysis/Assessment/Update/ALE",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
@@ -405,6 +404,7 @@ function updateAssessmentAle(silent) {
 						$("#info-dialog .modal-body").text(response['success']);
 						$("#info-dialog").modal("toggle");
 					}
+					reloadSection("section_asset");
 				} else
 					unknowError();
 				return false;

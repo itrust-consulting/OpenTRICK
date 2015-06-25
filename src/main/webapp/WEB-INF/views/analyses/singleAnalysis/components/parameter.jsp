@@ -134,8 +134,10 @@
 								<td class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
 								<c:set var="parameterValueWithPercentSign"><fmt:formatNumber value="${parameter.value*100}" /> <fmt:message key="label.assessment.severity.unit" /></c:set>
 								<c:set var="parameterValue"><fmt:formatNumber value="${parameter.value*100}" /></c:set>
-								<td data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);" class="success textaligncenter" title="${parameterValueWithPercentSign}"
-									data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value*100}" maxFractionDigits="2" minFractionDigits="2" /></td>
+								<td data-trick-field="value" data-trick-callback="reloadSection('section_asset')"
+									data-trick-field-type="double" data-trick-min-value="0" data-trick-max-value="100"
+									onclick="return editField(this);" class="success textaligncenter" title="${parameterValueWithPercentSign}"
+									data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value*100}" maxFractionDigits="2" minFractionDigits="0" /></td>
 							</tr>
 						</c:forEach>
 						<fmt:setLocale value="${language}" scope="session" />

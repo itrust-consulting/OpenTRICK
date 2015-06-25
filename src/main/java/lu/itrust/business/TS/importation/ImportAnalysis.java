@@ -1280,6 +1280,15 @@ public class ImportAnalysis {
 			parameter.setValue(rs.getInt(Constant.MANDATORY_PHASE));
 			this.analysis.addAParameter(parameter);
 
+			/*
+			 * //
+			 * ****************************************************************
+			 * // * add instance to list of parameters //
+			 * ****************************************************************
+			 */
+			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getDouble(Constant.IMPORTANCE_THRESHOLD));
+			this.analysis.addAParameter(parameter);
+
 			// ****************************************************************
 			// * create instance of dynamic_parameter_timespan
 			// *****************************************************************
@@ -1288,15 +1297,6 @@ public class ImportAnalysis {
 			parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getInt(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN));
-			this.analysis.addAParameter(parameter);
-
-			/*
-			 * //
-			 * ****************************************************************
-			 * // * add instance to list of parameters //
-			 * ****************************************************************
-			 */
-			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getDouble(Constant.IMPORTANCE_THRESHOLD));
 			this.analysis.addAParameter(parameter);
 		}
 		// close result
