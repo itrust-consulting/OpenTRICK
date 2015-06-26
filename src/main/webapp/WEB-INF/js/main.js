@@ -67,13 +67,23 @@ $(function() {
 				else {
 					if (!$option.find("#" + optionMenu.prop("id")).length) {
 						$option.find("ul").remove();
-						var cloneOption = optionMenu.clone();
+						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
+						$subMenu.each(function() {
+							var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
+							$this.removeClass();
+							if ($this.closest("li").length)
+								$this.before("<li class='divider'></li>");
+							$lis.appendTo(cloneOption);
+							$this.text(text);
+							$this.addClass("dropdown-header");
+						});
+						$("li.divider", cloneOption).show();
 						cloneOption.appendTo($option);
 						cloneOption.removeClass();
 						cloneOption.find("li").removeClass("pull-right")
 						cloneOption.addClass("dropdown-menu")
 					}
-					
+
 					if (!$option.is(":visible")) {
 						$option.fadeIn(function() {
 							$option.show();

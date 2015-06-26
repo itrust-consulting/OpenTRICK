@@ -17,11 +17,16 @@
 							key="label.action_plan_type.${fn:toLowerCase(apt)}" />
 				</a></li>
 			</c:forEach>
-			<c:if test="${!actionplansplitted.isEmpty()}">
-				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"> <span
-						class="glyphicon glyphicon-new-window"></span>&nbsp;<fmt:message key="label.action_plan_assets.show" />
-				</a></li>
-			</c:if>
+			<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.advanced" /><span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<c:if test="${!actionplansplitted.isEmpty()}">
+						<li><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <fmt:message
+									key="label.action_plan_assets.show" />
+						</a></li>
+					</c:if>
+					<li><a href="#" class="text-danger" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message key="label.action.compute.action_plan" /></a></li>
+				</ul>
+			</li>
 		</ul>
 		<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 			<div data-trick-nav-content="${apt}" ${status.index!=0? "hidden='true'" : "" }>

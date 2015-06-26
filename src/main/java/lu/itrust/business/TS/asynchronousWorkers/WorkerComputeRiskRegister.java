@@ -13,6 +13,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterComputation;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -49,7 +50,11 @@ public class WorkerComputeRiskRegister implements Worker {
 
 	private SessionFactory sessionFactory;
 
-	private Map<String, String> ownerBackup;
+	/**
+	 * Key: asset.id_scenerio.id<br>
+	 * Value: [0] owner, [1] strategy
+	 */
+	private Map<String, String[]> ownerBackup;
 
 	private int idAnalysis;
 
@@ -191,11 +196,16 @@ public class WorkerComputeRiskRegister implements Worker {
 		}
 	}
 
-	private void restoreOwner(Analysis analysis) {
+	private void restoreOwner(Analysis analysis) throws TrickException {
 		if (ownerBackup == null || analysis.getRiskRegisters().isEmpty())
 			return;
-		analysis.getRiskRegisters().forEach(
-				riskRegister -> riskRegister.setOwner(ownerBackup.get(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()))));
+		for (RiskRegisterItem riskRegister : analysis.getRiskRegisters()) {
+			String[] data = ownerBackup.get(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()));
+			if (data != null && data.length == 2) {
+				riskRegister.setOwner(data[0]);
+				riskRegister.setStrategy(data[1]);
+			}
+		}
 	}
 
 	/**
@@ -228,9 +238,10 @@ public class WorkerComputeRiskRegister implements Worker {
 	private void deleteRiskRegister(Analysis analysis) throws Exception {
 		String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
 		if (!analysis.getRiskRegisters().isEmpty()) {
-			ownerBackup = new LinkedHashMap<String, String>(analysis.getRiskRegisters().size());
+			ownerBackup = new LinkedHashMap<String, String[]>(analysis.getRiskRegisters().size());
 			analysis.getRiskRegisters().forEach(
-					riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()), riskRegister.getOwner()));
+					riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()),
+							new String[] { riskRegister.getOwner(), riskRegister.getStrategy() }));
 		}
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting", lang, 50));
 		while (!analysis.getRiskRegisters().isEmpty())

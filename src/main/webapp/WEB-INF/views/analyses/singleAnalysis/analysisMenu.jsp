@@ -36,6 +36,7 @@
 			class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
 			<c:if test="${!empty(standards)}">
+				<li class="dropdown-header"><fmt:message key="label.menu.tabs" /></li>
 				<c:forEach items="${standards}" var="standard">
 					<li><a href="#tabStandard_${standard.id}" data-toggle="tab"> <spring:message text="${standard.label}" /></a>
 				</c:forEach>
@@ -43,6 +44,7 @@
 			<c:if test="${analysis.isProfile() || isEditable}">
 				<c:if test="${!measureSplited.isEmpty()}">
 					<li class="divider"></li>
+					<li class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 				</c:if>
 				<li><a href="#" onclick="return manageStandard();"> <fmt:message key="label.menu.manage_standard" /></a></li>
 			</c:if>
@@ -56,11 +58,15 @@
 		<li><a href="#tabRiskRegister" data-toggle="tab"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
 		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.analysis.chart" /><span class="caret"></span></a>
 			<ul class="dropdown-menu">
+				<li class="dropdown-header"><fmt:message key="label.menu.tabs" /></li>
 				<li><a href="#tabChartAsset" data-toggle="tab"> <fmt:message key="label.chart.asset" /></a></li>
 				<li><a href="#tabChartScenario" data-toggle="tab"> <fmt:message key="label.chart.scenario" /></a></li>
 				<li><a href="#tabChartCompliance" data-toggle="tab"> <fmt:message key="label.chart.compliance" /></a></li>
 				<li><a href="#tabChartEvolution" data-toggle="tab"> <fmt:message key="label.chart.evolution" /></a></li>
 				<li><a href="#tabChartBudget" data-toggle="tab"> <fmt:message key="label.chart.budget" /></a></li>
+				<li class="divider"></li>
+				<li class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+				<li><a href="#" onclick="return reloadCharts();"> <fmt:message key="label.action.reload.charts" /></a></li>
 			</ul></li>
 	</c:if>
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.actions" /><span class="caret"></span></a>
@@ -80,13 +86,11 @@
 				<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import" /></a></li>
 			</c:if>
 			<c:if test="${!analysis.isProfile()}">
-				<li class="divider"></li>
+				<%-- <li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.title.computation" /></li>
-				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.action.compute.action_plan" />
+				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.menu.analysis.action_plan" />
 				</a></li>
-				<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.action.compute.risk_register" /></a></li>
-				<li class="divider"></li>
-				<li><a href="#" onclick="return reloadCharts();"> <fmt:message key="label.action.reload.charts" /></a></li>
+				<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.menu.analysis.risk_register" /></a></li> --%>
 				<c:if test="${isEditable}">
 					<li class="divider"></li>
 					<li class="dropdown-header"><fmt:message key="label.title.assessment" /></li>

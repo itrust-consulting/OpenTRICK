@@ -10,8 +10,14 @@
 	<div class="section" id="section_riskregister">
 		<c:if test="${!empty(riskregister)}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_riskRegister">
-				<li class="disabled" data-trick-role="menu-risk-register-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message key="label.risk_register.display.value" /></a></li>
-				<li data-trick-role="menu-risk-register-control-level"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message key="label.risk_register.display.level" /></a></li>
+				<li class="disabled" data-trick-role="menu-risk-register-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
+							key="label.risk_register.display.value" /></a></li>
+				<li data-trick-role="menu-risk-register-control-level"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
+							key="label.risk_register.display.level" /></a></li>
+				<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.advanced" /><span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.action.compute.risk_register" /></a></li>
+					</ul></li>
 			</ul>
 			<table class="table table-hover table-condensed table-fixed-header-analysis">
 				<thead>
@@ -98,8 +104,8 @@
 							<td class="success" data-trick-id="${item.id}" data-trick-field="strategy" onclick="return editField(this);" data-trick-class="RiskRegister"
 								data-trick-choose="accept,reduce,transfer,avoid" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><fmt:message
 									key="label.risk_register.strategy.${strategy}" /></td>
-							<td class="success" data-trick-id="${item.id}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="RiskRegister"
-								data-trick-field-type="string"><spring:message text="${item.owner}"/> </td>
+							<td class="success" data-trick-id="${item.id}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="RiskRegister" data-trick-field-type="string"><spring:message
+									text="${item.owner}" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>
