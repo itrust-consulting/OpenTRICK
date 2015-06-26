@@ -240,7 +240,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy("position asc,dtRawEvaluationImportance desc, dtNetEvaluationImportance, dtExpEvaluationImportance")
+	@OrderBy("position asc, dtNetEvaluationImportance desc, dtExpEvaluationImportance desc, dtRawEvaluationImportance desc")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************

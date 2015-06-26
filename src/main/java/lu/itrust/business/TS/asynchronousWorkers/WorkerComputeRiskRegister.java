@@ -1,5 +1,8 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -16,12 +19,12 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-/** 
+/**
  * WorkerComputeRiskRegister.java: <br>
  * Detailed description...
  *
  * @author smenghi, itrust consulting s.à.rl.
- * @version 
+ * @version
  * @since Feb 17, 2014
  */
 public class WorkerComputeRiskRegister implements Worker {
@@ -46,10 +49,13 @@ public class WorkerComputeRiskRegister implements Worker {
 
 	private SessionFactory sessionFactory;
 
+	private Map<String, String> ownerBackup;
+
 	private int idAnalysis;
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param sessionFactory
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
@@ -64,6 +70,7 @@ public class WorkerComputeRiskRegister implements Worker {
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param poolManager
 	 * @param sessionFactory
 	 * @param serviceTaskFeedback
@@ -77,7 +84,7 @@ public class WorkerComputeRiskRegister implements Worker {
 		this.idAnalysis = idAnalysis;
 		this.reloadSection = reloadSection;
 	}
-	
+
 	/**
 	 * initialiseDAO: <br>
 	 * Description
@@ -112,23 +119,22 @@ public class WorkerComputeRiskRegister implements Worker {
 			System.out.println("Loading Analysis...");
 
 			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
-			
-			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading",lang, null));
+
+			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", lang, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found",lang, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", lang, null));
 				return;
 			}
 			session.beginTransaction();
 			initAnalysis(analysis);
-
 			System.out.println("Delete previous risk register...");
-
 			deleteRiskRegister(analysis);
 			RiskRegisterComputation computation = new RiskRegisterComputation(analysis);
 			if (computation.computeRiskRegister() == null) {
+				restoreOwner(analysis);
 				session.getTransaction().commit();
-				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!",lang, 100);
+				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!", lang, 100);
 				if (reloadSection)
 					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_riskregister\")", null));
 				serviceTaskFeedback.send(id, messageHandler);
@@ -143,27 +149,25 @@ public class WorkerComputeRiskRegister implements Worker {
 			} catch (HibernateException e1) {
 				e1.printStackTrace();
 			}
-		}catch (TrickException e) {
+		} catch (TrickException e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(),e.getParameters(), e.getMessage(), e));
+				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
 				e1.printStackTrace();
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			try {
-				
+
 				try {
 					String lang;
 					lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
-					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),lang, e));
+					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), lang, e));
 				} catch (Exception e1) {
-					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),null, e));
+					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), null, e));
 				}
-				
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
@@ -176,7 +180,7 @@ public class WorkerComputeRiskRegister implements Worker {
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
-			}catch(Exception ex){
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			synchronized (this) {
@@ -185,6 +189,13 @@ public class WorkerComputeRiskRegister implements Worker {
 			if (poolManager != null)
 				poolManager.remove(getId());
 		}
+	}
+
+	private void restoreOwner(Analysis analysis) {
+		if (ownerBackup == null || analysis.getRiskRegisters().isEmpty())
+			return;
+		analysis.getRiskRegisters().forEach(
+				riskRegister -> riskRegister.setOwner(ownerBackup.get(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()))));
 	}
 
 	/**
@@ -215,13 +226,15 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * @throws Exception
 	 */
 	private void deleteRiskRegister(Analysis analysis) throws Exception {
-		String lang;
-		lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting",lang, 50));
-
+		String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
+		if (!analysis.getRiskRegisters().isEmpty()) {
+			ownerBackup = new LinkedHashMap<String, String>(analysis.getRiskRegisters().size());
+			analysis.getRiskRegisters().forEach(
+					riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()), riskRegister.getOwner()));
+		}
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting", lang, 50));
 		while (!analysis.getRiskRegisters().isEmpty())
 			daoRiskRegister.delete(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));
-
 	}
 
 	/*
@@ -267,7 +280,8 @@ public class WorkerComputeRiskRegister implements Worker {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.task.Worker#setPoolManager(lu.itrust.business.service
+	 * @see
+	 * lu.itrust.business.task.Worker#setPoolManager(lu.itrust.business.service
 	 * .WorkersPoolManager)
 	 */
 	@Override
