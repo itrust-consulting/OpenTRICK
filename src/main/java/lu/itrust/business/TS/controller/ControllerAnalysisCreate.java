@@ -139,7 +139,7 @@ public class ControllerAnalysisCreate {
 
 		model.addAttribute("author", user.getFirstName() + " " + user.getLastName());
 
-		return "analyses/allAnalyses/forms/buildAnalysis";
+		return "analyses/all/forms/buildAnalysis";
 
 	}
 

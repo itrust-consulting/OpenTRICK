@@ -196,7 +196,7 @@ public class ControllerRRF {
 			model.addAttribute("notenoughdata", true);
 		}
 
-		return "analyses/singleAnalysis/components/forms/rrf/rrfEditor";
+		return "analyses/single/components/forms/rrf/rrfEditor";
 	}
 
 	/***********************
@@ -224,7 +224,7 @@ public class ControllerRRF {
 		model.addAttribute("selectedScenario", scenario);
 		double typeValue = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
 		model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
-		return "analyses/singleAnalysis/components/forms/rrf/scenarioRRF";
+		return "analyses/single/components/forms/rrf/scenarioRRF";
 	}
 
 	/**
@@ -369,7 +369,7 @@ public class ControllerRRF {
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
 		model.addAttribute("language", language.getAlpha2());
 
-		return "analyses/singleAnalysis/components/forms/rrf/measureRRF";
+		return "analyses/single/components/forms/rrf/measureRRF";
 	}
 
 	/**
@@ -491,7 +491,7 @@ public class ControllerRRF {
 		model.addAttribute("standards", standards);
 		model.addAttribute("customers", customers);
 		model.addAttribute("analyses", analyses);
-		return "analyses/singleAnalysis/components/forms/importMeasureCharacteristics";
+		return "analyses/single/components/forms/importMeasureCharacteristics";
 
 	}
 

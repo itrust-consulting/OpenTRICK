@@ -238,71 +238,79 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
-
+	public String home(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 		// retrieve analysisId if an analysis was already selected
 		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-
 		// check if an analysis is selected
-		if (selected != null) {
+		if (selected != null)
+			return isReadOnly == null || !isReadOnly ? String.format("redirect:/Analysis/%d/Select", selected) : String.format("redirect:/Analysis/%d/Select?readOnly=true",
+					selected);
+		else
+			return "redirect:/Analysis/All";
+	}
 
-			Boolean hasPermission = false;
+	@RequestMapping("/All")
+	public String AllAnalysis(Model model, Principal principal, HttpSession session) throws Exception {
+		return LoadUserAnalyses(session, principal, model);
+	}
 
-			// prepare permission evaluator
-			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
-
-			Analysis analysis = serviceAnalysis.get(selected);
-
-			if (analysis == null) {
-				attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-				throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("error"));
-			}
-
-			User user = serviceUser.get(principal.getName());
-
-			if (isReadOnly == null)
-				isReadOnly = false;
-
-			hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
-					principal, isReadOnly ? AnalysisRight.READ : AnalysisRight.MODIFY);
-			if (hasPermission) {
-				// initialise analysis
-				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
-				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
-				model.addAttribute("login", user.getLogin());
-				model.addAttribute("analysis", analysis);
-				model.addAttribute("standards", analysis.getStandards());
-				model.addAttribute("measures", measures);
-				model.addAttribute("soa", measures.get("27002"));
-				model.addAttribute("show_uncertainty", analysis.isUncertainty());
-				model.addAttribute("show_cssf", analysis.isCssf());
-				model.addAttribute("isReadOnly", isReadOnly);
-				model.addAttribute("language", analysis.getLanguage().getAlpha2());
-				session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
-
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogType.ANALYSIS, isReadOnly ? "log.open.analysis" : "log.edit.analysis",
-						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), isReadOnly ? LogAction.OPEN : LogAction.EDIT,
-						analysis.getIdentifier(), analysis.getVersion());
-
-			} else {
-				TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",
-						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.DENY_ACCESS,
-						analysis.getIdentifier(), analysis.getVersion());
-				attributes.addFlashAttribute("error", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
-				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("error"));
-			}
+	/**
+	 * selectAnalysis: <br>
+	 * selects or deselects an analysis
+	 * 
+	 * @param principal
+	 * @param analysisId
+	 * @param model
+	 * @param session
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{analysisId}/Select")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId,
+			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
+		// select the analysis
+		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
+		Analysis analysis = serviceAnalysis.get(analysisId);
+		if (analysis == null)
+			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+		User user = serviceUser.get(principal.getName());
+		boolean hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : readOnly ? true : permissionEvaluator
+				.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
+		if (hasPermission) {
+			// initialise analysis
+			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
+			Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
+			Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
+			model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
+			model.addAttribute("login", user.getLogin());
+			model.addAttribute("analysis", analysis);
+			model.addAttribute("standards", analysis.getStandards());
+			model.addAttribute("measures", measures);
+			model.addAttribute("soa", measures.get("27002"));
+			model.addAttribute("show_uncertainty", analysis.isUncertainty());
+			model.addAttribute("show_cssf", analysis.isCssf());
+			model.addAttribute("isReadOnly", readOnly);
+			model.addAttribute("language", analysis.getLanguage().getAlpha2());
+			session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogType.ANALYSIS, readOnly ? "log.open.analysis" : "log.edit.analysis",
+					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), readOnly ? LogAction.OPEN : LogAction.EDIT,
+					analysis.getIdentifier(), analysis.getVersion());
 		} else {
-			String view = LoadUserAnalyses(session, principal, model, null);
-			if (view != null)
-				return view;
+			TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",
+					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.DENY_ACCESS, analysis.getIdentifier(),
+					analysis.getVersion());
+			throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return "analyses/analysis";
+		return "analyses/single/home";
 	}
 
 	/**
@@ -336,10 +344,10 @@ public class ControllerAnalysis {
 
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		return LoadUserAnalyses(request.getSession(), principal, model, "analyses/allAnalyses/analyses");
+		return LoadUserAnalyses(request.getSession(), principal, model);
 	}
 
-	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, String view) throws Exception {
+	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model) throws Exception {
 		List<String> names = null;
 		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
@@ -384,7 +392,7 @@ public class ControllerAnalysis {
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
-		return view;
+		return "analyses/all/home";
 	}
 
 	/**
@@ -420,7 +428,7 @@ public class ControllerAnalysis {
 		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
-		return "analyses/allAnalyses/analyses";
+		return "analyses/all/home";
 	}
 
 	// *****************************************************************
@@ -474,33 +482,10 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/{analysisId}/Select")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly,
-			HttpSession session) throws Exception {
-		// select the analysis
-		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
-		return "redirect:/Analysis";
-	}
-
-	/**
-	 * selectAnalysis: <br>
-	 * selects or deselects an analysis
-	 * 
-	 * @param principal
-	 * @param analysisId
-	 * @param model
-	 * @param session
-	 * @param attributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
-			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session,Locale locale) throws Exception {
+			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
 		// select the analysis
 		Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
 		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
@@ -577,7 +562,7 @@ public class ControllerAnalysis {
 			// add the analysis object
 			model.put("analysis", analysis);
 
-			return "analyses/allAnalyses/forms/editAnalysis";
+			return "analyses/all/forms/editAnalysis";
 		}
 
 		throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
@@ -731,7 +716,7 @@ public class ControllerAnalysis {
 		model.put("analysisId", analysisId);
 		model.put("author", author);
 
-		return "analyses/allAnalyses/forms/newVersion";
+		return "analyses/all/forms/newVersion";
 	}
 
 	/**

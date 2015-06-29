@@ -5,12 +5,6 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set var="url">
-	<%=request.getAttribute("javax.servlet.forward.request_uri")%>
-</c:set>
-<c:set var="menu">
-	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
-</c:set>
 <ul class="nav nav-tabs affix affix-top nav-analysis col-xs-12">
 	<c:if test="${!analysis.isProfile()}">
 		<li class="active"><a href="#tabHistory" data-toggle="tab"><fmt:message key="label.menu.analysis.history" /></a></li>
@@ -73,6 +67,13 @@
 		<ul class="dropdown-menu" id="actionmenu">
 			<li class="dropdown-header"><fmt:message key="label.analysis" /></li>
 			<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <fmt:message key="label.action.close.analysis" /></a></li>
+			<c:if test="${!analysis.isProfile() && analysis.getRightsforUserString(login).right.ordinal()<2 && isEditable}">
+				<li class="divider"></li>
+				<li class="dropdown-header"><fmt:message key="label.action.export" /></li>
+				<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <fmt:message key="label.word_report" />
+				</a></li>
+				<li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <fmt:message key="label.sqlite_data" /></a></li>
+			</c:if>
 			<c:if test="${analysis.isProfile() || isEditable}">
 				<li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.title.edit_mode" /></li>
@@ -86,11 +87,13 @@
 				<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import" /></a></li>
 			</c:if>
 			<c:if test="${!analysis.isProfile()}">
-				<%-- <li class="divider"></li>
-				<li class="dropdown-header"><fmt:message key="label.title.computation" /></li>
-				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.menu.analysis.action_plan" />
+				<li class="divider"></li>
+				<li class="dropdown-header" style="color: #b94a48" title='<fmt:message key="info.deprecated.analysis.action.computation" />'><fmt:message key="label.title.deprecated.computation" /></li>
+				<li style="color: #999999" title="<fmt:message key="info.deprecated.analysis.action.computation.action_plan" />"><a style="color: inherit;" href="#"
+					onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.menu.analysis.deprecated.action_plan" />
 				</a></li>
-				<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.menu.analysis.risk_register" /></a></li> --%>
+				<li style="color: #999999" title="<fmt:message key="info.deprecated.analysis.action.computation.risk_register" />"><a style="color: inherit;" href="#"
+					onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.menu.analysis.deprecated.risk_register" /></a></li>
 				<c:if test="${isEditable}">
 					<li class="divider"></li>
 					<li class="dropdown-header"><fmt:message key="label.title.assessment" /></li>
@@ -99,8 +102,6 @@
 				</c:if>
 			</c:if>
 		</ul></li>
-
 	<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 		data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
-
 </ul>

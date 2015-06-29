@@ -365,7 +365,7 @@ public class ControllerAdministration {
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
-			return "analyses/allAnalyses/forms/manageUserAnalysisRights";
+			return "analyses/all/forms/manageUserAnalysisRights";
 		} else {
 			return "redirect:Administration";
 		}
@@ -400,12 +400,12 @@ public class ControllerAdministration {
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
-			return "analyses/allAnalyses/forms/manageUserAnalysisRights";
+			return "analyses/all/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors
 			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
-			return "analyses/allAnalyses/forms/manageUserAnalysisRights";
+			return "analyses/all/forms/manageUserAnalysisRights";
 		}
 	}
 

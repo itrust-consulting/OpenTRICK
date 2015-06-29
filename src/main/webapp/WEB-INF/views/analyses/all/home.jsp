@@ -7,6 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:set scope="request" var="title">label.title.analyses</c:set>
 <sec:authentication var="user" property="principal" />
+<!DOCTYPE html>
 <html>
 <jsp:include page="../../template/header.jsp" />
 <body>
@@ -118,6 +119,7 @@
 		<jsp:include page="../../template/footer.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
-	<script type="text/javascript" src="<spring:url value="js/trickservice/analyses.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analyses.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>
 </body>
 </html>

@@ -109,7 +109,7 @@ public class ControllerRiskRegister {
 		model.put("language", serviceLanguage.getFromAnalysis(selected).getAlpha2());
 
 		// return view
-		return "analyses/singleAnalysis/components/riskregister";
+		return "analyses/single/components/riskregister";
 	}
 
 	/**
