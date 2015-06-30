@@ -40,6 +40,11 @@ $(document).ready(function() {
 			thousandsSep : ' '
 		}
 	});
+
+	// Periodically reload assessment values
+	window.setInterval(function() {
+		reloadSection("section_asset");
+	}, 10000);
 });
 
 function findAnalysisId() {
