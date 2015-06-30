@@ -15,7 +15,6 @@ public class GeneralComperator {
 				return 0;
 			return Integer.parseInt(version);
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
 		}
 		return 0;
 	}
@@ -33,8 +32,8 @@ public class GeneralComperator {
 	 * @return
 	 */
 	public static final int VersionComparator(String versionA, String versionB) {
-		String[] versionsA = versionA.split("\\.", 2);
-		String[] versionsB = versionB.split("\\.", 2);
+		String[] versionsA = versionA.replace(" ", ".").split("\\.", 2);
+		String[] versionsB = versionB.replace(" ", ".").split("\\.", 2);
 		int valueA = toInt(versionsA[0]);
 		int valueB = toInt(versionsB[0]);
 		if (valueA > valueB)

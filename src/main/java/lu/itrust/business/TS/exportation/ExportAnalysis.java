@@ -1357,17 +1357,11 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		List<Object> measureparams = new ArrayList<Object>();
-		List<Object> specparams = new ArrayList<Object>();
-		List<Object> defaultspecparams = new ArrayList<Object>();
-		String specdefaultquery = "";
-
+		List<Object> measureparams = new ArrayList<Object>(), specparams = new ArrayList<Object>(), defaultspecparams = new ArrayList<Object>();
 		MaturityStandard maturityStandard = null;
 		MaturityMeasure maturity = null;
-
-		String measurequery = "";
-		int measurecounter = 0;
-		int specdefaultcounter = 0;
+		String measurequery = "" , specdefaultquery = "";;
+		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
 
 		// ****************************************************************
 		// * export standard measures (27001, 27002, custom)
@@ -1519,7 +1513,8 @@ public class ExportAnalysis {
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
-					measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
+					measureparams.add(measureIndex++);
+					//measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
 
 					// ****************************************************************
 					// * export asset type values
@@ -1745,7 +1740,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
-					measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
+					measureparams.add(measureIndex++);
 
 					// ****************************************************************
 					// * export asset values
@@ -1942,7 +1937,7 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getSML3Cost());
 					measureparams.add(maturity.getSML4Cost());
 					measureparams.add(maturity.getSML5Cost());
-					measureparams.add(generateIndexOfReference(maturity.getMeasureDescription().getReference()));
+					measureparams.add(measureIndex++);
 					measureparams.add(maturity.getReachedLevel());
 				}
 
@@ -2345,13 +2340,15 @@ public class ExportAnalysis {
 	 * @param reference
 	 *            The Reference of the Measure
 	 * @throws SQLException
+	 * 
 	 */
+	@Deprecated
 	private long generateIndexOfReference(String reference) {
 
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		String[] split = reference.split("\\.");
+		String[] split = reference.replace(" ", ".").split("\\.");
 
 		final long[] multi = new long[4];
 
