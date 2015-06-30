@@ -1173,7 +1173,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase, importanceThreshold, dynamic_parameter_timespan FROM scope";
+		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
 
 		// execute query
 		rs = sqlite.query(query, null);
@@ -1288,19 +1288,33 @@ public class ImportAnalysis {
 			 */
 			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getDouble(Constant.IMPORTANCE_THRESHOLD));
 			this.analysis.addAParameter(parameter);
-
-			// ****************************************************************
-			// * create instance of dynamic_parameter_timespan
-			// *****************************************************************
-
-			parameter = new Parameter();
-			parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN));
-			this.analysis.addAParameter(parameter);
 		}
 		// close result
 		rs.close();
+
+		// ****************************************************************
+		// * Import parameters added in later versions
+		// ****************************************************************
+
+		parameter = new Parameter();
+		parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
+		parameter.setType(parameterType);
+		parameter.setValue(Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN); // default
+		this.analysis.addAParameter(parameter);
+		
+		// Retrieve actual parameter value
+		try {
+			rs = sqlite.query("SELECT dynamic_parameter_timespan FROM scope", null);
+			if (rs.next())
+				parameter.setValue(rs.getInt(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN));
+		} catch (SQLException ex) {
+			// Column does not exist, so we are dealing with an old SQLite database.
+			// Just use the default value.
+		}
+		finally {
+			if (rs != null)
+				rs.close();
+		}
 
 		// ****************************************************************
 		// * Import maturity_max_effency
@@ -1455,16 +1469,24 @@ public class ImportAnalysis {
 		}
 
 		// Import dynamic parameters
-		ResultSet rs = sqlite.query("SELECT * FROM dynamic_parameter", null);
-		while (rs.next()) {
-			final DynamicParameter dynamicParameter = new DynamicParameter();
-			dynamicParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
-			dynamicParameter.setType(parameterType);
-			dynamicParameter.setAcronym(rs.getString(Constant.ACRO_PARAMETER));
-			dynamicParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
-			this.analysis.addAParameter(dynamicParameter);
+		ResultSet rs = null;
+		try {
+			rs = sqlite.query("SELECT * FROM dynamic_parameter", null);
+			while (rs.next()) {
+				final DynamicParameter dynamicParameter = new DynamicParameter();
+				dynamicParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
+				dynamicParameter.setType(parameterType);
+				dynamicParameter.setAcronym(rs.getString(Constant.ACRO_PARAMETER));
+				dynamicParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
+				this.analysis.addAParameter(dynamicParameter);
+			}
+		} catch (SQLException ex) {
+			// Table does not exist, so we are dealing with an old database.
 		}
-		rs.close();
+		finally {
+			if (rs != null)
+				rs.close();
+		}
 	}
 
 	/**
@@ -1567,18 +1589,26 @@ public class ImportAnalysis {
 		}
 
 		// Load values
-		rs = sqlite.query("SELECT * FROM severity", null);
-		while (rs.next()) {
-			final ExtendedParameter severityParameter = new ExtendedParameter();
-			severityParameter.setDescription(rs.getString(Constant.NAME_SEVERITY));
-			severityParameter.setType(parameterTypeSeverity);
-			severityParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_SEVERITY)));
-			severityParameter.setAcronym(rs.getString(Constant.ACRO_SEVERITY));
-			severityParameter.setValue(rs.getDouble(Constant.VALUE_SEVERITY));
-			severityParameter.setBounds(new Bounds(rs.getDouble(Constant.VALUE_FROM_SEVERITY), rs.getDouble(Constant.VALUE_TO_SEVERITY)));
-			this.analysis.addAParameter(severityParameter);
+		try {
+			rs = sqlite.query("SELECT * FROM severity", null);
+			while (rs.next()) {
+				final ExtendedParameter severityParameter = new ExtendedParameter();
+				severityParameter.setDescription(rs.getString(Constant.NAME_SEVERITY));
+				severityParameter.setType(parameterTypeSeverity);
+				severityParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_SEVERITY)));
+				severityParameter.setAcronym(rs.getString(Constant.ACRO_SEVERITY));
+				severityParameter.setValue(rs.getDouble(Constant.VALUE_SEVERITY));
+				severityParameter.setBounds(new Bounds(rs.getDouble(Constant.VALUE_FROM_SEVERITY), rs.getDouble(Constant.VALUE_TO_SEVERITY)));
+				this.analysis.addAParameter(severityParameter);
+			}
 		}
-		rs.close();
+		catch (SQLException ex) {
+			// Table does not exist, so we are dealing with an old SQLite database.
+		}
+		finally {
+			if (rs != null)
+				rs.close();
+		}
 
 		// ****************************************************************
 		// * Import likelihood
