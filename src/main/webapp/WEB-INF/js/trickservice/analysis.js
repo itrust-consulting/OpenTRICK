@@ -43,7 +43,8 @@ $(document).ready(function() {
 
 	// Periodically reload assessment values
 	window.setInterval(function() {
-		reloadSection("section_asset");
+		reloadSection("section_asset", undefined, true /* prevent propagation */);
+		reloadSection("section_scenario", undefined, true /* prevent propagation */);
 	}, 10000);
 });
 

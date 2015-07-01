@@ -31,7 +31,7 @@ public class ParameterConvertor {
 				ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
 				if (extendedParameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 					probabilityParameters.add(extendedParameter);
-				else
+				else if (extendedParameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					impactsParameters.add(extendedParameter);
 			}
 		}
