@@ -2,13 +2,18 @@ package lu.itrust.business.TS.component;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
@@ -21,16 +26,20 @@ import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.dao.DAOScenario;
+import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
+import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
+import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -44,6 +53,8 @@ import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.expressions.StringExpressionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,6 +104,12 @@ public class ChartGenerator {
 
 	@Autowired
 	private DAOAnalysis daoAnalysis;
+
+	@Autowired
+	private ServiceExternalNotification serviceExternalNotification;
+
+	@Autowired
+	private DAOUserAnalysisRight daoUserAnalysisRight;
 
 	@Value("${app.settings.ale.chart.content.size}")
 	private int aleChartSize;
@@ -1139,4 +1156,82 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the evolution of the dynamic parameters.
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	public String dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
+		final LocalDate endDate = LocalDate.now();
+		final LocalDate startDate = endDate.minusMonths(12);
+		final ZoneOffset systemZoneOffset = ZoneOffset.of(ZoneId.systemDefault().getId());
+		final long timespan = 86400 * 30;
+		final double timespanInUnits = (double)timespan / (86400 * 30);
+
+		// Find the user names of all sources involved
+		List<String> sourceUserNames = daoUserAnalysisRight
+				.getAllFromAnalysis(idAnalysis).stream()
+				.map(userRight -> userRight.getUser())
+				.filter(user -> user.hasRole(RoleType.ROLE_IDS))
+				.map(user -> user.getLogin())
+				.collect(Collectors.toList());
+
+		// Find the severity values
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
+
+		// Collect parameter name
+		String jsonXAxisValues = "";
+		List<Long> xAxisValues = new ArrayList<>();
+
+		// For each dynamic parameter, construct a series of values (mapping a timestamp to the value back then)
+		Map<String, Map<Long, Double>> data = new HashMap<>();
+		for (LocalDate date = startDate; date.isBefore(startDate) /* strict inequality */; date = date.plusMonths(1)) {
+			final long endTime = date.plusMonths(1).atStartOfDay().toEpochSecond(systemZoneOffset);
+			final long startTime = endTime - timespan;
+
+			xAxisValues.add(endTime);
+			if (!jsonXAxisValues.isEmpty())
+				jsonXAxisValues += ",";
+			jsonXAxisValues += "\"" + date.plusMonths(1).toString() + "\"";
+
+			for (String sourceUserName : sourceUserNames) {
+				Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(startTime, endTime, sourceUserName), timespanInUnits, severityProbabilities);
+				for (String category : likelihoods.keySet()) {
+					// Deduce parameter name from category
+					String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, category));
+					
+					// Store data
+					data.putIfAbsent(parameterName, new HashMap<Long, Double>());
+					data.get(parameterName).put(endTime, likelihoods.get(category));
+				}
+			}
+		}
+		
+		// Collect data
+		String jsonSeries = "\"series\":[ ";
+		for (String parameterName : data.keySet()) {
+			String jsonSingleSeries = "[ ";
+			for (long endTime : xAxisValues) {
+				jsonSingleSeries += data.get(parameterName).getOrDefault(endTime, 0.0) + ",";
+			}
+			jsonSingleSeries = jsonSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
+			jsonSeries += "{\"name\":\"" + parameterName + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
+		}
+		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
+
+		// Build JSON data
+		final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale);
+		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale) + "\"}";
+		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
+		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
+		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + unitPerYear + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale) + "\"}},]";
+		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "]}";
+		
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
+	}
 }

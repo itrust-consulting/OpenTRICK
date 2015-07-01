@@ -92,3 +92,17 @@
 		</c:if>
 	</div>
 </div>
+<div class="tab-pane trick-chart-tab" id="tabChartDynamic" data-update-required="true" data-trigger="loadChartDynamic">
+	<div id="chart_dynamic">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.dynamic" />
+					</h3>
+				</div>
+			</div>
+		</div>
+		<div id="chart_dynamic_body" class="col-xs-12"></div>
+	</div>
+</div>

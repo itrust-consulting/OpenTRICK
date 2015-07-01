@@ -250,6 +250,7 @@ function reloadCharts() {
 	chartALE();
 	compliances();
 	summaryCharts();
+	loadChartDynamic();
 	return false;
 };
 
@@ -335,6 +336,25 @@ function loadChartScenario() {
 			});
 		} else
 			$("#tabChartScenario").attr("data-update-required", "true");
+	}
+}
+
+function loadChartDynamic() {
+	if ($('#chart_dynamic').length) {
+		if ($('#chart_dynamic').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Dynamic/Chart/Evolution",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response, textStatus, jqXHR) {
+					displayChart('#chart_dynamic',response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartDynamic").attr("data-update-required", "true");
 	}
 }
 
