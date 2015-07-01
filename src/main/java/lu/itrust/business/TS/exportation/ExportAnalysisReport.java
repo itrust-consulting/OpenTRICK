@@ -59,7 +59,7 @@ import org.apache.poi.xwpf.usermodel.XWPFStyles;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.springframework.context.MessageSource;
 
 /**
@@ -91,7 +91,7 @@ public class ExportAnalysisReport {
 	private String idTask;
 
 	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-	
+
 	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
 	private Locale locale = null;
@@ -134,8 +134,8 @@ public class ExportAnalysisReport {
 
 	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text, boolean add) {
 		XWPFParagraph paragraph = !add && cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		if(text == null)
-			text= "";
+		if (text == null)
+			text = "";
 		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
@@ -168,12 +168,13 @@ public class ExportAnalysisReport {
 			default:
 				locale = Locale.ENGLISH;
 			}
-			
+
 			kEuroFormat.setMaximumFractionDigits(1);
 			numberFormat.setMaximumFractionDigits(0);
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.create.temporary.word.file", "Create temporary word file", null, increase(1)));// 1%
-			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
+			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%d_%s_V%s.docm", contextPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"),
+					analysis.getVersion()));
 			if (!workFile.exists())
 				workFile.createNewFile();
 
@@ -295,9 +296,6 @@ public class ExportAnalysisReport {
 
 			table.setStyleID("TableTSActionPlan");
 
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
-
 			// set header
 
 			row = table.getRow(0);
@@ -374,9 +372,6 @@ public class ExportAnalysisReport {
 
 		table.setStyleID("TableTSSummary");
 
-		CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-		width.setW(BigInteger.valueOf(10000));
-
 		// set header
 
 		row = table.getRow(0);
@@ -450,11 +445,7 @@ public class ExportAnalysisReport {
 				break;
 			}
 			case 7: {
-				while (row.getCtRow().sizeOfTcArray() > 1)
-					row.getCtRow().removeTc(1);
-				if (row.getCell(0).getCTTc().getTcPr() == null)
-					row.getCell(0).getCTTc().addNewTcPr();
-				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
+				MergeCell(row, 0, summary.size() + 1, null);
 				row.getCell(0).setText(getMessage("report.summary_stage.profitability", null, "Profitability", locale));
 				break;
 			}
@@ -494,13 +485,8 @@ public class ExportAnalysisReport {
 				break;
 			}
 			case 13: {
-				while (row.getCtRow().sizeOfTcArray() > 1)
-					row.getCtRow().removeTc(1);
-				if (row.getCell(0).getCTTc().getTcPr() == null)
-					row.getCell(0).getCTTc().addNewTcPr();
-				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
+				MergeCell(row, 0, summary.size() + 1, null);
 				row.getCell(0).setText(getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
-
 				// mrege columns
 
 				break;
@@ -834,8 +820,8 @@ public class ExportAnalysisReport {
 		generateAssets("<Asset>", analysis.findAssetSelected());
 		generateAssets("<Asset-no-selected>", analysis.findNoAssetSelected());
 	}
-	
-	private void generateAssets(String name,List<Asset> assets){
+
+	private void generateAssets(String name, List<Asset> assets) {
 		XWPFParagraph paragraph = null;
 		XWPFTable table = null;
 		XWPFTableRow row = null;
@@ -850,9 +836,6 @@ public class ExportAnalysisReport {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSAsset");
-
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
 
 			// set header
 
@@ -1099,34 +1082,30 @@ public class ExportAnalysisReport {
 
 			table.setStyleID("TableTS" + parmetertype);
 
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
-
 			// set header
 
 			row = table.getRow(0);
-
-			if (row.getTableCells().isEmpty())
-				row.createCell();
-			if (row.getCell(0).getCTTc().getTcPr() == null)
-				row.getCell(0).getCTTc().addNewTcPr();
-			row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(6));
+			MergeCell(row, 0, 6, null);
 			row.getCell(0).setText(getMessage("report.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
-
 			row = table.createRow();
 
-			for (int i = 1; i < 6; i++)
-				row.addNewTableCell().setColor(HEADER_COLOR);
+			for (int i = 1; i < 6; i++) {
+				XWPFTableCell cell = row.getCell(i);
+				if (cell != null)
+					cell.setColor(HEADER_COLOR);
+				else
+					row.addNewTableCell().setColor(HEADER_COLOR);
+			}
 
 			row.getCell(0).setText(getMessage("report.parameter.level", null, "Level", locale));
 			row.getCell(1).setText(getMessage("report.parameter.acronym", null, "Acro", locale));
 			row.getCell(2).setText(getMessage("report.parameter.qualification", null, "Qualification", locale));
-			
+
 			if (parmetertype.equals("Proba"))
 				row.getCell(3).setText(getMessage("report.parameter.proba.value", null, "Value (/y)", locale));
 			else
 				row.getCell(3).setText(getMessage("report.parameter.value", null, "Value (k€/y)", locale));
-			
+
 			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
 			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
 
@@ -1240,9 +1219,6 @@ public class ExportAnalysisReport {
 
 			table.setStyleID("TableTSScope");
 
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
-
 			// set header
 
 			row = table.getRow(0);
@@ -1273,6 +1249,8 @@ public class ExportAnalysisReport {
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
 
+		int cellWidth[] = { 128, 270, 67, 79, 75, 91, 83, 63, 97, 83, 83, 600, 600, 116 };
+
 		if (paragraph != null && analysisStandards.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
@@ -1286,42 +1264,37 @@ public class ExportAnalysisReport {
 
 				// initialise table with 1 row and 1 column after the paragraph
 				// cursor
+				if (analysisStandard.getMeasures().isEmpty())
+					continue;
 
 				if (isFirst)
 					isFirst = false;
-				else {
+				else
 					paragraph = document.createParagraph();
-					paragraph.setAlignment(ParagraphAlignment.CENTER);
-					paragraph.createRun().addCarriageReturn();
-				}
+
+				paragraph.setStyle("TSMeasureTitle");
+
+				paragraph.createRun().setText(analysisStandard.getStandard().getLabel());
+
+				paragraph = document.createParagraph();
+
+				paragraph.setAlignment(ParagraphAlignment.CENTER);
 
 				table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 				table.setStyleID("TableTSMeasure");
 
-				CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-				width.setW(BigInteger.valueOf(10000));
-
 				// set header
-
 				row = table.getRow(0);
-
-				if (row.getTableCells().isEmpty())
-					row.addNewTableCell();
-				if (row.getCell(0).getCTTc().getTcPr() == null)
-					row.getCell(0).getCTTc().addNewTcPr();
-
-				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(15));
-
-				row.getCell(0).setText(analysisStandard.getStandard().getLabel());
-
-				row = table.createRow();
 
 				if (!row.getTableCells().isEmpty())
 					row.getCell(0).setColor(SUPER_HEAD_COLOR);
 
 				while (row.getTableCells().size() < 15)
 					row.createCell().setColor(SUPER_HEAD_COLOR);
+				
+				for (int i = 0; i < cellWidth.length; i++)
+					row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
 
 				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
 				row.getCell(1).setText(getMessage("report.measure.domain", null, "Domain", locale));
@@ -1338,26 +1311,24 @@ public class ExportAnalysisReport {
 				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
 				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
 				row.getCell(14).setText(getMessage("report.measure.responsible", null, "Resp.", locale));
+
 				// set data
 				Collections.sort(analysisStandard.getMeasures(), comparator);
 
 				for (Measure measure : analysisStandard.getMeasures()) {
-
 					row = table.createRow();
 					while (row.getTableCells().size() < 2)
 						row.createCell();
 					row.getCell(0).setText(measure.getMeasureDescription().getReference());
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
 					row.getCell(1).setText(description == null ? "" : description.getDomain());
-					if (measure.getMeasureDescription().getLevel() < 3) {
-						if (row.getCell(1).getCTTc().getTcPr() == null)
-							row.getCell(1).getCTTc().addNewTcPr();
-						row.getCell(1).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
-						for (int i = 0; i < 2; i++)
-							row.getCell(i).setColor(measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
-					} else {
+					if (measure.getMeasureDescription().getLevel() < 3)
+						MergeCell(row, 1, 14, measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
+					else {
 						while (row.getTableCells().size() < 15)
 							row.createCell();
+						for (int i = 0; i < cellWidth.length; i++)
+							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
 						row.getCell(2).setText(measure.getStatus());
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
@@ -1371,7 +1342,6 @@ public class ExportAnalysisReport {
 						addCellParagraph(row.getCell(12), measure.getComment());
 						addCellParagraph(row.getCell(13), measure.getToDo());
 						addCellParagraph(row.getCell(14), measure.getResponsible());
-
 						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
 							for (int i = 0; i < 15; i++)
 								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
@@ -1384,6 +1354,23 @@ public class ExportAnalysisReport {
 					}
 				}
 			}
+		}
+	}
+
+	public static void MergeCell(XWPFTableRow row, int begin, int size, String color) {
+		int length = begin + size;
+		for (int i = 0; i < length; i++) {
+			XWPFTableCell cell = row.getCell(i);
+			if (cell == null)
+				cell = row.addNewTableCell();
+			if (color != null)
+				cell.setColor(color);
+			if (i < begin)
+				continue;
+			else if (i == begin)
+				cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.RESTART);
+			else
+				cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.CONTINUE);
 		}
 	}
 
@@ -1408,9 +1395,6 @@ public class ExportAnalysisReport {
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 			table.setStyleID("TableTSScenario");
-
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
 
 			// set header
 
@@ -1472,9 +1456,6 @@ public class ExportAnalysisReport {
 						table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 						table.setStyleID("TableTS" + key);
-
-						CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-						width.setW(BigInteger.valueOf(10000));
 
 						// set header
 						row = table.getRow(0);

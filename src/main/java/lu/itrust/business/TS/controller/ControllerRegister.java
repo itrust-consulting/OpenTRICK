@@ -85,7 +85,7 @@ public class ControllerRegister {
 	@Value("${app.settings.time.to.valid.reset.password}")
 	private int timeoutValue;
 
-	@Value("${app.settings.time.attempt.tiemout}")
+	@Value("${app.settings.time.attempt.timeout}")
 	private int attemptTimeout;
 
 	@Value("${app.settings.hostserver}")
