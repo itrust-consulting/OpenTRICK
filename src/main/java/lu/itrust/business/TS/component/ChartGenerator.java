@@ -1163,11 +1163,6 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	public String dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
-		final LocalDate endDate = LocalDate.now();
-		final LocalDate startDate = endDate.minusMonths(12);
-		final long timespan = 86400 * 30;
-		final double timespanInUnits = (double)timespan / (86400 * 30);
-
 		// Find the user names of all sources involved
 		List<String> sourceUserNames = daoUserAnalysisRight
 				.getAllFromAnalysis(idAnalysis).stream()
@@ -1179,6 +1174,14 @@ public class ChartGenerator {
 		// Find the severity values
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
+
+		// Determine time-related stuff
+		final LocalDate endDate = LocalDate.now();
+		final LocalDate startDate = endDate.minusMonths(Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS);
+		long timespan = (long)analysis.getParameter(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
+		if (timespan <= 0)
+			timespan = Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN;
+		final double timespanInUnits = (double)timespan / (86400 * 365); // all likelihoods in TRICK service are relative to 1y
 
 		// Collect parameter name
 		String jsonXAxisValues = "";

@@ -786,6 +786,11 @@ public class Constant {
 	 * shall be aggregated in order to compute the associated dynamic parameters.
 	 */
 	public static final String PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = "dynamic_parameter_timespan";
+	
+	/**
+	 * The number of past months which the chart of dynamic parameter evolution should display.
+	 */
+	public static final int CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS = 12;
 
 	/* SQLite columns of table "severity" */
 	public static final String NAME_SEVERITY = "name_severity";
