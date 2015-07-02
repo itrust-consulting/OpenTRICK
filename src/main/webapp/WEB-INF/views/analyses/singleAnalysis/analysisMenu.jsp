@@ -61,6 +61,7 @@
 				<li><a href="#tabChartCompliance" data-toggle="tab"> <fmt:message key="label.chart.compliance" /></a></li>
 				<li><a href="#tabChartEvolution" data-toggle="tab"> <fmt:message key="label.chart.evolution" /></a></li>
 				<li><a href="#tabChartBudget" data-toggle="tab"> <fmt:message key="label.chart.budget" /></a></li>
+				<li><a href="#tabChartDynamic" data-toggle="tab"> <fmt:message key="label.title.chart.dynamic" /></a></li>
 			</ul></li>
 	</c:if>
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.actions" /><span class="caret"></span></a>

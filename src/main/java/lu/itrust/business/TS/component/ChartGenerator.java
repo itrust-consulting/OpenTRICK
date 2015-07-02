@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1166,7 +1165,6 @@ public class ChartGenerator {
 	public String dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
 		final LocalDate endDate = LocalDate.now();
 		final LocalDate startDate = endDate.minusMonths(12);
-		final ZoneOffset systemZoneOffset = ZoneOffset.of(ZoneId.systemDefault().getId());
 		final long timespan = 86400 * 30;
 		final double timespanInUnits = (double)timespan / (86400 * 30);
 
@@ -1188,8 +1186,8 @@ public class ChartGenerator {
 
 		// For each dynamic parameter, construct a series of values (mapping a timestamp to the value back then)
 		Map<String, Map<Long, Double>> data = new HashMap<>();
-		for (LocalDate date = startDate; date.isBefore(startDate) /* strict inequality */; date = date.plusMonths(1)) {
-			final long endTime = date.plusMonths(1).atStartOfDay().toEpochSecond(systemZoneOffset);
+		for (LocalDate date = startDate; date.isBefore(endDate) /* strict inequality */; date = date.plusMonths(1)) {
+			final long endTime = date.plusMonths(1).atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
 			final long startTime = endTime - timespan;
 
 			xAxisValues.add(endTime);
@@ -1217,7 +1215,7 @@ public class ChartGenerator {
 			for (long endTime : xAxisValues) {
 				jsonSingleSeries += data.get(parameterName).getOrDefault(endTime, 0.0) + ",";
 			}
-			jsonSingleSeries = jsonSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
+			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
 			jsonSeries += "{\"name\":\"" + parameterName + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
@@ -1229,7 +1227,7 @@ public class ChartGenerator {
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
-		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + unitPerYear + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale) + "\"}},]";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + unitPerYear + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "]}";
 		
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
