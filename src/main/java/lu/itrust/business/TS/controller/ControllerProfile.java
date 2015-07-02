@@ -130,6 +130,9 @@ public class ControllerProfile {
 		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)), filter = user
 				.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
 		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
+		
+		System.out.println(sort);
+		
 		if (size == null)
 			size = 30;
 		if (sort == null)

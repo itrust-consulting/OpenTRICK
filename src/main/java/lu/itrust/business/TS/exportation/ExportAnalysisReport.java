@@ -1249,7 +1249,7 @@ public class ExportAnalysisReport {
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
 
-		int cellWidth[] = { 128, 270, 67, 79, 75, 91, 83, 63, 97, 83, 83, 600, 600, 116 };
+		int cellWidth[] = { 784, 2268, 454, 454, 454, 567, 511, 397, 567, 454,511,511,3500,3500,784};
 
 		if (paragraph != null && analysisStandards.size() > 0) {
 
@@ -1277,13 +1277,15 @@ public class ExportAnalysisReport {
 				paragraph.createRun().setText(analysisStandard.getStandard().getLabel());
 
 				paragraph = document.createParagraph();
+				
+				paragraph.setIndentationLeft(0);
 
 				paragraph.setAlignment(ParagraphAlignment.CENTER);
 
 				table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 				table.setStyleID("TableTSMeasure");
-
+				table.setWidth(15307);
 				// set header
 				row = table.getRow(0);
 
@@ -1292,7 +1294,7 @@ public class ExportAnalysisReport {
 
 				while (row.getTableCells().size() < 15)
 					row.createCell().setColor(SUPER_HEAD_COLOR);
-				
+
 				for (int i = 0; i < cellWidth.length; i++)
 					row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
 
@@ -1322,8 +1324,11 @@ public class ExportAnalysisReport {
 					row.getCell(0).setText(measure.getMeasureDescription().getReference());
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
 					row.getCell(1).setText(description == null ? "" : description.getDomain());
-					if (measure.getMeasureDescription().getLevel() < 3)
+					if (measure.getMeasureDescription().getLevel() < 3){
 						MergeCell(row, 1, 14, measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
+						for (int i = 0; i < cellWidth.length; i++)
+							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
+					}
 					else {
 						while (row.getTableCells().size() < 15)
 							row.createCell();
@@ -1350,7 +1355,6 @@ public class ExportAnalysisReport {
 							row.getCell(1).setColor(SUB_HEADER_COLOR);
 							row.getCell(11).setColor(measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
 						}
-
 					}
 				}
 			}
