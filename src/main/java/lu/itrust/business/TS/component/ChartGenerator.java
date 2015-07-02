@@ -1176,8 +1176,8 @@ public class ChartGenerator {
 		final Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
 
 		// Determine time-related stuff
-		final LocalDate endDate = LocalDate.now();
-		final LocalDate startDate = endDate.minusMonths(Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS);
+		final LocalDate lastEndDate = LocalDate.now();
+		final LocalDate firstEndDate = lastEndDate.minusMonths(Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS - 1);
 		long timespan = (long)analysis.getParameter(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
 		if (timespan <= 0)
 			timespan = Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN;
@@ -1189,19 +1189,21 @@ public class ChartGenerator {
 
 		// For each dynamic parameter, construct a series of values (mapping a timestamp to the value back then)
 		Map<String, Map<Long, Double>> data = new HashMap<>();
-		for (LocalDate date = startDate; date.isBefore(endDate) /* strict inequality */; date = date.plusMonths(1)) {
-			final long endTime = date.plusMonths(1).atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
+		for (LocalDate endDate = firstEndDate; endDate.compareTo(lastEndDate) <= 0 /* endDate <= lastEndDate */; endDate = endDate.plusMonths(1)) {
+			final long endTime = endDate.atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
 			final long startTime = endTime - timespan;
 
 			xAxisValues.add(endTime);
 			if (!jsonXAxisValues.isEmpty())
 				jsonXAxisValues += ",";
-			jsonXAxisValues += "\"" + date.plusMonths(1).toString() + "\"";
+			jsonXAxisValues += "\"" + endDate.toString() + "\"";
 
 			for (String sourceUserName : sourceUserNames) {
 				Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(startTime, endTime, sourceUserName), timespanInUnits, severityProbabilities);
 				for (String category : likelihoods.keySet()) {
-					// Deduce parameter name from category
+					// Deduce parameter name from category. The naming policy must agree with the one used in both:
+					// - lu.itrust.business.TS.component.DynamicParameterComputer#computeForAllAnalysesOfUser(String)
+					// - lu.itrust.business.TS.component.DynamicParameterComputer#computeForAnalysis(Analysis)
 					String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, category));
 					
 					// Store data
@@ -1212,27 +1214,39 @@ public class ChartGenerator {
 		}
 		
 		// Collect data
-		String jsonSeries = "\"series\":[ ";
+		String jsonSeries = "\"series\":[ "; // need space at the end if 'data' is empty map
 		for (String parameterName : data.keySet()) {
-			String jsonSingleSeries = "[ ";
+			String jsonSingleSeries = "[ "; // need space at the end if 'xAxisValues' is empty list
 			for (long endTime : xAxisValues) {
 				jsonSingleSeries += data.get(parameterName).getOrDefault(endTime, 0.0) + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
-			jsonSeries += "{\"name\":\"" + parameterName + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
+			jsonSeries += "{\"name\":\"" + jsonEscape(parameterName) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
 		// Build JSON data
 		final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale);
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
-		final String jsonTitle = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale) + "\"}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
-		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + unitPerYear + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale) + "\"}}]";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "]}";
 		
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
+	}
+
+	/**
+	 * Escapes the content of a JSON string in a very basic way.
+	 * Does not support escaping of control characters.
+	 * @param text The text to be escaped, which will go between double quotes (the latter must not be specified).
+	 * @return Returns an escaped string which can be used within double quotes.
+	 */
+	private static String jsonEscape(String text) {
+		// Control characters should be escaped as well (using \\uXXXX syntax),
+		// but this is not done for performance reasons.
+		return text.replace("\\", "\\\\").replace("\"", "\\\"");
 	}
 }
