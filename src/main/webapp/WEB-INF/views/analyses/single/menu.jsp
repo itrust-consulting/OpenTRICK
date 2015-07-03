@@ -93,7 +93,7 @@
 					onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.menu.analysis.deprecated.action_plan" />
 				</a></li>
 				<li style="color: #999999" title="<fmt:message key="info.deprecated.analysis.action.computation.risk_register" />"><a style="color: inherit;" href="#"
-					onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.menu.analysis.deprecated.risk_register" /></a></li>
+					onclick="return calculateRiskRegister();"> <fmt:message key="label.menu.analysis.deprecated.risk_register" /></a></li>
 				<c:if test="${isEditable}">
 					<li class="divider"></li>
 					<li class="dropdown-header"><fmt:message key="label.title.assessment" /></li>

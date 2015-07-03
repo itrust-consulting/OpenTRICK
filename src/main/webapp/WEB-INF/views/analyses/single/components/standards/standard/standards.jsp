@@ -17,13 +17,14 @@
 			<c:choose>
 				<c:when test="${analysisOnly}">
 					<ul style="padding: 3px 5px 9px 51px" class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
-						<li style="min-width: 5%"><h3 style="margin: 7px auto;">
+						<li style="min-width: 5%" data-role="title"><h3 style="margin: 7px auto;">
 								<spring:message text="${standard}" />
 							</h3></li>
 						<c:if test="${isEditable}">
 							<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
 							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
 									class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
+							<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 							<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
 								href="#"><span class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
 						</c:if>

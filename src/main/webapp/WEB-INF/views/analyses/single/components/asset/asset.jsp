@@ -22,6 +22,7 @@
 			<li  class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
 					class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.show.asset.assessment" /> </a></li>
 			<c:if test="${isEditable}">
+				<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 				<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
 						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete.asset" /> </a></li>
 			</c:if>

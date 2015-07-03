@@ -1,43 +1,18 @@
-function calculateRiskRegister(analysisId) {
-
-	var analysisID = -1;
-
-	if (analysisId == null || analysisId == undefined) {
-
-		var selectedAnalysis = findSelectItemIdBySection("section_analysis");
-		if (!selectedAnalysis.length)
-			return false;
-		while (selectedAnalysis.length) {
-			rowTrickId = selectedAnalysis.pop();
-			if (userCan(rowTrickId, ANALYSIS_RIGHT.READ)) {
-				analysisID = rowTrickId;
-			} else
-				permissionError();
-		}
-
-	} else {
-		analysisID = analysisId;
-	}
-
-	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-		$.ajax({
-			url : context + "/Analysis/RiskRegister/Compute",
-			type : "post",
-			data : JSON.stringify({id:analysisID }),
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				if (response["success"] != undefined)
-					new TaskManager().Start();
-				else if (message["error"]) {
-					$("#alert-dialog .modal-body").html(message["error"]);
-					$("#alert-dialog").modal("toggle");
-				}
-			},
-			error : unknowError
-		});
-	} else
-		permissionError();
+function calculateRiskRegister() {
+	$.ajax({
+		url : context + "/Analysis/RiskRegister/Compute",
+		type : "post",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (response["success"] != undefined)
+				new TaskManager().Start();
+			else if (message["error"]) {
+				$("#alert-dialog .modal-body").html(message["error"]);
+				$("#alert-dialog").modal("toggle");
+			}else unknowError()
+		},
+		error : unknowError
+	});
 	return false;
 }
 

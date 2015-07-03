@@ -68,15 +68,26 @@ $(function() {
 					if (!$option.find("#" + optionMenu.prop("id")).length) {
 						$option.find("ul").remove();
 						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
-						$subMenu.each(function() {
-							var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
-							$this.removeClass();
-							if ($this.closest("li").length)
-								$this.before("<li class='divider'></li>");
-							$lis.appendTo(cloneOption);
-							$this.text(text);
-							$this.addClass("dropdown-header");
-						});
+						$("li[data-role='title']",cloneOption ).remove()
+						cloneOption.removeAttr("style");
+						if ($subMenu.length) {
+							$subMenu.each(function() {
+								var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
+								$this.removeClass();
+								if ($this.closest("li").length)
+									$this.before("<li class='divider'></li>");
+								$lis.appendTo(cloneOption);
+								$this.text(text);
+								$this.addClass("dropdown-header");
+							});
+						} else {
+							$("li.dropdown-header",cloneOption).each(function(){
+								var $this = $(this), $closestli = $this.closest("li");
+								if($closestli.length && !$closestli.hasClass("divider"))
+									$this.before("<li class='divider'></li>");
+								$this.show();
+							});
+						}
 						$("li.divider", cloneOption).show();
 						cloneOption.appendTo($option);
 						cloneOption.removeClass();

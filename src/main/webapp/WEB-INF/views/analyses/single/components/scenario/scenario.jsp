@@ -24,6 +24,7 @@
 						class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.assessment" /> </a></li>
 			</c:if>
 			<c:if test="${isEditable}">
+				<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 				<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span
 						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /> </a></li>
 			</c:if>

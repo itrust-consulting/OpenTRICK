@@ -9,14 +9,14 @@
 <div class="tab-pane" id="tabRiskRegister">
 	<div class="section" id="section_riskregister">
 		<ul class="nav nav-pills bordered-bottom" id="menu_riskRegister">
-			<li class="disabled" data-trick-role="menu-risk-register-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
-						key="label.risk_register.display.value" /></a></li>
-			<li data-trick-role="menu-risk-register-control-level"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
-						key="label.risk_register.display.level" /></a></li>
-			<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.advanced" /><span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.action.compute.risk_register" /></a></li>
-				</ul></li>
+			<c:if test="${not empty riskregister}">
+				<li class="disabled" data-trick-role="menu-risk-register-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
+							key="label.risk_register.display.value" /></a></li>
+				<li data-trick-role="menu-risk-register-control-level"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
+							key="label.risk_register.display.level" /></a></li>
+			</c:if>
+			<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+			<li class="pull-right"><a  href="#" class="text-danger" onclick="return calculateRiskRegister();"><i class="glyphicon glyphicon-expand"></i> <fmt:message key="label.action.compute" /></a></li>
 		</ul>
 		<c:choose>
 			<c:when test="${!empty(riskregister)}">

@@ -13,20 +13,16 @@
 		<ul class="nav nav-pills bordered-bottom" id="menu_actionplan">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
-					onclick="return navToogled('#section_actionplans','#menu_actionplan,#tabOption','${apt}',true);"> <fmt:message
-							key="label.action_plan_type.${fn:toLowerCase(apt)}" />
+					onclick="return navToogled('#section_actionplans','#menu_actionplan,#tabOption','${apt}',true);"> <fmt:message key="label.action_plan_type.${fn:toLowerCase(apt)}" />
 				</a></li>
 			</c:forEach>
-			<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.advanced" /><span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<c:if test="${!actionplansplitted.isEmpty()}">
-						<li><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <fmt:message
-									key="label.action_plan_assets.show" />
-						</a></li>
-					</c:if>
-					<li><a href="#" class="text-danger" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message key="label.action.compute.action_plan" /></a></li>
-				</ul>
-			</li>
+			<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+			
+			<c:if test="${!actionplansplitted.isEmpty()}">
+				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action_plan_assets.show" /></a></li>
+			</c:if>
+			<li class="pull-right"><a href="#" class="text-danger" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message
+						key="label.action.compute" /></a></li>
 		</ul>
 		<c:choose>
 			<c:when test="${not empty actionplansplitted}">

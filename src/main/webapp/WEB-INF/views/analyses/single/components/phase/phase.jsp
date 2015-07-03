@@ -12,6 +12,7 @@
 				<li><a href="#" onclick="return newPhase();"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /> </a></li>
 				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#" onclick="return editPhase(null);"><span
 						class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /> </a></li>
+				<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 				<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deletePhase();"><span
 						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /> </a></li>
 			</ul>
