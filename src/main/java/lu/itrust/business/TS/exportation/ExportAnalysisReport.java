@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
@@ -59,6 +60,7 @@ import org.apache.poi.xwpf.usermodel.XWPFStyles;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.springframework.context.MessageSource;
 
@@ -71,6 +73,8 @@ import org.springframework.context.MessageSource;
  * @since May 27, 2014
  */
 public class ExportAnalysisReport {
+
+	private static final String MAX_IMPL = "MAX_IMPL";
 
 	private static final String DEFAULT_CELL_COLOR = "f5f9f0";
 
@@ -241,11 +245,27 @@ public class ExportAnalysisReport {
 
 			generateGraphics();
 
+			updateProperties();
+
 			document.write(new FileOutputStream(workFile));
 		} finally {
 			if (inputStream != null)
 				inputStream.close();
 		}
+	}
+
+	private void updateProperties() {
+		Optional<Parameter> maxImplParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findAny();
+		if (maxImplParameter.isPresent()) {
+			CTProperty soaThresholdProperty = document.getProperties().getCustomProperties().getProperty(MAX_IMPL);
+			if (soaThresholdProperty== null)
+				document.getProperties().getCustomProperties().addProperty(MAX_IMPL, (int) maxImplParameter.get().getValue());
+			else
+				soaThresholdProperty.setLpwstr(String.valueOf((int) maxImplParameter.get().getValue()));
+		}
+		document.getProperties().getCoreProperties().setCategory(analysis.getCustomer().getOrganisation());
+		document.getProperties().getCoreProperties().setCreator(String.format("%s %s", analysis.getOwner().getFirstName(),analysis.getOwner().getLastName()));
+		document.enforceUpdateFields();
 	}
 
 	private XWPFParagraph findParagraphByText(String text) {
@@ -1249,7 +1269,7 @@ public class ExportAnalysisReport {
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
 
-		int cellWidth[] = { 784, 2268, 454, 454, 454, 567, 511, 397, 567, 454,511,511,3500,3500,784};
+		int cellWidth[] = { 784, 2290, 454, 454, 454, 454, 454, 398, 454, 454, 454, 454, 3500, 3500, 784 };
 
 		if (paragraph != null && analysisStandards.size() > 0) {
 
@@ -1277,7 +1297,7 @@ public class ExportAnalysisReport {
 				paragraph.createRun().setText(analysisStandard.getStandard().getLabel());
 
 				paragraph = document.createParagraph();
-				
+
 				paragraph.setIndentationLeft(0);
 
 				paragraph.setAlignment(ParagraphAlignment.CENTER);
@@ -1324,12 +1344,11 @@ public class ExportAnalysisReport {
 					row.getCell(0).setText(measure.getMeasureDescription().getReference());
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
 					row.getCell(1).setText(description == null ? "" : description.getDomain());
-					if (measure.getMeasureDescription().getLevel() < 3){
+					if (measure.getMeasureDescription().getLevel() < 3) {
 						MergeCell(row, 1, 14, measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
 						for (int i = 0; i < cellWidth.length; i++)
 							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
-					}
-					else {
+					} else {
 						while (row.getTableCells().size() < 15)
 							row.createCell();
 						for (int i = 0; i < cellWidth.length; i++)
