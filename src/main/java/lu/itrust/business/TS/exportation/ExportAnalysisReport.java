@@ -1428,8 +1428,8 @@ public class ExportAnalysisReport {
 
 			// set header
 			table.getRow(0).getCell(0).setText(getMessage("report.scenario.title.number.row", null, "Nr", locale));
-			table.getRow(0).getCell(1).setText(getMessage("report.scenario.title.number.name", null, "Name", locale));
-			table.getRow(0).getCell(2).setText(getMessage("report.scenario.title.number.description", null, "Description", locale));
+			table.getRow(0).getCell(1).setText(getMessage("report.scenario.title.name", null, "Name", locale));
+			table.getRow(0).getCell(2).setText(getMessage("report.scenario.title.description", null, "Description", locale));
 
 			int number = 0;
 
