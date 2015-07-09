@@ -520,12 +520,7 @@ public class ControllerAnalysisStandard {
 				// return error on failure
 				return errors;
 
-			Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType());
-
-			if (version == null)
-				version = 0;
-
-			standard.setVersion(version + 1);
+			standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 
 			serviceStandard.save(standard);
 
@@ -1266,19 +1261,8 @@ public class ControllerAnalysisStandard {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			if (label != prevlabel || type != prevtype) {
-
-				if (serviceStandard.existsByNameVersionType(label, 1, type)) {
-
-					Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(label, type);
-					if (version == null)
-						version = 0;
-
-					standard.setVersion(version + 1);
-				} else
-					standard.setVersion(1);
-
-			}
+			if (label != prevlabel || type != prevtype) 
+				standard.setVersion(serviceStandard.getNextVersionByNameAndType(label, type));
 			// return success
 			return standard;
 

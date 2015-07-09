@@ -41,7 +41,7 @@ public interface DAOStandard {
 
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception;
 	
-	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception;
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType) throws Exception;
 	
 	public void save(Standard standard) throws Exception;
 
@@ -50,4 +50,6 @@ public interface DAOStandard {
 	public void delete(Standard standard) throws Exception;
 
 	public boolean belongToAnalysis(Integer idStandard, int idAnalysis);
+
+	public int getNextVersion(String label);
 }

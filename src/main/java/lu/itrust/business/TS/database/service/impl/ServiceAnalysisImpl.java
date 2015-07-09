@@ -599,4 +599,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public boolean existsByNameAndCustomerId(String name, int idCustomer) {
 		return daoAnalysis.existsByNameAndCustomerId(name,idCustomer);
 	}
+
+	@Override
+	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize) {
+		return daoAnalysis.getAllNotEmpty(pageIndex,pageSize);
+	}
+
+	@Override
+	public int countNotEmpty() {
+		return daoAnalysis.countNotEmpty();
+	}
 }

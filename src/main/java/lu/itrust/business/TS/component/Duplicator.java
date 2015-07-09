@@ -257,8 +257,8 @@ public class Duplicator {
 			return astandard;
 		} else {
 			Standard standard = analysisStandard.getStandard().duplicate();
-
-			standard.setVersion(daoStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType()) + 1);
+			
+			standard.setVersion(daoStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 
 			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
 

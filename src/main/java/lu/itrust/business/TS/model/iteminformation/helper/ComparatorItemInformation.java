@@ -72,9 +72,16 @@ public class ComparatorItemInformation implements Comparator<ItemInformation> {
 			return -1;
 		case "strategic":
 			return 0;
-		default:
+		case "financialParameters":
 			return 1;
+		case "riskEvaluationCriteria":
+			return 2;
+		case "impactCriteria":
+			return 3;
+		case "riskAcceptanceCriteria":
+			return 4;
+		default:
+			return 5;
 		}
-
 	}
 }

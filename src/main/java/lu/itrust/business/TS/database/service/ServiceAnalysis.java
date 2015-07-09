@@ -131,4 +131,8 @@ public interface ServiceAnalysis {
 
 	public boolean existsByNameAndCustomerId(String name, int idCustomer);
 
+	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize);
+
+	public int countNotEmpty();
+
 }

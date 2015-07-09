@@ -20,7 +20,9 @@
 	<script src="<spring:url value="/js/trickservice/taskmanager.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/progressbar.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/modal.js" />"></script>
-	<script src="<spring:url value="/js/trickservice/patch.js" />"></script>
+	<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
+		<script src="<spring:url value="/js/trickservice/patch.js" />"></script>
+	</sec:authorize>
 	<script src="<spring:url value="/js/trickservice/profile.js" />"></script>
 	<script type="text/javascript">
 	<!--
