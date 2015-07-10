@@ -29,7 +29,7 @@
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasCreateVersion()"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
-						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message code="label.edit.info" text="Edit info" /></a></li>
+						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-align-justify"></span> <spring:message code="label.edit.info" text="Edit info" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span
 							class="glyphicon glyphicon-file"></span> <spring:message code="label.menu.create.analysis_profile" text="New profile" />
 					</a></li>

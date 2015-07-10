@@ -21,7 +21,7 @@
 			<c:if test="${!actionplansplitted.isEmpty()}">
 				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action_plan_assets.show" /></a></li>
 			</c:if>
-			<li class="pull-right"><a href="#" class="text-danger" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message
+			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message
 						key="label.action.compute" /></a></li>
 		</ul>
 		<c:choose>

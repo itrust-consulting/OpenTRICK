@@ -23,13 +23,13 @@
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.risk_analysis" /> <span class="caret"></span></a>
 		<ul class="dropdown-menu">
 			<c:if test="${!analysis.isProfile()}">
-				<li class="dropdown-header"><fmt:message key="label.menu.analysis.quantitative_analysis" /></li>
+				<li class="dropdown-header"><fmt:message key="label.menu.analysis.qualitative_analysis" /></li>
 				<li><a href="#tabRiskInformation_Threat" data-toggle="tab"><fmt:message key="label.menu.analysis.threat" /></a></li>
 				<li><a href="#tabRiskInformation_Vul" data-toggle="tab"><fmt:message key="label.menu.analysis.vulnerability" /></a></li>
 				<li><a href="#tabRiskInformation_Risk" data-toggle="tab"><fmt:message key="label.menu.analysis.risk" /></a></li>
 				<li class="divider"></li>
 			</c:if>
-			<li class="dropdown-header"><fmt:message key="label.menu.analysis.qualitative_analysis" /></li>
+			<li class="dropdown-header"><fmt:message key="label.menu.analysis.quantitative_analysis" /></li>
 			<c:if test="${!analysis.isProfile()}">
 				<li><a href="#tabAsset" data-toggle="tab"><fmt:message key="label.menu.analysis.asset" /></a></li>
 			</c:if>

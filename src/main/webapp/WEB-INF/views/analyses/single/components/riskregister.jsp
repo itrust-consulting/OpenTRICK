@@ -16,7 +16,7 @@
 							key="label.risk_register.display.level" /></a></li>
 			</c:if>
 			<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
-			<li class="pull-right"><a  href="#" class="text-danger" onclick="return calculateRiskRegister();"><i class="glyphicon glyphicon-expand"></i> <fmt:message key="label.action.compute" /></a></li>
+			<li class="pull-right"><a  href="#" onclick="return calculateRiskRegister();"><i class="glyphicon glyphicon-expand"></i> <fmt:message key="label.action.compute" /></a></li>
 		</ul>
 		<c:choose>
 			<c:when test="${!empty(riskregister)}">
