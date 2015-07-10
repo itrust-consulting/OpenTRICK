@@ -2666,6 +2666,7 @@ public class ActionPlanComputation {
 					tmpval.deltaALE = 0;
 					tmpval.externalWorkload = 0;
 					tmpval.internalWorkload = 0;
+					tmpval.investment = 0;
 					tmpval.measureCost = 0;
 					tmpval.measureCount = 0;
 					tmpval.relativeROSI = 0;
@@ -3039,12 +3040,14 @@ public class ActionPlanComputation {
 		aStage.setRecurrentInvestment(tmpval.recurrentInvestment * phasetime);
 
 		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-
 		double ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
+		/*System.out.println(String.format("Phase: %d, recurrentCost: %f", phasenumber,
+				(aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment()));*/
+		
+		aStage.setRecurrentCost(tmpval.recurrentCost);//From previous phase
+		
 		tmpval.recurrentCost = (aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment();
-
-		aStage.setRecurrentCost(tmpval.recurrentCost);
 
 		// update total cost
 		tmpval.totalCost += (tmpval.internalWorkload * ir) + (tmpval.externalWorkload * er) + tmpval.investment;
