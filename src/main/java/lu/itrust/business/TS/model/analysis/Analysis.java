@@ -466,8 +466,8 @@ public class Analysis implements Cloneable {
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in Euro<br>
 	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 * ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 =
-	 * 100%) :: if 0 -> use The Default Maintenance in Percentage (0,00 - 1,00
+	 * ma: The MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 =
+	 * 100%) :: if 0 -> use The Default MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00
 	 * WHERE 0,00 = 0% and 0,1 = 100%)
 	 * 
 	 * @param internalSetup
@@ -555,8 +555,8 @@ public class Analysis implements Cloneable {
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in kEuro<br>
 	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 * im: The Internal Maintenance in Man Days<br>
-	 * em: The External Maintenance in Man Days<br>
+	 * im: The Internal MaintenanceRecurrentInvestment in Man Days<br>
+	 * em: The External MaintenanceRecurrentInvestment in Man Days<br>
 	 * ri: The recurrent Investment in kEuro<br>
 	 * 
 	 * @param internalSetupRate

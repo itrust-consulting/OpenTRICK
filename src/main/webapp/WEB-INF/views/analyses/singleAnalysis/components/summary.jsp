@@ -136,6 +136,9 @@
 						<tr class="active">
 							<td colspan="${columncount+5}"><fmt:message key="label.resource.planning" /></td>
 						</tr>
+						<tr class="warning">
+							<td colspan="${columncount+5}"><fmt:message key="label.resource.implementation.cost" /></td>
+						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.internal.workload" /></td>
 							<fmt:setLocale value="fr" scope="session" />
@@ -163,7 +166,7 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-						<tr class="active">
+						<tr class="warning">
 							<td colspan="${columncount+5}"><fmt:message key="label.resource.planning.recurrent.cost" /></td>
 						</tr>
 						<tr>

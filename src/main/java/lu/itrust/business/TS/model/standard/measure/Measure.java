@@ -68,10 +68,10 @@ public abstract class Measure implements Cloneable {
 	/** The LifeTime of the Measure (in Years) */
 	private double lifetime = 0;
 
-	/** The internal Maintenance of the Measure (in Man Days) */
+	/** The internal MaintenanceRecurrentInvestment of the Measure (in Man Days) */
 	private double internalMaintenance = 0;
 
-	/** The external Maintenance of the Measure (in Man Days) */
+	/** The external MaintenanceRecurrentInvestment of the Measure (in Man Days) */
 	private double externalMaintenance = 0;
 
 	/** The recurrent investment of maintenance of the Measure (Currency) */

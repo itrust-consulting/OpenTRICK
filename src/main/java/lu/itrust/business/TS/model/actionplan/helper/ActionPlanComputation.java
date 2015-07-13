@@ -24,7 +24,6 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.model.actionplan.summary.helper.Maintenance;
 import lu.itrust.business.TS.model.actionplan.summary.helper.MaintenanceRecurrentInvestment;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
@@ -2590,7 +2589,7 @@ public class ActionPlanComputation {
 		// retirve actionplantype
 		ActionPlanType apt = actionPlan.get(0).getActionPlanType();
 
-		Map<Integer, Maintenance> maintenances = new LinkedHashMap<Integer, Maintenance>();
+		Map<Integer, MaintenanceRecurrentInvestment> maintenances = new LinkedHashMap<Integer, MaintenanceRecurrentInvestment>();
 
 		// ****************************************************************
 		// * retrieve internal rate and external rate
@@ -2876,11 +2875,11 @@ public class ActionPlanComputation {
 	 *            The Name to give for the Stage
 	 * @param firstStage
 	 *            Flag to tell if the Stage is the First Stage
-	 * @param maintenances
+	 * @param maintenanceRecurrentInvestments
 	 * @throws TrickException
 	 */
 	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage, int phasenumber,
-			Map<Integer, Maintenance> maintenances) throws TrickException {
+			Map<Integer, MaintenanceRecurrentInvestment> maintenanceRecurrentInvestments) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2996,19 +2995,21 @@ public class ActionPlanComputation {
 
 		}
 
-		MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = preImplementedMeasures == null || !preImplementedMeasures.containsKey(phasenumber) ? new MaintenanceRecurrentInvestment()
+		MaintenanceRecurrentInvestment preImplementedMeasure = preImplementedMeasures == null || !preImplementedMeasures.containsKey(phasenumber) ? new MaintenanceRecurrentInvestment()
 				: preImplementedMeasures.get(phasenumber);
 
-		tmpval.internalMaintenance += maintenanceRecurrentInvestment.getInternalMaintenance();
-		tmpval.externalMaintenance += maintenanceRecurrentInvestment.getExternalMaintenance();
-		tmpval.recurrentInvestment += maintenanceRecurrentInvestment.getRecurrentInvestment();
+		tmpval.internalMaintenance += preImplementedMeasure.getInternalMaintenance();
+		tmpval.externalMaintenance += preImplementedMeasure.getExternalMaintenance();
+		tmpval.recurrentInvestment += preImplementedMeasure.getRecurrentInvestment();
 
-		Maintenance maintenance = maintenances.containsKey(phasenumber - 1) ? maintenances.get(phasenumber - 1) : new Maintenance();
+		MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = maintenanceRecurrentInvestments.containsKey(phasenumber - 1) ? maintenanceRecurrentInvestments
+				.get(phasenumber - 1) : new MaintenanceRecurrentInvestment();
 
-		if (maintenances.containsKey(phasenumber))
-			maintenances.get(phasenumber).update(tmpval.internalMaintenance, tmpval.externalMaintenance);
+		if (maintenanceRecurrentInvestments.containsKey(phasenumber))
+			maintenanceRecurrentInvestments.get(phasenumber).update(tmpval.internalMaintenance, tmpval.externalMaintenance, tmpval.recurrentInvestment);
 		else
-			maintenances.put(phasenumber, new Maintenance(tmpval.internalMaintenance, tmpval.externalMaintenance));
+			maintenanceRecurrentInvestments
+					.put(phasenumber, new MaintenanceRecurrentInvestment(tmpval.internalMaintenance, tmpval.externalMaintenance, tmpval.recurrentInvestment));
 
 		// ****************************************************************
 		// * create summary stage object
@@ -3035,19 +3036,16 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
-		aStage.setInternalMaintenance((maintenance.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime);
-		aStage.setExternalMaintenance((maintenance.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime);
-		aStage.setRecurrentInvestment(tmpval.recurrentInvestment * phasetime);
+		aStage.setInternalMaintenance((preImplementedMeasure.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime);
+		aStage.setExternalMaintenance((preImplementedMeasure.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime);
+		aStage.setRecurrentInvestment((preImplementedMeasure.getRecurrentInvestment() + maintenanceRecurrentInvestment.getRecurrentInvestment()) * phasetime);
 
 		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 		double ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
-		/*System.out.println(String.format("Phase: %d, recurrentCost: %f", phasenumber,
-				(aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment()));*/
-		
 		tmpval.recurrentCost = (aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment();
-		
-		aStage.setRecurrentCost(tmpval.recurrentCost);//From previous phase
+
+		aStage.setRecurrentCost(tmpval.recurrentCost);// From previous phase
 
 		// update total cost
 		tmpval.totalCost += (tmpval.internalWorkload * ir) + (tmpval.externalWorkload * er) + tmpval.investment;
@@ -3056,14 +3054,9 @@ public class ActionPlanComputation {
 		// internal maintenance with
 		// phasetime and with internal and external setup as well as investment
 		// with phasetime
-		if (phasetime > 0)
-			tmpval.totalCost += ((maintenance.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime * ir)
-					+ ((maintenance.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime * er)
-					+ (tmpval.recurrentInvestment * phasetime);
-		else
-			tmpval.totalCost += ((maintenance.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime * ir)
-					+ ((maintenance.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime * er) + tmpval.recurrentInvestment;
-
+	
+		tmpval.totalCost += aStage.getInternalMaintenance() * ir + aStage.getExternalMaintenance() * er + aStage.getRecurrentInvestment();
+		
 		aStage.setTotalCostofStage(tmpval.totalCost);
 
 		// ****************************************************************
