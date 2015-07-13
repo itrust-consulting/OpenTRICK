@@ -358,11 +358,9 @@ public class ActionPlanComputation {
 					.filter(measure -> measure.getImplementationRateValue() >= 100)
 					.forEach(
 							measure -> {
-								MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = preImplementedMeasures.get(measure.getPhase().getNumber());
+								MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = preImplementedMeasures.get(1);
 								if (maintenanceRecurrentInvestment == null)
-									preImplementedMeasures.put(
-											measure.getPhase().getNumber(),
-											new MaintenanceRecurrentInvestment(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment()));
+									preImplementedMeasures.put(1,new MaintenanceRecurrentInvestment(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment()));
 								else
 									maintenanceRecurrentInvestment.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 							});
