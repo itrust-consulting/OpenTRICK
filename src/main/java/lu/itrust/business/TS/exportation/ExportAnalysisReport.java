@@ -401,7 +401,7 @@ public class ExportAnalysisReport {
 
 		int rownumber = 0;
 
-		while (rownumber < 22) {
+		while (rownumber < 24) {
 
 			if (rownumber == 0)
 				row = table.getRow(rownumber);
@@ -511,7 +511,19 @@ public class ExportAnalysisReport {
 
 				break;
 			}
+			
 			case 14: {
+				while (row.getCtRow().sizeOfTcArray() > 1)
+					row.getCtRow().removeTc(1);
+				if (row.getCell(0).getCTTc().getTcPr() == null)
+					row.getCell(0).getCTTc().addNewTcPr();
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
+				row.getCell(0).setText(getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
+				// mrege columns
+
+				break;
+			}
+			case 15: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
@@ -520,7 +532,7 @@ public class ExportAnalysisReport {
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-			case 15: {
+			case 16: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
@@ -529,7 +541,7 @@ public class ExportAnalysisReport {
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-			case 16: {
+			case 17: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
@@ -538,7 +550,18 @@ public class ExportAnalysisReport {
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-			case 17: {
+			
+			case 18: {
+				while (row.getCtRow().sizeOfTcArray() > 1)
+					row.getCtRow().removeTc(1);
+				if (row.getCell(0).getCTTc().getTcPr() == null)
+					row.getCell(0).getCTTc().addNewTcPr();
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
+				row.getCell(0).setText(getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
+				break;
+			}
+			
+			case 19: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
@@ -547,7 +570,7 @@ public class ExportAnalysisReport {
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-			case 18: {
+			case 20: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
@@ -556,7 +579,7 @@ public class ExportAnalysisReport {
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-			case 19: {
+			case 21: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
@@ -565,16 +588,16 @@ public class ExportAnalysisReport {
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-			case 20: {
+			case 22: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText(getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs (k€)", locale));
+				row.getCell(cellnumber).setText(getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRecurrentCost() * 0.001));
 				numberFormat.setMaximumFractionDigits(0);
 				break;
 			}
-			case 21: {
+			case 23: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);

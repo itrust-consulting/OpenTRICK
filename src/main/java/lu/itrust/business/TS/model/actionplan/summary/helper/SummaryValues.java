@@ -77,10 +77,10 @@ public class SummaryValues {
 	/** Sum of Investments to the Last Stage Entry */
 	public double investment = 0;
 
-	/** Sum of Internal Maintenance to the Last Stage Entry */
+	/** Sum of Internal MaintenanceRecurrentInvestment to the Last Stage Entry */
 	public double internalMaintenance = 0;
 	
-	/** Sum of External Maintenance to the Last Stage Entry */
+	/** Sum of External MaintenanceRecurrentInvestment to the Last Stage Entry */
 	public double externalMaintenance = 0;
 	
 	/** Sum of recurrent investment to the Last Stage Entry */

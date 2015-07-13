@@ -6,15 +6,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane active" id="tabHistory">
-	<div class="page-header tab-content-header">
-		<div class="container">
-			<div class="row-fluid">
-				<h3>
-					<fmt:message key="label.title.history"/>
-				</h3>
-			</div>
-		</div>
-	</div>
 	<div class="section" id="section_history">
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>

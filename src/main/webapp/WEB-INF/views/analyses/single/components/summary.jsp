@@ -13,17 +13,22 @@
 		<ul id="menu_summary" class="nav nav-pills bordered-bottom">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
-					onclick="return navToogled('#section_summary','#menu_summary','${actionPlanType.name}', true);"><fmt:message key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
+					onclick="return navToogled('#section_summary','#menu_summary','${actionPlanType.name}', true);"><fmt:message
+							key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
 			</c:forEach>
+			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message
+						key="label.action.compute" /></a></li>
 		</ul>
-		<c:set var="euroByYear"><fmt:message key="label.metric.euro_by_year" /></c:set>
+		<c:set var="euroByYear">
+			<fmt:message key="label.metric.euro_by_year" />
+		</c:set>
 		<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 			<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 			<div data-trick-nav-content="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
 				<table class="table table-hover table-condensed table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 					<thead>
 						<tr>
-							<th style="width:30%;"><fmt:message key="label.characteristic" /></th>
+							<th style="width: 30%;"><fmt:message key="label.characteristic" /></th>
 							<c:set var="stages" value="${summaryStages.get('label.characteristic')}" />
 							<c:set var="columncount" value="${stages.size()}" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
@@ -46,7 +51,7 @@
 						<c:set var="internalmaintenances" value="${summaryStages.get('label.resource.planning.internal.maintenance')}"></c:set>
 						<c:set var="externalmaintenances" value="${summaryStages.get('label.resource.planning.external.maintenance')}"></c:set>
 						<c:set var="recurrentinvestments" value="${summaryStages.get('label.resource.planning.recurrent.investment')}"></c:set>
-						<c:set var="recurrentcosts" value="${summaryStages.get('label.resource.planning.recurrent.cost')}"></c:set>
+						<c:set var="recurrentcosts" value="${summaryStages.get('label.resource.planning.total.recurrent.cost')}"></c:set>
 						<c:set var="totalcosts" value="${summaryStages.get('label.resource.planning.total.phase.cost')}"></c:set>
 						<tr>
 							<td><fmt:message key="label.phase.begin.date" /></td>
@@ -94,8 +99,8 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-						<tr>
-							<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.profitability" /></td>
+						<tr class="active">
+							<td colspan="${columncount+5}"><fmt:message key="label.profitability" /></td>
 						</tr>
 						<tr>
 							<td><fmt:message key="label.profitability.ale.until.end" /></td>
@@ -133,8 +138,11 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-						<tr>
-							<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.resource.planning" /></td>
+						<tr class="active">
+							<td colspan="${columncount+5}"><fmt:message key="label.resource.planning" /></td>
+						</tr>
+						<tr class="warning">
+							<td colspan="${columncount+5}"><fmt:message key="label.resource.implementation.cost" /></td>
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.internal.workload" /></td>
@@ -163,6 +171,9 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
+						<tr class="warning">
+							<td colspan="${columncount+5}"><fmt:message key="label.resource.planning.recurrent.cost" /></td>
+						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.internal.maintenance" /></td>
 							<fmt:setLocale value="fr" scope="session" />
@@ -190,8 +201,10 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
+					</tbody>
+					<tfoot style="font-weight: bold; border-top: #dddddd solid;">
 						<tr>
-							<td><fmt:message key="label.resource.planning.recurrent.cost" /></td>
+							<td><fmt:message key="label.resource.planning.total.recurrent.cost" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(recurrentcosts.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -199,7 +212,7 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-						<tr>
+						<tr class="active">
 							<td><fmt:message key="label.resource.planning.total.phase.cost" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
@@ -208,8 +221,6 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-					</tbody>
-					<tfoot>
 					</tfoot>
 				</table>
 			</div>
