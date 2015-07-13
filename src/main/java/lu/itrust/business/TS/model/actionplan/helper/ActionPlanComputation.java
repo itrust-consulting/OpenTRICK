@@ -3045,9 +3045,9 @@ public class ActionPlanComputation {
 		/*System.out.println(String.format("Phase: %d, recurrentCost: %f", phasenumber,
 				(aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment()));*/
 		
-		aStage.setRecurrentCost(tmpval.recurrentCost);//From previous phase
-		
 		tmpval.recurrentCost = (aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment();
+		
+		aStage.setRecurrentCost(tmpval.recurrentCost);//From previous phase
 
 		// update total cost
 		tmpval.totalCost += (tmpval.internalWorkload * ir) + (tmpval.externalWorkload * er) + tmpval.investment;

@@ -46,7 +46,7 @@
 						<c:set var="internalmaintenances" value="${summaryStages.get('label.resource.planning.internal.maintenance')}"></c:set>
 						<c:set var="externalmaintenances" value="${summaryStages.get('label.resource.planning.external.maintenance')}"></c:set>
 						<c:set var="recurrentinvestments" value="${summaryStages.get('label.resource.planning.recurrent.investment')}"></c:set>
-						<c:set var="recurrentcosts" value="${summaryStages.get('label.resource.planning.recurrent.cost')}"></c:set>
+						<c:set var="recurrentcosts" value="${summaryStages.get('label.resource.planning.total.recurrent.cost')}"></c:set>
 						<c:set var="totalcosts" value="${summaryStages.get('label.resource.planning.total.phase.cost')}"></c:set>
 						<tr>
 							<td><fmt:message key="label.phase.begin.date" /></td>
@@ -94,8 +94,8 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-						<tr>
-							<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.profitability" /></td>
+						<tr class="active">
+							<td  colspan="${columncount+5}"><fmt:message key="label.profitability" /></td>
 						</tr>
 						<tr>
 							<td><fmt:message key="label.profitability.ale.until.end" /></td>
@@ -133,8 +133,8 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-						<tr>
-							<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.resource.planning" /></td>
+						<tr class="active">
+							<td colspan="${columncount+5}"><fmt:message key="label.resource.planning" /></td>
 						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.internal.workload" /></td>
@@ -163,6 +163,9 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
+						<tr class="active">
+							<td colspan="${columncount+5}"><fmt:message key="label.resource.planning.recurrent.cost" /></td>
+						</tr>
 						<tr>
 							<td><fmt:message key="label.resource.planning.internal.maintenance" /></td>
 							<fmt:setLocale value="fr" scope="session" />
@@ -190,8 +193,10 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
+					</tbody>
+					<tfoot style="font-weight: bold; border-top: #dddddd solid;">
 						<tr>
-							<td><fmt:message key="label.resource.planning.recurrent.cost" /></td>
+							<td><fmt:message key="label.resource.planning.total.recurrent.cost" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(recurrentcosts.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -199,7 +204,7 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-						<tr>
+						<tr class="active">
 							<td><fmt:message key="label.resource.planning.total.phase.cost" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
@@ -208,8 +213,6 @@
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
-					</tbody>
-					<tfoot>
 					</tfoot>
 				</table>
 			</div>

@@ -23,7 +23,7 @@ import lu.itrust.business.TS.model.general.Phase;
 public class ActionPlanSummaryManager {
 
 	public static final String LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST = "label.resource.planning.total.phase.cost";
-	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_COST = "label.resource.planning.recurrent.cost";
+	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_COST = "label.resource.planning.total.recurrent.cost";
 	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT = "label.resource.planning.recurrent.investment";
 	public static final String LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE = "label.resource.planning.external.maintenance";
 	public static final String LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE = "label.resource.planning.internal.maintenance";
