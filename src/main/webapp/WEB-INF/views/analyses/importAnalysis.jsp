@@ -37,7 +37,7 @@
 													<spring:message code="label.action.choose" />
 												</option>
 												<c:forEach items="${customers}" var="customer">
-													<option value="${customer.id}">${customer.organisation}</option>
+													<option value="${customer.id}"><spring:message text="${customer.organisation}"/></option>
 												</c:forEach>
 											</select>
 										</div>
@@ -49,23 +49,23 @@
 							<div class="col-lg-12" style="margin-bottom: 10px;">
 								<div class="input-group">
 									<div class="row">
-										<h4 class="col-lg-10">
+										<h4 class="col-lg-8">
 											<b>2.</b>
 											<spring:message code="label.import.analysis.select.sqlite" text="Select a sqlite file" />
 										</h4>
-										<div class="col-lg-10">
+										<div class="col-lg-7">
 											<div class="input-group-btn">
 												<input id="file" onchange="checkFile(true)" type="file" name="file" style="display: none;" disabled /> <input id="upload-file-info" class="form-control"
 													readonly="readonly" />
-												<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file]').click();" disabled>Browse</button>
+												<button class="btn btn-default" type="button" id="browse-button" onclick="$('input[id=file]').click();" disabled><spring:message code="label.action.browse" text="Browse"/></button>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-							<div class="col-lg-2">
+							<div class="col-lg-1">
 								<button id="validation" type="submit" class="btn btn-primary btn-block" disabled>
-									<spring:message code="label.action.import.analysis" text="Start import" />
+									<spring:message code="label.action.import" text="Import" />
 								</button>
 							</div>
 						</div>

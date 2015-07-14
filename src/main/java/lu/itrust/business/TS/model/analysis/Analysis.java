@@ -76,7 +76,7 @@ import org.hibernate.annotations.CascadeType;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion", "dtCreationDate" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion"}))
 public class Analysis implements Cloneable {
 
 	/***********************************************************************************************

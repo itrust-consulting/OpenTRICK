@@ -269,15 +269,13 @@ public class ControllerAdministration {
 			User owner = serviceUser.get(idOwner);
 			if (owner == null)
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
-			new SwitchAnalysisOwnerHelper(serviceAnalysis). switchOwner(principal, analysis, owner);
+			new SwitchAnalysisOwnerHelper(serviceAnalysis).switchOwner(principal, analysis, owner);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null, "Analysis owner was successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
-
-	
 
 	/**
 	 * section: <br>
@@ -536,9 +534,10 @@ public class ControllerAdministration {
 				error = validator.validate(user, "login", login);
 				if (error != null)
 					errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
-				else {
+				else if (serviceUser.existByUsername(login))
+					errors.put("login", messageSource.getMessage("error.username.in_use", null, "Username is in use", locale));
+				else
 					user.setLogin(login);
-				}
 			}
 
 			if (newUser || !password.equals(Constant.EMPTY_STRING)) {
@@ -567,9 +566,12 @@ public class ControllerAdministration {
 			error = validator.validate(user, "email", email);
 			if (error != null)
 				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				user.setEmail(email);
-
+			else if (!email.equals(user.getEmail())) {
+				if (serviceUser.existByEmail(email))
+					errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
+				else
+					user.setEmail(email);
+			}
 			if (!principal.getName().equals(user.getLogin())) {
 
 				user.getRoles().forEach(role -> userRoles.add(role));

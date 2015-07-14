@@ -51,4 +51,8 @@ public interface ServiceUser {
 	public List<User> getAllOthers(Collection<User> users);
 
 	public List<User> getAllOthers(User owner);
+
+	public boolean existByUsername(String username);
+
+	public boolean existByEmail(String email);
 }

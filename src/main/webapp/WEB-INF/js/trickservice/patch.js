@@ -83,7 +83,11 @@ function updateAnalysesScopes() {
 			url : context + "/Patch/Update/Analyses/Scopes",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				if (response["error"] != undefined) {
+				if(response["success"] != undefined){
+					$("#info-dialog .modal-body").text(response["success"]);
+					$("#info-dialog").modal("show");
+				}
+				else if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("show");
 				} else {

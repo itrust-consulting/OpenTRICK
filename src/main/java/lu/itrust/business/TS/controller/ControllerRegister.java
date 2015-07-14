@@ -371,7 +371,6 @@ public class ControllerRegister {
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
-
 			String login = jsonNode.get("login").asText();
 			String password = jsonNode.get("password").asText();
 			String repeatedPassword = jsonNode.get("repeatPassword").asText();
@@ -384,9 +383,10 @@ public class ControllerRegister {
 			error = validator.validate(user, "login", login);
 			if (error != null)
 				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
+			else if(serviceUser.existByUsername(login))
+				errors.put("login", messageSource.getMessage("error.username.in_use",null,"Username is in use", locale));
 			else
 				user.setLogin(login);
-
 			error = validator.validate(user, "password", password);
 			if (error != null)
 				errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
@@ -396,7 +396,7 @@ public class ControllerRegister {
 			error = validator.validate(user, "repeatPassword", repeatedPassword);
 			if (error != null)
 				errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
+			else 
 				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 
 			error = validator.validate(user, "firstName", firstname);
@@ -414,6 +414,8 @@ public class ControllerRegister {
 			error = validator.validate(user, "email", email);
 			if (error != null)
 				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+			else if(serviceUser.existByEmail(email))
+				errors.put("email", messageSource.getMessage("error.email.in_use",null,"Email is in use", locale));
 			else
 				user.setEmail(email);
 

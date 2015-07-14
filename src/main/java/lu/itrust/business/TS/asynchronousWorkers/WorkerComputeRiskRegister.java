@@ -15,7 +15,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -54,7 +53,7 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * Key: asset.id_scenerio.id<br>
 	 * Value: [0] owner, [1] strategy
 	 */
-	private Map<String, String[]> ownerBackup;
+	private Map<String, RiskRegisterItem> ownerBackup;
 
 	private int idAnalysis;
 
@@ -120,24 +119,24 @@ public class WorkerComputeRiskRegister implements Worker {
 			}
 			session = sessionFactory.openSession();
 			initialiseDAO(session);
-
 			System.out.println("Loading Analysis...");
-
 			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
-
-			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", lang, null));
+			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", lang, 1));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", lang, null));
 				return;
 			}
 			session.beginTransaction();
-			initAnalysis(analysis);
-			System.out.println("Delete previous risk register...");
-			deleteRiskRegister(analysis);
+			System.out.println("Saving user changes...");
+			backup(analysis, session, lang);
 			RiskRegisterComputation computation = new RiskRegisterComputation(analysis);
+			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.compute", "Computing Risk Register", lang, 20));
 			if (computation.computeRiskRegister() == null) {
-				restoreOwner(analysis);
+				restoreOwner(analysis, lang);
+				serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.saving", "Saving Risk Register to database", lang, 72));
+				daoAnalysis.saveOrUpdate(analysis);
+				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", lang, 80));
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!", lang, 100);
 				if (reloadSection)
@@ -196,36 +195,20 @@ public class WorkerComputeRiskRegister implements Worker {
 		}
 	}
 
-	private void restoreOwner(Analysis analysis) throws TrickException {
-		if (ownerBackup == null || analysis.getRiskRegisters().isEmpty())
+	private void restoreOwner(Analysis analysis, String lang) throws Exception {
+		if (ownerBackup == null)
 			return;
-		for (RiskRegisterItem riskRegister : analysis.getRiskRegisters()) {
-			String[] data = ownerBackup.get(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()));
-			if (data != null && data.length == 2) {
-				riskRegister.setOwner(data[0]);
-				riskRegister.setStrategy(data[1]);
-			}
+		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.restore", "Restoring user's changes", lang, 70));
+		for (int i = 0; i < analysis.getRiskRegisters().size(); i++) {
+			RiskRegisterItem riskRegister = analysis.getRiskRegisters().get(i);
+			RiskRegisterItem riskRegisterItem = ownerBackup.remove(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()));
+			if (riskRegisterItem != null)
+				analysis.getRiskRegisters().set(i, riskRegisterItem.merge(riskRegister));
 		}
-	}
-
-	/**
-	 * initAnalysis: <br>
-	 * Description
-	 * 
-	 * @param analysis
-	 */
-	private void initAnalysis(Analysis analysis) {
-		Hibernate.initialize(analysis);
-		Hibernate.initialize(analysis.getLanguage());
-		Hibernate.initialize(analysis.getHistories());
-		Hibernate.initialize(analysis.getAssets());
-		Hibernate.initialize(analysis.getScenarios());
-		Hibernate.initialize(analysis.getAssessments());
-		Hibernate.initialize(analysis.getItemInformations());
-		Hibernate.initialize(analysis.getRiskInformations());
-		Hibernate.initialize(analysis.getParameters());
-		Hibernate.initialize(analysis.getPhases());
-		Hibernate.initialize(analysis.getAnalysisStandards());
+		
+		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.delete", "Deleting previous Risk Register", lang, 70));
+		for (RiskRegisterItem riskRegisterItem : ownerBackup.values())
+			daoRiskRegister.delete(riskRegisterItem);
 	}
 
 	/**
@@ -235,17 +218,14 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * @param analysis
 	 * @throws Exception
 	 */
-	private void deleteRiskRegister(Analysis analysis) throws Exception {
-		String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
+	private void backup(Analysis analysis, Session session, String lang) throws Exception {
 		if (!analysis.getRiskRegisters().isEmpty()) {
-			ownerBackup = new LinkedHashMap<String, String[]>(analysis.getRiskRegisters().size());
+			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.backup", "Backup of user changes", lang, 10));
+			ownerBackup = new LinkedHashMap<String, RiskRegisterItem>(analysis.getRiskRegisters().size());
 			analysis.getRiskRegisters().forEach(
-					riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()),
-							new String[] { riskRegister.getOwner(), riskRegister.getStrategy() }));
+					riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()), riskRegister));
 		}
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting", lang, 50));
-		while (!analysis.getRiskRegisters().isEmpty())
-			daoRiskRegister.delete(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));
+		analysis.getRiskRegisters().clear();
 	}
 
 	/*

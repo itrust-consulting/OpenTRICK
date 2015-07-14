@@ -122,4 +122,16 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 			getSession().delete(riskItem);
 		
 	}
+
+	@Override
+	public void delete(Integer id) {
+		getSession().createQuery("Delete From RiskRegisterItem where id = :id").setInteger("id", id).uniqueResult();
+		
+	}
+
+	@Override
+	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {
+		return (RiskRegisterItem) getSession().merge(riskRegister);
+		
+	}
 }

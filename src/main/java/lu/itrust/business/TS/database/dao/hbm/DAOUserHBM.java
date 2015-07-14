@@ -231,4 +231,14 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	public List<User> getAllOthers(User user) {
 		return getSession().createQuery("From User user where user <> :user").setParameter("user", user).list();
 	}
+
+	@Override
+	public boolean existByUsername(String username) {
+		return (boolean) getSession().createQuery("Select count(*)> 0 From User where login = :username").setString("username",username ).uniqueResult();
+	}
+
+	@Override
+	public boolean existByEmail(String email) {
+		return (boolean) getSession().createQuery("Select count(*)> 0 From User where email = :email").setString("email",email ).uniqueResult();
+	}
 }
