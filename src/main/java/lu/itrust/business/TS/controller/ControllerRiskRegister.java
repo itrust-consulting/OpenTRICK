@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -20,7 +19,6 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,17 +100,16 @@ public class ControllerRiskRegister {
 		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		// load all actionplans from the selected analysis
-		List<RiskRegisterItem> riskregister = serviceRiskRegister.getAllFromAnalysis(selected);
 
 		// prepare model
-		model.put("riskregister", riskregister);
+		model.put("riskregister", serviceRiskRegister.getAllFromAnalysis(selected));
 		
 		model.put("parameters", serviceParameter.getAllExtendedFromAnalysis(selected));
 		
 		model.put("language", serviceLanguage.getFromAnalysis(selected).getAlpha2());
 
 		// return view
-		return "analyses/singleAnalysis/components/riskregister";
+		return "analyses/single/components/riskregister";
 	}
 
 	/**

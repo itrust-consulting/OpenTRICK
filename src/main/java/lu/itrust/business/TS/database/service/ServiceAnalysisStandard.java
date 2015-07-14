@@ -38,4 +38,8 @@ public interface ServiceAnalysisStandard {
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer analysisId, int standardId);
 
 	public boolean belongsToAnalysis(Integer idAnalysis, int id);
+
+	public Standard getStandardById(int idAnalysisStandard);
+
+	public String getStandardNameById(int idAnalysisStandard);
 }

@@ -594,4 +594,19 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards) {
 		return daoAnalysis.getAllHasRightsAndContainsStandard(username,rights,  standards);
 	}
+
+	@Override
+	public boolean existsByNameAndCustomerId(String name, int idCustomer) {
+		return daoAnalysis.existsByNameAndCustomerId(name,idCustomer);
+	}
+
+	@Override
+	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize) {
+		return daoAnalysis.getAllNotEmpty(pageIndex,pageSize);
+	}
+
+	@Override
+	public int countNotEmpty() {
+		return daoAnalysis.countNotEmpty();
+	}
 }

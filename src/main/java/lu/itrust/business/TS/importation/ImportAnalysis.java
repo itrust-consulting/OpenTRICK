@@ -1902,11 +1902,7 @@ public class ImportAnalysis {
 				standardVersion = 2005;
 				standardComputable = true;
 				description = "old standard (before 2013)";
-				if (rs.getInt(Constant.MEASURE_LEVEL) == Constant.MEASURE_LEVEL_3) {
-					measurecomputable = true;
-				} else {
-					measurecomputable = false;
-				}
+				measurecomputable = rs.getInt(Constant.MEASURE_LEVEL) == Constant.MEASURE_LEVEL_3;
 			}
 
 			standard = standards.get(idNormalMeasure + "_" + standardVersion);
@@ -1920,14 +1916,13 @@ public class ImportAnalysis {
 					standard.setAnalysisOnly(rs.getBoolean("norme_analysisOnly"));
 					daoStandard.save(standard);
 					// add standard to map
-					standards.put(standard.getLabel() + "_" + standard.getVersion(), standard);
-				} else if (standard.isAnalysisOnly() && !standards.containsKey(standard.getLabel() + "_" + (standard.getVersion() + 1))) {
+				} else if (standard.isAnalysisOnly()) {
 					standard = standard.duplicate();
-					standard.setVersion(standard.getVersion() + 1);
+					standard.setVersion(daoStandard.getNextVersionByNameAndType(idNormalMeasure, standard.getType()));
 					daoStandard.save(standard);
 					// add standard to map
-					standards.put(standard.getLabel() + "_" + standard.getVersion(), standard);
 				}
+				standards.put(idNormalMeasure + "_" + standardVersion, standard);
 			}
 
 			// retrieve analysisstandard of the standard
@@ -2324,8 +2319,8 @@ public class ImportAnalysis {
 		// *********************************************
 		ResultSet rs = null;
 		String query = "";
-		ItemInformation itemInformation = null;
 		ResultSetMetaData rsMetaData = null;
+		String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria" };
 		int numColumns = 0;
 		setCurrentSqliteTable("scope");
 
@@ -2344,14 +2339,11 @@ public class ImportAnalysis {
 
 			// Get meta data for column names
 			rsMetaData = rs.getMetaData();
-
 			// get column count
 			numColumns = rsMetaData.getColumnCount();
-
 			// ****************************************************************
 			// * parse columns and add data to item information table
 			// ****************************************************************
-
 			// parse columns
 			for (int i = 1; i < numColumns + 1; i++) {
 
@@ -2366,18 +2358,23 @@ public class ImportAnalysis {
 					// ****************************************************************
 					// * create instance
 					// ****************************************************************
-					itemInformation = new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i)));
 
 					// ****************************************************************
 					// * add instance to list of item information
 					// ****************************************************************
-					this.analysis.addAnItemInformation(itemInformation);
+					this.analysis.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i))));
 				}
 			}
 		}
 
 		// close result
 		rs.close();
+
+		// Add missing scope
+		for (String scopeName : extendedScopes) {
+			if (!this.analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
+				this.analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
+		}
 
 		// ****************************************************************
 		// * Import data from organisation
@@ -2415,12 +2412,11 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * create instance
 				// ****************************************************************
-				itemInformation = new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i)));
-
 				// ****************************************************************
 				// * add instance to list of item information
 				// ****************************************************************
-				this.analysis.addAnItemInformation(itemInformation);
+				this.analysis.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION,
+						rs.getString(rsMetaData.getColumnName(i))));
 			}
 		}
 	}
@@ -2473,10 +2469,7 @@ public class ImportAnalysis {
 
 			currentSqliteTable = "maturities";
 			// retrieve standard from map
-			standard = standards.get(Constant.STANDARD_MATURITY);
-
 			tempPhase = null;
-
 			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 				standardVersion = rs.getInt(Constant.MEASURE_VERSION_NORM);
 				standardComputable = rs.getBoolean(Constant.MEASURE_STANDARD_COMPUTABLE);
@@ -2493,19 +2486,22 @@ public class ImportAnalysis {
 				}
 			}
 
-			standard = daoStandard.getStandardByNameAndVersion(Constant.STANDARD_MATURITY, standardVersion);
-			// standard is not in database create new standard and save in into
-			// database for future
+			standard = standards.get(String.format("%s_%d", Constant.STANDARD_MATURITY, standardVersion));
 			if (standard == null) {
-				standard = new Standard(Constant.STANDARD_MATURITY, StandardType.MATURITY, standardVersion, description, standardComputable);
-				daoStandard.save(standard);
-				// add standard to map
-				standards.put(standard.getLabel() + "_" + standard.getVersion(), standard);
+				standard = daoStandard.getStandardByNameAndVersion(Constant.STANDARD_MATURITY, standardVersion);
+				if (standard == null) {
+					// standard is not in database create new standard and save
+					// in into
+					// database for future
+					standard = new Standard(Constant.STANDARD_MATURITY, StandardType.MATURITY, standardVersion, description, standardComputable);
+					daoStandard.save(standard);
+					// add standard to map
+				}
+				standards.put(String.format("%s_%d", Constant.STANDARD_MATURITY, standardVersion), standard);
 			}
-
+			
 			// get analysisstandard from map
 			analysisStandard = analysisStandards.get(standard);
-
 			// analysis does not yet exist
 			if (analysisStandard == null)
 

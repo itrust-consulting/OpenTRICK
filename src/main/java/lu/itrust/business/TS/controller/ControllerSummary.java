@@ -87,7 +87,7 @@ public class ControllerSummary {
 		
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
-		return "analyses/singleAnalysis/components/summary";
+		return "analyses/single/components/summary";
 	}
 
 	/**

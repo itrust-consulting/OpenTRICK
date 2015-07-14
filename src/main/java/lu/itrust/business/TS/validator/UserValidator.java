@@ -50,7 +50,7 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 
 		User user = (User) target;
 
-		if (!errors.hasFieldErrors("login") && !user.getLogin().matches(Constant.REGEXP_VALID_NAME))
+		if (!errors.hasFieldErrors("login") && !user.getLogin().matches(Constant.REGEXP_VALID_USERNAME))
 			errors.rejectValue("login", "errors.user.login.invalid", "Login is not valid");
 
 		if (!errors.hasFieldErrors("password") && !user.getPassword().matches(Constant.REGEXP_VALID_PASSWORD))

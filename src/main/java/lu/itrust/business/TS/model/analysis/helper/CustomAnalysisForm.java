@@ -4,6 +4,8 @@
 package lu.itrust.business.TS.model.analysis.helper;
 
 import java.sql.Timestamp;
+import java.util.LinkedList;
+import java.util.List;
 
 import lu.itrust.business.TS.model.history.History;
 
@@ -39,7 +41,7 @@ public class CustomAnalysisForm {
 
 	private int scope;
 
-	private int standard;
+	private List<AnalysisStandardBaseInfo> standards;
 
 	private String version;
 	
@@ -141,14 +143,6 @@ public class CustomAnalysisForm {
 		this.scope = scope;
 	}
 
-	public int getStandard() {
-		return standard;
-	}
-
-	public void setStandard(int standard) {
-		this.standard = standard;
-	}
-
 	public String getVersion() {
 		return version;
 	}
@@ -161,7 +155,7 @@ public class CustomAnalysisForm {
 	public String toString() {
 		return "CustomAnalysisForm [assessment=" + assessment + ", asset=" + asset + ", author=" + author + ", comment=" + comment + ", customer=" + customer + ", language="
 				+ language + ", parameter=" + parameter + ", phase=" + phase + ", riskInformation=" + riskInformation + ", scenario=" + scenario + ", scope=" + scope
-				+ ", standard=" + standard + ", version=" + version + "]";
+				+ ", standards=" + this.standards + ", version=" + version + "]";
 	}
 
 	public History generateHistory() {
@@ -177,8 +171,13 @@ public class CustomAnalysisForm {
 			riskInformation = defaultProfileId;
 		if (parameter < 1)
 			parameter = defaultProfileId;
-		if (standard < 1)
-			standard = defaultProfileId;
+		if (standards == null || standards.isEmpty()){
+			if(standards == null)
+				standards = new LinkedList<AnalysisStandardBaseInfo>();
+			standards.add(new AnalysisStandardBaseInfo(defaultProfileId));
+		}
+			
+			
 		if (scenario < 1)
 			scenario = defaultProfileId;
 	}
@@ -235,6 +234,20 @@ public class CustomAnalysisForm {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * @return the standrads
+	 */
+	public List<AnalysisStandardBaseInfo> getStandards() {
+		return standards;
+	}
+
+	/**
+	 * @param standrads the standrads to set
+	 */
+	public void setStandards(List<AnalysisStandardBaseInfo> standards) {
+		this.standards = standards;
 	}
 
 }

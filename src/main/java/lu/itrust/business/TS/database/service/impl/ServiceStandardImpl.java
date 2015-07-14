@@ -204,8 +204,8 @@ public class ServiceStandardImpl implements ServiceStandard {
 	}
 
 	@Override
-	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception {
-		return daoStandard.getBiggestVersionFromStandardByNameAndType(label, standardType);
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType) throws Exception {
+		return daoStandard.getNextVersionByNameAndType(label, standardType);
 	}
 
 	@Override

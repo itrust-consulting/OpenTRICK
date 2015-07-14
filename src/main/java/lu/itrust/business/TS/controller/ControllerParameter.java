@@ -69,7 +69,7 @@ public class ControllerParameter {
 		
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
-		return "analyses/singleAnalysis/components/parameter";
+		return "analyses/single/components/parameter";
 	}
 
 	/**

@@ -82,6 +82,7 @@
 		base.bind = function() {
 			base.$window.on('scroll.' + name, base.toggleHeaders);
 			base.$window.on('resize.' + name, base.toggleHeaders);
+			base.$window.on('resize.' + name, base.updateWidth);
 		};
 
 		base.unbind = function() {
@@ -164,11 +165,10 @@
 		};
 
 		base.updateWidth = function() {
-			if (!base.isSticky) {
+			if (!base.isSticky || !base.$el.is(":visible")) {
 				base.hasResized = true;
 				return;
 			}
-
 			if (base.hasResized) {
 				// Copy cell widths from clone
 				var $origHeaders = $('th,td', base.$originalHeader);

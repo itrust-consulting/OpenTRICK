@@ -210,7 +210,7 @@ public class ControllerAsset {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("assettypes", serviceAssetType.getAll());
-		return "analyses/singleAnalysis/components/asset/manageAsset";
+		return "analyses/single/components/asset/manageAsset";
 	}
 
 	/**
@@ -277,7 +277,7 @@ public class ControllerAsset {
 		model.addAttribute("isEditable",!isReadOnly && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
-		return "analyses/singleAnalysis/components/asset/asset";
+		return "analyses/single/components/asset/asset";
 	}
 
 	/**
@@ -299,7 +299,7 @@ public class ControllerAsset {
 		// add asset object to model
 		model.addAttribute("asset", serviceAsset.get(elementID));
 
-		return "analyses/singleAnalysis/components/asset/manageAsset";
+		return "analyses/single/components/asset/manageAsset";
 	}
 
 	/**

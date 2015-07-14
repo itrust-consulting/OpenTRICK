@@ -291,4 +291,8 @@ public class TrickLog {
 		this.action = action;
 	}
 
+	public String toLog4J() {
+		return String.format("%s %s %s %s %s %s", created, level, type, action, author, message);
+	}
+
 }

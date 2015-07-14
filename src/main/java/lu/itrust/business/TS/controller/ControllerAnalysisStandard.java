@@ -198,7 +198,7 @@ public class ControllerAnalysisStandard {
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
-		return "analyses/singleAnalysis/components/standards/standard/standards";
+		return "analyses/single/components/standards/standard/standards";
 	}
 
 	/**
@@ -256,7 +256,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("isEditable",!isReadOnly && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		return "analyses/singleAnalysis/components/standards/standard/standards";
+		return "analyses/single/components/standards/standard/standards";
 	}
 
 	/**
@@ -327,7 +327,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
-		return "analyses/singleAnalysis/components/standards/measure/singleMeasure";
+		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
 	/**
@@ -441,7 +441,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("soa", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
 
-		return "analyses/singleAnalysis/components/soa";
+		return "analyses/single/components/soa";
 	}
 
 	/**
@@ -465,7 +465,7 @@ public class ControllerAnalysisStandard {
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
-		return "analyses/singleAnalysis/components/standards/standard/manageForm";
+		return "analyses/single/components/standards/standard/manageForm";
 	}
 
 	/**
@@ -520,12 +520,7 @@ public class ControllerAnalysisStandard {
 				// return error on failure
 				return errors;
 
-			Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType());
-
-			if (version == null)
-				version = 0;
-
-			standard.setVersion(version + 1);
+			standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 
 			serviceStandard.save(standard);
 
@@ -894,7 +889,7 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
 
 			// return success message
-			return "analyses/singleAnalysis/components/standards/measure/form";
+			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			e.printStackTrace();
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -967,7 +962,7 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
 
 			// return success message
-			return "analyses/singleAnalysis/components/standards/measure/form";
+			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			e.printStackTrace();
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1266,19 +1261,8 @@ public class ControllerAnalysisStandard {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			if (label != prevlabel || type != prevtype) {
-
-				if (serviceStandard.existsByNameVersionType(label, 1, type)) {
-
-					Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(label, type);
-					if (version == null)
-						version = 0;
-
-					standard.setVersion(version + 1);
-				} else
-					standard.setVersion(1);
-
-			}
+			if (label != prevlabel || type != prevtype) 
+				standard.setVersion(serviceStandard.getNextVersionByNameAndType(label, type));
 			// return success
 			return standard;
 

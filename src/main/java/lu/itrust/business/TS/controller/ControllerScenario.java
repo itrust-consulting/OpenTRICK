@@ -268,7 +268,7 @@ public class ControllerScenario {
 		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
-		return "analyses/singleAnalysis/components/scenario/scenario";
+		return "analyses/single/components/scenario/scenario";
 	}
 
 	/**
@@ -288,7 +288,7 @@ public class ControllerScenario {
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analyses/singleAnalysis/components/scenario/manageScenario";
+		return "analyses/single/components/scenario/manageScenario";
 	}
 
 	/**
@@ -317,7 +317,7 @@ public class ControllerScenario {
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analyses/singleAnalysis/components/scenario/manageScenario";
+		return "analyses/single/components/scenario/manageScenario";
 	}
 
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")

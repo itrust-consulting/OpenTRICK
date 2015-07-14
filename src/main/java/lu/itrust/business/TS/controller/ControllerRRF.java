@@ -3,6 +3,8 @@ package lu.itrust.business.TS.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,6 +26,7 @@ import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
@@ -37,6 +40,7 @@ import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.Chapter;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
@@ -192,7 +196,7 @@ public class ControllerRRF {
 			model.addAttribute("notenoughdata", true);
 		}
 
-		return "analyses/singleAnalysis/components/forms/rrf/rrfEditor";
+		return "analyses/single/components/forms/rrf/rrfEditor";
 	}
 
 	/***********************
@@ -220,7 +224,7 @@ public class ControllerRRF {
 		model.addAttribute("selectedScenario", scenario);
 		double typeValue = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
 		model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
-		return "analyses/singleAnalysis/components/forms/rrf/scenarioRRF";
+		return "analyses/single/components/forms/rrf/scenarioRRF";
 	}
 
 	/**
@@ -365,7 +369,7 @@ public class ControllerRRF {
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
 		model.addAttribute("language", language.getAlpha2());
 
-		return "analyses/singleAnalysis/components/forms/rrf/measureRRF";
+		return "analyses/single/components/forms/rrf/measureRRF";
 	}
 
 	/**
@@ -413,6 +417,55 @@ public class ControllerRRF {
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 
+	@RequestMapping(value = "/Measure/{idMeasure}/Update-child", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateChildRRF(@PathVariable int idMeasure, @RequestBody LinkedList<Integer> idMeasureChilds, HttpSession session, Principal principal,
+			Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		String language = (String) session.getAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE);
+		if (language != null)
+			locale = new Locale(language);
+		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
+		List<Measure> measures = new ArrayList<Measure>(idMeasureChilds.size());
+		for (Integer idChild : idMeasureChilds) {
+			Measure child = serviceMeasure.getFromAnalysisById(idAnalysis, idChild);
+			if (child == null)
+				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			else {
+				measures.add(measure);
+				if (measure instanceof NormalMeasure) {
+					NormalMeasure parentMeasure = (NormalMeasure) measure, childMeasure = (NormalMeasure) child;
+					parentMeasure.getMeasurePropertyList().copyTo(childMeasure.getMeasurePropertyList());
+					Map<AssetType, AssetTypeValue> assetTypeValues = new LinkedHashMap<AssetType, AssetTypeValue>(childMeasure.getAssetTypeValues().size());
+					childMeasure.getAssetTypeValues().forEach(assetValue -> assetTypeValues.put(assetValue.getAssetType(), assetValue));
+					for (AssetTypeValue assetTypeValue : parentMeasure.getAssetTypeValues()) {
+						AssetTypeValue typeValue = assetTypeValues.get(assetTypeValue.getAssetType());
+						if (typeValue == null)
+							childMeasure.addAnAssetTypeValue(new AssetTypeValue(assetTypeValue.getAssetType(), assetTypeValue.getValue()));
+						else
+							typeValue.setValue(assetTypeValue.getValue());
+					}
+				} else if (measure instanceof AssetMeasure) {
+					AssetMeasure parentMeasure = (AssetMeasure) measure, childMeasure = (AssetMeasure) child;
+					parentMeasure.getMeasurePropertyList().copyTo(childMeasure.getMeasurePropertyList());
+					Map<Asset, MeasureAssetValue> measureAssetValues = new LinkedHashMap<Asset, MeasureAssetValue>(childMeasure.getMeasureAssetValues().size());
+					childMeasure.getMeasureAssetValues().forEach(assetValue -> measureAssetValues.put(assetValue.getAsset(), assetValue));
+					for (MeasureAssetValue assetValue : parentMeasure.getMeasureAssetValues()) {
+						MeasureAssetValue measureAssetValue = measureAssetValues.get(assetValue.getAsset());
+						if (measureAssetValue == null)
+							childMeasure.addAnMeasureAssetValue(new MeasureAssetValue(assetValue.getAsset(), assetValue.getValue()));
+						else
+							measureAssetValue.setValue(assetValue.getValue());
+					}
+				} else
+					continue;
+				serviceMeasure.saveOrUpdate(child);
+			}
+		}
+		return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+
+	}
+
 	/**
 	 * importRRF: <br>
 	 * Description
@@ -438,7 +491,7 @@ public class ControllerRRF {
 		model.addAttribute("standards", standards);
 		model.addAttribute("customers", customers);
 		model.addAttribute("analyses", analyses);
-		return "analyses/singleAnalysis/components/forms/importMeasureCharacteristics";
+		return "analyses/single/components/forms/importMeasureCharacteristics";
 
 	}
 

@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.component;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -14,6 +16,7 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TrickLog;
 
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -29,9 +32,20 @@ public class TrickLogManager {
 
 	private static volatile TrickLogManager instance;
 
-	private Queue<TrickLog> trickLogs = new LinkedList<TrickLog>();
+	private Queue<TrickLog> trickLogs =  new LinkedList<TrickLog>();
+
+	private Logger logger = Logger.getLogger("TRICKLogManager");
 
 	private TrickLogManager() {
+	}
+
+	public static String GetLoggerName() {
+		try {
+			InetAddress address = InetAddress.getLocalHost();
+			return address.getHostName();
+		} catch (UnknownHostException e) {
+			return TrickLogManager.class.getName();
+		}
 	}
 
 	public SessionFactory getSessionFactory() {
@@ -53,8 +67,27 @@ public class TrickLogManager {
 	}
 
 	public static boolean Persist(TrickLog trickLog) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(trickLog);
+		return LogMe(trickLog);
+	}
+
+	protected static boolean LogMe(TrickLog trickLog) {
+		try {
+			synchronized (getInstance().trickLogs) {
+				return getInstance().trickLogs.offer(trickLog);
+			}
+		} finally {
+			switch (trickLog.getLevel()) {
+			case ERROR:
+				getInstance().logger.error(trickLog.toLog4J());
+				break;
+			case WARNING:
+				getInstance().logger.warn(trickLog.toLog4J());
+				break;
+			case INFO:
+			case SUCCESS:
+				getInstance().logger.info(trickLog.toLog4J());
+				break;
+			}
 		}
 	}
 
@@ -64,9 +97,7 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(String code, String message, String author, LogAction action, List<String> parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(code, message, author, action, parameters));
 	}
 
 	/**
@@ -75,9 +106,8 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(String code, String message, String author, LogAction action, String... parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(code, message, author, action, parameters));
+
 	}
 
 	/**
@@ -87,9 +117,7 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(LogLevel level, String code, String message, String author, LogAction action, String... parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(level, code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(level, code, message, author, action, parameters));
 	}
 
 	/**
@@ -99,9 +127,7 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(LogLevel level, String code, String message, String author, LogAction action, List<String> parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(level, code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(level, code, message, author, action, parameters));
 	}
 
 	/**
@@ -111,9 +137,8 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(LogType type, String code, String message, String author, LogAction action, List<String> parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(type, code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(type, code, message, author, action, parameters));
+
 	}
 
 	/**
@@ -123,9 +148,7 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(LogType type, String code, String message, String author, LogAction action, String... parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(type, code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(type, code, message, author, action, parameters));
 	}
 
 	/**
@@ -136,9 +159,7 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(LogLevel level, LogType type, String code, String message, String author, LogAction action, List<String> parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(level, type, code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(level, type, code, message, author, action, parameters));
 	}
 
 	/**
@@ -149,16 +170,18 @@ public class TrickLogManager {
 	 * @param parameters
 	 */
 	public static boolean Persist(LogLevel level, LogType type, String code, String message, String author, LogAction action, String... parameters) {
-		synchronized (getInstance().trickLogs) {
-			return getInstance().trickLogs.offer(new TrickLog(level, type, code, message, author, action, parameters));
-		}
+		return LogMe(new TrickLog(level, type, code, message, author, action, parameters));
 	}
 
 	@Scheduled(initialDelay = 5000, fixedDelay = 5000)
 	public void Persist() {
+		if (trickLogs.isEmpty())
+			return;
 		synchronized (trickLogs) {
 			Session session = null;
 			try {
+				if (trickLogs.isEmpty())
+					return;
 				session = sessionFactory.openSession();
 				DAOTrickLog daoTrickLog = new DAOTrickLogHBM(session);
 				session.beginTransaction();
@@ -176,5 +199,6 @@ public class TrickLogManager {
 				}
 			}
 		}
+
 	}
 }

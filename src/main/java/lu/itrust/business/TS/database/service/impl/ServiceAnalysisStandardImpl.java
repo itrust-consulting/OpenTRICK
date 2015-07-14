@@ -182,4 +182,14 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	public boolean belongsToAnalysis(Integer idAnalysis, int id) {
 		return daoAnalysisStandard.belongsToAnalysis(idAnalysis, id);
 	}
+
+	@Override
+	public Standard getStandardById(int idAnalysisStandard) {
+		return daoAnalysisStandard.getStandardById(idAnalysisStandard);
+	}
+
+	@Override
+	public String getStandardNameById(int idAnalysisStandard) {
+		return daoAnalysisStandard.getStandardNameById(idAnalysisStandard);
+	}
 }

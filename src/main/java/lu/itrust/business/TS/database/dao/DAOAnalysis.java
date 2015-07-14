@@ -140,4 +140,12 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
 
+	public boolean existsByNameAndCustomerId(String name, int idCustomer);
+	
+	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize);
+
+	public int countNotEmpty();
+
+	
+
 }

@@ -96,7 +96,7 @@ public class ControllerAnalysisProfile {
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 		model.addAttribute("analysisStandards", analysisStandards);
 		model.addAttribute("id", analysisId);
-		return "analyses/allAnalyses/forms/createProfile";
+		return "analyses/all/forms/createProfile";
 	}
 
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
