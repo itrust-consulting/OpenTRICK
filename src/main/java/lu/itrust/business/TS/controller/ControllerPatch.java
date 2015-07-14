@@ -38,7 +38,6 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -155,25 +154,8 @@ public class ControllerPatch {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-
-			System.out.println("Update Assessments");
-
-			List<Analysis> analyses = serviceAnalysis.getAll();
-
-			for (Analysis analysis : analyses) {
-				System.out.println("analysis " + (analyses.indexOf(analysis) + 1) + " of " + analyses.size());
-
-				Hibernate.initialize(analysis.getAssets());
-				Hibernate.initialize(analysis.getScenarios());
-				Hibernate.initialize(analysis.getAssessments());
-				Hibernate.initialize(analysis.getParameters());
-				assessmentManager.UpdateAssessment(analysis);
-			}
-
-			System.out.println("Done...");
-
+			assessmentManager.UpdateAssessment();
 			errors.put("success", messageSource.getMessage("success.assessments.update.all", null, "All assessments were successfully updated", locale));
-
 			return errors;
 		} catch (Exception e) {
 			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
@@ -214,10 +196,10 @@ public class ControllerPatch {
 	@RequestMapping(value = "/Update/Analyses/Scopes", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateScope(Principal principal, Locale locale) {
 		try {
-			int size = serviceAnalysis.countNotEmpty(), pageSize = 30, pageIndex = 1, pageCount = (size / pageSize) + 1;
+			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
 			String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria" };
 			boolean saveRequired = false;
-			for (; pageIndex < pageCount; pageIndex++) {
+			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
 				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
 					// Add missing scope
 					saveRequired = false;
@@ -225,6 +207,7 @@ public class ControllerPatch {
 						if (!analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName))) {
 							analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 							saveRequired = true;
+							System.out.println("Here");
 						}
 					}
 					if (saveRequired) {
@@ -233,8 +216,8 @@ public class ControllerPatch {
 						 * log
 						 */
 						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.add.scope",
-								String.format("Analysis: %s, version: %s; Add missing scopes", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.UPDATE,
-								analysis.getIdentifier(), analysis.getVersion());
+								String.format("Analysis: %s, version: %s; Add missing scopes", analysis.getIdentifier(), analysis.getVersion()), principal.getName(),
+								LogAction.UPDATE, analysis.getIdentifier(), analysis.getVersion());
 					}
 				}
 			}
@@ -242,7 +225,7 @@ public class ControllerPatch {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-		}finally{
+		} finally {
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-scopes-of-analyses"), principal.getName(),
 					LogAction.APPLY, "Update-scopes-of-analyses");
 		}
