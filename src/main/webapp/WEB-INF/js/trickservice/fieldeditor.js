@@ -66,11 +66,11 @@ function FieldEditor(element, validator) {
 	this.classId = null;
 	this.fieldType = null;
 	this.callback = null;
+	this.async = true;
 	this.backupData = {
 		orginalStyle : undefined,
 		parentClass : undefined
 	};
-	this.async = true;
 
 	FieldEditor.prototype.GeneratefieldEditor = function() {
 		var $element = $(this.element);

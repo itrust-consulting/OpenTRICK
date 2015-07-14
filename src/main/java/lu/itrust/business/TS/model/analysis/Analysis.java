@@ -76,7 +76,7 @@ import org.hibernate.annotations.CascadeType;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }))
 public class Analysis implements Cloneable {
 
 	/***********************************************************************************************
@@ -466,9 +466,10 @@ public class Analysis implements Cloneable {
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in Euro<br>
 	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 * ma: The MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 =
-	 * 100%) :: if 0 -> use The Default MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00
-	 * WHERE 0,00 = 0% and 0,1 = 100%)
+	 * ma: The MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE
+	 * 0,00 = 0% and 0,1 = 100%) :: if 0 -> use The Default
+	 * MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE 0,00 = 0%
+	 * and 0,1 = 100%)
 	 * 
 	 * @param internalSetup
 	 * 
@@ -807,27 +808,9 @@ public class Analysis implements Cloneable {
 	 * @return The Value of the Parameter if it exists, or -1 if the parameter
 	 *         was not found
 	 */
-	public double getParameter(String parameter) {
-
-		// initialise result value
-		double result = -1;
-
-		// parse all parameters
-		for (int i = 0; i < this.getParameters().size(); i++) {
-
-			// check if parameter is the one request -> YES
-			if (this.getAParameter(i).getDescription().equals(parameter)) {
-
-				// ****************************************************************
-				// * set value
-				// ****************************************************************
-				result = this.getAParameter(i).getValue();
-				break;
-			}
-		}
-
-		// return the result
-		return result;
+	public double getParameter(String name) {
+		Optional<Parameter> optional = parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).findAny();
+		return optional.isPresent() ? optional.get().getValue() : -1;
 	}
 
 	/**
@@ -2369,7 +2352,7 @@ public class Analysis implements Cloneable {
 		List<Asset> selectedAssets = new ArrayList<>();
 		if (assets == null)
 			return selectedAssets;
-		assets.stream().filter(asset -> asset.isSelected()).forEach(asset-> selectedAssets.add(asset));
+		assets.stream().filter(asset -> asset.isSelected()).forEach(asset -> selectedAssets.add(asset));
 		return selectedAssets;
 	}
 
@@ -2532,7 +2515,7 @@ public class Analysis implements Cloneable {
 
 	public List<Asset> findNoAssetSelected() {
 		List<Asset> assets = new ArrayList<Asset>();
-		this.assets.stream().filter(asset-> !asset.isSelected()).forEach(asset -> assets.add(asset));
+		this.assets.stream().filter(asset -> !asset.isSelected()).forEach(asset -> assets.add(asset));
 		return assets;
 	}
 }

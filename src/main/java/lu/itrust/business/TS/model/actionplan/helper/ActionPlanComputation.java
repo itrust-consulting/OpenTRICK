@@ -44,7 +44,6 @@ import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 
 /**
@@ -61,6 +60,8 @@ import org.springframework.context.MessageSource;
  * @since 9 janv. 2013
  */
 public class ActionPlanComputation {
+
+	private static final String START_P0 = "Start(P0)";
 
 	/***********************************************************************************************
 	 * Fields
@@ -89,10 +90,12 @@ public class ActionPlanComputation {
 
 	private boolean normalcomputation = false;
 
-	@Autowired
 	private MessageSource messageSource;
 
-	private Map<Integer, MaintenanceRecurrentInvestment> preImplementedMeasures;
+	private MaintenanceRecurrentInvestment preImplementedMeasures;
+
+	private double parameterExternalSetupRate = 0;
+	private double parameterInternalSetupRate = 0;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -350,20 +353,14 @@ public class ActionPlanComputation {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary",
 					language, progress));
 
-			preImplementedMeasures = new LinkedHashMap<Integer, MaintenanceRecurrentInvestment>();
+			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
-			this.standards
-					.stream()
-					.flatMap(standard -> standard.getMeasures().stream())
-					.filter(measure -> measure.getImplementationRateValue() >= 100)
-					.forEach(
-							measure -> {
-								MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = preImplementedMeasures.get(1);
-								if (maintenanceRecurrentInvestment == null)
-									preImplementedMeasures.put(1,new MaintenanceRecurrentInvestment(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment()));
-								else
-									maintenanceRecurrentInvestment.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
-							});
+			parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+
+			parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+
+			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).filter(measure -> measure.getImplementationRateValue() >= 100)
+					.forEach(measure -> preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment()));
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -2605,7 +2602,7 @@ public class ActionPlanComputation {
 		tmpval.totalALE = actionPlan.get(0).getTotalALE() + actionPlan.get(0).getDeltaALE();
 
 		// generate first stage
-		generateStage(apt, tmpval, sumStage, "Start(P0)", true, 0, maintenances);
+		generateStage(apt, tmpval, sumStage, START_P0, true, 0, maintenances);
 
 		// ****************************************************************
 		// * check if calculation by phase
@@ -2628,38 +2625,22 @@ public class ActionPlanComputation {
 
 		// parse action plan
 		for (int i = 0; i < actionPlan.size(); i++) {
-
 			// store action plan
 			ape = actionPlan.get(i);
-
 			// check if calculation by phase -> YES
 			if (byPhase) {
-
 				// check if entry is in current phase -> YES
-				if (ape.getMeasure().getPhase().getNumber() == phase) {
-
-					// ****************************************************************
-					// * calculate values for next run
-					// ****************************************************************
-					setValuesForNextEntry(tmpval, ape);
-
-				} else {
-
+				if (ape.getMeasure().getPhase().getNumber() != phase) {
 					// check if entry is in current phase -> NO
-
 					// ****************************************************************
 					// * generate stage for previous phase
 					// ****************************************************************
-
 					generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase, maintenances);
-
 					// ****************************************************************
 					// * reinitialise variables
 					// ****************************************************************
-
 					for (String key : tmpval.conformanceHelper.keySet())
 						tmpval.conformanceHelper.get(key).conformance = 0;
-
 					tmpval.deltaALE = 0;
 					tmpval.externalWorkload = 0;
 					tmpval.internalWorkload = 0;
@@ -2670,47 +2651,23 @@ public class ActionPlanComputation {
 					tmpval.ROSI = 0;
 					tmpval.totalALE = 0;
 					tmpval.totalCost = 0;
-
 					// ****************************************************************
 					// * update phase
 					// ****************************************************************
 					phase = ape.getMeasure().getPhase().getNumber();
-
-					// ****************************************************************
-					// * calculate values for next run
-					// ****************************************************************
-					setValuesForNextEntry(tmpval, ape);
 				}
-			} else {
-
-				// check if calculation by phase -> NO
-
-				// check if ROSI >= 0 -> YES
-				if (ape.getROI() >= 0) {
-
-					setValuesForNextEntry(tmpval, ape);
-				} else {
-
-					// check if ROSI >= 0 -> NO
-
-					// check if anticipated was already added -> NO
-					if (anticipated) {
-
-						// ****************************************************************
-						// * generate stage for anticipated level
-						// ****************************************************************
-						generateStage(apt, tmpval, sumStage, "Anticipated", false, phase, maintenances);
-
-						// deactivate flag
-						anticipated = false;
-					}
-
-					// ****************************************************************
-					// * calculate values for next run
-					// ****************************************************************
-					setValuesForNextEntry(tmpval, ape);
-				}
+			} else if (anticipated && ape.getROI() < 0) {
+				// ****************************************************************
+				// * generate stage for anticipated level
+				// ****************************************************************
+				generateStage(apt, tmpval, sumStage, "Anticipated", false, phase, maintenances);
+				// deactivate flag
+				anticipated = false;
 			}
+			// ****************************************************************
+			// * calculate values for next run
+			// ****************************************************************
+			setValuesForNextEntry(tmpval, ape);
 		}
 
 		// ****************************************************************
@@ -2884,7 +2841,7 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		SummaryStage aStage = null;
 		Measure measure = null;
-
+		boolean isFirstValidPhase = false;
 		double phasetime = 0;
 
 		if (phasenumber > 0) {
@@ -2897,9 +2854,10 @@ public class ActionPlanComputation {
 		if (firstStage)
 			tmpval.implementedCount = 0;
 
-		if (tmpval.previousStage != null)
+		if (tmpval.previousStage != null) {
 			tmpval.measureCount = tmpval.previousStage.getMeasureCount();
-		else
+			isFirstValidPhase = START_P0.equals(tmpval.previousStage.getStage());
+		} else
 			tmpval.measureCount = 0;
 
 		for (String key : tmpval.conformanceHelper.keySet()) {
@@ -2993,12 +2951,11 @@ public class ActionPlanComputation {
 
 		}
 
-		MaintenanceRecurrentInvestment preImplementedMeasure = preImplementedMeasures == null || !preImplementedMeasures.containsKey(phasenumber) ? new MaintenanceRecurrentInvestment()
-				: preImplementedMeasures.get(phasenumber);
-
-		tmpval.internalMaintenance += preImplementedMeasure.getInternalMaintenance();
-		tmpval.externalMaintenance += preImplementedMeasure.getExternalMaintenance();
-		tmpval.recurrentInvestment += preImplementedMeasure.getRecurrentInvestment();
+		if (isFirstValidPhase) {
+			tmpval.internalMaintenance += preImplementedMeasures.getInternalMaintenance();
+			tmpval.externalMaintenance += preImplementedMeasures.getExternalMaintenance();
+			tmpval.recurrentInvestment += preImplementedMeasures.getRecurrentInvestment();
+		}
 
 		MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = maintenanceRecurrentInvestments.containsKey(phasenumber - 1) ? maintenanceRecurrentInvestments
 				.get(phasenumber - 1) : new MaintenanceRecurrentInvestment();
@@ -3034,27 +2991,33 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
-		aStage.setInternalMaintenance((preImplementedMeasure.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime);
-		aStage.setExternalMaintenance((preImplementedMeasure.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime);
-		aStage.setRecurrentInvestment((preImplementedMeasure.getRecurrentInvestment() + maintenanceRecurrentInvestment.getRecurrentInvestment()) * phasetime);
 
-		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-		double ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		if (isFirstValidPhase) {
+			aStage.setInternalMaintenance((preImplementedMeasures.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime);
+			aStage.setExternalMaintenance((preImplementedMeasures.getExternalMaintenance() + maintenanceRecurrentInvestment.getExternalMaintenance()) * phasetime);
+			aStage.setRecurrentInvestment((preImplementedMeasures.getRecurrentInvestment() + maintenanceRecurrentInvestment.getRecurrentInvestment()) * phasetime);
+		} else {
+			aStage.setInternalMaintenance(maintenanceRecurrentInvestment.getInternalMaintenance() * phasetime);
+			aStage.setExternalMaintenance(maintenanceRecurrentInvestment.getExternalMaintenance() * phasetime);
+			aStage.setRecurrentInvestment(maintenanceRecurrentInvestment.getRecurrentInvestment() * phasetime);
+		}
 
-		tmpval.recurrentCost = (aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment();
+		tmpval.recurrentCost = (aStage.getInternalMaintenance() * parameterInternalSetupRate) + (aStage.getExternalMaintenance() * parameterExternalSetupRate)
+				+ aStage.getRecurrentInvestment();
 
 		aStage.setRecurrentCost(tmpval.recurrentCost);// From previous phase
 
 		// update total cost
-		tmpval.totalCost += (tmpval.internalWorkload * ir) + (tmpval.externalWorkload * er) + tmpval.investment;
+		tmpval.totalCost += (tmpval.internalWorkload * parameterInternalSetupRate) + (tmpval.externalWorkload * parameterExternalSetupRate) + tmpval.investment;
 
 		// in case of a phase calculation multiply external maintenance,
 		// internal maintenance with
 		// phasetime and with internal and external setup as well as investment
 		// with phasetime
-	
-		tmpval.totalCost += aStage.getInternalMaintenance() * ir + aStage.getExternalMaintenance() * er + aStage.getRecurrentInvestment();
-		
+
+		tmpval.totalCost += aStage.getInternalMaintenance() * parameterInternalSetupRate + aStage.getExternalMaintenance() * parameterExternalSetupRate
+				+ aStage.getRecurrentInvestment();
+
 		aStage.setTotalCostofStage(tmpval.totalCost);
 
 		// ****************************************************************
