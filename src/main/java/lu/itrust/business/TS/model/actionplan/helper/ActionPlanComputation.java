@@ -94,6 +94,8 @@ public class ActionPlanComputation {
 
 	private MaintenanceRecurrentInvestment preImplementedMeasures;
 
+	private List<Phase> phases = new ArrayList<Phase>();
+
 	private double parameterExternalSetupRate = 0;
 	private double parameterInternalSetupRate = 0;
 
@@ -255,8 +257,17 @@ public class ActionPlanComputation {
 
 			AssessmentManager asm = new AssessmentManager();
 
+			preImplementedMeasures = new MaintenanceRecurrentInvestment();
+
 			// update ALE of asset objects
 			asm.UpdateAssessment(this.analysis);
+
+			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
+				if (measure.getImplementationRateValue() >= 100)
+					preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+				if (!this.phases.contains(measure.getPhase()))//Select used phase.
+					this.phases.add(measure.getPhase());
+			});
 
 			// ***************************************************************
 			// * compute Action Plan - normal mode - Phase //
@@ -353,14 +364,9 @@ public class ActionPlanComputation {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary",
 					language, progress));
 
-			preImplementedMeasures = new MaintenanceRecurrentInvestment();
-
 			parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
 			parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-
-			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).filter(measure -> measure.getImplementationRateValue() >= 100)
-					.forEach(measure -> preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment()));
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -852,7 +858,7 @@ public class ActionPlanComputation {
 		// ****************************************************************
 
 		// parse all phases
-		for (int phase = 0; phase < this.analysis.getPhases().size(); phase++) {
+		for (Phase phase : phases) {
 
 			// ****************************************************************
 			// * check if TMAList is empty -> NO: after first time TMAList is
@@ -879,7 +885,7 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * generate the TMAList
 				// ****************************************************************
-				TMAList = generateTMAList(this.analysis, usedMeasures, mode, this.analysis.getAPhase(phase).getNumber(), false, this.maturitycomputation, this.standards);
+				TMAList = generateTMAList(this.analysis, usedMeasures, mode, phase.getNumber(), false, this.maturitycomputation, this.standards);
 
 				// ****************************************************************
 				// * update the created TMAList with previous values (ALE
@@ -950,14 +956,10 @@ public class ActionPlanComputation {
 				// TMAList is empty, so
 				// do nothing
 				// ****************************************************************
-				TMAList = generateTMAList(this.analysis, usedMeasures, mode, this.analysis.getAPhase(phase).getNumber(), false, maturitycomputation, standards);
-
+				TMAList = generateTMAList(this.analysis, usedMeasures, mode, phase.getNumber(), false, maturitycomputation, standards);
 				Map<String, Double> deltamaturities = new LinkedHashMap<String, Double>();
-
 				for (TMA tma : TMAList) {
-
 					if (tma.getStandard().getLabel().equals("27002")) {
-
 						if (deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference()) == null) {
 							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
 						} else {
@@ -2637,8 +2639,10 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * update phase
 					// ****************************************************************
+
 					while ((phase + 1) != ape.getMeasure().getPhase().getNumber())
 						generateStageAndResetData(sumStage, tmpval, ++phase, apt, maintenances);
+
 					phase = ape.getMeasure().getPhase().getNumber();
 				}
 			} else if (anticipated && ape.getROI() < 0) {
@@ -2710,7 +2714,7 @@ public class ActionPlanComputation {
 		tmpval.measureCount = 0;
 		tmpval.relativeROSI = 0;
 		tmpval.ROSI = 0;
-		tmpval.totalALE = 0;
+		// tmpval.totalALE = 0;
 		tmpval.totalCost = 0;
 	}
 
@@ -2994,6 +2998,7 @@ public class ActionPlanComputation {
 			aStage.setMeasureCount(tmpval.measureCount);
 		aStage.setImplementedMeasuresCount(tmpval.implementedCount);
 		aStage.setTotalALE(tmpval.totalALE);
+
 		aStage.setDeltaALE(tmpval.deltaALE);
 		aStage.setCostOfMeasures(tmpval.measureCost);
 		aStage.setROSI(tmpval.ROSI);
@@ -3115,6 +3120,21 @@ public class ActionPlanComputation {
 	 */
 	public void setUncertainty(boolean uncertainty) {
 		this.uncertainty = uncertainty;
+	}
+
+	/**
+	 * @return the phases
+	 */
+	public List<Phase> getPhases() {
+		return phases;
+	}
+
+	/**
+	 * @param phases
+	 *            the phases to set
+	 */
+	public void setPhases(List<Phase> phases) {
+		this.phases = phases;
 	}
 
 	/***********************************************************************************************
