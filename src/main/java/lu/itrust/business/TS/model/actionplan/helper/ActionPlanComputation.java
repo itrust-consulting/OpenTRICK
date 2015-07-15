@@ -2631,29 +2631,14 @@ public class ActionPlanComputation {
 			if (byPhase) {
 				// check if entry is in current phase -> YES
 				if (ape.getMeasure().getPhase().getNumber() != phase) {
-					// check if entry is in current phase -> NO
-					// ****************************************************************
-					// * generate stage for previous phase
-					// ****************************************************************
-					generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase, maintenances);
-					// ****************************************************************
-					// * reinitialise variables
-					// ****************************************************************
-					for (String key : tmpval.conformanceHelper.keySet())
-						tmpval.conformanceHelper.get(key).conformance = 0;
-					tmpval.deltaALE = 0;
-					tmpval.externalWorkload = 0;
-					tmpval.internalWorkload = 0;
-					tmpval.investment = 0;
-					tmpval.measureCost = 0;
-					tmpval.measureCount = 0;
-					tmpval.relativeROSI = 0;
-					tmpval.ROSI = 0;
-					tmpval.totalALE = 0;
-					tmpval.totalCost = 0;
+					
+					generateStageAndResetData(sumStage, tmpval, phase, apt, maintenances);
+					
 					// ****************************************************************
 					// * update phase
 					// ****************************************************************
+					while((phase+1) != ape.getMeasure().getPhase().getNumber())
+						generateStageAndResetData(sumStage, tmpval, ++phase, apt, maintenances);
 					phase = ape.getMeasure().getPhase().getNumber();
 				}
 			} else if (anticipated && ape.getROI() < 0) {
@@ -2702,6 +2687,30 @@ public class ActionPlanComputation {
 		// ****************************************************************
 
 		this.analysis.addSummaryEntries(sumStage);
+	}
+
+	private void generateStageAndResetData(List<SummaryStage> sumStage, SummaryValues tmpval, int phase, ActionPlanType apt,
+			Map<Integer, MaintenanceRecurrentInvestment> maintenances) throws TrickException {
+		// check if entry is in current phase -> NO
+		// ****************************************************************
+		// * generate stage for previous phase
+		// ****************************************************************
+		generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase, maintenances);
+		// ****************************************************************
+		// * reinitialise variables
+		// ****************************************************************
+		for (String key : tmpval.conformanceHelper.keySet())
+			tmpval.conformanceHelper.get(key).conformance = 0;
+		tmpval.deltaALE = 0;
+		tmpval.externalWorkload = 0;
+		tmpval.internalWorkload = 0;
+		tmpval.investment = 0;
+		tmpval.measureCost = 0;
+		tmpval.measureCount = 0;
+		tmpval.relativeROSI = 0;
+		tmpval.ROSI = 0;
+		tmpval.totalALE = 0;
+		tmpval.totalCost = 0;
 	}
 
 	/**
