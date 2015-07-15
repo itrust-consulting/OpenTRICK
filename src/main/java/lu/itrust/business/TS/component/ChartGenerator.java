@@ -708,6 +708,8 @@ public class ChartGenerator {
 
 		String investment = "[";
 
+		String implementPhaseCost = "[";
+
 		String currentCost = "[";
 
 		String totalPhaseCost = "[";
@@ -727,6 +729,8 @@ public class ChartGenerator {
 
 		List<String> dataInvestment = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT);
 
+		List<String> dataImplementPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
+
 		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 
 		List<String> dataTotalPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
@@ -739,6 +743,7 @@ public class ChartGenerator {
 			internalMaintenace += dataInternalMaintenace.get(i) + (size != i ? "," : "]");
 			externalMaintenance += dataExternalMaintenance.get(i) + (size != i ? "," : "]");
 			investment += dataInvestment.get(i) + (size != i ? "," : "]");
+			implementPhaseCost += dataImplementPhaseCost.get(i) + (size != i ? "," : "]");
 			currentCost += dataCurrentCost.get(i) + (size != i ? "," : "]");
 			totalPhaseCost += dataTotalPhaseCost.get(i) + (size != i ? "," : "]");
 		}
@@ -749,6 +754,7 @@ public class ChartGenerator {
 			internalMaintenace += "]";
 			externalMaintenance += "]";
 			investment += "]";
+			implementPhaseCost += "]";
 			currentCost += "]";
 			totalPhaseCost += "]";
 		}
@@ -771,11 +777,13 @@ public class ChartGenerator {
 				+ internalMaintenace + ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale) + "\", \"data\":"
 				+ externalMaintenance + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
-				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale) + "\", \"data\":" + investment
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST, null, "Total implement cost of phase", locale) + "\", \"data\":"
+				+ implementPhaseCost + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST, null, "Current cost", locale) + "\", \"data\":" + currentCost
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ", " + exporting + "}").replaceAll("\r|\n",

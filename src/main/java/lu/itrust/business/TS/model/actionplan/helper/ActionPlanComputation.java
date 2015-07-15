@@ -2631,13 +2631,13 @@ public class ActionPlanComputation {
 			if (byPhase) {
 				// check if entry is in current phase -> YES
 				if (ape.getMeasure().getPhase().getNumber() != phase) {
-					
+
 					generateStageAndResetData(sumStage, tmpval, phase, apt, maintenances);
-					
+
 					// ****************************************************************
 					// * update phase
 					// ****************************************************************
-					while((phase+1) != ape.getMeasure().getPhase().getNumber())
+					while ((phase + 1) != ape.getMeasure().getPhase().getNumber())
 						generateStageAndResetData(sumStage, tmpval, ++phase, apt, maintenances);
 					phase = ape.getMeasure().getPhase().getNumber();
 				}
@@ -2704,6 +2704,7 @@ public class ActionPlanComputation {
 		tmpval.deltaALE = 0;
 		tmpval.externalWorkload = 0;
 		tmpval.internalWorkload = 0;
+		tmpval.implementCostOfPhase = 0;
 		tmpval.investment = 0;
 		tmpval.measureCost = 0;
 		tmpval.measureCount = 0;
@@ -3011,23 +3012,19 @@ public class ActionPlanComputation {
 			aStage.setRecurrentInvestment(maintenanceRecurrentInvestment.getRecurrentInvestment() * phasetime);
 		}
 
-		tmpval.recurrentCost = (aStage.getInternalMaintenance() * parameterInternalSetupRate) + (aStage.getExternalMaintenance() * parameterExternalSetupRate)
-				+ aStage.getRecurrentInvestment();
-
-		aStage.setRecurrentCost(tmpval.recurrentCost);// From previous phase
+		aStage.setRecurrentCost(tmpval.recurrentCost = aStage.getInternalMaintenance() * parameterInternalSetupRate + aStage.getExternalMaintenance() * parameterExternalSetupRate
+				+ aStage.getRecurrentInvestment());
 
 		// update total cost
-		tmpval.totalCost += (tmpval.internalWorkload * parameterInternalSetupRate) + (tmpval.externalWorkload * parameterExternalSetupRate) + tmpval.investment;
+		aStage.setImplementCostOfPhase(tmpval.implementCostOfPhase = (tmpval.internalWorkload * parameterInternalSetupRate)
+				+ (tmpval.externalWorkload * parameterExternalSetupRate) + tmpval.investment);
 
 		// in case of a phase calculation multiply external maintenance,
 		// internal maintenance with
 		// phasetime and with internal and external setup as well as investment
 		// with phasetime
 
-		tmpval.totalCost += aStage.getInternalMaintenance() * parameterInternalSetupRate + aStage.getExternalMaintenance() * parameterExternalSetupRate
-				+ aStage.getRecurrentInvestment();
-
-		aStage.setTotalCostofStage(tmpval.totalCost);
+		aStage.setTotalCostofStage(tmpval.totalCost += (aStage.getRecurrentCost() + aStage.getImplementCostOfPhase()));
 
 		// ****************************************************************
 		// * add summary stage to list of summary stages

@@ -91,6 +91,9 @@ public class SummaryValues {
 
 	/** Total Cost of Stage */
 	public double totalCost = 0;
+
+	/** Total implement cost of phase */
+	public double implementCostOfPhase = 0;
 	
 	public SummaryValues(List<AnalysisStandard> standards) {
 		conformanceHelper.clear();

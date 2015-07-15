@@ -126,6 +126,12 @@ public class SummaryStage {
 	 **/
 	@Column(name = "dtTotalCost", nullable = false)
 	private double totalCostofStage;
+	
+	/**
+	 * internalWorkload * parameterInternalSetupRate + externalWorkload * parameterExternalSetupRate + investment
+	 */
+	@Column(name = "dtImplementCost", nullable = false)
+	private double implementCostOfPhase = 0;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -622,5 +628,13 @@ public class SummaryStage {
 		if (Double.isNaN(recurrentInvestment))
 			throw new TrickException("error.summary.recurrent_investment.nan", "Please ckeck your data: Recurrent investment is not a number");
 		this.recurrentInvestment = recurrentInvestment;
+	}
+
+	public double getImplementCostOfPhase() {
+		return implementCostOfPhase;
+	}
+
+	public void setImplementCostOfPhase(double implementCostOfPhase) {
+		this.implementCostOfPhase = implementCostOfPhase;
 	}
 }
