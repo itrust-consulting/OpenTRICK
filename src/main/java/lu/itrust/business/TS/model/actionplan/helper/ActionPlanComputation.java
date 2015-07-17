@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -262,11 +264,20 @@ public class ActionPlanComputation {
 			// update ALE of asset objects
 			asm.UpdateAssessment(this.analysis);
 
-			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
-				if (measure.getImplementationRateValue() >= 100)
-					preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
-				if (!this.phases.contains(measure.getPhase()))//Select used phase.
-					this.phases.add(measure.getPhase());
+			this.standards.stream().filter(standard -> standard.getStandard().isComputable()).flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
+				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && measure.getMeasureDescription().isComputable()) {
+					if (measure.getImplementationRateValue() >= 100)
+						preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+					if (!this.phases.contains(measure.getPhase()))
+						this.phases.add(measure.getPhase());
+				}
+			});
+
+			Collections.sort(phases, new Comparator<Phase>() {
+				@Override
+				public int compare(Phase o1, Phase o2) {
+					return Integer.compare(o1.getNumber(), o2.getNumber());
+				}
 			});
 
 			// ***************************************************************
@@ -848,10 +859,8 @@ public class ActionPlanComputation {
 		ActionPlanType actionPlanType = serviceActionPlanType.get(mode.getValue());
 
 		// check if the actionplantype exists and add it to database if not
-		if (actionPlanType == null) {
-			actionPlanType = new ActionPlanType(mode);
-			serviceActionPlanType.save(actionPlanType);
-		}
+		if (actionPlanType == null)
+			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(mode));
 
 		// ****************************************************************
 		// * parse all phases where measures are in
@@ -861,12 +870,13 @@ public class ActionPlanComputation {
 		for (Phase phase : phases) {
 
 			// ****************************************************************
-			// * check if TMAList is empty -> NO: after first time TMAList is
-			// not empty, so ALE
-			// values need to be reused
+			// * check if TMAList is empty -> YES: for the first time, the
+			// TMAList is empty, so
+			// do nothing
 			// ****************************************************************
-			if (TMAList.size() > 0) {
-
+			if (TMAList.isEmpty())
+				TMAList = generateTMAList(this.analysis, usedMeasures, mode, phase.getNumber(), false, maturitycomputation, standards);
+			else {
 				// ****************************************************************
 				// * TMAList was not empty, so take ALE values from current to
 				// continue calculations
@@ -892,83 +902,42 @@ public class ActionPlanComputation {
 				// values)
 				// ****************************************************************
 
+				if (TMAList.isEmpty())
+					TMAList = tmpTMAList;
+
+				// ****************************************************************
+				// * for each TMAList entry, parse temporary TMAList to find
+				// assessments that
+				// are the same to change the ALE values
 				// parse TMAList to edit the ALE values by assessment
-				for (int i = 0; i < TMAList.size(); i++) {
-
-					// ****************************************************************
-					// * for each TMAList entry, parse temporary TMAList to find
-					// assessments that
-					// are the same to change the ALE values
-					// ****************************************************************
-					for (int j = 0; j < tmpTMAList.size(); j++) {
-
-						// if the assessment corresponds to the current TMAList
-						// -> YES
-						if ((TMAList.get(i).getAssessment().getScenario().getName().equals(tmpTMAList.get(j).getAssessment().getScenario().getName()))
-								&& (TMAList.get(i).getAssessment().getAsset().getName().equals(tmpTMAList.get(j).getAssessment().getAsset().getName()))) {
-
-							// ****************************************************************
-							// * edit the ALE value
-							// ****************************************************************
-							TMAList.get(i).setALE(tmpTMAList.get(j).getALE());
-
-							// ****************************************************************
-							// * recalculate the delta ALE
-							// ****************************************************************
-							TMAList.get(i).calculateDeltaALE();
-
-							// ****************************************************************
-							// * if 27002 standard, recalculate deltaALE
-							// maturity if
-							// maturity
-							// computation -> YES
-							// ****************************************************************
-							if (TMAList.get(i).getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
-
-								// ****************************************************************
-								// * recalculate delta ALE Maturity
-								// ****************************************************************
-								TMAList.get(i).calculateDeltaALEMaturity();
-							}
-						}
-					}
-				}
-
-				Map<String, Double> deltamaturities = new LinkedHashMap<String, Double>();
-
-				for (TMA tma : TMAList) {
-
-					if (tma.getStandard().getLabel().equals("27002")) {
-						if (deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference()) == null) {
-							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
-						} else {
-							Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
-							val += tma.getDeltaALEMat();
-							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
-						}
-					}
-				}
-
-			} else {
-
+				// if the assessment corresponds to the current TMAList
 				// ****************************************************************
-				// * check if TMAList is empty -> YES: for the first time, the
-				// TMAList is empty, so
-				// do nothing
-				// ****************************************************************
-				TMAList = generateTMAList(this.analysis, usedMeasures, mode, phase.getNumber(), false, maturitycomputation, standards);
-				Map<String, Double> deltamaturities = new LinkedHashMap<String, Double>();
-				for (TMA tma : TMAList) {
-					if (tma.getStandard().getLabel().equals("27002")) {
-						if (deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference()) == null) {
-							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
-						} else {
-							Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
-							val += tma.getDeltaALEMat();
-							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
+				TMAList.forEach(tma -> tmpTMAList.stream().filter(tmpTMA -> tma.getAssessment().equals(tmpTMA.getAssessment())).forEach(tmpTMA -> {
+					// ****************************************************************
+					// * edit the ALE value
+					// ****************************************************************
+						tma.setALE(tmpTMA.getALE());
+
+						// ****************************************************************
+						// * recalculate the delta ALE
+						// ****************************************************************
+						tma.calculateDeltaALE();
+
+						// ****************************************************************
+						// * if 27002 standard, recalculate deltaALE
+						// maturity if
+						// maturity
+						// computation -> YES
+						// ****************************************************************
+						if (tma.getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
+
+							// ****************************************************************
+							// * recalculate delta ALE Maturity
+							// ****************************************************************
+							tma.calculateDeltaALEMaturity();
 						}
-					}
-				}
+
+					}));
 			}
 
 			// ****************************************************************
@@ -977,7 +946,7 @@ public class ActionPlanComputation {
 
 			// parse all measures
 
-			while (usedMeasures.size() > 0) {
+			while (!usedMeasures.isEmpty()) {
 
 				// ****************************************************************
 				// * calculate temporary Action Plan
@@ -1217,7 +1186,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * check if the measure is not a maturity measure -> NO
 			// ****************************************************************
-			if (!usedMeasures.get(i).getMeasureDescription().getReference().startsWith(Constant.MATURITY_REFERENCE)) {
+			if (!(usedMeasures.get(i) instanceof MaturityMeasure)) {
 
 				// ****************************************************************
 				// * calculate action plan entry ALE and delta ALE from TMAList
@@ -1242,7 +1211,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * take ALE to calculate the sum of ALE (total ALE)
 						// ****************************************************************
-						totalALE = totalALE + TMAList.get(j).getALE();
+						totalALE += TMAList.get(j).getALE();
 
 						// ****************************************************************
 						// * calculate ALE by asset for this action plan entry
@@ -1266,23 +1235,24 @@ public class ActionPlanComputation {
 								ALE = tmpAssets.get(ac).getCurrentALE();
 
 								// add this ALE
-								ALE = ALE + TMAList.get(j).getALE();
+								ALE += TMAList.get(j).getALE();
 
 								// calculate minus deltaALE
-								ALE = ALE - TMAList.get(j).getDeltaALE();
+								ALE -= TMAList.get(j).getDeltaALE();
 
 								// ****************************************************************
 								// * update the object's ALE value
 								// ****************************************************************
 								tmpAssets.get(ac).setCurrentALE(ALE);
 							}
+
 						}
 
 						// ****************************************************************
 						// * take deltaALE to calculate the sum of deltaALE
 						// ****************************************************************
 						if (measure.getMeasureDescription().getStandard().isComputable())
-							deltaALE = deltaALE + TMAList.get(j).getDeltaALE();
+							deltaALE += TMAList.get(j).getDeltaALE();
 					}
 				}
 
@@ -1722,6 +1692,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * edit the ALE value of the TMAList element
 						// ****************************************************************
+
 						TMAList.get(j).setALE(TMAList.get(j).getALE() - deltaALE);
 
 						// ****************************************************************
@@ -1780,7 +1751,7 @@ public class ActionPlanComputation {
 
 			// check if asset and scenario is selected for calculation and ALE >
 			// 0 -> YES
-			if (assessment.getAsset().isSelected() && assessment.getScenario().isSelected() && assessment.getALE() > 0) {
+			if (assessment.isSelected() && assessment.getALE() > 0) {
 
 				// ****************************************************************
 				// * calculate total deltaALE
@@ -1988,7 +1959,6 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						if (!isCssf && !(normalMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normalMeasure.getMeasureDescription().isComputable())
 								&& (normalMeasure.getCost() >= 0) && (normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002) && (maturitycomputation))) {
-
 							// ****************************************************************
 							// * generate TMA entry -> not a useful measure
 							// ****************************************************************
@@ -2637,12 +2607,15 @@ public class ActionPlanComputation {
 					generateStageAndResetData(sumStage, tmpval, phase, apt, maintenances);
 
 					// ****************************************************************
-					// * update phase
+					// * Generate missing phase
 					// ****************************************************************
 
-					while ((phase + 1) != ape.getMeasure().getPhase().getNumber())
-						generateStageAndResetData(sumStage, tmpval, ++phase, apt, maintenances);
+					for (++phase; phase < ape.getMeasure().getPhase().getNumber(); phase++)
+						generateStageAndResetData(sumStage, tmpval, phase, apt, maintenances);
 
+					// ****************************************************************
+					// * update phase
+					// ****************************************************************
 					phase = ape.getMeasure().getPhase().getNumber();
 				}
 			} else if (anticipated && ape.getROI() < 0) {
@@ -2914,22 +2887,19 @@ public class ActionPlanComputation {
 							implementation++;
 
 						if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-							numerator += (imprate / 100.);
+							numerator += imprate / 100.;
 						else
-							numerator += (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.);
+							numerator += Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.;
 					} else {
 
 						if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-							numerator += (imprate / 100.);
+							numerator += imprate / 100.;
 						else
-							numerator += (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.);
+							numerator += Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.;
 
-						for (int k = 0; k < helper.measures.size(); k++) {
-							if (measure.equals(helper.measures.get(k))) {
-								numerator += (1.) - (imprate / 100.);
-								tmpval.measureCount++;
-								break;
-							}
+						if (helper.measures.contains(measure)) {
+							numerator += (1.) - (imprate / 100.);
+							tmpval.measureCount++;
 						}
 					}
 
@@ -2955,10 +2925,9 @@ public class ActionPlanComputation {
 				tmpval.implementedCount += implementation;
 			}
 
-			if (chapters.size() > 0) {
-
+			if (chapters.size() > 0)
 				helper.conformance /= (double) chapters.size();
-			} else
+			else
 				helper.conformance = 0;
 
 			chapters.clear();

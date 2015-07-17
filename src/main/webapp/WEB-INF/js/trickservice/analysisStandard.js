@@ -430,13 +430,13 @@ function removeStandard() {
 }
 
 // management of measures of analysis only standards
-function addMeasure(element,idStandard) {
+function addMeasure(element, idStandard) {
 	if ($(element).parent().hasClass("disabled") || idStandard == undefined || idStandard == null || !$.isNumeric(idStandard))
 		return false;
 	return manageMeasure(context + "/Analysis/Standard/" + idStandard + "/Measure/New");
 }
 
-function editMeasure(element,idStandard,idMeasure){
+function editMeasure(element, idStandard, idMeasure) {
 	if ($(element).parent().hasClass("disabled") || idStandard == undefined || idStandard == null || !$.isNumeric(idStandard))
 		return false;
 	if (idMeasure == null || idMeasure == undefined)
@@ -538,6 +538,7 @@ function saveMeasure() {
 	var $assetTab = form.find("#tab_asset");
 	if ($genearal.length)
 		data = $genearal.serializeJSON();
+	$(".label-danger", "#modalMeasureForm").remove();
 	data.id = form.find("#id").val();
 	data.idStandard = form.find("#idStandard").val();
 	data.assetValues = [];
@@ -550,22 +551,24 @@ function saveMeasure() {
 		delete properties[this.name];
 	});
 
-	if ($assetTab.length)
-		data.type = "ASSET";
-	else
-		data.type = "NORMAL";
-
 	data.properties = properties;
 	data.computable = data.computable === "on";
+
+	if ($assetTab.length) {
+		data.type = "ASSET";
+		if (data.computable && !data.assetValues.length) {
+			$("<label class='label label-danger'></label>").text(MessageResolver("error.asset.empty", "Asset cannot be empty")).appendTo($("#modalMeasureForm #error_container"));
+			return false;
+		}
+	} else
+		data.type = "NORMAL";
+
 	$.ajax({
 		url : context + "/Analysis/Standard/Measure/Save",
 		type : "post",
 		data : JSON.stringify(data),
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
-			var alert = $("#modalMeasureForm").find(".label-danger");
-			if (alert.length)
-				alert.remove();
 			for ( var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");

@@ -63,7 +63,7 @@
 								</c:if>
 								<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
 									<tr data-trick-class="ActionPlanEntry" data-trick-id="${ape.id}"
-										data-trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.analysisStandard.standard.label}" />')">
+										data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.analysisStandard.standard.id}')">
 										<td><spring:message text="${ape.order}" /></td>
 										<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
 										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
@@ -89,7 +89,8 @@
 											<fmt:formatNumber value="${fct:round(ape.measure.investment*0.001,0)}" maxFractionDigits="0" />
 										</td>
 										<td  align="right" class="success" data-trick-field="phase" data-trick-field-type="integer" onclick="return editField(this);" data-trick-callback-pre="extractPhase(this)"
-											data-real-value='${ape.measure.phase.number}'><c:choose>
+											data-real-value='${ape.measure.phase.number}'>
+											<c:choose>
 												<c:when test="${ape.measure.phase.number == 0}">
 													NA
 												</c:when>

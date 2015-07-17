@@ -146,7 +146,7 @@
 							<td style="padding-left: 15px" colspan="${columncount+5}">2.1. <fmt:message key="label.resource.implementation.cost" /></td>
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.2.1. <fmt:message key="label.resource.planning.internal.workload" /></td>
+							<td style="padding-left: 30px">2.1.1. <fmt:message key="label.resource.planning.internal.workload" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${internalworkloads.get(i)}" maxFractionDigits="2" var="value" />
@@ -155,7 +155,7 @@
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.2.2. <fmt:message key="label.resource.planning.external.workload" /></td>
+							<td style="padding-left: 30px">2.1.2. <fmt:message key="label.resource.planning.external.workload" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${externalworkloads.get(i)}" maxFractionDigits="2" var="value" />
@@ -164,7 +164,7 @@
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.2.3. <fmt:message key="label.resource.planning.investment" /></td>
+							<td style="padding-left: 30px">2.1.3. <fmt:message key="label.resource.planning.investment" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(investments.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />

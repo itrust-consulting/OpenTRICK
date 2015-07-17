@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.exportation;
 
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -2329,85 +2328,6 @@ public class ExportAnalysis {
 				}
 			}
 		}
-	}
-
-	/**
-	 * generateIndexOfReference: <br>
-	 * Generate Index of Measure or Maturity Reference. This will be used inside
-	 * Measure Export, to set the Field in the Sqlite File to define the Order
-	 * inside TRICK Light.
-	 * 
-	 * @param reference
-	 *            The Reference of the Measure
-	 * @throws SQLException
-	 * 
-	 */
-	@Deprecated
-	private long generateIndexOfReference(String reference) {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		String[] split = reference.replace(" ", ".").split("\\.");
-
-		final long[] multi = new long[4];
-
-		for (int indexMulti = (4 - 1); indexMulti >= 0; indexMulti--)
-			multi[indexMulti] = (long) Math.pow(1000, indexMulti);
-
-		long index = 0;
-
-		// ****************************************************************
-		// * create the index of aperence of reference inside sqlite table
-		// ****************************************************************
-
-		// check if length of split is greater than 0 -> YES
-		if (split.length > 0) {
-
-			// Case of 27001 and Maturity -> YES
-			if (split[0].equals(Constant.STANDARD27001_FIRSTCHAR_REFERENCE) || split[0].equals(Constant.MATURITY_FIRSTCHAR_REFERENCE)) {
-
-				index = 0;
-
-				// create index for 27001 and maturity
-				for (int i = 1; i < split.length; i++) {
-
-					// ****************************************************************
-					// * set index
-					// ****************************************************************
-					long multiplicator = multi[(multi.length - 1) - i];
-
-					long value = Long.parseLong(split[i]);
-
-					index += (value * multiplicator);
-				}
-
-			} else {
-
-				// Case of 27001 and Maturity -> NO
-
-				index = 0;
-
-				// create index for 27002 and custom
-				for (int i = 0; i < split.length; i++) {
-
-					// ****************************************************************
-					// * set index
-					// ****************************************************************
-
-					long multiplicator = multi[(multi.length - 1) - i];
-
-					long value = Long.parseLong(split[i]);
-
-					index += (value * multiplicator);
-				}
-			}
-		}
-
-		// ****************************************************************
-		// * return result
-		// ****************************************************************
-		return index;
 	}
 
 	/**

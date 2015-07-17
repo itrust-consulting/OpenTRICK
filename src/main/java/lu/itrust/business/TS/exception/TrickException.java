@@ -7,7 +7,7 @@ package lu.itrust.business.TS.exception;
  * @author eomar
  *
  */
-public class TrickException extends Exception {
+public class TrickException extends RuntimeException {
 
 	/**
 	 * 
