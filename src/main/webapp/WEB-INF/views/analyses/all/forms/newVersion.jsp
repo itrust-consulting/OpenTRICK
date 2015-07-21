@@ -15,7 +15,7 @@
 			</div>
 			<div class="modal-body">
 				<jsp:include page="../../../template/successErrors.jsp" />
-				<form name="history" action="${pageContext.request.contextPath}/History/Analysis/${analysisId}/NewVersion/Save" class="form-horizontal" id="history_form" method="post">
+				<form name="history" action="${pageContext.request.contextPath}/History/Analysis/${analysisId}/NewVersion/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="history_form" method="post">
 					<div class="form-group">
 						<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
 						</label>

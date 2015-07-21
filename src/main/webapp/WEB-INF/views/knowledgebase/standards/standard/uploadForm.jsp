@@ -15,7 +15,7 @@
 			</div>
 			<div class="modal-body">
 				<jsp:include page="../../../template/successErrors.jsp" />
-				<form name="importStandard" method="post" action="${pageContext.request.contextPath}/KnowledgeBase/Standard/Import" class="form-inline" id="uploadStandard_form"
+				<form name="importStandard" method="post" action="${pageContext.request.contextPath}/KnowledgeBase/Standard/Import?${_csrf.parameterName}=${_csrf.token}" class="form-inline" id="uploadStandard_form"
 					enctype="multipart/form-data">
 					<div class="row">
 						<label class="col-lg-12" for="name"> <spring:message code="label.norm.import.choose_file" text="Choose the file containing new standard to import" /></label>

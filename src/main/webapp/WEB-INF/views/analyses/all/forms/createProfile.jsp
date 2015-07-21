@@ -16,7 +16,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="col-sm-12 row">
-					<form id="analysisProfileform" action="/AnalysisProfile/Save" method="post" class="form">
+					<form id="analysisProfileform" action="/AnalysisProfile/Save?${_csrf.parameterName}=${_csrf.token}" method="post" class="form">
 						<input type="hidden" id="id" name="id" value="${id}" />
 						<div class="form-group">
 							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.name" text="Name" /></label>

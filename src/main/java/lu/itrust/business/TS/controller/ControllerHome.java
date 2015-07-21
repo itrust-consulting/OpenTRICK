@@ -117,7 +117,7 @@ public class ControllerHome {
 
 	@RequestMapping("/Logout")
 	public String logout() {
-		return "redirect:/j_spring_security_logout";
+		return "redirect:/signout";
 	}
 
 	@RequestMapping(value = "/Success", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -7,7 +7,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div id="available_standards" class="modal-body">
 	<c:if test="${!empty(availableStandards)}">
-		<form name="standard" action="${pageContext.request.contextPath}/Analysis/Save/Standard" class="form" id="addStandardForm">
+		<form name="standard" action="${pageContext.request.contextPath}/Analysis/Save/Standard?${_csrf.parameterName}=${_csrf.token}" class="form" id="addStandardForm">
 			<div class="form-group">
 				<label> <fmt:message key="label.analysis.add.standard.select.choose" />
 				</label>

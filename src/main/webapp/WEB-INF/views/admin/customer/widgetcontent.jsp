@@ -14,7 +14,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="customer" action="Customer/Create" class="form-horizontal" id="customer_form">
+				<form name="customer" action="Customer/Create?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="customer_form">
 					<fieldset>
 						<legend>
 							<spring:message code='label.contact' text='Contact' />

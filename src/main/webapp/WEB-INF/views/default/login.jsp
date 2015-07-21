@@ -29,13 +29,13 @@
 				</c:if>
 
 				<jsp:include page="../template/successErrors.jsp" />
-				<form id="login_form" method="post" action="${pageContext.request.contextPath}/j_spring_security_check">
+				<form id="login_form" method="post" action="${pageContext.request.contextPath}/signin?${_csrf.parameterName}=${_csrf.token}">
 					<div class="form-group">
-						<input id="username" name="j_username" value="${(!empty (j_username))? j_username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
+						<input id="username" name="username" value="${(!empty (username))? username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
 							required="required" class="form-control" pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}" />
 					</div>
 					<div class="form-group">
-						<input name="j_password" value="${(!empty (j_password))? j_password : ''}" type="password" class="form-control"
+						<input name="password" value="${(!empty (password))? password : ''}" type="password" class="form-control"
 							placeholder="<spring:message code='label.signin.password' text='Password' />" required="required" />
 					</div>
 					<div class="form-group">
