@@ -2518,4 +2518,16 @@ public class Analysis implements Cloneable {
 		this.assets.stream().filter(asset -> !asset.isSelected()).forEach(asset -> assets.add(asset));
 		return assets;
 	}
+
+	public List<Assessment> removeAssessment(Asset asset) {
+		List<Assessment> assessments = new LinkedList<Assessment>();
+		this.assessments.removeIf(assessment -> assessment.getAsset().equals(asset) && assessments.add(assessment));
+		return assessments;
+	}
+
+	public List<Assessment> removeAssessment(Scenario scenario) {
+		List<Assessment> assessments = new LinkedList<Assessment>();
+		this.assessments.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
+		return assessments;
+	}
 }

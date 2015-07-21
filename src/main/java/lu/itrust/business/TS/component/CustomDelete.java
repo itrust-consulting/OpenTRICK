@@ -34,7 +34,6 @@ import lu.itrust.business.TS.database.dao.DAOUserSqLite;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
@@ -128,51 +127,47 @@ public class CustomDelete {
 	private DAOUserSqLite daoUserSqLite;
 
 	@Transactional
-	public void deleteAsset(Asset asset) throws Exception {
+	public void deleteAsset(int idAsset, int idAnalysis) throws Exception {
+		Asset asset = daoAsset.getFromAnalysisById(idAnalysis, idAsset);
+		Analysis analysis = daoAnalysis.get(idAnalysis);
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+		else if (asset == null)
+			throw new TrickException("error.asset.not_found", "Asset cannot be found");
 
-		if (asset.isSelected()) {
-
-			Analysis analysis = daoAnalysis.get(daoAsset.getAnalysisIdFromAsset(asset.getId()));
-
-			if (analysis == null)
-				throw new Exception("Could not retrieve analysis!");
-
-			for (ActionPlanEntry actionplanentry : analysis.getActionPlans())
-				daoActionPlan.delete(actionplanentry);
-
-			for (SummaryStage stage : analysis.getSummaries())
-				daoActionPlanSummary.delete(stage);
-
-		}
-
-		for (Assessment assessment : daoAssessment.getAllFromAsset(asset))
-			daoAssessment.delete(assessment);
+		deleteActionPlanRiskRegisterAssessment(analysis, analysis.removeAssessment(asset));
 
 		daoAsset.delete(asset);
 	}
 
 	@Transactional
-	public void deleteScenario(Scenario scenario) throws Exception {
+	public void deleteScenario(int idScenario, int idAnalysis) throws Exception {
+		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
+		Analysis analysis = daoAnalysis.get(idAnalysis);
 
-		if (scenario.isSelected()) {
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+		else if (scenario == null)
+			throw new TrickException("error.scenario.not_found", "Scenario cannot be found");
 
-			Analysis analysis = daoAnalysis.get(daoScenario.getAnalysisIdFromScenario(scenario.getId()));
-
-			if (analysis == null)
-				throw new Exception("Could not retrieve analysis!");
-
-			for (ActionPlanEntry actionplanentry : analysis.getActionPlans())
-				daoActionPlan.delete(actionplanentry);
-
-			for (SummaryStage stage : analysis.getSummaries())
-				daoActionPlanSummary.delete(stage);
-
-		}
-
-		for (Assessment assessment : daoAssessment.getAllFromScenario(scenario))
-			daoAssessment.delete(assessment);
+		deleteActionPlanRiskRegisterAssessment(analysis, analysis.removeAssessment(scenario));
 
 		daoScenario.delete(scenario);
+	}
+
+	private void deleteActionPlanRiskRegisterAssessment(Analysis analysis, List<Assessment> assessments) throws Exception {
+		while (!analysis.getActionPlans().isEmpty())
+			daoActionPlan.delete(analysis.getActionPlans().remove(0));
+		while (!analysis.getSummaries().isEmpty())
+			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
+		deleteRiskRegisterAssessment(analysis, assessments);
+	}
+
+	private void deleteRiskRegisterAssessment(Analysis analysis, List<Assessment> assessments) throws Exception {
+		while (!analysis.getRiskRegisters().isEmpty())
+			daoRiskRegister.delete(analysis.getRiskRegisters().remove(0));
+		for (Assessment assessment : assessments)
+			daoAssessment.delete(assessment);
 	}
 
 	@Transactional
