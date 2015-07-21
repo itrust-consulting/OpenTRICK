@@ -308,11 +308,11 @@ function deletePhase(idPhase) {
 // phase
 
 function extractPhase(that,defaultPhase) {
+	if(that.choose.length)
+		return false;
 	var $phases = $("#section_phase *[data-trick-class='Phase']>*:nth-child(2)");
 	if(defaultPhase)
 		that.choose.push("0");
-	if (!that.choose.length)
-		return true;
 	for (var i = 0; i < $phases.length; i++)
 		that.choose.push($($phases[i]).text());
 	return false;

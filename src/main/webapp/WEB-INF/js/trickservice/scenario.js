@@ -16,7 +16,7 @@ function editScenario(rowTrickId, isAdd) {
 			url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
 			contentType : "application/json;charset=UTF-8",
 			async : true,
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if ((addScenarioModal = doc.getElementById("addScenarioModal")) == null)
@@ -39,7 +39,7 @@ function saveScenario(form) {
 		data : serializeScenarioForm(form),
 		contentType : "application/json;charset=UTF-8",
 		async : true,
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var label = $("#addScenarioModal .label-danger");
 			if (label.length)
 				label.remove();
@@ -109,25 +109,22 @@ function deleteScenario(scenarioId) {
 						url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
 						contentType : "application/json;charset=UTF-8",
 						async : false,
-						success : function(response,textStatus,jqXHR) {
-							var trickSelect = parseJson(response);
-							if (trickSelect != undefined && trickSelect["success"] != undefined) {
-								/*
-								 * var row = $("#section_scenario tr[data-trick-id='" +
-								 * rowTrickId + "']"); var checked =
-								 * $("#section_scenario tr[data-trick-id='" +
-								 * rowTrickId + "'] :checked"); if
-								 * (checked.length)
-								 * $(checked).removeAttr("checked"); if
-								 * (row.length) $(row).remove();
-								 */
+						success : function(response, textStatus, jqXHR) {
+							if (response["success"] != undefined)
+								reloadSection('section_scenario');
+							else if (response["error"] != undefined) {
+								$("#alert-dialog .modal-body").html(response["error"]);
+								$("#alert-dialog").modal("toggle");
+							} else {
+								$("#alert-dialog .modal-body").html(MessageResolver("error.delete.scenario.unkown", "Unknown error occoured while deleting scenario", null, lang));
+								$("#alert-dialog").modal("toggle");
 							}
 							return false;
 						},
 						error : unknowError
 					});
 				}
-				reloadSection('section_scenario');
+
 			});
 		} else {
 			$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang));

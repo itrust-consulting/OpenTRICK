@@ -223,18 +223,6 @@ public class ControllerEditField {
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (RuntimeException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -246,6 +234,19 @@ public class ControllerEditField {
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+		}
+		catch (RuntimeException e) {
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);

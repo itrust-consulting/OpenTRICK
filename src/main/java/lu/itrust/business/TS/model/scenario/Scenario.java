@@ -72,7 +72,7 @@ public class Scenario extends SecurityCriteria {
 	 * Constructor: <br>
 	 * 
 	 * @param assettypes
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public Scenario(List<AssetType> assettypes) throws TrickException {
 		for (AssetType at : assettypes) {
@@ -109,7 +109,7 @@ public class Scenario extends SecurityCriteria {
 			throw new TrickException("error.scenario.name.empty", "Name cannot be empty!");
 		this.name = name;
 	}
-	
+
 	/**
 	 * getType: <br>
 	 * Returns the "type" field value
@@ -136,7 +136,7 @@ public class Scenario extends SecurityCriteria {
 			throw new TrickException("error.scenario.type.empty", "Type cannot be empty!");
 		this.type = type;
 	}
-	
+
 	/**
 	 * isSelected: <br>
 	 * Returns the "selected" field value
@@ -234,7 +234,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param assetType
 	 * @return
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public int getAssetTypeValue(AssetType assetType) throws TrickException {
 		for (AssetTypeValue typeValue : assetTypeValues) {
@@ -417,7 +417,8 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * isValidValue: <br>
-	 * Check if Category value is valid or not. A valid value in scenario is 0 or 1 or 4.
+	 * Check if Category value is valid or not. A valid value in scenario is 0
+	 * or 1 or 4.
 	 * 
 	 * @param value
 	 *            The value to check if valid
@@ -481,10 +482,7 @@ public class Scenario extends SecurityCriteria {
 	 * @return The List of AssetTypeValues
 	 */
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "ScenarioAssetTypeValue",
-			joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) },
-			inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) },
-			uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
+	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
@@ -520,12 +518,13 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * equals: <br>
-	 * This method is used to determine if the current object equals another object. Fields that
-	 * identify a Scenario object are: id, name and type.
+	 * This method is used to determine if the current object equals another
+	 * object. Fields that identify a Scenario object are: id, name and type.
 	 * 
 	 * @param obj
 	 *            The object to check
-	 * @return True if the object equals the other object; False if the objects are not the same
+	 * @return True if the object equals the other object; False if the objects
+	 *         are not the same
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -541,21 +540,15 @@ public class Scenario extends SecurityCriteria {
 			return false;
 		}
 		Scenario other = (Scenario) obj;
-		if (getId() != other.getId()) {
-			return false;
-		}
+		
+		if (getId() > 0 && other.getId() > 0)
+			return getId() == other.getId();
+
 		if (name == null) {
 			if (other.name != null) {
 				return false;
 			}
 		} else if (!name.equals(other.name)) {
-			return false;
-		}
-		if (type == null) {
-			if (other.type != null) {
-				return false;
-			}
-		} else if (!type.equals(other.type)) {
 			return false;
 		}
 		return true;
@@ -598,7 +591,8 @@ public class Scenario extends SecurityCriteria {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#valueFixer(java.lang.String, int)
+	 * @see lu.itrust.business.TS.model.general.SecurityCriteria#valueFixer(java.lang.String,
+	 *      int)
 	 */
 	@Override
 	protected int valueFixer(String category, int value) throws TrickException {
