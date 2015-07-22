@@ -7,6 +7,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <head>
 <meta charset="utf-8" />
+<meta name="_csrf" content="${_csrf.token}"/>
+<meta name="_csrf_header" content="${_csrf.headerName}"/>
 <meta content="itrust consulting s.a.r.l - itrust.lu" name="author" />
 <meta content="<spring:message code="label.risk_analysis" text="Analysis de risque"/>" name="description" />
 <meta content="width=device-width" name="viewport" />

@@ -35,7 +35,7 @@ import org.hibernate.annotations.CascadeType;
  * @since Aug 19, 2012
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "dtLogin"), @UniqueConstraint(columnNames ="dtLogin")})
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames ="dtEmail"),@UniqueConstraint(columnNames = "dtLogin")})
 public class User implements Serializable {
 
 	@Transient

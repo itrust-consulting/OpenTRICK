@@ -5,7 +5,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="addUserModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewUser" data-aria-hidden="true">
 	<div class="modal-dialog">
-		<div class="modal-content" style="min-width: 50%;">
+		<div class="modal-content" style="min-width: 700px;">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addUserModel-title">
@@ -14,7 +14,7 @@
 			</div>
 			<div class="modal-body">
 				<span id="success" hidden="hidden"></span>
-				<form name="user" action="User/Save" class="form-horizontal" id="user_form" name="user">
+				<form name="user" action="User/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="user_form" name="user">
 					<input type="hidden" name="id" value="-1" id="user_id">
 					<div class="form-group">
 						<label for="login" class="col-sm-2 control-label"> <spring:message code="label.user.login" text="Username"/>

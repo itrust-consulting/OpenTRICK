@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="customerusers">
 	<jsp:include page="../../template/successErrors.jsp" />
-	<form action="Update" name="usercustomer" id="customerusersform">
+	<form action="Update?${_csrf.parameterName}=${_csrf.token}" name="usercustomer" id="customerusersform">
 		<div>
 			<input type="hidden" value="${customer.id}" name="customerid" />
 			<spring:message code="label.users.customer.access" text="Users having access to customer" />:

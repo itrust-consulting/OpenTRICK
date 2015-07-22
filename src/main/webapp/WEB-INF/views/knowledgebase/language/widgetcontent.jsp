@@ -14,7 +14,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="language" action="Language/Save" class="form-horizontal" id="language_form">
+				<form name="language" action="Language/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="language_form">
 					<input type="hidden" name="id" value="-1" id="language_id">
 					<div class="form-group">
 						<label for="alpha3" class="col-sm-2 control-label"> <spring:message code="label.language.alpha3" text="Alpha3 code" />

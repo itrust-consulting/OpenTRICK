@@ -53,7 +53,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="standard" action="/Create" class="form-horizontal" id="standard_form" method="post">
+				<form name="standard" action="/Create?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="standard_form" method="post">
 					<input type="hidden" value="-1" name="id" id="id">
 					<div class="form-group">
 						<label for="label" class="col-sm-2 control-label"> <fmt:message key="label.norm.label" />

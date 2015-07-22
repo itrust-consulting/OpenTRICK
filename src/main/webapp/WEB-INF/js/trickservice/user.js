@@ -190,7 +190,7 @@ function deleteUser(userId, name) {
 function newUser() {
 	if (findSelectItemIdBySection(("section_user")).length > 0)
 		return false;
-	$("#addUserModel").find(".alert").remove()
+	$("#addUserModel .alert,.label-danger").remove()
 	$("#user_id").prop("value", "-1");
 	$("#user_login").prop("value", "");
 	$("#user_login").removeAttr("disabled");
@@ -198,21 +198,19 @@ function newUser() {
 	$("#user_firstName").prop("value", "");
 	$("#user_lastName").prop("value", "");
 	$("#user_email").prop("value", "");
-
 	$.ajax({
 		url : context + "/Admin/Roles",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
+			$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
+			$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
+			$("#user_form").prop("action", "/Save");
+			$("#addUserModel").modal('toggle');
 		},
 		error : unknowError
 	});
-
-	$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
-	$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
-	$("#user_form").prop("action", "/Save");
-	$("#addUserModel").modal('toggle');
 	return false;
 }
 
@@ -223,7 +221,7 @@ function editSingleUser(userId) {
 			return false;
 		userId = selectedScenario[0];
 	}
-	$("#addUserModel").find(".alert").remove()
+	$("#addUserModel .alert,.label-danger").remove()
 	var rows = $("#section_user").find("tr[data-trick-id='" + userId + "'] td:not(:first-child)");
 	$("#user_id").prop("value", userId);
 	$("#user_login").prop("value", $(rows[0]).text());
@@ -239,13 +237,12 @@ function editSingleUser(userId) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
+			$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
+			$("#addUserbutton").text(MessageResolver("label.action.edit", "Edit"));
+			$("#user_form").prop("action", "/Save");
+			$("#addUserModel").modal('toggle');
 		},
 		error : unknowError
 	});
-
-	$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
-	$("#addUserbutton").text(MessageResolver("label.action.edit", "Edit"));
-	$("#user_form").prop("action", "/Save");
-	$("#addUserModel").modal('toggle');
 	return false;
 }

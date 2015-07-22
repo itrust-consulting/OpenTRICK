@@ -40,6 +40,12 @@ function downloadExportedSqLite(id) {
 
 $(function() {
 
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(document).ajaxSend(function(e, xhr, options) {
+		xhr.setRequestHeader(header, token);
+	});
+
 	// prevent unknown error modal display
 	$(window).bind("beforeunload", function() {
 		application["isReloading"] = true;
@@ -68,7 +74,7 @@ $(function() {
 					if (!$option.find("#" + optionMenu.prop("id")).length) {
 						$option.find("ul").remove();
 						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
-						$("li[data-role='title']",cloneOption ).remove()
+						$("li[data-role='title']", cloneOption).remove()
 						cloneOption.removeAttr("style");
 						if ($subMenu.length) {
 							$subMenu.each(function() {
@@ -81,9 +87,9 @@ $(function() {
 								$this.addClass("dropdown-header");
 							});
 						} else {
-							$("li.dropdown-header",cloneOption).each(function(){
+							$("li.dropdown-header", cloneOption).each(function() {
 								var $this = $(this), $closestli = $this.closest("li");
-								if($closestli.length && !$closestli.hasClass("divider"))
+								if ($closestli.length && !$closestli.hasClass("divider"))
 									$this.before("<li class='divider'></li>");
 								$this.show();
 							});
