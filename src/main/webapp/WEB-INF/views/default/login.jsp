@@ -27,9 +27,8 @@
 					<c:set var="error" value="${sessionScope.LOGIN_ERROR}" scope="request" />
 					<c:remove var="LOGIN_ERROR" scope="session" />
 				</c:if>
-
 				<jsp:include page="../template/successErrors.jsp" />
-				<form id="login_form" method="post" action="${pageContext.request.contextPath}/signin?${_csrf.parameterName}=${_csrf.token}">
+				<form id="login_form" method="post" action="${pageContext.request.contextPath}/signin">
 					<div class="form-group">
 						<input id="username" name="username" value="${(!empty (username))? username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
 							required="required" class="form-control" pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}" />
@@ -41,10 +40,14 @@
 					<div class="form-group">
 						<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/ResetPassword"> <spring:message code="label.reset.password" text="Reset password" /></a>
 					</div>
+					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 					<div class="form-group">
 						<button type="submit" id="login_signin_button" class="btn btn-danger navbar-btn" style="width: 100%;">
 							<spring:message code="label.action.signin" text="Sign in" />
 						</button>
+						<a href="${pageContext.request.contextPath}" id="login_reload_button"
+							title='<spring:message code="label.info.reload.token.expired"/>' class="btn btn-primary navbar-btn"
+							style="width: 100%; display: none"> <spring:message code="label.action.reload" text="Reload"/>  </a>
 					</div>
 				</form>
 			</div>
@@ -52,7 +55,19 @@
 		<jsp:include page="../template/footer.jsp" />
 		<jsp:include page="../template/scripts.jsp" />
 		<script type="text/javascript">
-			$("input[name='j_username']").focus();
+		<!-- 
+			setTimeout(function() {
+				var $errorMessage = $("<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' style='margin-right: -10px; margin-top: -12px'>×</a> "
+						+ '<spring:message code="label.info.reload.token.expired"/>' + " </div>"),$error= $("#error");
+				if($error.length)
+					$error.replaceWith($errorMessage);
+				else $("#login_form").before($errorMessage);
+				$('#login_form button,input').prop("disabled", true);
+				$('#login_reload_button').show();
+				$("#login_signin_button").hide();
+			}, 899400);
+			$("input[name='j_username']").focus(); 
+		-->
 		</script>
 	</div>
 </body>

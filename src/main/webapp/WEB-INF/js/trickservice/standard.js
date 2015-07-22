@@ -7,7 +7,7 @@ function saveStandard(form) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			$("#addStandardModel #addstandardbutton").prop("disabled", false);
 			var alert = $("#addStandardModel .label-danger");
 			if (alert.length)
@@ -69,7 +69,7 @@ function deleteStandard(idStandard, name) {
 			url : context + "/KnowledgeBase/Standard/Delete/" + idStandard,
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
@@ -94,7 +94,7 @@ function uploadImportStandardFile() {
 		url : context + "/KnowledgeBase/Standard/Upload",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			if ((uploadStandardModal = doc.getElementById("uploadStandardModal")) == null)
@@ -116,18 +116,25 @@ function uploadImportStandardFile() {
 
 function onSelectFile(file) {
 	$("#upload-file-info").prop("value", $(file).prop("value"));
+	$("#btnImportStandard").prop("disabled", $("#upload-file-info").val()=="");
 	return false;
 }
 
 function importNewStandard() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
-	$("#uploadStandardModal .modal-footer .btn").prop("disabled", true);
-	$("#uploadStandardModal .modal-header .close").prop("disabled", true);
-
 	if (progressBar != undefined)
 		progressBar.Destroy();
-
+	$("#updateStandardNotification").empty();
+	var $uploadFile = $("#upload-file-info");
+	if (!$uploadFile.length)
+		return false;
+	else if ($uploadFile.val() == "") {
+		$("#updateStandardNotification").text(MessageResolver("error.import.standard.no_select.file", "Please select file to import"));
+		return false;
+	}
+	$("#uploadStandardModal .modal-footer .btn").prop("disabled", true);
+	$("#uploadStandardModal .modal-header .close").prop("disabled", true);
 	var formData = new FormData($('#uploadStandard_form')[0]);
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/Import",
@@ -144,7 +151,7 @@ function importNewStandard() {
 		},
 		// Ajax events
 		// beforeSend : beforeSendHandler,
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			if (response.flag != undefined) {
 				progressBar = new ProgressBar();
 				progressBar.Initialise();
@@ -152,30 +159,26 @@ function importNewStandard() {
 				callback = {
 					failed : function() {
 						progressBar.Destroy();
-						$("#uploadStandardModal").modal("toggle");
-						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
+						$("#updateStandardNotification").text(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
 					},
 					success : function() {
 						progressBar.Destroy();
 						reloadSection('section_kb_standard');
-						$("#uploadStandardModal").modal("toggle");
+						$("#uploadStandardModal").modal("hide");
 					}
 				};
 				progressBar.OnComplete(callback.success);
 				updateStatus(progressBar, response.taskID, callback, response);
 			} else {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if ((modalForm = doc.getElementById("uploadStandardModal")) == null) {
-					$("#uploadStandardModal").modal("toggle");
-					$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
-				} else {
-					$("#uploadStandardModal").replaceWith($(modalForm).text());
+				var $modalForm = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($modalForm.length) {
+					$("#uploadStandardModal").replaceWith($modalForm);
 					$("#uploadStandardModal .modal-footer .btn").prop("disabled", false);
 					$("#uploadStandardModal .modal-header .close").prop("disabled", false);
+				} else {
+					$("#updateStandardNotification").text(MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
 				}
 			}
-
 		},
 		error : unknowError,
 		// error : errorHandler,
@@ -188,6 +191,7 @@ function importNewStandard() {
 		processData : false
 
 	});
+	return false;
 }
 
 function newStandard() {

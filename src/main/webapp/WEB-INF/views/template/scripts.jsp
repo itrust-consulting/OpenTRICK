@@ -12,7 +12,7 @@
 	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootstrap-tooltip.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
-	<script  src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
+	<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
 	<script src="<spring:url value="/js/main.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/timeoutmanager.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
