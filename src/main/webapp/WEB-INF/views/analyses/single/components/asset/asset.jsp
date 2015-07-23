@@ -63,8 +63,9 @@
 					<tr data-trick-id="${asset.id}" data-trick-selected="${asset.selected}" data-trick-class="Asset" ${asset.selected? asset.value < 1 ? 'class="warning"' : 'class="success"' : ''} ondblclick="return editAsset('${asset.id}');">
 						<c:set var="ale" value="${assetALE[asset.id]}" />
 						<c:set var="totalAssetValue" value="${totalAssetValue + asset.value}" />
-						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
-						<td>${status.index+1}</td>
+						<c:set var="selectClass" value="${asset.selected?'selected':'unselected'}" />
+						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
+						<td class='${selectClass}'>${status.index+1}</td>
 						<td><spring:message text="${asset.name}" /></td>
 						<td><spring:message text="${asset.assetType.type}" /></td>
 						<fmt:setLocale value="fr" scope="session" />
