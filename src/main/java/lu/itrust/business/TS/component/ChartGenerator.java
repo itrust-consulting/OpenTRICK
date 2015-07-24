@@ -1189,7 +1189,7 @@ public class ChartGenerator {
 
 		// For each dynamic parameter, construct a series of values (mapping a timestamp to the value back then)
 		Map<String, Map<Long, Double>> data = new HashMap<>();
-		for (LocalDate endDate = firstEndDate; endDate.compareTo(lastEndDate) <= 0 /* endDate <= lastEndDate */; endDate = endDate.plusMonths(1)) {
+		for (LocalDate endDate = firstEndDate; endDate.compareTo(lastEndDate) <= 0 /* endDate <= lastEndDate */; endDate = endDate.plusWeeks(1)) {
 			final long endTime = endDate.atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
 			final long startTime = endTime - timespan;
 
@@ -1233,7 +1233,7 @@ public class ChartGenerator {
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
 		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
-		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "]}";
+		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 		
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
 	}
