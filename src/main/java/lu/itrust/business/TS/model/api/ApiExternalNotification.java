@@ -16,15 +16,22 @@ public class ApiExternalNotification {
 	/**
 	 * Represents the time when the notification was originally issued
 	 * by the external provider.
+	 * The value is a UNIX timestamp (number of seconds elapsed since 1970-01-01).
 	 */
 	private long timestamp;
 	
 	/**
-	 * Represents the severity of the notification.
-	 * Values lie in the range [0,10] where 0 is least and 10 is most severe.
-	 * The scale is logarithmic.
+	 * Represents the time (in seconds) after which the notification has no longer any effect on the alarm level.
 	 */
-	private int severity;
+	private long standbyTime;
+	
+	/**
+	 * Represents the severity of the notification.
+	 * The severity is the conditional probability that an incident of this category occurs
+	 * given that there has been an alert (a notification).
+	 * Values lie in the range [0.0,1.0] where 0 is least and 1 is most severe.
+	 */
+	private double severity;
 	
 	/**
 	 * Represents the number of notifications incorporated by this object.
@@ -74,12 +81,32 @@ public class ApiExternalNotification {
 	}
 
 	/**
+	 * Gets the 'standbyTime' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it getA() instead of getStandbyTime(),
+	 * we may use {"a":...} instead of {"standbyTime":...} in JSON data.
+	 */
+	public long getA() {
+		return this.standbyTime;
+	}
+
+	/**
+	 * Sets the 'standbyTime' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it setA() instead of setStandbyTime(),
+	 * we may use {"a":...} instead of {"standbyTime":...} in JSON data.
+	 */
+	public void setA(long standbyTime) {
+		this.standbyTime = standbyTime;
+	}
+
+	/**
 	 * Gets the 'severity' parameter of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it getS() instead of getSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
 	 */
-	public int getS() {
+	public double getS() {
 		return this.severity;
 	}
 
@@ -89,7 +116,7 @@ public class ApiExternalNotification {
 	 * to the JSON data field. By calling it setS() instead of setSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
 	 */
-	public void setS(int severity) {
+	public void setS(double severity) {
 		this.severity = severity;
 	}
 

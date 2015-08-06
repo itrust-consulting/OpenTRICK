@@ -2,6 +2,7 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationOccurrence;
@@ -45,4 +46,6 @@ public interface DAOExternalNotification {
 	 * Here, 'occurrence' denotes the sum of all 'number' columns of the considered notifications.
 	 */
 	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception;
+	
+	public Map<String, Double> computeProbabilities(long timestampNow, String sourceUserName) throws Exception;
 }

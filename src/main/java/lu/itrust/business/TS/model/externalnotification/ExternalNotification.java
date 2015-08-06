@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -42,21 +41,29 @@ public class ExternalNotification {
 	 */
 	@Column(name = "dtTimestamp", nullable = false)
 	private long timestamp;
-	
+
+	/**
+	 * Represents the time (in seconds) after which the notification has no longer any effect on the alarm level.
+	 * Value is a positive integer.
+	 */
+	@Column(name = "dtStandbyTime", nullable = false)
+	private long standbyTime;
+
 	/**
 	 * Represents the number of notifications incorporated by this object.
 	 * In fact, this parameter allows the aggregation of equivalent notifications
 	 * into a single one, thus saving traffic/storage space.
+	 * Value is a non-negative integer.
 	 */
 	@Column(name = "dtNumber", nullable = false)
 	private int number;
 
 	/**
 	 * Represents the severity of the notification.
-	 * Values lie in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
+	 * Values lie in the range [0.0, 1.0].
 	 */
 	@Column(name = "dtSeverity", nullable = false)
-	private int severity;
+	private double severity;
 
 	public Integer getId() {
 		return id;
@@ -99,6 +106,23 @@ public class ExternalNotification {
 	}
 
 	/**
+	 * Gets the notification creation timestamp from the database entity.
+	 */
+	public long getStandbyTime() {
+		return standbyTime;
+	}
+
+	/**
+	 * Sets the notification creation timestamp of the database entity.
+	 */
+	public void setStandbyTime(long standbyTime) throws TrickException {
+		if (standbyTime < 0)
+			throw new TrickException("error.externalnotification.standbyTime_negative", "External notification stand-by time cannot be negative or zero.");
+
+		this.standbyTime = standbyTime;
+	}
+
+	/**
 	 * Gets the number of notification this (virtual) notification represents.
 	 */
 	public int getNumber() {
@@ -117,16 +141,16 @@ public class ExternalNotification {
 	/**
 	 * Gets the severity of this notification.
 	 */
-	public int getSeverity() {
+	public double getSeverity() {
 		return severity;
 	}
 
 	/**
 	 * Sets the severity of this notification.
 	 */
-	public void setSeverity(int severity) throws TrickException {
-		if (severity < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || severity > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
-			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY, Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY });
+	public void setSeverity(double severity) throws TrickException {
+		if (severity < 0.0 || severity > 1.0)
+			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
 		this.severity = severity;
 	}
 

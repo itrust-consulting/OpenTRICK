@@ -32,6 +32,7 @@ public class ExternalNotificationHelper {
 		// Copy all properties from API object to a new entity
 		modelObj.setCategory(apiObj.getC());
 		modelObj.setTimestamp(apiObj.getT());
+		modelObj.setStandbyTime(apiObj.getA());
 		modelObj.setNumber(apiObj.getN());
 		modelObj.setSeverity(apiObj.getS());
 		modelObj.setSourceUserName(userName);
@@ -51,6 +52,7 @@ public class ExternalNotificationHelper {
 			// We silently omit the unique identifier here
 			apiObj.setC(obj.getCategory());
 			apiObj.setT(obj.getTimestamp());
+			apiObj.setA(obj.getStandbyTime());
 			apiObj.setN(obj.getNumber());
 			apiObj.setS(obj.getSeverity());
 			apiList.add(apiObj);
