@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.database.service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -41,20 +40,6 @@ public interface ServiceExternalNotification {
 	 * @param externalNotification The object to delete.
 	 */
 	public void delete(ExternalNotification externalNotification) throws Exception;
-
-	/**
-	 * Fetches the occurrence likelihoods of each notification category, weighted by severity, over the given time span.
-	 * @param scope The notification scope. Only variables in this scope are considered.
-	 * @param categories The categories which notifications must have in order to be included in the result.
-	 * @param minTimestamp The inclusive lower bound of the timestamp of all notifications to consider.
-	 * @param maxTimestamp The exclusive upper bound of the timestamp of all notifications to consider.
-	 * @param sourceUserName The name of the user who has reported the notifications to consider.
-	 * @return Returns the frequency for each category specified in the 'categories' parameter.
-	 * The keys of the returned Map<String, Double> are exactly the values in 'categories';
-	 * unknown categories get assigned a default value of 0.
-	 * Here, 'frequency' denotes the sum of all 'number' fields of the considered notifications divided by the specified time span.
-	 */
-	public Map<String, List<ExternalNotificationOccurrence>> getOccurrences(Collection<String> categories, long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception;
 
 	/**
 	 * Fetches the occurrence likelihoods of each notification category, weighted by severity, over the given time span.

@@ -2,10 +2,6 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -17,14 +13,10 @@ import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.api.ApiExpressionRequest;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiResult;
-import lu.itrust.business.TS.model.externalnotification.ExternalNotificationOccurrence;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
-import lu.itrust.business.expressions.InvalidExpressionException;
-import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,55 +114,5 @@ public class ControllerApi {
 
 		// Success
 		return new ApiResult(0);
-	}
-
-	/**
-	 * Lists all the external notifications in the database.
-	 * Used for debugging purposes; this method will be removed in the production version.
-	 * THIS IS A DEBUG METHOD WHICH DOES NOT PERFORM ACCESS RIGHT VERIFICATION.
-	 */
-	@RequestMapping(value = "/list", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public Object list() throws Exception {
-		// Fetch all entities from the database
-		// and convert them to exportable API objects
-		return ExternalNotificationHelper.convertList(serviceExternalNotification.getAll());		
-	}
-	
-	/**
-	 * Evaluates the given expression by plugging in the real-time values of the variables.
-	 * Used for debugging purposes; this method will be removed in the production version.
-	 * THIS IS A DEBUG METHOD WHICH DOES NOT PERFORM ACCESS RIGHT VERIFICATION.
-	 */
-	@RequestMapping(value = "/eval", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public Object eval(Principal principal, @RequestBody ApiExpressionRequest data) throws Exception {
-		String userName = principal.getName();
-
-		// Verify data passed to API
-		if (data.getTimespan() <= 0)
-			throw new TrickException("error.api.timespan_negative", "Timespan must be positive.");
-		if (data.getUnitDuration() <= 0)
-			throw new TrickException("error.api.unit_duration_negative", "Unit duration must be positive.");
-		
-		// Read request data
-		final long maxTimestamp = java.time.Instant.now().getEpochSecond(); // now
-		final long minTimestamp = maxTimestamp - data.getTimespan(); // some time ago
-		final double unitDuration = data.getUnitDuration();
-		final double timespanInUnits = data.getTimespan() / unitDuration;
-		StringExpressionParser exprParser = new StringExpressionParser(data.getExpression());
-		
-		try {
-			// Compute frequencies for all involved variables
-			Collection<String> variablesInvolved = exprParser.getInvolvedVariables();
-			Map<String, List<ExternalNotificationOccurrence>> occurrencesByCategory = serviceExternalNotification.getOccurrences(variablesInvolved, minTimestamp, maxTimestamp, userName);
-			Map<String, Double> variableValues = ExternalNotificationHelper.computeLikelihoods(occurrencesByCategory, timespanInUnits, new HashMap<>());
-
-			// Evaluate expression itself
-			double value = exprParser.evaluate(variableValues);
-			// Do something with it
-			return value;
-		}
-		catch (InvalidExpressionException ex) {
-			throw new TrickException("error.api.invalid_expression", "Invalid expression: syntax error.");
-		}
 	}
 }

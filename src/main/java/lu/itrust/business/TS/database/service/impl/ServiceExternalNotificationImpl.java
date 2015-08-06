@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.database.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,26 +62,6 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 	@Override
 	public void delete(ExternalNotification externalNotification) throws Exception {
 		daoExternalNotification.delete(externalNotification);
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public Map<String, List<ExternalNotificationOccurrence>> getOccurrences(Collection<String> categories, long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception {
-		if (maxTimestamp <= minTimestamp) {
-			throw new IllegalArgumentException("minTimestamp must be strictly smaller than maxTimestamp.");
-		}
-		
-		// Init default values
-		HashMap<String, Double> frequencies = new HashMap<>(categories.size());
-		for (String category : categories) {
-			frequencies.put(category, 0.0);
-		}
-
-		// Count all notifications. Note that certain values in 'categories' may not be among the keys of 'countResult'. 
-		List<ExternalNotificationOccurrence> countResult = daoExternalNotification.count(categories, minTimestamp, maxTimestamp, sourceUserName);
-
-		// Compute likelihood for each category
-		return this.aggregateCountResult(countResult);
 	}
 
 	/** {@inheritDoc} */
