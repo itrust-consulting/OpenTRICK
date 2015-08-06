@@ -120,7 +120,7 @@ public class ControllerActionPlan {
 		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 
 		// return view
-		return "analyses/singleAnalysis/components/actionplan";
+		return "analyses/single/components/actionplan";
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class ControllerActionPlan {
 		} else
 			model.put("actionplans", actionplans);
 		// return view
-		return "analyses/singleAnalysis/components/actionPlan/section";
+		return "analyses/single/components/actionPlan/section";
 	}
 	
 	
@@ -160,7 +160,7 @@ public class ControllerActionPlan {
 			section(model.asMap(),session,principal);
 			model.addAttribute("selectedApt",ActionPlanMode.valueOf(selectedApt));
 			model.addAttribute("assets", ActionPlanManager.getAssetsByActionPlanType((List<ActionPlanEntry>)model.asMap().get("actionplans")));
-			return "analyses/singleAnalysis/components/actionPlan/assets";
+			return "analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -189,7 +189,7 @@ public class ControllerActionPlan {
 
 		model.put("standards", serviceAnalysisStandard.getAllFromAnalysis(analysisID));
 
-		return "analyses/singleAnalysis/components/actionPlan/form";
+		return "analyses/single/components/actionPlan/form";
 	}
 
 	/**

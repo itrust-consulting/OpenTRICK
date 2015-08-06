@@ -68,10 +68,10 @@ public abstract class Measure implements Cloneable {
 	/** The LifeTime of the Measure (in Years) */
 	private double lifetime = 0;
 
-	/** The internal Maintenance of the Measure (in Man Days) */
+	/** The internal MaintenanceRecurrentInvestment of the Measure (in Man Days) */
 	private double internalMaintenance = 0;
 
-	/** The external Maintenance of the Measure (in Man Days) */
+	/** The external MaintenanceRecurrentInvestment of the Measure (in Man Days) */
 	private double externalMaintenance = 0;
 
 	/** The recurrent investment of maintenance of the Measure (Currency) */
@@ -85,7 +85,7 @@ public abstract class Measure implements Cloneable {
 
 	/** The "ToDo" of this Measure */
 	private String toDo = "";
-	
+
 	private String responsible = "";
 
 	/** The Phase object for this measure */
@@ -169,7 +169,7 @@ public abstract class Measure implements Cloneable {
 
 		if ((status == null) || (status.trim().isEmpty()) || !status.trim().matches(Constant.REGEXP_VALID_MEASURE_STATUS))
 			this.status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
-		 else 
+		else
 			this.status = status.trim();
 	}
 
@@ -407,7 +407,7 @@ public abstract class Measure implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiMeasureDescription", nullable = false)
 	@Access(AccessType.FIELD)
-	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE })
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	public MeasureDescription getMeasureDescription() {
 		return measureDescription;
 	}
@@ -516,28 +516,25 @@ public abstract class Measure implements Cloneable {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+
+		if (getClass() != obj.getClass())
 			return false;
-		}
+
 		Measure other = (Measure) obj;
 
-		if (getId() > 0 && getId() == other.getId())
-			return true;
-		else if (getId() > 0 && other.getId() > 0)
-			return false;
-		else if (measureDescription == null) {
-			if (other.measureDescription != null) {
+		if (getId() > 0 && other.getId() > 0)
+			return getId() == other.getId();
+
+		if (measureDescription == null) {
+			if (other.measureDescription != null)
 				return false;
-			}
-		} else if (!measureDescription.equals(other.measureDescription)) {
+		} else if (!measureDescription.equals(other.measureDescription))
 			return false;
-		}
 		return true;
 	}
 

@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -35,8 +36,8 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  * @version 0.1
  * @since 2012-12-11
  */
-@Entity 
-@Table(name="RiskRegister")
+@Entity
+@Table(name = "RiskRegister", uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiAsset", "fiScenario" }))
 public class RiskRegisterItem {
 
 	private static final String REDUCE_VALUE = "reduce";
@@ -46,65 +47,60 @@ public class RiskRegisterItem {
 	/** Regular Expression for Strategy */
 	@Transient
 	public static final String REGEX_STRATEGY = "accept|reduce|transfer|avoid";
-	
+
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
 	/** Identifier */
-	@Id @GeneratedValue 
-	@Column(name="idRiskRegisterItem")
+	@Id
+	@GeneratedValue
+	@Column(name = "idRiskRegisterItem")
 	private int id = -1;
-	
+
 	/** Scenario Object */
-	@ManyToOne 
-	@JoinColumn(name="fiScenario", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiScenario", nullable = false)
 	@Access(AccessType.FIELD)
 	private Scenario scenario = null;
 
 	@ManyToOne
-	@JoinColumn(name="fiAsset", nullable=false)
+	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
 	private Asset asset = null;
 
 	/** Position in the RiskRegister */
-	@Column(name="dtOrder", nullable=false)
+	@Column(name = "dtOrder", nullable = false)
 	private int position = 0;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
-	@AttributeOverrides({ 
-		@AttributeOverride(name = "impact", column = @Column(name = "dtNetEvaluationImpact", nullable=false)),
-		@AttributeOverride(name = "probability", column = @Column(name = "dtNetEvaluationProbability", nullable=false)),
-		@AttributeOverride(name = "importance", column = @Column(name = "dtNetEvaluationImportance", nullable=false)) 
-	})
+	@AttributeOverrides({ @AttributeOverride(name = "impact", column = @Column(name = "dtNetEvaluationImpact", nullable = false)),
+			@AttributeOverride(name = "probability", column = @Column(name = "dtNetEvaluationProbability", nullable = false)),
+			@AttributeOverride(name = "importance", column = @Column(name = "dtNetEvaluationImportance", nullable = false)) })
 	@Access(AccessType.FIELD)
 	private EvaluationResult netEvaluation = null;
-	
+
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
-	@AttributeOverrides({ 
-		@AttributeOverride(name = "impact", column = @Column(name = "dtRawEvaluationImpact", nullable=false)),
-		@AttributeOverride(name = "probability", column = @Column(name = "dtRawEvaluationProbability", nullable=false)),
-		@AttributeOverride(name = "importance", column = @Column(name = "dtRawEvaluationImportance", nullable=false)) 
-	})
+	@AttributeOverrides({ @AttributeOverride(name = "impact", column = @Column(name = "dtRawEvaluationImpact", nullable = false)),
+			@AttributeOverride(name = "probability", column = @Column(name = "dtRawEvaluationProbability", nullable = false)),
+			@AttributeOverride(name = "importance", column = @Column(name = "dtRawEvaluationImportance", nullable = false)) })
 	@Access(AccessType.FIELD)
 	private EvaluationResult rawEvaluation = null;
 
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
-	@AttributeOverrides({ 
-		@AttributeOverride(name = "impact", column = @Column(name = "dtExpEvaluationImpact", nullable=false)),
-		@AttributeOverride(name = "probability", column = @Column(name = "dtExpEvaluationProbability", nullable=false)),
-		@AttributeOverride(name = "importance", column = @Column(name = "dtExpEvaluationImportance", nullable=false)) 
-	})
+	@AttributeOverrides({ @AttributeOverride(name = "impact", column = @Column(name = "dtExpEvaluationImpact", nullable = false)),
+			@AttributeOverride(name = "probability", column = @Column(name = "dtExpEvaluationProbability", nullable = false)),
+			@AttributeOverride(name = "importance", column = @Column(name = "dtExpEvaluationImportance", nullable = false)) })
 	@Access(AccessType.FIELD)
 	private EvaluationResult expectedImportance = null;
 
 	/** Strategy */
-	@Column(name="dtResponseStrategy", nullable=false)
+	@Column(name = "dtResponseStrategy", nullable = false)
 	private String strategy = REDUCE_VALUE;
-	
+
 	private String owner = "";
 
 	/***********************************************************************************************
@@ -199,11 +195,11 @@ public class RiskRegisterItem {
 	 * 
 	 * @param scenario
 	 *            The Scenario Object to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setScenario(Scenario scenario) throws TrickException {
 		if (scenario == null)
-			throw new TrickException("error.risk_register.scenario.empty","Scenario cannot be empty");
+			throw new TrickException("error.risk_register.scenario.empty", "Scenario cannot be empty");
 		this.scenario = scenario;
 	}
 
@@ -289,14 +285,20 @@ public class RiskRegisterItem {
 	 * 
 	 * @param strategy
 	 *            The Strategy to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setStrategy(String strategy) throws TrickException {
 
-		if(SHRINK_OLD_REDUCE_VALUE.equalsIgnoreCase(strategy))
-			strategy=REDUCE_VALUE;
-		else if (strategy == null || !strategy.matches(REGEX_STRATEGY)) // check if strategy is Shrink or Accepted
-			throw new TrickException("error.risk_register.strategy.empty","Strategy is not valid");
+		if (SHRINK_OLD_REDUCE_VALUE.equalsIgnoreCase(strategy))
+			strategy = REDUCE_VALUE;
+		else if (strategy == null || !strategy.matches(REGEX_STRATEGY)) // check
+																		// if
+																		// strategy
+																		// is
+																		// Shrink
+																		// or
+																		// Accepted
+			throw new TrickException("error.risk_register.strategy.empty", "Strategy is not valid");
 		this.strategy = strategy;
 	}
 
@@ -314,5 +316,15 @@ public class RiskRegisterItem {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {
+		if (riskRegister != null) {
+			this.position = riskRegister.position;
+			this.expectedImportance = riskRegister.expectedImportance;
+			this.netEvaluation = riskRegister.netEvaluation;
+			this.rawEvaluation = riskRegister.rawEvaluation;
+		}
+		return this;
 	}
 }

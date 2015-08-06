@@ -31,13 +31,13 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -99,16 +99,16 @@ public class ControllerPatch {
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
-	
+
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
-	
+
 	@Autowired
 	private TaskExecutor executor;
-	
+
 	@Autowired
 	private SessionFactory sessionFactory;
 
@@ -138,7 +138,7 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null, "Scenarios were successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
@@ -154,28 +154,11 @@ public class ControllerPatch {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-
-			System.out.println("Update Assessments");
-
-			List<Analysis> analyses = serviceAnalysis.getAll();
-
-			for (Analysis analysis : analyses) {
-				System.out.println("analysis " + (analyses.indexOf(analysis) + 1) + " of " + analyses.size());
-
-				Hibernate.initialize(analysis.getAssets());
-				Hibernate.initialize(analysis.getScenarios());
-				Hibernate.initialize(analysis.getAssessments());
-				Hibernate.initialize(analysis.getParameters());
-				assessmentManager.UpdateAssessment(analysis);
-			}
-
-			System.out.println("Done...");
-
+			assessmentManager.UpdateAssessment();
 			errors.put("success", messageSource.getMessage("success.assessments.update.all", null, "All assessments were successfully updated", locale));
-
 			return errors;
 		} catch (Exception e) {
-			errors.put("error", messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
+			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 			e.printStackTrace();
 			return errors;
 		} finally {
@@ -186,11 +169,11 @@ public class ControllerPatch {
 					"Update-assessment");
 		}
 	}
-	
+
 	@RequestMapping(value = "/Restore/Analysis/Right", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String RestoreAnalysisRights(Principal principal, Locale locale) {
 		try {
-			Worker worker = new WorkerRestoreAnalyisRight(principal.getName(),workersPoolManager,sessionFactory,serviceTaskFeedback);
+			Worker worker = new WorkerRestoreAnalyisRight(principal.getName(), workersPoolManager, sessionFactory, serviceTaskFeedback);
 			worker.setPoolManager(workersPoolManager);
 			// register worker to tasklist
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
@@ -200,17 +183,55 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.start.restore.analysis.right", null, "Restoring analysis rights", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
-		}finally{
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Restore-analysis-Right"), principal.getName(), LogAction.APPLY,
-					"Restore-analysis-Right");
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Restore-analysis-Right"), principal.getName(),
+					LogAction.APPLY, "Restore-analysis-Right");
 		}
 	}
-	
-	//public
+
+	@RequestMapping(value = "/Update/Analyses/Scopes", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	public @ResponseBody String updateScope(Principal principal, Locale locale) {
+		try {
+			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
+			String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria" };
+			boolean saveRequired = false;
+			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
+				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
+					// Add missing scope
+					saveRequired = false;
+					for (String scopeName : extendedScopes) {
+						if (!analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName))) {
+							analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
+							saveRequired = true;
+							System.out.println("Here");
+						}
+					}
+					if (saveRequired) {
+						serviceAnalysis.saveOrUpdate(analysis);
+						/**
+						 * log
+						 */
+						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.add.scope",
+								String.format("Analysis: %s, version: %s; Add missing scopes", analysis.getIdentifier(), analysis.getVersion()), principal.getName(),
+								LogAction.UPDATE, analysis.getIdentifier(), analysis.getVersion());
+					}
+				}
+			}
+			return JsonMessage.Success(messageSource.getMessage("success.update.analyses.scopes", null, "Scopes of analyses were successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		} finally {
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-scopes-of-analyses"), principal.getName(),
+					LogAction.APPLY, "Update-scopes-of-analyses");
+		}
+	}
+
+	// public
 	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateMeasureAssetTypes(Principal principal, Locale locale) {
 
@@ -259,14 +280,13 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.matv.update", null, "MeasureAssetTypeValues successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred",null, "An unknown error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager
-					.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
-							String.format("Runtime: %s", "Update-measure-asset-types"),principal.getName(), LogAction.APPLY, "Update-measure-asset-types");
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-measure-asset-types"), principal.getName(),
+					LogAction.APPLY, "Update-measure-asset-types");
 		}
 	}
 

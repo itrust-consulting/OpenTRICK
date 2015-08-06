@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.exportation;
 
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1371,17 +1370,11 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		List<Object> measureparams = new ArrayList<Object>();
-		List<Object> specparams = new ArrayList<Object>();
-		List<Object> defaultspecparams = new ArrayList<Object>();
-		String specdefaultquery = "";
-
+		List<Object> measureparams = new ArrayList<Object>(), specparams = new ArrayList<Object>(), defaultspecparams = new ArrayList<Object>();
 		MaturityStandard maturityStandard = null;
 		MaturityMeasure maturity = null;
-
-		String measurequery = "";
-		int measurecounter = 0;
-		int specdefaultcounter = 0;
+		String measurequery = "" , specdefaultquery = "";;
+		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
 
 		// ****************************************************************
 		// * export standard measures (27001, 27002, custom)
@@ -1533,7 +1526,8 @@ public class ExportAnalysis {
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
-					measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
+					measureparams.add(measureIndex++);
+					//measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
 
 					// ****************************************************************
 					// * export asset type values
@@ -1759,7 +1753,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
-					measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
+					measureparams.add(measureIndex++);
 
 					// ****************************************************************
 					// * export asset values
@@ -1956,7 +1950,7 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getSML3Cost());
 					measureparams.add(maturity.getSML4Cost());
 					measureparams.add(maturity.getSML5Cost());
-					measureparams.add(generateIndexOfReference(maturity.getMeasureDescription().getReference()));
+					measureparams.add(measureIndex++);
 					measureparams.add(maturity.getReachedLevel());
 				}
 
@@ -2348,83 +2342,6 @@ public class ExportAnalysis {
 				}
 			}
 		}
-	}
-
-	/**
-	 * generateIndexOfReference: <br>
-	 * Generate Index of Measure or Maturity Reference. This will be used inside
-	 * Measure Export, to set the Field in the Sqlite File to define the Order
-	 * inside TRICK Light.
-	 * 
-	 * @param reference
-	 *            The Reference of the Measure
-	 * @throws SQLException
-	 */
-	private long generateIndexOfReference(String reference) {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		String[] split = reference.split("\\.");
-
-		final long[] multi = new long[4];
-
-		for (int indexMulti = (4 - 1); indexMulti >= 0; indexMulti--)
-			multi[indexMulti] = (long) Math.pow(1000, indexMulti);
-
-		long index = 0;
-
-		// ****************************************************************
-		// * create the index of aperence of reference inside sqlite table
-		// ****************************************************************
-
-		// check if length of split is greater than 0 -> YES
-		if (split.length > 0) {
-
-			// Case of 27001 and Maturity -> YES
-			if (split[0].equals(Constant.STANDARD27001_FIRSTCHAR_REFERENCE) || split[0].equals(Constant.MATURITY_FIRSTCHAR_REFERENCE)) {
-
-				index = 0;
-
-				// create index for 27001 and maturity
-				for (int i = 1; i < split.length; i++) {
-
-					// ****************************************************************
-					// * set index
-					// ****************************************************************
-					long multiplicator = multi[(multi.length - 1) - i];
-
-					long value = Long.parseLong(split[i]);
-
-					index += (value * multiplicator);
-				}
-
-			} else {
-
-				// Case of 27001 and Maturity -> NO
-
-				index = 0;
-
-				// create index for 27002 and custom
-				for (int i = 0; i < split.length; i++) {
-
-					// ****************************************************************
-					// * set index
-					// ****************************************************************
-
-					long multiplicator = multi[(multi.length - 1) - i];
-
-					long value = Long.parseLong(split[i]);
-
-					index += (value * multiplicator);
-				}
-			}
-		}
-
-		// ****************************************************************
-		// * return result
-		// ****************************************************************
-		return index;
 	}
 
 	/**

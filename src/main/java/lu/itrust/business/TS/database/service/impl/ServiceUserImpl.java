@@ -267,4 +267,14 @@ public class ServiceUserImpl implements ServiceUser {
 	public List<User> getAllOthers(User user) {
 		return daoUser.getAllOthers(user);
 	}
+
+	@Override
+	public boolean existByUsername(String username) {
+		return daoUser.existByUsername(username);
+	}
+
+	@Override
+	public boolean existByEmail(String email) {
+		return daoUser.existByEmail(email);
+	}
 }

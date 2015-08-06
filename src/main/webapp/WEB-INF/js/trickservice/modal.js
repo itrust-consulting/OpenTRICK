@@ -1,4 +1,4 @@
-function Modal(content,body) {
+function Modal(content, body) {
 	this.modal = null;
 	this.modal_dialog = null;
 	this.modal_header = null;
@@ -10,7 +10,7 @@ function Modal(content,body) {
 	this.isDisposed = false;
 	this.isDisposing = false;
 	this.isHidden = true;
-	
+
 	Modal.prototype.FromContent = function(content) {
 		this.modal = $(content);
 		this.modal_dialog = $(this.modal).find(".modal-dialog");
@@ -44,14 +44,19 @@ function Modal(content,body) {
 	};
 
 	Modal.prototype.DefaultFooterButton = function() {
-		var button_footer_OK = document.createElement("button");
-		var button_footer_cancel = document.createElement("button");
-		button_footer_OK.setAttribute("class", "btn btn-default");
+		var button_footer_OK = document.createElement("button"), button_footer_cancel = document.createElement("button"), okText = "OK", cancelText = "Cancel";
 		button_footer_OK.setAttribute("data-dismiss", "modal");
-		button_footer_cancel.setAttribute("class", "btn btn-default");
+		button_footer_OK.setAttribute("data-control-type", "ok");
+		button_footer_OK.setAttribute("class", "btn btn-default");
 		button_footer_cancel.setAttribute("data-dismiss", "modal");
-		$(button_footer_OK).html("OK");
-		$(button_footer_cancel).html("Cancel");
+		button_footer_cancel.setAttribute("data-control-type", "cancel");
+		button_footer_cancel.setAttribute("class", "btn btn-default");
+		if(jQuery.isFunction(MessageResolver)){
+			okText = MessageResolver("label.action.ok",okText);
+			cancelText= MessageResolver("label.action.cancel",cancelText);
+		}
+		$(button_footer_OK).text(okText)
+		$(button_footer_cancel).text(cancelText);
 		this.modal_footer.appendChild(button_footer_OK);
 		this.modal_footer.appendChild(button_footer_cancel);
 		return false;
@@ -107,11 +112,15 @@ function Modal(content,body) {
 	Modal.prototype.setTitle = function(title) {
 		if (this.modal_title != null)
 			$(this.modal_title).text(title);
-		return false;
+		return this;
 	};
 
 	Modal.prototype.setBody = function(body) {
-		if (this.modal_body != null)
+		if (this.modal_body == null)
+			this.Intialise();
+		if (body instanceof jQuery)
+			body.appendTo($(this.modal_body).empty());
+		else
 			$(this.modal_body).html(body);
 		return this;
 	};
@@ -144,6 +153,7 @@ function Modal(content,body) {
 
 	Modal.prototype.Intialise = function() {
 		this.__Create();
+		return this;
 	};
 
 	Modal.prototype.Hide = function() {
@@ -154,6 +164,7 @@ function Modal(content,body) {
 		} catch (e) {
 			console.log(e);
 		}
+		return this;
 	};
 
 	Modal.prototype.Dispose = function() {
@@ -164,6 +175,7 @@ function Modal(content,body) {
 		} catch (e) {
 			console.log(e);
 		}
+		return this;
 	};
 
 	Modal.prototype.Destroy = function() {
@@ -179,8 +191,8 @@ function Modal(content,body) {
 
 	Modal.prototype.Show = function() {
 		try {
-			if(!this.isHidden)
-				return;
+			if (!this.isHidden)
+				return this;
 			if (this.modal != null && this.modal != undefined)
 				$(this.modal).modal("show");
 			else {
@@ -189,7 +201,7 @@ function Modal(content,body) {
 			}
 			var instance = this;
 			$(this.modal).on("hidden.bs.modal", function() {
-				if (!(instance.isDisposing || instance.isHidden)){
+				if (!(instance.isDisposing || instance.isHidden)) {
 					instance.Destroy();
 					if ($(instance.modal).length) {
 						instance.isDisposed = true;
@@ -202,11 +214,12 @@ function Modal(content,body) {
 		} catch (e) {
 			console.log(e);
 		}
+		return this;
 	};
-	
-	if(content!=undefined)
+
+	if (content != undefined)
 		this.FromContent(content);
-	if(body!=undefined)
+	if (body != undefined)
 		this.setBody(body);
-	
+
 }

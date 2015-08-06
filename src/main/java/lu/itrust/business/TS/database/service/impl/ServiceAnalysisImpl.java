@@ -604,4 +604,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights) {
 		return daoAnalysis.getFromUserNameAndNotEmpty(userName, rights);
 	}
+
+	@Override
+	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize) {
+		return daoAnalysis.getAllNotEmpty(pageIndex,pageSize);
+	}
+
+	@Override
+	public int countNotEmpty() {
+		return daoAnalysis.countNotEmpty();
+	}
 }

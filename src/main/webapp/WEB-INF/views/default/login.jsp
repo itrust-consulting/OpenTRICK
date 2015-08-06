@@ -51,6 +51,9 @@
 		</div>
 		<jsp:include page="../template/footer.jsp" />
 		<jsp:include page="../template/scripts.jsp" />
+		<script type="text/javascript">
+			$("input[name='j_username']").focus();
+		</script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

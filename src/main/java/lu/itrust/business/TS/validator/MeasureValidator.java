@@ -47,8 +47,8 @@ public class MeasureValidator extends ValidatorFieldImpl {
 	protected static final String ERROR_MEASURE_INVESTMENT_INVALID_INVESTMENT_SHOULD_BE_A_REAL_GREATER_OR_EQUAL_0 = "error.measure.investment.invalid::Investment should be a real greater than or equal 0";
 	protected static final String ERROR_UNSUPPORTED_DATA_LIFETIME_LIFETIME_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.lifetime::Lifetime value is not supported";
 	protected static final String ERROR_MEASURE_LIFETIME_INVALID_LIFETIME_SHOULD_BE_A_REAL_GREATER_OR_EQUAL_0 = "error.measure.lifetime.invalid::Lifetime should be a real greater than or equal 0";
-	protected static final String ERROR_UNSUPPORTED_DATA_MAINTENANCE_MAINTENANCE_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.maintenance::Maintenance value is not supported";
-	protected static final String ERROR_MEASURE_MAINTENANCE_INVALID_MAINTENANCE_SHOULD_BE_1_OR_A_REAL_GREATER_OR_EQUAL_0 = "error.measure.maintenance.invalid::Maintenance should be -1 or a real greater than or equal 0";
+	protected static final String ERROR_UNSUPPORTED_DATA_MAINTENANCE_MAINTENANCE_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.maintenance::MaintenanceRecurrentInvestment value is not supported";
+	protected static final String ERROR_MEASURE_MAINTENANCE_INVALID_MAINTENANCE_SHOULD_BE_1_OR_A_REAL_GREATER_OR_EQUAL_0 = "error.measure.maintenance.invalid::MaintenanceRecurrentInvestment should be -1 or a real greater than or equal 0";
 	protected static final String ERROR_UNSUPPORTED_DATA_COST_COST_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.cost::Cost value is not supported";
 	protected static final String ERROR_MEASURE_COST_INVALID_COST_SHOULD_BE_A_REAL_GREATER_OR_EQUAL_0 = "error.measure.cost.invalid::Cost should be a real greater than or equal 0";
 	protected static final String ERROR_UNSUPPORTED_DATA_COMMENT_COMMENT_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.comment::Comment value is not supported";

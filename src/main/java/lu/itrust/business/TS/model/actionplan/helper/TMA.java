@@ -95,9 +95,6 @@ public class TMA {
 		
 		if(Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
-
-		//System.out.println(this.toString());
-
 	}
 
 	/***********************************************************************************************

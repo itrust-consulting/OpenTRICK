@@ -98,14 +98,14 @@ function reloadMeasureRow(idMeasure, standard) {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $newData = $("<div/>").html(response.trim()).find('tr');
+			var $newData = $("tr" ,$("<div/>").html(response));
 			if (!$newData.length)
 				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").addClass("danger").attr("title",
 						MessageResolver("error.ui.no.synchronise", "User interface does not update"));
 			else {
 				$(".popover").remove();
 				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith($newData);
-				$newData.find("td[data-toggle='popover']").popover("hide");
+				$("td[data-toggle='popover']",$newData).popover("hide");
 			}
 		},
 		error : unknowError

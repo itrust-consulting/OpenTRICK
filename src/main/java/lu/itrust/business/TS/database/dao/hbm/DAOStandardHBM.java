@@ -237,9 +237,10 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	}
 
 	@Override
-	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception {
-		return (Integer) getSession().createQuery("select max(standard.version) from Standard standard where standard.label = :label and standard.type = :type")
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType) throws Exception {
+		Integer version =  (Integer) getSession().createQuery("select max(standard.version)+1 from Standard standard where standard.label = :label and standard.type = :type")
 				.setParameter("label", label).setParameter("type", standardType).uniqueResult();
+		return version == null? 1 : version;
 	}
 
 	@Override
@@ -254,6 +255,12 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 				.createQuery(
 						"select count(*)>0 from Analysis analysis inner join analysis.analysisStandards as analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
 				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResult();
+	}
+
+	@Override
+	public int getNextVersion(String label) {
+		Integer version =  (Integer) getSession().createQuery("Select max(version) + 1 From Standard where label = :label").setString("label", label).uniqueResult();
+		return version == null? 1 : version;
 	}
 
 }

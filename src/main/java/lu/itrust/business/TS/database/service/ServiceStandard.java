@@ -41,7 +41,7 @@ public interface ServiceStandard {
 	
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception;
 	
-	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception;
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType) throws Exception;
 	
 	public void save(Standard standard) throws Exception;
 

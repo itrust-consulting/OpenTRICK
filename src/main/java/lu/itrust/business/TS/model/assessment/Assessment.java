@@ -556,6 +556,10 @@ public class Assessment implements Cloneable {
 			return false;
 		}
 		Assessment other = (Assessment) obj;
+		
+		if(id>0 && other.id>0)
+			return Double.doubleToLongBits(id) == Double.doubleToLongBits(other.id);
+		
 		if (asset == null) {
 			if (other.asset != null) {
 				return false;
@@ -563,9 +567,7 @@ public class Assessment implements Cloneable {
 		} else if (!asset.equals(other.asset)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(id) != Double.doubleToLongBits(other.id)) {
-			return false;
-		}
+		
 		if (scenario == null) {
 			if (other.scenario != null) {
 				return false;

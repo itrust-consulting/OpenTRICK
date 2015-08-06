@@ -22,8 +22,10 @@ import lu.itrust.business.TS.model.general.Phase;
  */
 public class ActionPlanSummaryManager {
 
+	
 	public static final String LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST = "label.resource.planning.total.phase.cost";
-	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_COST = "label.resource.planning.recurrent.cost";
+	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_COST = "label.resource.planning.total.recurrent.cost";
+	public static final String LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST = "label.resource.planning.total.implement.phase.cost";
 	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT = "label.resource.planning.recurrent.investment";
 	public static final String LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE = "label.resource.planning.external.maintenance";
 	public static final String LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE = "label.resource.planning.internal.maintenance";
@@ -72,6 +74,7 @@ public class ActionPlanSummaryManager {
 		rows.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
 		rows.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
 		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
+		rows.add(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
 		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 		rows.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
 		return rows;
@@ -201,10 +204,13 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
 			summary.add(index, Math.floor(summaryStage.getRecurrentInvestment() * 0.001) + "");
+			
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
+			summary.add(index, Math.floor(summaryStage.getImplementCostOfPhase() * 0.001) + "");
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 			summary.add(index, Math.floor(summaryStage.getRecurrentCost() * 0.001) + "");
-
+			
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
 			summary.add(index, Math.floor(summaryStage.getTotalCostofStage() * 0.001) + "");
 		}
@@ -280,6 +286,8 @@ public class ActionPlanSummaryManager {
 		result.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
 		result.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
 		result.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
+		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
+		result.add(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
 		result.add(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 		result.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
 		return result;
@@ -350,6 +358,7 @@ public class ActionPlanSummaryManager {
 			case LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE:value.put(colnumber, stage.getInternalMaintenance());break;
 			case LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE:value.put(colnumber, stage.getExternalMaintenance());break;
 			case LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT:value.put(colnumber, stage.getRecurrentInvestment());break;
+			case LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST:value.put(colnumber, stage.getImplementCostOfPhase());break;
 			case LABEL_RESOURCE_PLANNING_RECURRENT_COST:value.put(colnumber, stage.getRecurrentCost());break;
 			case LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST:value.put(colnumber, stage.getTotalCostofStage());break;
 		}

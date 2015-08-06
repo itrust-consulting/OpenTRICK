@@ -102,11 +102,11 @@ public class SummaryStage {
 	@Column(name = "dtInvestment", nullable = false)
 	private double investment = 0;
 
-	/** Sum of ((InternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
+	/** Sum of ((InternalWorkload * MaintenanceRecurrentInvestment) / 100) taken from Action Plan Entries */
 	@Column(name = "dtTotalInternalMaintenance", nullable = false)
 	private double internalMaintenance = 0;
 
-	/** Sum of ((ExternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
+	/** Sum of ((ExternalWorkload * MaintenanceRecurrentInvestment) / 100) taken from Action Plan Entries */
 	@Column(name = "dtTotalExternalMaintenance", nullable = false)
 	private double externalMaintenance = 0;
 
@@ -114,18 +114,24 @@ public class SummaryStage {
 	@Column(name = "dtRecurrentInvestment", nullable = false)
 	private double recurrentInvestment = 0;
 
-	/** Sum of ((Investments * Maintenance) / 100) taken from Action Plan Entries */
+	/** Sum of ((Investments * MaintenanceRecurrentInvestment) / 100) taken from Action Plan Entries */
 	@Column(name = "dtRecurrentCost", nullable = false)
 	private double recurrentCost = 0;
 
 	/**
 	 * Sum of (InternalWorkload * InternalSetupRate) + (InternalWorkload * InternalSetupRate) +
-	 * (Investment) + (((InternalWorkload * Maintenance) / 100) * InternalSetupRate ) +
-	 * (((ExternalWorkload * Maintenance) / 100) * ExternalSetupRate) + ((Investments * Maintenance)
+	 * (Investment) + (((InternalWorkload * MaintenanceRecurrentInvestment) / 100) * InternalSetupRate ) +
+	 * (((ExternalWorkload * MaintenanceRecurrentInvestment) / 100) * ExternalSetupRate) + ((Investments * MaintenanceRecurrentInvestment)
 	 * / 100)
 	 **/
 	@Column(name = "dtTotalCost", nullable = false)
 	private double totalCostofStage;
+	
+	/**
+	 * internalWorkload * parameterInternalSetupRate + externalWorkload * parameterExternalSetupRate + investment
+	 */
+	@Column(name = "dtImplementCost", nullable = false)
+	private double implementCostOfPhase = 0;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -479,7 +485,7 @@ public class SummaryStage {
 	 * getInternalMaintenance: <br>
 	 * Returns the "internalMaintenance" field value
 	 * 
-	 * @return The Internal Maintenance
+	 * @return The Internal MaintenanceRecurrentInvestment
 	 */
 	public double getInternalMaintenance() {
 		return internalMaintenance;
@@ -490,7 +496,7 @@ public class SummaryStage {
 	 * Sets the "internalMaintenance" field with a value
 	 * 
 	 * @param internalMaintenance
-	 *            The value to set the Internal Maintenance
+	 *            The value to set the Internal MaintenanceRecurrentInvestment
 	 * @throws TrickException
 	 */
 	public void setInternalMaintenance(double internalMaintenance) throws TrickException {
@@ -505,7 +511,7 @@ public class SummaryStage {
 	 * getExternalMaintenance: <br>
 	 * Returns the "externalMaintenance" field value
 	 * 
-	 * @return The External Maintenance
+	 * @return The External MaintenanceRecurrentInvestment
 	 */
 	public double getExternalMaintenance() {
 		return externalMaintenance;
@@ -516,7 +522,7 @@ public class SummaryStage {
 	 * Sets the "externalMaintenance" field with a value
 	 * 
 	 * @param externalMaintenance
-	 *            The value to set the External Maintenance
+	 *            The value to set the External MaintenanceRecurrentInvestment
 	 * @throws TrickException
 	 */
 	public void setExternalMaintenance(double externalMaintenance) throws TrickException {
@@ -622,5 +628,13 @@ public class SummaryStage {
 		if (Double.isNaN(recurrentInvestment))
 			throw new TrickException("error.summary.recurrent_investment.nan", "Please ckeck your data: Recurrent investment is not a number");
 		this.recurrentInvestment = recurrentInvestment;
+	}
+
+	public double getImplementCostOfPhase() {
+		return implementCostOfPhase;
+	}
+
+	public void setImplementCostOfPhase(double implementCostOfPhase) {
+		this.implementCostOfPhase = implementCostOfPhase;
 	}
 }

@@ -175,9 +175,9 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
-		
+
 		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		if(isReadOnly == null)
+		if (isReadOnly == null)
 			isReadOnly = false;
 
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
@@ -198,7 +198,7 @@ public class ControllerAnalysisStandard {
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
-		return "analyses/singleAnalysis/components/standards/standard/standards";
+		return "analyses/single/components/standards/standard/standards";
 	}
 
 	/**
@@ -219,9 +219,9 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
-		
+
 		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		if(isReadOnly == null)
+		if (isReadOnly == null)
 			isReadOnly = false;
 
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
@@ -254,9 +254,9 @@ public class ControllerAnalysisStandard {
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
-		model.addAttribute("isEditable",!isReadOnly && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		return "analyses/singleAnalysis/components/standards/standard/standards";
+		return "analyses/single/components/standards/standard/standards";
 	}
 
 	/**
@@ -316,18 +316,18 @@ public class ControllerAnalysisStandard {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		if(isReadOnly == null)
+		if (isReadOnly == null)
 			isReadOnly = false;
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
-		model.addAttribute("isEditable",!isReadOnly && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
-		return "analyses/singleAnalysis/components/standards/measure/singleMeasure";
+		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
 	/**
@@ -441,7 +441,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("soa", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
 
-		return "analyses/singleAnalysis/components/soa";
+		return "analyses/single/components/soa";
 	}
 
 	/**
@@ -465,7 +465,7 @@ public class ControllerAnalysisStandard {
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
-		return "analyses/singleAnalysis/components/standards/standard/manageForm";
+		return "analyses/single/components/standards/standard/manageForm";
 	}
 
 	/**
@@ -520,12 +520,7 @@ public class ControllerAnalysisStandard {
 				// return error on failure
 				return errors;
 
-			Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType());
-
-			if (version == null)
-				version = 0;
-
-			standard.setVersion(version + 1);
+			standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 
 			serviceStandard.save(standard);
 
@@ -859,7 +854,7 @@ public class ControllerAnalysisStandard {
 
 			if (measure instanceof AssetMeasure) {
 
-				List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
+				List<Asset> availableAssets = serviceAsset.getAllFromAnalysisIdAndSelected(idAnalysis);
 
 				model.addAttribute("availableAssets", availableAssets);
 
@@ -889,12 +884,14 @@ public class ControllerAnalysisStandard {
 					properties.setCategoryValue(category, 0);
 			}
 
+			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
+
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
 			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
 
 			// return success message
-			return "analyses/singleAnalysis/components/standards/measure/form";
+			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			e.printStackTrace();
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -918,7 +915,7 @@ public class ControllerAnalysisStandard {
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 			if (measure == null)
 				throw new TrickException("error.measure.not_found", "Measure cannot be found");
-			else if (!measure.getAnalysisStandard().getStandard().isComputable())
+			else if (!(measure.getAnalysisStandard().getStandard().isComputable() || measure.getAnalysisStandard().getStandard().isAnalysisOnly()))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
 			MeasureProperties properties = null;
@@ -929,7 +926,7 @@ public class ControllerAnalysisStandard {
 
 				AssetMeasure assetMeasure = (AssetMeasure) measure;
 
-				List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
+				List<Asset> availableAssets = serviceAsset.getAllFromAnalysisIdAndSelected(idAnalysis);
 
 				model.addAttribute("availableAssets", availableAssets);
 
@@ -962,12 +959,14 @@ public class ControllerAnalysisStandard {
 					properties.getCategoryValue(category);
 			}
 
+			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
+
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
 			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
 
 			// return success message
-			return "analyses/singleAnalysis/components/standards/measure/form";
+			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
 			e.printStackTrace();
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1004,12 +1003,18 @@ public class ControllerAnalysisStandard {
 					errors.put("measure", messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 				else if (measure.getAnalysisStandard().getId() != analysisStandard.getId())
 					errors.put("measure", messageSource.getMessage("error.measure.belong.standard", null, "Measure does not belong to standard", locale));
+				else if (measure instanceof AssetMeasure && measureForm.isComputable() && measureForm.getAssetValues().isEmpty())
+					errors.put("asset", messageSource.getMessage("error.asset.empty", null, "Asset cannot be empty", locale));
 				if (!errors.isEmpty())
 					return errors;
 			} else {
 				switch (measureForm.getType()) {
 				case ASSET:
 					measure = new AssetMeasure();
+					if (measureForm.isComputable() && measureForm.getAssetValues().isEmpty()) {
+						errors.put("asset", messageSource.getMessage("error.asset.empty", null, "Asset cannot be empty", locale));
+						return errors;
+					}
 					break;
 				case NORMAL:
 					measure = new NormalMeasure();
@@ -1131,7 +1136,7 @@ public class ControllerAnalysisStandard {
 				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(), measureForm.getDescription(), language));
 			}
 			measure.setMeasureDescription(description);
-		}else if(!description.getReference().equals(measureForm.getReference())){
+		} else if (!description.getReference().equals(measureForm.getReference())) {
 			if (serviceMeasureDescription.existsForMeasureByReferenceAndAnalysisStandardId(measureForm.getReference(), measure.getAnalysisStandard().getId())) {
 				errors.put(
 						"reference",
@@ -1266,19 +1271,8 @@ public class ControllerAnalysisStandard {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			if (label != prevlabel || type != prevtype) {
-
-				if (serviceStandard.existsByNameVersionType(label, 1, type)) {
-
-					Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(label, type);
-					if (version == null)
-						version = 0;
-
-					standard.setVersion(version + 1);
-				} else
-					standard.setVersion(1);
-
-			}
+			if (label != prevlabel || type != prevtype)
+				standard.setVersion(serviceStandard.getNextVersionByNameAndType(label, type));
 			// return success
 			return standard;
 

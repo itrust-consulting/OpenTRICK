@@ -205,6 +205,14 @@ public class AssessmentManager {
 	}
 
 	@Transactional
+	public void UpdateAssessment() throws Exception {
+		int size = daoAnalysis.countNotEmpty(), pageSize = 30;
+		for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++)
+			for (Analysis analysis : daoAnalysis.getAllNotEmpty(pageIndex, pageSize))
+				UpdateAssessment(analysis);
+	}
+
+	@Transactional
 	public void UpdateAssessment(Analysis analysis) throws Exception {
 		Map<String, Boolean> assessmentMapper = new LinkedHashMap<>();
 		for (Assessment assessment : analysis.getAssessments())

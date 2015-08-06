@@ -471,7 +471,7 @@ public class ControllerAssessment {
 		asset.setALEP(alep.getValue());
 		serviceAsset.saveOrUpdate(asset);
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
-		return "analyses/singleAnalysis/components/assessment/assets";
+		return "analyses/single/components/assessment/assets";
 	}
 
 	/**
@@ -501,6 +501,6 @@ public class ControllerAssessment {
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
-		return "analyses/singleAnalysis/components/assessment/scenarios";
+		return "analyses/single/components/assessment/scenarios";
 	}
 }

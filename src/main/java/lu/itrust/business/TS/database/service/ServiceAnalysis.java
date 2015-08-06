@@ -133,4 +133,8 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
 
+	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize);
+
+	public int countNotEmpty();
+
 }

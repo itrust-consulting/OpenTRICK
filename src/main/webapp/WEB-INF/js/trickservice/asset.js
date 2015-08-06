@@ -75,24 +75,23 @@ function deleteAsset(assetId) {
 				rowTrickId = selectedScenario.pop();
 				$.ajax({
 					url : context + "/Analysis/Asset/Delete/" + rowTrickId,
-					async : true,
 					contentType : "application/json;charset=UTF-8",
-					success : function(response,textStatus,jqXHR) {
-						if (response["success"] == undefined) {
-							if (response["error"] != undefined) {
-								$("#alert-dialog .modal-body").html(response["error"]);
-								$("#alert-dialog").modal("toggle");
-							} else {
-								$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
-								$("#alert-dialog").modal("toggle");
-							}
+					success : function(response, textStatus, jqXHR) {
+						if (response["success"] != undefined)
+							reloadSection("section_asset");
+						else if (response["error"] != undefined) {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").modal("toggle");
+						} else {
+							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
+							$("#alert-dialog").modal("toggle");
 						}
 						return false;
 					},
 					error : unknowError
 				});
 			}
-			reloadSection("section_asset");
+
 		});
 		$("#confirm-dialog").modal("toggle");
 	}
@@ -117,7 +116,7 @@ function editAsset(rowTrickId, isAdd) {
 			url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Analysis/Asset/Add" : "/Analysis/Asset/Edit/" + rowTrickId),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				var $addAssetModal = $(new DOMParser().parseFromString(response, "text/html")).find("#addAssetModal");
 				if ($addAssetModal.length) {
 					$("#addAssetModal").replaceWith($addAssetModal);
@@ -138,7 +137,7 @@ function saveAsset(form) {
 		type : "post",
 		data : serializeAssetForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var alert = $("#addAssetModal .label-danger");
 			if (alert.length)
 				alert.remove();

@@ -154,9 +154,7 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ItemInformation', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String itemInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
-
 		try {
-
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -228,18 +226,6 @@ public class ControllerEditField {
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (RuntimeException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -251,6 +237,19 @@ public class ControllerEditField {
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+		}
+		catch (RuntimeException e) {
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -378,22 +377,33 @@ public class ControllerEditField {
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
-
+			switch (parameter.getType().getLabel()) {
+			case Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME:
+			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME:
+			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME:
+				if (((double) value) < 0 || ((double) value) > 100)
+					return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound", new Object[] { value },
+							String.format("Invalid input: value (%f) should be between 0 and 100", value), cutomLocale != null ? cutomLocale : locale));
+				break;
+			case Constant.PARAMETERTYPE_TYPE_SINGLE_NAME:
+				if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
+					if (((double) value) <= 0)
+						return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0",
+								cutomLocale != null ? cutomLocale : locale));
+				} else if (parameter.getDescription().equals(Constant.PARAMETER_MAX_RRF) || parameter.getDescription().equals(Constant.SOA_THRESHOLD)) {
+					if (((double) value) < 0 || ((double) value) > 100)
+						return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound", new Object[] { value },
+								String.format("Invalid input: value (%f) should be between 0 and 100", value), cutomLocale != null ? cutomLocale : locale));
+				}
+				break;
+			}
 			// create field
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
-
-			if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT))
-				if (Double.parseDouble(fieldEditor.getValue().toString()) <= 0)
-					return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0!",
-							cutomLocale != null ? cutomLocale : locale));
-
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
-
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
-
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", cutomLocale != null ? cutomLocale
 						: locale));

@@ -51,4 +51,8 @@ public interface DAOUser {
 	public List<User> getAllOthers(Collection<User> users);
 
 	public List<User> getAllOthers(User user);
+
+	public boolean existByUsername(String username);
+
+	public boolean existByEmail(String email);
 }

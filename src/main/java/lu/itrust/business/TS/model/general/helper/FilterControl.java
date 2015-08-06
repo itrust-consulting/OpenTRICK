@@ -28,7 +28,7 @@ public class FilterControl extends TrickFilter {
 	 */
 	public FilterControl(String sort, String direction, int size, String filter) {
 		super(direction, size);
-		setSize(size);
+		setSort(sort);
 		setFilter(filter);
 	}
 

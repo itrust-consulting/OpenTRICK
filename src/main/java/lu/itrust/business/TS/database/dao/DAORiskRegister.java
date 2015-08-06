@@ -26,4 +26,8 @@ public interface DAORiskRegister {
 	public void delete(RiskRegisterItem riskRegisterItem) throws Exception;
 	
 	public void deleteAllFromAnalysis(Integer analysisID) throws Exception;
+
+	public void delete(Integer integer);
+
+	public RiskRegisterItem merge(RiskRegisterItem riskRegister);
 }
