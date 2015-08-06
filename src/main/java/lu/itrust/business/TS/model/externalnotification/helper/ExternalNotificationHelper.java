@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
@@ -59,17 +60,32 @@ public class ExternalNotificationHelper {
 	
 	/**
 	 * Computes, for each category, the likelihood that an incident of such a category occurs.
-	 * @param occurrencesByCategory The list of notification occurrences, grouped by category, over a certain time period.
-	 * @param timespanInUnits The time span (in abstract units) which the notification occurrences have been taken from.
-	 * Regarding abstract units: the returned likelihood values are to be understood as 'expected number of times an incident occurs in an abstract unit'.
-	 * For instance, if the abstract time unit is 1 year, and notifications have been taken from 1 month, then 'timespanInUnits'
-	 * should equal 1/12. The returned likelihood values represent the 'expected number of times per year'.
+	 * @param timestampNow The timestamp at which the risk probabilities shall be computed. This should generally point to NOW, unless the history is being computed.
+	 * @param timespan The time span (in seconds) which the notification occurrences have been taken from.
+	 * @param sourceUserName The name of the user who issued all the notifications (e.g. an IDS user).
 	 * @param severityProbabilities A map containing at least the parameters defining the severity probability for all possible levels.
 	 * The keys of the map correspond to the severity level. 
 	 * @return A map assigning a likelihood value to each incident category. The likelihood values are with respect to the abstract
-	 * time unit (see description of 'timespanInUnits' parameter). 
+	 * time unit (see description of 'timespanInUnits' parameter).
 	 */
-	public static Map<String, Double> computeLikelihoods(Map<String, List<ExternalNotificationOccurrence>> occurrencesByCategory, double timespanInUnits, Map<Integer, Double> severityProbabilities) {
+	public static Map<String, Double> computeLikelihoods(ServiceExternalNotification serviceExternalNotification, long timestampNow, long timespan, String sourceUserName, Map<Integer, Double> severityProbabilities) throws Exception {
+		/**
+		 * All frequencies within TRICK service are to be understood with respect to 1 year.
+		 * 1 year is defined here to be 365 days, which is not entirely correct,
+		 * but the value does not have to be that precise anyway.
+		 */
+		final double unitDuration = 86400 * 365;
+
+		/**
+		 * The time span (in abstract units) which the notification occurrences have been taken from.
+		 * Regarding abstract units: the returned likelihood values are to be understood as 'expected number of times an incident occurs in an abstract unit'.
+		 * For instance, if the abstract time unit is 1 year, and notifications have been taken from 1 month, then 'timespanInUnits'
+		 * should equal 1/12. The returned likelihood values represent the 'expected number of times per year'.
+		 */
+		final double timespanInUnits = timespan / unitDuration;
+
+		Map<String, List<ExternalNotificationOccurrence>> occurrencesByCategory = serviceExternalNotification.getOccurrences(timestampNow - timespan, timestampNow, sourceUserName);
+		
 		Map<String, Double> likelihoods = new HashMap<>(occurrencesByCategory.size());
 		for (String key : occurrencesByCategory.keySet()) {
 			// Iterate over all occurrence objects and compute overall likelihood.

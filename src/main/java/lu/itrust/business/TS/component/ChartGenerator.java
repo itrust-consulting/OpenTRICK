@@ -1189,7 +1189,6 @@ public class ChartGenerator {
 		long timespan = (long)analysis.getParameter(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
 		if (timespan <= 0)
 			timespan = Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN;
-		final double timespanInUnits = (double)timespan / (86400 * 365); // all likelihoods in TRICK service are relative to 1y
 
 		// Collect parameter name
 		String jsonXAxisValues = "";
@@ -1199,7 +1198,6 @@ public class ChartGenerator {
 		Map<String, Map<Long, Double>> data = new HashMap<>();
 		for (LocalDate endDate = firstEndDate; endDate.compareTo(lastEndDate) <= 0 /* endDate <= lastEndDate */; endDate = endDate.plusWeeks(1)) {
 			final long endTime = endDate.atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
-			final long startTime = endTime - timespan;
 
 			xAxisValues.add(endTime);
 			if (!jsonXAxisValues.isEmpty())
@@ -1207,7 +1205,7 @@ public class ChartGenerator {
 			jsonXAxisValues += "\"" + endDate.toString() + "\"";
 
 			for (String sourceUserName : sourceUserNames) {
-				Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(startTime, endTime, sourceUserName), timespanInUnits, severityProbabilities);
+				Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification, endTime, timespan, sourceUserName, severityProbabilities);
 				for (String category : likelihoods.keySet()) {
 					// Deduce parameter name from category. The naming policy must agree with the one used in both:
 					// - lu.itrust.business.TS.component.DynamicParameterComputer#computeForAllAnalysesOfUser(String)

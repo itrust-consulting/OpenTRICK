@@ -114,13 +114,6 @@ public class DynamicParameterComputer {
 			severityParameterType.setId(Constant.PARAMETERTYPE_TYPE_SEVERITY);
 		}
 
-		/**
-		 * All frequencies within TRICK service are to be understood with respect to 1 year.
-		 * 1 year is defined here to be 365 days, which is not entirely correct,
-		 * but the value does not have to be that precise anyway.
-		 */
-		final double unitDuration = 86400 * 365;
-
 		// Log
 		TrickLogManager.Persist(
 				LogType.ANALYSIS,
@@ -140,22 +133,11 @@ public class DynamicParameterComputer {
 		/** The time span over which all notifications shall be considered in the computation of the dynamic parameter. */
 		final long timespan = (long)(double)allParameterValues.getOrDefault(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN, (double)Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
 
-		/** The minimum timestamp for all notifications to consider. Points to NOW. */
-		final long maxTimestamp = java.time.Instant.now().getEpochSecond();
+		/** The maximum timestamp for all notifications to consider. Points to NOW. */
+		final long now = java.time.Instant.now().getEpochSecond();
 
-		/** The maximum timestamp for all notifications to consider. */
-		final long minTimestamp = maxTimestamp - timespan;
-		
-		/**
-		 * The time span (in abstract units) which the notification occurrences have been taken from.
-		 * Regarding abstract units: the returned likelihood values are to be understood as 'expected number of times an incident occurs in an abstract unit'.
-		 * For instance, if the abstract time unit is 1 year, and notifications have been taken from 1 month, then 'timespanInUnits'
-		 * should equal 1/12. The returned likelihood values represent the 'expected number of times per year'.
-		 */
-		final double timespanInUnits = timespan / unitDuration;
-		
 		// Compute likelihoods
-		Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification.getOccurrences(minTimestamp, maxTimestamp, userName), timespanInUnits, severityProbabilities);
+		Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification, now, timespan, userName, severityProbabilities);
 
 		// Fetch instances of all (existing) dynamic parameters
 		// and map them by their acronym
