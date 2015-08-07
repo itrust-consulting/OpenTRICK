@@ -168,9 +168,63 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		return probabilities;
 	}
 
+	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
-		// TODO: implement computeProbabilitiesInInterval() -- but this requires integrating all database entries over time
-		return new HashMap<String, Double>();
+		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp";
+		Iterator<ExternalNotification> iterator = getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).iterate();
+
+		if (!iterator.hasNext())
+			return new HashMap<>();
+		
+		// NOTA BENE: in fact one would have to integrate the curves; we take a more simple approach by just computing the values
+		// at the critical spots (discontinuities due to new notifications being reported) and assume that the level remains constant
+		// until the next notification or until the notification effect reaches <1% (which happens at roughly 7 times the half-life).
+		// 
+		// The results are not exact, but reflect somehow the history.
+
+		final long totalInterval = timestampEnd - timestampBegin;
+		// NB: notifications are ordered by time of occurrence
+		final Map<String, Double> probabilityLevel = new HashMap<>(); // last probability level per category
+		final Map<String, Long> probabilityLevelTimestamp = new HashMap<>(); // last notification timestamp per category
+		final Map<String, Long> probabilityInterval = new HashMap<>(); // interval size of last notification per category (= max interval after which we neglect effect on probability level)
+		final Map<String, Double> totalProbability = new HashMap<>(); // accumulated probability per category
+
+		while (iterator.hasNext()) {
+			// Get boundary times of the interval of the current ExternalNotification instance
+			final ExternalNotification current = iterator.next();
+			final long startTime = Math.max(timestampBegin, current.getTimestamp());
+
+			// Get severity
+			String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, current.getCategory()));
+			final double severity = severityProbabilities.getOrDefault(current.getSeverity(), 0.0);
+			
+			// Get last known probability settings
+			final double lastProbabilityLevel = probabilityLevel.getOrDefault(parameterName, 0.0);
+			final long lastProbabilityLevelTimestamp = probabilityLevelTimestamp.getOrDefault(parameterName, timestampBegin);
+			final long lastProbabilityInterval = probabilityInterval.getOrDefault(parameterName, 0L);
+			final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0);
+			final long lastInterval = Math.min(lastProbabilityInterval, startTime - lastProbabilityLevelTimestamp);
+
+			// Compute the new probability settings
+			final double p = severity * Math.pow(0.5, (startTime - current.getTimestamp()) / current.getHalfLife());
+			probabilityLevel.put(parameterName, 1.0 - (1.0 - lastProbabilityLevel) * (1.0 - p));
+			probabilityLevelTimestamp.put(parameterName, startTime);
+			totalProbability.put(parameterName, lastTotalProbability + lastProbabilityLevel * lastInterval / totalInterval);
+			probabilityInterval.put(parameterName, current.getHalfLife() * 7);
+		}
+		
+		// while loop is always one entry behind, do not forget to add it to the total probability
+		for (String parameterName : totalProbability.keySet()) {
+			final long lastProbabilityLevelTimestamp = probabilityLevelTimestamp.getOrDefault(parameterName, timestampBegin);
+			final long lastProbabilityInterval = probabilityInterval.getOrDefault(parameterName, 0L);
+			final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0);
+			final long lastInterval = Math.min(lastProbabilityInterval, timestampEnd - lastProbabilityLevelTimestamp);
+
+			totalProbability.put(parameterName, lastTotalProbability + lastTotalProbability * lastInterval / totalInterval);
+		}
+		
+		return totalProbability;
 	}
 }
