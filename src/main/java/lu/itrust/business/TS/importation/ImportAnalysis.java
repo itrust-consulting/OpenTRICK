@@ -1293,30 +1293,6 @@ public class ImportAnalysis {
 		rs.close();
 
 		// ****************************************************************
-		// * Import parameters added in later versions
-		// ****************************************************************
-
-		parameter = new Parameter();
-		parameter.setDescription(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
-		parameter.setType(parameterType);
-		parameter.setValue(Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN); // default
-		this.analysis.addAParameter(parameter);
-		
-		// Retrieve actual parameter value
-		try {
-			rs = sqlite.query("SELECT dynamic_parameter_timespan FROM scope", null);
-			if (rs.next())
-				parameter.setValue(rs.getInt(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN));
-		} catch (SQLException ex) {
-			// Column does not exist, so we are dealing with an old SQLite database.
-			// Just use the default value.
-		}
-		finally {
-			if (rs != null)
-				rs.close();
-		}
-
-		// ****************************************************************
 		// * Import maturity_max_effency
 		// ****************************************************************
 

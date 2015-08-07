@@ -99,4 +99,15 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 		return aggregatedResult;
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	public Map<String, Double> computeProbabilitiesAtTime(long timestampNow, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
+		return daoExternalNotification.computeProbabilitiesAtTime(timestampNow, sourceUserName, severityProbabilities, minimumProbability);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
+		return daoExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, severityProbabilities, minimumProbability);
+	}
 }

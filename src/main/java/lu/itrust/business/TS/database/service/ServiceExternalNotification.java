@@ -54,4 +54,10 @@ public interface ServiceExternalNotification {
 	 * Here, 'frequency' denotes the sum of all 'number' fields of the considered notifications divided by the specified time span.
 	 */
 	public Map<String, List<ExternalNotificationOccurrence>> getOccurrences(long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception;
+
+	/** @see lu.itrust.business.TS.database.dao.DAOExternalNotification#computeProbabilitiesAtTime(long, String, Map) */
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception;
+	
+	/** @see lu.itrust.business.TS.database.dao.DAOExternalNotification#computeProbabilitiesInInterval(long, String, Map) */
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception;
 }

@@ -2,11 +2,15 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationOccurrence;
+import lu.itrust.business.expressions.StringExpressionHelper;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -73,6 +77,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
+	@Deprecated
 	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception {
 		// NB: if the 'categories' list is empty, the HQL constructed below will not work
 		// because we use Restrictions.in() - it will produce something like "WHERE category IN ()"
@@ -102,6 +107,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
+	@Deprecated
 	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception {
 		// Define what will be part of the result (SELECT)
 		ProjectionList projections = Projections.projectionList();
@@ -118,5 +124,53 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
 		
 		return (List<ExternalNotificationOccurrence>) criteria.list();
+	}
+
+	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
+		// Note that the probability decays exponentially with time. In particular, it never becomes zero.
+		// However, for performance reasons, we start neglecting it once it reaches 1/128 (which is < 1%). It does so after 7 times the half life.  
+		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp <= :now AND extnot.timestamp + extnot.halfLife*7 > :now AND extnot.sourceUserName = :sourceUserName";
+		Iterator<ExternalNotification> iterator = getSession().createQuery(query).setParameter("now", timestamp).setParameter("sourceUserName", sourceUserName).iterate();
+
+		// TODO: An analysis of the forward-error is needed here!
+		// TODO: Do this in HQL for a huge performance increase. Hint: the PRODUCT aggregation function can be simulated by EXP(SUM(LOG(...))).
+		// The reason why I left it like this is because I plan to also support "setting" a probability
+		// level, ignoring the past probability level. Unfortunately this cannot be achieved using a SUM
+		// and thus the HQL approach seems infeasible (need to figure out a solution to this!). -- smuller, 07.08.2015
+		
+		// Compute probability for each category using the formula:
+		//    totalProb := 1 - (1 - totalProb) * (1 - Pr[event])
+		// for each event, starting at totalProb := 0.
+		Map<String, Double> inverse_probabilities = new HashMap<>();
+		while (iterator.hasNext()) {
+			ExternalNotification extNot = iterator.next();
+			
+			// Deduce parameter name from category
+			String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, extNot.getCategory()));
+			
+			double severity = severityProbabilities.getOrDefault(extNot.getSeverity(), 0.0);
+			double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
+			double p = severity * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
+
+			double totalProbability = inverse_probabilities.getOrDefault(parameterName, 1.0);
+			totalProbability *= Math.pow(1 - p, extNot.getNumber());
+			inverse_probabilities.put(parameterName, totalProbability);
+		}
+
+		// We are interested in the probabilities, not their inverses. 
+		Map<String, Double> probabilities = new HashMap<>();
+		for (String key : inverse_probabilities.keySet())
+			probabilities.put(key, Math.max(minimumProbability, 1.0 - inverse_probabilities.get(key)));
+		
+		return probabilities;
+	}
+
+	@Override
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
+		// TODO: implement computeProbabilitiesInInterval() -- but this requires integrating all database entries over time
+		return new HashMap<String, Double>();
 	}
 }

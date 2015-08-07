@@ -243,7 +243,6 @@
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.soa" /></th>
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.mandatory_phase" /></th>
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.importance_threshold" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.dynamic_parameter_timespan" /></th>
 						</tr>
 					</thead>
 					<tbody>

@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -43,11 +44,11 @@ public class ExternalNotification {
 	private long timestamp;
 
 	/**
-	 * Represents the time (in seconds) after which the notification has no longer any effect on the alarm level.
+	 * Represents the time (in seconds) after which the notification has half the effect on the alarm level.
 	 * Value is a positive integer.
 	 */
-	@Column(name = "dtStandbyTime", nullable = false)
-	private long standbyTime;
+	@Column(name = "dtHalfLife", nullable = false)
+	private long halfLife;
 
 	/**
 	 * Represents the number of notifications incorporated by this object.
@@ -60,10 +61,10 @@ public class ExternalNotification {
 
 	/**
 	 * Represents the severity of the notification.
-	 * Values lie in the range [0.0, 1.0].
+	 * Values lie in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
 	 */
 	@Column(name = "dtSeverity", nullable = false)
-	private double severity;
+	private int severity;
 
 	public Integer getId() {
 		return id;
@@ -106,20 +107,20 @@ public class ExternalNotification {
 	}
 
 	/**
-	 * Gets the notification creation timestamp from the database entity.
+	 * Gets the half-life of the database entity.
 	 */
-	public long getStandbyTime() {
-		return standbyTime;
+	public long getHalfLife() {
+		return halfLife;
 	}
 
 	/**
-	 * Sets the notification creation timestamp of the database entity.
+	 * Sets the half-life of the database entity.
 	 */
-	public void setStandbyTime(long standbyTime) throws TrickException {
-		if (standbyTime < 0)
-			throw new TrickException("error.externalnotification.standbyTime_negative", "External notification stand-by time cannot be negative or zero.");
+	public void setHalfLife(long halfLife) throws TrickException {
+		if (halfLife <= 0)
+			throw new TrickException("error.externalnotification.halfLife_nonpositive", "External notification half-life cannot be negative or zero.");
 
-		this.standbyTime = standbyTime;
+		this.halfLife = halfLife;
 	}
 
 	/**
@@ -141,16 +142,16 @@ public class ExternalNotification {
 	/**
 	 * Gets the severity of this notification.
 	 */
-	public double getSeverity() {
+	public int getSeverity() {
 		return severity;
 	}
 
 	/**
 	 * Sets the severity of this notification.
 	 */
-	public void setSeverity(double severity) throws TrickException {
-		if (severity < 0.0 || severity > 1.0)
-			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
+	public void setSeverity(int severity) throws TrickException {
+		if (severity < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || severity > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
+			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY, Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY });
 		this.severity = severity;
 	}
 

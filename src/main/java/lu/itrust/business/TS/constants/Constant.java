@@ -778,18 +778,6 @@ public class Constant {
 	public static final String PARAMETER_SEVERITY_NAME_PATTERN = "s%d";
 
 	/**
-	 * The default value for the PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN parameter.
-	 * Unit: seconds
-	 */
-	public static final int DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = 86400 * 30; // 1 month
-
-	/**
-	 * The name of the parameter which defines the time span over which notifications
-	 * shall be aggregated in order to compute the associated dynamic parameters.
-	 */
-	public static final String PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN = "dynamic_parameter_timespan";
-	
-	/**
 	 * The number of past months which the chart of dynamic parameter evolution should display.
 	 */
 	public static final int CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS = 12;

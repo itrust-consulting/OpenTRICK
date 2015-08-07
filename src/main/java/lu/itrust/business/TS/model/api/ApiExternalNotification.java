@@ -21,17 +21,17 @@ public class ApiExternalNotification {
 	private long timestamp;
 	
 	/**
-	 * Represents the time (in seconds) after which the notification has no longer any effect on the alarm level.
+	 * Represents the time (in seconds) after which the notification has only half the effect on the alarm level.
 	 */
-	private long standbyTime;
+	private long halfLife;
 	
 	/**
 	 * Represents the severity of the notification.
 	 * The severity is the conditional probability that an incident of this category occurs
 	 * given that there has been an alert (a notification).
-	 * Values lie in the range [0.0,1.0] where 0 is least and 1 is most severe.
+	 * Values lie in the range [0,10] where 0 is least severe.
 	 */
-	private double severity;
+	private int severity;
 	
 	/**
 	 * Represents the number of notifications incorporated by this object.
@@ -81,23 +81,23 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Gets the 'standbyTime' parameter of this notification.
+	 * Gets the 'halfLife' parameter of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
-	 * to the JSON data field. By calling it getA() instead of getStandbyTime(),
-	 * we may use {"a":...} instead of {"standbyTime":...} in JSON data.
+	 * to the JSON data field. By calling it getH() instead of getHalfLife(),
+	 * we may use {"h":...} instead of {"halfLife":...} in JSON data.
 	 */
-	public long getA() {
-		return this.standbyTime;
+	public long getH() {
+		return this.halfLife;
 	}
 
 	/**
-	 * Sets the 'standbyTime' parameter of this notification.
+	 * Sets the 'halfLife' parameter of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
-	 * to the JSON data field. By calling it setA() instead of setStandbyTime(),
-	 * we may use {"a":...} instead of {"standbyTime":...} in JSON data.
+	 * to the JSON data field. By calling it setH() instead of setHalfLife(),
+	 * we may use {"h":...} instead of {"halfLife":...} in JSON data.
 	 */
-	public void setA(long standbyTime) {
-		this.standbyTime = standbyTime;
+	public void setH(long halfLife) {
+		this.halfLife = halfLife;
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class ApiExternalNotification {
 	 * to the JSON data field. By calling it getS() instead of getSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
 	 */
-	public double getS() {
+	public int getS() {
 		return this.severity;
 	}
 
@@ -116,7 +116,7 @@ public class ApiExternalNotification {
 	 * to the JSON data field. By calling it setS() instead of setSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
 	 */
-	public void setS(double severity) {
+	public void setS(int severity) {
 		this.severity = severity;
 	}
 

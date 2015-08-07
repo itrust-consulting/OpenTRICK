@@ -38,7 +38,6 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.AssetType;
-import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -53,7 +52,6 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.usermanagement.RoleType;
-import lu.itrust.business.expressions.StringExpressionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -1182,13 +1180,11 @@ public class ChartGenerator {
 		// Find the severity values
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
+		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0"));
 
 		// Determine time-related stuff
 		final LocalDate lastEndDate = LocalDate.now();
 		final LocalDate firstEndDate = lastEndDate.minusMonths(Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS - 1);
-		long timespan = (long)analysis.getParameter(Constant.PARAMETER_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN);
-		if (timespan <= 0)
-			timespan = Constant.DEFAULT_DYNAMIC_PARAMETER_AGGREGATION_TIMESPAN;
 
 		// Collect parameter name
 		String jsonXAxisValues = "";
@@ -1198,6 +1194,7 @@ public class ChartGenerator {
 		Map<String, Map<Long, Double>> data = new HashMap<>();
 		for (LocalDate endDate = firstEndDate; endDate.compareTo(lastEndDate) <= 0 /* endDate <= lastEndDate */; endDate = endDate.plusWeeks(1)) {
 			final long endTime = endDate.atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
+			final long startTime = endTime - 86400 * 7;
 
 			xAxisValues.add(endTime);
 			if (!jsonXAxisValues.isEmpty())
@@ -1205,16 +1202,11 @@ public class ChartGenerator {
 			jsonXAxisValues += "\"" + endDate.toString() + "\"";
 
 			for (String sourceUserName : sourceUserNames) {
-				Map<String, Double> likelihoods = ExternalNotificationHelper.computeLikelihoods(serviceExternalNotification, endTime, timespan, sourceUserName, severityProbabilities);
-				for (String category : likelihoods.keySet()) {
-					// Deduce parameter name from category. The naming policy must agree with the one used in both:
-					// - lu.itrust.business.TS.component.DynamicParameterComputer#computeForAllAnalysesOfUser(String)
-					// - lu.itrust.business.TS.component.DynamicParameterComputer#computeForAnalysis(Analysis)
-					String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, category));
-					
+				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(startTime, endTime, sourceUserName, severityProbabilities, minimumProbability);
+				for (String parameterName : likelihoods.keySet()) {
 					// Store data
 					data.putIfAbsent(parameterName, new HashMap<Long, Double>());
-					data.get(parameterName).put(endTime, likelihoods.get(category));
+					data.get(parameterName).put(endTime, likelihoods.get(parameterName));
 				}
 			}
 		}
