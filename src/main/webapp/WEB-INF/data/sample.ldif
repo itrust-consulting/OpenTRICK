@@ -1,0 +1,86 @@
+version: 1
+
+dn: dc=example,dc=com
+objectClass: domain
+objectClass: extensibleObject
+objectClass: top
+dc: example
+
+dn: ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: organizationalUnit
+ou: groups
+
+dn: cn=Box-Office Employee,ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: groupOfNames
+cn: Box-Office Employee
+member: uid=Edward,ou=people,dc=example,dc=com
+member: uid=Arthur,ou=people,dc=example,dc=com
+member: uid=Thomas,ou=people,dc=example,dc=com
+ou: SpacePrivilege READ ClassFilter eg.cinema.Movie
+ou: SpacePrivilege READ ClassFilter eg.cinema.Seat
+ou: SpacePrivilege WRITE ClassFilter eg.cinema.Seat
+
+dn: cn=Box-Office Manager,ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: groupOfNames
+cn: Box-Office Manager
+member: uid=Thomas,ou=people,dc=example,dc=com
+ou: SpacePrivilege WRITE ClassFilter eg.cinema.Movie
+ou: SpacePrivilege TAKE ClassFilter eg.cinema.Movie
+
+dn: cn=Box-Office Administrator,ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: groupOfNames
+cn: Box-Office Administrator
+member: uid=Emily,ou=people,dc=example,dc=com
+ou: GridPrivilege MANAGE_GRID
+ou: GridPrivilege MANAGE_PU
+ou: GridPrivilege PROVISION_PU
+
+dn: ou=people,dc=example,dc=com
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: uid=Edward,ou=people,dc=example,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Edward Jones
+sn: Jones
+uid: Edward
+userPassword: koala
+
+dn: uid=Arthur,ou=people,dc=example,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Arthur Davis
+sn: Davis
+uid: Arthur
+userPassword: goanna
+
+dn: uid=Thomas,ou=people,dc=example,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Thomas Evans
+sn: Evans
+uid: Thomas
+userPassword: wombat 
+
+dn: uid=Emily,ou=people,dc=example,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Emily Fry
+sn: Fry
+uid: Emily
+userPassword: kangaroo
+

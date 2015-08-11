@@ -12,8 +12,8 @@
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
-		<form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin"
-			authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
+		<form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler"
+			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
 		<logout logout-success-url="/Home" logout-url="/signout" />
 	</http>
 
@@ -25,7 +25,15 @@
 				<salt-source user-property="username" />
 			</password-encoder>
 		</authentication-provider>
+		<ldap-authentication-provider  group-role-attribute="${app.settings.ldap.group_role_attribute}" group-search-base="${app.settings.ldap.group_search_base}"
+			user-search-filter="${app.settings.ldap.user_search_filter}" user-search-base="${app.settings.ldap.user_search_base}" group-search-filter="${app.settings.ldap.group_search_filter}" />
 	</authentication-manager>
+
+
+	<!-- ldap server -->
+
+	<ldap-server url="${app.settings.ldap.server.url}" root="${app.settings.ldap.server.root}" ldif="${app.settings.ldap.context.url}" manager-dn="${app.settings.ldap.server.manager_dn}"
+		manager-password="${app.settings.ldap.server.manager_password}" port="33389"/>
 
 	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" />
 
