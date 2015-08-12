@@ -51,6 +51,15 @@ public class ExternalNotification {
 	private long halfLife;
 
 	/**
+	 * Specifies how strong the impact on the overall probability is.
+	 * More precisely, an assertiveness of 1.0 will cause the overall probability to be withdrawn and replaced by the probability of this external notification.
+	 * On the other hand, an assertiveness value of 0.0 will cause the overall probability to take this external notification into account
+	 * Value is a floating-point number in the range [0.0, 1.0].
+	 */
+	@Column(name = "dtAssertiveness", nullable = false)
+	private double assertiveness;
+
+	/**
 	 * Represents the number of notifications incorporated by this object.
 	 * In fact, this parameter allows the aggregation of equivalent notifications
 	 * into a single one, thus saving traffic/storage space.
@@ -61,6 +70,7 @@ public class ExternalNotification {
 
 	/**
 	 * Represents the severity of the notification.
+	 * The severity level is mapped to the "s0", "s1" ... parameters of an analysis.
 	 * Values lie in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
 	 */
 	@Column(name = "dtSeverity", nullable = false)
@@ -153,6 +163,22 @@ public class ExternalNotification {
 		if (severity < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || severity > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
 			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY, Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY });
 		this.severity = severity;
+	}
+
+	/**
+	 * Gets the assertiveness of this notification.
+	 */
+	public double getAssertiveness() {
+		return assertiveness;
+	}
+
+	/**
+	 * Sets the assertiveness of this notification.
+	 */
+	public void setAssertiveness(double assertiveness) throws TrickException {
+		if (assertiveness < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || assertiveness > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
+			throw new TrickException("error.externalnotification.assertiveness_out_of_range", "The notification assertiveness must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
+		this.assertiveness = assertiveness;
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.model.api;
 
 
+
 /**
  * Represents a notification sent by an external provider (e.g. an IDS).
  * This model is only used to describe notification objects passed to/returned by an API.
@@ -29,16 +30,25 @@ public class ApiExternalNotification {
 	 * Represents the severity of the notification.
 	 * The severity is the conditional probability that an incident of this category occurs
 	 * given that there has been an alert (a notification).
+	 * The severity level is mapped to the "s0", "s1" ... parameters of an analysis.
 	 * Values lie in the range [0,10] where 0 is least severe.
 	 */
-	private int severity;
+	private int severity = 0;
 	
 	/**
 	 * Represents the number of notifications incorporated by this object.
 	 * In fact, this parameter allows the aggregation of equivalent notifications
 	 * into a single one, thus saving traffic/storage space.
 	 */
-	private int number;
+	private int number = 1;
+
+	/**
+	 * Specifies how strong the impact on the overall probability is.
+	 * More precisely, an assertiveness of 1.0 will cause the overall probability to be withdrawn and replaced by the probability of this external notification.
+	 * On the other hand, an assertiveness value of 0.0 will cause the overall probability to take this external notification into account
+	 * Value is a floating-point number in the range [0.0, 1.0].
+	 */
+	private double assertiveness = 0.0;
 
 	/**
 	 * Gets the 'category' parameter of this notification.
@@ -118,6 +128,26 @@ public class ApiExternalNotification {
 	 */
 	public void setS(int severity) {
 		this.severity = severity;
+	}
+
+	/**
+	 * Gets the 'assertiveness' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it getA() instead of getAssertiveness(),
+	 * we may use {"a":...} instead of {"assertiveness":...} in JSON data.
+	 */
+	public double getA() {
+		return this.assertiveness;
+	}
+
+	/**
+	 * Sets the 'assertiveness' parameter of this notification.
+	 * NB: Jackson/Spring uses this method to map the value of this property
+	 * to the JSON data field. By calling it setA() instead of setAssertiveness(),
+	 * we may use {"a":...} instead of {"assertiveness":...} in JSON data.
+	 */
+	public void setA(double assertiveness) {
+		this.assertiveness = assertiveness;
 	}
 
 	/**

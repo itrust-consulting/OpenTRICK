@@ -31,6 +31,7 @@ public class ExternalNotificationHelper {
 		modelObj.setTimestamp(apiObj.getT());
 		modelObj.setHalfLife(apiObj.getH());
 		modelObj.setNumber(apiObj.getN());
+		modelObj.setAssertiveness(apiObj.getA());
 		modelObj.setSeverity(apiObj.getS());
 		modelObj.setSourceUserName(userName);
 		return modelObj;
@@ -51,6 +52,7 @@ public class ExternalNotificationHelper {
 			apiObj.setT(obj.getTimestamp());
 			apiObj.setH(obj.getHalfLife());
 			apiObj.setN(obj.getNumber());
+			apiObj.setA(obj.getAssertiveness());
 			apiObj.setS(obj.getSeverity());
 			apiList.add(apiObj);
 		}

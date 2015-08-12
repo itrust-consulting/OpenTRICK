@@ -132,7 +132,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
 		// Note that the probability decays exponentially with time. In particular, it never becomes zero.
 		// However, for performance reasons, we start neglecting it once it reaches 1/128 (which is < 1%). It does so after 7 times the half life.  
-		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp <= :now AND extnot.timestamp + extnot.halfLife*7 > :now AND extnot.sourceUserName = :sourceUserName";
+		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp <= :now AND extnot.timestamp + extnot.halfLife*7 > :now AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp ASC";
 		Iterator<ExternalNotification> iterator = getSession().createQuery(query).setParameter("now", timestamp).setParameter("sourceUserName", sourceUserName).iterate();
 
 		// TODO: An analysis of the forward-error is needed here!
@@ -142,9 +142,12 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// and thus the HQL approach seems infeasible (need to figure out a solution to this!). -- smuller, 07.08.2015
 		
 		// Compute probability for each category using the formula:
-		//    totalProb := 1 - (1 - totalProb) * (1 - Pr[event])
+		//    totalProb := 1 - (1 - assertiveness * totalProb) * (1 - Pr[event])
 		// for each event, starting at totalProb := 0.
-		Map<String, Double> inverse_probabilities = new HashMap<>();
+		// Note that Pr[event] follows the exponential-decay model, i.e. Pr[event](t) = p0 * (1/2) ^ ((t - t0)/T)
+		// where p0 := initial probability = severity, t0 := timestamp of notification, T := half-life. 
+		
+		Map<String, Double> probabilities = new HashMap<>();
 		while (iterator.hasNext()) {
 			ExternalNotification extNot = iterator.next();
 			
@@ -155,16 +158,11 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
 			double p = severity * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
 
-			double totalProbability = inverse_probabilities.getOrDefault(parameterName, 1.0);
-			totalProbability *= Math.pow(1 - p, extNot.getNumber());
-			inverse_probabilities.put(parameterName, totalProbability);
+			double totalProbability = probabilities.getOrDefault(parameterName, 0.0);
+			totalProbability = 1.0 - (1.0 - (1.0 - extNot.getAssertiveness()) * totalProbability) * Math.pow(1.0 - p, extNot.getNumber());
+			probabilities.put(parameterName, totalProbability);
 		}
 
-		// We are interested in the probabilities, not their inverses. 
-		Map<String, Double> probabilities = new HashMap<>();
-		for (String key : inverse_probabilities.keySet())
-			probabilities.put(key, Math.max(minimumProbability, 1.0 - inverse_probabilities.get(key)));
-		
 		return probabilities;
 	}
 
@@ -172,7 +170,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
-		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp";
+		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp ASC";
 		Iterator<ExternalNotification> iterator = getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).iterate();
 
 		if (!iterator.hasNext())
@@ -182,7 +180,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// at the critical spots (discontinuities due to new notifications being reported) and assume that the level remains constant
 		// until the next notification or until the notification effect reaches <1% (which happens at roughly 7 times the half-life).
 		// 
-		// The results are not exact, but reflect somehow the history.
+		// The results are not exact, but reflect somehow the history. Mathematically speaking, we compute a discrete version of the lower Darboux sum here.
 
 		final long totalInterval = timestampEnd - timestampBegin;
 		// NB: notifications are ordered by time of occurrence
