@@ -1,5 +1,6 @@
 package lu.itrust.business.expressions;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,6 +63,72 @@ public class StringExpressionParser implements ExpressionParser {
 		
 		return value;
 	}
+
+	/**
+	 * Evaluates a function which is expected at the current position in the expression.
+	 * @param source The tokenizer to read the function from. Must point to the opening (left) bracket of the function argument list.
+	 * @param variableValueMap The map which assigns a value to each variable.
+	 * @param functionName The name of the function to evaluate.
+	 * @return Returns the value obtained by evaluating the expression.
+	 * @throws InvalidExpressionException Throws an exception on syntax errors.
+	 */
+	private double evaluateFunction(UndoableTokenizer source, Map<String, Double> variableValueMap, String functionName) throws InvalidExpressionException {
+		if (!source.read().getType().equals(TokenType.LeftBracket))
+			throw new InvalidExpressionException("Expected opening bracket '('.");
+		
+		List<Double> arguments = new ArrayList<>();
+		
+		// Handle special case where function does not have any arguments
+		Token nextToken = source.read();
+		if (nextToken.getType().equals(TokenType.RightBracket))
+			return evaluateFunction(functionName, arguments);
+		else
+			source.putBack(nextToken);
+
+		// Read all arguments
+		while (true) {
+			arguments.add(evaluateSum(source, variableValueMap));
+
+			Token token = source.read();
+			if (token.getType().equals(TokenType.RightBracket))
+				return evaluateFunction(functionName, arguments);
+			else if (!token.getType().equals(TokenType.Comma))
+				throw new InvalidExpressionException("Expected comma or closing bracket, got token of type '" + token.getType() + "'.");
+		}
+	}
+	
+	private double evaluateFunction(String functionName, List<Double> arguments) throws InvalidExpressionException {
+		functionName = functionName.toUpperCase();
+		if (functionName.equals("MIN")) {
+			if (arguments.size() == 0)
+				throw new InvalidExpressionException("Function MIN() expects at least one argument.");
+			return evaluateFunction_min(arguments);
+		}
+		else if (functionName.equals("MAX")) {
+			if (arguments.size() == 0)
+				throw new InvalidExpressionException("Function MAX() expects at least one argument.");
+			return evaluateFunction_max(arguments);
+		}
+		else {
+			throw new InvalidExpressionException("Unknown function " + functionName + "().");
+		}
+	}
+
+	private double evaluateFunction_min(List<Double> arguments) {
+		double min = Double.POSITIVE_INFINITY;
+		for (Double value : arguments)
+			if (value < min)
+				min = value;
+		return min;
+	}
+
+	private double evaluateFunction_max(List<Double> arguments) {
+		double min = Double.NEGATIVE_INFINITY;
+		for (Double value : arguments)
+			if (value > min)
+				min = value;
+		return min;
+	}
 	
 	/**
 	 * Evaluates a literal (number or variable) which is expected at the current position in the expression.
@@ -80,8 +147,15 @@ public class StringExpressionParser implements ExpressionParser {
 		
 		// If it is a variable, look up its value in the map
 		else if (token.getType().equals(TokenType.Variable)) {
+			// Lookup the next token to check whether we are dealing with a variable or a function
+			Token nextToken = source.read();
+			boolean isFunction = nextToken.getType().equals(TokenType.LeftBracket);
+			source.putBack(nextToken);
+			
 			final String variableName = token.getParameter();
-			if (variableValueMap.containsKey(variableName))
+			if (isFunction)
+				return evaluateFunction(source, variableValueMap, variableName);
+			else if (variableValueMap.containsKey(variableName))
 				return variableValueMap.get(variableName);
 			else
 				throw new IllegalArgumentException("The variable '" + variableName + "' is involved, but no value has been assigned to it in the value map.");

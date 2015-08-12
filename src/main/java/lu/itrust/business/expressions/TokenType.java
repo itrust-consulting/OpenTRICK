@@ -14,5 +14,6 @@ public enum TokenType {
 	DivideOperator,
 	LeftBracket,
 	RightBracket,
+	Comma,
 	End
 }

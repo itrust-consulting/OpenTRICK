@@ -66,6 +66,9 @@ public class StringTokenizer implements Tokenizer {
 				case ')': 
 					this.pointer++;
 					return new Token(TokenType.RightBracket);
+				case ',': 
+					this.pointer++;
+					return new Token(TokenType.Comma);
 			}
 			
 			// Everything that remains does not fit into any expected category and is thus invalid
