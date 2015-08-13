@@ -60,7 +60,7 @@ public class StringTokenizerTest extends TestCase {
 	}
 	
 	public void testOperators() throws InvalidExpressionException {
-		StringTokenizer s = new StringTokenizer("  + -//*)( ");
+		StringTokenizer s = new StringTokenizer("  + -//*)(     ,, ");
 		Token token;
 
 		token = s.read();
@@ -85,11 +85,17 @@ public class StringTokenizerTest extends TestCase {
 		assertEquals(TokenType.LeftBracket, token.getType());
 
 		token = s.read();
+		assertEquals(TokenType.Comma, token.getType());
+
+		token = s.read();
+		assertEquals(TokenType.Comma, token.getType());
+
+		token = s.read();
 		assertEquals(TokenType.End, token.getType());
 	}
 
 	public void testCombined() throws InvalidExpressionException {
-		StringTokenizer s = new StringTokenizer("1+3.*(a-b)");
+		StringTokenizer s = new StringTokenizer("1+3.*(a-b,1)");
 		Token token;
 
 		token = s.read();
@@ -115,6 +121,12 @@ public class StringTokenizerTest extends TestCase {
 
 		token = s.read();
 		assertEquals(TokenType.Variable, token.getType());
+
+		token = s.read();
+		assertEquals(TokenType.Comma, token.getType());
+
+		token = s.read();
+		assertEquals(TokenType.Number, token.getType());
 
 		token = s.read();
 		assertEquals(TokenType.RightBracket, token.getType());

@@ -145,7 +145,8 @@ public class StringExpressionParser implements ExpressionParser {
 		if (token.getType().equals(TokenType.Number))
 			return token.getParameter();
 		
-		// If it is a variable, look up its value in the map
+		// If it is a variable, look up its value in the map.
+		// If it is a function, read the arguments and evaluate it.
 		else if (token.getType().equals(TokenType.Variable)) {
 			// Lookup the next token to check whether we are dealing with a variable or a function
 			Token nextToken = source.read();
@@ -159,6 +160,14 @@ public class StringExpressionParser implements ExpressionParser {
 				return variableValueMap.get(variableName);
 			else
 				throw new IllegalArgumentException("The variable '" + variableName + "' is involved, but no value has been assigned to it in the value map.");
+		}
+		
+		// If it is + or -, we are dealing with the unary operator
+		else if (token.getType().equals(TokenType.PlusOperator)) {
+			return this.evaluateParentheses(source, variableValueMap);
+		}
+		else if (token.getType().equals(TokenType.MinusOperator)) {
+			return -this.evaluateParentheses(source, variableValueMap);
 		}
 		
 		// In all other cases we have a syntax error
