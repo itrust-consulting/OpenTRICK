@@ -1,0 +1,21 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security" xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!--
+		List of attribute: ldif, url, port, root, manager-dn, manager-password.
+		
+		-ldif: Explicitly specifies an ldif file resource to load into an embedded LDAP server. The default is classpath*:*.ldiff;
+		
+		-root: Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
+		
+		-manager-dn: Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used;
+		 
+		-manager-password: The password for the manager DN. This is required if the manager-dn is specified;
+	 -->
+
+	<ldap-server url="ldaps://share.itrust.lu" port="636" manager-dn="uid=service-tseom,ou=Users,dc=itrust,dc=lu" manager-password="noxdSN0uNjlUyLCuTMY0" root="dc=itrust,dc=lu" />
+	
+</beans:beans>

@@ -35,7 +35,7 @@ import org.hibernate.annotations.CascadeType;
  * @since Aug 19, 2012
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames ="dtEmail"),@UniqueConstraint(columnNames = "dtLogin")})
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "dtEmail"), @UniqueConstraint(columnNames = "dtLogin") })
 public class User implements Serializable {
 
 	@Transient
@@ -43,6 +43,24 @@ public class User implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Authorise Only Standard connexion
+	 */
+	@Transient
+	public static final int STANDARD_CONNEXION = -1;
+	
+	/**
+	 * Authorise ALL Connexion type
+	 */
+	@Transient
+	public static final int BOTH_CONNEXION = 0;
+	
+	/**
+	 * ONLY LDAP
+	 */
+	@Transient
+	public static final int LADP_CONNEXION = 1;
 
 	/** Fields */
 
@@ -92,6 +110,9 @@ public class User implements Serializable {
 	@CollectionTable(name = "UserSetting", joinColumns = @JoinColumn(name = "fiUser"))
 	private Map<String, String> userSettings = new HashMap<String, String>();
 
+	@Column(name = "dtConnexionType", nullable = false)
+	private int connexionType = BOTH_CONNEXION;
+
 	/**
 	 * Constructor: <br>
 	 * 
@@ -116,6 +137,15 @@ public class User implements Serializable {
 	public User() {
 		roles = new ArrayList<Role>();
 		customers = new ArrayList<Customer>();
+	}
+
+	public User(String username, String password, String firstName, String lastName, String email, int connexionType) {
+		this.login = username;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.email = email;
+		this.connexionType = connexionType;
 	}
 
 	/**
@@ -491,6 +521,21 @@ public class User implements Serializable {
 	}
 
 	/**
+	 * @return the connexionType
+	 */
+	public int getConnexionType() {
+		return connexionType;
+	}
+
+	/**
+	 * @param connexionType
+	 *            the connexionType to set
+	 */
+	public void setConnexionType(int connexionType) {
+		this.connexionType = connexionType;
+	}
+
+	/**
 	 * removeCustomer: <br>
 	 * Description
 	 * 
@@ -545,7 +590,9 @@ public class User implements Serializable {
 	}
 
 	public boolean hasRole(Role role) {
-		return role == null || roles == null || roles.isEmpty()? false : roles.contains(role);
+		return role == null || roles == null || roles.isEmpty() ? false : roles.contains(role);
 	}
+	
+	
 
 }

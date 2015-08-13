@@ -237,7 +237,7 @@ public class ControllerRegister {
 			if (ipAdress == null)
 				ipAdress = request.getRemoteAddr();
 			User user = StringUtils.isEmpty(resetPassword.getUsername()) ? serviceUser.getByEmail(resetPassword.getEmail()) : serviceUser.get(resetPassword.getUsername());
-			if (user != null) {
+			if (!(user == null || user.getConnexionType() == User.LADP_CONNEXION)) {
 				ResetPassword resetPassword2 = serviceResetPassword.get(user);
 				if (resetPassword2 != null)
 					serviceResetPassword.delete(resetPassword2);
@@ -277,7 +277,10 @@ public class ControllerRegister {
 		if (resetPassword == null)
 			return "redirect:/Login";
 		session.removeAttribute("attempt-request");
-		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
+		if (resetPassword.getUser().getConnexionType() == User.LADP_CONNEXION) {
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.ldap.change.password", null, "To reset your password, please contact your administrator", locale));
+			return "redirect:/Login";
+		} else if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
 			return "redirect:/Login";
 		}
@@ -383,8 +386,8 @@ public class ControllerRegister {
 			error = validator.validate(user, "login", login);
 			if (error != null)
 				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if(serviceUser.existByUsername(login))
-				errors.put("login", messageSource.getMessage("error.username.in_use",null,"Username is in use", locale));
+			else if (serviceUser.existByUsername(login))
+				errors.put("login", messageSource.getMessage("error.username.in_use", null, "Username is in use", locale));
 			else
 				user.setLogin(login);
 			error = validator.validate(user, "password", password);
@@ -396,7 +399,7 @@ public class ControllerRegister {
 			error = validator.validate(user, "repeatPassword", repeatedPassword);
 			if (error != null)
 				errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
-			else 
+			else
 				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 
 			error = validator.validate(user, "firstName", firstname);
@@ -414,8 +417,8 @@ public class ControllerRegister {
 			error = validator.validate(user, "email", email);
 			if (error != null)
 				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if(serviceUser.existByEmail(email))
-				errors.put("email", messageSource.getMessage("error.email.in_use",null,"Email is in use", locale));
+			else if (serviceUser.existByEmail(email))
+				errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
 			else
 				user.setEmail(email);
 
