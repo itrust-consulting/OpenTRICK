@@ -1863,6 +1863,7 @@ public class ActionPlanComputation {
 		// * initialise variables
 		// ****************************************************************
 		List<TMA> TMAList = new ArrayList<TMA>();
+		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * clear List
@@ -1915,7 +1916,7 @@ public class ActionPlanComputation {
 					// 100% -> YES
 					// ****************************************************************
 					if (!(normalMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-							&& (normalMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (normalMeasure.getMeasureDescription().isComputable())
+							&& (normalMeasure.getImplementationRateValue(expressionParameters) < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (normalMeasure.getMeasureDescription().isComputable())
 							&& (normalMeasure.getCost() >= 0)) {
 
 						// ****************************************************************
@@ -2000,7 +2001,7 @@ public class ActionPlanComputation {
 					// 100% -> YES
 					// ****************************************************************
 					if (!(assetMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-							&& (assetMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (assetMeasure.getMeasureDescription().isComputable())
+							&& (assetMeasure.getImplementationRateValue(expressionParameters) < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (assetMeasure.getMeasureDescription().isComputable())
 							&& (assetMeasure.getCost() >= 0)) {
 
 						// ****************************************************************

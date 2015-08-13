@@ -56,8 +56,6 @@ public class NormalMeasure extends Measure {
 	/** The List of Measure Properties */
 	private MeasureProperties measurePropertyList = null;
 
-	private String dynamicImplementationRate;
-
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -195,8 +193,8 @@ public class NormalMeasure extends Measure {
 	@Override
 	@Column(name = "dtImplementationRate", nullable = false)
 	@Access(AccessType.FIELD)
-	public Double getImplementationRate() {
-		return (Double) super.getImplementationRate();
+	public String getImplementationRate() {
+		return (String) super.getImplementationRate();
 	}
 
 	/**
@@ -211,13 +209,9 @@ public class NormalMeasure extends Measure {
 	@Transient
 	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
 		try {
-			String expression = this.getDynamicImplementationRate();
-			if (expression == null)
-				return getImplementationRate();
-			else
-				return (new StringExpressionParser(expression)).evaluate(dynamicParameters);
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(dynamicParameters);
 		} catch (Exception ex) {
-			return getImplementationRate();
+			return 0.0;
 		}
 	}
 
@@ -232,9 +226,9 @@ public class NormalMeasure extends Measure {
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof Double))
-			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type Double!");
-		super.setImplementationRate((Double) implementationRate);
+		if (!(implementationRate instanceof String))
+			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
+		super.setImplementationRate((String) implementationRate);
 	}
 
 	/**
@@ -246,17 +240,8 @@ public class NormalMeasure extends Measure {
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
 	 */
-	public void setImplementationRate(double implementationRate) throws TrickException {
+	public void setImplementationRate(String implementationRate) throws TrickException {
 		super.setImplementationRate(implementationRate);
-	}
-
-	@Column(name = "dtDynamicImplementationRate", nullable = true)
-	public void setDynamicImplementationRate(String expression) {
-		this.dynamicImplementationRate = expression;
-	}
-	
-	public String getDynamicImplementationRate() {
-		return this.dynamicImplementationRate;
 	}
 
 	/**

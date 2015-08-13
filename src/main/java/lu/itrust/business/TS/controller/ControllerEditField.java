@@ -64,6 +64,7 @@ import lu.itrust.business.TS.validator.MeasureValidator;
 import lu.itrust.business.TS.validator.ParameterValidator;
 import lu.itrust.business.TS.validator.RiskInformationValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1316,15 +1317,12 @@ public class ControllerEditField {
 					if (error != null)
 						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
 
-					if (fieldEditor.getFieldName().equals("implementationRate"))
-						if ((Double) value < 0. || (Double) value > 100.)
-							return JsonMessage.Error(messageSource.getMessage("error.edit.implementationrate.field", null, "Implementation rate needs to be >= 0 and <= 100 !",
-									cutomLocale != null ? cutomLocale : locale));
-						else
-							field.set(measure, value);
-					else
-						field.set(measure, value);
-
+					if (fieldEditor.getFieldName().equals("implementationRate")) {
+						if (!(new StringExpressionParser((String)value)).isValid(serviceParameter.getAllExpressionParameterAcronymsFromAnalysis(idAnalysis)))
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null, "Invalid expression. Check the syntax and make sure that all used parameters exist.", cutomLocale != null ? cutomLocale : locale));
+					}
+					
+					field.set(measure, value);
 				}
 
 				// retrieve parameters

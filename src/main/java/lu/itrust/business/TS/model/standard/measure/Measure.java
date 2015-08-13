@@ -212,6 +212,7 @@ public abstract class Measure implements Cloneable {
 
 	@Transient
 	@Deprecated // this method is used by the UI only
+	@Access(AccessType.FIELD)
 	public double getImplementationRateValue() {
 		return getImplementationRateValue(new HashMap<>());
 	}

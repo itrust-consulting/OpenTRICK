@@ -48,9 +48,9 @@
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:when>
 				<c:otherwise>
-					<td ${css} data-trick-field="implementationRate" data-trick-field-type="double" data-trick-max-value="100" data-trick-min-value="0"
-						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
-							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
+					<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"
+						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><spring:message
+							text="${measure.getImplementationRate()}" /></td>
 				</c:otherwise>
 			</c:choose>
 			<td ${css} data-trick-field="internalWL" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}" maxFractionDigits="2" /></td>

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -179,8 +180,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 	@Override
 	@Column(name = "dtImplmentationRate", nullable = false)
 	@Access(AccessType.FIELD)
-	public Double getImplementationRate() {
-		return (Double) super.getImplementationRate();
+	public String getImplementationRate() {
+		return (String) super.getImplementationRate();
 	}
 
 	/**
@@ -194,7 +195,11 @@ public class AssetMeasure extends Measure implements Cloneable {
 	@Override
 	@Transient
 	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
-		return getImplementationRate();
+		try {
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(dynamicParameters);
+		} catch (Exception ex) {
+			return 0.0;
+		}
 	}
 
 	/**
@@ -209,8 +214,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
 		if (!(implementationRate instanceof Double))
-			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type Double!");
-		super.setImplementationRate((Double) implementationRate);
+			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
+		super.setImplementationRate((String) implementationRate);
 	}
 
 	/**
