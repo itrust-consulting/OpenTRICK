@@ -22,6 +22,7 @@ import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -54,6 +55,8 @@ public class NormalMeasure extends Measure {
 
 	/** The List of Measure Properties */
 	private MeasureProperties measurePropertyList = null;
+
+	private String dynamicImplementationRate;
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -206,8 +209,16 @@ public class NormalMeasure extends Measure {
 	 */
 	@Override
 	@Transient
-	public double getImplementationRateValue() {
-		return getImplementationRate();
+	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
+		try {
+			String expression = this.getDynamicImplementationRate();
+			if (expression == null)
+				return getImplementationRate();
+			else
+				return (new StringExpressionParser(expression)).evaluate(dynamicParameters);
+		} catch (Exception ex) {
+			return getImplementationRate();
+		}
 	}
 
 	/**
@@ -237,6 +248,15 @@ public class NormalMeasure extends Measure {
 	 */
 	public void setImplementationRate(double implementationRate) throws TrickException {
 		super.setImplementationRate(implementationRate);
+	}
+
+	@Column(name = "dtDynamicImplementationRate", nullable = true)
+	public void setDynamicImplementationRate(String expression) {
+		this.dynamicImplementationRate = expression;
+	}
+	
+	public String getDynamicImplementationRate() {
+		return this.dynamicImplementationRate;
 	}
 
 	/**

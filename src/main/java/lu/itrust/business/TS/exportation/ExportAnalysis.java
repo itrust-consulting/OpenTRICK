@@ -1375,6 +1375,7 @@ public class ExportAnalysis {
 		MaturityMeasure maturity = null;
 		String measurequery = "" , specdefaultquery = "";;
 		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
+		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * export standard measures (27001, 27002, custom)
@@ -1934,7 +1935,7 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getPhase().getNumber());
 					measureparams.add(maturity.getMeasureDescription().getLevel());
 					measureparams.add(maturity.getStatus());
-					measureparams.add(maturity.getImplementationRateValue() / 100.0);
+					measureparams.add(maturity.getImplementationRateValue(expressionParameters) / 100.0);
 					measureparams.add(maturity.getInternalWL());
 					measureparams.add(maturity.getExternalWL());
 					measureparams.add(maturity.getInvestment());

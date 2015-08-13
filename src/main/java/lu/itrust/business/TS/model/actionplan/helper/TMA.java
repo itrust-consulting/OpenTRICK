@@ -1,8 +1,11 @@
 package lu.itrust.business.TS.model.actionplan.helper;
 
+import java.util.List;
+
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 
@@ -107,12 +110,13 @@ public class TMA {
 	 * ALE * RRF * (1 - ImpRate / 1 - RRF * ImpRate)
 	 * @throws TrickException 
 	 */
-	public void calculateDeltaALE() throws TrickException {
+	public void calculateDeltaALE(List<AcronymParameter> expressionParameters) throws TrickException {
 		if(Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
 		if(Double.isNaN(ALE))
 			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
-		this.deltaALE = this.ALE * RRF * ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF * (this.measure.getImplementationRateValue() / 100.)));
+		double implementationRate = this.measure.getImplementationRateValue(expressionParameters) / 100.;
+		this.deltaALE = this.ALE * RRF * ((1. - implementationRate) / (1. - RRF * implementationRate));
 
 	}
 
@@ -131,12 +135,12 @@ public class TMA {
 	 * @return the computed deltaALE for this measure using a given ALE
 	 * @throws TrickException 
 	 */
-	public static double calculateDeltaALE(double ALE, double RRF, Measure measure) throws TrickException {
+	public static double calculateDeltaALE(double ALE, double RRF, Measure measure, List<AcronymParameter> expressionParameters) throws TrickException {
 		if(Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
 		if(Double.isNaN(ALE))
 			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
-		return ALE * RRF * ((1.0 - (measure.getImplementationRateValue() / 100.0)) / (1.0 - RRF * (measure.getImplementationRateValue() / 100.0)));
+		return ALE * RRF * ((1.0 - (measure.getImplementationRateValue(expressionParameters) / 100.0)) / (1.0 - RRF * (measure.getImplementationRateValue(expressionParameters) / 100.0)));
 	}
 
 	/**
@@ -144,10 +148,10 @@ public class TMA {
 	 * Calculates the delta ALE for 27002 measures using the formula <br>
 	 * ALE * RRF * ImpRate * ((maxEffnextSML - maxEffcurrentSML) / 1 - RRF * ImpRate)
 	 */
-	public void calculateDeltaALEMaturity() {
+	public void calculateDeltaALEMaturity(List<AcronymParameter> expressionParameters) {
 		this.deltaALEMat =
-			this.ALE * RRF * (this.measure.getImplementationRateValue() / 100.)
-				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * (this.measure.getImplementationRateValue() / 100.)));
+			this.ALE * RRF * (this.measure.getImplementationRateValue(expressionParameters) / 100.)
+				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * (this.measure.getImplementationRateValue(expressionParameters) / 100.)));
 	}
 
 	/***********************************************************************************************

@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.standard.measure;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -192,7 +193,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	@Transient
-	public double getImplementationRateValue() {
+	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
 		return getImplementationRate();
 	}
 

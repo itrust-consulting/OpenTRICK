@@ -37,6 +37,7 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -1008,10 +1009,11 @@ public class ExportAnalysisReport {
 			return;
 		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
 		List<Measure> measures = (List<Measure>) analysis.findMeasureByStandard(standard);
+		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
 		if (measures == null)
 			return;
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures);
+		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, expressionParameters);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
 		if (xssfSheet.getRow(rowCount) == null)
@@ -1038,7 +1040,7 @@ public class ExportAnalysisReport {
 			List<Phase> phases = analysis.findUsablePhase();
 			int columnIndex = 2;
 			for (Phase phase : phases) {
-				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances);
+				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, expressionParameters);
 				if (xssfSheet.getRow(rowCount = 0) == null)
 					xssfSheet.createRow(rowCount);
 				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
@@ -1317,6 +1319,8 @@ public class ExportAnalysisReport {
 		// run = paragraph.getRuns().get(0);
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
+		
+		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 
 		int cellWidth[] = { 784, 2290, 454, 454, 454, 454, 454, 398, 454, 454, 454, 454, 3500, 3500, 784 };
 
@@ -1403,7 +1407,7 @@ public class ExportAnalysisReport {
 						for (int i = 0; i < cellWidth.length; i++)
 							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
 						row.getCell(2).setText(measure.getStatus());
-						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
+						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
 						addCellNumber(row.getCell(5), kEuroFormat.format(measure.getExternalWL()));
 						addCellNumber(row.getCell(6), numberFormat.format(measure.getInvestment() * 0.001));
@@ -1415,7 +1419,7 @@ public class ExportAnalysisReport {
 						addCellParagraph(row.getCell(12), measure.getComment());
 						addCellParagraph(row.getCell(13), measure.getToDo());
 						addCellParagraph(row.getCell(14), measure.getResponsible());
-						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
+						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue(expressionParameters) >= 100) {
 							for (int i = 0; i < 15; i++)
 								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
 						} else {

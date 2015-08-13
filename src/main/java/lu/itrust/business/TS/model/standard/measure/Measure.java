@@ -1,5 +1,9 @@
 package lu.itrust.business.TS.model.standard.measure;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -17,6 +21,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
@@ -203,7 +208,23 @@ public abstract class Measure implements Cloneable {
 	 * @return The Implementation Rate Real Value
 	 */
 	@Transient
-	public abstract double getImplementationRateValue();
+	public abstract double getImplementationRateValue(Map<String, Double> dynamicParameters);
+
+	@Transient
+	@Deprecated // this method is used by the UI only
+	public double getImplementationRateValue() {
+		return getImplementationRateValue(new HashMap<>());
+	}
+	
+	@Transient
+	public double getImplementationRateValue(List<AcronymParameter> expressionParameters) {
+		// Turn expression parameters into a map { key => value }
+		Map<String, Double> expressionParameterValues = new HashMap<>();
+		for (AcronymParameter expressionParameter : expressionParameters)
+			expressionParameterValues.put(expressionParameter.getAcronym(), expressionParameter.getValue());
+
+		return this.getImplementationRateValue(expressionParameterValues);
+	}
 
 	/**
 	 * getInternalWL: <br>

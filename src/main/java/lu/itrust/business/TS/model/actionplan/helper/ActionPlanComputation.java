@@ -34,6 +34,7 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -254,6 +255,8 @@ public class ActionPlanComputation {
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", language, progress));
 
 		System.out.println("Computing Action Plans...");
+		
+		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 
 		try {
 
@@ -266,7 +269,7 @@ public class ActionPlanComputation {
 
 			this.standards.stream().filter(standard -> standard.getStandard().isComputable()).flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
 				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && measure.getMeasureDescription().isComputable()) {
-					if (measure.getImplementationRateValue() >= 100)
+					if (measure.getImplementationRateValue(expressionParameters) >= 100)
 						preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 					if (!this.phases.contains(measure.getPhase()))
 						this.phases.add(measure.getPhase());
@@ -861,6 +864,8 @@ public class ActionPlanComputation {
 		// check if the actionplantype exists and add it to database if not
 		if (actionPlanType == null)
 			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(mode));
+		
+		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * parse all phases where measures are in
@@ -921,7 +926,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * recalculate the delta ALE
 						// ****************************************************************
-						tma.calculateDeltaALE();
+						tma.calculateDeltaALE(expressionParameters);
 
 						// ****************************************************************
 						// * if 27002 standard, recalculate deltaALE
@@ -934,7 +939,7 @@ public class ActionPlanComputation {
 							// ****************************************************************
 							// * recalculate delta ALE Maturity
 							// ****************************************************************
-							tma.calculateDeltaALEMaturity();
+							tma.calculateDeltaALEMaturity(expressionParameters);
 						}
 
 					}));
@@ -1664,6 +1669,8 @@ public class ActionPlanComputation {
 
 		if (!measure.getMeasureDescription().getStandard().isComputable())
 			return;
+		
+		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * parse TMAList to update ALE values
@@ -1698,7 +1705,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * recompute the DeltaALE
 						// ****************************************************************
-						TMAList.get(j).calculateDeltaALE();
+						TMAList.get(j).calculateDeltaALE(expressionParameters);
 
 						// if the measure is from 27002 -> YES
 						if (TMAList.get(j).getStandard().getLabel().equals(Constant.STANDARD_27002)) {
@@ -1706,7 +1713,7 @@ public class ActionPlanComputation {
 							// ****************************************************************
 							// * calculate deltaALEMaturity
 							// ****************************************************************
-							TMAList.get(j).calculateDeltaALEMaturity();
+							TMAList.get(j).calculateDeltaALEMaturity(expressionParameters);
 						}
 					}
 				}
@@ -1733,7 +1740,9 @@ public class ActionPlanComputation {
 		TMA tmpTMA = null;
 		String chapter = "";
 		Assessment assessment = null;
-
+		
+		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		
 		// ****************************************************************
 		// * determine the maturity chapter
 		// ****************************************************************
@@ -1797,7 +1806,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * recompute the deltaALE
 						// ****************************************************************
-						TMAList.get(j).calculateDeltaALE();
+						TMAList.get(j).calculateDeltaALE(expressionParameters);
 
 						// if it is a 27002 standard ->YES
 						if (TMAList.get(j).getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
@@ -1805,7 +1814,7 @@ public class ActionPlanComputation {
 							// ****************************************************************
 							// * calculate the deltaALEMaturity
 							// ****************************************************************
-							TMAList.get(j).calculateDeltaALEMaturity();
+							TMAList.get(j).calculateDeltaALEMaturity(expressionParameters);
 						}
 					}
 				}
@@ -2064,6 +2073,7 @@ public class ActionPlanComputation {
 		double rrf = 0;
 		double cMaxEff = -1;
 		double nMaxEff = -1;
+		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * parse assesments to generate TMA entries
@@ -2099,11 +2109,11 @@ public class ActionPlanComputation {
 
 					if (measure instanceof AssetMeasure) {
 						if (((AssetMeasure) measure).getMeasureAssetValueByAsset(tmpAssessment.getAsset()) != null)
-							tmpTMA.calculateDeltaALE();
+							tmpTMA.calculateDeltaALE(expressionParameters);
 						else
 							tmpTMA.setDeltaALE(0);
 					} else
-						tmpTMA.calculateDeltaALE();
+						tmpTMA.calculateDeltaALE(expressionParameters);
 
 					// ****************************************************************
 					// * check if measure needs to taken into account for action
@@ -2291,7 +2301,7 @@ public class ActionPlanComputation {
 							// ****************************************************************
 							// * calculate delta ALE for the Maturity
 							// ****************************************************************
-							tmpTMA.calculateDeltaALEMaturity();
+							tmpTMA.calculateDeltaALEMaturity(expressionParameters);
 						}
 					}
 
@@ -2396,7 +2406,7 @@ public class ActionPlanComputation {
 		String chapterValue = measure.getMeasureDescription().getReference().substring(2, measure.getMeasureDescription().getReference().length());
 
 		// check if measure has to be added -> YES
-		if ((isMaturityChapterTotalCostBiggerThanZero(maturityStandard, measure)) && (hasUsable27002MeasuresInMaturityChapter(analysis, chapterValue))) {
+		if ((isMaturityChapterTotalCostBiggerThanZero(maturityStandard, measure, analysis.getExpressionParameters())) && (hasUsable27002MeasuresInMaturityChapter(analysis, chapterValue))) {
 
 			// add measure to list of used measures
 			usedMeasures.add(measure);
@@ -2413,7 +2423,7 @@ public class ActionPlanComputation {
 	 *            The Maturity Chapter Measure Object (Level 1 Measure)
 	 * @return True if the Cost is > 0; False if Cost is 0
 	 */
-	private static final boolean isMaturityChapterTotalCostBiggerThanZero(MaturityStandard maturityStandard, MaturityMeasure chapter) {
+	private static final boolean isMaturityChapterTotalCostBiggerThanZero(MaturityStandard maturityStandard, MaturityMeasure chapter, List<AcronymParameter> expressionParameters) {
 
 		// initialise measure cost
 		double totalCost = 0;
@@ -2434,7 +2444,7 @@ public class ActionPlanComputation {
 			if ((maturityStandard.getMeasure(i).getMeasureDescription().getReference().startsWith(Constant.MATURITY_REFERENCE + chapterValue + "."
 					+ String.valueOf(chapter.getReachedLevel() + 1) + "."))
 					&& (!maturityStandard.getMeasure(i).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-					&& (maturityStandard.getMeasure(i).getImplementationRateValue() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)) {
+					&& (maturityStandard.getMeasure(i).getImplementationRateValue(expressionParameters) < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)) {
 
 				// *****************************************************
 				// * useful measure was found: add the cost to the total cost of
@@ -2837,6 +2847,9 @@ public class ActionPlanComputation {
 					phasetime = Analysis.getYearsDifferenceBetweenTwoDates(phase.getBeginDate(), phase.getEndDate());
 			}
 		}
+		
+		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		
 		// check if first stage -> YES
 		if (firstStage)
 			tmpval.implementedCount = 0;
@@ -2862,10 +2875,10 @@ public class ActionPlanComputation {
 				double imprate = 0;
 
 				if (measure instanceof NormalMeasure)
-					imprate = ((NormalMeasure) measure).getImplementationRateValue();
+					imprate = ((NormalMeasure) measure).getImplementationRateValue(expressionParameters);
 
 				else if (measure instanceof MaturityMeasure)
-					imprate = ((MaturityMeasure) measure).getImplementationRateValue();
+					imprate = ((MaturityMeasure) measure).getImplementationRateValue(expressionParameters);
 
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 

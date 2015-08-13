@@ -40,6 +40,7 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.rrf.RRFAsset;
@@ -365,7 +366,7 @@ public class ChartGenerator {
 	 * @param measures
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures) {
+	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures, List<AcronymParameter> expressionParameters) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
 			if (measure.getMeasureDescription().isComputable()) {
@@ -375,7 +376,7 @@ public class ChartGenerator {
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
 
 				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
-					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
+					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue(expressionParameters);
 					compliance[0] = (Integer) compliance[0] + 1;
 				}
 
@@ -398,7 +399,7 @@ public class ChartGenerator {
 	 * @param previouscompliences
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase, Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences) {
+	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase, Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences, List<AcronymParameter> expressionParameters) {
 		Map<String, Object[]> compliances = previouscompliences;
 
 		for (Measure measure : measures) {
@@ -408,7 +409,7 @@ public class ChartGenerator {
 				if (compliance == null)
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
 				if (actionPlanMeasures.containsKey(measure.getId()) && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue());
+					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue(expressionParameters));
 			}
 		}
 		return compliances;
@@ -426,8 +427,10 @@ public class ChartGenerator {
 	 */
 	public String compliance(int idAnalysis, String standard, Locale locale) throws Exception {
 		List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
+		
+		List<AcronymParameter> expressionParameters = daoParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 
-		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures);
+		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, expressionParameters);
 
 		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
@@ -500,7 +503,7 @@ public class ChartGenerator {
 
 				Map<String, Object[]> compliances = null;
 
-				compliances = ComputeCompliance(measures, phase, actionPlanMeasures, previouscompliances);
+				compliances = ComputeCompliance(measures, phase, actionPlanMeasures, previouscompliances, expressionParameters);
 
 				previouscompliances = compliances;
 

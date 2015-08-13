@@ -849,10 +849,10 @@ public class RiskRegisterComputation {
 				// System.out.println("Scenario id: "+scenario.getName());
 
 				// compute deltaALE
-				computeDeltaALEs(deltaALEs, ALE, tma, allParameters);
+				computeDeltaALEs(deltaALEs, ALE, tma, allParameters, expressionParameters);
 
 				// compute RawALE
-				computeRawALE(rawALEs, netALEs, tma, allParameters);
+				computeRawALE(rawALEs, netALEs, tma, allParameters, expressionParameters);
 
 				// Compute Relative Probability and Relative Impact
 				computeProbabilityRelativeImpact(probabilityRelativeImpacts, key, scenario);
@@ -873,7 +873,7 @@ public class RiskRegisterComputation {
 	 *            The List of Parameters
 	 * @throws TrickException
 	 */
-	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, final List<Parameter> parameters) throws TrickException {
+	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, final List<Parameter> parameters, final List<AcronymParameter> expressionParameters) throws TrickException {
 
 		// retrieve scenario ID
 		String key = tma.getAssessment().getScenario().getId() + "_" + tma.getAssessment().getAsset().getId();
@@ -885,7 +885,7 @@ public class RiskRegisterComputation {
 
 		ALE = deltaALEs.containsKey(key) ? ALE - deltaALEs.get(key) : ALE;
 
-		double currentDeltaALE = TMA.calculateDeltaALE(ALE, tma.getRRF(), tma.getMeasure());
+		double currentDeltaALE = TMA.calculateDeltaALE(ALE, tma.getRRF(), tma.getMeasure(), expressionParameters);
 
 		// retireve existing summed value of this scneario and add current deltaALE, if none exist
 		// use the current as new value
@@ -911,7 +911,7 @@ public class RiskRegisterComputation {
 	 * @param parameters
 	 *            The Parameter List
 	 */
-	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, final List<Parameter> parameters) {
+	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, final List<Parameter> parameters, final List<AcronymParameter> expressionParameters) {
 
 		// retrieve scenario ID
 		String key = tma.getAssessment().getScenario().getId() + "_" + tma.getAssessment().getAsset().getId();
@@ -919,9 +919,9 @@ public class RiskRegisterComputation {
 		// Retrieve current rawALE of the scenario ID if it does not exist take the start value of
 		// the netALE of this scenario
 		double rawALE = rawALEs.containsKey(key) ? rawALEs.get(key) : netALEs.get(key);
-
+		
 		// Retrieve implementation rate of the measure and transform it to percentage
-		double ImplementationRate = tma.getMeasure().getImplementationRateValue() * 0.01;
+		double ImplementationRate = tma.getMeasure().getImplementationRateValue(expressionParameters) * 0.01;
 
 		// calculate new RAW ALE using formula
 		rawALE /= (1.0 - tma.getRRF() * ImplementationRate);
