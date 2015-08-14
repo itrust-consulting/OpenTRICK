@@ -17,33 +17,7 @@
 		<logout logout-success-url="/Home" logout-url="/signout" />
 	</http>
 
-	<authentication-manager>
-		<authentication-provider>
-			<jdbc-user-service data-source-ref="dataSource" users-by-username-query="SELECT dtLogin as username, dtPassword as password, (dtEnabled > 0 and 1> dtConnexionType) as enable from User where dtLogin=?"
-				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.fiUser = User.idUser AND UserRole.fiRole = Role.idRole AND User.dtLogin = ?" />
-			<password-encoder ref="passwordEncoder">
-				<salt-source user-property="username" />
-			</password-encoder>
-		</authentication-provider>
-		<ldap-authentication-provider user-context-mapper-ref="TRICKLdapUserDetailsMapper" user-dn-pattern="${app.settings.ldap.user_dn_pattern}"
-			group-role-attribute="${app.settings.ldap.group_role_attribute}" group-search-base="${app.settings.ldap.group_search_base}" user-search-filter="${app.settings.ldap.user_search_filter}"
-			user-search-base="${app.settings.ldap.user_search_base}" group-search-filter="${app.settings.ldap.group_search_filter}" />
-	</authentication-manager>
-
-	<beans:bean id="TRICKLdapUserDetailsMapper" class="lu.itrust.business.TS.usermanagement.helper.TRICKLdapUserDetailsMapper">
-		<beans:property name="passwordAttributeName" value="${app.settings.ldap.password_attribute_name}" />
-		<beans:property name="alwaysLoadRole" value="${app.settings.ldap.always.load.role}" />
-		<beans:property name="firstNameAttribute" value="${app.settings.ldap.attribute.firstname}" />
-		<beans:property name="lastNameAttribute" value="${app.settings.ldap.attribute.lastname}" />
-		<beans:property name="roleAttributes" value="${app.settings.ldap.role.attributes}" />
-		<beans:property name="supervisorRoles" value="${app.settings.ldap.role.supervisor}" />
-		<beans:property name="adminRoles" value="${app.settings.ldap.role.admin}" />
-		<beans:property name="consultantRoles" value="${app.settings.ldap.role.consultant}" />
-		<beans:property name="userRoles" value="${app.settings.ldap.role.user}" />
-		<beans:property name="convertToUpperCase" value="true"/>
-	</beans:bean>
-
-	<beans:import resource="ldap-server.xml" />
+	<beans:import resource="authentication-manager.xml" />
 
 	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" />
 

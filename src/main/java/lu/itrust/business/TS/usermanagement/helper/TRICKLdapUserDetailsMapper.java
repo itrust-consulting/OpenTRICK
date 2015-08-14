@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,9 +51,11 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	private String rolePrefix = "ROLE_";
 
-	private boolean convertToUpperCase = false;
+	private boolean convertToUpperCase = true;
 
 	private boolean alwaysLoadRole = true;
+
+	private boolean allowedAuthentication = false;
 
 	protected Boolean initialised = false;
 
@@ -124,17 +127,20 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 				if (!StringUtils.isEmpty(email))
 					user = daoUser.getByEmail(email);
 				if (user == null)
-					user = new User(username, "!-_-!LDAP connexion is required.!-_-!", firstName, lastName, email, User.LADP_CONNEXION);
+					user = new User(username, firstName, lastName, email, User.LADP_CONNEXION);
 			} else if (!(email == null || email.equalsIgnoreCase(user.getEmail())) && daoUser.existByEmail(email))
 				throw new TrickException("error.ldap.conflit.account", "Please contact your administrator, your username and email are both in use by two different people");
 
-			if (user.getConnexionType() == User.STANDARD_CONNEXION)
+			if (!allowedAuthentication || user.getConnexionType() == User.STANDARD_CONNEXION)
 				throw new BadCredentialsException("User is not authorised to connect via LDAP");
-
-			essence.setUsername(user.getLogin());
 
 			if (user.getId() < 1 || alwaysLoadRole)
 				loadRoles(ctx, authorities, essence, user);
+
+			if (!user.isEnable())
+				throw new DisabledException("User account is disabled");
+
+			essence.setUsername(user.getLogin());
 
 			// Check for PPolicy data
 			PasswordPolicyResponseControl ppolicy = (PasswordPolicyResponseControl) ctx.getObjectAttribute(PasswordPolicyControl.OID);
@@ -144,7 +150,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 				essence.setGraceLoginsRemaining(ppolicy.getGraceLoginsRemaining());
 			}
 			return essence.createUserDetails();
-		} catch (BadCredentialsException e) {
+		} catch (BadCredentialsException | DisabledException e) {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -179,8 +185,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		if (essence.getGrantedAuthorities().isEmpty() && (userRoles == null || userRoles.isEmpty()))
 			essence.addAuthority(new SimpleGrantedAuthority(RoleType.ROLE_USER.name()));
 
-		if (user.getRoles() != null)
-			user.disable();
+		user.disable();
 
 		for (GrantedAuthority grantedAuthority : essence.getGrantedAuthorities()) {
 			Role role = daoRole.getByName(grantedAuthority.getAuthority());
@@ -407,5 +412,20 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 */
 	public void setAlwaysLoadRole(boolean alwaysLoadRole) {
 		this.alwaysLoadRole = alwaysLoadRole;
+	}
+
+	/**
+	 * @return the allowedAuthentication
+	 */
+	public boolean isAllowedAuthentication() {
+		return allowedAuthentication;
+	}
+
+	/**
+	 * @param allowedAuthentication
+	 *            the allowedAuthentication to set
+	 */
+	public void setAllowedAuthentication(boolean allowedAuthentication) {
+		this.allowedAuthentication = allowedAuthentication;
 	}
 }
