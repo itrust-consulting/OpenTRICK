@@ -6,6 +6,7 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 
 /**
  * @author eomar
@@ -13,7 +14,7 @@ import lu.itrust.business.TS.model.general.TSSetting;
  */
 public interface ServiceTSSetting {
 	
-	TSSetting get(String name);
+	TSSetting get(TSSettingName name);
 
 	List<TSSetting> getAll();
 

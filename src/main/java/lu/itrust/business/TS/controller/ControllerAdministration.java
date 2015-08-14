@@ -38,6 +38,7 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -181,7 +182,15 @@ public class ControllerAdministration {
 				model.put("analyses", serviceAnalysis.getAll());
 		}
 
-		model.put("tsSettings", serviceTSSetting.getAll());
+		List<TSSetting> tsSettings = new LinkedList<TSSetting>();
+		for (TSSettingName name : TSSettingName.values()) {
+			TSSetting tsSetting = serviceTSSetting.get(name);
+			if (tsSetting == null)
+				tsSetting = new TSSetting(name, true);
+			tsSettings.add(tsSetting);
+		}
+
+		model.put("tsSettings", tsSettings);
 		model.put("logFilter", loadLogFilter(session, principal.getName()));
 		model.put("logLevels", serviceTrickLog.getDistinctLevel());
 		model.put("logTypes", serviceTrickLog.getDistinctType());
@@ -240,7 +249,7 @@ public class ControllerAdministration {
 	}
 
 	@RequestMapping(value = "/TSSetting/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody boolean updateSetting(@RequestBody TSSetting tsSetting, Model model, Principal principal, Locale locale) {
+	public @ResponseBody boolean updateSetting(@RequestBody TSSetting tsSetting, Principal principal, Locale locale) {
 		if (StringUtils.isEmpty(tsSetting.getName()))
 			return false;
 		try {
@@ -249,10 +258,10 @@ public class ControllerAdministration {
 				setting = tsSetting;
 			else
 				setting.setValue(tsSetting.getValue());
-			serviceTSSetting.saveOrUpdate(tsSetting);
+			serviceTSSetting.saveOrUpdate(setting);
 			return true;
 		} finally {
-			String settingName = messageSource.getMessage(tsSetting.getName(), null, tsSetting.getName(), Locale.ENGLISH);
+			String settingName = messageSource.getMessage("label." + tsSetting.getNameLower(), null, tsSetting.getNameLower(), Locale.ENGLISH);
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ADMINISTRATION, "log.setting.change", String.format("Settings: %s, value: %s", settingName, tsSetting.getString()),
 					principal.getName(), LogAction.CHANGE, settingName, tsSetting.getString());
 		}

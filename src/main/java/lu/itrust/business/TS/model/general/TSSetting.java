@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 /**
  * @author eomar
  *
@@ -14,9 +16,11 @@ import javax.persistence.Id;
 @Entity
 public class TSSetting {
 
+	
+	
 	@Id
 	@Column(name = "idTSSetting")
-	private String name;
+	private TSSettingName name;
 
 	@Column(name = "dtValue")
 	private String value;
@@ -34,7 +38,7 @@ public class TSSetting {
 	 * @param name
 	 * @param value
 	 */
-	public TSSetting(String name, String value) {
+	public TSSetting(TSSettingName name, String value) {
 		setName(name);
 		setValue(value);
 	}
@@ -43,7 +47,12 @@ public class TSSetting {
 	 * @param name
 	 * @param value
 	 */
-	public TSSetting(String name, Object value) {
+	public TSSetting(TSSettingName name, Object value) {
+		setName(name);
+		setValue(value);
+	}
+
+	public TSSetting(String name, String value) {
 		setName(name);
 		setValue(value);
 	}
@@ -51,15 +60,38 @@ public class TSSetting {
 	/**
 	 * @return the name
 	 */
-	public String getName() {
+	public TSSettingName getName() {
 		return name;
+	}
+	
+	/**
+	 * @return the name
+	 */
+	public String getNameLower() {
+		return String.valueOf(name).toLowerCase();
+	}
+	
+	/**
+	 * @return the name
+	 */
+	public String getNameString() {
+		return String.valueOf(name);
 	}
 
 	/**
 	 * @param name
 	 *            the name to set
 	 */
+	@JsonSetter("name")
 	public void setName(String name) {
+		this.name = TSSettingName.valueOf(name);
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(TSSettingName name) {
 		this.name = name;
 	}
 
@@ -74,7 +106,7 @@ public class TSSetting {
 	 * @return the value
 	 */
 	public String getString() {
-		return getName();
+		return getValue();
 	}
 
 	/**
@@ -123,6 +155,7 @@ public class TSSetting {
 	 * @param value
 	 *            the value to set
 	 */
+	@JsonSetter("value")
 	public void setValue(String value) {
 		this.value = value;
 	}
@@ -132,7 +165,7 @@ public class TSSetting {
 	 *            the value to set
 	 */
 	public void setValue(Object value) {
-		setName((String) (value == null ? null : String.valueOf(value)));
+		setValue((String) (value == null ? null : String.valueOf(value)));
 	}
 
 	/* (non-Javadoc)

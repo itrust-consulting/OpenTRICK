@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.database.dao.DAOTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 
 /**
  * @author eomar
@@ -24,7 +25,7 @@ public class ServiceTSSettingImpl implements ServiceTSSetting {
 	private DAOTSSetting daotsSetting;
 
 	@Override
-	public TSSetting get(String name) {
+	public TSSetting get(TSSettingName name) {
 		return daotsSetting.get(name);
 	}
 

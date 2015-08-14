@@ -18,10 +18,13 @@ import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.database.service.ServiceResetPassword;
 import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -94,6 +97,9 @@ public class ControllerRegister {
 	@Value("${app.settings.max.attempt}")
 	private int maxAttempt;
 
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
 	/**
 	 * add: <br>
 	 * Description
@@ -104,6 +110,9 @@ public class ControllerRegister {
 	@RequestMapping("/Register")
 	public String add(Map<String, Object> model) {
 		// create new user object and add it to model
+		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
+		if (!(setting == null || setting.getBoolean()))
+			return "redirect:/Home";
 		model.put("user", new User());
 		return "user/register";
 	}
@@ -122,10 +131,12 @@ public class ControllerRegister {
 	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-
 		Map<String, String> errors = new LinkedHashMap<>();
-
 		try {
+
+			TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
+			if (!(setting == null || setting.getBoolean()))
+				return null;
 
 			User user = new User();
 
@@ -184,7 +195,8 @@ public class ControllerRegister {
 	}
 
 	public String checkAttempt(String name, HttpSession session, Principal principal) {
-		if (principal != null)
+		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
+		if (!(principal == null && (setting == null || setting.getBoolean())))
 			return "redirect:/Home";
 		Integer attempt = (Integer) session.getAttribute(name);
 		if (attempt == null)
@@ -278,7 +290,8 @@ public class ControllerRegister {
 			return "redirect:/Login";
 		session.removeAttribute("attempt-request");
 		if (resetPassword.getUser().getConnexionType() == User.LADP_CONNEXION) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.ldap.change.password", null, "To reset your password, please contact your administrator", locale));
+			attributes
+					.addFlashAttribute("error", messageSource.getMessage("error.ldap.change.password", null, "To reset your password, please contact your administrator", locale));
 			return "redirect:/Login";
 		} else if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));

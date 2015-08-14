@@ -20,9 +20,10 @@
 				<h2 class="form-signin-heading">
 					<spring:message code="label.title.login" text="Sign in" />
 				</h2>
-				<a class="navbar-link pull-right" style="margin-top: -30px;" href="${pageContext.request.contextPath}/Register"> <spring:message code="label.signup" text="Sign up" />
-				</a>
-				
+				<c:if test="${allowRegister}">
+					<a class="navbar-link pull-right" style="margin-top: -30px;" href="${pageContext.request.contextPath}/Register"> <spring:message code="label.signup" text="Sign up" />
+					</a>
+				</c:if>
 				<c:if test="${!empty(sessionScope.LOGIN_ERROR)}">
 					<c:set var="error" value="${sessionScope.LOGIN_ERROR}" scope="request" />
 					<c:remove var="LOGIN_ERROR" scope="session" />
@@ -41,9 +42,11 @@
 						<input name="password" value="${(!empty (password))? password : ''}" type="password" class="form-control"
 							placeholder="<spring:message code='label.signin.password' text='Password' />" required="required" />
 					</div>
-					<div class="form-group">
-						<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/ResetPassword"> <spring:message code="label.reset.password" text="Reset password" /></a>
-					</div>
+					<c:if test="${resetPassword}">
+						<div class="form-group">
+							<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/ResetPassword"> <spring:message code="label.reset.password" text="Reset password" /></a>
+						</div>
+					</c:if>
 					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 					<div class="form-group">
 						<button type="submit" id="login_signin_button" class="btn btn-danger navbar-btn" style="width: 100%;">

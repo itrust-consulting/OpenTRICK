@@ -6,12 +6,13 @@ import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOTSSetting;
 import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 
 @Repository
 public class DAOTSSettingHBM extends DAOHibernate implements DAOTSSetting {
 
 	@Override
-	public TSSetting get(String name) {
+	public TSSetting get(TSSettingName name) {
 		return (TSSetting) getSession().get(TSSetting.class, name);
 	}
 
