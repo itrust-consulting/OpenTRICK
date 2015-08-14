@@ -99,13 +99,6 @@ public class DynamicParameterComputer {
 			dynamicParameterType.setId(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
 		}
 
-		// Fetch the 'SEVERITY' parameter type or create it, if if does not exist yet/anymore
-		ParameterType severityParameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
-		if (severityParameterType == null) {
-			severityParameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
-			severityParameterType.setId(Constant.PARAMETERTYPE_TYPE_SEVERITY);
-		}
-
 		// Log
 		TrickLogManager.Persist(
 				LogType.ANALYSIS,
@@ -117,13 +110,12 @@ public class DynamicParameterComputer {
 		
 		// Get parameters
 		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0"));
-		Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
 
 		/** The maximum timestamp for all notifications to consider. Points to NOW. */
 		final long now = java.time.Instant.now().getEpochSecond();
 
 		// Compute likelihoods
-		Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesAtTime(now, userName, severityProbabilities, minimumProbability);
+		Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesAtTime(now, userName, minimumProbability);
 
 		// Fetch instances of all (existing) dynamic parameters
 		// and map them by their acronym

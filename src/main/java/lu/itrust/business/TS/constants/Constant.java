@@ -269,7 +269,6 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_MAX_EFF = 5;
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
 	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 7;
-	public final static int PARAMETERTYPE_TYPE_SEVERITY = 8;
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -768,27 +767,10 @@ public class Constant {
 	   EXTERNAL NOTIFICATIONS & DYNAMIC PARAMETERS
 	   **********************************************************************************************/
 
-	/** The minimum value of the severity which an external notification can have. */
-	public static final int EXTERNAL_NOTIFICATION_MIN_SEVERITY = 0;
-
-	/** The maximum value of the severity which an external notification can have. */
-	public static final int EXTERNAL_NOTIFICATION_MAX_SEVERITY = 10;
-
-	/** The pattern for the label and acronym of the severity parameters. */
-	public static final String PARAMETER_SEVERITY_NAME_PATTERN = "s%d";
-
 	/**
 	 * The number of past months which the chart of dynamic parameter evolution should display.
 	 */
 	public static final int CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS = 12;
-
-	/* SQLite columns of table "severity" */
-	public static final String NAME_SEVERITY = "name_severity";
-	public static final String SCALE_SEVERITY = "scale_severity";
-	public static final String ACRO_SEVERITY = "acro_severity";
-	public static final String VALUE_SEVERITY = "value_severity";
-	public static final String VALUE_FROM_SEVERITY = "value_from_severity";
-	public static final String VALUE_TO_SEVERITY = "value_to_severity";
 
 	/* SQLite columns of table "dynamic_parameter" */
 	public static final String NAME_PARAMETER = "name_parameter";

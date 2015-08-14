@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +35,6 @@ import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
@@ -2570,30 +2568,6 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(
 						parameter -> ((DynamicParameter)parameter).getAcronym(),
 						parameter -> (DynamicParameter)parameter));
-	}
-
-	/**
-	 * Gets the values of all parameters of type PARAMETERTYPE_TYPE_SEVERITY_NAME.
-	 * Returns a value for each severity level between EXTERNAL_NOTIFICATION_MIN_SEVERITY and EXTERNAL_NOTIFICATION_MAX_SEVERITY,
-	 * either by retrieving the parameter which exists in the database, or using a default value.
-	 * The default value is determined by {@link lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper#getDefaultSeverityProbability(int)}.
-	 * @param severityParameterType The parameter type which shall be used by the created parameters.
-	 * @return
-	 */
-	public Map<Integer, Double> getSeverityParameterValuesOrDefault() {
-		Map<Integer, Double> severityParameterValues = new HashMap<>();
-		
-		// Load existing parameters
-		for (Parameter parameter : this.parameters)
-			if (parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME))
-				severityParameterValues.put(((ExtendedParameter)parameter).getLevel(), parameter.getValue());
-		
-		// Use default values for those that do not exist
-		for (int severity = Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY; severity <= Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY; severity++)
-			if (!severityParameterValues.containsKey(severity))
-				severityParameterValues.put(severity, ExternalNotificationHelper.getDefaultSeverityProbability(severity));
-		
-		return severityParameterValues;
 	}
 
 	public List<Assessment> removeAssessment(Asset asset) {

@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -74,7 +73,7 @@ public class ExternalNotification {
 	 * Values lie in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
 	 */
 	@Column(name = "dtSeverity", nullable = false)
-	private int severity;
+	private double severity;
 
 	public Integer getId() {
 		return id;
@@ -152,16 +151,16 @@ public class ExternalNotification {
 	/**
 	 * Gets the severity of this notification.
 	 */
-	public int getSeverity() {
+	public double getSeverity() {
 		return severity;
 	}
 
 	/**
 	 * Sets the severity of this notification.
 	 */
-	public void setSeverity(int severity) throws TrickException {
-		if (severity < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || severity > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
-			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY, Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY });
+	public void setSeverity(double severity) throws TrickException {
+		if (severity < 0.0 || severity > 1.0)
+			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
 		this.severity = severity;
 	}
 
@@ -176,7 +175,7 @@ public class ExternalNotification {
 	 * Sets the assertiveness of this notification.
 	 */
 	public void setAssertiveness(double assertiveness) throws TrickException {
-		if (assertiveness < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || assertiveness > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
+		if (assertiveness < 0.0 || assertiveness > 1.0)
 			throw new TrickException("error.externalnotification.assertiveness_out_of_range", "The notification assertiveness must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
 		this.assertiveness = assertiveness;
 	}

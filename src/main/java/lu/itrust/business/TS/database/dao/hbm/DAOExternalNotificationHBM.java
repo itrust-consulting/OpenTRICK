@@ -1,7 +1,5 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -9,15 +7,9 @@ import java.util.Map;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
-import lu.itrust.business.TS.model.externalnotification.ExternalNotificationOccurrence;
 import lu.itrust.business.expressions.StringExpressionHelper;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -77,59 +69,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	@Deprecated
-	public List<ExternalNotificationOccurrence> count(Collection<String> categories, long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception {
-		// NB: if the 'categories' list is empty, the HQL constructed below will not work
-		// because we use Restrictions.in() - it will produce something like "WHERE category IN ()"
-		// which is a syntax error.
-		// However, if no categories have been specified, we know that the result is going to be empty anyway.
-		if (categories.size() == 0)
-			return new ArrayList<>();
-		
-		// Define what will be part of the result (SELECT)
-		ProjectionList projections = Projections.projectionList();
-		projections.add(Projections.groupProperty("category"), "category");
-		projections.add(Projections.groupProperty("severity"), "severity");
-		projections.add(Projections.sum("number"), "occurrence");
-		
-		// Define filters acting on result set (WHERE)
-		Criteria criteria = getSession()
-				.createCriteria(ExternalNotification.class)
-				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
-				.add(Restrictions.in("category", categories))
-				.add(Restrictions.eq("sourceUserName", sourceUserName))
-				.setProjection(projections)
-				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
-		
-		return (List<ExternalNotificationOccurrence>) criteria.list();
-	}
-
-	/** {@inheritDoc} */
-	@SuppressWarnings("unchecked")
-	@Override
-	@Deprecated
-	public List<ExternalNotificationOccurrence> countAll(long minTimestamp, long maxTimestamp, String sourceUserName) throws Exception {
-		// Define what will be part of the result (SELECT)
-		ProjectionList projections = Projections.projectionList();
-		projections.add(Projections.groupProperty("category"), "category");
-		projections.add(Projections.groupProperty("severity"), "severity");
-		projections.add(Projections.sum("number"), "occurrence");
-		
-		// Define filters acting on result set (WHERE)
-		Criteria criteria = getSession()
-				.createCriteria(ExternalNotification.class)
-				.add(Restrictions.between("timestamp", minTimestamp, maxTimestamp))
-				.add(Restrictions.eq("sourceUserName", sourceUserName))
-				.setProjection(projections)
-				.setResultTransformer(Transformers.aliasToBean(ExternalNotificationOccurrence.class));
-		
-		return (List<ExternalNotificationOccurrence>) criteria.list();
-	}
-
-	/** {@inheritDoc} */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability) throws Exception {
 		// Note that the probability decays exponentially with time. In particular, it never becomes zero.
 		// However, for performance reasons, we start neglecting it once it reaches 1/128 (which is < 1%). It does so after 7 times the half life.  
 		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp <= :now AND extnot.timestamp + extnot.halfLife*7 > :now AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp ASC";
@@ -153,10 +93,9 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			
 			// Deduce parameter name from category
 			String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, extNot.getCategory()));
-			
-			double severity = severityProbabilities.getOrDefault(extNot.getSeverity(), 0.0);
+
 			double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
-			double p = severity * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
+			double p = extNot.getSeverity() * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
 
 			double totalProbability = probabilities.getOrDefault(parameterName, 0.0);
 			totalProbability = 1.0 - (1.0 - (1.0 - extNot.getAssertiveness()) * totalProbability) * Math.pow(1.0 - p, extNot.getNumber());
@@ -169,7 +108,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, Map<Integer, Double> severityProbabilities, double minimumProbability) throws Exception {
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability) throws Exception {
 		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp ASC";
 		Iterator<ExternalNotification> iterator = getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).iterate();
 
@@ -196,7 +135,6 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 
 			// Get severity
 			String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, current.getCategory()));
-			final double severity = severityProbabilities.getOrDefault(current.getSeverity(), 0.0);
 			
 			// Get last known probability settings
 			final double lastProbabilityLevel = probabilityLevel.getOrDefault(parameterName, 0.0);
@@ -206,7 +144,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			final long lastInterval = Math.min(lastProbabilityInterval, startTime - lastProbabilityLevelTimestamp);
 
 			// Compute the new probability settings
-			final double p = severity * Math.pow(0.5, (startTime - current.getTimestamp()) / current.getHalfLife());
+			final double p = current.getSeverity() * Math.pow(0.5, (startTime - current.getTimestamp()) / current.getHalfLife());
 			probabilityLevel.put(parameterName, 1.0 - (1.0 - lastProbabilityLevel) * (1.0 - p));
 			probabilityLevelTimestamp.put(parameterName, startTime);
 			totalProbability.put(parameterName, lastTotalProbability + lastProbabilityLevel * lastInterval / totalInterval);

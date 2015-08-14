@@ -1551,41 +1551,6 @@ public class ImportAnalysis {
 		// close result
 		rs.close();
 
-
-		// ****************************************************************
-		// * Import Severity
-		// ****************************************************************
-
-		// Create SEVERITY parameter type unless it exists
-		ParameterType parameterTypeSeverity = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SEVERITY);
-		if (parameterTypeSeverity == null) {
-			parameterTypeSeverity = new ParameterType(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME);
-			parameterTypeSeverity.setId(Constant.PARAMETERTYPE_TYPE_SEVERITY);
-			daoParameterType.save(parameterTypeSeverity);
-		}
-
-		// Load values
-		try {
-			rs = sqlite.query("SELECT * FROM severity", null);
-			while (rs.next()) {
-				final ExtendedParameter severityParameter = new ExtendedParameter();
-				severityParameter.setDescription(rs.getString(Constant.NAME_SEVERITY));
-				severityParameter.setType(parameterTypeSeverity);
-				severityParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_SEVERITY)));
-				severityParameter.setAcronym(rs.getString(Constant.ACRO_SEVERITY));
-				severityParameter.setValue(rs.getDouble(Constant.VALUE_SEVERITY));
-				severityParameter.setBounds(new Bounds(rs.getDouble(Constant.VALUE_FROM_SEVERITY), rs.getDouble(Constant.VALUE_TO_SEVERITY)));
-				this.analysis.addAParameter(severityParameter);
-			}
-		}
-		catch (SQLException ex) {
-			// Table does not exist, so we are dealing with an old SQLite database.
-		}
-		finally {
-			if (rs != null)
-				rs.close();
-		}
-
 		// ****************************************************************
 		// * Import likelihood
 		// ****************************************************************

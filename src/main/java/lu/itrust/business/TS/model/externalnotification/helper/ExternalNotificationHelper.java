@@ -2,9 +2,7 @@ package lu.itrust.business.TS.model.externalnotification.helper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
@@ -57,41 +55,5 @@ public class ExternalNotificationHelper {
 			apiList.add(apiObj);
 		}
 		return apiList;
-	}
-
-	/**
-	 * Gets the probability that an incident of the given severity occurs, given that a respective anomaly has been detected.
-	 * Indeed, an anomaly/intrusion of low severity has a much lower chance to have any impact.
-	 * @param level The severity level of the incident. Must be in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
-	 * @param severityProbabilities A map containing at least the parameters defining the severity probability for all possible levels.
-	 * The keys of the map correspond to the severity level. 
-	 * @return Returns a probability value in the range [0.0, 1.0].
-	 */
-	public static double getSeverityProbability(int level, Map<Integer, Double> severityProbabilities) {
-		if (level < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY) return 0.0;
-		if (level > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) return 1.0;
-
-		// Find the corresponding parameter
-		Double parameterValue = severityProbabilities.get(level);
-		if (parameterValue != null)
-			return parameterValue;
-
-		// If it cannot be found, use the default value.
-		return getDefaultSeverityProbability(level);
-	}
-
-	/**
-	 * Gets the default severity probability value to initialize the respective parameter with.
-	 * @param level The severity level of the incident. Must be in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
-	 * @return Returns a probability value in the range [0.0, 1.0].
-	 */
-	public static double getDefaultSeverityProbability(int level) {
-		if (level < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY) return 0.0;
-		if (level > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) return 1.0;
-
-		// Use an exponential formula to deduce a probability
-		double prob = Math.exp((level - Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) * Math.log(2));
-		// Round to 4 decimals
-		return Math.round(prob * 10000.0) / 10000.0;
 	}
 }

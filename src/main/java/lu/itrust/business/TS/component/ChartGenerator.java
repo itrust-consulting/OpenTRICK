@@ -1182,7 +1182,6 @@ public class ChartGenerator {
 
 		// Find the severity values
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
 		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0"));
 
 		// Determine time-related stuff
@@ -1205,7 +1204,7 @@ public class ChartGenerator {
 			jsonXAxisValues += "\"" + endDate.toString() + "\"";
 
 			for (String sourceUserName : sourceUserNames) {
-				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(startTime, endTime, sourceUserName, severityProbabilities, minimumProbability);
+				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(startTime, endTime, sourceUserName, minimumProbability);
 				for (String parameterName : likelihoods.keySet()) {
 					// Store data
 					data.putIfAbsent(parameterName, new HashMap<Long, Double>());

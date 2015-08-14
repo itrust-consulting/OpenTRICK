@@ -30,10 +30,9 @@ public class ApiExternalNotification {
 	 * Represents the severity of the notification.
 	 * The severity is the conditional probability that an incident of this category occurs
 	 * given that there has been an alert (a notification).
-	 * The severity level is mapped to the "s0", "s1" ... parameters of an analysis.
-	 * Values lie in the range [0,10] where 0 is least severe.
+	 * Values lie in the range [0.0,1.0] where 0 is least severe.
 	 */
-	private int severity = 0;
+	private double severity = 0;
 	
 	/**
 	 * Represents the number of notifications incorporated by this object.
@@ -116,7 +115,7 @@ public class ApiExternalNotification {
 	 * to the JSON data field. By calling it getS() instead of getSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
 	 */
-	public int getS() {
+	public double getS() {
 		return this.severity;
 	}
 
@@ -126,7 +125,7 @@ public class ApiExternalNotification {
 	 * to the JSON data field. By calling it setS() instead of setSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
 	 */
-	public void setS(int severity) {
+	public void setS(double severity) {
 		this.severity = severity;
 	}
 
