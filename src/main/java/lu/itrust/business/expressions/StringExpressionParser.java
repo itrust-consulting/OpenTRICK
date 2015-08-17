@@ -50,7 +50,7 @@ public class StringExpressionParser implements ExpressionParser {
 
 	/** {@inheritDoc} */
 	@Override
-	public double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException, IllegalArgumentException {
+	public double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException {
 		// Tokenize the expression and process each token
 		UndoableTokenizer source = new UndoableTokenizer(new StringTokenizer(this.expression));
 
