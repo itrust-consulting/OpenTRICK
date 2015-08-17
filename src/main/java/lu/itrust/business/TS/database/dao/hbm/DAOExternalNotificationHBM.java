@@ -82,7 +82,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// and thus the HQL approach seems infeasible (need to figure out a solution to this!). -- smuller, 07.08.2015
 		
 		// Compute probability for each category using the formula:
-		//    totalProb := 1 - (1 - assertiveness * totalProb) * (1 - Pr[event])
+		//    totalProb := 1 - (1 - inverseAssertiveness * totalProb) * (1 - Pr[event])
 		// for each event, starting at totalProb := 0.
 		// Note that Pr[event] follows the exponential-decay model, i.e. Pr[event](t) = p0 * (1/2) ^ ((t - t0)/T)
 		// where p0 := initial probability = severity, t0 := timestamp of notification, T := half-life. 
@@ -99,6 +99,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 
 			double totalProbability = probabilities.getOrDefault(parameterName, 0.0);
 			totalProbability = 1.0 - (1.0 - (1.0 - extNot.getAssertiveness()) * totalProbability) * Math.pow(1.0 - p, extNot.getNumber());
+			totalProbability = Math.max(minimumProbability, totalProbability);
 			probabilities.put(parameterName, totalProbability);
 		}
 
@@ -109,12 +110,9 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability) throws Exception {
-		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp ASC";
+		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.category, extnot.timestamp ASC";
 		Iterator<ExternalNotification> iterator = getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).iterate();
 
-		if (!iterator.hasNext())
-			return new HashMap<>();
-		
 		// NOTA BENE: in fact one would have to integrate the curves; we take a more simple approach by just computing the values
 		// at the critical spots (discontinuities due to new notifications being reported) and assume that the level remains constant
 		// until the next notification or until the notification effect reaches <1% (which happens at roughly 7 times the half-life).
@@ -124,43 +122,52 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		final long totalInterval = timestampEnd - timestampBegin;
 		// NB: notifications are ordered by time of occurrence
 		final Map<String, Double> probabilityLevel = new HashMap<>(); // last probability level per category
-		final Map<String, Long> probabilityLevelTimestamp = new HashMap<>(); // last notification timestamp per category
-		final Map<String, Long> probabilityInterval = new HashMap<>(); // interval size of last notification per category (= max interval after which we neglect effect on probability level)
 		final Map<String, Double> totalProbability = new HashMap<>(); // accumulated probability per category
+		final Map<String, ExternalNotification> lastNotification = new HashMap<>(); // store last external notification per category
 
 		while (iterator.hasNext()) {
-			// Get boundary times of the interval of the current ExternalNotification instance
-			final ExternalNotification current = iterator.next();
-			final long startTime = Math.max(timestampBegin, current.getTimestamp());
+			final ExternalNotification next = iterator.next();
+			final String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, next.getCategory()));
+			final ExternalNotification last = lastNotification.put(parameterName, next);
+			if (last == null) continue;
 
-			// Get severity
-			String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, current.getCategory()));
-			
 			// Get last known probability settings
 			final double lastProbabilityLevel = probabilityLevel.getOrDefault(parameterName, 0.0);
-			final long lastProbabilityLevelTimestamp = probabilityLevelTimestamp.getOrDefault(parameterName, timestampBegin);
-			final long lastProbabilityInterval = probabilityInterval.getOrDefault(parameterName, 0L);
 			final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0);
-			final long lastInterval = Math.min(lastProbabilityInterval, startTime - lastProbabilityLevelTimestamp);
 
 			// Compute the new probability settings
-			final double p = current.getSeverity() * Math.pow(0.5, (startTime - current.getTimestamp()) / current.getHalfLife());
-			probabilityLevel.put(parameterName, 1.0 - (1.0 - lastProbabilityLevel) * (1.0 - p));
-			probabilityLevelTimestamp.put(parameterName, startTime);
-			totalProbability.put(parameterName, lastTotalProbability + lastProbabilityLevel * lastInterval / totalInterval);
-			probabilityInterval.put(parameterName, current.getHalfLife() * 7);
+			final long deltaTimeBegin = Math.max(timestampBegin, last.getTimestamp()) - last.getTimestamp();
+			final long deltaTimeEnd = next.getTimestamp() - last.getTimestamp();
+			final double intervalWeight = Math.max(0, next.getTimestamp() - Math.max(timestampBegin, last.getTimestamp())) / (double)totalInterval;
+			final double probabilityLevelBegin = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeBegin / last.getHalfLife()));
+			final double probabilityLevelEnd   = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeEnd   / last.getHalfLife()));
+			final double totalProbabilityDiff = (probabilityLevelEnd + probabilityLevelBegin) / 2.0 * intervalWeight;
+			probabilityLevel.put(parameterName, probabilityLevelEnd);
+			totalProbability.put(parameterName, lastTotalProbability + totalProbabilityDiff);
 		}
 		
 		// while loop is always one entry behind, do not forget to add it to the total probability
-		for (String parameterName : totalProbability.keySet()) {
-			final long lastProbabilityLevelTimestamp = probabilityLevelTimestamp.getOrDefault(parameterName, timestampBegin);
-			final long lastProbabilityInterval = probabilityInterval.getOrDefault(parameterName, 0L);
+		for (String parameterName : lastNotification.keySet()) {
+			final ExternalNotification last = lastNotification.get(parameterName);
+			
+			// Get last known probability settings
+			final double lastProbabilityLevel = probabilityLevel.getOrDefault(parameterName, 0.0);
 			final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0);
-			final long lastInterval = Math.min(lastProbabilityInterval, timestampEnd - lastProbabilityLevelTimestamp);
 
-			totalProbability.put(parameterName, lastTotalProbability + lastTotalProbability * lastInterval / totalInterval);
+			// Compute the new probability settings
+			final long deltaTimeBegin = Math.max(timestampBegin, last.getTimestamp()) - last.getTimestamp();
+			final long deltaTimeEnd = timestampEnd - last.getTimestamp();
+			final long intervalWeight = Math.max(0, timestampEnd - Math.max(timestampBegin, last.getTimestamp())) / totalInterval;
+			double probabilityLevelBegin = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeBegin / last.getHalfLife()));
+			double probabilityLevelEnd   = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeEnd   / last.getHalfLife()));
+			probabilityLevelBegin = Math.max(minimumProbability, probabilityLevelBegin);
+			probabilityLevelEnd = Math.max(minimumProbability, probabilityLevelEnd);
+			final double totalProbabilityDiff = (probabilityLevelEnd + probabilityLevelBegin) / 2.0 * intervalWeight;
+			probabilityLevel.put(parameterName, probabilityLevelEnd);
+			totalProbability.put(parameterName, lastTotalProbability + totalProbabilityDiff);
 		}
 		
 		return totalProbability;
+		//*/
 	}
 }

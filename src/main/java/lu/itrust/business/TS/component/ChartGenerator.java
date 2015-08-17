@@ -2,8 +2,7 @@ package lu.itrust.business.TS.component;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1180,45 +1179,49 @@ public class ChartGenerator {
 				.map(user -> user.getLogin())
 				.collect(Collectors.toList());
 
-		// Find the severity values
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0"));
+		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter returns -1 in case of a failure
 
 		// Determine time-related stuff
-		final LocalDate lastEndDate = LocalDate.now();
-		final LocalDate firstEndDate = lastEndDate.minusMonths(Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS - 1);
+		final long timeUpperBound = Instant.now().getEpochSecond();
+		final long timeLowerBound = timeUpperBound - Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS;
+		long nextTimeIntervalSize = 60; // in seconds
 
 		// Collect parameter name
 		String jsonXAxisValues = "";
 		List<Long> xAxisValues = new ArrayList<>();
 
-		// For each dynamic parameter, construct a series of values (mapping a timestamp to the value back then)
+		// For each dynamic parameter, construct a series of values
 		Map<String, Map<Long, Double>> data = new HashMap<>();
-		for (LocalDate endDate = firstEndDate; endDate.compareTo(lastEndDate) <= 0 /* endDate <= lastEndDate */; endDate = endDate.plusWeeks(1)) {
-			final long endTime = endDate.atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
-			final long startTime = endTime - 86400 * 7;
-
-			xAxisValues.add(endTime);
+		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
+			// Add x-axis values to a list in reverse order (we use Collections.reverse() later on)
+			xAxisValues.add(timeEnd);
 			if (!jsonXAxisValues.isEmpty())
-				jsonXAxisValues += ",";
-			jsonXAxisValues += "\"" + endDate.toString() + "\"";
+				jsonXAxisValues = "," + jsonXAxisValues;
+			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
+			// Fetch data
 			for (String sourceUserName : sourceUserNames) {
-				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(startTime, endTime, sourceUserName, minimumProbability);
+				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(timeEnd - nextTimeIntervalSize, timeEnd, sourceUserName, minimumProbability);
 				for (String parameterName : likelihoods.keySet()) {
 					// Store data
 					data.putIfAbsent(parameterName, new HashMap<Long, Double>());
-					data.get(parameterName).put(endTime, likelihoods.get(parameterName));
+					data.get(parameterName).put(timeEnd, likelihoods.get(parameterName));
 				}
 			}
+			
+			// Modify interval size
+			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
+				nextTimeIntervalSize = (int)(nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
 		}
+		Collections.reverse(xAxisValues);
 		
 		// Collect data
 		String jsonSeries = "\"series\":[ "; // need space at the end if 'data' is empty map
 		for (String parameterName : data.keySet()) {
 			String jsonSingleSeries = "[ "; // need space at the end if 'xAxisValues' is empty list
-			for (long endTime : xAxisValues) {
-				jsonSingleSeries += data.get(parameterName).getOrDefault(endTime, 0.0) + ",";
+			for (long timeEnd : xAxisValues) {
+				jsonSingleSeries += data.get(parameterName).getOrDefault(timeEnd, 0.0) + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
 			jsonSeries += "{\"name\":\"" + jsonEscape(parameterName) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
@@ -1248,5 +1251,21 @@ public class ChartGenerator {
 		// Control characters should be escaped as well (using \\uXXXX syntax),
 		// but this is not done for performance reasons.
 		return text.replace("\\", "\\\\").replace("\"", "\\\"");
+	}
+	
+	private static String deltaTimeToString(long deltaTime) {
+		/*
+		if (deltaTime < 3600)
+			return String.format("%dm%ds", deltaTime / 60, deltaTime % 60);
+		else if (deltaTime < 86400)
+			return String.format("%dh%dm", deltaTime / 3600, deltaTime / 60 % 60);
+		else
+			return String.format("%dd%dh", deltaTime / 86400, deltaTime / 3600 % 24);
+		*/
+		if (deltaTime < 60) return String.format("%d s", deltaTime);
+		else if (deltaTime < 3600) return String.format("%d m", Math.round(deltaTime / 60.0));
+		else if (deltaTime < 86400) return String.format("%d h", Math.round(deltaTime / 3600.0));
+		else if (deltaTime < 86400 * 7) return String.format("%d d", Math.round(deltaTime / 86400.0));
+		else return String.format("%d w", Math.round(deltaTime / 86400.0 / 7));
 	}
 }

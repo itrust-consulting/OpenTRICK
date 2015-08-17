@@ -27,6 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Component which allows to compute the values of dynamic parameters.
+ * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @since Jun 2015
+ */
 @Component
 @Transactional
 public class DynamicParameterComputer {

@@ -768,9 +768,18 @@ public class Constant {
 	   **********************************************************************************************/
 
 	/**
-	 * The number of past months which the chart of dynamic parameter evolution should display.
+	 * The maximum number of past seconds which the chart of dynamic parameter evolution should display.
 	 */
-	public static final int CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS = 12;
+	public static final long CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS = 12 * 30 * 86400;
+	/**
+	 * Factor by which the time interval (x-axis) is progressively multiplied.
+	 */
+	public static final double CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR = 1.5;
+	/**
+	 * The number of seconds in the past after which the logarithmic scale should stop
+	 * (in favour of a linear scale with step size equal the current step size resulting from the logarithmic increase).
+	 */
+	public static final long CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE = 86400 * 14;
 
 	/* SQLite columns of table "dynamic_parameter" */
 	public static final String NAME_PARAMETER = "name_parameter";
