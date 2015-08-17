@@ -1,7 +1,9 @@
 package lu.itrust.business.TS.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
@@ -53,6 +56,8 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.ExportAnalysisReport;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -68,12 +73,17 @@ import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.HistoryValidator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -985,6 +995,106 @@ public class ControllerAnalysis {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
+	}
+
+	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes,
+			Locale locale) throws Exception {
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		locale = new Locale(analysis.getLanguage().getAlpha2());
+		exportRawActionPlan(response, analysis, locale);
+	}
+
+	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, Locale locale) throws IOException {
+		XSSFWorkbook workbook = null;
+		try {
+			int lineIndex = 0;
+			final DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE), kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+			workbook = new XSSFWorkbook();
+			XSSFSheet sheet = workbook.createSheet(messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale));
+			XSSFRow row = sheet.getRow(0);
+			if (row == null)
+				row = sheet.createRow(0);
+			for (int i = 0; i < 21; i++) {
+				if (row.getCell(i) == null)
+					row.createCell(i, Cell.CELL_TYPE_STRING);
+			}
+			addActionPLanHeader(row, locale);
+			for (ActionPlanEntry actionPlanEntry : analysis.getActionPlan(ActionPlanMode.APPN)) {
+				row = sheet.getRow(++lineIndex);
+				if (row == null)
+					row = sheet.createRow(lineIndex);
+				writeActionPLanData(row, actionPlanEntry, numberFormat, kEuroFormat);
+			}
+			response.setContentType("xls");
+			// set response header with location of the filename
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.xls", analysis.getLabel(), analysis.getVersion()) + "\"");
+			workbook.write(response.getOutputStream());
+		} finally {
+			try {
+				if (workbook != null)
+					workbook.close();
+			} catch (IOException e) {
+				System.err.println("Close document: " + e.getMessage());
+			}
+		}
+	}
+
+	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, DecimalFormat numberFormat, DecimalFormat kEuroFormat) {
+		for (int i = 0; i < 22; i++) {
+			if (row.getCell(i) == null)
+				row.createCell(i, i < 7 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
+		}
+		int colIndex = 0;
+		Measure measure = actionPlanEntry.getMeasure();
+		MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2("fr");
+		row.getCell(colIndex).setCellValue(measure.getAnalysisStandard().getStandard().getLabel());
+		row.getCell(++colIndex).setCellValue(measure.getMeasureDescription().getReference());
+		row.getCell(++colIndex).setCellValue(descriptionText.getDomain());
+		row.getCell(++colIndex).setCellValue(measure.getStatus());
+		row.getCell(++colIndex).setCellValue(measure.getComment());
+		row.getCell(++colIndex).setCellValue(measure.getToDo());
+		row.getCell(++colIndex).setCellValue(measure.getResponsible());
+		row.getCell(++colIndex).setCellValue(measure.getImplementationRateValue());
+		row.getCell(++colIndex).setCellValue(measure.getInternalWL());
+		row.getCell(++colIndex).setCellValue(measure.getExternalWL());
+		row.getCell(++colIndex).setCellValue(measure.getInvestment() * 0.001);
+		row.getCell(++colIndex).setCellValue(measure.getLifetime());
+		row.getCell(++colIndex).setCellValue(measure.getInternalMaintenance());
+		row.getCell(++colIndex).setCellValue(measure.getExternalMaintenance());
+		row.getCell(++colIndex).setCellValue(measure.getRecurrentInvestment() * 0.001);
+		row.getCell(++colIndex).setCellValue(measure.getCost() * 0.001);
+		row.getCell(++colIndex).setCellValue(measure.getPhase().getNumber());
+		row.getCell(++colIndex).setCellValue(actionPlanEntry.getTotalALE() * 0.001);
+		row.getCell(++colIndex).setCellValue(actionPlanEntry.getDeltaALE() * 0.001);
+		row.getCell(++colIndex).setCellValue(actionPlanEntry.getCost() * 0.001);
+		row.getCell(++colIndex).setCellValue(actionPlanEntry.getROI() * 0.001);
+	}
+
+	private void addActionPLanHeader(XSSFRow row, Locale locale) {
+		int colIndex = 0;
+		row.getCell(colIndex).setCellValue(messageSource.getMessage("report.action_plan.norm", null, "Stds", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.domain", null, "Domain", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.status", null, "ST", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.comment", null, "Comment", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.to_do", null, "To Do", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.responsible", null, "Resp.", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.internal.workload", null, "IS(md)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.external.workload", null, "ES(md)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.investment", null, "INV(k€)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.life_time", null, "LT(y)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.measure.cost", null, "CS(k€)", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("label.measure.phase", null, "Phase", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.cost", null, "CS", locale));
+		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
 	}
 
 	// ******************************************************************************************************************

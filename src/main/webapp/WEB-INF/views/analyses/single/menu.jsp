@@ -93,6 +93,7 @@
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <fmt:message key="label.word_report" />
 					</a></li>
 					<li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <fmt:message key="label.sqlite_data" /></a></li>
+					<li><a href="#" onclick="return exportRawActionPlan('${analysis.id}');"> <fmt:message key="label.raw_action_plan" /></a></li>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
