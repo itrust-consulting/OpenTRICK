@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.controller;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,12 +9,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -28,9 +32,13 @@ import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.rrf.ImportRRFForm;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
@@ -41,10 +49,16 @@ import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.Chapter;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -72,6 +86,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Analysis/RRF")
 public class ControllerRRF {
+
+	private static final int SCENARIO_RRF_DEFAULT_FIELD_COUNT = 20;
+
+	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
+
+	private static final String TS_INFO_FOR_IMPORT = "^!TS-InfO_fOr-ImpOrt!^";
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -225,6 +245,232 @@ public class ControllerRRF {
 		double typeValue = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
 		model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 		return "analyses/single/components/forms/rrf/scenarioRRF";
+	}
+
+	@RequestMapping(value = "/Export/Raw/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportRawRFF(@PathVariable int idAnalysis, Model model, HttpServletResponse response, Principal principal) throws Exception {
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		exportRawRRF(analysis, response, principal.getName());
+	}
+
+	private void exportRawRRF(Analysis analysis, HttpServletResponse response, String username) throws Exception {
+		XSSFWorkbook workbook = null;
+		try {
+			workbook = new XSSFWorkbook();
+			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
+			List<AssetType> assetTypes = serviceAssetType.getAll();
+			writeAnalysisIdentifier(analysis, workbook);
+			writeScenario(analysis.getScenarios(), assetTypes, workbook, locale);
+			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
+				writeMeasure(analysis.isCssf(), analysisStandard, assetTypes, workbook, locale);
+
+			response.setContentType("xlsx");
+			// set response header with location of the filename
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+			workbook.write(response.getOutputStream());
+			// Log
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
+					String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
+					analysis.getIdentifier(), analysis.getVersion());
+		} finally {
+			try {
+				if (workbook != null)
+					workbook.close();
+			} catch (IOException e) {
+				System.err.println("Close document: " + e.getMessage());
+			}
+		}
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, XSSFWorkbook workbook, Locale locale) {
+		XSSFSheet sheet = workbook.createSheet(analysisStandard.getStandard().getLabel());
+		List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
+		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream())
+				.map(assetValue -> assetValue.getAsset()).distinct().collect(Collectors.toList());
+		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
+		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
+		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assets.size() + categories.length, rowIndex = 0;
+		XSSFRow row = sheet.getRow(0);
+		if (row == null)
+			row = sheet.createRow(0);
+		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
+		for (Asset asset : assets)
+			row.getCell(++colIndex).setCellValue(asset.getName());
+		measures.stream().forEach(
+				measure -> measure.getMeasureAssetValues().forEach(assetValue -> mappedValue.put(measure.getId() + "_" + assetValue.getAsset().getId(), assetValue.getValue())));
+		for (AssetMeasure measure : measures) {
+			row = sheet.getRow(++rowIndex);
+			if (row == null)
+				row = sheet.createRow(rowIndex);
+			colIndex = writingMeasureData(row, totalCol, categories, mappedValue, measure.getMeasureDescription().getReference(), measure.getMeasurePropertyList());
+			for (Asset asset : assets)
+				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(measure.getId() + "_" + asset.getId(), 0));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void writeNormalMeasure(boolean cssf, AnalysisStandard analysisStandard, List<AssetType> assetTypes, XSSFWorkbook workbook, Locale locale) {
+		XSSFSheet sheet = workbook.createSheet(analysisStandard.getStandard().getLabel());
+		List<NormalMeasure> measures = (List<NormalMeasure>) analysisStandard.getExendedMeasures();
+		XSSFRow row = sheet.getRow(0);
+		if (row == null)
+			row = sheet.createRow(0);
+		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
+		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
+		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assetTypes.size() + categories.length, rowIndex = 0;
+		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
+		for (AssetType assetType : assetTypes)
+			row.getCell(++colIndex).setCellValue(assetType.getType());
+		measures.stream().forEach(
+				measure -> measure.getAssetTypeValues().forEach(
+						assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+		for (NormalMeasure measure : measures) {
+			row = sheet.getRow(++rowIndex);
+			if (row == null)
+				row = sheet.createRow(rowIndex);
+			colIndex = writingMeasureData(row, totalCol, categories, mappedValue, measure.getMeasureDescription().getReference(), measure.getMeasurePropertyList());
+			for (AssetType assetType : assetTypes)
+				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(measure.getId() + "_" + assetType.getType(), 0));
+
+		}
+	}
+
+	private int generateMeasureHeader(XSSFRow row, Map<String, Integer> mappedValue, String[] categories, int totalCol) {
+		for (int i = 0; i < totalCol; i++) {
+			if (row.getCell(i) == null)
+				row.createCell(i);
+		}
+		int colIndex = 0;
+		row.getCell(colIndex).setCellValue("Reference");
+		row.getCell(++colIndex).setCellValue("FMeasure");
+		row.getCell(++colIndex).setCellValue("FSectorial");
+		row.getCell(++colIndex).setCellValue("preventive");
+		row.getCell(++colIndex).setCellValue("detective");
+		row.getCell(++colIndex).setCellValue("limitative");
+		row.getCell(++colIndex).setCellValue("corrective");
+		row.getCell(++colIndex).setCellValue("intentional");
+		row.getCell(++colIndex).setCellValue("accidental");
+		row.getCell(++colIndex).setCellValue("environmental");
+		row.getCell(++colIndex).setCellValue("internalThreat");
+		row.getCell(++colIndex).setCellValue("externalThreat");
+		for (String category : categories)
+			row.getCell(++colIndex).setCellValue(category);
+		return colIndex;
+	}
+
+	private int writingMeasureData(XSSFRow row, int totalCol, String[] categories, Map<String, Integer> mappedValue, String reference, MeasureProperties properties) {
+		for (int i = 0; i < totalCol; i++) {
+			XSSFCell cell = row.getCell(i);
+			if (cell == null)
+				row.createCell(i, i < 1 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
+		}
+		int colIndex = 0;
+		row.getCell(colIndex).setCellValue(reference);
+		row.getCell(++colIndex).setCellValue(properties.getFMeasure());
+		row.getCell(++colIndex).setCellValue(properties.getFSectoral());
+		row.getCell(++colIndex).setCellValue(properties.getPreventive());
+		row.getCell(++colIndex).setCellValue(properties.getDetective());
+		row.getCell(++colIndex).setCellValue(properties.getLimitative());
+		row.getCell(++colIndex).setCellValue(properties.getCorrective());
+		row.getCell(++colIndex).setCellValue(properties.getIntentional());
+		row.getCell(++colIndex).setCellValue(properties.getAccidental());
+		row.getCell(++colIndex).setCellValue(properties.getEnvironmental());
+		row.getCell(++colIndex).setCellValue(properties.getInternalThreat());
+		row.getCell(++colIndex).setCellValue(properties.getExternalThreat());
+		for (String category : categories)
+			row.getCell(++colIndex).setCellValue(properties.getCategoryValue(category));
+		return colIndex;
+	}
+
+	private void writeMeasure(boolean isCSSF, AnalysisStandard analysisStandard, List<AssetType> assetTypes, XSSFWorkbook workbook, Locale locale) {
+		switch (analysisStandard.getStandard().getType()) {
+		case ASSET:
+			writeAssetMeasure(isCSSF, analysisStandard, workbook, locale);
+			break;
+		case NORMAL:
+			writeNormalMeasure(isCSSF, analysisStandard, assetTypes, workbook, locale);
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void writeScenario(List<Scenario> scenarios, List<AssetType> assetTypes, XSSFWorkbook workbook, Locale locale) {
+		if (scenarios.isEmpty())
+			return;
+		XSSFSheet scenarioSheet = workbook.createSheet(messageSource.getMessage("label.scenario", null, "Scenario", locale));
+		int colIndex = 0, rowIndex = 0;
+		XSSFRow row = scenarioSheet.getRow(rowIndex);
+		if (row == null)
+			row = scenarioSheet.createRow(rowIndex);
+		for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++) {
+			XSSFCell cell = row.getCell(i);
+			if (cell == null)
+				row.createCell(i);
+		}
+		row.getCell(colIndex).setCellValue("name");
+		row.getCell(++colIndex).setCellValue("preventive");
+		row.getCell(++colIndex).setCellValue("detective");
+		row.getCell(++colIndex).setCellValue("limitative");
+		row.getCell(++colIndex).setCellValue("corrective");
+		row.getCell(++colIndex).setCellValue("intentional");
+		row.getCell(++colIndex).setCellValue("accidental");
+		row.getCell(++colIndex).setCellValue("environmental");
+		row.getCell(++colIndex).setCellValue("internalThreat");
+		row.getCell(++colIndex).setCellValue("externalThreat");
+
+		for (AssetType assetType : assetTypes)
+			row.getCell(++colIndex).setCellValue(assetType.getType());
+		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
+		scenarios.stream().forEach(
+				scenario -> scenario.getAssetTypeValues().forEach(
+						assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+		for (Scenario scenario : scenarios) {
+			row = scenarioSheet.getRow(++rowIndex);
+			if (row == null)
+				row = scenarioSheet.createRow(rowIndex);
+			for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++) {
+				XSSFCell cell = row.getCell(i);
+				if (cell == null)
+					row.createCell(i, i < 1 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
+			}
+			colIndex = 0;
+			row.getCell(colIndex).setCellValue(scenario.getName());
+			row.getCell(++colIndex).setCellValue(scenario.getPreventive());
+			row.getCell(++colIndex).setCellValue(scenario.getDetective());
+			row.getCell(++colIndex).setCellValue(scenario.getLimitative());
+			row.getCell(++colIndex).setCellValue(scenario.getCorrective());
+			row.getCell(++colIndex).setCellValue(scenario.getIntentional());
+			row.getCell(++colIndex).setCellValue(scenario.getAccidental());
+			row.getCell(++colIndex).setCellValue(scenario.getEnvironmental());
+			row.getCell(++colIndex).setCellValue(scenario.getInternalThreat());
+			row.getCell(++colIndex).setCellValue(scenario.getExternalThreat());
+			for (AssetType assetType : assetTypes)
+				row.getCell(++colIndex).setCellValue(mappedValue.getOrDefault(scenario.getId() + "_" + assetType.getType(), 0));
+		}
+	}
+
+	private void writeAnalysisIdentifier(Analysis analysis, XSSFWorkbook workbook) {
+		XSSFSheet analysisSheet = workbook.createSheet(TS_INFO_FOR_IMPORT);
+		XSSFRow header = analysisSheet.getRow(0), data = analysisSheet.getRow(1);
+		if (header == null)
+			header = analysisSheet.createRow(0);
+		if (data == null)
+			data = analysisSheet.createRow(1);
+		for (int i = 0; i < 2; i++) {
+			if (header.getCell(i) == null)
+				header.createCell(i);
+			if (data.getCell(i) == null)
+				data.createCell(i);
+		}
+		header.getCell(0).setCellValue("identifier");
+		data.getCell(0).setCellValue(analysis.getIdentifier());
+		header.getCell(1).setCellValue("version");
+		data.getCell(1).setCellValue(analysis.getVersion());
+		workbook.setSheetHidden(workbook.getSheetIndex(TS_INFO_FOR_IMPORT), XSSFWorkbook.SHEET_STATE_VERY_HIDDEN);
 	}
 
 	/**

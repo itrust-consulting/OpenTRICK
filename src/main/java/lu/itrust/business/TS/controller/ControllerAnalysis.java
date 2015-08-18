@@ -3,7 +3,6 @@ package lu.itrust.business.TS.controller;
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
-import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -999,18 +998,15 @@ public class ControllerAnalysis {
 
 	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes,
-			Locale locale) throws Exception {
+	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletResponse response) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		locale = new Locale(analysis.getLanguage().getAlpha2());
-		exportRawActionPlan(response, analysis, locale);
+		exportRawActionPlan(response, analysis, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
 	}
 
-	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, Locale locale) throws IOException {
+	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, String username, Locale locale) throws IOException {
 		XSSFWorkbook workbook = null;
 		try {
 			int lineIndex = 0;
-			final DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE), kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 			workbook = new XSSFWorkbook();
 			XSSFSheet sheet = workbook.createSheet(messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale));
 			XSSFRow row = sheet.getRow(0);
@@ -1025,12 +1021,19 @@ public class ControllerAnalysis {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, actionPlanEntry, numberFormat, kEuroFormat);
+				writeActionPLanData(row, actionPlanEntry);
 			}
-			response.setContentType("xls");
+			response.setContentType("xlsx");
 			// set response header with location of the filename
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.xls", analysis.getLabel(), analysis.getVersion()) + "\"");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
+			
 			workbook.write(response.getOutputStream());
+			
+			//Log
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
+					String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
+					analysis.getIdentifier(), analysis.getVersion());
+			
 		} finally {
 			try {
 				if (workbook != null)
@@ -1041,7 +1044,7 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, DecimalFormat numberFormat, DecimalFormat kEuroFormat) {
+	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry) {
 		for (int i = 0; i < 22; i++) {
 			if (row.getCell(i) == null)
 				row.createCell(i, i < 7 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);

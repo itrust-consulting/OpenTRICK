@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -33,6 +34,7 @@ import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
@@ -2514,9 +2516,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Asset> findNoAssetSelected() {
-		List<Asset> assets = new ArrayList<Asset>();
-		this.assets.stream().filter(asset -> !asset.isSelected()).forEach(asset -> assets.add(asset));
-		return assets;
+		return this.assets.stream().filter(asset -> !asset.isSelected()).collect(Collectors.toList());
 	}
 
 	public List<Assessment> removeAssessment(Asset asset) {
@@ -2529,5 +2529,9 @@ public class Analysis implements Cloneable {
 		List<Assessment> assessments = new LinkedList<Assessment>();
 		this.assessments.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
 		return assessments;
+	}
+
+	public List<AssetType> distinctAssetType() {
+		return this.assets.stream().map(asset -> asset.getAssetType()).distinct().collect(Collectors.toList());
 	}
 }
