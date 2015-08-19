@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,8 @@ import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -44,27 +47,35 @@ public class DynamicRiskComputer {
 	 * @throws Exception 
 	 * @throws IllegalArgumentException 
 	 */
-	public double computeALEOfAsset(Analysis parentAnalysis, AnalysisStandard standard, int assetId, long timestamp) throws Exception {
+	public double computeALEOfAsset(Analysis parentAnalysis, List<AnalysisStandard> standards, int assetId, long timestamp) throws Exception {
 		double totalALE = 0.0;
-		final List<Measure> measures = standard.getMeasures();
 		final List<Parameter> allParameters = parentAnalysis.getParameters();
 		final double minimumProbability = Math.max(0.0, parentAnalysis.getParameter("p0")); // getParameter() returns -1 if no such parameter exists
 
+		// Find all measures
+		final List<Measure> measures = new ArrayList<>();
+		for (AnalysisStandard standard : standards)
+			measures.addAll(standard.getMeasures());
+		
 		// Find the user names of all sources involved
 		List<String> sourceUserNames = daoUserAnalysisRight
-				.getAllFromAnalysis(parentAnalysis.getId()).stream()
-				.map(userRight -> userRight.getUser())
-				.filter(user -> user.hasRole(RoleType.ROLE_IDS))
-				.map(user -> user.getLogin())
-				.collect(Collectors.toList());
+			.getAllFromAnalysis(parentAnalysis.getId()).stream()
+			.map(userRight -> userRight.getUser())
+			.filter(user -> user.hasRole(RoleType.ROLE_IDS))
+			.map(user -> user.getLogin())
+			.collect(Collectors.toList());
 		
-		// Find all dynamic parameters and the respective values back then
+		// Find all static expression parameters ("p0" etc.)
 		final Map<String, Double> expressionParameters = new HashMap<>();
+		for (AcronymParameter p : parentAnalysis.getExpressionParameters())
+			if (!(p instanceof DynamicParameter))
+				expressionParameters.put(p.getAcronym(), p.getValue());
+		// Find all dynamic parameters and the respective values back then
 		for (String sourceUserName : sourceUserNames)
 			expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp, sourceUserName, minimumProbability));
 
 		for (Assessment assessment : parentAnalysis.getAssessments()) {
-			if (assessment.getId() != assetId) continue;
+			if (assessment.getAsset().getId() != assetId) continue;
 
 			// Determine the total ΔALE resulting from risk reduction 
 			double deltaALEFactor = 0.0;

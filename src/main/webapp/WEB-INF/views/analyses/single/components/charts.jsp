@@ -106,3 +106,17 @@
 		<div id="chart_dynamic_body" class="col-xs-12"></div>
 	</div>
 </div>
+<div class="tab-pane trick-chart-tab" id="tabChartAleEvolution" data-update-required="true" data-trigger="loadChartAleEvolution">
+	<div id="chart_aleevolution">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.aleevolution" />
+					</h3>
+				</div>
+			</div>
+		</div>
+		<div id="chart_aleevolution_body" class="col-xs-12"></div>
+	</div>
+</div>

@@ -44,4 +44,16 @@ public class ControllerDynamicRiskAnalysis {
 
 		return chartGenerator.dynamicParameterEvolution(idAnalysis, customLocale != null ? customLocale : locale);
 	}
+
+	@RequestMapping(value = "/Chart/AleEvolution", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody String chartAleEvolution(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		if (idAnalysis == null)
+			return null;
+
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+
+		return chartGenerator.aleEvolution(idAnalysis, customLocale != null ? customLocale : locale);
+	}
 }

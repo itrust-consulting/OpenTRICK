@@ -36,6 +36,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
@@ -107,6 +108,9 @@ public class ChartGenerator {
 
 	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
+	
+	@Autowired
+	private DynamicRiskComputer dynamicRiskComputer;
 
 	@Value("${app.settings.ale.chart.content.size}")
 	private int aleChartSize;
@@ -1187,7 +1191,6 @@ public class ChartGenerator {
 		final long timeLowerBound = timeUpperBound - Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS;
 		long nextTimeIntervalSize = 60; // in seconds
 
-		// Collect parameter name
 		String jsonXAxisValues = "";
 		List<Long> xAxisValues = new ArrayList<>();
 
@@ -1225,6 +1228,72 @@ public class ChartGenerator {
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
 			jsonSeries += "{\"name\":\"" + jsonEscape(parameterName) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
+		}
+		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
+
+		// Build JSON data
+		final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale);
+		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
+		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
+		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
+		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
+		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
+		
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
+	}
+
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the ALE evolution of all assets of an analysis.
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	public String aleEvolution(int idAnalysis, Locale locale) throws Exception {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
+
+		// Determine time-related stuff
+		final long timeUpperBound = Instant.now().getEpochSecond();
+		final long timeLowerBound = timeUpperBound - Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS;
+		long nextTimeIntervalSize = 60; // in seconds
+
+		String jsonXAxisValues = "";
+		List<Long> xAxisValues = new ArrayList<>();
+
+		// For each dynamic parameter, construct a series of values
+		Map<Asset, Map<Long, Double>> data = new HashMap<>();
+		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
+			// Add x-axis values to a list in reverse order (we use Collections.reverse() later on)
+			xAxisValues.add(timeEnd);
+			if (!jsonXAxisValues.isEmpty())
+				jsonXAxisValues = "," + jsonXAxisValues;
+			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
+
+			// Fetch data
+			for (Asset asset : analysis.getAssets()) {
+				final double ale = dynamicRiskComputer.computeALEOfAsset(analysis, standards, asset.getId(), timeEnd);
+				data.putIfAbsent(asset, new HashMap<Long, Double>());
+				data.get(asset).put(timeEnd, ale);
+			}
+
+			// Modify interval size
+			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
+				nextTimeIntervalSize = (int)(nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
+		}
+		Collections.reverse(xAxisValues);
+		
+		// Collect data
+		String jsonSeries = "\"series\":[ "; // need space at the end if 'data' is empty map
+		for (Asset asset : data.keySet()) {
+			String jsonSingleSeries = "[ "; // need space at the end if 'xAxisValues' is empty list
+			for (long timeEnd : xAxisValues) {
+				jsonSingleSeries += data.get(asset).getOrDefault(timeEnd, 0.0) + ",";
+			}
+			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
+			jsonSeries += "{\"name\":\"" + jsonEscape(asset.getName()) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 

@@ -159,7 +159,8 @@ public class StringExpressionParser implements ExpressionParser {
 			else if (variableValueMap.containsKey(variableName))
 				return variableValueMap.get(variableName);
 			else
-				throw new IllegalArgumentException("The variable '" + variableName + "' is involved, but no value has been assigned to it in the value map.");
+				//throw new IllegalArgumentException("The variable '" + variableName + "' is involved, but no value has been assigned to it in the value map.");
+				return 0.0;
 		}
 		
 		// If it is + or -, we are dealing with the unary operator

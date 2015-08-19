@@ -251,6 +251,7 @@ function reloadCharts() {
 	compliances();
 	summaryCharts();
 	loadChartDynamic();
+	loadChartDynamicAleEvolution();
 	return false;
 };
 
@@ -355,6 +356,25 @@ function loadChartDynamic() {
 			});
 		} else
 			$("#tabChartDynamic").attr("data-update-required", "true");
+	}
+}
+
+function loadChartDynamicAleEvolution() {
+	if ($('#chart_aleevolution').length) {
+		if ($('#chart_aleevolution').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Dynamic/Chart/AleEvolution",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response, textStatus, jqXHR) {
+					displayChart('#chart_aleevolution',response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartAleEvolution").attr("data-update-required", "true");
 	}
 }
 
