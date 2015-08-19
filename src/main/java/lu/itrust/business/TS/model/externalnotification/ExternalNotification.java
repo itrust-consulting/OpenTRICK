@@ -50,13 +50,10 @@ public class ExternalNotification {
 	private long halfLife;
 
 	/**
-	 * Specifies how strong the impact on the overall probability is.
-	 * More precisely, an assertiveness of 1.0 will cause the overall probability to be withdrawn and replaced by the probability of this external notification.
-	 * On the other hand, an assertiveness value of 0.0 will cause the overall probability to take this external notification into account
-	 * Value is a floating-point number in the range [0.0, 1.0].
+	 * The external notification type, specifying how the external notification impacts the alarm level.
 	 */
-	@Column(name = "dtAssertiveness", nullable = false)
-	private double assertiveness;
+	@Column(name = "dtType", nullable = false)
+	private ExternalNotificationType type;
 
 	/**
 	 * Represents the number of notifications incorporated by this object.
@@ -165,19 +162,17 @@ public class ExternalNotification {
 	}
 
 	/**
-	 * Gets the assertiveness of this notification.
+	 * Gets the external notification type.
 	 */
-	public double getAssertiveness() {
-		return assertiveness;
+	public ExternalNotificationType getType() {
+		return type;
 	}
 
 	/**
-	 * Sets the assertiveness of this notification.
+	 * Sets the external notification type.
 	 */
-	public void setAssertiveness(double assertiveness) throws TrickException {
-		if (assertiveness < 0.0 || assertiveness > 1.0)
-			throw new TrickException("error.externalnotification.assertiveness_out_of_range", "The notification assertiveness must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
-		this.assertiveness = assertiveness;
+	public void setType(ExternalNotificationType type) throws TrickException {
+		this.type = type;
 	}
 
 	/**

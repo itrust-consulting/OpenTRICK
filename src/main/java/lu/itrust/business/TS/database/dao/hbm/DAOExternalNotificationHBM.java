@@ -7,6 +7,7 @@ import java.util.Map;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
+import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
 import lu.itrust.business.expressions.StringExpressionHelper;
 
 import org.hibernate.Session;
@@ -94,11 +95,12 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			// Deduce parameter name from category
 			String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, extNot.getCategory()));
 
-			double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
-			double p = extNot.getSeverity() * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
+			final double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
+			final double p = extNot.getSeverity() * Math.pow(0.5, timeElapsed / extNot.getHalfLife());
+			final double inverseAssertiveness = extNot.getType().equals(ExternalNotificationType.ABSOLUTE) ? 0.0 : 1.0;
 
 			double totalProbability = probabilities.getOrDefault(parameterName, 0.0);
-			totalProbability = 1.0 - (1.0 - (1.0 - extNot.getAssertiveness()) * totalProbability) * Math.pow(1.0 - p, extNot.getNumber());
+			totalProbability = 1.0 - (1.0 - inverseAssertiveness * totalProbability) * Math.pow(1.0 - p, extNot.getNumber());
 			totalProbability = Math.max(minimumProbability, totalProbability);
 			probabilities.put(parameterName, totalProbability);
 		}
@@ -136,11 +138,12 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0);
 
 			// Compute the new probability settings
+			final double inverseAssertiveness = last.getType().equals(ExternalNotificationType.ABSOLUTE) ? 0.0 : 1.0;
 			final long deltaTimeBegin = Math.max(timestampBegin, last.getTimestamp()) - last.getTimestamp();
 			final long deltaTimeEnd = next.getTimestamp() - last.getTimestamp();
 			final double intervalWeight = Math.max(0, next.getTimestamp() - Math.max(timestampBegin, last.getTimestamp())) / (double)totalInterval;
-			final double probabilityLevelBegin = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeBegin / last.getHalfLife()));
-			final double probabilityLevelEnd   = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeEnd   / last.getHalfLife()));
+			final double probabilityLevelBegin = 1.0 - (1.0 - inverseAssertiveness * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeBegin / last.getHalfLife()));
+			final double probabilityLevelEnd   = 1.0 - (1.0 - inverseAssertiveness * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeEnd   / last.getHalfLife()));
 			final double totalProbabilityDiff = (probabilityLevelEnd + probabilityLevelBegin) / 2.0 * intervalWeight;
 			probabilityLevel.put(parameterName, probabilityLevelEnd);
 			totalProbability.put(parameterName, lastTotalProbability + totalProbabilityDiff);
@@ -155,11 +158,12 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			final double lastTotalProbability = totalProbability.getOrDefault(parameterName, 0.0);
 
 			// Compute the new probability settings
+			final double inverseAssertiveness = last.getType().equals(ExternalNotificationType.ABSOLUTE) ? 0.0 : 1.0;
 			final long deltaTimeBegin = Math.max(timestampBegin, last.getTimestamp()) - last.getTimestamp();
 			final long deltaTimeEnd = timestampEnd - last.getTimestamp();
 			final long intervalWeight = Math.max(0, timestampEnd - Math.max(timestampBegin, last.getTimestamp())) / totalInterval;
-			double probabilityLevelBegin = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeBegin / last.getHalfLife()));
-			double probabilityLevelEnd   = 1.0 - (1.0 - (1.0 - last.getAssertiveness()) * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeEnd   / last.getHalfLife()));
+			double probabilityLevelBegin = 1.0 - (1.0 - inverseAssertiveness * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeBegin / last.getHalfLife()));
+			double probabilityLevelEnd   = 1.0 - (1.0 - inverseAssertiveness * lastProbabilityLevel) * (1.0 - last.getSeverity() * Math.pow(0.5, deltaTimeEnd   / last.getHalfLife()));
 			probabilityLevelBegin = Math.max(minimumProbability, probabilityLevelBegin);
 			probabilityLevelEnd = Math.max(minimumProbability, probabilityLevelEnd);
 			final double totalProbabilityDiff = (probabilityLevelEnd + probabilityLevelBegin) / 2.0 * intervalWeight;

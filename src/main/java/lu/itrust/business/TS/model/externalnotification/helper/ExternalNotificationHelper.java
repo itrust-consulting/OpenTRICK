@@ -6,6 +6,7 @@ import java.util.List;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
+import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
 
 /**
  * Provides helper functionality for external notification instances.
@@ -29,7 +30,7 @@ public class ExternalNotificationHelper {
 		modelObj.setTimestamp(apiObj.getT());
 		modelObj.setHalfLife(apiObj.getH());
 		modelObj.setNumber(apiObj.getN());
-		modelObj.setAssertiveness(apiObj.getA());
+		modelObj.setType(apiObj.getA() > 0.5 ? ExternalNotificationType.ABSOLUTE : ExternalNotificationType.RELATIVE);
 		modelObj.setSeverity(apiObj.getS());
 		modelObj.setSourceUserName(userName);
 		return modelObj;
@@ -50,7 +51,7 @@ public class ExternalNotificationHelper {
 			apiObj.setT(obj.getTimestamp());
 			apiObj.setH(obj.getHalfLife());
 			apiObj.setN(obj.getNumber());
-			apiObj.setA(obj.getAssertiveness());
+			apiObj.setA(obj.getType().equals(ExternalNotificationType.ABSOLUTE) ? 1.0 : 0.0);
 			apiObj.setS(obj.getSeverity());
 			apiList.add(apiObj);
 		}
