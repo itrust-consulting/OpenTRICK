@@ -114,11 +114,6 @@ function uploadImportStandardFile() {
 	return false;
 }
 
-function onSelectFile(file) {
-	$("#upload-file-info").prop("value", $(file).prop("value"));
-	return false;
-}
-
 function importNewStandard() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;

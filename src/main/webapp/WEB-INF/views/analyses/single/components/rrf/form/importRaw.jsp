@@ -4,26 +4,24 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="uploadStandardModal" tabindex="-1" role="dialog" data-aria-labelledby="uploadStandard" data-aria-hidden="true" data-backdrop="static"
+<div class="modal fade" id="import_raw_rrf_modal" tabindex="-1" role="dialog" data-aria-labelledby="import_raw_rrf" data-aria-hidden="true" data-backdrop="static"
 	data-keyboard="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="uploadStandard-title">
-					<spring:message code="label.title.import.norm" text="Import a new standard" />
+				<h4 class="modal-title" id="title_raw_rrf">
+					<fmt:message key="label.title.import.raw.rrf" />
 				</h4>
 			</div>
 			<div class="modal-body">
-				<jsp:include page="../../../template/successErrors.jsp" />
-				<form name="importStandard" method="post" action="${pageContext.request.contextPath}/KnowledgeBase/Standard/Import" class="form-inline" id="uploadStandard_form"
+				<form name="importRawRRF" method="post" action="${pageContext.request.contextPath}/Analysis/RRF/Import/Raw/${idAnalysis}" class="form-inline" id="raw_rrf_form"
 					enctype="multipart/form-data">
 					<div class="row">
-						<label class="col-lg-12" for="name"> <spring:message code="label.norm.import.choose_file" text="Choose the file containing new standard to import" /></label>
+						<label class="col-lg-12" for="name"> <fmt:message key="label.raw.rrf.choose.import.file" /></label>
 						<div class="col-lg-10">
 							<div class="input-group-btn">
-								<input id="file" type="file" onchange='$("#upload-file-info").prop("value", $(this).prop("value"));' name="file" style="display: none;" /> <input id="upload-file-info"
-									class="form-control" readonly="readonly" required="required" />
+								<input id="file" type="file" onchange='$("#upload-file-info").prop("value", $(this).prop("value"));' name="file" style="display: none;" /> <input id="upload-file-info" class="form-control" readonly="readonly" required="required" />
 								<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file]').click();" style="margin-left: -5px;">
 									<spring:message code="label.action.browse" text="Browse" />
 								</button>
@@ -33,7 +31,7 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="importNewStandard()">
+				<button type="button" class="btn btn-primary" onclick="return importDataRawRRF(${idAnalysis});">
 					<spring:message code="label.action.import" text="Import" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
@@ -44,5 +42,8 @@
 		<!-- /.modal-content -->
 	</div>
 	<!-- /.modal-dialog -->
+	<script type="text/javascript">
+		
+	</script>
 </div>
 <!-- /.modal -->

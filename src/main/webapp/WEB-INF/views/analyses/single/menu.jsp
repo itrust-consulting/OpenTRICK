@@ -107,7 +107,7 @@
 			<li><a href="#" onclick="return loadRRF();"> <fmt:message key="label.action.open" /></a></li>
 			<c:if test="${analysis.profile or isEditable}">
 				<li><a href="#" onclick="return importRRF(${analysis.id});"> <fmt:message key="label.action.import" /></a></li>
-				<li><a href="#" onclick="return importRawRRF(${analysis.id});"> <fmt:message key="label.action.import.rrf.raw" /></a></li>
+				<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <fmt:message key="label.action.import.rrf.raw" /></a></li>
 			</c:if>
 			<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
 				<li><a href="#" onclick="return exportRawRRF(${analysis.id});"> <fmt:message key="label.action.export.rrf.raw" /></a></li>
