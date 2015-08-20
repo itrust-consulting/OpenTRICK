@@ -1254,6 +1254,21 @@ public class ChartGenerator {
 	public String aleEvolution(int idAnalysis, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
+		final List<Asset> assets = analysis.getAssets();
+		final List<Assessment> assessments = analysis.getAssessments();
+		final List<Parameter> allParameters = analysis.getParameters();
+		
+		final Map<Integer, Asset> assetsById = new HashMap<>();
+		for (Asset asset : assets)
+			assetsById.put(asset.getId(), asset);
+
+		// Find the user names of all sources involved
+		final List<String> sourceUserNames = daoUserAnalysisRight
+			.getAllFromAnalysis(analysis.getId()).stream()
+			.map(userRight -> userRight.getUser())
+			.filter(user -> user.hasRole(RoleType.ROLE_IDS))
+			.map(user -> user.getLogin())
+			.collect(Collectors.toList());
 
 		// Determine time-related stuff
 		final long timeUpperBound = Instant.now().getEpochSecond();
@@ -1273,10 +1288,11 @@ public class ChartGenerator {
 			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
 			// Fetch data
-			for (Asset asset : analysis.getAssets()) {
-				final double ale = dynamicRiskComputer.computeALEOfAsset(analysis, standards, asset.getId(), timeEnd);
+			Map<Integer, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd, assessments, sourceUserNames, allParameters);
+			for (int assetId : aleByAsset.keySet()) {
+				Asset asset = assetsById.get(assetId);
 				data.putIfAbsent(asset, new HashMap<Long, Double>());
-				data.get(asset).put(timeEnd, ale);
+				data.get(asset).put(timeEnd, aleByAsset.get(assetId));
 			}
 
 			// Modify interval size

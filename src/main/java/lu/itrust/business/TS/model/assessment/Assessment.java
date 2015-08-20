@@ -107,6 +107,9 @@ public class Assessment implements Cloneable {
 	@Access(AccessType.FIELD)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Asset asset = null;
+	
+	@Column(name = "fiAsset", insertable = false, updatable = false)
+	private int assetId;
 
 	/** The scenario object reference */
 	@ManyToOne
@@ -461,6 +464,10 @@ public class Assessment implements Cloneable {
 	 */
 	public Asset getAsset() {
 		return asset;
+	}
+	
+	public int getAssetId() {
+		return assetId;
 	}
 
 	/**

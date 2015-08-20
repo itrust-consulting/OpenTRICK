@@ -1149,11 +1149,13 @@ public abstract class SecurityCriteria implements Cloneable {
 	 */
 	@Transient
 	public int getCategoryValue(String category) throws TrickException {
-
+/*
+ * Danger: this takes A LOT OF time!
+ * 
 		// check if the category key is valid -> NO
 		if (!isCategoryKey(category))
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
-
+*/
 		Integer value = categories.get(category);
 
 		// check if category key exists in MAP -> NO
