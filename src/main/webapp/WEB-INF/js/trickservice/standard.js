@@ -95,18 +95,17 @@ function uploadImportStandardFile() {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((uploadStandardModal = doc.getElementById("uploadStandardModal")) == null)
-				return false;
-			if ($("#uploadStandardModal").length)
-				$("#uploadStandardModal").html($(uploadStandardModal).html());
-			else
-				$(uploadStandardModal).appendTo($("#widget"));
-			$('#uploadStandardModal').on('hidden.bs.modal', function() {
-				$('#uploadStandardModal').remove();
-			});
-			$("#uploadStandardModal").modal("toggle");
+			var $view = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
+			if (!$view.length)
+				unknowError();
+			else {
+				var $old = $("#uploadStandardModal");
+				if ($old.length)
+					$old.replaceWith($view);
+				else
+					$view.appendTo($("#widget"));
+				$view.modal("show");
+			}
 			return false;
 		},
 		error : unknowError
@@ -129,22 +128,13 @@ function importNewStandard() {
 	}
 	$("#uploadStandardModal .modal-footer .btn").prop("disabled", true);
 	$("#uploadStandardModal .modal-header .close").prop("disabled", true);
-	var formData = new FormData($('#uploadStandard_form')[0]);
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/Import",
 		type : 'POST',
-		xhr : function() { // Custom XMLHttpRequest
-			var myXhr = $.ajaxSettings.xhr();
-			/*
-			 * if (myXhr.upload) { // Check if upload property exists
-			 * myXhr.upload.addEventListener('progress',
-			 * progressHandlingFunction, false); // For handling the // progress
-			 * of the // upload }
-			 */
-			return myXhr;
-		},
-		// Ajax events
-		// beforeSend : beforeSendHandler,
+		data : new FormData($('#uploadStandard_form')[0]),
+		cache : false,
+		contentType : false,
+		processData : false,
 		success : function(response, textStatus, jqXHR) {
 			if (response.flag != undefined) {
 				progressBar = new ProgressBar();
@@ -164,9 +154,9 @@ function importNewStandard() {
 				progressBar.OnComplete(callback.success);
 				updateStatus(progressBar, response.taskID, callback, response);
 			} else {
-				var $modalForm = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
-				if ($modalForm.length) {
-					$("#uploadStandardModal").replaceWith($modalForm);
+				var $view = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$("#uploadStandardModal").replaceWith($view);
 					$("#uploadStandardModal .modal-footer .btn").prop("disabled", false);
 					$("#uploadStandardModal .modal-header .close").prop("disabled", false);
 				} else {
@@ -174,15 +164,7 @@ function importNewStandard() {
 				}
 			}
 		},
-		error : unknowError,
-		// error : errorHandler,
-		// Form data
-		data : formData,
-		// Options to tell jQuery not to process data or worry about
-		// content-type.
-		cache : false,
-		contentType : false,
-		processData : false
+		error : unknowError
 
 	});
 	return false;

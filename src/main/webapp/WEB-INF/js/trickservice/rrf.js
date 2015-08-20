@@ -132,7 +132,7 @@ function importDataRawRRF(idAnalysis) {
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$("#import_raw_rrf_modal .modal-footer .btn").prop("disabled", true);
 		$("#import_raw_rrf_modal .modal-header .close").prop("disabled", true);
-		$("import_raw_rrf_modal .alert").remove();
+		$("#import_raw_rrf_modal .alert").remove();
 		$.ajax({
 			url : context + "/Analysis/RRF/Import/Raw/" + idAnalysis,
 			type : 'POST',
@@ -145,7 +145,7 @@ function importDataRawRRF(idAnalysis) {
 				if (response["success"] != undefined)
 					$("#import_raw_rrf_modal").modal("hide");
 				else if (response["error"] != undefined)
-					$('#raw_rrf_form').before($("<label class='alert alert-danger' />").text(response["error"]));
+					$('#raw_rrf_form').before($("<label class='alert alert-danger col-md-12' />").text(response["error"]));
 				else unknowError();
 			},
 			error : unknowError,

@@ -21,7 +21,7 @@
 						<label class="col-lg-12" for="name"> <fmt:message key="label.raw.rrf.choose.import.file" /></label>
 						<div class="col-lg-10">
 							<div class="input-group-btn">
-								<input id="file" type="file" onchange='$("#upload-file-info").prop("value", $(this).prop("value"));' name="file" style="display: none;" /> <input id="upload-file-info" class="form-control" readonly="readonly" required="required" />
+								<input id="file" type="file" onchange='{$("#upload-file-info").prop("value", $(this).prop("value")); checkExtention($("#upload-file-info").val(),"xls,xlsx","#raw_rrf_import_button");}' name="file" style="display: none;" /> <input id="upload-file-info" class="form-control" readonly="readonly" required="required" />
 								<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file]').click();" style="margin-left: -5px;">
 									<spring:message code="label.action.browse" text="Browse" />
 								</button>
@@ -31,7 +31,7 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="return importDataRawRRF(${idAnalysis});">
+				<button type="button" class="btn btn-primary" onclick="return importDataRawRRF(${idAnalysis});" disabled="disabled" id="raw_rrf_import_button">
 					<spring:message code="label.action.import" text="Import" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">

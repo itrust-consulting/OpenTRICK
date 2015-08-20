@@ -16,6 +16,14 @@ function Application() {
 	this.fixedOffset = 5
 }
 
+function checkExtention(value,extention,button){
+	var extentions = extention.split(","), match = false;
+	for (var i = 0; i < extentions.length; i++) 
+		match |= value.endsWith(extentions[i]);
+	$(button).prop("disabled", !match);
+	return match;
+}
+
 function showDialog(dialog, message) {
 	$(dialog).find(".modal-body").text(message);
 	return $(dialog).modal("show");

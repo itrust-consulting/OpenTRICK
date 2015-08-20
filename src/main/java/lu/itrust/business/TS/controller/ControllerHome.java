@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 
+import org.hibernate.exception.GenericJDBCException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -95,7 +96,7 @@ public class ControllerHome {
 
 	@RequestMapping("/Login")
 	public String login(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
-		loadSettings(model);
+		loadSettings(model, locale);
 		if (request.getParameter("registerSuccess") != null) {
 			model.addAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
 			model.addAttribute("username", request.getParameter("login") == null ? "" : request.getParameter("login"));
@@ -103,10 +104,16 @@ public class ControllerHome {
 		return "default/login";
 	}
 
-	private void loadSettings(Model model) {
-		TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP), resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
-		model.addAttribute("allowRegister", register == null || register.getBoolean());
-		model.addAttribute("resetPassword", register == null || resetPassword.getBoolean());
+	private void loadSettings(Model model, Locale locale) {
+		try {
+			TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP), resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
+			model.addAttribute("allowRegister", register == null || register.getBoolean());
+			model.addAttribute("resetPassword", register == null || resetPassword.getBoolean());
+		} catch (GenericJDBCException e) {
+			model.addAttribute("error", messageSource.getMessage("error.database.connection_failed", null, "No connection to the database...", locale));
+		}catch(Exception e){
+			model.addAttribute("error", messageSource.getMessage("error.setting.not.loaded", null, "Settings cannot be loaded", locale));
+		}
 	}
 
 	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
