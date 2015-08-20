@@ -106,7 +106,7 @@
 									<div class="panel panel-primary" id="control_rrf_measure">
 										<div class="panel-body">
 											<div style="overflow-x: auto;">
-												<jsp:include page="./measureRRF.jsp" />
+												<jsp:include page="./measure.jsp" />
 											</div>
 										</div>
 										<div class="panel-footer" style="padding: 0px">

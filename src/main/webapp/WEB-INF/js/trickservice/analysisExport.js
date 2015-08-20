@@ -70,3 +70,18 @@ function exportAnalysisReportData(analysisId) {
 		permissionError();
 	return false;
 }
+
+function exportRawActionPlan(analysisId) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection("section_analysis");
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+	}
+	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
+		$.fileDownload(context + '/Analysis/Export/Raw-Action-plan/' + analysisId).fail(unknowError);
+		return false;
+	} else
+		permissionError();
+	return false;
+}

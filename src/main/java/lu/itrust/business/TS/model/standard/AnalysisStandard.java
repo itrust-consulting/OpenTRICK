@@ -141,6 +141,16 @@ public abstract class AnalysisStandard implements Cloneable {
 	public List<Measure> getMeasures() {
 		return measures;
 	}
+	
+	/**
+	 * getMeasures: <br>
+	 * Returns the measures field value.
+	 * 
+	 * @return The value of the measures field
+	 */
+	public List<? extends Measure > getExendedMeasures() {
+		return measures;
+	}
 
 	/**
 	 * setMeasures: <br>
