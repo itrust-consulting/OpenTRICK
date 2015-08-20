@@ -1288,7 +1288,7 @@ public class ChartGenerator {
 			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
 			// Fetch data
-			Map<Integer, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd, assessments, sourceUserNames, allParameters);
+			Map<Integer, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd - nextTimeIntervalSize, timeEnd, assessments, sourceUserNames, allParameters);
 			for (int assetId : aleByAsset.keySet()) {
 				Asset asset = assetsById.get(assetId);
 				data.putIfAbsent(asset, new HashMap<Long, Double>());
@@ -1306,7 +1306,7 @@ public class ChartGenerator {
 		for (Asset asset : data.keySet()) {
 			String jsonSingleSeries = "[ "; // need space at the end if 'xAxisValues' is empty list
 			for (long timeEnd : xAxisValues) {
-				jsonSingleSeries += data.get(asset).getOrDefault(timeEnd, 0.0) + ",";
+				jsonSingleSeries += Math.round(data.get(asset).getOrDefault(timeEnd, 0.) * 100.) / 100. + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
 			jsonSeries += "{\"name\":\"" + jsonEscape(asset.getName()) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
@@ -1314,13 +1314,13 @@ public class ChartGenerator {
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
 		// Build JSON data
-		final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale);
+		final String unit = messageSource.getMessage("label.metric.euro_by_year", null, "\u20AC/y", locale);
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
-		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.title.chart.aleevolution", null, "ALE Evolution", locale)) + "\"}";
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
-		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unit) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.assessment.ale.in_euros", null, "ALE (\u20AC/y)", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 		
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");

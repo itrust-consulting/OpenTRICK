@@ -44,7 +44,7 @@ public class DynamicRiskComputer {
 	 * @throws Exception 
 	 * @throws IllegalArgumentException 
 	 */
-	public Map<Integer, Double> computeAleOfAllAssets(List<AnalysisStandard> standards, long timestamp, List<Assessment> cache_assessments, List<String> cache_sourceUserNames, List<Parameter> allParameters) throws Exception {
+	public Map<Integer, Double> computeAleOfAllAssets(List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<Assessment> cache_assessments, List<String> cache_sourceUserNames, List<Parameter> allParameters) throws Exception {
 		double minimumProbability = 0.0;
 		for (Parameter p : allParameters)
 			if (p instanceof AcronymParameter && ((AcronymParameter)p).getAcronym() == "p0" && minimumProbability < p.getValue())
@@ -63,26 +63,29 @@ public class DynamicRiskComputer {
 
 		// Find all dynamic parameters and the respective values back then
 		for (String sourceUserName : cache_sourceUserNames)
-			expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp, sourceUserName, minimumProbability));
+			//expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp, sourceUserName, minimumProbability));
+			expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability));
 
 		Map<Integer, Double> totalAleByAsset = new HashMap<>(); 
 		for (Assessment assessment : cache_assessments) {
-			double totalAle = totalAleByAsset.getOrDefault(assessment.getAssetId(), 0.0);
 
 			// Determine the likelihood of the risk scenario
 			final String likelihoodExpression = assessment.getLikelihood();
 			final double likelihood = new StringExpressionParser(likelihoodExpression).evaluate(expressionParameters);
 
-			// Determine the total ALE of this assessment, considering risk reduction 
+			// Determine the total ALE of this assessment, considering risk reduction
+			// TODO: for maturity standards, the computation is a bit different
 			double ale = assessment.getImpactReal() * likelihood;
 			for (Measure measure : measures) {
 				final double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
 				final double rrf = RRF.calculateRRF(assessment, allParameters, measure);
+				// The line
 				// ale -= ale * rrf * (1 - implementationRate) / (1 - rrf * implementationRate);
-				// equivalent to:
+				// is equivalent to:
 				ale *= (1 - rrf) / (1 - rrf * implementationRate);
 			}
 
+			double totalAle = totalAleByAsset.getOrDefault(assessment.getAssetId(), 0.0);
 			totalAleByAsset.put(assessment.getAssetId(), totalAle + ale);
 		}
 		return totalAleByAsset;

@@ -106,7 +106,7 @@
 		<div id="chart_dynamic_body" class="col-xs-12"></div>
 	</div>
 </div>
-<div class="tab-pane trick-chart-tab" id="tabChartAleEvolution" data-update-required="true" data-trigger="loadChartAleEvolution">
+<div class="tab-pane trick-chart-tab" id="tabChartAleEvolution" data-update-required="true" data-trigger="loadChartDynamicAleEvolution">
 	<div id="chart_aleevolution">
 		<div class="page-header tab-content-header">
 			<div class="container">

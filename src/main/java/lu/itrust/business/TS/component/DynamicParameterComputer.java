@@ -144,7 +144,7 @@ public class DynamicParameterComputer {
 
 			// Set new parameter value to computed likelihood.
 			// If the latter is not set, it exactly means that the likelihood is zero.
-			// TODO Consider using a minimum value?
+			// NB: the user is free to enforce a minimum value by using the max() function in his formula
 			parameter.setValue(likelihoods.getOrDefault(parameterName, 0.0));
 		}
 
