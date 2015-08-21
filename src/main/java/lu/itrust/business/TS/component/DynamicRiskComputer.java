@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -34,6 +35,9 @@ public class DynamicRiskComputer {
 	
 	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
+	
+	@Autowired
+	private DAOMeasure daoMeasure;
 
 	/**
 	 * Computes the real-time ALE of all assets at the given timestamp.
@@ -44,11 +48,8 @@ public class DynamicRiskComputer {
 	 * @throws Exception 
 	 * @throws IllegalArgumentException 
 	 */
-	public Map<Integer, Double> computeAleOfAllAssets(List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<Assessment> cache_assessments, List<String> cache_sourceUserNames, List<Parameter> allParameters) throws Exception {
-		double minimumProbability = 0.0;
-		for (Parameter p : allParameters)
-			if (p instanceof AcronymParameter && ((AcronymParameter)p).getAcronym() == "p0" && minimumProbability < p.getValue())
-				minimumProbability = p.getValue();
+	public Map<Integer, Double> computeAleOfAllAssets(List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<Assessment> cache_assessments, List<String> cache_sourceUserNames, List<Parameter> allParameters, Map<String, Double> allParameterValuesByLabel) throws Exception {
+		double minimumProbability = allParameterValuesByLabel.getOrDefault("p0", 0.0);
 
 		// Find all measures
 		final List<Measure> measures = new ArrayList<>();
@@ -68,6 +69,7 @@ public class DynamicRiskComputer {
 
 		Map<Integer, Double> totalAleByAsset = new HashMap<>(); 
 		for (Assessment assessment : cache_assessments) {
+			if (!assessment.isUsable()) continue;
 
 			// Determine the likelihood of the risk scenario
 			final String likelihoodExpression = assessment.getLikelihood();
@@ -79,8 +81,11 @@ public class DynamicRiskComputer {
 			for (Measure measure : measures) {
 				final double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
 				final double rrf = RRF.calculateRRF(assessment, allParameters, measure);
+				
+				// TODO: consider maturity standards
+				
 				// The line
-				// ale -= ale * rrf * (1 - implementationRate) / (1 - rrf * implementationRate);
+				// ale *= 1 - rrf * (1 - implementationRate) / (1 - rrf * implementationRate);
 				// is equivalent to:
 				ale *= (1 - rrf) / (1 - rrf * implementationRate);
 			}

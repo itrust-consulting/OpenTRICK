@@ -5,6 +5,7 @@ import java.util.Map;
 
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
@@ -66,4 +67,6 @@ public interface DAOMeasure {
 	public List<NormalMeasure> getAllNormalMeasure(int pageIndex, int pageSize);
 
 	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int idAnalysis, String standard, ActionPlanMode appn);
+
+	public MaturityMeasure getMaturityMeasure(Integer id) throws Exception;
 }

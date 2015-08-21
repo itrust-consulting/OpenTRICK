@@ -1258,10 +1258,16 @@ public class ChartGenerator {
 		final List<Assessment> assessments = analysis.getAssessments();
 		final List<Parameter> allParameters = analysis.getParameters();
 		
+		// Index assets
 		final Map<Integer, Asset> assetsById = new HashMap<>();
 		for (Asset asset : assets)
 			assetsById.put(asset.getId(), asset);
 
+		// Index parameters
+		final Map<String, Double> allParameterValuesByLabel = new HashMap<>();
+		for (Parameter p : allParameters)
+			allParameterValuesByLabel.put(p.getDescription(), p.getValue());
+		
 		// Find the user names of all sources involved
 		final List<String> sourceUserNames = daoUserAnalysisRight
 			.getAllFromAnalysis(analysis.getId()).stream()
@@ -1288,7 +1294,7 @@ public class ChartGenerator {
 			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
 			// Fetch data
-			Map<Integer, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd - nextTimeIntervalSize, timeEnd, assessments, sourceUserNames, allParameters);
+			Map<Integer, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd - nextTimeIntervalSize, timeEnd, assessments, sourceUserNames, allParameters, allParameterValuesByLabel);
 			for (int assetId : aleByAsset.keySet()) {
 				Asset asset = assetsById.get(assetId);
 				data.putIfAbsent(asset, new HashMap<Long, Double>());

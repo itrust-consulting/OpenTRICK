@@ -9,6 +9,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
@@ -398,5 +399,10 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		query += ":analysis and measure.measureDescription.reference = :reference order by measure.id";
 		return (Measure) getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("idStandard", idStandard).setParameter("reference", reference)
 				.uniqueResult();
+	}
+
+	@Override
+	public MaturityMeasure getMaturityMeasure(Integer id) throws Exception {
+		return (MaturityMeasure)getSession().get(MaturityMeasure.class, id);
 	}
 }
