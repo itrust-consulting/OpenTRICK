@@ -71,27 +71,26 @@ public class DynamicRiskComputer {
 		for (Assessment assessment : cache_assessments) {
 			if (!assessment.isUsable()) continue;
 
-			// Determine the likelihood of the risk scenario
-			final String likelihoodExpression = assessment.getLikelihood();
-			final double likelihood = new StringExpressionParser(likelihoodExpression).evaluate(expressionParameters);
+			// Determine the likelihood and ALE of the current risk assessment
+			final double likelihood = new StringExpressionParser(assessment.getLikelihood()).evaluate(expressionParameters);
+			final double ale = assessment.getImpactReal() * likelihood;
 
 			// Determine the total ALE of this assessment, considering risk reduction
-			// TODO: for maturity standards, the computation is a bit different
-			double ale = assessment.getImpactReal() * likelihood;
+			double deltaAleFactor = 1.;
 			for (Measure measure : measures) {
 				final double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
 				final double rrf = RRF.calculateRRF(assessment, allParameters, measure);
-				
+
 				// TODO: consider maturity standards
 				
 				// The line
-				// ale *= 1 - rrf * (1 - implementationRate) / (1 - rrf * implementationRate);
+				// deltaAleFactor *= 1 - rrf * (1 - implementationRate) / (1 - rrf * implementationRate);
 				// is equivalent to:
-				ale *= (1 - rrf) / (1 - rrf * implementationRate);
+				deltaAleFactor *= (1 - rrf) / (1 - rrf * implementationRate);
 			}
 
-			double totalAle = totalAleByAsset.getOrDefault(assessment.getAssetId(), 0.0);
-			totalAleByAsset.put(assessment.getAssetId(), totalAle + ale);
+			final double totalAle = totalAleByAsset.getOrDefault(assessment.getAssetId(), 0.0);
+			totalAleByAsset.put(assessment.getAssetId(), totalAle + ale * (1. - deltaAleFactor));
 		}
 		return totalAleByAsset;
 	}

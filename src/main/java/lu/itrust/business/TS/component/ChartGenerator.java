@@ -1308,9 +1308,9 @@ public class ChartGenerator {
 		Collections.reverse(xAxisValues);
 		
 		// Collect data
-		String jsonSeries = "\"series\":[ "; // need space at the end if 'data' is empty map
+		String jsonSeries = "\"series\":[ "; // need space at the end (if 'data' is empty map, last character is removed)
 		for (Asset asset : data.keySet()) {
-			String jsonSingleSeries = "[ "; // need space at the end if 'xAxisValues' is empty list
+			String jsonSingleSeries = "[ "; // need space at the end (if 'xAxisValues' is empty list, last character is removed)
 			for (long timeEnd : xAxisValues) {
 				jsonSingleSeries += Math.round(data.get(asset).getOrDefault(timeEnd, 0.) * 100.) / 100. + ",";
 			}
