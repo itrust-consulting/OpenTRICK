@@ -15,7 +15,9 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiNotifyRequest;
+import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
+import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,14 +104,37 @@ public class ControllerApi {
 	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
 		String userName = principal.getName();
 
-		// For each of the given external notifications
-		for (ApiExternalNotification apiObj : request.getData()) {
-			// Create entity and insert it into database
+		for (ApiExternalNotification apiObj : request.getData())
 			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, userName));
-		}
 
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been scheduled yet for the given user.
+		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+
+		// Success
+		return new ApiResult(0);
+	}
+	
+	/**
+	 * This method is responsible for accepting requests that set the value of a
+	 * dynamic parameter ready to be used within the TRICK service user interface
+	 * (asset/scenario estimation).
+	 * @param data One or multiple notifications sent to TRICK Service.
+	 * @return Returns an error code (0 = success).
+	 * @throws Exception 
+	 */
+	@RequestMapping(value = "/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	public Object set(HttpSession session, Principal principal, @RequestBody ApiSetParameterRequest request) throws Exception {
+		String userName = principal.getName();
+
+		for (ApiParameterSetter apiObj : request.getData())
+			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, userName));
+
+		// Trigger execution of worker which computes dynamic parameters.
+		// This method only schedules the task if it does not have been scheduled yet for the given user.
+		//
+		// Note that we cannot set the value directly because we do not know whether there are other parameter setters
+		// or external notifications in the database which also impact the value of the parameter.
 		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
 
 		// Success

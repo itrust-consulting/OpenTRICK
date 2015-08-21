@@ -1,10 +1,8 @@
 package lu.itrust.business.TS.model.api;
 
-
-
 /**
  * Represents a notification sent by an external provider (e.g. an IDS).
- * This model is only used to describe notification objects passed to/returned by an API.
+ * This model is only used to describe notification objects passed to an API.
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 5, 2015
  */
@@ -42,15 +40,7 @@ public class ApiExternalNotification {
 	private int number = 1;
 
 	/**
-	 * Specifies how strong the impact on the overall probability is.
-	 * More precisely, an assertiveness of 1.0 will cause the overall probability to be withdrawn and replaced by the probability of this external notification.
-	 * On the other hand, an assertiveness value of 0.0 will cause the overall probability to take this external notification into account
-	 * Value is a floating-point number in the range [0.0, 1.0].
-	 */
-	private double assertiveness = 0.0;
-
-	/**
-	 * Gets the 'category' parameter of this notification.
+	 * Gets the 'category' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it getC() instead of getCategory(),
 	 * we may use {"c":...} instead of {"category":...} in JSON data.
@@ -60,7 +50,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Sets the 'category' parameter of this notification.
+	 * Sets the 'category' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it setC() instead of setCategory(),
 	 * we may use {"c":...} instead of {"category":...} in JSON data.
@@ -70,7 +60,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Gets the 'timestamp' parameter of this notification.
+	 * Gets the 'timestamp' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it getT() instead of getTimestamp(),
 	 * we may use {"t":...} instead of {"timestamp":...} in JSON data.
@@ -80,7 +70,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Sets the 'timestamp' parameter of this notification.
+	 * Sets the 'timestamp' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it setT() instead of setTimestamp(),
 	 * we may use {"t":...} instead of {"timestamp":...} in JSON data.
@@ -90,7 +80,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Gets the 'halfLife' parameter of this notification.
+	 * Gets the 'halfLife' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it getH() instead of getHalfLife(),
 	 * we may use {"h":...} instead of {"halfLife":...} in JSON data.
@@ -100,7 +90,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Sets the 'halfLife' parameter of this notification.
+	 * Sets the 'halfLife' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it setH() instead of setHalfLife(),
 	 * we may use {"h":...} instead of {"halfLife":...} in JSON data.
@@ -110,7 +100,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Gets the 'severity' parameter of this notification.
+	 * Gets the 'severity' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it getS() instead of getSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
@@ -120,7 +110,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Sets the 'severity' parameter of this notification.
+	 * Sets the 'severity' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it setS() instead of setSeverity(),
 	 * we may use {"s":...} instead of {"severity":...} in JSON data.
@@ -130,27 +120,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Gets the 'assertiveness' parameter of this notification.
-	 * NB: Jackson/Spring uses this method to map the value of this property
-	 * to the JSON data field. By calling it getA() instead of getAssertiveness(),
-	 * we may use {"a":...} instead of {"assertiveness":...} in JSON data.
-	 */
-	public double getA() {
-		return this.assertiveness;
-	}
-
-	/**
-	 * Sets the 'assertiveness' parameter of this notification.
-	 * NB: Jackson/Spring uses this method to map the value of this property
-	 * to the JSON data field. By calling it setA() instead of setAssertiveness(),
-	 * we may use {"a":...} instead of {"assertiveness":...} in JSON data.
-	 */
-	public void setA(double assertiveness) {
-		this.assertiveness = assertiveness;
-	}
-
-	/**
-	 * Gets the 'number' parameter of this notification.
+	 * Gets the 'number' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it getN() instead of getNumber(),
 	 * we may use {"n":...} instead of {"number":...} in JSON data.
@@ -160,7 +130,7 @@ public class ApiExternalNotification {
 	}
 
 	/**
-	 * Sets the 'number' parameter of this notification.
+	 * Sets the 'number' property of this notification.
 	 * NB: Jackson/Spring uses this method to map the value of this property
 	 * to the JSON data field. By calling it setN() instead of setNumber(),
 	 * we may use {"n":...} instead of {"number":...} in JSON data.

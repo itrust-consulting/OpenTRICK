@@ -45,7 +45,11 @@ $(document).ready(function() {
 	window.setInterval(function() {
 		reloadSection("section_asset", undefined, true /* prevent propagation */);
 		reloadSection("section_scenario", undefined, true /* prevent propagation */);
-	}, 10000);
+		if ($("#tabChartDynamic").is(":visible"))
+			loadChartDynamic();
+		else if ($("#tabChartAleEvolution").is(":visible"))
+			loadChartDynamicAleEvolution();
+	}, 30000); // every 30s
 });
 
 function findAnalysisId() {

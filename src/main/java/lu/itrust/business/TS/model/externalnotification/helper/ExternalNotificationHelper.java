@@ -1,10 +1,8 @@
 package lu.itrust.business.TS.model.externalnotification.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
+import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
 
@@ -17,9 +15,7 @@ public class ExternalNotificationHelper {
 	/**
 	 * Creates a new database entity for the given external notification.
 	 * @param apiObj The object which has been obtained via an API call.
-	 * @param objScope The database entity representing the notification scope specified in the 'apiObj' parameter.
-	 * This is necessary because 'apiObj' only specified the _label_ of the scope, not the full object.
-	 * The caller of this method must assure that 'objScope' is really the right object - the value of apiObj.getScope() is silently ignored.
+	 * @param userName The user name of the reporting user.
 	 * @return Returns the created entity.
 	 * @throws TrickException
 	 */
@@ -30,31 +26,29 @@ public class ExternalNotificationHelper {
 		modelObj.setTimestamp(apiObj.getT());
 		modelObj.setHalfLife(apiObj.getH());
 		modelObj.setNumber(apiObj.getN());
-		modelObj.setType(apiObj.getA() > 0.5 ? ExternalNotificationType.ABSOLUTE : ExternalNotificationType.RELATIVE);
+		modelObj.setType(ExternalNotificationType.RELATIVE);
 		modelObj.setSeverity(apiObj.getS());
 		modelObj.setSourceUserName(userName);
 		return modelObj;
 	}
 
 	/**
-	 * Converts a list of ExternalNotification entities to an list of exportable API objects. 
-	 * @param list The list of database entities.
-	 * @return Returns a list of API objects.
+	 * Creates a new database entity for the given parameter setter.
+	 * @param apiObj The object which has been obtained via an API call.
+	 * @param userName The user name of the reporting user.
+	 * @return Returns the created entity.
+	 * @throws TrickException
 	 */
-	public static List<ApiExternalNotification> convertList(List<ExternalNotification> list) {
-		ArrayList<ApiExternalNotification> apiList = new ArrayList<ApiExternalNotification>();
-		for (ExternalNotification obj : list) {
-			ApiExternalNotification apiObj = new ApiExternalNotification();
-			// Copy all relevant properties from entity to API object
-			// We silently omit the unique identifier here
-			apiObj.setC(obj.getCategory());
-			apiObj.setT(obj.getTimestamp());
-			apiObj.setH(obj.getHalfLife());
-			apiObj.setN(obj.getNumber());
-			apiObj.setA(obj.getType().equals(ExternalNotificationType.ABSOLUTE) ? 1.0 : 0.0);
-			apiObj.setS(obj.getSeverity());
-			apiList.add(apiObj);
-		}
-		return apiList;
+	public static ExternalNotification createEntityBasedOn(ApiParameterSetter apiObj, String userName) throws TrickException {
+		ExternalNotification modelObj = new ExternalNotification();
+		// Copy all properties from API object to a new entity
+		modelObj.setCategory(apiObj.getC());
+		modelObj.setTimestamp(apiObj.getT());
+		modelObj.setHalfLife(Long.MAX_VALUE);
+		modelObj.setNumber(1);
+		modelObj.setType(ExternalNotificationType.ABSOLUTE);
+		modelObj.setSeverity(apiObj.getV());
+		modelObj.setSourceUserName(userName);
+		return modelObj;
 	}
 }
