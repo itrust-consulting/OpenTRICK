@@ -96,6 +96,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/Analysis/RRF")
 public class ControllerRRF {
 
+	private static final String SCENARIOS = "scenarios";
+
 	private static final String F_SECTORIAL = "FSectorial";
 
 	private static final String F_MEASURE = "FMeasure";
@@ -120,7 +122,7 @@ public class ControllerRRF {
 
 	private static final String LIMITATIVE = "limitative";
 
-	private static final String NAME = "name";
+	private static final String RAW_SCENARIO = "Scenario";
 
 	private static final String DETECTIVE = "detective";
 
@@ -131,6 +133,26 @@ public class ControllerRRF {
 	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
 
 	private static final String TS_INFO_FOR_IMPORT = "^!TS-InfO_fOr-ImpOrt!^";
+	
+	private static final String RAW_SCENARIOS = "Scenarios";
+
+	private static final String RAW_PREVENTIVE = "Preventive";
+
+	private static final String RAW_DETECTIVE = "Detective";
+
+	private static final String RAW_LIMITATIVE = "Limitative";
+
+	private static final String RAW_CORRECTIVE = "Corrective";
+
+	private static final String RAW_INTENTIONAL = "Intentional";
+
+	private static final String RAW_ACCIDENTAL = "Accidental";
+
+	private static final String RAW_ENVIRONMENTAL = "Environmental";
+
+	private static final String RAW_INTERNAL_THREAT = "Internal Threat";
+
+	private static final String RAW_EXTERNAL_THREAT = "External Threat";
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -183,7 +205,7 @@ public class ControllerRRF {
 		if (!splittedmeasures.isEmpty() && splittedmeasures.entrySet().iterator().next().getValue().get(0) != null) {
 
 			model.addAttribute("measures", splittedmeasures);
-			model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
+			model.addAttribute(SCENARIOS, ScenarioManager.SplitByType(scenarios));
 
 			Measure measure = splittedmeasures.entrySet().iterator().next().getValue().get(0);
 
@@ -595,8 +617,8 @@ public class ControllerRRF {
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
 			workbook.write(response.getOutputStream());
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
-					String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.rrf",
+					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
 					analysis.getIdentifier(), analysis.getVersion());
 		} finally {
 			try {
@@ -672,15 +694,15 @@ public class ControllerRRF {
 		row.getCell(colIndex).setCellValue(REFERENCE);
 		row.getCell(++colIndex).setCellValue(F_MEASURE);
 		row.getCell(++colIndex).setCellValue(F_SECTORIAL);
-		row.getCell(++colIndex).setCellValue(PREVENTIVE);
-		row.getCell(++colIndex).setCellValue(DETECTIVE);
-		row.getCell(++colIndex).setCellValue(LIMITATIVE);
-		row.getCell(++colIndex).setCellValue(CORRECTIVE);
-		row.getCell(++colIndex).setCellValue(INTENTIONAL);
-		row.getCell(++colIndex).setCellValue(ACCIDENTAL);
-		row.getCell(++colIndex).setCellValue(ENVIRONMENTAL);
-		row.getCell(++colIndex).setCellValue(INTERNAL_THREAT);
-		row.getCell(++colIndex).setCellValue(EXTERNAL_THREAT);
+		row.getCell(++colIndex).setCellValue(RAW_PREVENTIVE);
+		row.getCell(++colIndex).setCellValue(RAW_DETECTIVE);
+		row.getCell(++colIndex).setCellValue(RAW_LIMITATIVE);
+		row.getCell(++colIndex).setCellValue(RAW_CORRECTIVE);
+		row.getCell(++colIndex).setCellValue(RAW_INTENTIONAL);
+		row.getCell(++colIndex).setCellValue(RAW_ACCIDENTAL);
+		row.getCell(++colIndex).setCellValue(RAW_ENVIRONMENTAL);
+		row.getCell(++colIndex).setCellValue(RAW_INTERNAL_THREAT);
+		row.getCell(++colIndex).setCellValue(RAW_EXTERNAL_THREAT);
 		for (String category : categories)
 			row.getCell(++colIndex).setCellValue(category);
 		return colIndex;
@@ -726,7 +748,7 @@ public class ControllerRRF {
 	private void writeScenario(List<Scenario> scenarios, List<AssetType> assetTypes, XSSFWorkbook workbook, Locale locale) {
 		if (scenarios.isEmpty())
 			return;
-		XSSFSheet scenarioSheet = workbook.createSheet(messageSource.getMessage("label.scenario", null, "Scenario", locale));
+		XSSFSheet scenarioSheet = workbook.createSheet(RAW_SCENARIOS);
 		int colIndex = 0, rowIndex = 0;
 		XSSFRow row = scenarioSheet.getRow(rowIndex);
 		if (row == null)
@@ -736,16 +758,16 @@ public class ControllerRRF {
 			if (cell == null)
 				row.createCell(i);
 		}
-		row.getCell(colIndex).setCellValue(NAME);
-		row.getCell(++colIndex).setCellValue(PREVENTIVE);
-		row.getCell(++colIndex).setCellValue(DETECTIVE);
-		row.getCell(++colIndex).setCellValue(LIMITATIVE);
-		row.getCell(++colIndex).setCellValue(CORRECTIVE);
-		row.getCell(++colIndex).setCellValue(INTENTIONAL);
-		row.getCell(++colIndex).setCellValue(ACCIDENTAL);
-		row.getCell(++colIndex).setCellValue(ENVIRONMENTAL);
-		row.getCell(++colIndex).setCellValue(INTERNAL_THREAT);
-		row.getCell(++colIndex).setCellValue(EXTERNAL_THREAT);
+		row.getCell(colIndex).setCellValue(RAW_SCENARIO);
+		row.getCell(++colIndex).setCellValue(RAW_PREVENTIVE);
+		row.getCell(++colIndex).setCellValue(RAW_DETECTIVE);
+		row.getCell(++colIndex).setCellValue(RAW_LIMITATIVE);
+		row.getCell(++colIndex).setCellValue(RAW_CORRECTIVE);
+		row.getCell(++colIndex).setCellValue(RAW_INTENTIONAL);
+		row.getCell(++colIndex).setCellValue(RAW_ACCIDENTAL);
+		row.getCell(++colIndex).setCellValue(RAW_ENVIRONMENTAL);
+		row.getCell(++colIndex).setCellValue(RAW_INTERNAL_THREAT);
+		row.getCell(++colIndex).setCellValue(RAW_EXTERNAL_THREAT);
 
 		for (AssetType assetType : assetTypes)
 			row.getCell(++colIndex).setCellValue(assetType.getType());
@@ -821,9 +843,13 @@ public class ControllerRRF {
 			loadScenarios(analysis.getScenarios(), workbook);
 			loadStandards(analysis.getAnalysisStandards(), workbook);
 			serviceAnalysis.saveOrUpdate(analysis);
+			// Log
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
+					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
+					analysis.getIdentifier(), analysis.getVersion());
+			
 			return JsonMessage.Success(messageSource.getMessage("success.import.raw.rrf", null, "RRF was been successfully update from raw data", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
@@ -938,31 +964,31 @@ public class ControllerRRF {
 			case F_SECTORIAL:
 				properties.setFSectoral((int) value);
 				break;
-			case EXTERNAL_THREAT:
+			case RAW_EXTERNAL_THREAT:
 				properties.setExternalThreat((int) value);
 				break;
-			case INTERNAL_THREAT:
+			case RAW_INTERNAL_THREAT:
 				properties.setInternalThreat((int) value);
 				break;
-			case ENVIRONMENTAL:
+			case RAW_ENVIRONMENTAL:
 				properties.setEnvironmental((int) value);
 				break;
-			case ACCIDENTAL:
+			case RAW_ACCIDENTAL:
 				properties.setAccidental((int) value);
 				break;
-			case INTENTIONAL:
+			case RAW_INTENTIONAL:
 				properties.setIntentional((int) value);
 				break;
-			case CORRECTIVE:
+			case RAW_CORRECTIVE:
 				properties.setCorrective(value);
 				break;
-			case LIMITATIVE:
+			case RAW_LIMITATIVE:
 				properties.setLimitative(value);
 				break;
-			case DETECTIVE:
+			case RAW_DETECTIVE:
 				properties.setDetective(value);
 				break;
-			case PREVENTIVE:
+			case RAW_PREVENTIVE:
 				properties.setPreventive(value);
 				break;
 			}
@@ -970,14 +996,14 @@ public class ControllerRRF {
 	}
 
 	private void loadScenarios(List<Scenario> scenarios, XSSFWorkbook workbook) {
-		XSSFSheet sheet = workbook.getSheet("scenario");
+		XSSFSheet sheet = workbook.getSheet(RAW_SCENARIOS);
 		if (sheet == null || scenarios.isEmpty())
 			return;
 		XSSFRow header = sheet.getRow(0);
 		if (header == null)
 			throw new TrickException("error.import.raw.rrf.scenario", "Scenario cannot be loaded");
 		Map<Integer, String> cellIndexToFieldName = new LinkedHashMap<Integer, String>();
-		Integer nameIndex = mappingColumns(header, NAME, cellIndexToFieldName);
+		Integer nameIndex = mappingColumns(header, RAW_SCENARIO, cellIndexToFieldName);
 		if (nameIndex == null)
 			throw new TrickException("error.import.raw.rrf.scenario.name", "Scenario name column cannot be found");
 		Map<String, Scenario> scenarioMappings = scenarios.stream().collect(Collectors.toMap(Scenario::getName, Function.identity()));
@@ -1019,31 +1045,31 @@ public class ControllerRRF {
 				assetTypeValues.get(nameField).setValue((int) value);
 			else {
 				switch (nameField) {
-				case EXTERNAL_THREAT:
+				case RAW_EXTERNAL_THREAT:
 					scenario.setExternalThreat((int) value);
 					break;
-				case INTERNAL_THREAT:
+				case RAW_INTERNAL_THREAT:
 					scenario.setInternalThreat((int) value);
 					break;
-				case ENVIRONMENTAL:
+				case RAW_ENVIRONMENTAL:
 					scenario.setEnvironmental((int) value);
 					break;
-				case ACCIDENTAL:
+				case RAW_ACCIDENTAL:
 					scenario.setAccidental((int) value);
 					break;
-				case INTENTIONAL:
+				case RAW_INTENTIONAL:
 					scenario.setIntentional((int) value);
 					break;
-				case CORRECTIVE:
+				case RAW_CORRECTIVE:
 					scenario.setCorrective(value);
 					break;
-				case LIMITATIVE:
+				case RAW_LIMITATIVE:
 					scenario.setLimitative(value);
 					break;
-				case DETECTIVE:
+				case RAW_DETECTIVE:
 					scenario.setDetective(value);
 					break;
-				case PREVENTIVE:
+				case RAW_PREVENTIVE:
 					scenario.setPreventive(value);
 					break;
 				}

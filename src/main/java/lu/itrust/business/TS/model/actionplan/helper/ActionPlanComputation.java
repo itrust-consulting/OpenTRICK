@@ -264,8 +264,8 @@ public class ActionPlanComputation {
 			// update ALE of asset objects
 			asm.UpdateAssessment(this.analysis);
 
-			this.standards.stream().filter(standard -> standard.getStandard().isComputable()).flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
-				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && measure.getMeasureDescription().isComputable()) {
+			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
+				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 					if (measure.getImplementationRateValue() >= 100)
 						preImplementedMeasures.add(measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 					if (!this.phases.contains(measure.getPhase()))

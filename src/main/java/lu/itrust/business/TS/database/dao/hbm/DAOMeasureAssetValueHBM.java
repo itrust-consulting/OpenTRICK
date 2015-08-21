@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.List;
+
 import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 
@@ -36,10 +38,18 @@ public class DAOMeasureAssetValueHBM extends DAOHibernate implements DAOMeasureA
 		getSession().delete(measureAssetValue);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public MeasureAssetValue getByAssetId(int idAsset) {
-		return (MeasureAssetValue) getSession().createQuery("From MeasureAssetValue where asset.id = :idAsset").setParameter("idAsset", idAsset).uniqueResult();
+	public List<MeasureAssetValue> getByAssetId(int idAsset) {
+		return getSession().createQuery("From MeasureAssetValue where asset.id = :idAsset").setParameter("idAsset", idAsset).list();
 	}
 
-	
+	@Override
+	public MeasureAssetValue getByMeasureIdAndAssetId(int measureId, int assetId) {
+		return (MeasureAssetValue) getSession()
+				.createQuery(
+						"Select measureAssetValue From AssetMeasure assetMeasure inner join assetMeasure.measureAssetValues as measureAssetValue where assetMeasure.id = :idMeasure and measureAssetValue.asset.id = :idAsset")
+				.setParameter("idMeasure", measureId).setParameter("idAsset", assetId).uniqueResult();
+	}
+
 }

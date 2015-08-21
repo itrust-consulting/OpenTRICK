@@ -1174,7 +1174,7 @@ public class ControllerAnalysisStandard {
 				Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, assetValueForm.getId());
 				if (asset == null)
 					throw new TrickException("error.asset.not_found", "Asset does not found");
-				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByAssetId(asset.getId());
+				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByMeasureIdAndAssetId(measure.getId(),asset.getId());
 				if (assetValue == null)
 					assetValue = new MeasureAssetValue(asset, assetValueForm.getValue());
 				else

@@ -1021,7 +1021,7 @@ public class ControllerAnalysis {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, actionPlanEntry);
+				writeActionPLanData(row, actionPlanEntry,locale);
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename
@@ -1044,14 +1044,14 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry) {
-		for (int i = 0; i < 22; i++) {
+	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, Locale locale) {
+		for (int i = 0; i < 21; i++) {
 			if (row.getCell(i) == null)
 				row.createCell(i, i < 7 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
 		}
 		int colIndex = 0;
 		Measure measure = actionPlanEntry.getMeasure();
-		MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2("fr");
+		MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(locale.getISO3Language());
 		row.getCell(colIndex).setCellValue(measure.getAnalysisStandard().getStandard().getLabel());
 		row.getCell(++colIndex).setCellValue(measure.getMeasureDescription().getReference());
 		row.getCell(++colIndex).setCellValue(descriptionText.getDomain());
@@ -1071,7 +1071,6 @@ public class ControllerAnalysis {
 		row.getCell(++colIndex).setCellValue(measure.getPhase().getNumber());
 		row.getCell(++colIndex).setCellValue(actionPlanEntry.getTotalALE() * 0.001);
 		row.getCell(++colIndex).setCellValue(actionPlanEntry.getDeltaALE() * 0.001);
-		row.getCell(++colIndex).setCellValue(actionPlanEntry.getCost() * 0.001);
 		row.getCell(++colIndex).setCellValue(actionPlanEntry.getROI() * 0.001);
 	}
 
@@ -1096,7 +1095,6 @@ public class ControllerAnalysis {
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("label.measure.phase", null, "Phase", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.ale", null, "ALE", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale));
-		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.cost", null, "CS", locale));
 		row.getCell(++colIndex).setCellValue(messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale));
 	}
 
