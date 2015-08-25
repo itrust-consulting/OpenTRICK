@@ -49,17 +49,15 @@ function selectAsset(assetId, value) {
 	return false;
 }
 
-function deleteAsset(assetId) {
+function deleteAsset() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		if (assetId == null || assetId == undefined) {
-			var selectedScenario = findSelectItemIdBySection(("section_asset"));
-			if (!selectedScenario.length)
-				return false;
-		}
+		var selectedAsset = findSelectItemIdBySection("section_asset");
+		if (!selectedAsset.length)
+			return false;
 
 		var lang = $("#nav-container").attr("data-trick-language");
-		if (selectedScenario.length == 1) {
-			var assetname = $("#section_asset tr[data-trick-id='" + assetId + "'] td:nth-child(3)").text();
+		if (selectedAsset.length == 1) {
+			var assetname = $("#section_asset tr[data-trick-id='" + selectedAsset[0] + "'] td:nth-child(3)").text();
 			$("#confirm-dialog .modal-body").html(
 					MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
 							+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", assetname, lang));
@@ -71,10 +69,10 @@ function deleteAsset(assetId) {
 									"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
 									assetname, lang));
 		$("#confirm-dialog .btn-danger").click(function() {
-			while (selectedScenario.length) {
-				rowTrickId = selectedScenario.pop();
+			while (selectedAsset.length) {
+				var assetId = selectedAsset.pop();
 				$.ajax({
-					url : context + "/Analysis/Asset/Delete/" + rowTrickId,
+					url : context + "/Analysis/Asset/Delete/" + assetId,
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined)
