@@ -44,7 +44,7 @@ public class ExternalNotificationHelper {
 		// Copy all properties from API object to a new entity
 		modelObj.setCategory(apiObj.getC());
 		modelObj.setTimestamp(apiObj.getT());
-		modelObj.setHalfLife(Long.MAX_VALUE);
+		modelObj.setHalfLife(Integer.MAX_VALUE);
 		modelObj.setNumber(1);
 		modelObj.setType(ExternalNotificationType.ABSOLUTE);
 		modelObj.setSeverity(apiObj.getV());

@@ -2076,6 +2076,9 @@ public class ActionPlanComputation {
 		double nMaxEff = -1;
 		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
 
+		// Retrieve tuning value
+		Parameter tuningParameter = analysis.findParameterByTypeAndDescription(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+
 		// ****************************************************************
 		// * parse assesments to generate TMA entries
 		// ****************************************************************
@@ -2096,7 +2099,7 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * calculate RRF
 					// ****************************************************************
-					rrf = RRF.calculateRRF(tmpAssessment, analysis.getParameters(), measure);
+					rrf = RRF.calculateRRF(tmpAssessment, tuningParameter, measure);
 
 					// ****************************************************************
 					// * create TMA object and initialise with assessment and

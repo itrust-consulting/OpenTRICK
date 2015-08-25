@@ -3,9 +3,7 @@ package lu.itrust.business.TS.model.rrf;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.List;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -49,16 +47,7 @@ public class RRF {
 	 * @return The Calculated RRF
 	 * @throws TrickException
 	 */
-	public static double calculateRRF(Assessment tmpAssessment, List<Parameter> parameters, Measure measure) throws TrickException {
-
-		// Retrieve tuning value
-		Parameter tuningParameter = null;
-		for (Parameter p : parameters) {
-			if (p.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME) && p.getDescription().equals(Constant.PARAMETER_MAX_RRF)) {
-				tuningParameter = p;
-				break;
-			}
-		}
+	public static double calculateRRF(Assessment tmpAssessment, Parameter tuningParameter, Measure measure) throws TrickException {
 		if (tuningParameter == null)
 			return 0;
 

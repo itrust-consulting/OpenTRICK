@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
@@ -57,10 +58,14 @@ public class DynamicRiskComputer {
 			measures.addAll(standard.getMeasures());
 
 		// Find all static expression parameters ("p0" etc.)
+		Parameter tuningParameter = null;
 		final Map<String, Double> expressionParameters = new HashMap<>();
-		for (Parameter p : allParameters)
+		for (Parameter p : allParameters) {
 			if (p instanceof AcronymParameter && !(p instanceof DynamicParameter))
 				expressionParameters.put(((AcronymParameter)p).getAcronym(), p.getValue());
+			else if (p.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME) && p.getDescription().equals(Constant.PARAMETER_MAX_RRF))
+				tuningParameter = p;
+		}
 
 		// Find all dynamic parameters and the respective values back then
 		for (String sourceUserName : cache_sourceUserNames)
@@ -79,10 +84,10 @@ public class DynamicRiskComputer {
 			double deltaAleFactor = 1.;
 			for (Measure measure : measures) {
 				final double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
-				final double rrf = RRF.calculateRRF(assessment, allParameters, measure);
+				final double rrf = RRF.calculateRRF(assessment, tuningParameter, measure);
 
 				// TODO: consider maturity standards
-				
+
 				// The line
 				// deltaAleFactor *= 1 - rrf * (1 - implementationRate) / (1 - rrf * implementationRate);
 				// is equivalent to:

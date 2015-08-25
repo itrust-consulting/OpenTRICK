@@ -2581,5 +2581,9 @@ public class Analysis implements Cloneable {
 		this.assessments.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
 		return assessments;
 	}
+
+	public Parameter findParameterByTypeAndDescription(String typeLabel, String description) {
+		return parameters.stream().filter(p -> p.getType().getLabel().equals(typeLabel) && p.getDescription().equals(description)).findAny().orElse(null);
+	}
 }
 

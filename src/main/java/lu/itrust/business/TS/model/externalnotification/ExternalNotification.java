@@ -2,6 +2,8 @@ package lu.itrust.business.TS.model.externalnotification;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
@@ -53,6 +55,7 @@ public class ExternalNotification {
 	 * The external notification type, specifying how the external notification impacts the alarm level.
 	 */
 	@Column(name = "dtType", nullable = false)
+	@Enumerated(EnumType.ORDINAL)
 	private ExternalNotificationType type;
 
 	/**

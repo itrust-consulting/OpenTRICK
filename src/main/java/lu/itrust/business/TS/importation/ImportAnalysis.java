@@ -2097,7 +2097,7 @@ public class ImportAnalysis {
 
 			measure.setInternalWL(rs.getInt(Constant.MEASURE_INTERNAL_SETUP));
 			measure.setExternalWL(rs.getInt(Constant.MEASURE_EXTERNAL_SETUP));
-			measure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
+			measure.setImplementationRate(Double.toString(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE)));
 			measure.setInvestment(rs.getDouble(Constant.MEASURE_INVESTISMENT));
 			measure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
 			measure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
