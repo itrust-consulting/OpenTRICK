@@ -65,7 +65,7 @@
 						<c:set var="totalAssetValue" value="${totalAssetValue + asset.value}" />
 						<c:set var="selectClass" value="${asset.selected?'selected':'unselected'}" />
 						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
-						<td class='${selectClass}'>${status.index+1}</td>
+						<td>${status.index+1}</td>
 						<td><spring:message text="${asset.name}" /></td>
 						<td><spring:message text="${asset.assetType.type}" /></td>
 						<fmt:setLocale value="fr" scope="session" />

@@ -487,10 +487,10 @@ ul.asset-measure>li {
 	margin-top: 10px;
 }
 
-td.selected {
+td.selected, .table>tbody>tr.info>td.selected {
 	background-color: #dff0d8
 }
 
-td.unselected {
-	background-color: white;
+td.unselected,.table>tbody>tr.info>td.unselected {
+	background-color: window;
 }
