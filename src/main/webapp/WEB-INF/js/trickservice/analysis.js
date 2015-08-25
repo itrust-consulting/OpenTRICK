@@ -52,6 +52,25 @@ $(document).ready(function() {
 	}, 30000); // every 30s
 });
 
+$.fn.loadOrUpdateChart = function(parameters) {
+	var chart = this.highcharts();
+	if (chart === undefined || parameters.series.length != chart.series.length)
+		return this.highcharts(parameters);
+
+	// Invalidate whole graph if the collection of series changed
+	for (var i = 0; i < chart.series.length; i++) {
+		if (chart.series[i].name != parameters.series[i].name)
+			return this.highcharts(parameters);
+	}
+
+	// Otherwise update only data
+	$.each(chart.series, function (i, series) {
+		series.setData(parameters.series[i].data);
+	});
+
+	return this;
+};
+
 function findAnalysisId() {
 	return $("#nav-container").attr("data-trick-id");
 }
@@ -138,7 +157,7 @@ function compliances() {
 				if($complianceBody.children().length)
 					$complianceBody.append("<hr class='col-xs-12' style='margin: 30px 0;'> <div id='chart_compliance_" + key + "'></div>");
 				else $complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
-				$('div[id="chart_compliance_' + key + '"]').highcharts(data[0]);
+				$('div[id="chart_compliance_' + key + '"]').loadOrUpdateChart(data[0]);
 			});
 		},
 		error : unknowError
@@ -159,7 +178,7 @@ function compliance(standard) {
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
-				$('#chart_compliance_' + standard).highcharts(response);
+				$('#chart_compliance_' + standard).loadOrUpdateChart(response);
 			},
 			error : unknowError
 		});
@@ -181,7 +200,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
-				$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
+				$('#chart_evolution_profitability_compliance_' + actionPlanType).loadOrUpdateChart(response);
 			},
 			error : unknowError
 		});
@@ -203,7 +222,7 @@ function budgetByActionPlanType(actionPlanType) {
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
-				$('#chart_budget_' + actionPlanType).highcharts(response);
+				$('#chart_budget_' + actionPlanType).loadOrUpdateChart(response);
 			},
 			error : unknowError
 		});
@@ -265,15 +284,15 @@ function displayChart(id,response) {
 		$element.empty();
 		for (var i = 0; i < response.length; i++){
 			if(i == 0)
-				$("<div/>").appendTo($element).highcharts(response[i]);
+				$("<div/>").appendTo($element).loadOrUpdateChart(response[i]);
 			else {
 				$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
-				$("<div></div>").appendTo($element).highcharts(response[i]);
+				$("<div></div>").appendTo($element).loadOrUpdateChart(response[i]);
 			}
 		}
 	}
 	else
-		$element.highcharts(response);
+		$element.loadOrUpdateChart(response);
 }
 
 function loadChartAsset() {
@@ -354,7 +373,7 @@ function loadChartDynamic() {
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_dynamic',response);
+					$('#chart_dynamic').loadOrUpdateChart(response);
 				},
 				error : unknowError
 			});
