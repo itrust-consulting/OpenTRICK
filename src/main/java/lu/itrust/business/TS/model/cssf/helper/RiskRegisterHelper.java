@@ -11,15 +11,14 @@ import lu.itrust.business.TS.model.cssf.EvaluationResult;
  *
  */
 public class RiskRegisterHelper {
-	
-	/** The Expected Evaluation Data (Probability, Impact and Importance) */
+	/** The Net Evaluation Data (Probability, Impact and Importance) */
 	private EvaluationResult netEvaluation = null;
 	
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
 	private EvaluationResult rawEvaluation = null;
 
-	/** The Net Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult expectedImportance = null;
+	/** The Expected Evaluation Data (Probability, Impact and Importance) */
+	private EvaluationResult expectedEvaluation = null;
 	
 	
 	/**
@@ -29,7 +28,7 @@ public class RiskRegisterHelper {
 	 */
 	public RiskRegisterHelper() throws TrickException {
 		rawEvaluation = new EvaluationResult(0, 0);
-		expectedImportance = new EvaluationResult(0, 0);
+		expectedEvaluation = new EvaluationResult(0, 0);
 		netEvaluation = new EvaluationResult(0, 0);
 	}
 	
@@ -49,12 +48,12 @@ public class RiskRegisterHelper {
 		this.rawEvaluation = rawEvaluation;
 	}
 
-	public EvaluationResult getExpectedImportance() {
-		return expectedImportance;
+	public EvaluationResult getExpectedEvaluation() {
+		return expectedEvaluation;
 	}
 
-	public void setExpectedImportance(EvaluationResult expectedImportance) {
-		this.expectedImportance = expectedImportance;
+	public void setExpectedEvaluation(EvaluationResult expectedEvaluation) {
+		this.expectedEvaluation = expectedEvaluation;
 	}
 	
 	

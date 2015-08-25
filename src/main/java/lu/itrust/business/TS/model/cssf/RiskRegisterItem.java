@@ -95,7 +95,7 @@ public class RiskRegisterItem {
 			@AttributeOverride(name = "probability", column = @Column(name = "dtExpEvaluationProbability", nullable = false)),
 			@AttributeOverride(name = "importance", column = @Column(name = "dtExpEvaluationImportance", nullable = false)) })
 	@Access(AccessType.FIELD)
-	private EvaluationResult expectedImportance = null;
+	private EvaluationResult expectedEvaluation = null;
 
 	/** Strategy */
 	@Column(name = "dtResponseStrategy", nullable = false)
@@ -115,7 +115,7 @@ public class RiskRegisterItem {
 	 */
 	public RiskRegisterItem() throws TrickException {
 		rawEvaluation = new EvaluationResult(0, 0);
-		expectedImportance = new EvaluationResult(0, 0);
+		expectedEvaluation = new EvaluationResult(0, 0);
 		netEvaluation = new EvaluationResult(0, 0);
 	}
 
@@ -130,7 +130,7 @@ public class RiskRegisterItem {
 		this.setScenario(scenario);
 		this.setAsset(asset);
 		rawEvaluation = new EvaluationResult(0, 0);
-		expectedImportance = new EvaluationResult(0, 0);
+		expectedEvaluation = new EvaluationResult(0, 0);
 		netEvaluation = new EvaluationResult(0, 0);
 	}
 
@@ -249,25 +249,25 @@ public class RiskRegisterItem {
 	}
 
 	/**
-	 * getExpectedImportance: <br>
-	 * Returns the "expectedImportance" field Object.
+	 * getExpectedEvaluation: <br>
+	 * Returns the "expectedEvaluation" field Object.
 	 * 
 	 * @return The Expected Evaluation Object (With Probability - Impact -
 	 *         Importance)
 	 */
-	public EvaluationResult getExpectedImportance() {
-		return expectedImportance;
+	public EvaluationResult getExpectedEvaluation() {
+		return expectedEvaluation;
 	}
 
 	/**
-	 * setExpectedImportance: <br>
-	 * Sets the field "expectedImportance" with a Object.
+	 * setExpectedEvaluation: <br>
+	 * Sets the field "expectedEvaluation" with a Object.
 	 * 
-	 * @param expectedImportance
+	 * @param expectedEvaluation
 	 *            The Expected Evaluation Object to set
 	 */
-	public void setExpectedImportance(EvaluationResult expectedImportance) {
-		this.expectedImportance = expectedImportance;
+	public void setExpectedEvaluation(EvaluationResult expectedEvaluation) {
+		this.expectedEvaluation = expectedEvaluation;
 	}
 
 	/**
@@ -322,7 +322,7 @@ public class RiskRegisterItem {
 	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {
 		if (riskRegister != null) {
 			this.position = riskRegister.position;
-			this.expectedImportance = riskRegister.expectedImportance;
+			this.expectedEvaluation = riskRegister.expectedEvaluation;
 			this.netEvaluation = riskRegister.netEvaluation;
 			this.rawEvaluation = riskRegister.rawEvaluation;
 		}

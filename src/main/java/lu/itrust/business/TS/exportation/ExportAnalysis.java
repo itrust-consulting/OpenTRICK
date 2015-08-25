@@ -2267,9 +2267,9 @@ public class ExportAnalysis {
 			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getProbability());
 			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getImpact());
 			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getImportance());
-			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getProbability());
-			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImpact());
-			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImportance());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getProbability());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getImpact());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getImportance());
 			params.add(this.analysis.getARiskRegisterEntry(i).getStrategy());
 			params.add(this.analysis.getARiskRegisterEntry(i).getOwner());
 
