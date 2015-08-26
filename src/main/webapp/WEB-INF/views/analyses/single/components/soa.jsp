@@ -20,12 +20,12 @@
 			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_SOA_27002">
 				<thead>
 					<tr>
-						<th style="width: 5%;"><fmt:message key="label.measure.ref" /></th>
-						<th style="width: 15%;"><fmt:message key="label.measure.domain" /></th>
-						<th style="width: 5%;"><fmt:message key="label.measure.phase" /></th>
-						<th style="width: 15%;"><fmt:message key="label.measure.soa.risk" /></th>
-						<th><fmt:message key="label.measure.soa.comment" /></th>
-						<th><fmt:message key="label.measure.SOA.reference" /></th>
+						<th style="width: 5%;" title='<fmt:message key="label.title.sao.measure.ref" />' ><fmt:message key="label.measure.ref" /></th>
+						<th style="width: 15%;" title='<fmt:message key="label.measure.domain" />' ><fmt:message key="label.measure.domain" /></th>
+						<th style="width: 5%;" title='<fmt:message key="label.measure.phase" />' ><fmt:message key="label.measure.phase" /></th>
+						<th style="width: 15%;" title='<fmt:message key="label.measure.soa.risk" />' ><fmt:message key="label.measure.soa.risk" /></th>
+						<th title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
+						<th title='<fmt:message key="label.reference" />' ><fmt:message key="label.reference" /></th>
 					</tr>
 				</thead>
 				<tfoot>

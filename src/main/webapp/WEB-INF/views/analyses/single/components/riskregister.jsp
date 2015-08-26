@@ -23,15 +23,15 @@
 				<table class="table table-hover table-condensed table-fixed-header-analysis">
 					<thead>
 						<tr>
-							<th rowspan="2" title='<fmt:message key="label.title.risk_register.category" />' ><fmt:message key="label.risk_register.category" /></th>
-							<th rowspan="2" title='<fmt:message key="label.title.risk_register.id" />' ><fmt:message key="label.risk_register.id" /></th>
-							<th rowspan="2" title='<fmt:message key="label.title.risk_register.risk_title" />' ><fmt:message key="label.risk_register.risk_title" /></th>
-							<th rowspan="2" title='<fmt:message key="label.title.risk_register.asset" />'><fmt:message key="label.risk_register.asset" /></th>
-							<th colspan="3" align="center" title='<fmt:message key="label.title.risk_register.raw_eval" />' ><fmt:message key="label.risk_register.raw_eval" /></th>
-							<th colspan="3" align="center" title='<fmt:message key="label.title.risk_register.net_eval" />' ><fmt:message key="label.risk_register.net_eval" /></th>
-							<th colspan="3" align="center" title='<fmt:message key="label.title.risk_register.exp_eval" />' ><fmt:message key="label.risk_register.exp_eval" /></th>
-							<th rowspan="2" title='<fmt:message key="label.title.risk_register.strategy" />' ><fmt:message key="label.risk_register.strategy" /></th>
-							<th rowspan="2" title='<fmt:message key="label.title.risk_register.owner" />' ><fmt:message key="label.risk_register.owner" /></th>
+							<th rowspan="2" title='<fmt:message key="label.title.id" />' ><fmt:message key="label.risk_register.id" /></th>
+							<th rowspan="2" title='<fmt:message key="label.risk_register.category" />' ><fmt:message key="label.risk_register.category" /></th>
+							<th rowspan="2" title='<fmt:message key="label.risk_register.risk_title" />' ><fmt:message key="label.risk_register.risk_title" /></th>
+							<th rowspan="2" title='<fmt:message key="label.risk_register.asset" />'><fmt:message key="label.risk_register.asset" /></th>
+							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.raw_eval" />' ><fmt:message key="label.risk_register.raw_eval" /></th>
+							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.net_eval" />' ><fmt:message key="label.risk_register.net_eval" /></th>
+							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.exp_eval" />' ><fmt:message key="label.risk_register.exp_eval" /></th>
+							<th rowspan="2" title='<fmt:message key="label.risk_register.strategy" />' ><fmt:message key="label.risk_register.strategy" /></th>
+							<th rowspan="2" title='<fmt:message key="label.risk_register.owner" />' ><fmt:message key="label.risk_register.owner" /></th>
 						</tr>
 						<tr>
 							<th class="text-center" title='<fmt:message key="label.risk_register.probability" />'><fmt:message key="label.risk_register.acro.probability" /></th>
@@ -49,11 +49,11 @@
 						<spring:eval expression="T(lu.itrust.business.TS.model.cssf.helper.RiskRegisterMapper).Generate(riskregister,parameters)" var="mappingRegisterHelpers" />
 						<c:forEach items="${riskregister}" var="item" varStatus="status">
 							<tr>
-								<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(item.scenario.type.name,'-','_'))}" /></td>
 								<td><spring:message text="${item.position}" /></td>
+								<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(item.scenario.type.name,'-','_'))}" /></td>
 								<td><spring:message text="${item.scenario.name}" /></td>
 								<td><spring:message text="${item.asset.name}" /></td>
-								<fmt:message key="label.metric.keuro_by_year" var="keuro_by_year" />
+								<fmt:message key="label.metric.euro_by_year" var="euro_by_year" />
 								<fmt:message key="label.assessment.likelihood.unit" var="by_year" />
 								<fmt:setLocale value="fr" scope="session" />
 								<c:set var="registerHelper" value="${mappingRegisterHelpers[item.id]}" />
@@ -62,33 +62,33 @@
 								<fmt:formatNumber value="${fct:round(item.rawEvaluation.importance*0.001,0)}" maxFractionDigits="0" var="importance" />
 
 								<td data-scale-value="${probability}" data-scale-level='<fmt:formatNumber value="${registerHelper.rawEvaluation.probability}" maxFractionDigits="0"/>' class="text-center"
-									title='<fmt:formatNumber value="${item.rawEvaluation.probability}" maxFractionDigits="2" /> ${by_year}'>${probability}</td>
+									title='<fmt:formatNumber value="${item.rawEvaluation.probability}" maxFractionDigits="2" />${by_year}'>${probability}</td>
 								<td data-scale-value="${impact}" data-scale-level='<fmt:formatNumber value="${registerHelper.rawEvaluation.impact}" maxFractionDigits="0"/>' class="text-center"
-									title='<fmt:formatNumber value="${item.rawEvaluation.impact}" maxFractionDigits="2" /> k&euro;'>${impact}</td>
+									title='<fmt:formatNumber value="${item.rawEvaluation.impact}" maxFractionDigits="2" />&euro;'>${impact}</td>
 								<td data-scale-value="${importance}" data-scale-level='<fmt:formatNumber value="${registerHelper.rawEvaluation.importance}" maxFractionDigits="0"/>' class="text-center"
-									title='<fmt:formatNumber value="${item.rawEvaluation.importance}" maxFractionDigits="2" /> ${keuro_by_year}'>${importance}</td>
+									title='<fmt:formatNumber value="${item.rawEvaluation.importance}" maxFractionDigits="2" />${euro_by_year}'>${importance}</td>
 
 								<fmt:formatNumber value="${fct:round(item.netEvaluation.probability,3)}" maxFractionDigits="3" var="probability" />
 								<fmt:formatNumber value="${fct:round(item.netEvaluation.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
 								<fmt:formatNumber value="${fct:round(item.netEvaluation.importance*0.001,0)}" maxFractionDigits="0" var="importance" />
 
 								<td data-scale-value="${probability}" data-scale-level='<fmt:formatNumber value="${registerHelper.netEvaluation.probability}" maxFractionDigits="0"/>' class="text-center"
-									title='<fmt:formatNumber value="${item.netEvaluation.probability}" maxFractionDigits="2" /> ${by_year}'>${probability}</td>
+									title='<fmt:formatNumber value="${item.netEvaluation.probability}" maxFractionDigits="2" />${by_year}'>${probability}</td>
 								<td data-scale-value="${impact}" data-scale-level='<fmt:formatNumber value="${registerHelper.netEvaluation.impact}" maxFractionDigits="0"/>' class="text-center"
-									title='<fmt:formatNumber value="${item.netEvaluation.impact}" maxFractionDigits="2" /> k&euro;'>${impact}</td>
+									title='<fmt:formatNumber value="${item.netEvaluation.impact}" maxFractionDigits="2" />&euro;'>${impact}</td>
 								<td data-scale-value="${importance}" data-scale-level='<fmt:formatNumber value="${registerHelper.netEvaluation.importance}" maxFractionDigits="0"/>' class="text-center"
-									title='<fmt:formatNumber value="${item.netEvaluation.importance}" maxFractionDigits="2" /> ${keuro_by_year}'>${importance}</td>
+									title='<fmt:formatNumber value="${item.netEvaluation.importance}" maxFractionDigits="2" />${euro_by_year}'>${importance}</td>
 
 								<fmt:formatNumber value="${fct:round(item.expectedEvaluation.probability,3)}" maxFractionDigits="3" var="probability" />
 								<fmt:formatNumber value="${fct:round(item.expectedEvaluation.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
 								<fmt:formatNumber value="${fct:round(item.expectedEvaluation.importance*0.001,0)}" maxFractionDigits="0" var="importance" />
 
 								<td data-scale-value="${probability}" data-scale-level='<fmt:formatNumber value="${registerHelper.expectedEvaluation.probability}" maxFractionDigits="0"/>'
-									class="text-center" title='<fmt:formatNumber value="${item.expectedEvaluation.probability}" maxFractionDigits="2" /> ${by_year}'>${probability}</td>
+									class="text-center" title='<fmt:formatNumber value="${item.expectedEvaluation.probability}" maxFractionDigits="2" />${by_year}'>${probability}</td>
 								<td data-scale-value="${impact}" data-scale-level='<fmt:formatNumber value="${registerHelper.expectedEvaluation.impact}" maxFractionDigits="0"/>' class="text-center"
-									title='<fmt:formatNumber value="${item.expectedEvaluation.impact}" maxFractionDigits="2" /> k&euro;'>${impact}</td>
+									title='<fmt:formatNumber value="${item.expectedEvaluation.impact}" maxFractionDigits="2" />&euro;'>${impact}</td>
 								<td data-scale-value="${importance}" data-scale-level='<fmt:formatNumber value="${registerHelper.expectedEvaluation.importance}" maxFractionDigits="0"/>'
-									class="text-center" title='<fmt:formatNumber value="${item.expectedEvaluation.importance}" maxFractionDigits="2" /> ${keuro_by_year}'>${importance}</td>
+									class="text-center" title='<fmt:formatNumber value="${item.expectedEvaluation.importance}" maxFractionDigits="2" />${euro_by_year}'>${importance}</td>
 
 								<fmt:setLocale value="${language}" scope="session" />
 
@@ -98,7 +98,6 @@
 								<fmt:message key="label.risk_register.strategy.avoid" var="avoid" />
 
 								<c:set value="${fn:toLowerCase(item.strategy)}" var="strategy" />
-
 								<c:if test="${strategy=='shrink' }">
 									<c:set value="reduce" var="strategy" />
 								</c:if>

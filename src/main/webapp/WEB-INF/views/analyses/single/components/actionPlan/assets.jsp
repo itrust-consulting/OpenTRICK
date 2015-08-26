@@ -35,7 +35,7 @@
 								<tr>
 									<th style="width: 1%;"><fmt:message key="label.table.index" /></th>
 									<th style="width: 4%;"><fmt:message key="label.measure.norm" /></th>
-									<th style="width: 3%;"><fmt:message key="label.measure.reference" /></th>
+									<th style="width: 3%;"><fmt:message key="label.reference" /></th>
 									<th style="width: 4%;"><fmt:message key="label.action_plan.total_ale" /></th>
 									<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 									<c:forEach items="${actionplanassets}" var="asset">

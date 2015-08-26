@@ -16,7 +16,6 @@
 		</div>
 	</div>
 	<div class="section" id="section_itemInformation">
-		<c:set var="newline" value="(\r\n|\n\r|\r|\n)"/>
 		<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header-analysis">
 			<thead>
 				<tr>

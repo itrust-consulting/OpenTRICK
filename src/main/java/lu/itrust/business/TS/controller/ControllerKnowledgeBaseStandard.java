@@ -896,7 +896,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody String forceDeleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasureDescription") int idMeasureDescription,
 			Principal principal, Locale locale) {

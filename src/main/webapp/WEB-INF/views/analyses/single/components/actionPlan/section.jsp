@@ -32,17 +32,17 @@
 							<thead>
 								<tr>
 									<th style="width:1%;"><fmt:message key="label.table.index" /></th>
-									<th style="width:4%;"><fmt:message key="label.measure.norm" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.reference" /></th>
-									<th><fmt:message key="label.action_plan.todo" /></th>
-									<th style="width:3%;"><fmt:message key="label.action_plan.total_ale" /></th>
-									<th style="width:4%;"><fmt:message key="label.action_plan.delta_ale" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.cost" /></th>
-									<th style="width:3%;"><fmt:message key="label.action_plan.roi" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.iw" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.ew" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.inv" /></th>
-									<th style="width:3%;"><fmt:message key="label.action_plan.phase" /></th>
+									<th style="width:4%;" title='<fmt:message key="label.measure.norm" />' ><fmt:message key="label.measure.norm" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.reference" />' ><fmt:message key="label.reference" /></th>
+									<th title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.title.ale" />' ><fmt:message key="label.action_plan.total_ale" /></th>
+									<th style="width:4%;" title='<fmt:message key="label.title.delta_ale" />' ><fmt:message key="label.action_plan.delta_ale" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.title.measure.cost" />' ><fmt:message key="label.measure.cost" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.title.action_plan.roi" />' ><fmt:message key="label.action_plan.roi" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.title.measure.iw" />' ><fmt:message key="label.measure.iw" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.title.measure.ew" />' ><fmt:message key="label.measure.ew" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.title.measure.inv" />' ><fmt:message key="label.measure.inv" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.measure.phase" />' ><fmt:message key="label.action_plan.phase" /></th>
 								</tr>
 							</thead>
 							<tbody>
