@@ -339,7 +339,7 @@ public class ExportAnalysisReport {
 			row.getCell(8).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
 			row.getCell(9).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
 			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV", locale));
-			row.getCell(11).setText(getMessage("report.action_plan.probability", null, "P", locale));
+			row.getCell(11).setText(getMessage("report.action_plan.phase", null, "P", locale));
 			int nr = 0;
 			// set data
 			for (ActionPlanEntry entry : actionplan) {

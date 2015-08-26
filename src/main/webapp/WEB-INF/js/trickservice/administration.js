@@ -105,11 +105,10 @@ function switchOwner(section) {
 							type : "get",
 							contentType : "application/json;charset=UTF-8",
 							success : function(response, textStatus, jqXHR) {
-								if (response["success"] != undefined){
+								if (response["success"] != undefined) {
 									$("#tab_analyses").find("select").change();
 									$content.modal("hide");
-								}
-								else if (response["error"] != undefined)
+								} else if (response["error"] != undefined)
 									$("<label class='label label-danger'>" + response["error"] + "</label>").appendTo($content.find("select").parent());
 								else
 									unknowError();
@@ -128,7 +127,7 @@ function switchOwner(section) {
 }
 
 function manageAnalysisAccess(analysisId, section_analysis) {
-	if (!isProfile("#"+section_analysis))
+	if (!isProfile("#" + section_analysis))
 		return false;
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection(section_analysis);
@@ -357,4 +356,23 @@ function loadSystemLogScrolling() {
 		});
 	}
 	return true;
+}
+
+function updateSetting(idForm, sender) {
+	if ($(sender).is(":checked")) {
+		$.ajax({
+			url : context + "/Admin/TSSetting/Update",
+			async : false,
+			type : "post",
+			data : JSON.stringify($(idForm).serializeJSON()),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response !== true)
+					unknowError();
+				return false;
+			},
+			error : unknowError
+		});
+	}
+	return false;
 }

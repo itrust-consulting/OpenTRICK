@@ -2054,13 +2054,11 @@ public class ImportAnalysis {
 			measure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 			measure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 			measure.setStatus(rs.getString(Constant.MEASURE_STATUS));
-			if (rs.getString(Constant.MEASURE_REVISION) == null) {
-				if (standard.getType().equals(StandardType.NORMAL))
-					((NormalMeasure) measure).setToCheck("");
-			} else {
-				if (standard.getType().equals(StandardType.ASSET))
-					((AssetMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION));
-			}
+			if (standard.getType().equals(StandardType.NORMAL))
+				((NormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? "" : rs.getString(Constant.MEASURE_REVISION));
+			else if (standard.getType().equals(StandardType.ASSET))
+				((AssetMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION));
+
 			measure.setToDo(rs.getString(Constant.MEASURE_TODO));
 
 			if (columnExists(rs, Constant.MEASURE_RESPONSIBLE))
@@ -2272,7 +2270,7 @@ public class ImportAnalysis {
 				List<Object> params = new ArrayList<Object>();
 
 				params.add(assetMeasure.getMeasureDescription().getStandard().getLabel());
-				params.add(assetMeasure.getMeasureDescription().getStandard().getVersion() - 1);
+				params.add(assetMeasure.getMeasureDescription().getStandard().getVersion());
 				params.add(assetMeasure.getMeasureDescription().getReference());
 
 				// execute query
@@ -2499,7 +2497,7 @@ public class ImportAnalysis {
 				}
 				standards.put(String.format("%s_%d", Constant.STANDARD_MATURITY, standardVersion), standard);
 			}
-			
+
 			// get analysisstandard from map
 			analysisStandard = analysisStandards.get(standard);
 			// analysis does not yet exist

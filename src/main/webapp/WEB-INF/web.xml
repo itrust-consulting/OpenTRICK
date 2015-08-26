@@ -45,7 +45,13 @@
   </filter>
     
   <session-config>
-	<session-timeout>15</session-timeout>
+  	<session-timeout>15</session-timeout>
+  	<cookie-config>
+<!-- 	<name>TS_SESSION_ID</name>	 -->
+  		<path>/</path>
+  		<http-only>true</http-only>
+		<!-- <secure>true</secure> -->
+  	</cookie-config>
   </session-config>
 
  <filter-mapping>

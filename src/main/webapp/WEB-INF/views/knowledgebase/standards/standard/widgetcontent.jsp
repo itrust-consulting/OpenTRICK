@@ -14,7 +14,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="standard" action="/Save" class="form-horizontal" id="standard_form" method="post">
+				<form name="standard" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="standard_form" method="post">
 					<input type="hidden" name="id" value="-1" id="standard_id">
 					<div class="form-group">
 						<label for="alpha3" class="col-sm-2 control-label"> <spring:message code="label.norm.label" text="Name" />

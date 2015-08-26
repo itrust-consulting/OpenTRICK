@@ -18,7 +18,7 @@
 			</h2>
 			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
 			<span id="success" hidden="hidden"></span>
-			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister" onsubmit="return register('registerform')">
+			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister?${_csrf.parameterName}=${_csrf.token}" onsubmit="return register('registerform')">
 				<div class="form-group">
 					<label for="login" class="col-sm-3 control-label">
 						<spring:message code="label.user.login" text="Username" />

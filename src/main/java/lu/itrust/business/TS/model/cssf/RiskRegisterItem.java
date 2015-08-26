@@ -101,6 +101,7 @@ public class RiskRegisterItem {
 	@Column(name = "dtResponseStrategy", nullable = false)
 	private String strategy = REDUCE_VALUE;
 
+	@Column(name = "dtOwner", nullable = false)
 	private String owner = "";
 
 	/***********************************************************************************************

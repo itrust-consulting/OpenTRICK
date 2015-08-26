@@ -18,7 +18,7 @@
 				</div>
 			</div>
 			<div class="modal-body">
-				<form name="phase" action="${pageContext.request.contextPath}/Phase/Save" class="form-horizontal" id="phase_form">
+				<form name="phase" action="${pageContext.request.contextPath}/Phase/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="phase_form">
 					<c:choose>
 						<c:when test="${!empty(phase)}">
 							<input name="id" id="phaseid" value="${phase.id}" type="hidden">

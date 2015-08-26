@@ -15,7 +15,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save" class="form-horizontal" id="scenario_form">
+				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="scenario_form">
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
 					<div class="form-group">
 						<label for="name" class="col-sm-2 control-label"> <fmt:message key="label.scenario.name" />

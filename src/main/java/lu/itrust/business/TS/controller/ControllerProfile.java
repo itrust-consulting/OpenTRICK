@@ -37,6 +37,7 @@ import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -130,8 +131,6 @@ public class ControllerProfile {
 		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)), filter = user
 				.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
 		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
-
-		System.out.println(sort);
 
 		if (size == null)
 			size = 30;
@@ -369,39 +368,57 @@ public class ControllerProfile {
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
-
-			String currentPassword = jsonNode.get("currentPassword").asText();
-			String password = jsonNode.get("password").asText();
-			String repeatedPassword = jsonNode.get("repeatPassword").asText();
-			String firstname = jsonNode.get("firstName").asText();
-			String lastname = jsonNode.get("lastName").asText();
-			String email = jsonNode.get("email").asText();
-			String userlocale = jsonNode.get("locale").asText();
+			String currentPassword = readStringValue(jsonNode, "currentPassword");
+			String password = readStringValue(jsonNode, "password");
+			String repeatedPassword = readStringValue(jsonNode, "repeatPassword");
+			String firstname = readStringValue(jsonNode, "firstName");
+			String lastname = readStringValue(jsonNode, "lastName");
+			String email = readStringValue(jsonNode, "email");
+			String userlocale = readStringValue(jsonNode, "locale");
 			String error = null;
 			String oldPassword = user.getPassword();
-
-			if (currentPassword != Constant.EMPTY_STRING) {
-
-				if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
+			if (user.getConnexionType() != User.LADP_CONNEXION) {
+				if (StringUtils.isEmpty(currentPassword))
+					errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null, "Enter current password for changes to take effect!", locale));
+				else if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
 					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
+			}
+			if (!errors.containsKey("currentPassword")) {
+				if (!StringUtils.isEmpty(password)) {
+					if (user.getConnexionType() == User.LADP_CONNEXION)
+						errors.put("user", messageSource.getMessage("error.ldap.change.password", null, "Please contact your administrator to reset your password.", locale));
+					else {
+						error = validator.validate(user, "password", password);
+						if (error != null)
+							errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+						else
+							user.setPassword(password);
 
-				if (password != Constant.EMPTY_STRING) {
+						error = validator.validate(user, "repeatPassword", repeatedPassword);
+						if (error != null) {
+							user.setPassword(oldPassword);
+							errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
+						} else {
 
-					error = validator.validate(user, "password", password);
-					if (error != null)
-						errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
-					else
-						user.setPassword(password);
-
-					error = validator.validate(user, "repeatPassword", repeatedPassword);
-					if (error != null) {
-						user.setPassword(oldPassword);
-						errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
-					} else {
-
-						user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+							user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+						}
 					}
 				}
+
+				if (user.getConnexionType() == User.LADP_CONNEXION && !user.getEmail().equals(email))
+					errors.put("email", messageSource.getMessage("error.ldap.change.email", null, "Please contact your administrator to update your email.", locale));
+				else {
+					error = validator.validate(user, "email", email);
+					if (error != null)
+						errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+					else if (!user.getEmail().equals(email)) {
+						if (serviceUser.existByEmail(email))
+							errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
+						else
+							user.setEmail(email);
+					}
+				}
+
 				error = validator.validate(user, "firstName", firstname);
 				if (error != null)
 					errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
@@ -414,25 +431,12 @@ public class ControllerProfile {
 				else
 					user.setLastName(lastname);
 
-				error = validator.validate(user, "email", email);
-				if (error != null)
-					errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-				else if (!user.getEmail().equals(email)) {
-					if (serviceUser.existByEmail(email))
-						errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
-					else
-						user.setEmail(email);
-				}
-
 				error = validator.validate(user, "locale", userlocale);
 				if (error != null)
 					errors.put("locale", serviceDataValidation.ParseError(error, messageSource, locale));
 				else
 					user.setLocale(userlocale);
-
-			} else
-				errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null, "Enter current password for changes to take effect!", locale));
-
+			}
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
@@ -442,4 +446,7 @@ public class ControllerProfile {
 
 	}
 
+	private String readStringValue(JsonNode jsonNode, String fieldName) {
+		return jsonNode.has(fieldName) ? jsonNode.get(fieldName).textValue() : null;
+	}
 }

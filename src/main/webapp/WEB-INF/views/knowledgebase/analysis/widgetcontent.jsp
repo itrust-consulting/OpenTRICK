@@ -15,7 +15,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="analysis" action="/update" class="form-horizontal" id="analysis_form"></form>
+				<form name="analysis" action="/update?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="analysis_form"></form>
 				<div class="col-sm-12" style="margin: 5px auto -10px auto;">
 					<div class="progress progress-striped active" hidden="true">
 						<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
