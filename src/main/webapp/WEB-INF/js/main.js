@@ -287,24 +287,12 @@ function hasRight(action) {
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
-function hasCreateVersion() {
+function hasRoleToCreateVersion() {
 	return canCreateNewVersion($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"));
 }
 
 function canCreateNewVersion(idAnalysis) {
-	if (application.rights[idAnalysis] != undefined)
-		return application.rights[idAnalysis];
-	else
-		application.rights[idAnalysis] = false;
-	$.ajax({
-		url : context + "/Can-create-version/" + idAnalysis,
-		async : false,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			return application.rights[idAnalysis] = response === true;
-		}
-	});
-	return application.rights[idAnalysis];
+	return hasRight("ALL") || $("div[data-trick-id='" + idAnalysis + "'][data-analysis-owner='true']").length;
 }
 
 function canManageAccess() {
