@@ -215,6 +215,16 @@ public class NormalMeasure extends Measure {
 		}
 	}
 
+	@Override
+	@Transient
+	public boolean isImplementationRateValueConstant() {
+		try {
+			return (new StringExpressionParser(this.getImplementationRate())).getInvolvedVariables().size() == 0;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
+
 	/**
 	 * setImplementationRate: <br>
 	 * Sets the Implementation Rate with a Value

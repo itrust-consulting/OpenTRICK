@@ -219,6 +219,12 @@ public class MaturityMeasure extends Measure implements Cloneable {
 		return (Parameter) super.getImplementationRate();
 	}
 
+	@Override
+	@Transient
+	public boolean isImplementationRateValueConstant() {
+		return true;
+	}
+	
 	/**
 	 * setImplementationRate: <br>
 	 * Sets the Field "implementationRate" with a Parameter object.

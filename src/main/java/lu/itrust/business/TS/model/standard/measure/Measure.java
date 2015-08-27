@@ -211,6 +211,9 @@ public abstract class Measure implements Cloneable {
 	public abstract double getImplementationRateValue(Map<String, Double> dynamicParameters);
 
 	@Transient
+	public abstract boolean isImplementationRateValueConstant();
+
+	@Transient
 	@Deprecated // this method is used by the UI only
 	@Access(AccessType.FIELD)
 	public double getImplementationRateValue() {

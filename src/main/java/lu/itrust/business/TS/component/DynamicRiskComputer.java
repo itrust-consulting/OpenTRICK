@@ -81,21 +81,27 @@ public class DynamicRiskComputer {
 			final double ale = assessment.getImpactReal() * likelihood;
 
 			// Determine the total ALE of this assessment, considering risk reduction
-			double deltaAleFactor = 1.;
+			// For the mathematical background, see
+			// \RD\SGL Cockpit\WP1-RiskAnalysis\DynamicRiskAnalysis\REP_R110_Import_Performance_Measurement_Data_Into_TS_v0.2.docx
+ 
+			double aleFactor = 1.;
 			for (Measure measure : measures) {
-				final double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
-				final double rrf = RRF.calculateRRF(assessment, tuningParameter, measure);
-
-				// TODO: consider maturity standards
-
-				// The line
-				// deltaAleFactor *= 1 - rrf * (1 - implementationRate) / (1 - rrf * implementationRate);
-				// is equivalent to:
-				deltaAleFactor *= (1 - rrf) / (1 - rrf * implementationRate);
+				if (!measure.isImplementationRateValueConstant()) {
+					final double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
+					final double rrf = RRF.calculateRRF(assessment, tuningParameter, measure);
+	
+					// TODO: consider maturity standards
+	
+					// TODO: HACK: there is no such parameter as the initial implementation rate yet (not implemented yet). \
+					// For now, we just assume the initial rate was 0.
+					// The motivation of the formula below is given by the above-mentioned document in Section 4.2.2.
+					aleFactor *= 1 - rrf * implementationRate;
+				}
 			}
-
-			final double totalAle = totalAleByAsset.getOrDefault(assessment.getAssetId(), 0.0);
-			totalAleByAsset.put(assessment.getAssetId(), totalAle + ale * (1. - deltaAleFactor));
+			final double previousTotalAle = totalAleByAsset.getOrDefault(assessment.getAssetId(), 0.0);
+			// The formula below for computing the ALE of the current implementation rate is mathematically founded (and not trivial!).
+			// See the appropriate documentation for derivation details.
+			totalAleByAsset.put(assessment.getAssetId(), previousTotalAle + ale * aleFactor);
 		}
 		return totalAleByAsset;
 	}
