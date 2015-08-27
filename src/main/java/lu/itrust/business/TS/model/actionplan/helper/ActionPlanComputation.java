@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -2850,88 +2849,29 @@ public class ActionPlanComputation {
 		for (String key : tmpval.conformanceHelper.keySet()) {
 
 			SummaryStandardHelper helper = tmpval.conformanceHelper.get(key);
-
 			helper.conformance = 0;
-
-			Map<String, Object[]> chapters = new HashMap<String, Object[]>();
-
+			int denominator = 0;
+			double numerator = 0;
 			for (int i = 0; i < helper.standard.getMeasures().size(); i++) {
-
 				measure = helper.standard.getMeasures().get(i);
-
-				double imprate = 0;
-
-				if (measure instanceof NormalMeasure)
-					imprate = ((NormalMeasure) measure).getImplementationRateValue();
-
-				else if (measure instanceof MaturityMeasure)
-					imprate = ((MaturityMeasure) measure).getImplementationRateValue();
-
+				double imprate = measure.getImplementationRateValue();
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
-
-					String chapterName = extractMainChapter(measure.getMeasureDescription().getReference());
-
-					Object[] chapter = chapters.containsKey(chapterName) ? chapters.get(chapterName) : new Object[] { 0.0, new Integer(0), new Integer(0) };
-
-					Double numerator = (Double) chapter[0];
-
-					Integer denominator = (Integer) chapter[1];
-
-					Integer implementation = (Integer) chapter[2];
-
-					denominator++;
-
-					if (firstStage) {
-
-						if (imprate == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
-							implementation++;
-
-						if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-							numerator += imprate / 100.;
-						else
-							numerator += Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.;
-					} else {
-
-						if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-							numerator += imprate / 100.;
-						else
-							numerator += Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.;
-
-						if (helper.measures.contains(measure)) {
-							numerator += (1.) - (imprate / 100.);
-							tmpval.measureCount++;
-						}
+					numerator += imprate * 0.01;// imprate / 100.0
+					if (firstStage && imprate == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
+						tmpval.implementedCount++;
+					else if (helper.measures.contains(measure)) {
+						numerator += (1.0 - imprate * 0.01);
+						tmpval.measureCount++;
+						System.out.println(measure);
 					}
-
-					chapters.put(chapterName, new Object[] { numerator, denominator, implementation });
+					denominator++;
 				}
 			}
 
-			for (String chapterkey : chapters.keySet()) {
-
-				Object[] chapter = chapters.get(chapterkey);
-
-				Double numerator = (Double) chapter[0];
-
-				Integer denominator = (Integer) chapter[1];
-
-				if (denominator == 0)
-					throw new TrickException("error.summary.no.implemented.measure", "No implemented measure");
-
-				helper.conformance += (numerator / (double) denominator);
-
-				Integer implementation = (Integer) chapter[2];
-
-				tmpval.implementedCount += implementation;
-			}
-
-			if (chapters.size() > 0)
-				helper.conformance /= (double) chapters.size();
-			else
+			if (denominator == 0)
 				helper.conformance = 0;
-
-			chapters.clear();
-
+			else
+				helper.conformance += (numerator / (double) denominator);
 		}
 
 		if (isFirstValidPhase) {

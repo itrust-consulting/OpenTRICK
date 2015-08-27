@@ -134,8 +134,8 @@
 							<td style="padding-left: 15px">1.4. <fmt:message key="label.profitability.rosi.relatif" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${fct:round(relativerosis.get(i),0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" />'><spring:message text="${value}" /></td>
+								<fmt:formatNumber value="${fct:round(relativerosis.get(i),2)}" var="value" />
+								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" />'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>

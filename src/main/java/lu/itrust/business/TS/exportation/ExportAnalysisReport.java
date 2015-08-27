@@ -97,7 +97,7 @@ public class ExportAnalysisReport {
 	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
 	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-
+	
 	private Locale locale = null;
 
 	private MessageSource messageSource;
@@ -520,8 +520,10 @@ public class ExportAnalysisReport {
 			case 15: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText("4.4	" + getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI", locale));
+				DecimalFormat format = (DecimalFormat) numberFormat.clone();
+				format.setMaximumFractionDigits(2);
 				for (SummaryStage stage : summary)
-					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRelativeROSI()));
+					addCellNumber(row.getCell(++cellnumber), format.format(stage.getRelativeROSI()));
 				break;
 			}
 			case 16: {
