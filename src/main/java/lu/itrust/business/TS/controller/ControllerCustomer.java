@@ -117,9 +117,7 @@ public class ControllerCustomer {
 	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale,
 			RedirectAttributes redirectAttributes) throws Exception {
 		// create errors list
-
 		try {
-
 			Customer customer = serviceCustomer.get(customerID);
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
@@ -132,12 +130,13 @@ public class ControllerCustomer {
 					if (!user.containsCustomer(customer)) {
 						user.addCustomer(customer);
 						serviceUser.saveOrUpdate(user);
+						customerusers.add(user);
 						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
 								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
 								customer.getOrganisation(), user.getLogin());
 					}
-				} else
-					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
+				} else if (customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName()))
+					customerusers.remove(user);
 			}
 
 			model.addAttribute("users", users);

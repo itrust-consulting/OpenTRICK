@@ -213,26 +213,25 @@ public class CustomDelete {
 		daoCustomer.delete(customer);
 		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.customer", String.format("Customer: %s", customer.getOrganisation()), username, LogAction.DELETE,
 				customer.getOrganisation());
-
 	}
 
 	@Transactional
-	public void removeCustomerByUser(int customerId, String userName, String adminUsername) throws Exception {
+	public boolean removeCustomerByUser(int customerId, String userName, String adminUsername) throws Exception {
 		Customer customer = daoCustomer.get(customerId);
 		if (customer == null || !customer.isCanBeUsed())
-			return;
+			return false;
 		User user = daoUser.get(userName);
 		if (user == null)
-			return;
+			return false;
 		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
+		
+		if (!(user.containsCustomer(customer) && user.getCustomers().remove(customer)))
+			return false;
 
-		for (Analysis analysis : analyses) {
+		for (Analysis analysis : analyses){
 			analysis.removeRights(user);
 			daoAnalysis.saveOrUpdate(analysis);
 		}
-
-		if (!(user.containsCustomer(customer) && user.getCustomers().remove(customer)))
-			return;
 		daoUser.saveOrUpdate(user);
 		/**
 		 * Log
@@ -240,6 +239,7 @@ public class CustomDelete {
 		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.remove.access.to.customer",
 				String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), adminUsername, LogAction.REMOVE_ACCESS, customer.getOrganisation(),
 				user.getLogin());
+		return true;
 	}
 
 	@Transactional
