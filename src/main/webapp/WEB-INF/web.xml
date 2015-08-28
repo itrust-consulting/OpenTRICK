@@ -48,7 +48,7 @@
   <session-config>
   	<session-timeout>15</session-timeout>
   	<cookie-config>
-<!-- 	<name>TS_SESSION_ID</name>	 -->
+		<name>TS_SESSION_ID</name> 
   		<path>/</path>
   		<http-only>true</http-only>
 		<!-- <secure>true</secure> -->
