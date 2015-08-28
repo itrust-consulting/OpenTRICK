@@ -1104,8 +1104,8 @@ public class ControllerAnalysisStandard {
 		error = validator.validate("level", measureForm.getLevel());
 		if (error != null)
 			errors.put("level", serviceDataValidation.ParseError(error, messageSource, locale));
-		/*else if (!errors.containsKey("reference") && measureForm.getReference().split("\\.").length != measureForm.getLevel())
-			errors.put("level", messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));*/
+		else if (!errors.containsKey("reference") && measureForm.getReference().split(Constant.REGEX_SPLIT_REFERENCE).length != measureForm.getLevel())
+			errors.put("level", messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
 		validator = serviceDataValidation.findByClass(MeasureDescriptionTextValidator.class);
 		if (validator == null)
 			serviceDataValidation.register(validator = new MeasureDescriptionTextValidator());

@@ -195,7 +195,7 @@ public class ControllerRegister {
 	}
 
 	public String checkAttempt(String name, HttpSession session, Principal principal) {
-		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
+		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
 		if (!(principal == null && (setting == null || setting.getBoolean())))
 			return "redirect:/Home";
 		Integer attempt = (Integer) session.getAttribute(name);

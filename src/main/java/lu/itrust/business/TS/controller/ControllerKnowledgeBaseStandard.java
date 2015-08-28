@@ -929,6 +929,7 @@ public class ControllerKnowledgeBaseStandard {
 			JsonNode jsonNode = mapper.readTree(source);
 
 			String reference = jsonNode.get("reference").asText();
+			
 			Integer level = null;
 			Boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
 			try {
@@ -946,6 +947,7 @@ public class ControllerKnowledgeBaseStandard {
 			if (error != null)
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
+				reference = reference.trim();
 				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
 					errors.put("measuredescription.reference",
 							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
@@ -958,8 +960,7 @@ public class ControllerKnowledgeBaseStandard {
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if (!errors.containsKey("measuredescription.reference")) {
-
-				if (reference.split("\\.").length != level)
+				if (reference.split(Constant.REGEX_SPLIT_REFERENCE).length != level)
 					errors.put("measuredescription.level",
 							messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
 				else
