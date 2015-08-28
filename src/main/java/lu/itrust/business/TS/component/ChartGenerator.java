@@ -561,6 +561,8 @@ public class ChartGenerator {
 
 		String riskReduction = "[";
 
+		String costOfMeasures = "[";
+
 		String rosi = "[";
 
 		String relatifRosi = "[";
@@ -590,6 +592,8 @@ public class ChartGenerator {
 
 		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
 
+		List<String> dataCostOfMeasures = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
+
 		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
 
 		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
@@ -599,6 +603,7 @@ public class ChartGenerator {
 		for (int i = 0; i < usesPhases.size(); i++) {
 			ale += dataALEs.get(i) + (size != i ? "," : "]");
 			riskReduction += dataRiskReductions.get(i) + (size != i ? "," : "]");
+			costOfMeasures += dataCostOfMeasures.get(i) + (size != i ? "," : "]");
 			rosi += dataROSIs.get(i) + (size != i ? "," : "]");
 			relatifRosi += dataRelatifROSIs.get(i) + (size != i ? "," : "]");
 
@@ -624,7 +629,7 @@ public class ChartGenerator {
 
 		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k€/y", locale);
 
-		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\""
+		String yAxis = "\"yAxis\": [{ \"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
 				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\""
 				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
@@ -643,7 +648,8 @@ public class ChartGenerator {
 		series += "{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale) + "\", \"data\":" + ale
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale) + "\", \"data\":" + riskReduction
-				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale)
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale)
+				+ "\", \"data\":" + costOfMeasures + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale)
 				+ "\", \"data\":" + rosi + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
