@@ -36,7 +36,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
-import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
@@ -1254,14 +1253,8 @@ public class ChartGenerator {
 	public String aleEvolution(int idAnalysis, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
-		final List<Asset> assets = analysis.getAssets();
 		final List<Assessment> assessments = analysis.getAssessments();
 		final List<Parameter> allParameters = analysis.getParameters();
-		
-		// Index assets
-		final Map<Integer, Asset> assetsById = new HashMap<>();
-		for (Asset asset : assets)
-			assetsById.put(asset.getId(), asset);
 
 		// Index parameters
 		final Map<String, Double> allParameterValuesByLabel = new HashMap<>();
@@ -1285,7 +1278,7 @@ public class ChartGenerator {
 		List<Long> xAxisValues = new ArrayList<>();
 
 		// For each dynamic parameter, construct a series of values
-		Map<Asset, Map<Long, Double>> data = new HashMap<>();
+		Map<AssetType, Map<Long, Double>> data = new HashMap<>();
 		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
 			// Add x-axis values to a list in reverse order (we use Collections.reverse() later on)
 			xAxisValues.add(timeEnd);
@@ -1294,11 +1287,10 @@ public class ChartGenerator {
 			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
 			// Fetch data
-			Map<Integer, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd - nextTimeIntervalSize, timeEnd, assessments, sourceUserNames, allParameters, allParameterValuesByLabel);
-			for (int assetId : aleByAsset.keySet()) {
-				Asset asset = assetsById.get(assetId);
-				data.putIfAbsent(asset, new HashMap<Long, Double>());
-				data.get(asset).put(timeEnd, aleByAsset.get(assetId));
+			Map<AssetType, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd - nextTimeIntervalSize, timeEnd, assessments, sourceUserNames, allParameters, allParameterValuesByLabel);
+			for (AssetType assetType : aleByAsset.keySet()) {
+				data.putIfAbsent(assetType, new HashMap<Long, Double>());
+				data.get(assetType).put(timeEnd, aleByAsset.get(assetType));
 			}
 
 			// Modify interval size
@@ -1309,13 +1301,13 @@ public class ChartGenerator {
 		
 		// Collect data
 		String jsonSeries = "\"series\":[ "; // need space at the end (if 'data' is empty map, last character is removed)
-		for (Asset asset : data.keySet()) {
+		for (AssetType assetType : data.keySet()) {
 			String jsonSingleSeries = "[ "; // need space at the end (if 'xAxisValues' is empty list, last character is removed)
 			for (long timeEnd : xAxisValues) {
-				jsonSingleSeries += Math.round(data.get(asset).getOrDefault(timeEnd, 0.) * 100.) / 100. + ",";
+				jsonSingleSeries += Math.round(data.get(assetType).getOrDefault(timeEnd, 0.) * 100.) / 100. + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
-			jsonSeries += "{\"name\":\"" + jsonEscape(asset.getName()) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
+			jsonSeries += "{\"name\":\"" + jsonEscape(assetType.getType()) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 

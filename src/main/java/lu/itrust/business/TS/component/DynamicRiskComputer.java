@@ -10,6 +10,7 @@ import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -49,7 +50,7 @@ public class DynamicRiskComputer {
 	 * @throws Exception 
 	 * @throws IllegalArgumentException 
 	 */
-	public Map<Integer, Double> computeAleOfAllAssets(List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<Assessment> cache_assessments, List<String> cache_sourceUserNames, List<Parameter> allParameters, Map<String, Double> allParameterValuesByLabel) throws Exception {
+	public Map<AssetType, Double> computeAleOfAllAssets(List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<Assessment> cache_assessments, List<String> cache_sourceUserNames, List<Parameter> allParameters, Map<String, Double> allParameterValuesByLabel) throws Exception {
 		double minimumProbability = allParameterValuesByLabel.getOrDefault("p0", 0.0);
 
 		// Find all measures
@@ -72,7 +73,7 @@ public class DynamicRiskComputer {
 			//expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp, sourceUserName, minimumProbability));
 			expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability));
 
-		Map<Integer, Double> totalAleByAsset = new HashMap<>(); 
+		Map<AssetType, Double> totalAleByAssetType = new HashMap<>(); 
 		for (Assessment assessment : cache_assessments) {
 			if (!assessment.isUsable()) continue;
 
@@ -98,11 +99,11 @@ public class DynamicRiskComputer {
 					aleFactor *= 1 - rrf * implementationRate;
 				}
 			}
-			final double previousTotalAle = totalAleByAsset.getOrDefault(assessment.getAssetId(), 0.0);
+			final double previousTotalAle = totalAleByAssetType.getOrDefault(assessment.getAsset().getAssetType(), 0.0);
 			// The formula below for computing the ALE of the current implementation rate is mathematically founded (and not trivial!).
 			// See the appropriate documentation for derivation details.
-			totalAleByAsset.put(assessment.getAssetId(), previousTotalAle + ale * aleFactor);
+			totalAleByAssetType.put(assessment.getAsset().getAssetType(), previousTotalAle + ale * aleFactor);
 		}
-		return totalAleByAsset;
+		return totalAleByAssetType;
 	}
 }
