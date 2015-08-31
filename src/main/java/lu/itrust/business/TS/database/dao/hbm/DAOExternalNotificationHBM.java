@@ -8,7 +8,7 @@ import java.util.Map;
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
-import lu.itrust.business.expressions.StringExpressionHelper;
+import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -92,7 +92,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			ExternalNotification extNot = iterator.next();
 			
 			// Deduce parameter name from category
-			String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, extNot.getCategory()));
+			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, extNot.getCategory());
 
 			// Get parameters resulting from previous step
 			final double timeElapsed = timestamp - extNot.getTimestamp(); // we know this quantity to be >= 0
@@ -149,7 +149,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		while (iterator.hasNext()) {
 			
 			final ExternalNotification next = iterator.next();
-			final String parameterName = StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, next.getCategory()));
+			final String parameterName = ExternalNotificationHelper.createParameterName(sourceUserName, next.getCategory());
 			final ExternalNotification last = lastNotification.put(parameterName, next);
 			if (last == null) continue;
 

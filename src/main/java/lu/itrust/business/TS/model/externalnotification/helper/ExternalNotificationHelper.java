@@ -5,6 +5,7 @@ import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
+import lu.itrust.business.expressions.StringExpressionHelper;
 
 /**
  * Provides helper functionality for external notification instances.
@@ -50,5 +51,14 @@ public class ExternalNotificationHelper {
 		modelObj.setSeverity(apiObj.getV());
 		modelObj.setSourceUserName(userName);
 		return modelObj;
+	}
+	
+	/**
+	 * Deduces the name of the dynamic parameter associated to an external notification.
+	 * @param sourceUserName The user name of the reporting user.
+	 * @param category The category of the external notification.
+	 */
+	public static String createParameterName(String sourceUserName, String category) {
+		return StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, category));
 	}
 }

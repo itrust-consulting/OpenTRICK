@@ -141,12 +141,20 @@ public class DynamicParameterComputer {
 				parameter.setType(dynamicParameterType);
 				analysis.getParameters().add(parameter);
 			}
+			
+			// Remove entry from parameter map so that we know it has been handled
+			dynamicParameters.remove(parameterName);	
 
 			// Set new parameter value to computed likelihood.
 			// If the latter is not set, it exactly means that the likelihood is zero.
 			// NB: the user is free to enforce a minimum value by using the max() function in his formula
 			parameter.setValue(likelihoods.getOrDefault(parameterName, 0.0));
 		}
+		
+		// Remove all parameters which are no longer needed
+		// (these are all parameters which have not been removed from 'dynamicParameters')
+		for (DynamicParameter dynamicParameter : dynamicParameters.values())
+			daoParameter.delete(dynamicParameter);
 
 		// Update assessment to reflect the new values of the dynamic parameters
 		assessmentManager.UpdateAssessment(analysis);
