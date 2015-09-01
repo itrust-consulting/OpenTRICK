@@ -6,6 +6,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.TableGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 
@@ -30,6 +31,9 @@ public class ControllerDynamicRiskAnalysis {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
+
+	@Autowired
+	private TableGenerator tableGenerator;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -68,5 +72,17 @@ public class ControllerDynamicRiskAnalysis {
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		return chartGenerator.aleEvolutionofAllScenarios(idAnalysis, assetType, customLocale != null ? customLocale : locale);
+	}
+
+	@RequestMapping(value = "/Table/AleEvolutionByScenario/{assetType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody String tableAleEvolutionByScenario(HttpSession session, Model model, Principal principal, Locale locale, @PathVariable("assetType") String assetType) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		if (idAnalysis == null)
+			return null;
+
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+
+		return tableGenerator.findInterestingAleEvolutionPoints(idAnalysis, assetType, customLocale != null ? customLocale : locale);
 	}
 }

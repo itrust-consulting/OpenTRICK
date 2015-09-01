@@ -72,8 +72,9 @@
 				<li><a href="#tabChartCompliance" data-toggle="tab"> <fmt:message key="label.chart.compliance" /></a></li>
 				<li><a href="#tabChartEvolution" data-toggle="tab"> <fmt:message key="label.chart.evolution" /></a></li>
 				<li><a href="#tabChartBudget" data-toggle="tab"> <fmt:message key="label.chart.budget" /></a></li>
-				<li><a href="#tabChartDynamic" data-toggle="tab"> <fmt:message key="label.title.chart.dynamic" /></a></li>
-				<li><a href="#tabChartAleEvolution" data-toggle="tab"> <fmt:message key="label.title.chart.aleevolution" /></a></li>
+				<li><a href="#tabChartParameterEvolution" data-toggle="tab"> <fmt:message key="label.title.chart.dynamic" /></a></li>
+				<li><a href="#tabChartAleEvolutionByAssetType" data-toggle="tab"> <fmt:message key="label.title.chart.aleevolution" /></a></li>
+				<li><a href="#tabChartAleEvolutionByScenario" data-toggle="tab"> <fmt:message key="label.title.chart.aleevolution" /></a></li>
 				<li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 				<li><a href="#" onclick="return reloadCharts();"> <fmt:message key="label.action.reload.charts" /></a></li>

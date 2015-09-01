@@ -108,7 +108,7 @@ public class ChartGenerator {
 
 	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
-	
+
 	@Autowired
 	private DynamicRiskComputer dynamicRiskComputer;
 
@@ -1300,10 +1300,10 @@ public class ChartGenerator {
 			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
 			// Fetch data
-			Map<Assessment, Double> aleByAssessment = dynamicRiskComputer.computeAleOfAssessments(assessments, standards, timeEnd - nextTimeIntervalSize, timeEnd, sourceUserNames, allParameters, 0.);
+			final Map<Assessment, Double> aleByAssessment = dynamicRiskComputer.computeAleOfAssessments(assessments, standards, timeEnd - nextTimeIntervalSize, timeEnd, sourceUserNames, allParameters, 0.);
 			for (Assessment assessment : aleByAssessment.keySet()) {
 				final double partialAle = aleByAssessment.get(assessment);
-				
+
 				// Group by aggregator
 				final TAggregator key = aggregator.apply(assessment);
 				data.putIfAbsent(key, new HashMap<Long, Double>());
@@ -1357,15 +1357,7 @@ public class ChartGenerator {
 		return text.replace("\\", "\\\\").replace("\"", "\\\"");
 	}
 	
-	private static String deltaTimeToString(long deltaTime) {
-		/*
-		if (deltaTime < 3600)
-			return String.format("%dm%ds", deltaTime / 60, deltaTime % 60);
-		else if (deltaTime < 86400)
-			return String.format("%dh%dm", deltaTime / 3600, deltaTime / 60 % 60);
-		else
-			return String.format("%dd%dh", deltaTime / 86400, deltaTime / 3600 % 24);
-		*/
+	public static String deltaTimeToString(long deltaTime) {
 		if (deltaTime < 60) return String.format("%d s", deltaTime);
 		else if (deltaTime < 3600) return String.format("%d m", Math.round(deltaTime / 60.0));
 		else if (deltaTime < 86400) return String.format("%d h", Math.round(deltaTime / 3600.0));

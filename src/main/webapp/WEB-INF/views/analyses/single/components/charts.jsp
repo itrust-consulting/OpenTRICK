@@ -92,8 +92,8 @@
 		</c:if>
 	</div>
 </div>
-<div class="tab-pane trick-chart-tab" id="tabChartDynamic" data-update-required="true" data-trigger="loadChartDynamic">
-	<div id="chart_dynamic">
+<div class="tab-pane trick-chart-tab" id="tabChartParameterEvolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">
+	<div id="chart_parameterevolution">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -103,11 +103,11 @@
 				</div>
 			</div>
 		</div>
-		<div id="chart_dynamic_body" class="col-xs-12"></div>
+		<div id="chart_parameterevolution_body" class="col-xs-12"></div>
 	</div>
 </div>
-<div class="tab-pane trick-chart-tab" id="tabChartAleEvolution" data-update-required="true" data-trigger="loadChartDynamicAleEvolution">
-	<div id="chart_aleevolution">
+<div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByAssetType" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
+	<div id="chart_aleevolutionbyassettype">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -117,6 +117,20 @@
 				</div>
 			</div>
 		</div>
-		<div id="chart_aleevolution_body" class="col-xs-12"></div>
+		<div id="chart_aleevolutionbyassettype_body" class="col-xs-12"></div>
+	</div>
+</div>
+<div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByScenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
+	<div id="chart_aleevolutionbyscenario">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.aleevolution" />
+					</h3>
+				</div>
+			</div>
+		</div>
+		<div id="chart_aleevolutionbyscenario_body" class="col-xs-12"></div>
 	</div>
 </div>

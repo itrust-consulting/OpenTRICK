@@ -2,8 +2,10 @@ package lu.itrust.business.TS.component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
@@ -39,7 +41,7 @@ public class DynamicRiskComputer {
 	
 	@Autowired
 	private DAOMeasure daoMeasure;
-
+	
 	/**
 	 * Computes the real-time ALE of all given assessments at the given timestamp.
 	 * The value is recomputed from scratch, not relying on any cached ALE values.
@@ -49,6 +51,20 @@ public class DynamicRiskComputer {
 	 * @throws IllegalArgumentException 
 	 */
 	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability) throws Exception {
+		final Map<Assessment, Set<String>> out_involvedVariables = new HashMap<>();
+		final Map<String, Double> out_expressionParameters = new HashMap<>();
+		return computeAleOfAssessments(assessments, standards, timestampBegin, timestampEnd, cache_sourceUserNames, allParameters, minimumProbability, out_involvedVariables, out_expressionParameters);
+	}
+
+	/**
+	 * Computes the real-time ALE of all given assessments at the given timestamp.
+	 * The value is recomputed from scratch, not relying on any cached ALE values.
+	 * The computed value is NOT cached within the analysis.
+	 * @return Returns the computed value.
+	 * @throws Exception 
+	 * @throws IllegalArgumentException 
+	 */
+	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability, Map<Assessment, Set<String>> out_involvedVariables, Map<String, Double> out_expressionParameters) throws Exception {
 		// Find all measures
 		final List<Measure> measures = new ArrayList<>();
 		for (AnalysisStandard standard : standards)
@@ -56,10 +72,9 @@ public class DynamicRiskComputer {
 
 		// Find all static expression parameters ("p0" etc.)
 		Parameter tuningParameter = null;
-		final Map<String, Double> expressionParameters = new HashMap<>();
 		for (Parameter p : allParameters) {
 			if (p instanceof AcronymParameter && !(p instanceof DynamicParameter))
-				expressionParameters.put(((AcronymParameter)p).getAcronym(), p.getValue());
+				out_expressionParameters.put(((AcronymParameter)p).getAcronym(), p.getValue());
 			else if (p.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME) && p.getDescription().equals(Constant.PARAMETER_MAX_RRF))
 				tuningParameter = p;
 		}
@@ -67,15 +82,20 @@ public class DynamicRiskComputer {
 		// Find all dynamic parameters and the respective values back then
 		for (String sourceUserName : cache_sourceUserNames)
 			//expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp, sourceUserName, minimumProbability));
-			expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability));
+			out_expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability));
 
 		Map<Assessment, Double> totalAleGrouped = new HashMap<>(); 
 		for (Assessment assessment : assessments) {
 			if (!assessment.isSelected()) continue;
 
 			// Determine the likelihood and ALE of the current risk assessment
-			final double likelihood = new StringExpressionParser(assessment.getLikelihood()).evaluate(expressionParameters);
+			final StringExpressionParser likelihoodExprParser = new StringExpressionParser(assessment.getLikelihood());
+			final double likelihood = likelihoodExprParser.evaluate(out_expressionParameters);
 			final double ale = assessment.getImpactReal() * likelihood;
+			
+			//out_involvedVariables = likelihoodExprParser.getInvolvedVariables().collect(Collectors.toList());
+			out_involvedVariables.putIfAbsent(assessment, new HashSet<>());
+			out_involvedVariables.get(assessment).addAll(likelihoodExprParser.getInvolvedVariables());
 
 			// Determine the total ALE of this assessment, considering risk reduction
 			// For the mathematical background, see
@@ -83,8 +103,10 @@ public class DynamicRiskComputer {
  
 			double aleFactor = 1.;
 			for (Measure measure : measures) {
-				if (!measure.isImplementationRateValueConstant()) {
-					final double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
+				final List<String> involvedVariables = measure.getVariablesInvolvedInImplementationRateValue();
+				if (involvedVariables.size() > 0) {
+					out_involvedVariables.get(assessment).addAll(involvedVariables);
+					final double implementationRate = measure.getImplementationRateValue(out_expressionParameters) / 100.0;
 					final double rrf = RRF.calculateRRF(assessment, tuningParameter, measure);
 	
 					// TODO: consider maturity standards

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -217,11 +218,11 @@ public class NormalMeasure extends Measure {
 
 	@Override
 	@Transient
-	public boolean isImplementationRateValueConstant() {
+	public List<String> getVariablesInvolvedInImplementationRateValue() {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate())).getInvolvedVariables().size() == 0;
+			return (new StringExpressionParser(this.getImplementationRate())).getInvolvedVariables().stream().collect(Collectors.toList());
 		} catch (Exception ex) {
-			return false;
+			return new ArrayList<String>();
 		}
 	}
 

@@ -786,4 +786,7 @@ public class Constant {
 	public static final String ACRO_PARAMETER = "acro_parameter";
 	public static final String VALUE_PARAMETER = "value_parameter";
 
+	public static final double EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE = 500.; // in k€/y
+	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/- 20%
+
 }

@@ -45,10 +45,9 @@ $(document).ready(function() {
 	window.setInterval(function() {
 		reloadSection("section_asset", undefined, true /* prevent propagation */);
 		reloadSection("section_scenario", undefined, true /* prevent propagation */);
-		if ($("#tabChartDynamic").is(":visible"))
-			loadChartDynamic();
-		else if ($("#tabChartAleEvolution").is(":visible"))
-			loadChartDynamicAleEvolution();
+		loadChartDynamicParameterEvolution();
+		loadChartDynamicAleEvolutionByAssetType();
+		loadChartDynamicAleEvolutionByScenario();
 	}, 30000); // every 30s
 });
 
@@ -245,7 +244,7 @@ function summaryCharts() {
 	return false;
 }
 
-function loadChartEvolution() {
+function loadChartDynamicParameterEvolution() {
 	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
@@ -273,8 +272,9 @@ function reloadCharts() {
 	chartALE();
 	compliances();
 	summaryCharts();
-	loadChartDynamic();
-	loadChartDynamicAleEvolution();
+	loadChartDynamicParameterEvolution();
+	loadChartDynamicAleEvolutionByAssetType();
+	loadChartDynamicAleEvolutionByScenario();
 	return false;
 };
 
@@ -363,41 +363,60 @@ function loadChartScenario() {
 	}
 }
 
-function loadChartDynamic() {
-	if ($('#chart_dynamic').length) {
-		if ($('#chart_dynamic').is(":visible")) {
+function loadChartDynamicParameterEvolution() {
+	if ($('#chart_parameterevolution').length) {
+		if ($('#chart_parameterevolution').is(":visible")) {
 			$.ajax({
-				url : context + "/Analysis/Dynamic/Chart/Evolution",
+				url : context + "/Analysis/Dynamic/Chart/ParameterEvolution",
 				type : "get",
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					$('#chart_dynamic').loadOrUpdateChart(response);
+					$('#chart_parameterevolution').loadOrUpdateChart(response);
 				},
 				error : unknowError
 			});
 		} else
-			$("#tabChartDynamic").attr("data-update-required", "true");
+			$("#tabChartParameterEvolution").attr("data-update-required", "true");
 	}
 }
 
-function loadChartDynamicAleEvolution() {
-	if ($('#chart_aleevolution').length) {
-		if ($('#chart_aleevolution').is(":visible")) {
+function loadChartDynamicAleEvolutionByAssetType() {
+	if ($('#chart_aleevolutionbyassettype').length) {
+		if ($('#chart_aleevolutionbyassettype').is(":visible")) {
 			$.ajax({
-				url : context + "/Analysis/Dynamic/Chart/AleEvolution",
+				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
 				type : "get",
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_aleevolution',response);
+					displayChart('#chart_aleevolutionbyassettype',response);
 				},
 				error : unknowError
 			});
 		} else
-			$("#tabChartAleEvolution").attr("data-update-required", "true");
+			$("#tabChartAleEvolutionByAssetType").attr("data-update-required", "true");
+	}
+}
+
+function loadChartDynamicAleEvolutionByScenario() {
+	if ($('#chart_aleevolutionbyscenario').length) {
+		if ($('#chart_aleevolutionbyscenario').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario/Info",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response, textStatus, jqXHR) {
+					displayChart('#chart_aleevolutionbyscenario',response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartAleEvolutionByScenario").attr("data-update-required", "true");
 	}
 }
 
