@@ -10,7 +10,6 @@ import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -42,17 +41,14 @@ public class DynamicRiskComputer {
 	private DAOMeasure daoMeasure;
 
 	/**
-	 * Computes the real-time ALE of all assets at the given timestamp.
-	 * The value is recomputed from scratch, not relying on any cached ALE value.
+	 * Computes the real-time ALE of all given assessments at the given timestamp.
+	 * The value is recomputed from scratch, not relying on any cached ALE values.
 	 * The computed value is NOT cached within the analysis.
-	 * @param assetId The id of the asset to compute the ALE for.
 	 * @return Returns the computed value.
 	 * @throws Exception 
 	 * @throws IllegalArgumentException 
 	 */
-	public Map<AssetType, Double> computeAleOfAllAssets(List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<Assessment> cache_assessments, List<String> cache_sourceUserNames, List<Parameter> allParameters, Map<String, Double> allParameterValuesByLabel) throws Exception {
-		double minimumProbability = allParameterValuesByLabel.getOrDefault("p0", 0.0);
-
+	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability) throws Exception {
 		// Find all measures
 		final List<Measure> measures = new ArrayList<>();
 		for (AnalysisStandard standard : standards)
@@ -73,9 +69,9 @@ public class DynamicRiskComputer {
 			//expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesAtTime(timestamp, sourceUserName, minimumProbability));
 			expressionParameters.putAll(serviceExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability));
 
-		Map<AssetType, Double> totalAleByAssetType = new HashMap<>(); 
-		for (Assessment assessment : cache_assessments) {
-			if (!assessment.isUsable()) continue;
+		Map<Assessment, Double> totalAleGrouped = new HashMap<>(); 
+		for (Assessment assessment : assessments) {
+			if (!assessment.isSelected()) continue;
 
 			// Determine the likelihood and ALE of the current risk assessment
 			final double likelihood = new StringExpressionParser(assessment.getLikelihood()).evaluate(expressionParameters);
@@ -99,11 +95,11 @@ public class DynamicRiskComputer {
 					aleFactor *= 1 - rrf * implementationRate;
 				}
 			}
-			final double previousTotalAle = totalAleByAssetType.getOrDefault(assessment.getAsset().getAssetType(), 0.0);
+			final double previousTotalAle = totalAleGrouped.getOrDefault(assessment, 0.0);
 			// The formula below for computing the ALE of the current implementation rate is mathematically founded (and not trivial!).
 			// See the appropriate documentation for derivation details.
-			totalAleByAssetType.put(assessment.getAsset().getAssetType(), previousTotalAle + ale * aleFactor);
+			totalAleGrouped.put(assessment, previousTotalAle + ale * aleFactor);
 		}
-		return totalAleByAssetType;
+		return totalAleGrouped;
 	}
 }

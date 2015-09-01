@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.constants.Constant;
@@ -1244,23 +1245,35 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * Generates the JSON data configuring a "Highcharts" chart which displays the ALE evolution of all assets of an analysis.
-	 * @param idAnalysis
-	 * @param locale
-	 * @return
-	 * @throws Exception
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the ALE evolution of all asset types of an analysis.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
 	 */
-	public String aleEvolution(int idAnalysis, Locale locale) throws Exception {
+	public String aleEvolutionOfAllAssetTypes(int idAnalysis, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
 		final List<Assessment> assessments = analysis.getAssessments();
+		return aleEvolution(analysis, assessments, locale, a -> a.getAsset().getAssetType(), t -> t.getType());
+	}
+
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the ALE evolution of all scenarios of a specific asset type of an analysis.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
+	 * @param assetType The asset type to generate the graph for.
+	 */
+	public String aleEvolutionofAllScenarios(int idAnalysis, String assetType, Locale locale) throws Exception {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final List<Assessment> assessments = analysis.getAssessments().stream().filter(a -> a.getAsset().getAssetType().getType().equals(assetType)).collect(Collectors.toList());
+		return aleEvolution(analysis, assessments, locale, a -> a.getScenario(), s -> s.getName());
+	}
+
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the ALE evolution of all scenarios of a specific asset type of an analysis.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
+	 * @param assetType The asset type to generate the graph for.
+	 */
+	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator, Function<TAggregator, String> axisLabelProvider) throws Exception {
+		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
 		final List<Parameter> allParameters = analysis.getParameters();
 
-		// Index parameters
-		final Map<String, Double> allParameterValuesByLabel = new HashMap<>();
-		for (Parameter p : allParameters)
-			allParameterValuesByLabel.put(p.getDescription(), p.getValue());
-		
 		// Find the user names of all sources involved
 		final List<String> sourceUserNames = daoUserAnalysisRight
 			.getAllFromAnalysis(analysis.getId()).stream()
@@ -1278,7 +1291,7 @@ public class ChartGenerator {
 		List<Long> xAxisValues = new ArrayList<>();
 
 		// For each dynamic parameter, construct a series of values
-		Map<AssetType, Map<Long, Double>> data = new HashMap<>();
+		Map<TAggregator, Map<Long, Double>> data = new HashMap<>();
 		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
 			// Add x-axis values to a list in reverse order (we use Collections.reverse() later on)
 			xAxisValues.add(timeEnd);
@@ -1287,10 +1300,17 @@ public class ChartGenerator {
 			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
 			// Fetch data
-			Map<AssetType, Double> aleByAsset = dynamicRiskComputer.computeAleOfAllAssets(standards, timeEnd - nextTimeIntervalSize, timeEnd, assessments, sourceUserNames, allParameters, allParameterValuesByLabel);
-			for (AssetType assetType : aleByAsset.keySet()) {
-				data.putIfAbsent(assetType, new HashMap<Long, Double>());
-				data.get(assetType).put(timeEnd, aleByAsset.get(assetType));
+			Map<Assessment, Double> aleByAssessment = dynamicRiskComputer.computeAleOfAssessments(assessments, standards, timeEnd - nextTimeIntervalSize, timeEnd, sourceUserNames, allParameters, 0.);
+			for (Assessment assessment : aleByAssessment.keySet()) {
+				final double partialAle = aleByAssessment.get(assessment);
+				
+				// Group by aggregator
+				final TAggregator key = aggregator.apply(assessment);
+				data.putIfAbsent(key, new HashMap<Long, Double>());
+
+				// Group by time
+				final Map<Long, Double> dataByTime = data.get(key);
+				dataByTime.put(timeEnd, dataByTime.getOrDefault(timeEnd, 0.) + partialAle);
 			}
 
 			// Modify interval size
@@ -1301,14 +1321,14 @@ public class ChartGenerator {
 		
 		// Collect data
 		String jsonSeries = "\"series\":[ "; // need space at the end (if 'data' is empty map, last character is removed)
-		for (AssetType assetType : data.keySet()) {
+		for (TAggregator key : data.keySet()) {
 			String jsonSingleSeries = "[ "; // need space at the end (if 'xAxisValues' is empty list, last character is removed)
 			for (long timeEnd : xAxisValues) {
 				// Express ALE in k€/y, with a precision of two decimals
-				jsonSingleSeries += Math.round(data.get(assetType).getOrDefault(timeEnd, 0.) / 10.) / 100. + ",";
+				jsonSingleSeries += Math.round(data.get(key).getOrDefault(timeEnd, 0.) / 10.) / 100. + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
-			jsonSeries += "{\"name\":\"" + jsonEscape(assetType.getType()) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 2, \"type\": \"line\",\"yAxis\": 0},";
+			jsonSeries += "{\"name\":\"" + jsonEscape(axisLabelProvider.apply(key)) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 2, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
