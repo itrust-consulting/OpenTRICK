@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -74,15 +73,15 @@ public class ControllerDynamicRiskAnalysis {
 		return chartGenerator.allAleEvolutionsofAllScenarios(idAnalysis, customLocale != null ? customLocale : locale);
 	}
 
-	@RequestMapping(value = "/Table/AleEvolutionByScenario/{assetType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Table/AleEvolutionByScenario", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String tableAleEvolutionByScenario(HttpSession session, Model model, Principal principal, Locale locale, @PathVariable("assetType") String assetType) throws Exception {
+	public @ResponseBody String tableAleEvolutionByScenario(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
 
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
-		return tableGenerator.findInterestingAleEvolutionPoints(idAnalysis, assetType, customLocale != null ? customLocale : locale);
+		return tableGenerator.findInterestingAleEvolutionPoints(idAnalysis, customLocale != null ? customLocale : locale);
 	}
 }

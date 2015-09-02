@@ -15,6 +15,7 @@ import lu.itrust.business.TS.database.dao.DAOExternalNotification;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -43,9 +44,34 @@ public class TableGenerator {
 	@Autowired
 	private DynamicRiskComputer dynamicRiskComputer;
 
+	public String findInterestingAleEvolutionPoints(int idAnalysis, Locale locale) throws Exception {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final List<Assessment> assessments = analysis.getAssessments();
+		final Map<AssetType, List<Assessment>> assessmentsByAssetType = new HashMap<>();
+		
+		// Split assessments by the type of their asset
+		for (Assessment assessment : assessments) {
+			final AssetType type = assessment.getAsset().getAssetType();
+			List<Assessment> list = assessmentsByAssetType.get(type);
+			if (list == null)
+				assessmentsByAssetType.put(type, list = new ArrayList<>());
+			list.add(assessment);
+		}
+		
+		// Create individual tables
+		final List<String> graphs = new ArrayList<>();
+		for (AssetType assetType : assessmentsByAssetType.keySet())
+			graphs.add(String.format("\"%s\":%s", JSONObject.escape(assetType.getType()), findInterestingAleEvolutionPoints(analysis, assessmentsByAssetType.get(assetType), locale)));
+		return "{" + String.join(", ", graphs) + "}";
+	}
+
 	public String findInterestingAleEvolutionPoints(int idAnalysis, String assetType, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final List<Assessment> assessments = analysis.getAssessments().stream().filter(a -> a.getAsset().getAssetType().getType().equals(assetType)).collect(Collectors.toList());
+		return findInterestingAleEvolutionPoints(analysis, assessments, locale);
+	}
+
+	private String findInterestingAleEvolutionPoints(Analysis analysis, List<Assessment> assessments, Locale locale) throws Exception {
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
 		final List<Parameter> allParameters = analysis.getParameters();
 		final List<String> result = new ArrayList<>();
