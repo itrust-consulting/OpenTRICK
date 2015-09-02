@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1300,6 +1301,7 @@ public class ChartGenerator {
 	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator, Function<TAggregator, String> axisLabelProvider, String chartTitle) throws Exception {
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
 		final List<Parameter> allParameters = analysis.getParameters();
+		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved
 		final List<String> sourceUserNames = daoUserAnalysisRight
@@ -1309,57 +1311,45 @@ public class ChartGenerator {
 			.map(user -> user.getLogin())
 			.collect(Collectors.toList());
 
-		// Determine time-related stuff
-		final long timeUpperBound = Instant.now().getEpochSecond();
-		final long timeLowerBound = timeUpperBound - Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS;
-		long nextTimeIntervalSize = 60; // in seconds
+		// Fetch ALE evolution data grouped by scenario and time
+		final List<Long> xAxisValues = new ArrayList<>(); // populated within dynamicRiskComputer.generateAleEvolutionData()
+		final Map<Long, Map<Assessment, Set<String>>> involvedVariables = new HashMap<>(); // dito
+		final Map<Long, Map<String, Double>> expressionParameters = new HashMap<>(); // dito
+		final Map<TAggregator, Map<Long, Double>> data = dynamicRiskComputer.generateAleEvolutionData(assessments, standards, sourceUserNames, allParameters, aggregator, xAxisValues, involvedVariables, expressionParameters);
 
-		String jsonXAxisValues = "";
-		List<Long> xAxisValues = new ArrayList<>();
-
-		// For each dynamic parameter, construct a series of values
-		Map<TAggregator, Map<Long, Double>> data = new HashMap<>();
-		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
-			// Add x-axis values to a list in reverse order (we use Collections.reverse() later on)
-			xAxisValues.add(timeEnd);
-			if (!jsonXAxisValues.isEmpty())
-				jsonXAxisValues = "," + jsonXAxisValues;
-			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
-
-			// Fetch data
-			final Map<Assessment, Double> aleByAssessment = dynamicRiskComputer.computeAleOfAssessments(assessments, standards, timeEnd - nextTimeIntervalSize, timeEnd, sourceUserNames, allParameters, 0.);
-			for (Assessment assessment : aleByAssessment.keySet()) {
-				final double partialAle = aleByAssessment.get(assessment);
-
-				// Group by aggregator
-				final TAggregator key = aggregator.apply(assessment);
-				data.putIfAbsent(key, new HashMap<Long, Double>());
-
-				// Group by time
-				final Map<Long, Double> dataByTime = data.get(key);
-				dataByTime.put(timeEnd, dataByTime.getOrDefault(timeEnd, 0.) + partialAle);
-			}
-
-			// Modify interval size
-			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
-				nextTimeIntervalSize = (int)(nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
-		}
-		Collections.reverse(xAxisValues);
-		
-		// Collect data
-		String jsonSeries = "\"series\":[ "; // need space at the end (if 'data' is empty map, last character is removed)
+		// Output data
+		final List<String> jsonSeriesList = new ArrayList<>();
 		for (TAggregator key : data.keySet()) {
-			String jsonSingleSeries = "[ "; // need space at the end (if 'xAxisValues' is empty list, last character is removed)
+			final List<String> jsonDataList = new ArrayList<>();
+			final List<List<String>> jsonMetaDataList = new ArrayList<>(); 
+
+			// Collect data/metadata
+			Double nextAle = null;
+			Map<String, Double> nextExpressionParameters = null;
 			for (long timeEnd : xAxisValues) {
-				// Express ALE in k€/y, with a precision of two decimals
-				jsonSingleSeries += Math.round(data.get(key).getOrDefault(timeEnd, 0.) / 10.) / 100. + ",";
+				// Store value
+				final double currentAle = data.get(key).get(timeEnd);
+				jsonDataList.add(Double.toString(Math.round(currentAle / 10.) / 100.));
+
+				// Find and store explanations of behaviour
+				final Map<String, Double> currentExpressionParameters = expressionParameters.get(timeEnd);
+				if (nextAle != null)
+					jsonMetaDataList.add(generateNotableEventsJson(aggregator, key, timeEnd, currentAle, nextAle, involvedVariables.get(timeEnd), currentExpressionParameters, nextExpressionParameters));
+
+				// Update references
+				nextAle = currentAle;
+				nextExpressionParameters = currentExpressionParameters;
 			}
-			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
-			jsonSeries += "{\"name\":\"" + JSONObject.escape(axisLabelProvider.apply(key)) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 2, \"type\": \"line\",\"yAxis\": 0},";
+
+			// Build JSON object
+			final String jsonData = "[" + String.join(",", jsonDataList) + "]";
+			final String jsonMetaData = "[" + String.join(",", jsonMetaDataList.stream().map(x -> "[" + String.join(",", x) + "]").collect(Collectors.toList())) + "]";
+			jsonSeriesList.add("{\"name\":\"" + JSONObject.escape(axisLabelProvider.apply(key)) + "\", \"data\":" + jsonData + ", \"metadata\":" + jsonMetaData + ", \"valueDecimals\": 2, \"type\": \"line\",\"yAxis\": 0}");
 		}
-		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
+		final String jsonSeries = "\"series\":[" + String.join(",", jsonSeriesList) + "]";
 
 		// Build JSON data
+		final String jsonXAxisValues = String.join(",", xAxisValues.stream().map(x -> "\"" + deltaTimeToString(now - x) + "\"").collect(Collectors.toList()));
 		final String unit = messageSource.getMessage("label.metric.keuro_by_year", null, "k\u20AC/y", locale);
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
 		final String jsonTitle = "\"title\": {\"text\":\"" + JSONObject.escape(chartTitle) + "\"}";
@@ -1371,7 +1361,47 @@ public class ChartGenerator {
 		
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
 	}
+	
+	private <TAggregator> List<String> generateNotableEventsJson(Function<Assessment, TAggregator> aggregator, TAggregator key, long timeEnd, double currentAle, double nextAle, Map<Assessment, Set<String>> involvedVariables, Map<String, Double> currentExpressionParameters, Map<String, Double> nextExpressionParameters) {
+		List<String> result = new ArrayList<>();
 
+		// Check if the ALE in any scenario changes by any considerable amount
+		if (Math.abs(nextAle - currentAle) > Constant.EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE &&
+			Math.abs((nextAle - currentAle) / currentAle) >= Constant.EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE) {
+
+			// Find parameter which changes most (which is responsible, so-to-speak, for the drastic change in ALE)
+			double maxRelativeDiff = 0.;
+			String selectedDynamicParameterName = null;
+			Double selectedDynamicParameterCurrentValue = null;
+			Double selectedDynamicParameterNextValue = null;
+			for (Assessment assessment : involvedVariables.keySet()) {
+				if (!key.equals(aggregator.apply(assessment))) continue;
+				for (String dynamicParameterName : involvedVariables.get(assessment)) {
+					final double currentValue = currentExpressionParameters.getOrDefault(dynamicParameterName, 0.);
+					final double nextValue = nextExpressionParameters.getOrDefault(dynamicParameterName, 0.);
+					final double relativeDiff = Math.abs((nextValue - currentValue) / currentValue);
+					if (relativeDiff > maxRelativeDiff) {
+						maxRelativeDiff = relativeDiff;
+						selectedDynamicParameterName = dynamicParameterName;
+						selectedDynamicParameterCurrentValue = currentValue;
+						selectedDynamicParameterNextValue = nextValue;
+					}
+				}
+			}
+
+			if (selectedDynamicParameterName != null) {
+				result.add(String.format("{\"dynamicParameter\":\"%s\",\"aleOld\":%.2f,\"aleNew\":%.2f,\"valueOld\":%.5f,\"valueNew\":%.5f}",
+					JSONObject.escape(selectedDynamicParameterName),
+					currentAle, nextAle,
+					selectedDynamicParameterCurrentValue, selectedDynamicParameterNextValue));
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Converts a time difference (in seconds) into a human-readable string.
+	 */
 	public static String deltaTimeToString(long deltaTime) {
 		if (deltaTime < 60) return String.format("%d s", deltaTime);
 		else if (deltaTime < 3600) return String.format("%d m", Math.round(deltaTime / 60.0));

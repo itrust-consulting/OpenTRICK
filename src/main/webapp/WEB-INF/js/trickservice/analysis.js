@@ -52,6 +52,20 @@ $(document).ready(function() {
 });
 
 $.fn.loadOrUpdateChart = function(parameters) {
+	$chart = this.data("chartParams", parameters);
+	$.extend(true, parameters, {
+		tooltip: {
+			formatter: function() {
+				var str = this.x + "<br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name + ":</span>   <b>" + this.point.y + "</b>";
+				var dataIndex = Array.indexOf($chart.data("chartParams").xAxis, this.x);
+				var metadata = $chart.data("chartParams").series[this.series.index].metadata[dataIndex];
+				for (var i = 0; i < metadata.length; i++)
+					str += "<br/>" + metadata[i].dynamicParameter;
+				return str;
+			}
+		}
+	});
+
 	var chart = this.highcharts();
 	if (chart === undefined || parameters.series.length != chart.series.length)
 		return this.highcharts(parameters);

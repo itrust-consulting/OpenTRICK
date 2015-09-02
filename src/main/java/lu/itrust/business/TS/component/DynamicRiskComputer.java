@@ -1,11 +1,14 @@
 package lu.itrust.business.TS.component;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
@@ -46,7 +49,15 @@ public class DynamicRiskComputer {
 	 * Computes the real-time ALE of all given assessments at the given timestamp.
 	 * The value is recomputed from scratch, not relying on any cached ALE values.
 	 * The computed value is NOT cached within the analysis.
-	 * @return Returns the computed value.
+	 * @param assessments The list of assessments that are taken into consideration when computing ALE.
+	 * @param standards The collection of all standards containing the security measures taken into consideration.
+	 * @param timestampBegin The beginning of the time interval over which the ALE shall be computed.
+	 * @param timestampEnd The end of the time interval over which the ALE shall be computed.
+	 * @param cache_sourceUserNames A collection of all user names of external utilities reporting the dynamic parameters that are evaluated in the given time interval.
+	 * @param allParameters A collection of (at least) all static parameters.
+	 * @param minimumProbability The minimum probability level throughout time.
+	 * @param out_involvedVariables An empty set per assessment, to which this method will add all involved variables.
+	 * @return Returns the computed value for each assessment in the given list.
 	 * @throws Exception 
 	 * @throws IllegalArgumentException 
 	 */
@@ -60,11 +71,20 @@ public class DynamicRiskComputer {
 	 * Computes the real-time ALE of all given assessments at the given timestamp.
 	 * The value is recomputed from scratch, not relying on any cached ALE values.
 	 * The computed value is NOT cached within the analysis.
-	 * @return Returns the computed value.
+	 * @param assessments The list of assessments that are taken into consideration when computing ALE.
+	 * @param standards The collection of all standards containing the security measures taken into consideration.
+	 * @param timestampBegin The beginning of the time interval over which the ALE shall be computed.
+	 * @param timestampEnd The end of the time interval over which the ALE shall be computed.
+	 * @param cache_sourceUserNames A collection of all user names of external utilities reporting the dynamic parameters that are evaluated in the given time interval.
+	 * @param allParameters A collection of (at least) all static parameters.
+	 * @param minimumProbability The minimum probability level throughout time.
+	 * @param out_involvedVariables An empty set per assessment, to which this method will add all involved variables.
+	 * @param out_expressionParameters An empty map, to which this method will add all used dynamic parameters and their values in the time interval.
+	 * @return Returns the computed value for each assessment in the given list.
 	 * @throws Exception 
 	 * @throws IllegalArgumentException 
 	 */
-	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability, Map<Assessment, Set<String>> out_involvedVariables, Map<String, Double> out_expressionParameters) throws Exception {
+	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd, List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability, final Map<Assessment, Set<String>> out_involvedVariables, final Map<String, Double> out_expressionParameters) throws Exception {
 		// Find all measures
 		final List<Measure> measures = new ArrayList<>();
 		for (AnalysisStandard standard : standards)
@@ -123,5 +143,76 @@ public class DynamicRiskComputer {
 			totalAleGrouped.put(assessment, previousTotalAle + ale * aleFactor);
 		}
 		return totalAleGrouped;
+	}
+
+	/**
+	 * Generates the ALE evolution data for the given assessments.
+	 * @param assessments The list of assessments that are taken into consideration when computing ALE.
+	 * @param standards The collection of all standards containing the security measures taken into consideration.
+	 * @param sourceUserNames A collection of all user names of external utilities reporting the dynamic parameters that are evaluated in the given time interval.
+	 * @param allParameters A collection of (at least) all static parameters.
+	 * @param aggregator A function which selects the key by which the data shall be aggregated.
+	 * @param out_timePoints An empty list, to which this method will add all used time points.
+	 * @return Returns the ALE by aggregation key and by time.
+	 * @throws Exception
+	 */
+	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, List<AnalysisStandard> standards, List<String> sourceUserNames, List<Parameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints) throws Exception {
+		return generateAleEvolutionData(assessments, standards, sourceUserNames, allParameters, aggregator, out_timePoints, null, null);
+	}
+
+	/**
+	 * Generates the ALE evolution data for the given assessments.
+	 * @param assessments The list of assessments that are taken into consideration when computing ALE.
+	 * @param standards The collection of all standards containing the security measures taken into consideration.
+	 * @param sourceUserNames A collection of all user names of external utilities reporting the dynamic parameters that are evaluated in the given time interval.
+	 * @param allParameters A collection of (at least) all static parameters.
+	 * @param aggregator A function which selects the key by which the data shall be aggregated.
+	 * @param out_timePoints An empty list, to which this method will add all used time points.
+	 * @param out_involvedVariables_or_null An empty set per assessment per time point, to which this method will add all involved variables. Or null, in which case no data is output.
+	 * @param out_expressionParameters_or_null An empty map per time point, to which this method will add all used dynamic parameters and their values in the time interval. Or null, in which case no data is output.
+	 * @return Returns the ALE by aggregation key and by time.
+	 * @throws Exception
+	 */
+	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, List<AnalysisStandard> standards, List<String> sourceUserNames, List<Parameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints, final Map<Long, Map<Assessment, Set<String>>> out_involvedVariables_or_null, final Map<Long, Map<String, Double>> out_expressionParameters_or_null) throws Exception {
+		// Determine time-related stuff
+		final long timeUpperBound = Instant.now().getEpochSecond();
+		final long timeLowerBound = timeUpperBound - Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS;
+		long nextTimeIntervalSize = 60; // in seconds
+
+		Map<TAggregator, Map<Long, Double>> data = new HashMap<>();
+		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
+			// Add x-axis values to a list in reverse order (we use Collections.reverse() later on)
+			if (out_timePoints != null)
+				out_timePoints.add(timeEnd);
+
+			final Map<Assessment, Set<String>> out1 = new HashMap<>();
+			final Map<String, Double> out2 = new HashMap<>();
+			if (out_involvedVariables_or_null != null)
+				out_involvedVariables_or_null.put(timeEnd, out1);
+			if (out_expressionParameters_or_null != null)
+				out_expressionParameters_or_null.put(timeEnd, out2);
+
+			// Fetch data
+			final Map<Assessment, Double> aleByAssessment = this.computeAleOfAssessments(assessments, standards, timeEnd - nextTimeIntervalSize, timeEnd, sourceUserNames, allParameters, 0., out1, out2);
+			for (Assessment assessment : aleByAssessment.keySet()) {
+				final double partialAle = aleByAssessment.get(assessment);
+
+				// Group by aggregator
+				final TAggregator key = aggregator.apply(assessment);
+				data.putIfAbsent(key, new HashMap<Long, Double>());
+
+				// Group by time
+				final Map<Long, Double> dataByTime = data.get(key);
+				dataByTime.put(timeEnd, dataByTime.getOrDefault(timeEnd, 0.) + partialAle);
+			}
+
+			// Modify interval size
+			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
+				nextTimeIntervalSize = (int)(nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
+		}
+
+		if (out_timePoints != null)
+			Collections.reverse(out_timePoints);
+		return data;
 	}
 }
