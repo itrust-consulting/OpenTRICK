@@ -1251,7 +1251,7 @@ public class ChartGenerator {
 	public String aleEvolutionOfAllAssetTypes(int idAnalysis, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final List<Assessment> assessments = analysis.getAssessments();
-		return aleEvolution(analysis, assessments, locale, a -> a.getAsset().getAssetType(), t -> t.getType());
+		return aleEvolution(analysis, assessments, locale, a -> a.getAsset().getAssetType(), t -> t.getType(), messageSource.getMessage("label.title.chart.aleevolution", null, "ALE Evolution", locale));
 	}
 
 	/**
@@ -1262,7 +1262,7 @@ public class ChartGenerator {
 	public String aleEvolutionofAllScenarios(int idAnalysis, String assetType, Locale locale) throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final List<Assessment> assessments = analysis.getAssessments().stream().filter(a -> a.getAsset().getAssetType().getType().equals(assetType)).collect(Collectors.toList());
-		return aleEvolution(analysis, assessments, locale, a -> a.getScenario(), s -> s.getName());
+		return aleEvolution(analysis, assessments, locale, a -> a.getScenario(), s -> s.getName(), messageSource.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType }, "ALE Evolution of '{0}' assets", locale));
 	}
 
 	/**
@@ -1287,7 +1287,7 @@ public class ChartGenerator {
 		// Create individual graphs
 		final List<String> graphs = new ArrayList<>();
 		for (AssetType assetType : assessmentsByAssetType.keySet())
-			graphs.add(aleEvolution(analysis, assessmentsByAssetType.get(assetType), locale, a -> a.getScenario(), s -> s.getName()));
+			graphs.add(aleEvolution(analysis, assessmentsByAssetType.get(assetType), locale, a -> a.getScenario(), s -> s.getName(), messageSource.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType.getType() }, "ALE Evolution of all {0}-type assets", locale)));
 		return "[" + String.join(", ", graphs) + "]";
 	}
 
@@ -1296,7 +1296,7 @@ public class ChartGenerator {
 	 * @param idAnalysis The ID of the analysis to generate the graph for.
 	 * @param assetType The asset type to generate the graph for.
 	 */
-	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator, Function<TAggregator, String> axisLabelProvider) throws Exception {
+	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator, Function<TAggregator, String> axisLabelProvider, String chartTitle) throws Exception {
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
 		final List<Parameter> allParameters = analysis.getParameters();
 
@@ -1361,7 +1361,7 @@ public class ChartGenerator {
 		// Build JSON data
 		final String unit = messageSource.getMessage("label.metric.keuro_by_year", null, "k\u20AC/y", locale);
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
-		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.title.chart.aleevolution", null, "ALE Evolution", locale)) + "\"}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(chartTitle) + "\"}";
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";

@@ -126,7 +126,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.aleevolution" />
+						<fmt:message key="label.title.chart.aleevolution_by_asset_type" />
 					</h3>
 				</div>
 			</div>
