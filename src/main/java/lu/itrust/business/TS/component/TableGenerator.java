@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.RoleType;
+import net.minidev.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -85,16 +86,36 @@ public class TableGenerator {
 					if (Math.abs(nextAle - currentAle) > Constant.EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE &&
 						Math.abs((nextAle - currentAle) / currentAle) >= Constant.EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE) {
 
-						// Check if any parameter changes considerably
+						// Find parameter which changes most (which is responsible, so-to-speak, for the drastic change in ALE)
+						double maxRelativeDiff = 0.;
+						String selectedDynamicParameterName = null;
+						String selectedAssessment = null;
+						Double selectedDynamicParameterCurrentValue = null;
+						Double selectedDynamicParameterNextValue = null;
 						for (Assessment assessment : involvedVariables.keySet()) {
 							if (assessment.getScenario() != scenario) continue;
 							for (String dynamicParameterName : involvedVariables.get(assessment)) {
 								final double currentValue = expressionParameters.getOrDefault(dynamicParameterName, 0.);
 								final double nextValue = nextExpressionParameters.getOrDefault(dynamicParameterName, 0.);
-								
-								if (Math.abs((nextValue - currentValue) / currentValue) >= Constant.EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE)
-									result.add(ChartGenerator.deltaTimeToString(timeUpperBound - timeEnd) + ": " + dynamicParameterName + ": " + (int)(100.*(nextValue - currentValue) / currentValue) + "%");
+								final double relativeDiff = Math.abs((nextValue - currentValue) / currentValue);
+								if (relativeDiff > maxRelativeDiff) {
+									maxRelativeDiff = relativeDiff;
+									selectedDynamicParameterName = dynamicParameterName;
+									selectedAssessment = assessment.getScenario().getName();
+									selectedDynamicParameterCurrentValue = currentValue;
+									selectedDynamicParameterNextValue = nextValue;
+								}
 							}
+						}
+
+						if (selectedDynamicParameterName != null) {
+							result.add(String.format("{\"t\":%d,\"tStr\":\"%s\",\"scenario\":\"%s\",\"dynamicParameter\":\"%s\",\"aleOld\":%.2f,\"aleNew\":%.2f,\"valueOld\":%.5f,\"valueNew\":%.5f}",
+								timeEnd - timeUpperBound,
+								JSONObject.escape(ChartGenerator.deltaTimeToString(timeUpperBound - timeEnd)),
+								JSONObject.escape(selectedAssessment),
+								JSONObject.escape(selectedDynamicParameterName),
+								currentAle, nextAle,
+								selectedDynamicParameterCurrentValue, selectedDynamicParameterNextValue));
 						}
 					}
 				}
@@ -107,7 +128,7 @@ public class TableGenerator {
 			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
 				nextTimeIntervalSize = (int)(nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
 		}
-		
-		return String.join("\n", result);
+
+		return "[" + String.join(",", result) + "]";
 	}
 }

@@ -53,6 +53,7 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.usermanagement.RoleType;
+import net.minidev.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -1227,18 +1228,18 @@ public class ChartGenerator {
 				jsonSingleSeries += data.get(parameterName).getOrDefault(timeEnd, 0.0) + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
-			jsonSeries += "{\"name\":\"" + jsonEscape(parameterName) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
+			jsonSeries += "{\"name\":\"" + JSONObject.escape(parameterName) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
 		// Build JSON data
 		final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale);
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
-		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + JSONObject.escape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
-		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + JSONObject.escape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + JSONObject.escape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 		
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
@@ -1354,35 +1355,23 @@ public class ChartGenerator {
 				jsonSingleSeries += Math.round(data.get(key).getOrDefault(timeEnd, 0.) / 10.) / 100. + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
-			jsonSeries += "{\"name\":\"" + jsonEscape(axisLabelProvider.apply(key)) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 2, \"type\": \"line\",\"yAxis\": 0},";
+			jsonSeries += "{\"name\":\"" + JSONObject.escape(axisLabelProvider.apply(key)) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 2, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
 		// Build JSON data
 		final String unit = messageSource.getMessage("label.metric.keuro_by_year", null, "k\u20AC/y", locale);
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
-		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(chartTitle) + "\"}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + JSONObject.escape(chartTitle) + "\"}";
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
-		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unit) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("report.assessment.ale", null, "ALE (k\u20AC/y)", locale)) + "\"}}]";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + JSONObject.escape(unit) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + JSONObject.escape(messageSource.getMessage("report.assessment.ale", null, "ALE (k\u20AC/y)", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 		
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
 	}
 
-	/**
-	 * Escapes the content of a JSON string in a very basic way.
-	 * Does not support escaping of control characters.
-	 * @param text The text to be escaped, which will go between double quotes (the latter must not be specified).
-	 * @return Returns an escaped string which can be used within double quotes.
-	 */
-	private static String jsonEscape(String text) {
-		// Control characters should be escaped as well (using \\uXXXX syntax),
-		// but this is not done for performance reasons.
-		return text.replace("\\", "\\\\").replace("\"", "\\\"");
-	}
-	
 	public static String deltaTimeToString(long deltaTime) {
 		if (deltaTime < 60) return String.format("%d s", deltaTime);
 		else if (deltaTime < 3600) return String.format("%d m", Math.round(deltaTime / 60.0));
