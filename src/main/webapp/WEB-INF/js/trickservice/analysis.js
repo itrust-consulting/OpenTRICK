@@ -280,16 +280,20 @@ function reloadCharts() {
 
 function displayChart(id,response) {
 	var $element = $(id);
-	if($.isArray(response)){
-		$element.empty();
-		for (var i = 0; i < response.length; i++){
-			if(i == 0)
-				$("<div/>").appendTo($element).loadOrUpdateChart(response[i]);
-			else {
-				$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
-				$("<div></div>").appendTo($element).loadOrUpdateChart(response[i]);
+	if ($.isArray(response)) {
+		// First prepare the document structure so that there is exactly one <div> available for each chart
+		if ($element.find(">div").length != response.length) {
+			$element.empty();
+			for (var i = 0; i < response.length; i++) {
+				if (i > 0)
+					$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
+				$("<div/>").appendTo($element)
 			}
 		}
+		// Now load the charts themselves
+		var divSelector = $element.find(">div");
+		for (var i = 0; i < response.length; i++)
+			$(divSelector.get(i)).loadOrUpdateChart(response[i]);
 	}
 	else
 		$element.loadOrUpdateChart(response);
@@ -405,7 +409,7 @@ function loadChartDynamicAleEvolutionByScenario() {
 	if ($('#chart_aleevolutionbyscenario').length) {
 		if ($('#chart_aleevolutionbyscenario').is(":visible")) {
 			$.ajax({
-				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario/Info",
+				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
 				type : "get",
 				async : true,
 				contentType : "application/json;charset=UTF-8",

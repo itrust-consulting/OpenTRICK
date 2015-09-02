@@ -1270,6 +1270,32 @@ public class ChartGenerator {
 	 * @param idAnalysis The ID of the analysis to generate the graph for.
 	 * @param assetType The asset type to generate the graph for.
 	 */
+	public String allAleEvolutionsofAllScenarios(int idAnalysis, Locale locale) throws Exception {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final List<Assessment> assessments = analysis.getAssessments();
+		final Map<AssetType, List<Assessment>> assessmentsByAssetType = new HashMap<>();
+		
+		// Split assessments by the type of their asset
+		for (Assessment assessment : assessments) {
+			final AssetType type = assessment.getAsset().getAssetType();
+			List<Assessment> list = assessmentsByAssetType.get(type);
+			if (list == null)
+				assessmentsByAssetType.put(type, list = new ArrayList<>());
+			list.add(assessment);
+		}
+		
+		// Create individual graphs
+		final List<String> graphs = new ArrayList<>();
+		for (AssetType assetType : assessmentsByAssetType.keySet())
+			graphs.add(aleEvolution(analysis, assessmentsByAssetType.get(assetType), locale, a -> a.getScenario(), s -> s.getName()));
+		return "[" + String.join(", ", graphs) + "]";
+	}
+
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays the ALE evolution of all scenarios of a specific asset type of an analysis.
+	 * @param idAnalysis The ID of the analysis to generate the graph for.
+	 * @param assetType The asset type to generate the graph for.
+	 */
 	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator, Function<TAggregator, String> axisLabelProvider) throws Exception {
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
 		final List<Parameter> allParameters = analysis.getParameters();
