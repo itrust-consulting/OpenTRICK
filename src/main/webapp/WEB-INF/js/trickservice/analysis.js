@@ -58,24 +58,26 @@ $(document).ready(function() {
 });
 
 $.fn.loadOrUpdateChart = function(parameters) {
-	$.extend(true, parameters, {
-		tooltip: {
-			formatter: function() {
-				var str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
-				var str = this.x + "<br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name + ":</span>   <b>" + str_value + "</b>";
-
-				if (this.series.options.metadata) {
-					var dataIndex = this.series.xAxis.categories.indexOf(this.x);
-					var metadata = this.series.options.metadata[dataIndex];
-					if (metadata.length > 0)
-						str += "<br/>\u00A0"; // non-breaking space; prevents empty line from being ignored
-					for (var i = 0; i < metadata.length; i++)
-						str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: " + language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
+	if (!parameters.tooltip) {
+		$.extend(true, parameters, {
+			tooltip: {
+				formatter: function() {
+					var str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
+					var str = "<span style=\"font-size:80%;\">" + this.x + "</span><br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name + ":</span>   <b>" + str_value + "</b>";
+	
+					if (this.series.options.metadata) {
+						var dataIndex = this.series.xAxis.categories.indexOf(this.x);
+						var metadata = this.series.options.metadata[dataIndex];
+						if (metadata.length > 0)
+							str += "<br/>\u00A0"; // non-breaking space; prevents empty line from being ignored
+						for (var i = 0; i < metadata.length; i++)
+							str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: " + language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
+					}
+					return str;
 				}
-				return str;
 			}
-		}
-	});
+		});
+	}
 
 	var chart = this.highcharts();
 	if (chart === undefined || parameters.series.length != chart.series.length)
@@ -269,7 +271,7 @@ function summaryCharts() {
 	return false;
 }
 
-function loadChartDynamicParameterEvolution() {
+function loadChartEvolution() {
 	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
