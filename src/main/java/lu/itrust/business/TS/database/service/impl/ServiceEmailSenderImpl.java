@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -17,6 +18,8 @@ import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -43,6 +46,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Value("${app.settings.smtp.host}")
 	private String mailserver;
+	
+	@Value("${app.settings.email.template}")
+	private  String ressourceFolder = "../data/email/template/";
+
 
 	/**
 	 * sendRegistrationMail: <br>
@@ -65,7 +72,6 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 		sender.setSession(con);
 
 		try {
-
 			preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws Exception {
 					Locale locale = user.getLocaleObject();
@@ -75,7 +81,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					model.put("user", user);
-					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, ressourceFolder
 						+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
 					message.setTo(user.getEmail());
 				}
@@ -98,7 +104,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
 							model.put("admin", admin);
 							model.put("user", user);
-							message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+							message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, ressourceFolder
 								+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8", model), true);
 							message.setTo(admin.getEmail());
 						}
@@ -132,7 +138,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 					model.put("hostname", hotname);
 					model.put("username", password.getUser().getLogin());
-					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, ressourceFolder
 						+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.vm" : "reset-password-en.vm"), "UTF-8", model), true);
 					message.setTo(password.getUser().getEmail());
 				}
@@ -143,4 +149,5 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 		}
 	}
 
+	
 }

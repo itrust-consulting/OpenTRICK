@@ -164,15 +164,12 @@ public class ControllerIntstallation {
 					return false;
 				}
 			}
-
 			// owner
-
 			if (principal == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
 				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
-
 			Worker worker = new WorkerTSInstallation(version,sessionFactory,serviceTaskFeedback, fileName, customer.getId(), principal.getName());
 			worker.setPoolManager(workersPoolManager);
 			if(!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
@@ -180,7 +177,7 @@ public class ControllerIntstallation {
 				return false;
 			}
 			executor.execute(worker);
-			errors.put("idTask", String.valueOf(worker.isWorking()));
+			errors.put("idTask", String.valueOf(worker.getId()));
 			return true;
 
 		} catch (TrickException e) {

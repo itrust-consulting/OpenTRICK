@@ -1,8 +1,10 @@
-package TS;
-import junit.framework.TestCase;
+package lu.itrust.TS.model;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 
@@ -12,17 +14,14 @@ import lu.itrust.business.TS.usermanagement.User;
  * @author oensuifudine
  *
  */
-public class UserTest extends TestCase {
+public class UserTest {
 	
+	@Test
 	public void testIsAutorise(){
-		
 		
 		User user = new User();
 		
 		user.addRole(new Role(RoleType.ROLE_ADMIN));
-		
-		//user.add(new Role(RoleType.ROLE_USER));
-		
 		
 		System.out.println(RoleType.ROLE_USER.ordinal());
 		
@@ -32,7 +31,7 @@ public class UserTest extends TestCase {
 		
 		System.out.println(RoleType.ROLE_SUPERVISOR.ordinal());
 		
-		assertTrue("ROLE_USER<ROLE_CONSULTANT", user.isAutorised("ROLE_CONSULTANT"));
+		Assert.assertTrue("ROLE_USER<ROLE_CONSULTANT", user.isAutorised("ROLE_CONSULTANT"));
 		
 	}
 	
