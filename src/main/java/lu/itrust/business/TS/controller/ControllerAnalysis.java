@@ -69,6 +69,7 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -1010,6 +1011,7 @@ public class ControllerAnalysis {
 	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, String username, Locale locale) throws IOException {
 		XSSFWorkbook workbook = null;
 		try {
+			List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
 			int lineIndex = 0;
 			workbook = new XSSFWorkbook();
 			XSSFSheet sheet = workbook.createSheet(messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale));
@@ -1025,7 +1027,7 @@ public class ControllerAnalysis {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, actionPlanEntry,locale);
+				writeActionPLanData(row, actionPlanEntry,expressionParameters,locale);
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename
@@ -1048,7 +1050,7 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, Locale locale) {
+	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, List<AcronymParameter> expressionParameters, Locale locale) {
 		for (int i = 0; i < 21; i++) {
 			if (row.getCell(i) == null)
 				row.createCell(i, i < 7 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
@@ -1063,7 +1065,7 @@ public class ControllerAnalysis {
 		row.getCell(++colIndex).setCellValue(measure.getComment());
 		row.getCell(++colIndex).setCellValue(measure.getToDo());
 		row.getCell(++colIndex).setCellValue(measure.getResponsible());
-		row.getCell(++colIndex).setCellValue(measure.getImplementationRateValue());
+		row.getCell(++colIndex).setCellValue(measure.getImplementationRateValue(expressionParameters));
 		row.getCell(++colIndex).setCellValue(measure.getInternalWL());
 		row.getCell(++colIndex).setCellValue(measure.getExternalWL());
 		row.getCell(++colIndex).setCellValue(measure.getInvestment() * 0.001);

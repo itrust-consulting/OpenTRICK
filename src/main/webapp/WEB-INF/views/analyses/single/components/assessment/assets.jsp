@@ -20,11 +20,7 @@
 				<c:if test="${!show_cssf}">
 					<th style="width: 5%" title='<fmt:message key="label.title.impact" />' ><fmt:message key="label.assessment.impact" /></th>
 				</c:if>
-<<<<<<< HEAD
-				<th style="width: 10%"><fmt:message key="label.assessment.likelihood" /></th>
-=======
-				<th style="width: 5%" title='<fmt:message key="label.title.likelihood" />' ><fmt:message key="label.assessment.likelihood" /></th>
->>>>>>> develop
+				<th style="width: 10%" title='<fmt:message key="label.title.likelihood" />' ><fmt:message key="label.assessment.likelihood" /></th>
 				<c:choose>
 					<c:when test="${show_uncertainty}">
 						<th style="width: 5%" title='<fmt:message key="label.title.uncertainty" />' ><fmt:message key="label.assessment.uncertainty" /></th>

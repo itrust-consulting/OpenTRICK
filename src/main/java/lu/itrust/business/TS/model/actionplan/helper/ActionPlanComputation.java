@@ -2872,14 +2872,7 @@ public class ActionPlanComputation {
 			for (int i = 0; i < helper.standard.getMeasures().size(); i++) {
 				measure = helper.standard.getMeasures().get(i);
 
-				double imprate;
-
-				if (measure instanceof NormalMeasure)
-					imprate = ((NormalMeasure) measure).getImplementationRateValue(expressionParameters);
-				else if (measure instanceof MaturityMeasure)
-					imprate = ((MaturityMeasure) measure).getImplementationRateValue(expressionParameters);
-				else
-					imprate = measure.getImplementationRateValue();
+				double imprate = measure.getImplementationRateValue(expressionParameters);
 
 				if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 					numerator += imprate * 0.01;// imprate / 100.0
