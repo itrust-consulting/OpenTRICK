@@ -1324,22 +1324,26 @@ public class ChartGenerator {
 			final List<List<String>> jsonMetaDataList = new ArrayList<>(); 
 
 			// Collect data/metadata
-			Double nextAle = null;
-			Map<String, Double> nextExpressionParameters = null;
+			Long lastTimeEnd = null;
 			for (long timeEnd : xAxisValues) {
 				// Store value
 				final double currentAle = data.get(key).get(timeEnd);
 				jsonDataList.add(Double.toString(Math.round(currentAle / 10.) / 100.));
 
-				// Find and store explanations of behaviour
-				final Map<String, Double> currentExpressionParameters = expressionParameters.get(timeEnd);
-				if (nextAle != null)
-					jsonMetaDataList.add(generateNotableEventsJson(aggregator, key, timeEnd, currentAle, nextAle, involvedVariables.get(timeEnd), currentExpressionParameters, nextExpressionParameters));
+				if (lastTimeEnd != null) {
+					// Find and store explanations of behaviour
+					final Map<String, Double> currentExpressionParameters = expressionParameters.get(timeEnd);
+					final Map<String, Double> lastExpressionParameters = expressionParameters.get(lastTimeEnd);
+					final double lastAle = data.get(key).get(lastTimeEnd);
+					jsonMetaDataList.add(generateNotableEventsJson(aggregator, key, lastTimeEnd, lastAle, currentAle, involvedVariables.get(lastTimeEnd), lastExpressionParameters, currentExpressionParameters));
+				}
 
 				// Update references
-				nextAle = currentAle;
-				nextExpressionParameters = currentExpressionParameters;
+				lastTimeEnd = timeEnd;
 			}
+
+			// Add empty meta data array for last time point (it has none, since there are no future time points to compare with)
+			jsonMetaDataList.add(new ArrayList<>());
 
 			// Build JSON object
 			final String jsonData = "[" + String.join(",", jsonDataList) + "]";

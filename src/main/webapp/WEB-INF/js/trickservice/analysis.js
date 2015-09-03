@@ -2,7 +2,13 @@ var el = null;
 
 var table = null;
 
+var language = { // translated asynchronously below
+		"label.dynamicparameter.evolution": "from {0} to {1}"
+};
+
 $(document).ready(function() {
+	for (var key in language)
+		language[key] = MessageResolver(key, language[key]);
 
 	// ******************************************************************************************************************
 	// * load charts
@@ -52,15 +58,20 @@ $(document).ready(function() {
 });
 
 $.fn.loadOrUpdateChart = function(parameters) {
-	$chart = this.data("chartParams", parameters);
 	$.extend(true, parameters, {
 		tooltip: {
 			formatter: function() {
-				var str = this.x + "<br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name + ":</span>   <b>" + this.point.y + "</b>";
-				var dataIndex = Array.indexOf($chart.data("chartParams").xAxis, this.x);
-				var metadata = $chart.data("chartParams").series[this.series.index].metadata[dataIndex];
-				for (var i = 0; i < metadata.length; i++)
-					str += "<br/>" + metadata[i].dynamicParameter;
+				var str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
+				var str = this.x + "<br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name + ":</span>   <b>" + str_value + "</b>";
+
+				if (this.series.options.metadata) {
+					var dataIndex = this.series.xAxis.categories.indexOf(this.x);
+					var metadata = this.series.options.metadata[dataIndex];
+					if (metadata.length > 0)
+						str += "<br/>\u00A0"; // non-breaking space; prevents empty line from being ignored
+					for (var i = 0; i < metadata.length; i++)
+						str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: " + language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
+				}
 				return str;
 			}
 		}
