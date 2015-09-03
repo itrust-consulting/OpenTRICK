@@ -98,7 +98,7 @@ public class ExportAnalysisReport {
 	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
 	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-
+	
 	private Locale locale = null;
 
 	private MessageSource messageSource;
@@ -340,7 +340,7 @@ public class ExportAnalysisReport {
 			row.getCell(8).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
 			row.getCell(9).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
 			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV", locale));
-			row.getCell(11).setText(getMessage("report.action_plan.probability", null, "P", locale));
+			row.getCell(11).setText(getMessage("report.action_plan.phase", null, "P", locale));
 			int nr = 0;
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
@@ -521,8 +521,10 @@ public class ExportAnalysisReport {
 			case 15: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText("4.4	" + getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI", locale));
+				DecimalFormat format = (DecimalFormat) numberFormat.clone();
+				format.setMaximumFractionDigits(2);
 				for (SummaryStage stage : summary)
-					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRelativeROSI()));
+					addCellNumber(row.getCell(++cellnumber), format.format(stage.getRelativeROSI()));
 				break;
 			}
 			case 16: {
@@ -1079,10 +1081,11 @@ public class ExportAnalysisReport {
 		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + "27002");
 		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
 		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
+		List<String> dataCostOfMeasures = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
 		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
 		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
 
-		for (int j = 1; j < 7; j++) {
+		for (int j = 1; j < 8; j++) {
 			if (xssfSheet.getRow(0) == null)
 				xssfSheet.createRow(0);
 			if (xssfSheet.getRow(0).getCell(j) == null)
@@ -1093,8 +1096,9 @@ public class ExportAnalysisReport {
 		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27002");
 		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale));
 		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale));
-		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
-		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
+		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale));
+		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
+		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
 		rowIndex = 1;
 
 		int size = 0;
@@ -1105,7 +1109,7 @@ public class ExportAnalysisReport {
 			size = dataCompliance27002s.size();
 
 		for (int i = 0; i < size; i++) {
-			for (int j = 1; j < 7; j++) {
+			for (int j = 1; j < 8; j++) {
 				if (xssfSheet.getRow(rowIndex) == null)
 					xssfSheet.createRow(rowIndex);
 				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
@@ -1115,8 +1119,9 @@ public class ExportAnalysisReport {
 			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble((dataCompliance27002s == null ? "0" : dataCompliance27002s.get(i))) * 0.01);
 			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataROSIs.get(i)));
-			xssfSheet.getRow(rowIndex++).getCell(6).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataCostOfMeasures.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataROSIs.get(i)));
+			xssfSheet.getRow(rowIndex++).getCell(7).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
 		}
 	}
 

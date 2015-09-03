@@ -23,6 +23,7 @@ import lu.itrust.business.TS.model.general.Phase;
 public class ActionPlanSummaryManager {
 
 	
+	
 	public static final String LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST = "label.resource.planning.total.phase.cost";
 	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_COST = "label.resource.planning.total.recurrent.cost";
 	public static final String LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST = "label.resource.planning.total.implement.phase.cost";
@@ -35,6 +36,7 @@ public class ActionPlanSummaryManager {
 	public static final String LABEL_RESOURCE_PLANNING = "label.resource.planning";
 	public static final String LABEL_PROFITABILITY_ROSI_RELATIF = "label.profitability.rosi.relatif";
 	public static final String LABEL_PROFITABILITY_ROSI = "label.profitability.rosi";
+	public static final String LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE = "label.profitability.average_yearly_cost_of_phase";
 	public static final String LABEL_PROFITABILITY_RISK_REDUCTION = "label.profitability.risk.reduction";
 	public static final String LABEL_PROFITABILITY_ALE_UNTIL_END = "label.profitability.ale.until.end";
 	public static final String LABEL_PROFITABILITY = "label.profitability";
@@ -51,33 +53,6 @@ public class ActionPlanSummaryManager {
 			if (!phases.contains(summaryStage.getStage()))
 				phases.add(summaryStage.getStage());
 		return phases;
-	}
-
-	public static List<String> buildFirstRow(List<SummaryStandardConformance> conformances) {
-		List<String> rows = new ArrayList<String>();
-		rows.add(LABEL_CHARACTERISTIC);
-		rows.add(LABEL_PHASE_BEGIN_DATE);
-		rows.add(LABEL_PHASE_END_DATE);
-		for (SummaryStandardConformance conformance : conformances)
-			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
-		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
-		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
-		rows.add(LABEL_PROFITABILITY);
-		rows.add(LABEL_PROFITABILITY_ALE_UNTIL_END);
-		rows.add(LABEL_PROFITABILITY_RISK_REDUCTION);
-		rows.add(LABEL_PROFITABILITY_ROSI);
-		rows.add(LABEL_PROFITABILITY_ROSI_RELATIF);
-		rows.add(LABEL_RESOURCE_PLANNING);
-		rows.add(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
-		rows.add(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
-		rows.add(LABEL_RESOURCE_PLANNING_INVESTMENT);
-		rows.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
-		rows.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
-		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
-		rows.add(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
-		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
-		rows.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
-		return rows;
 	}
 
 	public static Map<String, Phase> buildPhase(List<Phase> phases, List<String> extractedPhases) {
@@ -118,7 +93,7 @@ public class ActionPlanSummaryManager {
 	public static Map<String, List<String>> buildTable(List<SummaryStage> summaryStages, List<Phase> phases) {
 		if (summaryStages.isEmpty())
 			return null;
-		List<String> firstRows = buildFirstRow(summaryStages.get(0).getConformances());
+		List<String> firstRows = generateHeader(summaryStages.get(0).getConformances());
 
 		Map<String, List<String>> summaries = new LinkedHashMap<String, List<String>>(firstRows.size());
 
@@ -180,6 +155,9 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_PROFITABILITY_RISK_REDUCTION);
 			summary.add(index, Math.floor(summaryStage.getDeltaALE() * 0.001) + "");
+			
+			summary = summaries.get(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
+			summary.add(index, Math.floor(summaryStage.getCostOfMeasures() * 0.001) + "");
 
 			summary = summaries.get(LABEL_PROFITABILITY_ROSI);
 			summary.add(index, Math.floor(summaryStage.getROSI() * 0.001) + "");
@@ -238,7 +216,7 @@ public class ActionPlanSummaryManager {
 
 		SummaryStage stage = getStageFromPhase(0, summaryStages);
 
-		List<String> datas = generateDataList(stage.getConformances());
+		List<String> datas = generateHeader(stage.getConformances());
 
 		int colnumber = 0;
 		
@@ -264,33 +242,32 @@ public class ActionPlanSummaryManager {
 		return rowdata;
 	}
 
-	public static List<String> generateDataList(List<SummaryStandardConformance> conformances) {
-		List<String> result = new ArrayList<String>();
-
-		result.add(LABEL_CHARACTERISTIC);
-		result.add(LABEL_PHASE_BEGIN_DATE);
-		result.add(LABEL_PHASE_END_DATE);
+	public static List<String> generateHeader(List<SummaryStandardConformance> conformances) {
+		List<String> rows = new ArrayList<String>();
+		rows.add(LABEL_CHARACTERISTIC);
+		rows.add(LABEL_PHASE_BEGIN_DATE);
+		rows.add(LABEL_PHASE_END_DATE);
 		for (SummaryStandardConformance conformance : conformances)
-			result.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
-		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
-		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
-		result.add(LABEL_PROFITABILITY);
-		result.add(LABEL_PROFITABILITY_ALE_UNTIL_END);
-		result.add(LABEL_PROFITABILITY_RISK_REDUCTION);
-		result.add(LABEL_PROFITABILITY_ROSI);
-		result.add(LABEL_PROFITABILITY_ROSI_RELATIF);
-		result.add(LABEL_RESOURCE_PLANNING);
-		result.add(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
-		result.add(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
-		result.add(LABEL_RESOURCE_PLANNING_INVESTMENT);
-		result.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
-		result.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
-		result.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
-		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
-		result.add(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
-		result.add(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
-		result.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
-		return result;
+			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
+		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
+		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
+		rows.add(LABEL_PROFITABILITY);
+		rows.add(LABEL_PROFITABILITY_ALE_UNTIL_END);
+		rows.add(LABEL_PROFITABILITY_RISK_REDUCTION);
+		rows.add(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
+		rows.add(LABEL_PROFITABILITY_ROSI);
+		rows.add(LABEL_PROFITABILITY_ROSI_RELATIF);
+		rows.add(LABEL_RESOURCE_PLANNING);
+		rows.add(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
+		rows.add(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
+		rows.add(LABEL_RESOURCE_PLANNING_INVESTMENT);
+		rows.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
+		rows.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
+		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
+		rows.add(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
+		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
+		rows.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
+		return rows;
 	}
 
 	private static SummaryStage getStageFromPhase(Integer phasenumber, List<SummaryStage> stages) {
@@ -349,6 +326,7 @@ public class ActionPlanSummaryManager {
 			case LABEL_PROFITABILITY:value.put(colnumber, null);break;
 			case LABEL_PROFITABILITY_ALE_UNTIL_END:value.put(colnumber, stage.getTotalALE());break;
 			case LABEL_PROFITABILITY_RISK_REDUCTION:value.put(colnumber, stage.getDeltaALE());break;
+			case LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE:value.put(colnumber, stage.getCostOfMeasures());break;
 			case LABEL_PROFITABILITY_ROSI:value.put(colnumber, stage.getROSI());break;
 			case LABEL_PROFITABILITY_ROSI_RELATIF:value.put(colnumber, stage.getRelativeROSI());break;
 			case LABEL_RESOURCE_PLANNING:value.put(colnumber, null);break;

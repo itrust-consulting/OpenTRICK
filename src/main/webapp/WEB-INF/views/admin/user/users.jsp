@@ -24,6 +24,7 @@
 						<th><spring:message code="label.user.last_name" text="Lastname" /></th>
 						<th><spring:message code="label.user.email" text="Email address" /></th>
 						<th><spring:message code="label.user.account.status" text="Status" /></th>
+						<th><spring:message code="label.user.connexion.type" text="Authentication type" /></th>
 						<th><spring:message code="label.user.account.role" text="Roles" /></th>
 					</tr>
 				</thead>
@@ -31,18 +32,28 @@
 					<c:forEach items="${users}" var="user">
 						<tr data-trick-id="${user.id}" ondblclick="return editSingleUser(${user.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_user','#menu_user');"></td>
-							<td>${user.login}</td>
-							<td>${user.firstName}</td>
-							<td>${user.lastName}</td>
-							<td>${user.email}</td>
+							<td><spring:message text="${user.login}" /></td>
+							<td><spring:message text="${user.firstName}" /></td>
+							<td><spring:message text="${user.lastName}" /></td>
+							<td><spring:message text="${user.email}" /></td>
 							<td><spring:message code="label.user.account.state_${fn:toLowerCase(user.enable)}" text="${user.enable?'Enabled':'Disabled'}" /></td>
+							<td data-trick-real-value="${user.connexionType}"><c:choose>
+									<c:when test="${user.connexionType == -1}">
+										<spring:message code="label.user.connexion.standard" text="Standard" />
+									</c:when>
+									<c:when test="${user.connexionType == 0}">
+										<spring:message code="label.user.connexion.both" text="Both" />
+									</c:when>
+									<c:when test="${user.connexionType == 1}">
+										<spring:message code="label.user.connexion.ldap" text="LDAP" />
+									</c:when>
+								</c:choose></td>
 							<td><c:forEach items="${user.roles}" var="role">
 									<c:set var="role_value" value="${fn:replace(role.type,'ROLE_','')}" />
-									<div style="padding: 6px; border: 1px solid #dddddd; text-align: center; border-radius: 4px; background-color: #eeeeee; display:inline-block;">
+									<div style="padding: 6px; border: 1px solid #dddddd; text-align: center; border-radius: 4px; background-color: #eeeeee; display: inline-block;">
 										<spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}" />
 									</div>
-								</c:forEach>
-							</td>
+								</c:forEach></td>
 						</tr>
 					</c:forEach>
 				</tbody>

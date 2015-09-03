@@ -20,7 +20,7 @@
 				<p>
 					<fmt:message key="label.title.options.select_norm.info" />
 				</p>
-				<form action="${pageContext.request.contextPath}/ActionPlan/Compute" method="post" class="form-horizontal" id="actionplancomputationoptionsform">
+				<form action="${pageContext.request.contextPath}/ActionPlan/Compute?${_csrf.parameterName}=${_csrf.token}" method="post" class="form-horizontal" id="actionplancomputationoptionsform">
 					<c:if test="${!empty(id)}">
 						<input name="id" value="${id}" type="hidden">
 					</c:if>

@@ -21,6 +21,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -36,6 +37,8 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -51,6 +54,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -125,6 +129,9 @@ public class ControllerAdministration {
 	@Autowired
 	private ServiceTrickLog serviceTrickLog;
 
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
 	@Value("${app.settings.version}")
 	private String version;
 
@@ -138,11 +145,9 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping
 	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
-		model.put("adminView", true);
 		model.put("users", serviceUser.getAll());
 		List<Customer> customers = serviceCustomer.getAll();
 		Integer customerID = (Integer) session.getAttribute("currentAdminCustomer");
-		// check if the current customer is set -> no
 		Integer profileId = null;
 		if (customerID == null) {
 			for (Customer customer : customers) {
@@ -177,12 +182,20 @@ public class ControllerAdministration {
 				model.put("analyses", serviceAnalysis.getAll());
 		}
 
+		List<TSSetting> tsSettings = new LinkedList<TSSetting>();
+		for (TSSettingName name : TSSettingName.values()) {
+			TSSetting tsSetting = serviceTSSetting.get(name);
+			if (tsSetting == null)
+				tsSetting = new TSSetting(name, true);
+			tsSettings.add(tsSetting);
+		}
+
+		model.put("tsSettings", tsSettings);
 		model.put("logFilter", loadLogFilter(session, principal.getName()));
 		model.put("logLevels", serviceTrickLog.getDistinctLevel());
 		model.put("logTypes", serviceTrickLog.getDistinctType());
 		model.put("actions", serviceTrickLog.getDistinctAction());
 		model.put("authors", serviceTrickLog.getDistinctAuthor());
-
 		return "admin/administration";
 	}
 
@@ -232,6 +245,26 @@ public class ControllerAdministration {
 		serviceTrickService.save(status);
 
 		return status;
+
+	}
+
+	@RequestMapping(value = "/TSSetting/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody boolean updateSetting(@RequestBody TSSetting tsSetting, Principal principal, Locale locale) {
+		if (StringUtils.isEmpty(tsSetting.getName()))
+			return false;
+		try {
+			TSSetting setting = serviceTSSetting.get(tsSetting.getName());
+			if (setting == null)
+				setting = tsSetting;
+			else
+				setting.setValue(tsSetting.getValue());
+			serviceTSSetting.saveOrUpdate(setting);
+			return true;
+		} finally {
+			String settingName = messageSource.getMessage("label." + tsSetting.getNameLower(), null, tsSetting.getNameLower(), Locale.ENGLISH);
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ADMINISTRATION, "log.setting.change", String.format("Settings: %s, value: %s", settingName, tsSetting.getString()),
+					principal.getName(), LogAction.CHANGE, settingName, tsSetting.getString());
+		}
 
 	}
 
@@ -523,9 +556,7 @@ public class ControllerAdministration {
 			firstname = jsonNode.get("firstName").asText();
 			lastname = jsonNode.get("lastName").asText();
 			email = jsonNode.get("email").asText();
-
-			int id = jsonNode.get("id").asInt();
-
+			int id = jsonNode.get("id").asInt(), connexionType = jsonNode.get("connexionType").asInt();
 			if (id > 0) {
 				user = serviceUser.get(jsonNode.get("id").asInt());
 			} else {
@@ -540,17 +571,25 @@ public class ControllerAdministration {
 					user.setLogin(login);
 			}
 
-			if (newUser || !password.equals(Constant.EMPTY_STRING)) {
+			if (connexionType >= User.STANDARD_CONNEXION && connexionType <= User.LADP_CONNEXION)
+				user.setConnexionType(connexionType);
+			else
+				user.setConnexionType(User.BOTH_CONNEXION);
 
-				error = validator.validate(user, "password", password);
-				if (error != null)
-					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
-				else {
-					user.setPassword(password);
-					ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-					user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+			if (user.getConnexionType() != User.LADP_CONNEXION) {
+				if (newUser || !StringUtils.isEmpty(password)) {
+					error = validator.validate(user, "password", password);
+					if (error != null)
+						errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+					else {
+						user.setPassword(password);
+						ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+						user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+					}
 				}
-			}
+			} else if (!User.LDAP_KEY_PASSWORD.equals(user.getPassword()))
+				user.setPassword(User.LDAP_KEY_PASSWORD);
+
 			error = validator.validate(user, "firstName", firstname);
 			if (error != null)
 				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));

@@ -36,13 +36,13 @@
 					</c:if>
 					<li id="error_container" style="padding-top: 10px"></li>
 				</ul>
-				<form name="measureForm" style="height: 478px;" action="/Save" class="form-horizontal tab-content" id="measure_form" method="post">
+				<form name="measureForm" style="height: 478px;" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal tab-content" id="measure_form" method="post">
 					<input type="hidden" name="id" value="${measureForm.id}" id="id"> <input type="hidden" name="idStandard" value="${measureForm.idStandard}" id="idStandard">
 					<c:if test="${not empty(isAnalysisOnly) and isAnalysisOnly}">
 						<div id="tab_general" class="tab-pane active" style="padding-top: 17px;">
 
 							<div class="form-group">
-								<label for="reference" class="col-sm-3 control-label"> <fmt:message key="label.measure.reference" /></label>
+								<label for="reference" class="col-sm-3 control-label"> <fmt:message key="label.reference" /></label>
 								<div class="col-sm-9">
 									<input name="reference" id="reference" value='<spring:message text="${measureForm.reference}"/>' class="form-control" />
 								</div>

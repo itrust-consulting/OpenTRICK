@@ -96,6 +96,7 @@
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <fmt:message key="label.word_report" />
 					</a></li>
 					<li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <fmt:message key="label.sqlite_data" /></a></li>
+					<li><a href="#" onclick="return exportRawActionPlan('${analysis.id}');"> <fmt:message key="label.raw_action_plan" /></a></li>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
@@ -108,7 +109,11 @@
 			<li class="dropdown-header"><fmt:message key="label.title.rrf" /></li>
 			<li><a href="#" onclick="return loadRRF();"> <fmt:message key="label.action.open" /></a></li>
 			<c:if test="${analysis.profile or isEditable}">
-				<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import" /></a></li>
+				<li><a href="#" onclick="return importRRF(${analysis.id});"> <fmt:message key="label.action.import" /></a></li>
+				<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <fmt:message key="label.action.import.rrf.raw" /></a></li>
+			</c:if>
+			<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
+				<li><a href="#" onclick="return exportRawRRF(${analysis.id});"> <fmt:message key="label.action.export.rrf.raw" /></a></li>
 			</c:if>
 			<c:if test="${not analysis.profile and isEditable}">
 				<li class="divider"></li>

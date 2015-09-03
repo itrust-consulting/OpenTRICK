@@ -48,25 +48,25 @@
 						<c:if test="${analysisOnly and isEditable}">
 							<th width="1%"></th>
 						</c:if>
-						<th width="5%"><fmt:message key="label.measure.ref" /></th>
-						<th width="15%"><fmt:message key="label.measure.domain" /></th>
-						<th width="3%"><fmt:message key="label.measure.status" /></th>
-						<th width="3%"><fmt:message key="label.measure.ir" /></th>
-						<th width="3%"><fmt:message key="label.measure.iw" /></th>
-						<th width="3%"><fmt:message key="label.measure.ew" /></th>
-						<th width="3%"><fmt:message key="label.measure.inv" /></th>
-						<th width="3%"><fmt:message key="label.measure.lt" /></th>
-						<th width="3%"><fmt:message key="label.measure.im" /></th>
-						<th width="3%"><fmt:message key="label.measure.em" /></th>
-						<th width="3%"><fmt:message key="label.measure.ri" /></th>
-						<th width="3%"><fmt:message key="label.measure.cost" /></th>
-						<th width="3%"><fmt:message key="label.measure.phase" /></th>
+						<th width="5%" title='<fmt:message key="label.reference" />'  ><fmt:message key="label.measure.ref" /></th>
+						<th width="15%" title='<fmt:message key="label.measure.domain" />' ><fmt:message key="label.measure.domain" /></th>
+						<th width="3%" title='<fmt:message key="label.measure.status" />' ><fmt:message key="label.measure.status" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.ir" />' ><fmt:message key="label.measure.ir" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.iw" />' ><fmt:message key="label.measure.iw" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.ew" />' ><fmt:message key="label.measure.ew" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.inv" />' ><fmt:message key="label.measure.inv" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.lt" />' ><fmt:message key="label.measure.lt" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.im" />' ><fmt:message key="label.measure.im" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.em" />' ><fmt:message key="label.measure.em" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.ri" />' ><fmt:message key="label.measure.ri" /></th>
+						<th width="3%" title='<fmt:message key="label.title.measure.cost" />' ><fmt:message key="label.measure.cost" /></th>
+						<th width="3%" title='<fmt:message key="label.measure.phase" />' ><fmt:message key="label.measure.phase" /></th>
 						<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-							<th><fmt:message key="label.measure.tocheck" /></th>
+							<th title='<fmt:message key="label.measure.tocheck" />' ><fmt:message key="label.measure.tocheck" /></th>
 						</c:if>
-						<th><fmt:message key="label.measure.comment" /></th>
-						<th><fmt:message key="label.measure.todo" /></th>
-						<th width="1%"><fmt:message key="label.measure.responsible" /></th>
+						<th title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
+						<th title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
+						<th width="1%" title='<fmt:message key="label.title.measure.responsible" />' ><fmt:message key="label.measure.responsible" /></th>
 					</tr>
 				</thead>
 				<tfoot>

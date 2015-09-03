@@ -29,7 +29,7 @@ public class TrickService {
 	
 	@Column(name="dtInstalled", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean installed = false;
-
+	
 	/**
 	 * Constructor: <br>
 	 */

@@ -24,8 +24,6 @@ public interface PermissionEvaluator extends org.springframework.security.access
 	
 	boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right);
 	
-	boolean canCreateNewVersion(Integer analysisId, Principal principal, AnalysisRight right);
-	
 	boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) ;
 	
 }

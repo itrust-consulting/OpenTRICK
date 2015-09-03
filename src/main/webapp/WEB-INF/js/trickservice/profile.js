@@ -216,7 +216,6 @@ function loadUserReport(update) {
 }
 
 function updateProfile(form) {
-
 	$
 			.ajax({
 				url : context + "/Profile/Update",
@@ -224,14 +223,9 @@ function updateProfile(form) {
 				contentType : "application/json",
 				data : serializeForm(form),
 				success : function(response, textStatus, jqXHR) {
-
 					$("#profileInfo").attr("hidden", "hidden");
 					$("#profileInfo div").remove();
-
-					var alert = $("#" + form + " .label-danger");
-					if (alert.length)
-						alert.remove();
-
+					$(".label,.alert").remove();
 					for ( var error in response) {
 
 						$("#profileInfo").attr("hidden", "hidden");
@@ -263,18 +257,16 @@ function updateProfile(form) {
 							$(errorElement).appendTo($("#" + form + " #locale").parent());
 							break;
 						case "user": {
-
 							var errElement = document.createElement("div");
-							errElement.setAttribute("class", "alert alert-success");
+							errElement.setAttribute("class", "alert alert-danger");
 							$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
 							$(errElement).appendTo($("#profileInfo"));
 							$("#profileInfo").removeAttr("hidden");
 						}
-
 						}
 					}
 
-					if (!$("#" + form + " .label-danger").length) {
+					if (!$(".label-danger,.alert-danger").length) {
 						var successElement = document.createElement("div");
 						successElement.setAttribute("class", "alert alert-success");
 						$(successElement).html(

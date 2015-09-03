@@ -17,7 +17,7 @@
 				<spring:message code="label.title.user.reset.password" text="Reset your password" />
 			</h2>
 			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -30px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
-			<form:form modelAttribute="resetPassword" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/ResetPassword/Save">
+			<form:form modelAttribute="resetPassword" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/ResetPassword/Save?${_csrf.parameterName}=${_csrf.token}">
 				<div class="form-group" style="margin-top: 20px; margin-bottom: 5px;">
 					<form:label path="username" class="col-sm-3 control-label">
 						<spring:message code="label.user.login" text="Username" />

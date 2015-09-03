@@ -896,7 +896,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody String forceDeleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasureDescription") int idMeasureDescription,
 			Principal principal, Locale locale) {
@@ -929,6 +929,7 @@ public class ControllerKnowledgeBaseStandard {
 			JsonNode jsonNode = mapper.readTree(source);
 
 			String reference = jsonNode.get("reference").asText();
+			
 			Integer level = null;
 			Boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
 			try {
@@ -946,6 +947,7 @@ public class ControllerKnowledgeBaseStandard {
 			if (error != null)
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
+				reference = reference.trim();
 				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
 					errors.put("measuredescription.reference",
 							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
@@ -958,8 +960,7 @@ public class ControllerKnowledgeBaseStandard {
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if (!errors.containsKey("measuredescription.reference")) {
-
-				if (reference.split("\\.").length != level)
+				if (reference.split(Constant.REGEX_SPLIT_REFERENCE).length != level)
 					errors.put("measuredescription.level",
 							messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
 				else

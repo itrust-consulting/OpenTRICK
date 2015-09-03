@@ -79,7 +79,7 @@ function register(form) {
 			if (alert.length)
 				alert.remove();
 			var errElement = document.createElement("div");
-			errElement.setAttribute("class", "alert alert-warning");
+			errElement.setAttribute("class", "alert alert-danger");
 			$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + errorThrown);
 			$(errElement).appendTo($("#success"));
 			$("#success").removeAttr("hidden");
@@ -89,6 +89,13 @@ function register(form) {
 	return false;
 }
 
+$(function() {
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(document).ajaxSend(function(e, xhr, options) {
+		xhr.setRequestHeader(header, token);
+	});
+});
 
 /**
  * serializeJSON serialize an object to json string

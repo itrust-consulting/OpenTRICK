@@ -1104,7 +1104,7 @@ public class ControllerAnalysisStandard {
 		error = validator.validate("level", measureForm.getLevel());
 		if (error != null)
 			errors.put("level", serviceDataValidation.ParseError(error, messageSource, locale));
-		else if (!errors.containsKey("reference") && measureForm.getReference().split("\\.").length != measureForm.getLevel())
+		else if (!errors.containsKey("reference") && measureForm.getReference().split(Constant.REGEX_SPLIT_REFERENCE).length != measureForm.getLevel())
 			errors.put("level", messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
 		validator = serviceDataValidation.findByClass(MeasureDescriptionTextValidator.class);
 		if (validator == null)
@@ -1174,7 +1174,7 @@ public class ControllerAnalysisStandard {
 				Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, assetValueForm.getId());
 				if (asset == null)
 					throw new TrickException("error.asset.not_found", "Asset does not found");
-				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByAssetId(asset.getId());
+				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByMeasureIdAndAssetId(measure.getId(),asset.getId());
 				if (assetValue == null)
 					assetValue = new MeasureAssetValue(asset, assetValueForm.getValue());
 				else

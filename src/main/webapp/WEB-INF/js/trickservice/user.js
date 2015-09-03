@@ -67,7 +67,7 @@ function saveUser(form) {
 				$(successElement).appendTo($("#addUserModel .modal-body #success"));
 				$("#success").removeAttr("hidden");
 				$("#user_password").prop("value", "");
-				setTimeout(reloadSection("section_user"), 2000);
+				setTimeout(reloadSection("section_user"), 500);
 			}
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
@@ -114,7 +114,7 @@ function deleteUser(userId, name) {
 					var $deleteButton = $deleteUserDialog.find("button[name='delete']").click(function() {
 						$submitInput.click();
 					});
-					
+
 					$progress.hide();
 
 					function fadeOutComplete() {
@@ -138,7 +138,7 @@ function deleteUser(userId, name) {
 							else
 								data.switchOwners[name] = value;
 						});
-						
+
 						$progress.show();
 
 						$.ajax({
@@ -196,7 +196,7 @@ function newUser(isIDSUser) {
 
 	if (findSelectItemIdBySection(("section_user")).length > 0)
 		return false;
-	$("#addUserModel").find(".alert").remove()
+	$("#addUserModel .alert,.label-danger").remove()
 	$("#user_id").prop("value", "-1");
 	$("#user_login").prop("value", "");
 	$("#user_login").removeAttr("disabled");
@@ -210,12 +210,20 @@ function newUser(isIDSUser) {
 	else
 		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").show();
 
+	$("#radioConnexionType input[value='0']").prop("checked", "ckecked");
+	$("#radioConnexionType").button("reset");
+
 	$.ajax({
 		url : context + "/Admin/Roles",
 		type : "get",
+		async: false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
+			$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
+			$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
+			$("#user_form").prop("action", "/Save");
+			$("#addUserModel").modal('toggle');
 		},
 		error : unknowError
 	});
@@ -238,7 +246,8 @@ function editSingleUser(userId) {
 		userId = selectedScenario[0];
 	}
 
-	$("#addUserModel").find(".alert").remove()
+	$("#addUserModel .alert,.label-danger").remove()
+
 	var rows = $("#section_user").find("tr[data-trick-id='" + userId + "'] td:not(:first-child)");
 	$("#user_id").prop("value", userId);
 	$("#user_login").prop("value", $(rows[0]).text());
@@ -255,19 +264,21 @@ function editSingleUser(userId) {
 		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").show();
 	$("#user_form").data("trick-isIDSUser", isIDSUser);
 
+	$("#radioConnexionType input[value='" + $(rows[5]).attr("data-trick-real-value") + "']").parent().button("toggle");
+
 	$.ajax({
 		url : context + "/Admin/User/Roles/" + userId,
 		type : "get",
+		async: false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
+			$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
+			$("#addUserbutton").text(MessageResolver("label.action.edit", "Edit"));
+			$("#user_form").prop("action", "/Save");
+			$("#addUserModel").modal('toggle');
 		},
 		error : unknowError
 	});
-
-	$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
-	$("#addUserbutton").text(MessageResolver("label.action.edit", "Edit"));
-	$("#user_form").prop("action", "/Save");
-	$("#addUserModel").modal('toggle');
 	return false;
 }

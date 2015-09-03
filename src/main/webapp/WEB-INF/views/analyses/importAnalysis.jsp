@@ -22,7 +22,7 @@
 					<h3>
 						<spring:message code="label.import.analysis.description" text="Please select a customer then, choose a sqlite file and click on submit" />
 					</h3>
-					<form id="importform" name="importform" method="post" action="${pageContext.request.contextPath}/Analysis/Import/Execute" enctype="multipart/form-data">
+					<form id="importform" name="importform" method="post" action="${pageContext.request.contextPath}/Analysis/Import/Execute?${_csrf.parameterName}=${_csrf.token}" enctype="multipart/form-data">
 						<div class="row">
 							<div class="col-lg-12" style="margin-bottom: 10px;">
 								<div class="input-group">

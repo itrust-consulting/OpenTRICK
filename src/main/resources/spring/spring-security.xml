@@ -8,26 +8,17 @@
 		<expression-handler ref="methodSecurityExpressionHandler" />
 	</global-method-security>
 
-	<http use-expressions="false">
+	<http use-expressions="false" realm="TRICK Service application">
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Api/**" access="ROLE_IDS" />
-		<form-login login-page="/Login" default-target-url="/Home" username-parameter="j_username" password-parameter="j_password" login-processing-url="/j_spring_security_check"
-			authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
-		<logout logout-success-url="/Home" logout-url="/j_spring_security_logout" />
-		<csrf disabled="true" />
+		<form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler"
+			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
+		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID"/>
 	</http>
 
-	<authentication-manager>
-		<authentication-provider>
-			<jdbc-user-service data-source-ref="dataSource" users-by-username-query="SELECT dtLogin as username, dtPassword as password, dtEnabled as enable from User where dtLogin=?"
-				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.fiUser = User.idUser AND UserRole.fiRole = Role.idRole AND User.dtLogin = ?" />
-			<password-encoder ref="passwordEncoder">
-				<salt-source user-property="username" />
-			</password-encoder>
-		</authentication-provider>
-	</authentication-manager>
+	<beans:import resource="authentication-manager.xml" />
 
 	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" />
 

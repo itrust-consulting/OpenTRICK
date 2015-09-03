@@ -124,10 +124,8 @@ public class RiskRegisterComputation {
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis), this.analysis.getParameters(), this.analysis.getExpressionParameters()));
 
 			// print risk register into console
-			printRegister(this.analysis.getRiskRegisters());
-
+			//printRegister(this.analysis.getRiskRegisters());
 			return null;
-
 		} catch (Exception e) {
 
 			// print error message
@@ -166,7 +164,7 @@ public class RiskRegisterComputation {
 				+ registerItem.getScenario().getType().getName() + " | " + registerItem.getScenario().getName());
 			printRiskRegisterItem(registerItem.getRawEvaluation());
 			printRiskRegisterItem(registerItem.getNetEvaluation());
-			printRiskRegisterItem(registerItem.getExpectedImportance());
+			printRiskRegisterItem(registerItem.getExpectedEvaluation());
 			System.out.print(" | " + registerItem.getStrategy() + "\n");
 		}
 	}
@@ -1091,7 +1089,7 @@ public class RiskRegisterComputation {
 		double importanceNet = riskRegisters.getNetEvaluation().getImportance();
 
 		if (deltaALE == null) {
-			riskRegisters.setExpectedImportance(new EvaluationResult(netProbability, netImpact));
+			riskRegisters.setExpectedEvaluation(new EvaluationResult(netProbability, netImpact));
 			return;
 		}
 
@@ -1122,14 +1120,14 @@ public class RiskRegisterComputation {
 		 */
 
 		if (expImportance < 0) {
-			riskRegisters.setExpectedImportance(new EvaluationResult(0, 0));
+			riskRegisters.setExpectedEvaluation(new EvaluationResult(0, 0));
 			System.err.println("Expected importance " + expImportance + "<0 for " + riskRegisters.getScenario().getName());
 		} else {
 			// computation of proportional strength
 			double x = probabilityRelativeImpact[0] / probabilityRelativeImpact[1];
 
 			// update expected importance
-			riskRegisters.setExpectedImportance(computeImpactAndProbability(x, netImpact, netProbability, expImportance));
+			riskRegisters.setExpectedEvaluation(computeImpactAndProbability(x, netImpact, netProbability, expImportance));
 		}
 	}
 

@@ -16,6 +16,14 @@ function Application() {
 	this.fixedOffset = 5
 }
 
+function checkExtention(value,extention,button){
+	var extentions = extention.split(","), match = false;
+	for (var i = 0; i < extentions.length; i++) 
+		match |= value.endsWith(extentions[i]);
+	$(button).prop("disabled", !match);
+	return match;
+}
+
 function showDialog(dialog, message) {
 	$(dialog).find(".modal-body").text(message);
 	return $(dialog).modal("show");
@@ -39,6 +47,12 @@ function downloadExportedSqLite(id) {
 }
 
 $(function() {
+
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(document).ajaxSend(function(e, xhr, options) {
+		xhr.setRequestHeader(header, token);
+	});
 
 	// prevent unknown error modal display
 	$(window).bind("beforeunload", function() {
@@ -68,7 +82,7 @@ $(function() {
 					if (!$option.find("#" + optionMenu.prop("id")).length) {
 						$option.find("ul").remove();
 						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
-						$("li[data-role='title']",cloneOption ).remove()
+						$("li[data-role='title']", cloneOption).remove()
 						cloneOption.removeAttr("style");
 						if ($subMenu.length) {
 							$subMenu.each(function() {
@@ -81,9 +95,9 @@ $(function() {
 								$this.addClass("dropdown-header");
 							});
 						} else {
-							$("li.dropdown-header",cloneOption).each(function(){
+							$("li.dropdown-header", cloneOption).each(function() {
 								var $this = $(this), $closestli = $this.closest("li");
-								if($closestli.length && !$closestli.hasClass("divider"))
+								if ($closestli.length && !$closestli.hasClass("divider"))
 									$this.before("<li class='divider'></li>");
 								$this.show();
 							});
@@ -273,24 +287,12 @@ function hasRight(action) {
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
-function hasCreateVersion() {
+function hasRoleToCreateVersion() {
 	return canCreateNewVersion($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"));
 }
 
 function canCreateNewVersion(idAnalysis) {
-	if (application.rights[idAnalysis] != undefined)
-		return application.rights[idAnalysis];
-	else
-		application.rights[idAnalysis] = false;
-	$.ajax({
-		url : context + "/Can-create-version/" + idAnalysis,
-		async : false,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			return application.rights[idAnalysis] = response === true;
-		}
-	});
-	return application.rights[idAnalysis];
+	return hasRight("ALL") || $("div[data-trick-id='" + idAnalysis + "'][data-analysis-owner='true']").length;
 }
 
 function canManageAccess() {

@@ -35,7 +35,7 @@
 								<tr>
 									<th style="width: 1%;"><fmt:message key="label.table.index" /></th>
 									<th style="width: 4%;"><fmt:message key="label.measure.norm" /></th>
-									<th style="width: 3%;"><fmt:message key="label.measure.reference" /></th>
+									<th style="width: 3%;"><fmt:message key="label.reference" /></th>
 									<th style="width: 4%;"><fmt:message key="label.action_plan.total_ale" /></th>
 									<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 									<c:forEach items="${actionplanassets}" var="asset">
@@ -52,18 +52,18 @@
 											${fct:round(actionplansplitted.get(apt).get(0).totalALE,2) + fct:round(actionplansplitted.get(apt).get(0).deltaALE,2)}
 										</c:set>
 										<fmt:parseNumber var="computedALE" type="number" value="${totalALE}" />
-										<td  align="right" ${computedALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${computedALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+										<td  ${computedALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${computedALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 												value="${fct:round(computedALE*0.001,0)}" maxFractionDigits="0" /></td>
 										<c:forEach items="${actionplanassets}" var="asset">
 											<c:choose>
 												<c:when test="${apt == 'APPO'}">
-													<td  align="right" title='<fmt:formatNumber value="${asset.ALEO}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALEO*0.001}" maxFractionDigits="2" /></td>
+													<td title='<fmt:formatNumber value="${asset.ALEO}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALEO*0.001}" maxFractionDigits="2" /></td>
 												</c:when>
 												<c:when test="${apt == 'APPP'}">
-													<td  align="right" title='<fmt:formatNumber value="${asset.ALEP}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALEP*0.001}" maxFractionDigits="0" /></td>
+													<td title='<fmt:formatNumber value="${asset.ALEP}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALEP*0.001}" maxFractionDigits="0" /></td>
 												</c:when>
 												<c:otherwise>
-													<td align="right" title='<fmt:formatNumber value="${asset.ALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALE*0.001}" maxFractionDigits="0" /></td>
+													<td title='<fmt:formatNumber value="${asset.ALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${asset.ALE*0.001}" maxFractionDigits="0" /></td>
 												</c:otherwise>
 											</c:choose>
 										</c:forEach>
@@ -75,12 +75,12 @@
 										<td><spring:message text="${ape.order}" /></td>
 										<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
 										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
-										<td  align="right" ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+										<td ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 												value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>
 										<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)"
 											var="actionPlanAssets" />
 										<c:forEach items="${actionPlanAssets}" var="apa">
-											<td  align="right" title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${fct:round(apa.currentALE*0.001,0)}"
+											<td title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${fct:round(apa.currentALE*0.001,0)}"
 													maxFractionDigits="0" /></td>
 										</c:forEach>
 									</tr>

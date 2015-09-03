@@ -61,7 +61,8 @@
 				<c:forEach items="${scenarios}" var="scenario" varStatus="status">
 					<tr data-trick-id="${scenario.id}" data-trick-selected="${scenario.selected}" ${scenario.selected? 'class="success"' : ''} data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
 						<c:set var="ale" value="${scenarioALE[scenario.id]}" />
-						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
+						<c:set var="selectClass" value="${scenario.selected?'selected':'unselected'}" />
+						<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${scenario.name}" /></td>
 						<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>

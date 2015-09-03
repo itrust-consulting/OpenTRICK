@@ -43,6 +43,7 @@
 						<c:set var="implementedcounts" value="${summaryStages.get('label.characteristic.count.measure.implemented')}"></c:set>
 						<c:set var="totalales" value="${summaryStages.get('label.profitability.ale.until.end')}"></c:set>
 						<c:set var="deltaales" value="${summaryStages.get('label.profitability.risk.reduction')}"></c:set>
+						<c:set var="costOfMeasures" value="${summaryStages.get('label.profitability.average_yearly_cost_of_phase')}"></c:set>
 						<c:set var="rosis" value="${summaryStages.get('label.profitability.rosi')}"></c:set>
 						<c:set var="relativerosis" value="${summaryStages.get('label.profitability.rosi.relatif')}"></c:set>
 						<c:set var="internalworkloads" value="${summaryStages.get('label.resource.planning.internal.workload')}"></c:set>
@@ -122,7 +123,16 @@
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
-							<td style="padding-left: 15px">1.3. <fmt:message key="label.profitability.rosi" /></td>
+							<td style="padding-left: 15px">1.3. <fmt:message key="label.profitability.average_yearly_cost_of_phase" /></td>
+							<fmt:setLocale value="fr" scope="session" />
+							<c:forEach var="i" begin="0" end="${columncount-1}">
+								<fmt:formatNumber value="${fct:round(costOfMeasures.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
+								<td class="text-right" title='<fmt:formatNumber value="${costOfMeasures.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
+							</c:forEach>
+							<fmt:setLocale value="${language}" scope="session" />
+						</tr>
+						<tr>
+							<td style="padding-left: 15px">1.4. <fmt:message key="label.profitability.rosi" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(rosis.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -131,11 +141,11 @@
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 						<tr>
-							<td style="padding-left: 15px">1.4. <fmt:message key="label.profitability.rosi.relatif" /></td>
+							<td style="padding-left: 15px">1.5. <fmt:message key="label.profitability.rosi.relatif" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${fct:round(relativerosis.get(i),0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" />'><spring:message text="${value}" /></td>
+								<fmt:formatNumber value="${fct:round(relativerosis.get(i),2)}" var="value" />
+								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" />'><spring:message text="${value}" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${language}" scope="session" />
 						</tr>

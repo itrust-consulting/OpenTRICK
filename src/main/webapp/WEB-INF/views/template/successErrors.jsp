@@ -22,3 +22,9 @@
 		<spring:message code="${errors}" text="${errors}" />
 	</div>
 </c:if>
+<c:if test="${not empty(errorTRICKException)}">
+	<div class="alert alert-danger" id="error">
+		<a href="#" class="close" data-dismiss="alert" style="margin-right: -10px; margin-top: -12px">×</a>
+		<spring:message code="${errorTRICKException.code}" arguments="${errorTRICKException.parameters}" text="${errorTRICKException.message}" />
+	</div>
+</c:if>

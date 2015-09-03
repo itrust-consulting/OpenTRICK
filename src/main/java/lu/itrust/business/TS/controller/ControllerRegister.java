@@ -18,10 +18,13 @@ import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.database.service.ServiceResetPassword;
 import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -94,6 +97,9 @@ public class ControllerRegister {
 	@Value("${app.settings.max.attempt}")
 	private int maxAttempt;
 
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
 	/**
 	 * add: <br>
 	 * Description
@@ -104,6 +110,9 @@ public class ControllerRegister {
 	@RequestMapping("/Register")
 	public String add(Map<String, Object> model) {
 		// create new user object and add it to model
+		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
+		if (!(setting == null || setting.getBoolean()))
+			return "redirect:/Home";
 		model.put("user", new User());
 		return "user/register";
 	}
@@ -122,10 +131,12 @@ public class ControllerRegister {
 	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-
 		Map<String, String> errors = new LinkedHashMap<>();
-
 		try {
+
+			TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
+			if (!(setting == null || setting.getBoolean()))
+				return null;
 
 			User user = new User();
 
@@ -184,7 +195,8 @@ public class ControllerRegister {
 	}
 
 	public String checkAttempt(String name, HttpSession session, Principal principal) {
-		if (principal != null)
+		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
+		if (!(principal == null && (setting == null || setting.getBoolean())))
 			return "redirect:/Home";
 		Integer attempt = (Integer) session.getAttribute(name);
 		if (attempt == null)
@@ -237,7 +249,7 @@ public class ControllerRegister {
 			if (ipAdress == null)
 				ipAdress = request.getRemoteAddr();
 			User user = StringUtils.isEmpty(resetPassword.getUsername()) ? serviceUser.getByEmail(resetPassword.getEmail()) : serviceUser.get(resetPassword.getUsername());
-			if (user != null) {
+			if (!(user == null || user.getConnexionType() == User.LADP_CONNEXION)) {
 				ResetPassword resetPassword2 = serviceResetPassword.get(user);
 				if (resetPassword2 != null)
 					serviceResetPassword.delete(resetPassword2);
@@ -277,7 +289,11 @@ public class ControllerRegister {
 		if (resetPassword == null)
 			return "redirect:/Login";
 		session.removeAttribute("attempt-request");
-		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
+		if (resetPassword.getUser().getConnexionType() == User.LADP_CONNEXION) {
+			attributes
+					.addFlashAttribute("error", messageSource.getMessage("error.ldap.change.password", null, "To reset your password, please contact your administrator", locale));
+			return "redirect:/Login";
+		} else if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
 			return "redirect:/Login";
 		}
@@ -383,8 +399,8 @@ public class ControllerRegister {
 			error = validator.validate(user, "login", login);
 			if (error != null)
 				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if(serviceUser.existByUsername(login))
-				errors.put("login", messageSource.getMessage("error.username.in_use",null,"Username is in use", locale));
+			else if (serviceUser.existByUsername(login))
+				errors.put("login", messageSource.getMessage("error.username.in_use", null, "Username is in use", locale));
 			else
 				user.setLogin(login);
 			error = validator.validate(user, "password", password);
@@ -396,7 +412,7 @@ public class ControllerRegister {
 			error = validator.validate(user, "repeatPassword", repeatedPassword);
 			if (error != null)
 				errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
-			else 
+			else
 				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 
 			error = validator.validate(user, "firstName", firstname);
@@ -414,8 +430,8 @@ public class ControllerRegister {
 			error = validator.validate(user, "email", email);
 			if (error != null)
 				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if(serviceUser.existByEmail(email))
-				errors.put("email", messageSource.getMessage("error.email.in_use",null,"Email is in use", locale));
+			else if (serviceUser.existByEmail(email))
+				errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
 			else
 				user.setEmail(email);
 

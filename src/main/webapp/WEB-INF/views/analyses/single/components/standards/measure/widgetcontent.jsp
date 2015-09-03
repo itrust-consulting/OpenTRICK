@@ -14,10 +14,10 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="measure" action="/Save" class="form-horizontal" id="measure_form" method="post">
+				<form name="measure" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="measure_form" method="post">
 					<input type="hidden" name="id" value="-1" id="measure_id">
 					<div class="form-group">
-						<label for="reference" class="col-sm-2 control-label"> <spring:message code="label.measure.reference" text="Reference" /></label>
+						<label for="reference" class="col-sm-2 control-label"> <spring:message code="label.reference" text="Reference" /></label>
 						<div class="col-sm-10">
 							<input name="reference" id="measure_reference" class="form-control" type="text" />
 						</div>

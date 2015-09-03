@@ -7,7 +7,7 @@ function saveStandard(form) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			$("#addStandardModel #addstandardbutton").prop("disabled", false);
 			var alert = $("#addStandardModel .label-danger");
 			if (alert.length)
@@ -69,7 +69,7 @@ function deleteStandard(idStandard, name) {
 			url : context + "/KnowledgeBase/Standard/Delete/" + idStandard,
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
@@ -94,19 +94,18 @@ function uploadImportStandardFile() {
 		url : context + "/KnowledgeBase/Standard/Upload",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((uploadStandardModal = doc.getElementById("uploadStandardModal")) == null)
-				return false;
-			if ($("#uploadStandardModal").length)
-				$("#uploadStandardModal").html($(uploadStandardModal).html());
-			else
-				$(uploadStandardModal).appendTo($("#widget"));
-			$('#uploadStandardModal').on('hidden.bs.modal', function() {
-				$('#uploadStandardModal').remove();
-			});
-			$("#uploadStandardModal").modal("toggle");
+		success : function(response, textStatus, jqXHR) {
+			var $view = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
+			if (!$view.length)
+				unknowError();
+			else {
+				var $old = $("#uploadStandardModal");
+				if ($old.length)
+					$old.replaceWith($view);
+				else
+					$view.appendTo($("#widget"));
+				$view.modal("show");
+			}
 			return false;
 		},
 		error : unknowError
@@ -114,37 +113,29 @@ function uploadImportStandardFile() {
 	return false;
 }
 
-function onSelectFile(file) {
-	$("#upload-file-info").prop("value", $(file).prop("value"));
-	return false;
-}
-
 function importNewStandard() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
-	$("#uploadStandardModal .modal-footer .btn").prop("disabled", true);
-	$("#uploadStandardModal .modal-header .close").prop("disabled", true);
-
 	if (progressBar != undefined)
 		progressBar.Destroy();
-
-	var formData = new FormData($('#uploadStandard_form')[0]);
+	$("#updateStandardNotification").empty();
+	var $uploadFile = $("#upload-file-info");
+	if (!$uploadFile.length)
+		return false;
+	else if ($uploadFile.val() == "") {
+		$("#updateStandardNotification").text(MessageResolver("error.import.standard.no_select.file", "Please select file to import"));
+		return false;
+	}
+	$("#uploadStandardModal .modal-footer .btn").prop("disabled", true);
+	$("#uploadStandardModal .modal-header .close").prop("disabled", true);
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/Import",
 		type : 'POST',
-		xhr : function() { // Custom XMLHttpRequest
-			var myXhr = $.ajaxSettings.xhr();
-			/*
-			 * if (myXhr.upload) { // Check if upload property exists
-			 * myXhr.upload.addEventListener('progress',
-			 * progressHandlingFunction, false); // For handling the // progress
-			 * of the // upload }
-			 */
-			return myXhr;
-		},
-		// Ajax events
-		// beforeSend : beforeSendHandler,
-		success : function(response,textStatus,jqXHR) {
+		data : new FormData($('#uploadStandard_form')[0]),
+		cache : false,
+		contentType : false,
+		processData : false,
+		success : function(response, textStatus, jqXHR) {
 			if (response.flag != undefined) {
 				progressBar = new ProgressBar();
 				progressBar.Initialise();
@@ -152,42 +143,31 @@ function importNewStandard() {
 				callback = {
 					failed : function() {
 						progressBar.Destroy();
-						$("#uploadStandardModal").modal("toggle");
-						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
+						$("#updateStandardNotification").text(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
 					},
 					success : function() {
 						progressBar.Destroy();
 						reloadSection('section_kb_standard');
-						$("#uploadStandardModal").modal("toggle");
+						$("#uploadStandardModal").modal("hide");
 					}
 				};
 				progressBar.OnComplete(callback.success);
 				updateStatus(progressBar, response.taskID, callback, response);
 			} else {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if ((modalForm = doc.getElementById("uploadStandardModal")) == null) {
-					$("#uploadStandardModal").modal("toggle");
-					$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
-				} else {
-					$("#uploadStandardModal").replaceWith($(modalForm).text());
+				var $view = $("#uploadStandardModal", new DOMParser().parseFromString(response, "text/html"));
+				if ($view.length) {
+					$("#uploadStandardModal").replaceWith($view);
 					$("#uploadStandardModal .modal-footer .btn").prop("disabled", false);
 					$("#uploadStandardModal .modal-header .close").prop("disabled", false);
+				} else {
+					$("#updateStandardNotification").text(MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
 				}
 			}
-
 		},
-		error : unknowError,
-		// error : errorHandler,
-		// Form data
-		data : formData,
-		// Options to tell jQuery not to process data or worry about
-		// content-type.
-		cache : false,
-		contentType : false,
-		processData : false
+		error : unknowError
 
 	});
+	return false;
 }
 
 function newStandard() {

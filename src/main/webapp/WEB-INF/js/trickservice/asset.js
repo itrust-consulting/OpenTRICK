@@ -78,10 +78,10 @@ function deleteAsset() {
 						if (response["success"] != undefined)
 							reloadSection("section_asset");
 						else if (response["error"] != undefined) {
-							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog .modal-body").text(response["error"]);
 							$("#alert-dialog").modal("toggle");
 						} else {
-							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
+							$("#alert-dialog .modal-body").text(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
 							$("#alert-dialog").modal("toggle");
 						}
 						return false;

@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.List;
+
 import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
 import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
@@ -85,9 +87,15 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	}
 
 	@Override
-	public MeasureAssetValue getByAssetId(int idAsset) {
+	public List<MeasureAssetValue> getByAssetId(int idAsset) {
 		
 		return daoMeasureAssetValue.getByAssetId(idAsset);
+	}
+
+
+	@Override
+	public MeasureAssetValue getByMeasureIdAndAssetId(int measureId, int assetId) {
+		return daoMeasureAssetValue.getByMeasureIdAndAssetId(measureId, assetId);
 	}
 
 }

@@ -34,6 +34,7 @@ import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
@@ -2557,9 +2558,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Asset> findNoAssetSelected() {
-		List<Asset> assets = new ArrayList<Asset>();
-		this.assets.stream().filter(asset -> !asset.isSelected()).forEach(asset -> assets.add(asset));
-		return assets;
+		return this.assets.stream().filter(asset -> !asset.isSelected()).collect(Collectors.toList());
 	}
 
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
@@ -2584,6 +2583,10 @@ public class Analysis implements Cloneable {
 
 	public Parameter findParameterByTypeAndDescription(String typeLabel, String description) {
 		return parameters.stream().filter(p -> p.getType().getLabel().equals(typeLabel) && p.getDescription().equals(description)).findAny().orElse(null);
+	}
+
+	public List<AssetType> distinctAssetType() {
+		return this.assets.stream().map(asset -> asset.getAssetType()).distinct().collect(Collectors.toList());
 	}
 }
 

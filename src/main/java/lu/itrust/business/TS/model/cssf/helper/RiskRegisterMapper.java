@@ -26,10 +26,9 @@ public class RiskRegisterMapper {
 			
 			registerHelper.getRawEvaluation().setImpact(convertor.getImpactLevel(registerItem.getRawEvaluation().getImpact()));
 			registerHelper.getRawEvaluation().setProbability(convertor.getProbabiltyLevel(registerItem.getRawEvaluation().getProbability()));
-			
-			
-			registerHelper.getExpectedImportance().setImpact(convertor.getImpactLevel(registerItem.getExpectedImportance().getImpact()));
-			registerHelper.getExpectedImportance().setProbability(convertor.getProbabiltyLevel(registerItem.getExpectedImportance().getProbability()));
+		
+			registerHelper.getExpectedEvaluation().setImpact(convertor.getImpactLevel(registerItem.getExpectedEvaluation().getImpact()));
+			registerHelper.getExpectedEvaluation().setProbability(convertor.getProbabiltyLevel(registerItem.getExpectedEvaluation().getProbability()));
 			
 			registerHelper.getNetEvaluation().setImpact(convertor.getImpactLevel(registerItem.getNetEvaluation().getImpact()));
 			registerHelper.getNetEvaluation().setProbability(convertor.getProbabiltyLevel(registerItem.getNetEvaluation().getProbability()));

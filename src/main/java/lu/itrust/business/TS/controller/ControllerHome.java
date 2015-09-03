@@ -13,21 +13,23 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 
+import org.hibernate.exception.GenericJDBCException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,6 +61,9 @@ public class ControllerHome {
 
 	@Autowired
 	private LocaleResolver localeResolver;
+	
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
@@ -74,11 +79,6 @@ public class ControllerHome {
 				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
 	}
 	
-	@RequestMapping(value = "/Can-create-version/{idAnalysis}", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody boolean canCreateVersion(@PathVariable Integer idAnalysis, Principal principal){
-		return permissionEvaluator.canCreateNewVersion(idAnalysis, principal, AnalysisRight.READ);
-	}
-
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Feedback")
 	public @ResponseBody List<MessageHandler> revice(Principal principal) {
@@ -87,12 +87,24 @@ public class ControllerHome {
 
 	@RequestMapping("/Login")
 	public String login(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
+		loadSettings(model, locale);
 		if (request.getParameter("registerSuccess") != null) {
 			model.addAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
-			model.addAttribute("j_username", request.getParameter("login") == null ? "" : request.getParameter("login"));
+			model.addAttribute("username", request.getParameter("login") == null ? "" : request.getParameter("login"));
 		}
-
 		return "default/login";
+	}
+
+	private void loadSettings(Model model, Locale locale) {
+		try {
+			TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP), resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
+			model.addAttribute("allowRegister", register == null || register.getBoolean());
+			model.addAttribute("resetPassword", register == null || resetPassword.getBoolean());
+		} catch (GenericJDBCException e) {
+			model.addAttribute("error", messageSource.getMessage("error.database.connection_failed", null, "No connection to the database...", locale));
+		}catch(Exception e){
+			model.addAttribute("error", messageSource.getMessage("error.setting.not.loaded", null, "Settings cannot be loaded", locale));
+		}
 	}
 
 	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -115,7 +127,7 @@ public class ControllerHome {
 
 	@RequestMapping("/Logout")
 	public String logout() {
-		return "redirect:/j_spring_security_logout";
+		return "redirect:/signout";
 	}
 
 	@RequestMapping(value = "/Success", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
