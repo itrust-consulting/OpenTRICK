@@ -44,6 +44,8 @@ public abstract class SpringTestConfiguration {
 	protected static final String USERNAME = "admin";
 
 	protected static final String PASSWORD = "test.TS_65";
+	
+	protected static final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json;charset=UTF-8";
 
 	@Autowired
 	protected WebApplicationContext webApplicationContext;
