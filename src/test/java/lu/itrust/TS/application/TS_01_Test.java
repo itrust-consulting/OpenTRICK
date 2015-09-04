@@ -1,19 +1,19 @@
 package lu.itrust.TS.application;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.util.Assert.isNull;
-import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.Assert.*;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.TrickService;
+import lu.itrust.business.TS.model.general.Customer;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -64,8 +64,9 @@ public class TS_01_Test extends SpringTestConfiguration {
 	}
 	
 	@Test
-	public void test_05_CheckCustomerProfile() {
-		assertEquals("Lol", 0, 1);
+	public void test_05_CheckCustomerProfile() throws Exception {
+		Customer customer = serviceCustomer.getProfile();
+		notNull(customer, "Profile customer cannot be found");
 	}
 	
 	@Test
