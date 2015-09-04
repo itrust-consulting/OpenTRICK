@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.notNull;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.TrickService;
 
@@ -25,6 +28,15 @@ public class TS_01_Test extends SpringTestConfiguration {
 	
 	@Autowired
 	protected WorkersPoolManager workersPoolManager;
+	
+	@Autowired
+	private ServiceCustomer serviceCustomer;
+	
+	@Autowired
+	private ServiceLanguage serviceLanguage;
+	
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
 	
 	@Test
 	public void test_00_Install() throws Exception {
@@ -49,6 +61,18 @@ public class TS_01_Test extends SpringTestConfiguration {
 		TrickService trickService = serviceTrickService.getStatus();
 		notNull(trickService, "TRICK Service installation cannot be found");
 		assertEquals("Versions do not match", version, trickService.getVersion());
+	}
+	
+	@Test
+	public void test_05_CheckCustomerProfile() {
+		assertEquals("Lol", 0, 1);
+	}
+	
+	@Test
+	public void test_06_CheckDefaultLangauge() {
+	}
+	
+	public void test_07_CheckAnalysisProfile(){
 	}
 
 }
