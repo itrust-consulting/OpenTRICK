@@ -13,7 +13,9 @@ import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.TrickService;
+import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.Language;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -64,16 +66,24 @@ public class TS_01_Test extends SpringTestConfiguration {
 	}
 	
 	@Test
+	@Transactional(readOnly = true)
 	public void test_05_CheckCustomerProfile() throws Exception {
 		Customer customer = serviceCustomer.getProfile();
 		notNull(customer, "Profile customer cannot be found");
 	}
 	
 	@Test
-	public void test_06_CheckDefaultLangauge() {
+	@Transactional(readOnly = true)
+	public void test_06_CheckDefaultLangauge() throws Exception {
+		Language language = serviceLanguage.get(0);
+		notNull(language, "Language with id '0' cannot be found");
 	}
 	
-	public void test_07_CheckAnalysisProfile(){
+	@Test
+	@Transactional(readOnly = true)
+	public void test_07_CheckAnalysisProfile() throws Exception{
+		Analysis analysis = serviceAnalysis.getDefaultProfile();
+		notNull(analysis, "Default Analysis profile cannot be found");
 	}
 
 }
