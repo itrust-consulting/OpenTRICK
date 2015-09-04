@@ -75,8 +75,8 @@ public class TS_01_Test extends SpringTestConfiguration {
 	@Test
 	@Transactional(readOnly = true)
 	public void test_06_CheckDefaultLangauge() throws Exception {
-		Language language = serviceLanguage.get(0);
-		notNull(language, "Language with id '0' cannot be found");
+		Language language = serviceLanguage.get(1);
+		notNull(language, "Language with id '1' cannot be found");
 	}
 	
 	@Test
