@@ -1,4 +1,4 @@
-package lu.itrust.TS.application;
+package lu.itrust.TS.controller;
 
 import static org.junit.Assert.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-
 public class TS_01_Test extends SpringTestConfiguration {
 	
 	@Autowired
@@ -84,6 +83,7 @@ public class TS_01_Test extends SpringTestConfiguration {
 	public void test_07_CheckAnalysisProfile() throws Exception{
 		Analysis analysis = serviceAnalysis.getDefaultProfile();
 		notNull(analysis, "Default Analysis profile cannot be found");
+		isTrue(analysis.isProfile(), "Analysis should be a profile");
+		isTrue(analysis.isDefaultProfile(), "Analysis should be default profile");
 	}
-
 }

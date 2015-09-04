@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.TS.application;
+package lu.itrust.TS.controller;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
