@@ -701,6 +701,12 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@Override
 	public int countNotEmpty() {
-		return ((Long)getSession().createQuery("Select count(*) From Analysis where data = true").uniqueResult()).intValue();
+		return ((Long) getSession().createQuery("Select count(*) From Analysis where data = true").uniqueResult()).intValue();
+	}
+
+	@Override
+	public Analysis getByCustomerAndNameAndVersion(int customerId, String name, String version) {
+		return (Analysis) getSession().createQuery("From Analysis where customer.id = :customerId and label = :name and version = :version").setInteger("customerId", customerId)
+				.setString("name", name).setString("version", version).uniqueResult();
 	}
 }

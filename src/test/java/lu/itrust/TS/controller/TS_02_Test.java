@@ -18,6 +18,7 @@ import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -46,7 +47,10 @@ public class TS_02_Test extends SpringTestConfiguration {
 	private static final String CUSTOMER_EMAIL = "me@me.me";
 
 	@Autowired
-	protected WorkersPoolManager workersPoolManager;
+	private WorkersPoolManager workersPoolManager;
+	
+	@Autowired
+	private ServiceTaskFeedback  serviceTaskFeedback;
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
@@ -57,9 +61,11 @@ public class TS_02_Test extends SpringTestConfiguration {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	private static String INSTALL_TASK_ID;
+
 	@Test
 	public void test_00_Install() throws Exception {
-		installTaskId = new ObjectMapper()
+		INSTALL_TASK_ID = new ObjectMapper()
 				.readTree(
 						this.mockMvc.perform(get("/Install").with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn()
 								.getResponse().getContentAsString()).findValue("idTask").asText(null);
@@ -67,11 +73,13 @@ public class TS_02_Test extends SpringTestConfiguration {
 
 	@Test(timeout = 30000)
 	public synchronized void test_01_WaitForWorker() throws InterruptedException {
-		Worker worker = workersPoolManager.get(installTaskId);
+		Worker worker = workersPoolManager.get(INSTALL_TASK_ID);
 		notNull(worker, "Installation worker cannot be found");
 		while (worker.isWorking())
-			wait(1000);
+			wait(100);
 		isNull(worker.getError(), "Installation failed");
+		
+		serviceTaskFeedback.unregisterTask(USERNAME, INSTALL_TASK_ID);
 	}
 
 	@Test
@@ -120,28 +128,24 @@ public class TS_02_Test extends SpringTestConfiguration {
 												CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS)).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
-	
+
 	@Test
 	@Transactional(readOnly = true)
 	public void test_09_LoadCustomer() throws Exception {
 		Customer customer = serviceCustomer.getFromContactPerson(CUSTOMER_OTHER_FIELDS);
 		notNull(customer, "Customer cannot be found");
 	}
-	
+
 	@Test
 	public void test_10_AddFRLanguage() throws Exception {
 		this.mockMvc
-		.perform(
-				post("/KnowledgeBase/Language/Save")
-						.with(httpBasic(USERNAME, PASSWORD))
-						.with(csrf())
-						.accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(
-								String.format(
-										"{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}",FRA_ALPHA_3,FRA_FRANÇAIS,FRA_FRENCH)).with(httpBasic(USERNAME, PASSWORD)))
-		.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
+				.perform(
+						post("/KnowledgeBase/Language/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", FRA_ALPHA_3, FRA_FRANÇAIS, FRA_FRENCH))
+								.with(httpBasic(USERNAME, PASSWORD))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
+				.andExpect(content().string("{}"));
 	}
-	
+
 	@Test
 	@Transactional(readOnly = true)
 	public void test_11_LoadLanguage() throws Exception {

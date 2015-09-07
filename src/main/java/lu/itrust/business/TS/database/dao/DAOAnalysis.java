@@ -146,6 +146,8 @@ public interface DAOAnalysis {
 
 	public int countNotEmpty();
 
+	public Analysis getByCustomerAndNameAndVersion(int customerId, String name, String version);
+
 	
 
 }

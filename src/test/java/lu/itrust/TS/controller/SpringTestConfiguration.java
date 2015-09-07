@@ -66,8 +66,6 @@ public abstract class SpringTestConfiguration {
 	protected String version;
 
 	protected MockMvc mockMvc;
-	
-	protected static String installTaskId = null;
 
 	@Before
 	public void setUp() throws Exception {

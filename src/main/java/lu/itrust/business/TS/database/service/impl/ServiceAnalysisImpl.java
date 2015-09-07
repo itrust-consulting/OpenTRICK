@@ -609,4 +609,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public int countNotEmpty() {
 		return daoAnalysis.countNotEmpty();
 	}
+
+	@Override
+	public Analysis getByCustomerAndLabelAndVersion(int customerId, String name, String version) {
+		return daoAnalysis.getByCustomerAndNameAndVersion(customerId,name, version);
+	}
 }

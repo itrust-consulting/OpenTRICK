@@ -167,9 +167,9 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		tasks.remove(id);
 		if (tasks.isEmpty())
 			userTasks.remove(userName);
-		if (messageHandlers.containsKey(id) && !messageHandlers.get(id).isEmpty())
-			messageHandlers.get(id).clear();
-		messageHandlers.remove(id);
+		Queue<MessageHandler> handlers = messageHandlers.remove(id);
+		if (!(handlers == null || handlers.isEmpty()))
+			handlers.clear();
 		workersPoolManager.remove(id);
 	}
 

@@ -135,4 +135,6 @@ public interface ServiceAnalysis {
 
 	public int countNotEmpty();
 
+	public Analysis getByCustomerAndLabelAndVersion(int customerId, String name, String version);
+
 }
