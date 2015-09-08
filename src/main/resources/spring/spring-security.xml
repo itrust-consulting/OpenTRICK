@@ -16,7 +16,10 @@
 		<form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler"
 			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID"/>
+		<csrf request-matcher-ref="csrfEnabledRequestMatcher"/>
 	</http>
+	
+	<beans:bean id="csrfEnabledRequestMatcher" class="lu.itrust.business.TS.controller.helper.CsrfEnabledRequestMatcher" />
 
 	<beans:import resource="authentication-manager.xml" />
 
