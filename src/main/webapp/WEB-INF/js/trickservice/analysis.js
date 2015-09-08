@@ -91,6 +91,7 @@ $.fn.loadOrUpdateChart = function(parameters) {
 
 	// Otherwise update only data
 	$.each(chart.series, function (i, series) {
+		series.options.metadata = parameters.series[i].metadata;
 		series.setData(parameters.series[i].data);
 	});
 
