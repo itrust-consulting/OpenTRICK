@@ -1,0 +1,6 @@
+name: controllers
+tests:
+  - name: All Components
+    xmlPackages:
+      - name: lu.itrust.TS.controller
+

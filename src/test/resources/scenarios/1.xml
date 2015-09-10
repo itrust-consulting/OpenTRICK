@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="controllers">
+	<test name="All Components">
+		<packages>
+			<package name="lu.itrust.TS.controller" />
+		</packages>
+	</test>
+</suite>

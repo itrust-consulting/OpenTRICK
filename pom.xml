@@ -380,7 +380,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<suiteXmlFiles>
-						<suiteXmlFile>src/test/resources/scenarios/1.xml</suiteXmlFile>
+						<suiteXmlFile>src/test/resources/scenarios/1.yaml</suiteXmlFile>
+						
 					</suiteXmlFiles>
 				</configuration>
 			</plugin>
