@@ -1,5 +1,6 @@
 package lu.itrust.TS.controller;
 
+import static org.junit.Assert.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -8,13 +9,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.springframework.http.MediaType;
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TS_01_Test extends SpringTestConfiguration {
 
+import lu.itrust.business.TS.database.service.ServiceUser;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.Test;
+
+@Test(groups="firstAccount")
+public class TS_01_CreateAdminAccount extends SpringTestConfiguration {
+
+	@Autowired
+	private ServiceUser serviceUser;
+	
 	@Test
 	public void test_00_CreateAdminAccount() throws Exception {
 		this.mockMvc
@@ -33,6 +41,12 @@ public class TS_01_Test extends SpringTestConfiguration {
 	public void test_01_Authenticate() throws Exception {
 		this.mockMvc.perform(formLogin().loginProcessingUrl("/signin").user(USERNAME).password(PASSWORD)).andExpect(status().isFound()).andExpect(authenticated())
 				.andExpect(redirectedUrl("/"));
+	}
+	
+	@Test
+	@Transactional(readOnly=true)
+	public void test_02_LoadUser() throws Exception {
+		assertFalse("No user has been created", serviceUser.noUsers());
 	}
 
 }

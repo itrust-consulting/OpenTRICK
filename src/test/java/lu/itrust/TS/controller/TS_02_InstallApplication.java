@@ -25,16 +25,16 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TS_02_Test extends SpringTestConfiguration {
+@Test(groups="Installation", dependsOnGroups="firstAccount")
+public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	private static final String FRA_FRENCH = "French";
 
@@ -61,7 +61,7 @@ public class TS_02_Test extends SpringTestConfiguration {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
-	private static String INSTALL_TASK_ID;
+	public static String INSTALL_TASK_ID;
 
 	@Test
 	public void test_00_Install() throws Exception {
@@ -71,7 +71,7 @@ public class TS_02_Test extends SpringTestConfiguration {
 								.getResponse().getContentAsString()).findValue("idTask").asText(null);
 	}
 
-	@Test(timeout = 30000)
+	@Test(timeOut=30000)
 	public synchronized void test_01_WaitForWorker() throws InterruptedException {
 		Worker worker = workersPoolManager.get(INSTALL_TASK_ID);
 		notNull(worker, "Installation worker cannot be found");

@@ -3,16 +3,22 @@
  */
 package lu.itrust.TS.controller;
 
-import static org.junit.Assert.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.util.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.util.Assert.isNull;
+import static org.springframework.util.Assert.notNull;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.constants.Constant;
@@ -33,12 +39,10 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,8 +51,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TS_03_Test extends SpringTestConfiguration {
+@Test(groups="CreateAnalysis", dependsOnGroups="Installation")
+public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	private static final String SIMPLE_ANALYSIS_VERSION = "0.0.1";
 
@@ -133,7 +137,7 @@ public class TS_03_Test extends SpringTestConfiguration {
 		notNull(analysis, "Analysis cannot be found");
 	}
 
-	@Test(timeout = 30000)
+	@Test(timeOut = 30000)
 	public synchronized void test_05_CreateVersion() throws Exception {
 		TASK_ID = new ObjectMapper()
 				.readTree(
