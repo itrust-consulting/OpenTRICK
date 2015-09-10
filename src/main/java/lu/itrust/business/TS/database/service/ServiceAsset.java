@@ -44,4 +44,6 @@ public interface ServiceAsset {
 	public boolean exist(Integer idAnalysis, String name);
 
 	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset);
+
+	public Asset getByNameAndAnlysisId(String name, int idAnalysis);
 }

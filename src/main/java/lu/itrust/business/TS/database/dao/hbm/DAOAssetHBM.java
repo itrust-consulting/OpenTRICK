@@ -221,4 +221,10 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 		return (Asset) getSession().createQuery("Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.id = :idAsset")
 				.setInteger("idAnalysis", idAnalysis).setInteger("idAsset", idAsset).uniqueResult();
 	}
+
+	@Override
+	public Asset getByNameAndAnlysisId(String name, int idAnalysis) {
+		return (Asset) getSession().createQuery("Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.name = :name")
+				.setInteger("idAnalysis", idAnalysis).setString("name", name).uniqueResult();
+	}
 }

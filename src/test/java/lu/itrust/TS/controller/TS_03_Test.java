@@ -3,31 +3,42 @@
  */
 package lu.itrust.TS.controller;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.util.Assert.isNull;
-import static org.springframework.util.Assert.notNull;
+import static org.junit.Assert.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.util.Assert.*;
+
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.scenario.Scenario;
+
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,6 +54,8 @@ public class TS_03_Test extends SpringTestConfiguration {
 
 	private static final String SIMPLE_ANALYSIS_NAME = "simple-analysis";
 
+	private static String SCENARIO_ASSET_TYPE_VALUE = "";
+
 	@Autowired
 	private ServiceLanguage serviceLanguage;
 
@@ -57,6 +70,15 @@ public class TS_03_Test extends SpringTestConfiguration {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
+	private ServiceAsset serviceAsset;
+
+	@Autowired
+	private ServiceScenario serviceScenario;
+
+	@Autowired
+	private ServiceAssetType serviceAssetType;
 
 	protected static String TASK_ID = null;
 
@@ -128,10 +150,85 @@ public class TS_03_Test extends SpringTestConfiguration {
 
 		while (worker.isWorking())
 			wait(100);
-		
+
 		isNull(worker.getError(), "Error should be null");
-		
+
 		serviceTaskFeedback.unregisterTask(USERNAME, TASK_ID);
 	}
 
+	@Test
+	@Transactional(readOnly = true)
+	public void test_06_SelectAnalysis_Version_0_0_2() {
+		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(CUSTOMER_ID, SIMPLE_ANALYSIS_NAME, "0.0.2");
+		notNull(analysis, "Analysis cannot be found");
+		ANALYSIS_ID = analysis.getId();
+	}
+
+	@Test
+	public void test_07_AddAsset() throws UnsupportedEncodingException, Exception {
+		this.mockMvc
+				.perform(
+						post("/Analysis/Asset/Save")
+								.with(csrf())
+								.with(httpBasic(USERNAME, PASSWORD))
+								.accept(APPLICATION_JSON_CHARSET_UTF_8)
+								.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.content(
+										String.format(
+												"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
+												"Trick service", 1, "687,688", false, "comment", "hiddenComment"))).andExpect(status().isOk()).andExpect(content().string("{}"));
+	}
+
+	@Test
+	@Transactional(readOnly = false)
+	public void test_08_LoadAsset() throws Exception {
+		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
+		notNull(asset, "Asset 'Trick service' cannot be found");
+		assertEquals("Bad Asset name", asset.getName(), "Trick service");
+		assertEquals("Bad Asset value", asset.getValue(), 687.688 * 1000, 1E-10);
+		assertEquals("Bad Asset comment", asset.getValue(), 687.688 * 1000, 1E-10);
+		assertEquals("Bad Asset hidden comment", asset.getValue(), 687.688 * 1000, 1E-10);
+		AssetType assetType = serviceAssetType.get(1);
+		notNull(assetType, "Asset type cannot be found");
+		assertEquals("Bad Asset asset-type", asset.getAssetType(), assetType);
+	}
+
+	@Test
+	@Transactional(readOnly = true)
+	public void test_09_GenerateScenrioAssetTypeValue() throws Exception {
+		List<AssetType> assetTypes = serviceAssetType.getAll();
+		for (AssetType assetType : assetTypes)
+			SCENARIO_ASSET_TYPE_VALUE += String.format(",\"%s\":%d", assetType.getType(), 1);
+	}
+
+	@Test
+	public void test_10_AddScenario() throws Exception {
+		this.mockMvc
+				.perform(
+						post("/Analysis/Scenario/Save")
+								.with(csrf())
+								.with(httpBasic(USERNAME, PASSWORD))
+								.accept(APPLICATION_JSON_CHARSET_UTF_8)
+								.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.content(
+										String.format("{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\"%s}",
+												"Scenario test", 1, false, "Test scenario", SCENARIO_ASSET_TYPE_VALUE))).andExpect(status().isOk())
+				.andExpect(content().string("{}"));
+	}
+
+	@Test
+	@Transactional(readOnly = true)
+	public void test_11_LoadScenario() throws Exception {
+		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
+		notNull(scenario, "Scenario 'Scenario test' cannot be found");
+		assertEquals("Bad scenario name", scenario.getName(), "Scenario test");
+		assertEquals("Bad scenario description", scenario.getDescription(), "Test scenario");
+		assertFalse("Scenario is selected", scenario.isSelected());
+		serviceAssetType.getAll().forEach(assetType -> {
+			AssetTypeValue assetTypeValue = scenario.retrieveAssetTypeValue(assetType);
+			notNull(assetTypeValue, String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getType()));
+			assertEquals( String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getType()),1, assetTypeValue.getValue());
+		});
+
+	}
 }

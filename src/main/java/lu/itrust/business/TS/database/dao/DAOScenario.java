@@ -43,5 +43,7 @@ public interface DAOScenario {
 	public Scenario merge(Scenario scenario) throws Exception;
 
 	public void delete(Scenario scenario) throws Exception;
+
+	public Scenario getByNameAndAnalysisId(String name, int analysisId);
 	
 }

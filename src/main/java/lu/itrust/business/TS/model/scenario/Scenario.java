@@ -600,4 +600,14 @@ public class Scenario extends SecurityCriteria {
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
 		return value == 0 ? 0 : 4;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Scenario [name=" + name + ", type=" + type + ", selected=" + selected + ", description=" + description + ", assetTypeValues=" + assetTypeValues + "]";
+	}
+	
+	
 }

@@ -241,4 +241,9 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	public void delete(Scenario scenario) throws Exception {
 		daoScenario.delete(scenario);
 	}
+
+	@Override
+	public Scenario getByNameAndAnalysisId(String name, int analysisId) {
+		return daoScenario.getByNameAndAnalysisId(name,analysisId);
+	}
 }

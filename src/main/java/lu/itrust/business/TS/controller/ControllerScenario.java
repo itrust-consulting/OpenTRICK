@@ -528,7 +528,7 @@ public class ControllerScenario {
 				returnvalue.setType(scenarioType);
 
 				// set category according to value of scenario type
-				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 1);
+				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenarioType(scenarioType.getName()), 1);
 
 			} catch (TrickException e) {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), null, e.getMessage(), locale));

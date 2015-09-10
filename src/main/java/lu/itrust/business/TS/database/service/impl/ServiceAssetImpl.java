@@ -246,4 +246,9 @@ public class ServiceAssetImpl implements ServiceAsset {
 	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset) {
 		return daoAsset.getFromAnalysisById(idAnalysis,idAsset);
 	}
+
+	@Override
+	public Asset getByNameAndAnlysisId(String name, int idAnalysis) {
+		return daoAsset.getByNameAndAnlysisId(name, idAnalysis);
+	}
 }
