@@ -137,7 +137,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		notNull(analysis, "Analysis cannot be found");
 	}
 
-	@Test(timeOut = 30000)
+	@Test(timeOut = 120000)
 	public synchronized void test_05_CreateVersion() throws Exception {
 		TASK_ID = new ObjectMapper()
 				.readTree(
