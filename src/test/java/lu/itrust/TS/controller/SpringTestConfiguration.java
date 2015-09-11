@@ -6,10 +6,7 @@ package lu.itrust.TS.controller;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -60,12 +57,6 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 	 */
 	@Autowired
 	protected ServiceTrickService serviceTrickService;
-
-	/**
-	 * Properties
-	 */
-	@Value("${app.settings.version}")
-	protected String version;
 
 	protected MockMvc mockMvc;
 

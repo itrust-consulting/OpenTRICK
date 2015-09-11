@@ -1,6 +1,6 @@
 package lu.itrust.TS.controller;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -8,12 +8,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
 import lu.itrust.business.TS.database.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -29,7 +26,7 @@ public class TS_01_CreateAdminAccount extends SpringTestConfiguration {
 				.perform(
 						post("/DoRegister")
 								.with(csrf())
-								.accept(MediaType.parseMediaType(APPLICATION_JSON_CHARSET_UTF_8))
+								.accept(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(
 										String.format(
 												"{\"login\": \"%s\", \"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\"}",

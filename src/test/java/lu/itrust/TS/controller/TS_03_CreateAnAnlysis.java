@@ -5,6 +5,7 @@ package lu.itrust.TS.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,6 +24,7 @@ import java.util.List;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
@@ -31,14 +33,13 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.scenario.Scenario;
-
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,6 +84,9 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
+	
+	@Autowired
+	private ServiceAssessment serviceAssessment;
 
 	protected static String TASK_ID = null;
 
@@ -114,7 +118,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_01_CreateSimpleAnalysis")
 	@Transactional(readOnly = true)
 	public void test_02_SelectAnalysis() throws Exception {
 		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(CUSTOMER_ID, SIMPLE_ANALYSIS_NAME, SIMPLE_ANALYSIS_VERSION);
@@ -130,14 +134,14 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.andExpect(redirectedUrl("/Analysis/All"));
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_01_CreateSimpleAnalysis")
 	@Transactional(readOnly = true)
 	public void test_04_CreateCustom() throws Exception {
 		Analysis analysis = serviceAnalysis.get(ANALYSIS_ID);
 		notNull(analysis, "Analysis cannot be found");
 	}
 
-	@Test(timeOut = 120000)
+	@Test(timeOut = 120000,dependsOnMethods="test_04_CreateCustom")
 	public synchronized void test_05_CreateVersion() throws Exception {
 		TASK_ID = new ObjectMapper()
 				.readTree(
@@ -162,7 +166,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		serviceTaskFeedback.unregisterTask(USERNAME, TASK_ID);
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_05_CreateVersion")
 	@Transactional(readOnly = true)
 	public void test_06_SelectAnalysis_Version_0_0_2() {
 		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(CUSTOMER_ID, SIMPLE_ANALYSIS_NAME, "0.0.2");
@@ -170,7 +174,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		ANALYSIS_ID = analysis.getId();
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_06_SelectAnalysis_Version_0_0_2")
 	public void test_07_AddAsset() throws UnsupportedEncodingException, Exception {
 		this.mockMvc
 				.perform(
@@ -185,7 +189,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 												"Trick service", 1, "687,688", false, "comment", "hiddenComment"))).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_07_AddAsset")
 	@Transactional(readOnly = false)
 	public void test_08_LoadAsset() throws Exception {
 		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
@@ -199,7 +203,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		assertEquals("Bad Asset asset-type", asset.getAssetType(), assetType);
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_06_SelectAnalysis_Version_0_0_2")
 	@Transactional(readOnly = true)
 	public void test_09_GenerateScenrioAssetTypeValue() throws Exception {
 		List<AssetType> assetTypes = serviceAssetType.getAll();
@@ -207,7 +211,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 			SCENARIO_ASSET_TYPE_VALUE += String.format(",\"%s\":%d", assetType.getType(), 1);
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_06_SelectAnalysis_Version_0_0_2")
 	public void test_10_AddScenario() throws Exception {
 		this.mockMvc
 				.perform(
@@ -222,7 +226,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.andExpect(content().string("{}"));
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_10_AddScenario")
 	@Transactional(readOnly = true)
 	public void test_11_LoadScenario() throws Exception {
 		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
@@ -237,4 +241,74 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		});
 
 	}
+	
+	@Test(dependsOnMethods={"test_11_LoadScenario","test_10_AddScenario"})
+	@Transactional(readOnly = true)
+	public void test_12_CheckAssessment() {
+		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
+		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
+		Assessment assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
+		notNull(assessment, "Assessment for asset :'Trick service' and Scenario: 'Scenario test' cannot be found");
+		assertFalse("Assessment should not be selected", assessment.isSelected());
+	}
+	
+	@Test(dependsOnMethods="test_12_CheckAssessment")
+	@Transactional
+	public void test_13_SelectAssetAndScenario() throws Exception {
+		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
+		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
+		this.mockMvc
+		.perform(
+				get("/Analysis/Asset/Select/"+asset.getId())
+						.with(csrf())
+						.with(httpBasic(USERNAME, PASSWORD))
+						.accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID))
+						.andExpect(status().isOk())
+		.andExpect(jsonPath("$.success").exists());
+		
+		this.mockMvc
+		.perform(
+				get("/Analysis/Scenario/Select/"+scenario.getId())
+						.with(csrf())
+						.with(httpBasic(USERNAME, PASSWORD))
+						.accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID))
+						.andExpect(status().isOk())
+		.andExpect(jsonPath("$.success").exists());
+		Assessment assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
+		assertTrue("Assessment shouldbe selected", assessment.isSelected());
+	}
+	
+	@Test(dependsOnMethods="test_13_SelectAssetAndScenario")
+	@Transactional
+	public void test_14_UpdateAssessment() throws Exception {
+		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
+		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
+		Assessment assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
+		this.mockMvc
+		.perform(
+				post("/Analysis/EditField/Assessment/"+assessment.getId())
+						.with(csrf())
+						.with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", assessment.getId(), "impactFin", "String", "i9")))
+						.andExpect(status().isOk())
+		.andExpect(jsonPath("$.success").exists());
+		this.mockMvc
+		.perform(
+				post("/Analysis/EditField/Assessment/"+assessment.getId())
+						.with(csrf())
+						.with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", assessment.getId(), "likelihood", "String", "p9")))
+						.andExpect(status().isOk())
+		.andExpect(jsonPath("$.success").exists());
+		assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
+		assertEquals("impactFin should be i9", "i9", assessment.getImpactFin());
+		assertEquals("likelihood should be p9", "p9", assessment.getLikelihood());
+	}
+	
 }

@@ -526,6 +526,8 @@ public class ControllerEditField {
 			throws Exception {
 		try {
 
+			
+			
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -872,9 +874,8 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Assessment', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
-
 		try {
-
+			
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 

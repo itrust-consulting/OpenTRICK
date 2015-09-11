@@ -335,4 +335,9 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis) {
 		return daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 	}
+
+	@Override
+	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario) {
+		return daoAssessment.getByAssetAndScenario(asset, scenario);
+	}
 }

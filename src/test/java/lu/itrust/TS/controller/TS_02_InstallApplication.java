@@ -27,7 +27,9 @@ import lu.itrust.business.TS.model.general.Language;
 
 
 
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -45,6 +47,8 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	private static final String CUSTOMER_OTHER_FIELDS = "me";
 
 	private static final String CUSTOMER_EMAIL = "me@me.me";
+	
+	private static String INSTALL_TASK_ID;
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
@@ -61,7 +65,13 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
-	public static String INSTALL_TASK_ID;
+	
+	
+	/**
+	 * Properties
+	 */
+	@Value("${app.settings.version}")
+	private String version;
 
 	@Test
 	public void test_00_Install() throws Exception {

@@ -56,4 +56,6 @@ public interface ServiceAssessment {
 	public void delete(Assessment assessment) throws Exception;
 
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis);
+
+	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario);
 }

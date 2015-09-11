@@ -56,14 +56,15 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * @return
 	 * @throws Exception
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getFromAnalysisById(java.lang.Integer, java.lang.Integer)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getFromAnalysisById(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) throws Exception{
+	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) throws Exception {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.id = :idAssessment";
 		return (Assessment) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idAssessment", idAssessment).uniqueResult();
 	}
-	
+
 	/**
 	 * belongsToAnalysis: <br>
 	 * Description
@@ -288,5 +289,13 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis) {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true";
 		return getSession().createQuery(query).setInteger("idAnalysis", idAnalysis).list();
+	}
+
+	@Override
+	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario) {
+		return (Assessment) getSession()
+				.createQuery(
+						"From Assessment  where scenario = :scenario and asset = :asset")
+				.setParameter("asset", asset).setParameter("scenario", scenario).uniqueResult();
 	}
 }
