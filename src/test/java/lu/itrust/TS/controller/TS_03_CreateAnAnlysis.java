@@ -103,7 +103,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		CUSTOMER_ID = customer.getId();
 	}
 
-	@Test
+	@Test(timeOut=30000)
 	public void test_01_CreateSimpleAnalysis() throws Exception {
 		this.mockMvc
 				.perform(
