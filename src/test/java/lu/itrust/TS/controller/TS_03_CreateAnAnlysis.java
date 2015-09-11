@@ -148,6 +148,8 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 												.content(String.format("{\"author\":\"%s\", \"version\":\"%s\", \"comment\":\"%s\"}", "Admin Admin", "0.0.2", "comment")))
 								.andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).findValue("analysis_task_id").asText("");
 
+		wait(1000);
+		
 		Worker worker = workersPoolManager.get(TASK_ID);
 
 		notNull(worker, "Worker cannot be found");
