@@ -145,21 +145,27 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 		} catch (InterruptedException e) {
 			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", language, 0));
+			rollback(session);
+			e.getStackTrace();
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
 			rollback(session);
+			e.getStackTrace();
 		} catch (Exception e) {
 			rollback(session);
 			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", language, 0));
+			e.getStackTrace();
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
-			synchronized (this) {
-				working = false;
+			if (working) {
+				synchronized (this) {
+					working = false;
+				}
 			}
 			if (poolManager != null)
 				poolManager.remove(getId());
@@ -168,7 +174,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 	protected void rollback(Session session) {
 		try {
-			if (session != null && session.getTransaction().isInitiator())
+			if (session != null && session.isOpen() && session.getTransaction().isInitiator())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -256,10 +262,12 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (working) {
+				synchronized (this) {
+					if (working) {
+						canceled = true;
+						Thread.currentThread().interrupt();
+					}
 				}
 			}
 		} catch (Exception e) {
