@@ -1169,7 +1169,7 @@ public class ControllerEditField {
 
 			// set field
 
-			Field field = ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName());
+			Field field = FindField(Scenario.class, fieldEditor.getFieldName());
 			// means that field belongs to the Measure class
 
 			if (field != null) {

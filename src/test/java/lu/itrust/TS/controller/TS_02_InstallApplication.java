@@ -64,8 +64,6 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
-	
 	
 	/**
 	 * Properties
@@ -87,9 +85,8 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 		notNull(worker, "Installation worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
-		isNull(worker.getError(), "Installation failed");
-		
 		serviceTaskFeedback.unregisterTask(USERNAME, INSTALL_TASK_ID);
+		isNull(worker.getError(), "Installation failed");
 	}
 
 	@Test

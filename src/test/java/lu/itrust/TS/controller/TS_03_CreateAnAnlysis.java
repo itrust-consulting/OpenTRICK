@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.notNull;
+import static lu.itrust.TS.helper.TestSharingData.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -52,14 +53,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 
-@Test(groups="CreateAnalysis", dependsOnGroups="Installation")
+@Test(groups = "CreateAnalysis", dependsOnGroups = "Installation")
 public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
-	private static final String SIMPLE_ANALYSIS_VERSION = "0.0.1";
+	private static final String ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST = "Assessment-Trick service-Scenario test";
 
-	private static final String SIMPLE_ANALYSIS_NAME = "simple-analysis";
+	private static final String SCENARIO_SCENARIO_TEST = "Scenario-Scenario test";
 
-	private static String SCENARIO_ASSET_TYPE_VALUE = "";
+	private static final String ASSET_TRICK_SERVICE = "Asset-Trick service";
+
+	public static final String SIMPLE_ANALYSIS_VERSION = "0.0.1";
+
+	public static final String SIMPLE_ANALYSIS_NAME = "simple-analysis";
+
+	public static String SCENARIO_ASSET_TYPE_VALUE = "";
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
@@ -84,17 +91,17 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
-	
+
 	@Autowired
 	private ServiceAssessment serviceAssessment;
 
-	protected static String TASK_ID = null;
+	public static String TASK_ID = null;
 
-	protected static int LANGUAGE_ID = -1;
+	public static int LANGUAGE_ID = -1;
 
-	protected static int CUSTOMER_ID = -1;
+	public static int CUSTOMER_ID = -1;
 
-	protected static int ANALYSIS_ID = -1;
+	public static int ANALYSIS_ID = -1;
 
 	@Test
 	@Transactional(readOnly = true)
@@ -107,7 +114,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		CUSTOMER_ID = customer.getId();
 	}
 
-	@Test(timeOut=30000)
+	@Test(timeOut = 30000, dependsOnMethods = "test_00_loadData")
 	public void test_01_CreateSimpleAnalysis() throws Exception {
 		this.mockMvc
 				.perform(
@@ -118,7 +125,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	}
 
-	@Test(dependsOnMethods="test_01_CreateSimpleAnalysis")
+	@Test(dependsOnMethods = "test_01_CreateSimpleAnalysis")
 	@Transactional(readOnly = true)
 	public void test_02_SelectAnalysis() throws Exception {
 		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(CUSTOMER_ID, SIMPLE_ANALYSIS_NAME, SIMPLE_ANALYSIS_VERSION);
@@ -134,14 +141,14 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.andExpect(redirectedUrl("/Analysis/All"));
 	}
 
-	@Test(dependsOnMethods="test_01_CreateSimpleAnalysis")
+	@Test(dependsOnMethods = "test_01_CreateSimpleAnalysis")
 	@Transactional(readOnly = true)
 	public void test_04_CreateCustom() throws Exception {
 		Analysis analysis = serviceAnalysis.get(ANALYSIS_ID);
 		notNull(analysis, "Analysis cannot be found");
 	}
 
-	@Test(timeOut = 120000,dependsOnMethods="test_04_CreateCustom")
+	@Test(timeOut = 120000, dependsOnMethods = "test_04_CreateCustom")
 	public synchronized void test_05_CreateVersion() throws Exception {
 		TASK_ID = new ObjectMapper()
 				.readTree(
@@ -153,20 +160,15 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 								.andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).findValue("analysis_task_id").asText("");
 
 		wait(1000);
-		
 		Worker worker = workersPoolManager.get(TASK_ID);
-
 		notNull(worker, "Worker cannot be found");
-
 		while (worker.isWorking())
 			wait(100);
-
-		isNull(worker.getError(), "Error should be null");
-
 		serviceTaskFeedback.unregisterTask(USERNAME, TASK_ID);
+		isNull(worker.getError(), "Error should be null");
 	}
 
-	@Test(dependsOnMethods="test_05_CreateVersion")
+	@Test(dependsOnMethods = "test_05_CreateVersion")
 	@Transactional(readOnly = true)
 	public void test_06_SelectAnalysis_Version_0_0_2() {
 		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(CUSTOMER_ID, SIMPLE_ANALYSIS_NAME, "0.0.2");
@@ -174,7 +176,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		ANALYSIS_ID = analysis.getId();
 	}
 
-	@Test(dependsOnMethods="test_06_SelectAnalysis_Version_0_0_2")
+	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")
 	public void test_07_AddAsset() throws UnsupportedEncodingException, Exception {
 		this.mockMvc
 				.perform(
@@ -189,11 +191,12 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 												"Trick service", 1, "687,688", false, "comment", "hiddenComment"))).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
-	@Test(dependsOnMethods="test_07_AddAsset")
+	@Test(dependsOnMethods = "test_07_AddAsset")
 	@Transactional(readOnly = false)
 	public void test_08_LoadAsset() throws Exception {
 		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
 		notNull(asset, "Asset 'Trick service' cannot be found");
+		put(ASSET_TRICK_SERVICE, asset.getId());
 		assertEquals("Bad Asset name", asset.getName(), "Trick service");
 		assertEquals("Bad Asset value", asset.getValue(), 687.688 * 1000, 1E-10);
 		assertEquals("Bad Asset comment", asset.getValue(), 687.688 * 1000, 1E-10);
@@ -203,7 +206,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		assertEquals("Bad Asset asset-type", asset.getAssetType(), assetType);
 	}
 
-	@Test(dependsOnMethods="test_06_SelectAnalysis_Version_0_0_2")
+	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")
 	@Transactional(readOnly = true)
 	public void test_09_GenerateScenrioAssetTypeValue() throws Exception {
 		List<AssetType> assetTypes = serviceAssetType.getAll();
@@ -211,7 +214,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 			SCENARIO_ASSET_TYPE_VALUE += String.format(",\"%s\":%d", assetType.getType(), 1);
 	}
 
-	@Test(dependsOnMethods="test_06_SelectAnalysis_Version_0_0_2")
+	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")
 	public void test_10_AddScenario() throws Exception {
 		this.mockMvc
 				.perform(
@@ -226,89 +229,159 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.andExpect(content().string("{}"));
 	}
 
-	@Test(dependsOnMethods="test_10_AddScenario")
+	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")
 	@Transactional(readOnly = true)
-	public void test_11_LoadScenario() throws Exception {
+	public void test_10_CheckScenario() {
 		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
 		notNull(scenario, "Scenario 'Scenario test' cannot be found");
+		put(SCENARIO_SCENARIO_TEST, scenario.getId());
+	}
+
+	@Test(dependsOnMethods = "test_10_CheckScenario")
+	public void test_10_UpdateScenarioCharacteristic() throws Exception {
+		Integer idScenario = getInteger(SCENARIO_SCENARIO_TEST);
+		notNull(idScenario, "Scenario id cannot be null");
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %s}", idScenario, "intentional", "Integer", 1)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "accidental", "Integer", 1)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "environmental", "Integer", 1)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "internalThreat", "Integer", 1)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "externalThreat", "Integer", 1)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "preventive", "Double", 0.25)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "detective", "Double", 0.25)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "limitative", "Double", 0.25)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		this.mockMvc
+				.perform(
+						post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "corrective", "Double", 0.25)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+	}
+
+	@Test(dependsOnMethods = "test_10_UpdateScenarioCharacteristic")
+	@Transactional(readOnly = true)
+	public void test_11_LoadScenario() throws Exception {
+		Scenario scenario = serviceScenario.get(getInteger(SCENARIO_SCENARIO_TEST));
+		notNull(scenario, "Scenario cannot be found");
 		assertEquals("Bad scenario name", scenario.getName(), "Scenario test");
 		assertEquals("Bad scenario description", scenario.getDescription(), "Test scenario");
 		assertFalse("Scenario is selected", scenario.isSelected());
+		assertEquals("Bad scenario accidental", 1, scenario.getAccidental());
+		assertEquals("Bad scenario environmental", 1, scenario.getEnvironmental());
+		assertEquals("Bad scenario intentional", 1, scenario.getIntentional());
+		assertEquals("Bad scenario externalThreat", 1, scenario.getExternalThreat());
+		assertEquals("Bad scenario internalThreat", 1, scenario.getInternalThreat());
+
 		serviceAssetType.getAll().forEach(assetType -> {
 			AssetTypeValue assetTypeValue = scenario.retrieveAssetTypeValue(assetType);
 			notNull(assetTypeValue, String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getType()));
-			assertEquals( String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getType()),1, assetTypeValue.getValue());
+			assertEquals(String.format("Scanrio Asset type value for '%s' cannot be found", assetType.getType()), 1, assetTypeValue.getValue());
 		});
 
 	}
-	
-	@Test(dependsOnMethods={"test_11_LoadScenario","test_10_AddScenario"})
+
+	@Test(dependsOnMethods = { "test_11_LoadScenario", "test_10_AddScenario" })
 	@Transactional(readOnly = true)
-	public void test_12_CheckAssessment() {
-		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
-		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
+	public void test_12_CheckAssessment() throws Exception {
+		Asset asset = serviceAsset.get(getInteger(ASSET_TRICK_SERVICE));
+		Scenario scenario = serviceScenario.get(getInteger(SCENARIO_SCENARIO_TEST));
 		Assessment assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
 		notNull(assessment, "Assessment for asset :'Trick service' and Scenario: 'Scenario test' cannot be found");
+		put(ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST, assessment.getId());
 		assertFalse("Assessment should not be selected", assessment.isSelected());
+
 	}
-	
-	@Test(dependsOnMethods="test_12_CheckAssessment")
-	@Transactional
+
+	@Test(dependsOnMethods = "test_12_CheckAssessment")
 	public void test_13_SelectAssetAndScenario() throws Exception {
-		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
-		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
 		this.mockMvc
-		.perform(
-				get("/Analysis/Asset/Select/"+asset.getId())
-						.with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD))
-						.accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID))
-						.andExpect(status().isOk())
-		.andExpect(jsonPath("$.success").exists());
-		
+				.perform(
+						get("/Analysis/Asset/Select/" + getInteger(ASSET_TRICK_SERVICE)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+								.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
 		this.mockMvc
-		.perform(
-				get("/Analysis/Scenario/Select/"+scenario.getId())
-						.with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD))
-						.accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID))
-						.andExpect(status().isOk())
-		.andExpect(jsonPath("$.success").exists());
-		Assessment assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
-		assertTrue("Assessment shouldbe selected", assessment.isSelected());
+				.perform(
+						get("/Analysis/Scenario/Select/" + getInteger(SCENARIO_SCENARIO_TEST)).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.accept(APPLICATION_JSON_CHARSET_UTF_8).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").exists());
 	}
-	
-	@Test(dependsOnMethods="test_13_SelectAssetAndScenario")
-	@Transactional
+
+	@Test(dependsOnMethods = "test_13_SelectAssetAndScenario")
 	public void test_14_UpdateAssessment() throws Exception {
-		Asset asset = serviceAsset.getByNameAndAnlysisId("Trick service", ANALYSIS_ID);
-		Scenario scenario = serviceScenario.getByNameAndAnalysisId("Scenario test", ANALYSIS_ID);
-		Assessment assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
+		Integer idAssessment = getInteger(ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST);
+		notNull(idAssessment, "Assessment id cannot be null");
 		this.mockMvc
-		.perform(
-				post("/Analysis/EditField/Assessment/"+assessment.getId())
-						.with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD))
-						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", assessment.getId(), "impactFin", "String", "i9")))
-						.andExpect(status().isOk())
-		.andExpect(jsonPath("$.success").exists());
+				.perform(
+						post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "impactFin", "String", "i9")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		this.mockMvc
-		.perform(
-				post("/Analysis/EditField/Assessment/"+assessment.getId())
-						.with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD))
-						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", assessment.getId(), "likelihood", "String", "p9")))
-						.andExpect(status().isOk())
-		.andExpect(jsonPath("$.success").exists());
-		assessment = serviceAssessment.getByAssetAndScenario(asset, scenario);
+				.perform(
+						post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "likelihood", "String", "p9")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+	}
+
+	@Test(dependsOnMethods = "test_14_UpdateAssessment")
+	@Transactional(readOnly = true)
+	public void test_15_CheckAssessment() throws Exception {
+		Assessment assessment = serviceAssessment.get(getInteger(ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST));
+		notNull(assessment, "Assessment cannot be found");
+		assertTrue("Assessment should be selected", assessment.isSelected());
+		assessment = serviceAssessment.get(assessment.getId());
 		assertEquals("impactFin should be i9", "i9", assessment.getImpactFin());
 		assertEquals("likelihood should be p9", "p9", assessment.getLikelihood());
 	}
-	
+
 }

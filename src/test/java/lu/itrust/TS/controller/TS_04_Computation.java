@@ -1,0 +1,128 @@
+/**
+ * 
+ */
+package lu.itrust.TS.controller;
+
+import static lu.itrust.TS.controller.TS_03_CreateAnAnlysis.ANALYSIS_ID;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.util.Assert.isNull;
+import static org.springframework.util.Assert.notEmpty;
+import static org.springframework.util.Assert.notNull;
+
+import java.util.List;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceActionPlan;
+import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceRiskRegister;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.Test;
+
+/**
+ * @author eomar
+ *
+ */
+@Test(groups = "Computation", dependsOnGroups = "CreateAnalysis")
+public class TS_04_Computation extends SpringTestConfiguration {
+
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceActionPlan serviceActionPlan;
+
+	@Autowired
+	private ServiceActionPlanSummary serviceActionPlanSummary;
+
+	@Autowired
+	private ServiceRiskRegister serviceRiskRegister;
+
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+
+	@Test(timeOut = 30000)
+	public synchronized void test_00_ActionPlan() throws Exception {
+		this.mockMvc
+				.perform(
+						post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format("{\"id\":%d}", ANALYSIS_ID))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+		notEmpty(tasks, "No background task found");
+		Worker worker = null;
+		for (String workerId : tasks) {
+			Worker worker2 = workersPoolManager.get(workerId);
+			if (worker2 instanceof WorkerComputeActionPlan) {
+				worker = worker2;
+				break;
+			}
+		}
+		notNull(worker, "Action plan worker cannot be found");
+		while (worker.isWorking())
+			wait(100);
+		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		isNull(worker.getError(), "An error occured while compute action plan");
+	}
+
+	@Test(timeOut = 30000)
+	public synchronized void test_01_RiskRegister() throws Exception {
+		this.mockMvc
+				.perform(
+						post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+
+		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+		notEmpty(tasks, "No background task found");
+		Worker worker = null;
+		for (String workerId : tasks) {
+			Worker worker2 = workersPoolManager.get(workerId);
+			if (worker2 instanceof WorkerComputeRiskRegister) {
+				worker = worker2;
+				break;
+			}
+		}
+		notNull(worker, "Risk register worker cannot be found");
+		while (worker.isWorking())
+			wait(100);
+		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		isNull(worker.getError(), "An error occured while compute risk register");
+	}
+
+	@Test
+	@Transactional(readOnly = true)
+	public void test_02_CheckActionPLan() throws Exception {
+		List<ActionPlanEntry> actionPlans = serviceActionPlan.getAllFromAnalysis(ANALYSIS_ID);
+		notEmpty(actionPlans, "Action plan is empty");
+	}
+
+	@Test
+	@Transactional(readOnly = true)
+	public void test_03_CheckRiskRegister() throws Exception {
+		List<RiskRegisterItem> riskRegisterItems = serviceRiskRegister.getAllFromAnalysis(ANALYSIS_ID);
+		notEmpty(riskRegisterItems, "Risk register is empty");
+	}
+
+	@Test
+	@Transactional(readOnly = true)
+	public void test_04_CheckActionPlanSummary() throws Exception {
+		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysis(ANALYSIS_ID);
+		notEmpty(summaryStages, "Action plan summary is empty");
+	}
+}

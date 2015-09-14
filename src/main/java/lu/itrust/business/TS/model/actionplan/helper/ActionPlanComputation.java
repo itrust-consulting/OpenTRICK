@@ -2862,7 +2862,6 @@ public class ActionPlanComputation {
 					else if (helper.measures.contains(measure)) {
 						numerator += (1.0 - imprate * 0.01);
 						tmpval.measureCount++;
-						System.out.println(measure);
 					}
 					denominator++;
 				}
