@@ -58,12 +58,13 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
-	@Test(timeOut = 30000)
+	@Test(timeOut = 120000)
 	public synchronized void test_00_ActionPlan() throws Exception {
 		this.mockMvc
 				.perform(
 						post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(String.format("{\"id\":%d}", ANALYSIS_ID))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		wait(1000);
 		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 		notEmpty(tasks, "No background task found");
 		Worker worker = null;
@@ -81,13 +82,13 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		isNull(worker.getError(), "An error occured while compute action plan");
 	}
 
-	@Test(timeOut = 30000)
+	@Test(timeOut = 120000)
 	public synchronized void test_01_RiskRegister() throws Exception {
 		this.mockMvc
 				.perform(
 						post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-
+		wait(1000);
 		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 		notEmpty(tasks, "No background task found");
 		Worker worker = null;
