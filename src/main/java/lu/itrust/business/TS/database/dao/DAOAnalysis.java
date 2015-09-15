@@ -148,6 +148,8 @@ public interface DAOAnalysis {
 
 	public Analysis getByCustomerAndNameAndVersion(int customerId, String name, String version);
 
+	public Analysis getByIdentifierAndVersion(String identifier, String version);
+
 	
 
 }

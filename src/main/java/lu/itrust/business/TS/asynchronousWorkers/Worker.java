@@ -21,6 +21,15 @@ public interface Worker extends Runnable{
 	void setId(String id);
 	
 	void setPoolManager(WorkersPoolManager poolManager);
+	/**
+	 * @param express
+	 * @param values
+	 * <br>
+	 * Example for {@link WorkerComputeActionPlan}:<br>
+	 * isMatch("class+analysis.id",Worker.class,12)
+	 * @return
+	 */
+	default boolean isMatch(String express, Object... values) {return false;}
 	
 	String getId();
 	

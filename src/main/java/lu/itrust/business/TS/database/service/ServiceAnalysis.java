@@ -137,4 +137,6 @@ public interface ServiceAnalysis {
 
 	public Analysis getByCustomerAndLabelAndVersion(int customerId, String name, String version);
 
+	public Analysis getByIdentifierAndVersion(String identifier, String version);
+
 }

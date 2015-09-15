@@ -1,5 +1,6 @@
 package lu.itrust.TS.controller;
 
+import static lu.itrust.TS.helper.TestSharingData.*;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -28,6 +29,8 @@ import lu.itrust.business.TS.model.general.Language;
 
 
 
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +40,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Test(groups="Installation", dependsOnGroups="firstAccount")
 public class TS_02_InstallApplication extends SpringTestConfiguration {
+
+	public static final String PROFILE_CUSTOMER = "profile-customer";
+
+	public static final String ME_CUSTOMER = "me-customer";
 
 	private static final String FRA_FRENCH = "French";
 
@@ -102,6 +109,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	public void test_05_CheckCustomerProfile() throws Exception {
 		Customer customer = serviceCustomer.getProfile();
 		notNull(customer, "Profile customer cannot be found");
+		put(PROFILE_CUSTOMER, customer.getId());
 	}
 
 	@Test
@@ -141,6 +149,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	public void test_09_LoadCustomer() throws Exception {
 		Customer customer = serviceCustomer.getFromContactPerson(CUSTOMER_OTHER_FIELDS);
 		notNull(customer, "Customer cannot be found");
+		put(ME_CUSTOMER, customer.getId());
 	}
 
 	@Test

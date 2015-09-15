@@ -614,4 +614,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public Analysis getByCustomerAndLabelAndVersion(int customerId, String name, String version) {
 		return daoAnalysis.getByCustomerAndNameAndVersion(customerId,name, version);
 	}
+
+	@Override
+	public Analysis getByIdentifierAndVersion(String identifier, String version) {
+		return daoAnalysis.getByIdentifierAndVersion(identifier, version);
+	}
 }

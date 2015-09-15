@@ -195,6 +195,37 @@ public class WorkerAnalysisImport implements Worker {
 		this.importAnalysis = importAnalysis;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
+	 */
+	@Override
+	public boolean isMatch(String express, Object... values) {
+		try {
+			String [] expressions = express.split("\\+");
+			boolean match = values.length == expressions.length && values.length == 2;
+			for (int i = 0; i < expressions.length && match; i++) {
+				switch (expressions[i]) {
+				case "customer.id":
+					match &= values[i].equals(customerId);
+					break;
+				case "class":
+					match &= values[i].equals(getClass());
+					break;
+				default:
+					match = false;
+					break;
+				}
+			}
+			return match;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	protected void OnSuccess() {
 		if (getMessageHandler() == null)
 			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", null, 100));
