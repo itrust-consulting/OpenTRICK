@@ -3,6 +3,7 @@
  */
 package lu.itrust.TS.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
@@ -14,6 +15,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,16 +111,19 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isTrue(analysis.getActionPlans().isEmpty(), "Action plan should be empty");
 		isTrue(analysis.getSummaries().isEmpty(), "Action plan summary should be empty");
 		isTrue(analysis.getRiskRegisters().isEmpty(), "Risk register should be empty");
+		notNull(getInteger(ANALYSIS_KEY), "Analysis id cannot be found");
 	}
-	
-	@Test(timeOut = 120000, dependsOnMethods="test_01_CheckImportedAnalysis")
+
+	@Test(timeOut = 120000, dependsOnMethods = "test_01_CheckImportedAnalysis")
 	public synchronized void test_02_ComputeActionPlan() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
+		notNull(idAnalysis, "Analysis id cannot be found");
 		this.mockMvc
 				.perform(
 						post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(String.format("{\"id\":%d}", idAnalysis))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-		wait(1000);
+		if (!serviceTaskFeedback.userHasTask(USERNAME))
+			wait(1000);
 		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 		notEmpty(tasks, "No background task found");
 		Worker worker = null;
@@ -136,14 +141,15 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isNull(worker.getError(), "An error occured while compute action plan");
 	}
 
-	@Test(timeOut = 120000,dependsOnMethods="test_01_CheckImportedAnalysis")
+	@Test(timeOut = 120000, dependsOnMethods = "test_01_CheckImportedAnalysis")
 	public synchronized void test_03_ComputeRiskRegister() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		this.mockMvc
 				.perform(
 						post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis)
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-		wait(1000);
+		if (!serviceTaskFeedback.userHasTask(USERNAME))
+			wait(1000);
 		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 		notEmpty(tasks, "No background task found");
 		Worker worker = null;
@@ -159,5 +165,45 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			wait(100);
 		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 		isNull(worker.getError(), "An error occured while compute risk register");
+	}
+
+	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
+	@Transactional(readOnly = true)
+	public void test_04_CheckActionPlan() {
+
+	}
+
+	@Test(dependsOnMethods = "test_03_ComputeRiskRegister")
+	@Transactional(readOnly = true)
+	public void test_05_CheckRiskRegister() throws Exception {
+		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
+		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
+		List<Object[]> data = new ArrayList<Object[]>(6);
+		data.add(new Object[] { "A_all - Complete loss, including backup", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.073, 9863.8, 719.58 });
+		data.add(new Object[] { "C3 - Accidental disclosure", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.073, 9838.32, 721.8 });
+		data.add(new Object[] { "A_1 - Partial loss or temporary", "Servers", 1, 1000, 1000, 1, 1000, 1000, 0.756, 951.84, 719.58 });
+		data.add(new Object[] { "I3 - Accidental manipulation", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.084, 8709.73, 735.66 });
+		data.add(new Object[] { "I2 - Fraudulent manipulation coming from internal", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.087, 8489.48, 742.49 });
+		data.add(new Object[] { "I1 - External manipulation", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.082, 8778.35, 721.99 });
+		List<RiskRegisterItem> registerItems = analysis.getRiskRegisters();
+		for (int i = 0; i < registerItems.size(); i++)
+			validate(registerItems.get(i), data.get(i));
+
+	}
+
+	private void validate(RiskRegisterItem riskRegisterItem, Object[] objects) {
+		System.out.println(objects);
+		assertEquals("Bad scenario", objects[0], riskRegisterItem.getScenario().getName());
+		assertEquals("Bad asset", objects[1], riskRegisterItem.getAsset().getName());
+		assertEquals("Bad raw probability", (double) objects[2], riskRegisterItem.getRawEvaluation().getProbability(), 1E-3);
+		assertEquals("Bad raw impact", (double) objects[3], riskRegisterItem.getRawEvaluation().getImpact(), 1E-2);
+		assertEquals("Bad raw importance", (double) objects[4], riskRegisterItem.getRawEvaluation().getImportance(), 1E-2);
+		assertEquals("Bad net probability", (double) objects[5], riskRegisterItem.getNetEvaluation().getProbability(), 1E-3);
+		assertEquals("Bad net impact", (double) objects[6], riskRegisterItem.getNetEvaluation().getImpact(), 1E-2);
+		assertEquals("Bad net importance", (double) objects[7], riskRegisterItem.getNetEvaluation().getImportance(), 1E-2);
+		assertEquals("Bad expected probability", (double) objects[8], riskRegisterItem.getExpectedEvaluation().getProbability(), 1E-3);
+		assertEquals("Bad expected impact", (double) objects[9], riskRegisterItem.getExpectedEvaluation().getImpact(), 1E-2);
+		assertEquals("Bad expected importance", (double) objects[10], riskRegisterItem.getExpectedEvaluation().getImportance(), 1E-2);
+
 	}
 }
