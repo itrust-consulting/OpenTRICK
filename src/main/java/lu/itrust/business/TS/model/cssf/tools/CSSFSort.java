@@ -350,7 +350,7 @@ public class CSSFSort {
 	}
 
 	public static void sortByNetImportance(List<RiskRegisterItemGroup> registerItems) {
-		Collections.sort(registerItems, new NetImportanceRegisterGroupComparatorDescending());
+		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceRegisterGroupComparator()));
 	}
 
 	/**
@@ -369,6 +369,6 @@ public class CSSFSort {
 		// Sort the given list of risk register items using the Collections java
 		// class and using the
 		// NetImportanceComparatorDescending check
-		Collections.sort(registerItems, new NetImportanceComparatorDescending());
+		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceComparator()));
 	}
 }

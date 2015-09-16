@@ -38,7 +38,7 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 
 	protected static final String LANGUAGE = "en";
 
-	protected static final String EMAIL = "eom_forum@itrust.lu";
+	protected static final String EMAIL = "test@itrust.lu";
 
 	protected static final String USERNAME = "admin";
 

@@ -179,20 +179,22 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
 		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
 		List<Object[]> data = new ArrayList<Object[]>(6);
-		data.add(new Object[] { "A_all - Complete loss, including backup", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.073, 9863.8, 719.58 });
-		data.add(new Object[] { "C3 - Accidental disclosure", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.073, 9838.32, 721.8 });
-		data.add(new Object[] { "A_1 - Partial loss or temporary", "Servers", 1, 1000, 1000, 1, 1000, 1000, 0.756, 951.84, 719.58 });
-		data.add(new Object[] { "I3 - Accidental manipulation", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.084, 8709.73, 735.66 });
-		data.add(new Object[] { "I2 - Fraudulent manipulation coming from internal", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.087, 8489.48, 742.49 });
-		data.add(new Object[] { "I1 - External manipulation", "Servers", 0.1, 10000, 1000, 0.1, 10000, 1000, 0.082, 8778.35, 721.99 });
+		data.add(new Object[] { "I2 - Fraudulent manipulation coming from internal", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.087, 8489.48, 742.49 });
+		data.add(new Object[] { "I3 - Accidental manipulation", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.084, 8709.73, 735.66 });
+		data.add(new Object[] { "I1 - External manipulation", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.082, 8778.35, 721.99 });
+		data.add(new Object[] { "C3 - Accidental disclosure", "Customer documents", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.073, 9838.32, 721.8 });
+		data.add(new Object[] { "A_all - Complete loss, including backup", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.073, 9836.8, 719.58 });
+		data.add(new Object[] { "A_1 - Partial loss or temporary", "Servers", 1d, 1000d, 1000d, 1d, 1000d, 1000d, 0.756, 951.84, 719.58 });
 		List<RiskRegisterItem> registerItems = analysis.getRiskRegisters();
 		for (int i = 0; i < registerItems.size(); i++)
 			validate(registerItems.get(i), data.get(i));
-
 	}
 
 	private void validate(RiskRegisterItem riskRegisterItem, Object[] objects) {
-		System.out.println(objects);
+		System.out.println();
+		for (Object object : objects)
+			System.out.print(object+" ");
+		System.out.println();
 		assertEquals("Bad scenario", objects[0], riskRegisterItem.getScenario().getName());
 		assertEquals("Bad asset", objects[1], riskRegisterItem.getAsset().getName());
 		assertEquals("Bad raw probability", (double) objects[2], riskRegisterItem.getRawEvaluation().getProbability(), 1E-3);
