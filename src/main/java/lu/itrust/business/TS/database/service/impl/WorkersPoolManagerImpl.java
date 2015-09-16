@@ -1,8 +1,13 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
@@ -111,5 +116,23 @@ public class WorkersPoolManagerImpl implements WorkersPoolManager {
 	@Override
 	public int poolSize() {
 		return workersPool.size();
+	}
+
+	@Override
+	@Scheduled(initialDelay = 5000, fixedDelay = 5000)
+	public void cleaning() {
+		if (workersPool == null || workersPool.isEmpty())
+			return;
+		Date limit = new Timestamp(System.currentTimeMillis() - 5000);
+		Iterator<Entry<String, Worker>> iterator = workersPool.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<String, Worker> entry = iterator.next();
+			if(entry.getValue().getFinished() == null)
+				continue;
+			else if(limit.before(entry.getValue().getFinished()))
+				workersPool.remove(entry.getKey());
+			
+		}
+
 	}
 }

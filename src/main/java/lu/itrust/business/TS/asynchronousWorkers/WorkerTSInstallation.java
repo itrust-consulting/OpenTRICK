@@ -73,7 +73,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 				session.getTransaction().rollback();
 			throw e;
 		} finally {
-			if (session != null)
+			if (session != null && session.isOpen())
 				session.close();
 		}
 	}

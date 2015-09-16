@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -30,6 +31,10 @@ import org.hibernate.SessionFactory;
 public class WorkerCreateAnalysisVersion implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -66,9 +71,13 @@ public class WorkerCreateAnalysisVersion implements Worker {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 	}
-	
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String, java.lang.Object)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -112,6 +121,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 
 			session = sessionFactory.openSession();
@@ -189,13 +199,14 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
-			if (working) {
+			if (isWorking()) {
 				synchronized (this) {
-					working = false;
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
 				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
 	}
 
@@ -289,9 +300,9 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			if (working) {
+			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
-					if (working) {
+					if (isWorking() && !isCanceled()) {
 						canceled = true;
 						Thread.currentThread().interrupt();
 					}
@@ -301,12 +312,25 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

@@ -3,7 +3,9 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
@@ -37,6 +39,10 @@ import org.springframework.context.MessageSource;
 public class WorkerComputeActionPlan implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -139,7 +145,9 @@ public class WorkerComputeActionPlan implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
+
 			session = sessionFactory.openSession();
 			initialiseDAO(session);
 
@@ -206,16 +214,20 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+
 		}
 	}
 
@@ -304,7 +316,6 @@ public class WorkerComputeActionPlan implements Worker {
 
 		analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
 				.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
-
 	}
 
 	/*
@@ -387,22 +398,38 @@ public class WorkerComputeActionPlan implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

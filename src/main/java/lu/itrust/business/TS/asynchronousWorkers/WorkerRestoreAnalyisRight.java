@@ -3,8 +3,10 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -34,6 +36,10 @@ import org.hibernate.SessionFactory;
 public class WorkerRestoreAnalyisRight implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -84,6 +90,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 
 			MessageHandler messageHandler = new MessageHandler("info.initiliase.dao", "Intialise database connectors", null, 0);
@@ -112,18 +119,24 @@ public class WorkerRestoreAnalyisRight implements Worker {
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
-
 		}
 
 	}
-	
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String, java.lang.Object)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -266,9 +279,9 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			if (working) {
+			if (isWorking() && !isCanceled()) {
 				synchronized (this) {
-					if (working) {
+					if (isWorking() && !isCanceled()) {
 						Thread.currentThread().interrupt();
 						canceled = true;
 					}
@@ -278,11 +291,14 @@ public class WorkerRestoreAnalyisRight implements Worker {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
 	}
 
@@ -314,6 +330,16 @@ public class WorkerRestoreAnalyisRight implements Worker {
 	 */
 	protected void setDaoUserAnalysisRight(DAOUserAnalysisRight daoUserAnalysisRight) {
 		this.daoUserAnalysisRight = daoUserAnalysisRight;
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

@@ -4,6 +4,8 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -32,6 +34,10 @@ import org.springframework.util.FileCopyUtils;
 public class WorkerExportWordReport implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private int idAnalysis;
 
@@ -76,6 +82,7 @@ public class WorkerExportWordReport implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -98,18 +105,24 @@ public class WorkerExportWordReport implements Worker {
 			e.printStackTrace();
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
+
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
+			}
+
 			if (exportAnalysisReport.getWorkFile() != null && exportAnalysisReport.getWorkFile().exists())
 				exportAnalysisReport.getWorkFile().delete();
-			synchronized (this) {
-				working = false;
-			}
-			if (workersPoolManager != null)
-				workersPoolManager.remove(getId());
+
 		}
 	}
 
@@ -131,8 +144,9 @@ public class WorkerExportWordReport implements Worker {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word", String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(), analysis.getVersion()),
-					username, LogAction.EXPORT, analysis.getIdentifier(), analysis.getVersion());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word",
+					String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT, analysis.getIdentifier(),
+					analysis.getVersion());
 		} catch (Exception e) {
 			try {
 				if (session.getTransaction().isInitiator())
@@ -182,29 +196,40 @@ public class WorkerExportWordReport implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			synchronized (this) {
-				working = false;
-				File file = exportAnalysisReport.getWorkFile();
-				if (file != null && file.exists())
-					file.delete();
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (workersPoolManager != null)
-				workersPoolManager.remove(getId());
+
+			File file = exportAnalysisReport.getWorkFile();
+			if (file != null && file.exists())
+				file.delete();
+
 		}
 	}
-	
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String, java.lang.Object)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -244,6 +269,16 @@ public class WorkerExportWordReport implements Worker {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

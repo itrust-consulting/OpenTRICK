@@ -2,7 +2,9 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +41,10 @@ import org.hibernate.Transaction;
 public class WorkerImportStandard implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -96,6 +102,7 @@ public class WorkerImportStandard implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 
 			session = sessionFactory.openSession();
@@ -121,27 +128,25 @@ public class WorkerImportStandard implements Worker {
 			this.error = e;
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null, e));
 			e.printStackTrace();
-			try {
-				if (transaction != null && transaction.isInitiator())
-					session.getTransaction().rollback();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-
+			if (transaction != null && transaction.isInitiator())
+				session.getTransaction().rollback();
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && !session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
+			}
 			if (importFile != null && importFile.exists())
 				importFile.delete();
-			synchronized (this) {
-				working = false;
-			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 
 		}
 
@@ -455,24 +460,40 @@ public class WorkerImportStandard implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			error = e;
 		} finally {
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
+			}
 			if (importFile != null && importFile.exists())
 				importFile.delete();
-			synchronized (this) {
-				working = false;
-			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

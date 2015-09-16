@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.servlet.ServletContext;
 
@@ -50,6 +52,10 @@ import org.springframework.util.FileCopyUtils;
 public class WorkerExportAnalysis implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -102,6 +108,7 @@ public class WorkerExportAnalysis implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -139,24 +146,34 @@ public class WorkerExportAnalysis implements Worker {
 			e.printStackTrace();
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
+
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
+			}
+
 			if (sqlite != null && sqlite.exists())
 				sqlite.delete();
-			synchronized (this) {
-				working = false;
-			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+
 		}
 
 	}
-	
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String, java.lang.Object)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -207,8 +224,9 @@ public class WorkerExportAnalysis implements Worker {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export", String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(), analysis.getVersion()),
-					user.getLogin(), LogAction.EXPORT, analysis.getIdentifier(), analysis.getVersion());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export",
+					String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.EXPORT,
+					analysis.getIdentifier(), analysis.getVersion());
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {
@@ -238,51 +256,71 @@ public class WorkerExportAnalysis implements Worker {
 		// * Initialise variables
 		// ****************************************************************
 		String filename;
-		InputStream inp;
-		InputStreamReader isr;
-		BufferedReader reader;
+		InputStream inp = null;
+		InputStreamReader isr = null;
+		BufferedReader reader = null;
 		String text = "";
 
-		// build path to structure from context
-		filename = context.getRealPath("/WEB-INF/data/sqlitestructure.sql");
+		try {
+			// build path to structure from context
+			filename = context.getRealPath("/WEB-INF/data/sqlitestructure.sql");
 
-		File file = new File(filename);
+			File file = new File(filename);
 
-		// retrieve file from context
-		// inp = context.getResourceAsStream(filename);
+			// retrieve file from context
+			// inp = context.getResourceAsStream(filename);
 
-		// check if file is not null
-		if (file.exists()) {
+			// check if file is not null
+			if (file.exists()) {
 
-			// read line by line from file
+				// read line by line from file
 
-			inp = new FileInputStream(file);
+				inp = new FileInputStream(file);
 
-			isr = new InputStreamReader(inp);
-			reader = new BufferedReader(isr);
-			text = "";
+				isr = new InputStreamReader(inp);
+				reader = new BufferedReader(isr);
+				text = "";
 
-			// parse each line
-			while ((text = reader.readLine()) != null) {
+				// parse each line
+				while ((text = reader.readLine()) != null) {
 
-				// remove white spaces
-				text = text.trim();
-				// check if line is a SQL command (not empty and not starting
-				// with "-")
-				if (!text.isEmpty() && !text.startsWith("-")) {
+					// remove white spaces
+					text = text.trim();
+					// check if line is a SQL command (not empty and not
+					// starting
+					// with "-")
+					if (!text.isEmpty() && !text.startsWith("-")) {
 
-					// execute SQL query
-					sqlite.query(text, null);
+						// execute SQL query
+						sqlite.query(text, null);
+					}
+				}
+
+			}
+		} finally {
+			// close stream
+			if (isr != null) {
+				try {
+					isr.close();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
-
-			// close stream
-			isr.close();
-			reader.close();
-
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			// close file
-			inp.close();
-
+			if (inp != null) {
+				try {
+					inp.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -326,22 +364,37 @@ public class WorkerExportAnalysis implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

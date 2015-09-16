@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,6 +32,10 @@ import org.hibernate.SessionFactory;
 public class WorkerComputeRiskRegister implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -116,6 +122,7 @@ public class WorkerComputeRiskRegister implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 			session = sessionFactory.openSession();
 			initialiseDAO(session);
@@ -180,23 +187,30 @@ public class WorkerComputeRiskRegister implements Worker {
 			}
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
 	}
-	
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String, java.lang.Object)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
 	 */
 	@Override
 	public boolean isMatch(String express, Object... values) {
@@ -232,7 +246,7 @@ public class WorkerComputeRiskRegister implements Worker {
 			if (riskRegisterItem != null)
 				analysis.getRiskRegisters().set(i, riskRegisterItem.merge(riskRegister));
 		}
-		
+
 		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.delete", "Deleting previous Risk Register", lang, 70));
 		for (RiskRegisterItem riskRegisterItem : ownerBackup.values())
 			daoRiskRegister.delete(riskRegisterItem);
@@ -254,8 +268,6 @@ public class WorkerComputeRiskRegister implements Worker {
 		}
 		analysis.getRiskRegisters().clear();
 	}
-	
-	
 
 	/*
 	 * (non-Javadoc)
@@ -337,22 +349,37 @@ public class WorkerComputeRiskRegister implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

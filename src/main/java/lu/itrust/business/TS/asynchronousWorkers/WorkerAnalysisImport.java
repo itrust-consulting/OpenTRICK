@@ -2,6 +2,8 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
@@ -28,6 +30,10 @@ import org.hibernate.SessionFactory;
 public class WorkerAnalysisImport implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error = null;
 
@@ -142,26 +148,31 @@ public class WorkerAnalysisImport implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			synchronized (this) {
-				working = false;
-				if (canDeleteFile) {
-					File file = new File(fileName);
-					if (file.exists())
-						file.delete();
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
 				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+			if (canDeleteFile) {
+				File file = new File(fileName);
+				if (file.exists())
+					file.delete();
+			}
 		}
 	}
 
@@ -205,7 +216,7 @@ public class WorkerAnalysisImport implements Worker {
 	@Override
 	public boolean isMatch(String express, Object... values) {
 		try {
-			String [] expressions = express.split("\\+");
+			String[] expressions = express.split("\\+");
 			boolean match = values.length == expressions.length && values.length == 2;
 			for (int i = 0; i < expressions.length && match; i++) {
 				switch (expressions[i]) {
@@ -254,6 +265,7 @@ public class WorkerAnalysisImport implements Worker {
 					return;
 				OnStarted();
 			}
+			started = new Timestamp(System.currentTimeMillis());
 			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
 			session = sessionFactory.openSession();
 			User user = new DAOUserHBM(session).get(username);
@@ -289,25 +301,30 @@ public class WorkerAnalysisImport implements Worker {
 			}
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				synchronized (this) {
-					working = false;
-					File file = new File(fileName);
-					if (canDeleteFile && file.exists())
-						file.delete();
+				if (isWorking()) {
+					synchronized (this) {
+						if (isWorking()) {
+							working = false;
+							finished = new Timestamp(System.currentTimeMillis());
+						}
+					}
 				}
-				if (poolManager != null)
-					poolManager.remove(getId());
+				File file = new File(fileName);
+				if (canDeleteFile && file.exists())
+					file.delete();
 			}
+
 		}
 	}
 
 	protected synchronized void OnStarted() throws Exception {
 		working = true;
+		started = new Timestamp(System.currentTimeMillis());
 	}
 
 	@Override
@@ -378,5 +395,15 @@ public class WorkerAnalysisImport implements Worker {
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 }

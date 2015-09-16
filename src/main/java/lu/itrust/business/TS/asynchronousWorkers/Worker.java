@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.util.Date;
+
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 
 
@@ -11,6 +13,10 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
  *
  */
 public interface Worker extends Runnable{
+	
+	Date getStarted();
+	
+	Date getFinished();
 	
 	boolean isWorking();
 	
