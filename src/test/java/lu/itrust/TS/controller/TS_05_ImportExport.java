@@ -77,20 +77,25 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 						fileUpload("/Analysis/Import/Execute").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 								.param("customerId", getInteger(ME_CUSTOMER).toString())).andExpect(status().isFound()).andExpect(redirectedUrl("/Analysis/Import")).andReturn();
 		notNull(mvcResult, "Request should have result");
-
 		assertFalse((String) mvcResult.getFlashMap().get("error"), mvcResult.getFlashMap().containsKey("error"));
-		if (!serviceTaskFeedback.userHasTask(USERNAME))
-			wait(1500);
-		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
-		notEmpty(tasks, "No background task found");
 		Worker worker = null;
-		for (String workerId : tasks) {
-			Worker worker2 = workersPoolManager.get(workerId);
-			if (worker2!=null && worker2.isMatch("class+customer.id", WorkerAnalysisImport.class, getInteger(ME_CUSTOMER))) {
-				worker = worker2;
-				break;
+		
+		for (int i = 0; i < 30; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 != null && worker2.isMatch("class+customer.id", WorkerAnalysisImport.class, getInteger(ME_CUSTOMER))) {
+					worker = worker2;
+					break;
+				}
 			}
+			if (worker == null)
+				wait(1000);
+			else
+				break;
 		}
+
 		notNull(worker, "Import analysis worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
@@ -121,16 +126,21 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 				.perform(
 						post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(String.format("{\"id\":%d}", idAnalysis))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-		wait(1000);
-		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
-		notEmpty(tasks, "No background task found");
 		Worker worker = null;
-		for (String workerId : tasks) {
-			Worker worker2 = workersPoolManager.get(workerId);
-			if (worker2!=null && worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, idAnalysis)) {
-				worker = worker2;
-				break;
+		for (int i = 0; i < 30; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, idAnalysis)) {
+					worker = worker2;
+					break;
+				}
 			}
+			if (worker == null)
+				wait(1000);
+			else
+				break;
 		}
 		notNull(worker, "Action plan worker cannot be found");
 		while (worker.isWorking())
@@ -146,17 +156,21 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 				.perform(
 						post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis)
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
-		
-		wait(1000);
-		List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
-		notEmpty(tasks, "No background task found");
 		Worker worker = null;
-		for (String workerId : tasks) {
-			Worker worker2 = workersPoolManager.get(workerId);
-			if (worker2!=null && worker2.isMatch("class+analysis.id", WorkerComputeRiskRegister.class, idAnalysis)) {
-				worker = worker2;
-				break;
+		for (int i = 0; i < 30; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerComputeRiskRegister.class, idAnalysis)) {
+					worker = worker2;
+					break;
+				}
 			}
+			if (worker == null)
+				wait(1000);
+			else
+				break;
 		}
 		notNull(worker, "Risk register worker cannot be found");
 		while (worker.isWorking())
@@ -191,7 +205,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	private void validate(RiskRegisterItem riskRegisterItem, Object[] objects) {
 		System.out.println();
 		for (Object object : objects)
-			System.out.print(object+" ");
+			System.out.print(object + " ");
 		System.out.println();
 		assertEquals("Bad scenario", objects[0], riskRegisterItem.getScenario().getName());
 		assertEquals("Bad asset", objects[1], riskRegisterItem.getAsset().getName());
