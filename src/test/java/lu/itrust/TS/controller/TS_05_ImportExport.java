@@ -3,8 +3,14 @@
  */
 package lu.itrust.TS.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
@@ -14,8 +20,17 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +40,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 import static lu.itrust.TS.controller.TS_02_InstallApplication.*;
 import static lu.itrust.TS.helper.TestSharingData.*;
@@ -79,7 +96,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(mvcResult, "Request should have result");
 		assertFalse((String) mvcResult.getFlashMap().get("error"), mvcResult.getFlashMap().containsKey("error"));
 		Worker worker = null;
-		
+
 		for (int i = 0; i < 30; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
@@ -181,7 +198,73 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
 	@Transactional(readOnly = true)
-	public void test_04_CheckActionPlan() {
+	public void test_04_CheckActionPlan() throws Exception {
+		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
+		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
+		List<Object[]> data = new ArrayList<Object[]>(7);
+		data.add(new Object[] { "27002", "5.1.1", "Policies for information security", "Define sectorial policies.", 5426.5d, 573.5d, 3600d, -3026.5d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom", "1.1.1", "Custom security measure", " 	Custom security measure To do text", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom Asset", "1.1", "Subdomain name", "Subdomain name  custom asset todo", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom Asset", "1.2", "Subdomaine name 2", "Subdomain name 2  custom asset todo", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "Custom non-computable", "1.1.1", "Non-comp domain name", "Non-comp domain name todo", 5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+		data.add(new Object[] { "27001", "5.1.2", "Establishment of security policy & objectives", "", 5426.5d, 0d, 21000d, -21000d, 10d, 1d, 0d, 3 });
+		data.add(new Object[] { "27002", "6.1.1", "Information security roles and responsibilities", "Define roles and responsibilities.", 5110.76d, 315.74d, 200d, 115.74d, 1d,
+				0d, 0d, 4 });
+		List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlans();
+		notEmpty(actionPlanEntries, "Action plan should not be empty");
+		Language language = analysis.getLanguage();
+		for (int i = 0; i < actionPlanEntries.size(); i++)
+			validate(actionPlanEntries.get(i), data.get(i), language);
+	}
+
+	private void validate(ActionPlanEntry actionPlanEntry, Object[] objects, Language language) {
+		System.out.println();
+		for (Object object : objects)
+			System.out.print(object + " ");
+		System.out.println();
+		Measure measure = actionPlanEntry.getMeasure();
+		notNull(measure, "Action plan measure should not be null");
+		MeasureDescription measureDescription = measure.getMeasureDescription();
+		notNull(measureDescription, "Action plan measure description should not be null");
+		assertEquals("Bad action plan standard", objects[0], measureDescription.getStandard().getLabel());
+		assertEquals("Bad action plan reference", objects[1], measureDescription.getReference());
+		MeasureDescriptionText measureDescriptionText = measureDescription.getMeasureDescriptionText(language);
+		notNull(measureDescriptionText, "Action plan measure description text should not be null");
+		assertEquals("Bad action plan measure domain", objects[2], measureDescriptionText.getDomain());
+		assertEquals("Bad action plan measure todo", objects[3], measure.getToDo());
+		assertEquals("Bad action plan ALE", (double) objects[4], actionPlanEntry.getTotalALE(), 1E-2);
+		assertEquals("Bad action plan delta ALE", (double) objects[5], actionPlanEntry.getDeltaALE(), 1E-2);
+		assertEquals("Bad action plan measure cost", (double) objects[6], measure.getCost(), 1E-2);
+		assertEquals("Bad action plan ROI", (double) objects[7], actionPlanEntry.getROI(), 1E-2);
+		assertEquals("Bad action plan measure external workload", (double) objects[8], measure.getInternalWL(), 1E-2);
+		assertEquals("Bad action plan measure internal workload", (double) objects[9], measure.getExternalWL(), 1E-2);
+		assertEquals("Bad action plan measure investment", (double) objects[10], measure.getInvestment(), 1E-2);
+		assertEquals("Bad action plan measure phase", (int) objects[11], measure.getPhase().getNumber());
+	}
+
+	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
+	@Transactional(readOnly = true)
+	public void test_04_CheckActionPlanSummary() throws Exception {
+		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
+		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
+		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
+		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildRawData(summaryStages, analysis.getPhases());
+		Map<String, Object[]> exceptedResults = new LinkedHashMap<String, Object[]>();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+		exceptedResults.put("Start(P0)", new Object[] { null, null, 0, 96, 0, 50, 0, 2, 0, 8, 6000d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d });
+
+		exceptedResults.put("Phase 1", new Object[] { dateFormat.parse("2015-07-13"), dateFormat.parse("2016-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
+				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
+		exceptedResults.put("Phase 2", new Object[] { dateFormat.parse("2016-07-13"), dateFormat.parse("2017-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
+				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
+		exceptedResults.put("Phase 3", new Object[] { dateFormat.parse("2017-07-13"), dateFormat.parse("2018-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
+				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
+		exceptedResults.put("Phase 4", new Object[] { dateFormat.parse("2018-07-13"), dateFormat.parse("2019-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
+				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
+
+		for (String key : summaries.keySet()) {
+
+		}
 
 	}
 
@@ -198,6 +281,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		data.add(new Object[] { "A_all - Complete loss, including backup", "Servers", 0.1, 10000d, 1000d, 0.1, 10000d, 1000d, 0.073, 9836.8, 719.58 });
 		data.add(new Object[] { "A_1 - Partial loss or temporary", "Servers", 1d, 1000d, 1000d, 1d, 1000d, 1000d, 0.756, 951.84, 719.58 });
 		List<RiskRegisterItem> registerItems = analysis.getRiskRegisters();
+		notEmpty(registerItems, "Risk register should be empty");
 		for (int i = 0; i < registerItems.size(); i++)
 			validate(registerItems.get(i), data.get(i));
 	}
