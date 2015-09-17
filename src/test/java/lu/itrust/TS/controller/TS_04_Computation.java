@@ -70,7 +70,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		Worker worker = null;
 		for (String workerId : tasks) {
 			Worker worker2 = workersPoolManager.get(workerId);
-			if (worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, ANALYSIS_ID)) {
+			if (worker2!=null && worker2.isMatch("class+analysis.id", WorkerComputeActionPlan.class, ANALYSIS_ID)) {
 				worker = worker2;
 				break;
 			}
@@ -94,7 +94,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		Worker worker = null;
 		for (String workerId : tasks) {
 			Worker worker2 = workersPoolManager.get(workerId);
-			if (worker2.isMatch("class+analysis.id", WorkerComputeRiskRegister.class, ANALYSIS_ID)) {
+			if (worker2!=null && worker2.isMatch("class+analysis.id", WorkerComputeRiskRegister.class, ANALYSIS_ID)) {
 				worker = worker2;
 				break;
 			}
