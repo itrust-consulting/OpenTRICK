@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
 
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -301,7 +300,6 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
 	@Override
 	public String findUsernameById(String id) {
-		Optional<String> optional = userTasks.entrySet().stream().filter(entry -> entry.getValue().contains(id)).map(entry -> entry.getKey()).findAny();
-		return optional.isPresent() ? optional.get() : null;
+		return userTasks.entrySet().stream().filter(entry -> entry.getValue().contains(id)).map(entry -> entry.getKey()).findAny().orElse(null);
 	}
 }

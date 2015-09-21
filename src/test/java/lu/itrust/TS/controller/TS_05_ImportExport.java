@@ -3,7 +3,9 @@
  */
 package lu.itrust.TS.controller;
 
-import static lu.itrust.TS.controller.TS_02_InstallApplication.ME_CUSTOMER;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static lu.itrust.TS.controller.TS_02_InstallApplication.*;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.put;
 import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE;
@@ -24,19 +26,9 @@ import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSu
 import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT;
 import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT;
 import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.util.Assert.isNull;
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notEmpty;
-import static org.springframework.util.Assert.notNull;
+import static org.junit.Assert.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.util.Assert.*;
 
 import java.sql.Date;
 import java.text.ParseException;
@@ -50,10 +42,13 @@ import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
@@ -69,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,7 +90,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 	@Value("${app.settings.test.validation.action.plan.analysis.version}")
 	private String version;
-	
+
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Autowired
@@ -276,10 +272,10 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildRawData(summaryStages, analysis.getPhases());
 		Map<String, Object[]> exceptedResults = new LinkedHashMap<String, Object[]>();
 
-		exceptedResults.put(LABEL_PHASE_BEGIN_DATE,
-				new Object[] { null, parseSQLDate("2015-07-13"), parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13") });
-		exceptedResults.put(LABEL_PHASE_END_DATE,
-				new Object[] { null, parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13"), parseSQLDate("2019-07-13") });
+		exceptedResults.put(LABEL_PHASE_BEGIN_DATE, new Object[] { null, parseSQLDate("2015-07-13"), parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"),
+				parseSQLDate("2018-07-13") });
+		exceptedResults.put(LABEL_PHASE_END_DATE, new Object[] { null, parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13"),
+				parseSQLDate("2019-07-13") });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom Asset", new Object[] { 0, 100, 100, 100, 100 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "27001", new Object[] { 96, 96, 96, 100, 100 });
 		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "27002", new Object[] { 0, 50, 50, 50, 100 });
@@ -361,5 +357,119 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		assertEquals("Bad expected impact", (double) objects[9], riskRegisterItem.getExpectedEvaluation().getImpact(), 1E-2);
 		assertEquals("Bad expected importance", (double) objects[10], riskRegisterItem.getExpectedEvaluation().getImportance(), 1E-2);
 
+	}
+
+	@Test(dependsOnMethods = { "test_02_ComputeActionPlan", "test_03_ComputeRiskRegister" })
+	public synchronized void test_04_ExportSQLite() throws Exception {
+		Integer idAnalysis = getInteger(ANALYSIS_KEY);
+		notNull(idAnalysis, "Analysis cannot be found");
+		this.mockMvc.perform(get("/Analysis/Export/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		Worker worker = null;
+		for (int i = 0; i < 30; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerExportAnalysis.class, idAnalysis)) {
+					worker = worker2;
+					break;
+				}
+			}
+			if (worker == null)
+				wait(1000);
+			else
+				break;
+		}
+		notNull(worker, "Export analysis worker cannot be found");
+		while (worker.isWorking())
+			wait(100);
+
+		isNull(worker.getError(), "An error occured while export analysis");
+
+		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
+
+		notNull(messageHandler, "Last message cannot be found");
+
+		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
+
+		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+
+		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
+
+		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
+
+		put("key_sql_export", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+	}
+
+	@Test(dependsOnMethods = "test_04_ExportSQLite")
+	public void test_05_DownloadSQLite() throws Exception {
+		MvcResult result = this.mockMvc
+				.perform(
+						get(String.format("/Profile/Sqlite/%d/Download", getInteger("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
+		notNull(result, "No result");
+		MockHttpServletResponse response = result.getResponse();
+		assertEquals("Bad length", 486400, response.getContentLength());
+		assertEquals("Bad content-disposition", "attachment; filename=\"ENG_2015_07_13_07_31_14.sqlite\"", response.getHeaderValue("Content-Disposition"));
+		assertEquals("Bad contentType", "sqlite", response.getContentType());
+	}
+
+	@Test(dependsOnMethods = { "test_02_ComputeActionPlan", "test_03_ComputeRiskRegister" })
+	public synchronized void test_06_ExportReport() throws Exception {
+		Integer idAnalysis = getInteger(ANALYSIS_KEY);
+		notNull(idAnalysis, "Analysis cannot be found");
+		this.mockMvc.perform(get("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		Worker worker = null;
+		for (int i = 0; i < 30; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 != null && worker2.isMatch("class+analysis.id", WorkerExportWordReport.class, idAnalysis)) {
+					worker = worker2;
+					break;
+				}
+			}
+			if (worker == null)
+				wait(1000);
+			else
+				break;
+		}
+		notNull(worker, "Export word report worker cannot be found");
+		while (worker.isWorking())
+			wait(100);
+
+		isNull(worker.getError(), "An error occured while export word report");
+
+		MessageHandler messageHandler = serviceTaskFeedback.recieveLast(worker.getId());
+
+		notNull(messageHandler, "Last message cannot be found");
+
+		this.mockMvc.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallback.args[0]").exists());
+
+		assertFalse("Task should be not existed", serviceTaskFeedback.hasTask(USERNAME, worker.getId()));
+
+		notNull(messageHandler.getAsyncCallback(), "AsyncCallback should not be null");
+
+		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
+
+		put("key_sql_export_word", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+	}
+
+	@Test(dependsOnMethods = "test_06_ExportReport")
+	public void test_07_DownloadReport() throws Exception {
+		MvcResult result = this.mockMvc
+				.perform(
+						get(String.format("/Profile/Report/%d/Download", getInteger("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
+		notNull(result, "No result");
+		MockHttpServletResponse response = result.getResponse();
+		assertEquals("Bad length", 1457983, response.getContentLength());
+		assertEquals("Bad content-disposition", "attachment; filename=\"STA_TS Validation Analysis_V0.2.docm\"", response.getHeaderValue("Content-Disposition"));
+		assertEquals("Bad contentType", "docm", response.getContentType());
 	}
 }

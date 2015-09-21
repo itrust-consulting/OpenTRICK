@@ -1,5 +1,13 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
+import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
+import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
+import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAGE;
+import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_READ_ONLY;
+import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
@@ -27,7 +35,6 @@ import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceActionPlanType;
@@ -114,7 +121,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @version
  * @since Oct 22, 2013
  */
-@PreAuthorize(Constant.ROLE_MIN_USER)
+@PreAuthorize(ROLE_MIN_USER)
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
@@ -249,8 +256,8 @@ public class ControllerAnalysis {
 	@RequestMapping
 	public String home(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 		// retrieve analysisId if an analysis was already selected
-		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		Boolean isReadOnly = (Boolean) session.getAttribute(SELECTED_ANALYSIS_READ_ONLY);
 		// check if an analysis is selected
 		if (selected != null)
 			return isReadOnly == null || !isReadOnly ? String.format("redirect:/Analysis/%d/Select", selected) : String.format("redirect:/Analysis/%d/Select?readOnly=true",
@@ -282,8 +289,8 @@ public class ControllerAnalysis {
 	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId,
 			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
 		// select the analysis
-		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
@@ -295,7 +302,7 @@ public class ControllerAnalysis {
 			// initialise analysis
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 			Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-			Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
+			Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
 			model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
 			model.addAttribute("login", user.getLogin());
 			model.addAttribute("analysis", analysis);
@@ -306,7 +313,7 @@ public class ControllerAnalysis {
 			model.addAttribute("show_cssf", analysis.isCssf());
 			model.addAttribute("isReadOnly", readOnly);
 			model.addAttribute("language", analysis.getLanguage().getAlpha2());
-			session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
+			session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
 			/**
 			 * Log
 			 */
@@ -415,7 +422,7 @@ public class ControllerAnalysis {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/DisplayByCustomer/{idCustomer}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/DisplayByCustomer/{idCustomer}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(@PathVariable("idCustomer") Integer idCustomer, @RequestBody String name, HttpSession session, Principal principal, Model model) throws Exception {
 		if (StringUtils.isEmpty(name))
 			name = "ALL";
@@ -453,10 +460,10 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Integer idAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
@@ -491,16 +498,16 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
 			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
 		// select the analysis
 		Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
-		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, language == null ? locale.getISO3Country() : language.getAlpha2());
-		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
-		return session.getAttribute(Constant.SELECTED_ANALYSIS) == analysisId;
+		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, language == null ? locale.getISO3Country() : language.getAlpha2());
+		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
 
 	/**
@@ -519,10 +526,10 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
-		session.removeAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		session.removeAttribute(SELECTED_ANALYSIS_READ_ONLY);
+		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (integer != null) {
-			session.removeAttribute(Constant.SELECTED_ANALYSIS);
+			session.removeAttribute(SELECTED_ANALYSIS);
 			if (serviceAnalysis.isProfile(integer))
 				return "redirect:/KnowledgeBase";
 			else
@@ -591,7 +598,7 @@ public class ControllerAnalysis {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
@@ -627,7 +634,7 @@ public class ControllerAnalysis {
 	// *****************************************************************
 
 	@RequestMapping("/SetDefaultProfile/{analysisId}")
-	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
+	@PreAuthorize(ROLE_MIN_CONSULTANT)
 	public @ResponseBody boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
@@ -667,7 +674,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
 			throws Exception {
@@ -680,10 +687,10 @@ public class ControllerAnalysis {
 
 			customDelete.deleteAnalysis(analysisId, principal.getName());
 
-			Integer selectedAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
-				session.removeAttribute(Constant.SELECTED_ANALYSIS);
+				session.removeAttribute(SELECTED_ANALYSIS);
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
@@ -708,7 +715,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
 
@@ -739,7 +746,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
+	@RequestMapping(value = "/Duplicate/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale)
 			throws Exception {
@@ -939,7 +946,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		// create worker
@@ -968,7 +975,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/Report/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/Report/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody String exportReport(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
@@ -996,7 +1003,7 @@ public class ControllerAnalysis {
 		}
 	}
 
-	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletResponse response) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);

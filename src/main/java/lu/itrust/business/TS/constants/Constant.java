@@ -759,4 +759,6 @@ public class Constant {
 
 	public static final String REGEX_SPLIT_REFERENCE = "\\.|\\s|;|-|,";
 	
+	public static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
+	
 }

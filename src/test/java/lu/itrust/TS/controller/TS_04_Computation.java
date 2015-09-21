@@ -117,21 +117,21 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		isNull(worker.getError(), "An error occured while compute risk register");
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_00_ActionPlan")
 	@Transactional(readOnly = true)
 	public void test_02_CheckActionPLan() throws Exception {
 		List<ActionPlanEntry> actionPlans = serviceActionPlan.getAllFromAnalysis(ANALYSIS_ID);
 		notEmpty(actionPlans, "Action plan is empty");
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_01_RiskRegister")
 	@Transactional(readOnly = true)
 	public void test_03_CheckRiskRegister() throws Exception {
 		List<RiskRegisterItem> riskRegisterItems = serviceRiskRegister.getAllFromAnalysis(ANALYSIS_ID);
 		notEmpty(riskRegisterItems, "Risk register is empty");
 	}
 
-	@Test
+	@Test(dependsOnMethods="test_02_CheckActionPLan")
 	@Transactional(readOnly = true)
 	public void test_04_CheckActionPlanSummary() throws Exception {
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysis(ANALYSIS_ID);

@@ -147,7 +147,7 @@ public class WorkerComputeRiskRegister implements Worker {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!", lang, 100);
 				if (reloadSection)
-					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_riskregister\")", null));
+					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_riskregister"));
 				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Risk Register Complete!");
 			} else

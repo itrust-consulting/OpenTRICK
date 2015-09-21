@@ -241,7 +241,7 @@ public class WorkerAnalysisImport implements Worker {
 		if (getMessageHandler() == null)
 			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", null, 100));
 		if (getAsyncCallback() == null)
-			setAsyncCallback(new AsyncCallback("window.location.assign(context+\"/Analysis\")", null));
+			setAsyncCallback(new AsyncCallback("window.location.assign", "context+'/Analysis'"));
 		getMessageHandler().setAsyncCallback(getAsyncCallback());
 		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
 		Analysis analysis = importAnalysis.getAnalysis();

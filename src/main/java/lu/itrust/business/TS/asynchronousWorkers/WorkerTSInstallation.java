@@ -37,7 +37,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 
 	@Override
 	public void run() {
-		setAsyncCallback(new AsyncCallback("window.location.assign(context+\"/Admin\")", null));
+		setAsyncCallback(new AsyncCallback("window.location.assign", "context+'/Admin'"));
 		setMessageHandler(new MessageHandler("success.ts.install", "Installation successfull", null, 99));
 		super.run();
 	}

@@ -116,7 +116,7 @@ public class WorkerImportStandard implements Worker {
 			transaction.commit();
 
 			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", null, 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_standard\")", null));
+			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_standard"));
 			serviceTaskFeedback.send(id, messageHandler);
 			String username = serviceTaskFeedback.findUsernameById(this.getId());
 			/**

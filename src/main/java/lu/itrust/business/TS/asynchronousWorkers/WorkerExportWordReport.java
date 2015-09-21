@@ -138,9 +138,8 @@ public class WorkerExportWordReport implements Worker {
 			new DAOWordReportHBM(session).saveOrUpdate(report);
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", null, 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport(\"" + report.getId() + "\")", null));
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport", report.getId()));
 			exportAnalysisReport.getServiceTaskFeedback().send(id, messageHandler);
-			String username = exportAnalysisReport.getServiceTaskFeedback().findUsernameById(this.getId());
 			/**
 			 * Log
 			 */
