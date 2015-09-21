@@ -3,11 +3,45 @@
  */
 package lu.itrust.TS.controller;
 
+import static lu.itrust.TS.controller.TS_02_InstallApplication.ME_CUSTOMER;
+import static lu.itrust.TS.helper.TestSharingData.getInteger;
+import static lu.itrust.TS.helper.TestSharingData.put;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_PHASE_BEGIN_DATE;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_PHASE_END_DATE;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT;
+import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.util.Assert.isNull;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notEmpty;
+import static org.springframework.util.Assert.notNull;
+
+import java.sql.Date;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +56,6 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -40,16 +73,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
-
-import static lu.itrust.TS.controller.TS_02_InstallApplication.*;
-import static lu.itrust.TS.helper.TestSharingData.*;
-import static org.junit.Assert.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.util.Assert.*;
 
 /**
  * @author eomar
@@ -71,6 +94,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 	@Value("${app.settings.test.validation.action.plan.analysis.version}")
 	private String version;
+	
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -250,22 +275,55 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
 		Map<String, List<Object>> summaries = ActionPlanSummaryManager.buildRawData(summaryStages, analysis.getPhases());
 		Map<String, Object[]> exceptedResults = new LinkedHashMap<String, Object[]>();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-		exceptedResults.put("Start(P0)", new Object[] { null, null, 0, 96, 0, 50, 0, 2, 0, 8, 6000d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d });
 
-		exceptedResults.put("Phase 1", new Object[] { dateFormat.parse("2015-07-13"), dateFormat.parse("2016-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
-				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
-		exceptedResults.put("Phase 2", new Object[] { dateFormat.parse("2016-07-13"), dateFormat.parse("2017-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
-				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
-		exceptedResults.put("Phase 3", new Object[] { dateFormat.parse("2017-07-13"), dateFormat.parse("2018-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
-				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
-		exceptedResults.put("Phase 4", new Object[] { dateFormat.parse("2018-07-13"), dateFormat.parse("2019-07-13"), 100, 96, 50, 100, 100, 2, 5, 13, 5426.5, 573.5, 18000,
-				-17426.5, -0.968, 5d, 5d, 5000d, 15000d, 1d, 1d, 2004.11d, 4008.21d, 190008.21d });
-
-		for (String key : summaries.keySet()) {
-
+		exceptedResults.put(LABEL_PHASE_BEGIN_DATE,
+				new Object[] { null, parseSQLDate("2015-07-13"), parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13") });
+		exceptedResults.put(LABEL_PHASE_END_DATE,
+				new Object[] { null, parseSQLDate("2016-07-13"), parseSQLDate("2017-07-13"), parseSQLDate("2018-07-13"), parseSQLDate("2019-07-13") });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom Asset", new Object[] { 0, 100, 100, 100, 100 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "27001", new Object[] { 96, 96, 96, 100, 100 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "27002", new Object[] { 0, 50, 50, 50, 100 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom", new Object[] { 50, 100, 100, 100, 100 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Custom non-computable", new Object[] { 0, 100, 100, 100, 100 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COMPLIANCE + "Maturity", new Object[] { 1, 1, 1, 1, 1 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE, new Object[] { 0, 5, 0, 1, 1 });
+		exceptedResults.put(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED, new Object[] { 8, 13, 13, 14, 15 });
+		exceptedResults.put(LABEL_PROFITABILITY_ALE_UNTIL_END, new Object[] { 6000.0, 5426.5, 5426.5, 5426.5, 5110.7615 });
+		exceptedResults.put(LABEL_PROFITABILITY_RISK_REDUCTION, new Object[] { 0.0, 573.5, 0.0, 0.0, 315.73850000000004 });
+		exceptedResults.put(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, new Object[] { 0.0, 18000.0, 0.0, 21000.0, 200.0 });
+		exceptedResults.put(LABEL_PROFITABILITY_ROSI, new Object[] { 0.0, -17426.5, 0.0, -21000.0, 115.73850000000004 });
+		exceptedResults.put(LABEL_PROFITABILITY_ROSI_RELATIF, new Object[] { 0.0, -0.9681388888888889, 0.0, -1.0, 0.5786925000000003 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, new Object[] { 0.0, 5.0, 0.0, 10.0, 1.0 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, new Object[] { 0.0, 5.0, 0.0, 1.0, 0.0 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_INVESTMENT, new Object[] { 0.0, 5000.0, 0.0, 0.0, 0.0 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST, new Object[] { 0.0, 15000.0, 0.0, 11000.0, 1000.0 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, new Object[] { 0.0, 1.002053388090349, 5.9958932238193015, 5.9958932238193015, 15.989048596851472 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, new Object[] { 0.0, 1.002053388090349, 5.9958932238193015, 5.9958932238193015, 5.9958932238193015 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT, new Object[] { 0.0, 2004.106776180698, 6995.208761122519, 6995.208761122519, 6995.208761122519 });
+		exceptedResults.put(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, new Object[] { 0.0, 19008.213552361398, 18986.99520876112, 29986.99520876112, 29980.15058179329 });
+		for (String key : exceptedResults.keySet()) {
+			Object[] expectedData = exceptedResults.get(key);
+			Object data = expectedData[expectedData.length - 1];
+			if (data instanceof Double)
+				validateDoubles(expectedData, summaries.get(key));
+			else
+				validate(expectedData, summaries.get(key));
 		}
 
+	}
+
+	private Date parseSQLDate(String date) throws ParseException {
+		return new Date(DATE_FORMAT.parse(date).getTime());
+	}
+
+	private void validate(Object[] expectedData, List<Object> actualData) {
+		for (int i = 0; i < expectedData.length; i++)
+			assertEquals(expectedData[i], actualData.get(i));
+	}
+
+	private void validateDoubles(Object[] expectedData, List<Object> actualData) {
+		for (int i = 0; i < expectedData.length; i++)
+			assertEquals((double) expectedData[i], (double) actualData.get(i), 1E-2);
 	}
 
 	@Test(dependsOnMethods = "test_03_ComputeRiskRegister")
