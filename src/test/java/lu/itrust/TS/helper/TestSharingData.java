@@ -59,7 +59,7 @@ public class TestSharingData {
 	 * @return
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
-	public static Object get(Object key) {
+	protected static Object get(Object key) {
 		return sharingData.get(key);
 	}
 
@@ -74,7 +74,7 @@ public class TestSharingData {
 	public static String getString(Object key) {
 		return get(key, String.class);
 	}
-	
+
 	public static Integer getInteger(Object key) {
 		return get(key, Integer.class);
 	}
@@ -86,9 +86,18 @@ public class TestSharingData {
 	public static Long getLong(Object key) {
 		return get(key, Long.class);
 	}
-	
+
 	public static Boolean getBoolean(Object key) {
 		return get(key, Boolean.class);
+	}
+
+	public static Object getObject(Object key) {
+		return get(key);
+	}
+
+	public static String getStringValue(Object key) {
+		Object object = get(key);
+		return object == null ? null : String.valueOf(object);
 	}
 
 	/**

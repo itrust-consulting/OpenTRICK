@@ -209,18 +209,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
-
-			if (analysisId == null || analysisId <= 0)
-				throw new InvalidParameterException("Invalid analysis id!");
-			else if (!serviceAnalysis.exists(analysisId))
-				throw new NotFoundException("Analysis does not exist!");
-
-			if (principal == null)
+			if (analysisId == null || principal == null || right == null || !(analysisId > 0 || serviceAnalysis.exists(analysisId)))
 				return false;
-
-			if (right == null)
-				throw new InvalidParameterException("AnalysisRight cannot be null!");
-
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -261,17 +251,17 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean userIsAuthorized(HttpSession session,Integer elementId, String className, Principal principal, AnalysisRight right) {
+	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal, AnalysisRight right) {
 		Integer analysisId = isAuthorised(session, principal, right);
-		return analysisId!=null && userIsAuthorized(analysisId,elementId, className, principal, right);
+		return analysisId != null && userIsAuthorized(analysisId, elementId, className, principal, right);
 	}
 
 	@Override
 	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
 		Integer analysisId = isAuthorised(session, principal, right);
-		return analysisId!=null && userIsAuthorized(analysisId, principal, right);
+		return analysisId != null && userIsAuthorized(analysisId, principal, right);
 	}
-	
+
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);

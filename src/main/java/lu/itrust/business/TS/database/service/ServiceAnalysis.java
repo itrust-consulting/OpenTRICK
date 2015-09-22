@@ -139,4 +139,6 @@ public interface ServiceAnalysis {
 
 	public Analysis getByIdentifierAndVersion(String identifier, String version);
 
+	public Analysis getProfileByName(String string);
+
 }

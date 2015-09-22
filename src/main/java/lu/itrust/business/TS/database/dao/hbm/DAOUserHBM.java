@@ -168,7 +168,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@Override
 	public boolean hasRole(User user, Role role) throws Exception {
-		return user.hasRole(role.getType());
+		return !(user==null || role==null) && user.hasRole(role.getType());
 	}
 
 	/**

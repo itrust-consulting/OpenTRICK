@@ -18,20 +18,25 @@ function showMeasures(idStandard, languageId) {
 		type : "POST",
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
 
-			$("#section_measure_description #measures_header").html($(doc).find("#measures_header").html());
+			var content = new DOMParser().parseFromString(response, "text/html");
 
-			$("#section_measure_description #measures_body").html($(doc).find("#measures_body").html());
+			if (content.getElementById("measures_header") == null || content.getElementById("measures_body") == null)
+				unknowError();
+			else {
 
-			updateMenu(undefined, "#section_measure_description", "#menu_measure_description", undefined);
+				$("#section_measure_description #measures_header").replaceWith($("#measures_header", content));
 
-			$("#languageselect").change(function(e) {
-				showMeasures($("#section_measure_description #measures_header #idStandard").val(), $(e.target).val());
-			});
+				$("#section_measure_description #measures_body").replaceWith($("#measures_body", content));
 
-			$("#section_measure_description").modal("show");
+				updateMenu(undefined, "#section_measure_description", "#menu_measure_description", undefined);
+
+				$("#languageselect").change(function(e) {
+					showMeasures($("#section_measure_description #measures_header #idStandard").val(), $(e.target).val());
+				});
+
+				$("#section_measure_description").modal("show");
+			}
 
 		},
 		error : unknowError,
@@ -67,8 +72,8 @@ function newMeasure(idStandard) {
 		async : true,
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
-			var doc = new DOMParser().parseFromString(response, "text/html");
-			if ($(doc).find("#measurelanguageselect").length) {
+			var $content = $("#measurelanguageselect", new DOMParser().parseFromString(response, "text/html"));
+			if ($content.length) {
 				var language = $("#measures_body #languageselect").val();
 				$("#addMeasureModel #measurelanguages").html(response);
 				$("#addMeasureModel #measurelanguageselect").change(function() {
@@ -78,15 +83,13 @@ function newMeasure(idStandard) {
 				});
 				$("#addMeasureModel #measurelanguageselect option[value='" + language + "']").prop("selected", true);
 				$("#addMeasureModel #measurelanguageselect").change();
-
+				$("#addMeasureModel").modal("show");
 			} else
 				unknowError();
 			return false;
 		},
 		error : unknowError
 	});
-
-	$("#addMeasureModel").modal("show");
 
 	return false;
 }
@@ -133,14 +136,13 @@ function editSingleMeasure(measureId, idStandard) {
 				});
 				$("#addMeasureModel #measurelanguageselect option[value='" + language + "']").prop("selected", true);
 				$("#addMeasureModel #measurelanguageselect").change();
+				$("#addMeasureModel").modal("show");
 			} else
 				unknowError();
 			return false;
 		},
 		error : unknowError
 	});
-
-	$("#addMeasureModel").modal("show");
 
 	return false;
 }
@@ -275,8 +277,8 @@ function forceDeleteMeasure(measureId, reference, standard) {
 	var measure = $("#section_measure_description #measures_body tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 	reference = $(measure[1]).text();
 	var deleteModal = new Modal($("#deleteMeasureModel").clone());
-	deleteModal.setBody(MessageResolver("label.measure.question.force.delete", "Are you sure that you want to force deleting of the measure with the Reference: <strong>" + reference
-			+ "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ]));
+	deleteModal.setBody(MessageResolver("label.measure.question.force.delete", "Are you sure that you want to force deleting of the measure with the Reference: <strong>"
+			+ reference + "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ]));
 	$(deleteModal.modal_footer).find("#deletemeasurebuttonYes").click(function() {
 		$(this).attr("disabled", true);
 		$(this).unbind();
@@ -286,9 +288,9 @@ function forceDeleteMeasure(measureId, reference, standard) {
 			contentType : "application/json",
 			async : false,
 			success : function(response, textStatus, jqXHR) {
-				if (response.success!=undefined)
+				if (response.success != undefined)
 					showMeasures(idStandard, $("#measures_body #languageselect").val());
-				else if (response.error!=undefined) 
+				else if (response.error != undefined)
 					showDialog("#alert-dialog", response.error)
 				else
 					unknowError();

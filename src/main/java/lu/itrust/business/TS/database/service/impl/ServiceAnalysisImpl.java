@@ -619,4 +619,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public Analysis getByIdentifierAndVersion(String identifier, String version) {
 		return daoAnalysis.getByIdentifierAndVersion(identifier, version);
 	}
+
+	@Override
+	public Analysis getProfileByName(String name) {
+		return daoAnalysis.getProfileByName(name);
+	}
 }

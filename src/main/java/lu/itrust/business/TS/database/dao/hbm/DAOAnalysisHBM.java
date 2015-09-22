@@ -715,4 +715,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return (Analysis) getSession().createQuery("from Analysis where identifier = :identifier and version = :version").setParameter("identifier", identifier)
 				.setString("version", version).uniqueResult();
 	}
+
+	@Override
+	public Analysis getProfileByName(String name) {
+		return (Analysis) getSession().createQuery("from Analysis where label = :name and profile = true").setParameter("name", name).uniqueResult();
+	}
 }

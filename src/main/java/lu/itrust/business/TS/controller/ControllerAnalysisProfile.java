@@ -112,8 +112,8 @@ public class ControllerAnalysisProfile {
 
 			// retrieve analysis id to compute
 			int analysisId = jsonNode.get("id").asInt();
-
-			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)
+			
+			if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)
 				|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
 
 				String name = jsonNode.get("description").asText();
@@ -123,11 +123,8 @@ public class ControllerAnalysisProfile {
 				List<Integer> standards = new ArrayList<Integer>();
 
 				for (AnalysisStandard standard : analysisStandards) {
-
-					boolean addstandard = jsonNode.get("standard_" + standard.getStandard().getId()).asBoolean();
-					if (addstandard)
+					if (jsonNode.get("standard_" + standard.getStandard().getId()).asBoolean())
 						standards.add(standard.getStandard().getId());
-
 				}
 
 				if (StringUtils.isEmpty(name)) {
