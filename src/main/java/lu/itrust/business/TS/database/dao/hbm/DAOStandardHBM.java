@@ -263,4 +263,12 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 		return version == null? 1 : version;
 	}
 
+	@Override
+	public boolean isUsed(Standard standard) {
+		return (boolean) getSession()
+				.createQuery(
+						"select count(*)>0 from AnalysisStandard where standard = :standard")
+				.setParameter("standard", standard).uniqueResult();
+	}
+
 }

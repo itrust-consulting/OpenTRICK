@@ -148,7 +148,7 @@ public class ControllerLanguage {
 	 * Delete single language
 	 * 
 	 * */
-	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteLanguage(@PathVariable("languageId") Integer languageId, Principal principal, Locale locale) {
 		try {
 			Language language = serviceLanguage.get(languageId);
@@ -163,7 +163,8 @@ public class ControllerLanguage {
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.language.delete", String.format("Language: %s", language.getAlpha3()), principal.getName(),
 					LogAction.DELETE, language.getAlpha3());
 			return JsonMessage.Success(messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale));
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used.", locale));
 		}

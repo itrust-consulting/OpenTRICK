@@ -50,4 +50,6 @@ public interface ServiceStandard {
 	public void delete(Standard standard) throws Exception;
 
 	public boolean belongToAnalysis(Integer idStandard, int analysis);
+
+	public boolean isUsed(Standard tmpStandard);
 }

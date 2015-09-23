@@ -52,4 +52,6 @@ public interface DAOStandard {
 	public boolean belongToAnalysis(Integer idStandard, int idAnalysis);
 
 	public int getNextVersion(String label);
+
+	public boolean isUsed(Standard standard);
 }

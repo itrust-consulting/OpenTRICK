@@ -51,6 +51,8 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 
 	@Autowired
 	protected FilterChainProxy springSecurityFilterChain;
+	
+
 
 	/**
 	 * Services

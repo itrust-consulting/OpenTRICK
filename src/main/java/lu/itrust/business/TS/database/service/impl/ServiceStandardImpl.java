@@ -218,4 +218,9 @@ public class ServiceStandardImpl implements ServiceStandard {
 		return daoStandard.belongToAnalysis(idStandard,idAnalysis );
 	}
 
+	@Override
+	public boolean isUsed(Standard standard) {
+		return daoStandard.isUsed(standard);
+	}
+
 }

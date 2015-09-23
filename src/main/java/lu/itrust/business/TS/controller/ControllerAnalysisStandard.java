@@ -725,13 +725,16 @@ public class ControllerAnalysisStandard {
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
 				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 				implementationRate = new Double(0);
-			}
+			} else
+				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 			if (phase == null) {
 				phase = new Phase(Constant.PHASE_DEFAULT);
 				phase.setAnalysis(analysis);
 				analysis.addPhase(phase);
 			}
+			
 			analysisStandard.setStandard(standard);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
 			measure.setImplementationRate(implementationRate);
@@ -1174,7 +1177,7 @@ public class ControllerAnalysisStandard {
 				Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, assetValueForm.getId());
 				if (asset == null)
 					throw new TrickException("error.asset.not_found", "Asset does not found");
-				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByMeasureIdAndAssetId(measure.getId(),asset.getId());
+				MeasureAssetValue assetValue = serviceMeasureAssetValue.getByMeasureIdAndAssetId(measure.getId(), asset.getId());
 				if (assetValue == null)
 					assetValue = new MeasureAssetValue(asset, assetValueForm.getValue());
 				else

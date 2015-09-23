@@ -234,12 +234,18 @@ public class ControllerKnowledgeBaseStandard {
 				if (tmpStandard == null)
 					errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
 				else if (!tmpStandard.isAnalysisOnly()) {
-					serviceStandard.saveOrUpdate(tmpStandard.update(standard));
-					/**
-					 * Log
-					 */
-					TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.update", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
-							principal.getName(), LogAction.UPDATE, standard.getLabel(), String.valueOf(standard.getVersion()));
+
+					if (!tmpStandard.getType().equals(standard.getType())  && serviceStandard.isUsed(tmpStandard))
+						errors.put("type", messageSource.getMessage("error.norm.type.update", null,
+								"Standard is in use, type cannot be updated!", locale));
+					else {
+						serviceStandard.saveOrUpdate(tmpStandard.update(standard));
+						/**
+						 * Log
+						 */
+						TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.update", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
+								principal.getName(), LogAction.UPDATE, standard.getLabel(), String.valueOf(standard.getVersion()));
+					}
 				} else
 					errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
 							"This standard can only be managed within the selected analysis where this standard belongs!", locale));
@@ -579,9 +585,7 @@ public class ControllerKnowledgeBaseStandard {
 
 		int length = standardFile.size();
 
-		String identifierName = "";
-
-		identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion() + "_V1.1";
+		String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion() + "_V1.1";
 
 		// return standardFile to user
 
@@ -838,7 +842,7 @@ public class ControllerKnowledgeBaseStandard {
 				errors.put("measureDescription.norm",
 						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
-			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale)) {
+			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, jsonNode, locale)) {
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
 				measureManager.createNewMeasureForAllAnalyses(measureDescription);
 			}
@@ -922,14 +926,11 @@ public class ControllerKnowledgeBaseStandard {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildMeasureDescription(Map<String, String> errors, MeasureDescription measuredescription, String source, Locale locale) {
+	private boolean buildMeasureDescription(Map<String, String> errors, MeasureDescription measuredescription, JsonNode jsonNode, Locale locale) {
 		try {
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
 
 			String reference = jsonNode.get("reference").asText();
-			
+
 			Integer level = null;
 			Boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
 			try {
