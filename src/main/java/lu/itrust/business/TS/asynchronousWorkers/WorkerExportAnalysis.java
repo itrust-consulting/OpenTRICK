@@ -161,8 +161,10 @@ public class WorkerExportAnalysis implements Worker {
 				}
 			}
 
-			if (sqlite != null && sqlite.exists())
-				sqlite.delete();
+			if (sqlite != null && sqlite.exists()) {
+				if (!sqlite.delete())
+					sqlite.deleteOnExit();
+			}
 
 		}
 
@@ -255,7 +257,7 @@ public class WorkerExportAnalysis implements Worker {
 		// ****************************************************************
 		// * Initialise variables
 		// ****************************************************************
-		String filename;
+
 		InputStream inp = null;
 		InputStreamReader isr = null;
 		BufferedReader reader = null;
@@ -263,9 +265,8 @@ public class WorkerExportAnalysis implements Worker {
 
 		try {
 			// build path to structure from context
-			filename = context.getRealPath("/WEB-INF/data/sqlitestructure.sql");
 
-			File file = new File(filename);
+			File file = new File(context.getRealPath("/WEB-INF/data/sqlitestructure.sql"));
 
 			// retrieve file from context
 			// inp = context.getResourceAsStream(filename);

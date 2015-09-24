@@ -154,7 +154,7 @@ public class ControllerLanguage {
 			Language language = serviceLanguage.get(languageId);
 			if (language == null)
 				return JsonMessage.Error(messageSource.getMessage("error.language.not_exist", null, "Language does not exist", locale));
-			if (serviceLanguage.isInUse(language))
+			if (serviceLanguage.isUsed(language))
 				return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used", locale));
 			serviceLanguage.delete(language);
 			/**

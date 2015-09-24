@@ -145,8 +145,10 @@ public class WorkerImportStandard implements Worker {
 					}
 				}
 			}
-			if (importFile != null && importFile.exists())
-				importFile.delete();
+			if (importFile != null && importFile.exists()) {
+				if (!importFile.delete())
+					importFile.deleteOnExit();
+			}
 
 		}
 
@@ -480,8 +482,10 @@ public class WorkerImportStandard implements Worker {
 					}
 				}
 			}
-			if (importFile != null && importFile.exists())
-				importFile.delete();
+			if (importFile != null && importFile.exists()) {
+				if (!importFile.delete())
+					importFile.deleteOnExit();
+			}
 
 		}
 	}

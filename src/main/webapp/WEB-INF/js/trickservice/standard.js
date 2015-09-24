@@ -220,11 +220,7 @@ function editSingleStandard(idStandard) {
 function getImportStandardTemplate() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
-	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V1.1.xlsx').done(function() {
-		alert('File download a success!');
-	}).fail(function() {
-		unknowError();
-	});
+	$.fileDownload(context + '/KnowledgeBase/Standard/Template').fail(unknowError);
 	return false;
 }
 
@@ -235,10 +231,7 @@ function exportSingleStandard(idStandard) {
 			return false;
 		idStandard = selectedScenario[0];
 	}
-
-	$.fileDownload(context + '/KnowledgeBase/Standard/Export/' + idStandard).fail(function() {
-		unknowError();
-	});
+	$.fileDownload(context + '/KnowledgeBase/Standard/Export/' + idStandard).fail(unknowError);
 	return false;
 
 }

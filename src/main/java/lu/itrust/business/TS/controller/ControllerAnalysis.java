@@ -914,6 +914,7 @@ public class ControllerAnalysis {
 
 		// transfer form file to java file
 		file.transferTo(importFile);
+		
 
 		// create worker
 		Worker worker = new WorkerAnalysisImport(sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());

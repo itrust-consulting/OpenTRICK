@@ -5,6 +5,7 @@ package lu.itrust.TS.controller;
 
 import static lu.itrust.TS.controller.TS_03_CreateAnAnlysis.ANALYSIS_ID;
 import static lu.itrust.TS.controller.TS_03_CreateAnAnlysis.SIMPLE_ANALYSIS_VERSION;
+import static lu.itrust.TS.helper.TestMethod.redirectedUrlMatch;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.getString;
 import static lu.itrust.TS.helper.TestSharingData.getStringValue;
@@ -14,9 +15,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -24,26 +25,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notEmpty;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.List;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.standard.Standard;
 
+import org.apache.commons.io.FilenameUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -56,6 +67,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Test(groups = "KnowledgeBase", dependsOnGroups = "Installation")
 public class TS_06_KnowledgeBase extends SpringTestConfiguration {
+
+	private static final String STANDARD_FOR_TEST = "Standard for test";
 
 	private static final String TEST_STANDARD = "Test standard";
 
@@ -95,7 +108,19 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
 	private SessionFactory sessionFactory;
+
+	@Autowired
+	private ResourceLoader resourceLoader;
+
+	@Value("${app.settings.standard.template.path}")
+	private String template;
+
+	@Value("${app.settings.test.knownledge.base.standard.import}")
+	private String importStandard;
 
 	@Test
 	public void test_00_Show27001Standard() throws Exception {
@@ -212,6 +237,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		notNull(worker, "Worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
+		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
 		isNull(worker.getError(), "An unknown error occurred while create analysis profile");
 	}
 
@@ -224,7 +250,23 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		put(ANALYSIS_PROFILE_ID, analysis.getId());
 	}
 
-	@Test(dependsOnMethods = { "test_05_CheckUpdateCustomerAndLanguage", "test_03_LoadData" })
+	@Test(dependsOnMethods = "test_03_LoadData")
+	public void test_03_AddAssetToProfile() throws Exception {
+		this.mockMvc
+				.perform(
+						post("/Analysis/Asset/Save")
+								.with(csrf())
+								.with(httpBasic(USERNAME, PASSWORD))
+								.accept(APPLICATION_JSON_CHARSET_UTF_8)
+								.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_PROFILE_ID))
+								.content(
+										String.format(
+												"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
+												"Trick service", 1, "687,688", false, "comment", "hiddenComment"))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.asset").exists());
+	}
+
+	@Test(dependsOnMethods = { "test_05_CheckUpdateCustomerAndLanguage", "test_03_LoadData", "test_03_LoadData" })
 	public void test_04_CreateAnalysisUsedCustomerLanguageAndProfile() throws Exception {
 		Integer idProfile = getInteger(ANALYSIS_PROFILE_ID);
 		notNull(idProfile, "Profile analysis cannot be found");
@@ -349,20 +391,20 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 								.accept(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(
 										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "ASSET", 2016, "on"))).andExpect(status().isOk()).andDo(print())
+												getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "ASSET", 2016, "on"))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.type").exists());
-		
+
 		this.mockMvc
-		.perform(
-				post("/KnowledgeBase/Standard/Save")
-						.with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD))
-						.accept(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(
-								String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-										getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "MATURITY", 2016, "on"))).andExpect(status().isOk())
-		.andExpect(jsonPath("$.type").exists());
-		
+				.perform(
+						post("/KnowledgeBase/Standard/Save")
+								.with(csrf())
+								.with(httpBasic(USERNAME, PASSWORD))
+								.accept(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(
+										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+												getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "MATURITY", 2016, "on"))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.type").exists());
+
 		this.mockMvc
 				.perform(
 						post("/KnowledgeBase/Standard/Save")
@@ -372,7 +414,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 								.content(
 										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
 												getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "NORMAL", 2016, "on"))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.success").exists());
+				.andExpect(content().string("{}"));
 	}
 
 	@Test(dependsOnMethods = { "test_05_DeleteUsedCustomerAndLanguageAndProfile", "test_09_EditStandard" })
@@ -384,6 +426,14 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	}
 
 	@Test(dependsOnMethods = "test_10_DeleteAnalysisAndStandardUsedLanguageAndCustomer")
+	public void test_10_DeleteStandard() throws Exception {
+		Integer idAnalysis = getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE);
+		notNull(idAnalysis, "Analysis id cannot be found");
+		this.mockMvc.perform(get("/KnowledgeBase/Standard/Delete/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+	}
+
+	@Test(dependsOnMethods = "test_10_DeleteStandard")
 	public void test_11_DeleteCustomerAndLanguage() throws Exception {
 		Integer idLanguage = getInteger(LANGUAGE_DEU_ID);
 		Integer idCustomer = getInteger(CUSTOMER_MEME_ID);
@@ -397,17 +447,66 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	}
 
 	@Test
-	public void test_12_DownloadStandardTemplate() {
-		throw new IllegalArgumentException("Not implemented test");
+	public void test_12_DownloadStandardTemplate() throws Exception {
+		Resource templateResource = resourceLoader.getResource(template);
+		MvcResult result = this.mockMvc
+				.perform(get("/KnowledgeBase/Standard/Template").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andReturn();
+		assertEquals("attachment; filename=\"Template.xlsx\"", result.getResponse().getHeaderValue("Content-Disposition"));
+		assertEquals(templateResource.contentLength(), result.getResponse().getContentLengthLong());
+		assertEquals(FilenameUtils.getExtension(template), result.getResponse().getContentType());
 	}
 
-	@Test
-	public void test_13_ImportStandard() {
-		throw new IllegalArgumentException("Not implemented test");
+	@Test(dependsOnMethods = "test_11_DeleteCustomerAndLanguage")
+	public synchronized void test_13_ImportStandard() throws Exception {
+		Resource resource = resourceLoader.getResource(importStandard);
+		isTrue(resource.exists(), "Resource cannot be found");
+		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
+		this.mockMvc.perform(fileUpload("/KnowledgeBase/Standard/Import").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isFound())
+				.andExpect(redirectedUrlMatch("/Task/Status/\\d+")).andReturn();
+		Worker worker = null;
+
+		for (int i = 0; i < 30; i++) {
+			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
+			notEmpty(tasks, "No background task found");
+			for (String workerId : tasks) {
+				Worker worker2 = workersPoolManager.get(workerId);
+				if (worker2 != null && worker2.isMatch("class", WorkerImportStandard.class)) {
+					worker = worker2;
+					break;
+				}
+			}
+			if (worker == null)
+				wait(1000);
+			else
+				break;
+		}
+
+		notNull(worker, "Import standard worker cannot be found");
+		while (worker.isWorking())
+			wait(100);
+		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
+		isNull(worker.getError(), "An error occured while import standard");
+		Session session = null;
+		try {
+			session = sessionFactory.openSession();
+			Standard standard = new DAOStandardHBM(session).getStandardByNameAndVersion(STANDARD_FOR_TEST, 2015);
+			notNull(standard, "Standard cannot be found");
+			put(STANDARD_FOR_TEST, standard.getId());
+		} finally {
+			if (session != null && session.isOpen())
+				session.close();
+		}
 	}
 
-	@Test
-	public void test_14_ExportStandard() {
-		throw new IllegalArgumentException("Not implemented test");
+	@Test(dependsOnMethods = "test_13_ImportStandard")
+	public void test_14_ExportStandard() throws Exception {
+		MvcResult result = this.mockMvc
+				.perform(
+						get("/KnowledgeBase/Standard/Export/" + getInteger(STANDARD_FOR_TEST)).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
+		assertEquals(String.format("attachment; filename=\"TL_TRICKService_Norm_%s_Version_%d.xlsx\"", STANDARD_FOR_TEST.trim().replaceAll(":|-|[ ]", "_"), 2015), result
+				.getResponse().getHeaderValue("Content-Disposition"));
+		assertEquals(FilenameUtils.getExtension(importStandard), result.getResponse().getContentType());
 	}
 }

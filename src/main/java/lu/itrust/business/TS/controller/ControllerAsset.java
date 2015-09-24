@@ -322,11 +322,11 @@ public class ControllerAsset {
 
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null) {
+			if (idAnalysis == null || serviceAnalysis.isProfile(idAnalysis)) {
 				errors.put("asset", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 				return errors;
 			}
-
+			
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 			// create new asset object

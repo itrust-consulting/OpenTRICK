@@ -120,9 +120,12 @@ public class WorkerExportWordReport implements Worker {
 				}
 			}
 
-			if (exportAnalysisReport.getWorkFile() != null && exportAnalysisReport.getWorkFile().exists())
-				exportAnalysisReport.getWorkFile().delete();
+			File workFile = exportAnalysisReport.getWorkFile();
 
+			if (workFile != null && workFile.exists()) {
+				if (!workFile.delete())
+					workFile.deleteOnExit();
+			}
 		}
 	}
 
@@ -217,8 +220,10 @@ public class WorkerExportWordReport implements Worker {
 			}
 
 			File file = exportAnalysisReport.getWorkFile();
-			if (file != null && file.exists())
-				file.delete();
+			if (file != null && file.exists()) {
+				if (!file.delete())
+					file.deleteOnExit();
+			}
 
 		}
 	}

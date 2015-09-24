@@ -219,7 +219,7 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	}
 
 	@Override
-	public boolean isInUse(Language language) {
+	public boolean isUsed(Language language) {
 		return daoLanguage.isInUse(language);
 	}
 }

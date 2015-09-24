@@ -170,8 +170,11 @@ public class WorkerAnalysisImport implements Worker {
 			}
 			if (canDeleteFile) {
 				File file = new File(fileName);
-				if (file.exists())
-					file.delete();
+				if (file.exists()){
+					if (!file.delete()){
+						file.deleteOnExit();
+					}
+				}
 			}
 		}
 	}
@@ -314,9 +317,14 @@ public class WorkerAnalysisImport implements Worker {
 						}
 					}
 				}
-				File file = new File(fileName);
-				if (canDeleteFile && file.exists())
-					file.delete();
+			
+				if (canDeleteFile) {
+					File file = new File(fileName);
+					if (file.exists()){
+						if (!file.delete())
+							file.deleteOnExit();
+					}
+				}
 			}
 
 		}

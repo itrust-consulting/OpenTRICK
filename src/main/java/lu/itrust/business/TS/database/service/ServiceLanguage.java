@@ -39,5 +39,5 @@ public interface ServiceLanguage {
 
 	public void delete(Language language) throws Exception;
 
-	public boolean isInUse(Language language);
+	public boolean isUsed(Language language);
 }

@@ -2,9 +2,8 @@ package lu.itrust.business.TS.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +29,7 @@ import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -46,6 +46,7 @@ import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
 import lu.itrust.business.TS.validator.StandardValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -59,6 +60,7 @@ import org.hibernate.SessionFactory;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumn;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumns;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -127,6 +129,9 @@ public class ControllerKnowledgeBaseStandard {
 
 	@Autowired
 	private MeasureManager measureManager;
+
+	@Value("${app.settings.standard.template.path}")
+	private String template;
 
 	/**
 	 * displayAll: <br>
@@ -235,9 +240,8 @@ public class ControllerKnowledgeBaseStandard {
 					errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
 				else if (!tmpStandard.isAnalysisOnly()) {
 
-					if (!tmpStandard.getType().equals(standard.getType())  && serviceStandard.isUsed(tmpStandard))
-						errors.put("type", messageSource.getMessage("error.norm.type.update", null,
-								"Standard is in use, type cannot be updated!", locale));
+					if (!tmpStandard.getType().equals(standard.getType()) && serviceStandard.isUsed(tmpStandard))
+						errors.put("type", messageSource.getMessage("error.norm.type.update", null, "Standard is in use, type cannot be updated!", locale));
 					else {
 						serviceStandard.saveOrUpdate(tmpStandard.update(standard));
 						/**
@@ -269,7 +273,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, Locale locale) throws Exception {
 
 		try {
@@ -298,6 +302,17 @@ public class ControllerKnowledgeBaseStandard {
 			String defaultmessage = parts[1];
 			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
 		}
+	}
+
+	@RequestMapping("/Template")
+	public void downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		File templateFile = new File(request.getServletContext().getRealPath(template));
+		if (!(templateFile.exists() && templateFile.isFile()))
+			throw new ResourceNotFoundException();
+		response.setContentLength((int) templateFile.length());
+		response.setContentType(FilenameUtils.getExtension(template));
+		response.setHeader("Content-Disposition", "attachment; filename=\"Template.xlsx\"");
+		Files.copy(templateFile.toPath(), response.getOutputStream());
 	}
 
 	/**
@@ -359,260 +374,267 @@ public class ControllerKnowledgeBaseStandard {
 		if (standard == null)
 			return "404";
 
-		InputStream templateFile = new FileInputStream(request.getServletContext().getRealPath("/WEB-INF/data") + "/TL_TRICKService_NormImport_V1.1.xlsx");
-		@SuppressWarnings("resource")
-		XSSFWorkbook workbook = new XSSFWorkbook(templateFile);
-		templateFile.close();
+		XSSFWorkbook workbook = null;
 
-		XSSFSheet sheet = null;
-		XSSFTable table = null;
+		try {
 
-		/**
-		 * Standard
-		 */
+			workbook = new XSSFWorkbook(request.getServletContext().getRealPath(template));
 
-		sheet = workbook.getSheet("NormInfo");
+			XSSFSheet sheet = null;
+			XSSFTable table = null;
 
-		for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+			/**
+			 * Standard
+			 */
 
-			table = sheet.getTables().get(indexTable);
+			sheet = workbook.getSheet("NormInfo");
 
-			if (table.getName().equals("TableNormInfo")) {
-				break;
+			for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+
+				table = sheet.getTables().get(indexTable);
+
+				if (table.getName().equals("TableNormInfo")) {
+					break;
+				}
 			}
-		}
 
-		int row, namecol, versioncol, desccol, computablecol;
+			int row, namecol, versioncol, desccol, computablecol;
 
-		namecol = table.getStartCellReference().getCol();
-		versioncol = namecol + 1;
-		desccol = versioncol + 1;
-		computablecol = table.getEndCellReference().getCol();
-		row = table.getStartCellReference().getRow() + 1;
+			namecol = table.getStartCellReference().getCol();
+			versioncol = namecol + 1;
+			desccol = versioncol + 1;
+			computablecol = table.getEndCellReference().getCol();
+			row = table.getStartCellReference().getRow() + 1;
 
-		XSSFCell cell = null;
+			XSSFCell cell = null;
 
-		// standard name
-		cell = sheet.getRow(row).getCell(namecol);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
-		cell.setCellValue(standard.getLabel());
-
-		// standard version
-		cell = sheet.getRow(row).getCell(versioncol);
-		cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-		cell.setCellValue(standard.getVersion());
-
-		// standard description
-		cell = sheet.getRow(row).getCell(desccol);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
-		cell.setCellValue(standard.getDescription());
-
-		// standard computable
-		cell = sheet.getRow(row).getCell(computablecol);
-		cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
-		cell.setCellValue(standard.isComputable());
-
-		/**
-		 * Measures
-		 */
-
-		sheet = workbook.getSheet("NormData");
-
-		for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-
-			table = sheet.getTables().get(indexTable);
-
-			if (table.getName().equals("TableNormData")) {
-				break;
-			}
-		}
-
-		List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
-
-		int levelcol, referencecol;
-		levelcol = 0;
-		referencecol = 1;
-		computablecol = 2;
-
-		List<Language> languages = serviceLanguage.getAll();
-
-		int headerRow = 0;
-
-		XSSFRow sheetrow = sheet.getRow(headerRow);
-		XSSFCellStyle headerStyle = sheetrow.getCell(0).getCellStyle();
-
-		int colnumber = 0;
-
-		cell = sheetrow.getCell(colnumber);
-		if (cell == null) {
-			cell = sheetrow.createCell(colnumber);
-		}
-		cell.setCellValue("Level");
-		cell.setCellStyle(headerStyle);
-
-		colnumber++;
-
-		cell = sheetrow.getCell(colnumber);
-		if (cell == null) {
-			cell = sheetrow.createCell(colnumber);
-		}
-		cell.setCellValue("Reference");
-		cell.setCellStyle(headerStyle);
-		colnumber++;
-
-		cell = sheetrow.getCell(colnumber);
-		if (cell == null) {
-			cell = sheetrow.createCell(colnumber);
-		}
-		cell.setCellValue("Computable");
-		cell.setCellStyle(headerStyle);
-		colnumber++;
-
-		for (Language language : languages) {
-
-			XSSFCell domaincell = sheetrow.getCell(colnumber);
-			XSSFCell desccell = sheetrow.getCell(colnumber + 1);
-
-			if (domaincell == null) {
-				domaincell = sheetrow.createCell(colnumber);
-			}
-			domaincell.setCellValue("Domain_" + language.getAlpha3());
-			domaincell.setCellStyle(headerStyle);
-
-			if (desccell == null) {
-				desccell = sheetrow.createCell(colnumber + 1);
-			}
-			desccell.setCellValue("Description_" + language.getAlpha3());
-			desccell.setCellStyle(headerStyle);
-			colnumber = colnumber + 2;
-		}
-
-		CellReference ref1 = table.getStartCellReference();
-
-		// update the table. coumn headers must match the corresponding cells in
-		// the sheet
-		CTTableColumns cols = table.getCTTable().getTableColumns();
-		cols.setTableColumnArray(null);
-		cols.setCount(colnumber);
-		CTTableColumn col = cols.addNewTableColumn();
-		col.setName("domain");
-		col.setId(4);
-		for (int i = 4; i < colnumber; i++) {
-			col = cols.addNewTableColumn();
-			col.setName(sheetrow.getCell(i).getRawValue());
-			col.setId(i + 1);
-		}
-
-		// update the "ref" attribute
-		table.getCTTable().setRef(new CellRangeAddress((ref1.getRow()), measuredescriptions.size(), (ref1.getCol()), colnumber).formatAsString());
-
-		// System.out.println("Rows: ("+(ref1.getRow()+1)
-		// +":"+measuredescriptions.size()+"):::Cols: ("+ (ref1.getCol()+1) +
-		// ":"+ colnumber +")");
-
-		row = 1;
-
-		for (MeasureDescription measuredescription : measuredescriptions) {
-
-			sheetrow = sheet.getRow(row);
-			cell = sheetrow.getCell(levelcol);
-			if (cell == null)
-				cell = sheetrow.createCell(levelcol);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-			cell.setCellValue(measuredescription.getLevel());
-
-			cell = sheet.getRow(row).getCell(referencecol);
-			if (cell == null)
-				cell = sheetrow.createCell(referencecol);
+			// standard name
+			cell = sheet.getRow(row).getCell(namecol);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue(measuredescription.getReference());
+			cell.setCellValue(standard.getLabel());
 
+			// standard version
+			cell = sheet.getRow(row).getCell(versioncol);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(standard.getVersion());
+
+			// standard description
+			cell = sheet.getRow(row).getCell(desccol);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(standard.getDescription());
+
+			// standard computable
 			cell = sheet.getRow(row).getCell(computablecol);
-			if (cell == null)
-				cell = sheetrow.createCell(computablecol);
 			cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
-			cell.setCellValue(measuredescription.isComputable());
+			cell.setCellValue(standard.isComputable());
 
-			int domaincol = computablecol + 1;
+			/**
+			 * Measures
+			 */
 
-			int descriptioncol = domaincol + 1;
+			sheet = workbook.getSheet("NormData");
+
+			for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+
+				table = sheet.getTables().get(indexTable);
+
+				if (table.getName().equals("TableNormData")) {
+					break;
+				}
+			}
+
+			List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
+
+			int levelcol, referencecol;
+			levelcol = 0;
+			referencecol = 1;
+			computablecol = 2;
+
+			List<Language> languages = serviceLanguage.getAll();
+
+			int headerRow = 0;
+
+			XSSFRow sheetrow = sheet.getRow(headerRow);
+			XSSFCellStyle headerStyle = sheetrow.getCell(0).getCellStyle();
+
+			int colnumber = 0;
+
+			cell = sheetrow.getCell(colnumber);
+			if (cell == null) {
+				cell = sheetrow.createCell(colnumber);
+			}
+			cell.setCellValue("Level");
+			cell.setCellStyle(headerStyle);
+
+			colnumber++;
+
+			cell = sheetrow.getCell(colnumber);
+			if (cell == null) {
+				cell = sheetrow.createCell(colnumber);
+			}
+			cell.setCellValue("Reference");
+			cell.setCellStyle(headerStyle);
+			colnumber++;
+
+			cell = sheetrow.getCell(colnumber);
+			if (cell == null) {
+				cell = sheetrow.createCell(colnumber);
+			}
+			cell.setCellValue("Computable");
+			cell.setCellStyle(headerStyle);
+			colnumber++;
 
 			for (Language language : languages) {
 
-				MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
+				XSSFCell domaincell = sheetrow.getCell(colnumber);
+				XSSFCell desccell = sheetrow.getCell(colnumber + 1);
 
-				String domain = "";
+				if (domaincell == null) {
+					domaincell = sheetrow.createCell(colnumber);
+				}
+				domaincell.setCellValue("Domain_" + language.getAlpha3());
+				domaincell.setCellStyle(headerStyle);
 
-				String description = "";
+				if (desccell == null) {
+					desccell = sheetrow.createCell(colnumber + 1);
+				}
+				desccell.setCellValue("Description_" + language.getAlpha3());
+				desccell.setCellStyle(headerStyle);
+				colnumber = colnumber + 2;
+			}
 
-				if (measureDescriptionText != null) {
-					domain = measureDescriptionText.getDomain();
-					description = measureDescriptionText.getDescription();
+			CellReference ref1 = table.getStartCellReference();
+
+			// update the table. coumn headers must match the corresponding
+			// cells in
+			// the sheet
+			CTTableColumns cols = table.getCTTable().getTableColumns();
+			cols.setTableColumnArray(null);
+			cols.setCount(colnumber);
+			CTTableColumn col = cols.addNewTableColumn();
+			col.setName("domain");
+			col.setId(4);
+			for (int i = 4; i < colnumber; i++) {
+				col = cols.addNewTableColumn();
+				col.setName(sheetrow.getCell(i).getRawValue());
+				col.setId(i + 1);
+			}
+
+			// update the "ref" attribute
+			table.getCTTable().setRef(new CellRangeAddress((ref1.getRow()), measuredescriptions.size(), (ref1.getCol()), colnumber).formatAsString());
+
+			// System.out.println("Rows: ("+(ref1.getRow()+1)
+			// +":"+measuredescriptions.size()+"):::Cols: ("+ (ref1.getCol()+1)
+			// +
+			// ":"+ colnumber +")");
+
+			row = 1;
+
+			for (MeasureDescription measuredescription : measuredescriptions) {
+
+				sheetrow = sheet.getRow(row);
+				cell = sheetrow.getCell(levelcol);
+				if (cell == null)
+					cell = sheetrow.createCell(levelcol);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(measuredescription.getLevel());
+
+				cell = sheet.getRow(row).getCell(referencecol);
+				if (cell == null)
+					cell = sheetrow.createCell(referencecol);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(measuredescription.getReference());
+
+				cell = sheet.getRow(row).getCell(computablecol);
+				if (cell == null)
+					cell = sheetrow.createCell(computablecol);
+				cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+				cell.setCellValue(measuredescription.isComputable());
+
+				int domaincol = computablecol + 1;
+
+				int descriptioncol = domaincol + 1;
+
+				for (Language language : languages) {
+
+					MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
+
+					String domain = "";
+
+					String description = "";
+
+					if (measureDescriptionText != null) {
+						domain = measureDescriptionText.getDomain();
+						description = measureDescriptionText.getDescription();
+					}
+
+					cell = sheet.getRow(row).getCell(domaincol);
+					if (cell == null)
+						cell = sheetrow.createCell(domaincol);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(domain);
+					// System.out.println("Domaincol: "+domaincol);
+					domaincol++;
+					domaincol++;
+
+					cell = sheet.getRow(row).getCell(descriptioncol);
+					if (cell == null)
+						cell = sheetrow.createCell(descriptioncol);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(description);
+					// System.out.println("Desccol: "+descriptioncol);
+					descriptioncol++;
+					descriptioncol++;
+
 				}
 
-				cell = sheet.getRow(row).getCell(domaincol);
-				if (cell == null)
-					cell = sheetrow.createCell(domaincol);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(domain);
-				// System.out.println("Domaincol: "+domaincol);
-				domaincol++;
-				domaincol++;
+				row = row + 1;
 
-				cell = sheet.getRow(row).getCell(descriptioncol);
-				if (cell == null)
-					cell = sheetrow.createCell(descriptioncol);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(description);
-				// System.out.println("Desccol: "+descriptioncol);
-				descriptioncol++;
-				descriptioncol++;
+				sheet.createRow(row);
 
 			}
 
-			row = row + 1;
+			/**
+			 * Output
+			 */
 
-			sheet.createRow(row);
+			ByteArrayOutputStream standardFile = new ByteArrayOutputStream();
+			
+			workbook.write(standardFile);
 
+			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();
+
+			// return standardFile to user
+
+			// set response contenttype to sqlite
+			response.setContentType("xlsx");
+
+			// set sqlite file size as response size
+			response.setContentLength(standardFile.size());
+
+			// set response header with location of the filename
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
+
+			// return the sqlite file (as copy) to the response outputstream (
+			// whihc
+			// creates on the
+			// client side the sqlite file)
+			
+			response.getOutputStream().write(standardFile.toByteArray());
+			
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.standard",
+					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()), principal.getName(), LogAction.EXPORT, standard.getLabel(),
+					String.valueOf(standard.getVersion()));
+			// return
+			return null;
+		} finally {
+			if (workbook != null)
+				workbook.close();
 		}
 
-		/**
-		 * Output
-		 */
-
-		ByteArrayOutputStream standardFile = new ByteArrayOutputStream();
-		workbook.write(standardFile);
-
-		int length = standardFile.size();
-
-		String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion() + "_V1.1";
-
-		// return standardFile to user
-
-		// set response contenttype to sqlite
-		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-		// set sqlite file size as response size
-		response.setContentLength(length);
-
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
-
-		// return the sqlite file (as copy) to the response outputstream ( whihc
-		// creates on the
-		// client side the sqlite file)
-		OutputStream out = response.getOutputStream();
-
-		out.write(standardFile.toByteArray());
-
-		/**
-		 * Log
-		 */
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.standard", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
-				principal.getName(), LogAction.EXPORT, standard.getLabel(), String.valueOf(standard.getVersion()));
-
-		// return
-		return null;
 	}
 
 	/**

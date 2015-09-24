@@ -13,7 +13,7 @@
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<div class="content" id="content">
-				<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px;">
+				<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" /> style="height: 200px;">
 			</div>
 			<hr>
 			<h1 class="text-center" style="margin-top: 5%; margin-bottom: 2%;">
