@@ -233,7 +233,16 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.getContentAsString());
 		String idTask = node.get("taskid").asText(null);
 		notNull(idTask, "Task id cannot be found");
-		Worker worker = workersPoolManager.get(idTask);
+
+		Worker worker = null;
+		
+		for (int i = 0; i < 30; i++) {
+			worker = workersPoolManager.get(idTask);
+			if (worker == null)
+				wait(1000);
+		}
+
+		
 		notNull(worker, "Worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
