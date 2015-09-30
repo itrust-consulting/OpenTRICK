@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.controller;
 
-import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.*;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
@@ -126,15 +126,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
-	private static final String FILTER_ANALYSIS_NAME = "filter_analysis_name";
-
-	private static final String LAST_SELECTED_ANALYSIS_NAME = "last-selected-analysis-name";
-
-	private static final String ANALYSIS_TASK_ID = "analysis_task_id";
-
-	private static final String CURRENT_CUSTOMER = "currentCustomer";
-
-	private static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
+	
 
 	@Autowired
 	private ServiceUser serviceUser;

@@ -77,7 +77,7 @@ import org.testng.annotations.Test;
 @Test(groups = "ImportExport", dependsOnGroups = "Installation")
 public class TS_05_ImportExport extends SpringTestConfiguration {
 
-	private static String ANALYSIS_KEY = null;
+	public static String ANALYSIS_KEY = null;
 
 	@Autowired
 	private ResourceLoader resourceLoader;
@@ -411,7 +411,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();
-		assertEquals("Bad length", 486400, response.getContentLength());
+		assertEquals("Bad length", 486400/1024.0, response.getContentLength()/1024.0, 1E-2);
 		assertEquals("Bad content-disposition", "attachment; filename=\"ENG_2015_07_13_07_31_14.sqlite\"", response.getHeaderValue("Content-Disposition"));
 		assertEquals("Bad contentType", "sqlite", response.getContentType());
 	}
@@ -457,14 +457,14 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_sql_export_word", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+		put("key_word_export", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
 	}
 
 	@Test(dependsOnMethods = "test_06_ExportReport")
 	public void test_07_DownloadReport() throws Exception {
 		MvcResult result = this.mockMvc
 				.perform(
-						get(String.format("/Profile/Report/%d/Download", getInteger("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						get(String.format("/Profile/Report/%d/Download", getInteger("key_word_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();

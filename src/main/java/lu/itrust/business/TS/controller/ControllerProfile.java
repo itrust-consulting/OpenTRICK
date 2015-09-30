@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.*;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -62,18 +64,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 public class ControllerProfile {
 
-	private static final String FILTER_CONTROL_SQLITE = "SQLITE";
-
-	private static final String FILTER_CONTROL_REPORT = "REPORT";
-
-	private static final String FILTER_CONTROL_SORT_KEY = "%s_SORT";
-
-	private static final String FILTER_CONTROL_SORT_DIRCTION_KEY = "%s_SORT_DIRECTION";
-
-	private static final String FILTER_CONTROL_SIZE_KEY = "%s_SIZE";
-
-	private static final String FILTER_CONTROL_FILTER_KEY = "%s_FILTER";
-
 	@Autowired
 	private ServiceUser serviceUser;
 
@@ -115,15 +105,13 @@ public class ControllerProfile {
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
 			return "redirect:/Logout";
-		user.setPassword(Constant.EMPTY_STRING);
+		user.setPassword(EMPTY_STRING);
 		// add profile to model
 		model.addAttribute("user", user);
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
-		TrickFilter filterControl = buildFromUser(user, FILTER_CONTROL_SQLITE);
-		session.setAttribute("sqliteControl", filterControl);
-		filterControl = buildFromUser(user, FILTER_CONTROL_REPORT);
-		session.setAttribute("reportControl", filterControl);
+		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
+		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
 		return "user/home";
 	}
 
@@ -143,8 +131,9 @@ public class ControllerProfile {
 		return new FilterControl(sort, direction, size, filter);
 	}
 
-	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
@@ -153,10 +142,12 @@ public class ControllerProfile {
 		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
 		session.setAttribute("sqliteControl", filterControl);
 		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+		
 	}
 
-	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+		
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
@@ -165,6 +156,7 @@ public class ControllerProfile {
 		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
 		session.setAttribute("reportControl", filterControl);
 		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+		
 	}
 
 	private void updateFilterControl(User user, FilterControl value, String type) throws Exception {
@@ -175,7 +167,7 @@ public class ControllerProfile {
 		serviceUser.saveOrUpdate(user);
 	}
 
-	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String sectionSqlite(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
 		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
 		if (filter == null)
@@ -184,7 +176,7 @@ public class ControllerProfile {
 		return "user/sqlites";
 	}
 
-	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
 		FilterControl filter = (FilterControl) session.getAttribute("reportControl");
 		if (filter == null)
@@ -194,7 +186,7 @@ public class ControllerProfile {
 
 	}
 
-	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteSqlite(@PathVariable Integer id, Principal principal, Locale locale) throws Exception {
 		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 		if (userSQLite == null)
@@ -325,7 +317,7 @@ public class ControllerProfile {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response)
 			throws Exception {
 

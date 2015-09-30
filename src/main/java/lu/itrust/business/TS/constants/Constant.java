@@ -761,4 +761,26 @@ public class Constant {
 	
 	public static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
 	
+	public static final String FILTER_CONTROL_SQLITE = "SQLITE";
+
+	public static final String FILTER_CONTROL_REPORT = "REPORT";
+
+	public static final String FILTER_CONTROL_SORT_KEY = "%s_SORT";
+
+	public static final String FILTER_CONTROL_SORT_DIRCTION_KEY = "%s_SORT_DIRECTION";
+
+	public static final String FILTER_CONTROL_SIZE_KEY = "%s_SIZE";
+
+	public static final String FILTER_CONTROL_FILTER_KEY = "%s_FILTER";
+	
+	public static final String FILTER_ANALYSIS_NAME = "filter_analysis_name";
+
+	public static final String LAST_SELECTED_ANALYSIS_NAME = "last-selected-analysis-name";
+
+	public static final String ANALYSIS_TASK_ID = "analysis_task_id";
+
+	public static final String CURRENT_CUSTOMER = "currentCustomer";
+
+	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
+	
 }
