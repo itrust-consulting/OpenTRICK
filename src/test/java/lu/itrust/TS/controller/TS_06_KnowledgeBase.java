@@ -242,7 +242,6 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				wait(1000);
 		}
 
-		
 		notNull(worker, "Worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
@@ -466,31 +465,21 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		assertEquals(FilenameUtils.getExtension(template), result.getResponse().getContentType());
 	}
 
-	@Test(dependsOnMethods = "test_11_DeleteCustomerAndLanguage")
+	@Test(dependsOnMethods = "test_11_DeleteCustomerAndLanguage",timeOut=120000)
 	public synchronized void test_13_ImportStandard() throws Exception {
 		Resource resource = resourceLoader.getResource(importStandard);
 		isTrue(resource.exists(), "Resource cannot be found");
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		this.mockMvc.perform(fileUpload("/KnowledgeBase/Standard/Import").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isFound())
-				.andExpect(redirectedUrlMatch("/Task/Status/\\d+")).andReturn();
+		String idTask = this.mockMvc.perform(fileUpload("/KnowledgeBase/Standard/Import").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isFound())
+				.andExpect(redirectedUrlMatch("/Task/Status/\\d+")).andReturn().getModelAndView().getViewName().replace("redirect:/Task/Status/", "");
 		Worker worker = null;
-
 		for (int i = 0; i < 30; i++) {
-			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
-			notEmpty(tasks, "No background task found");
-			for (String workerId : tasks) {
-				Worker worker2 = workersPoolManager.get(workerId);
-				if (worker2 != null && worker2.isMatch("class", WorkerImportStandard.class)) {
-					worker = worker2;
-					break;
-				}
-			}
+			worker = workersPoolManager.get(idTask);
 			if (worker == null)
 				wait(1000);
 			else
 				break;
 		}
-
 		notNull(worker, "Import standard worker cannot be found");
 		while (worker.isWorking())
 			wait(100);
