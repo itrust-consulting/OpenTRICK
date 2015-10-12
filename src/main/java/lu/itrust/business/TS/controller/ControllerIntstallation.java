@@ -7,18 +7,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceTrickService;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.general.Customer;
-
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +17,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.Customer;
 
 /**
  * ControllerIntstallation.java: <br>
@@ -43,16 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ControllerIntstallation {
 
 	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceTrickService serviceTrickService;
-
-	@Autowired
 	private ServiceCustomer serviceCustomer;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private SessionFactory sessionFactory;

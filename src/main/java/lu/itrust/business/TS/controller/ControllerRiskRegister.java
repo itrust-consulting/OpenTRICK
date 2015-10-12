@@ -6,20 +6,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
-import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.ServiceRiskRegister;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -29,6 +15,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServiceRiskRegister;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -50,25 +46,13 @@ public class ControllerRiskRegister {
 	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
-	private ServiceAnalysisStandard serviceAnalysisStandard;
-	
-	@Autowired
 	private ServiceParameter serviceParameter;
-
-	@Autowired
-	private ServiceUser serviceUser;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 	
 	@Autowired
 	private ServiceLanguage serviceLanguage;
-
-	@Autowired
-	private ServiceAsset serviceAsset;
 
 	@Autowired
 	private TaskExecutor executor;

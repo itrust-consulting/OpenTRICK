@@ -3,16 +3,15 @@ package lu.itrust.business.TS.database.service.impl;
 import java.util.Collection;
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAORole;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceUserImpl.java: <br>
@@ -28,8 +27,6 @@ public class ServiceUserImpl implements ServiceUser {
 	@Autowired
 	private DAOUser daoUser;
 
-	@Autowired
-	private DAORole daoRole;
 
 	/**
 	 * get: <br>

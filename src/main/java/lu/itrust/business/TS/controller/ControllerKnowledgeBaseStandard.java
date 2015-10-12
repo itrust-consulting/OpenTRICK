@@ -15,37 +15,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
-import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
-import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
-import lu.itrust.business.TS.database.service.ServiceStandard;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.ResourceNotFoundException;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.standard.Standard;
-import lu.itrust.business.TS.model.standard.StandardType;
-import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureDescription;
-import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
-import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
-import lu.itrust.business.TS.validator.StandardValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -77,6 +46,36 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
+import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
+import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
+import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.StandardType;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureDescription;
+import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
+import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
+import lu.itrust.business.TS.validator.StandardValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
  * ControllerStandard.java: <br>
@@ -123,9 +122,6 @@ public class ControllerKnowledgeBaseStandard {
 
 	@Autowired
 	private CustomDelete customDelete;
-
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
 	private MeasureManager measureManager;

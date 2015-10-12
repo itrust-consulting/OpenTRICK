@@ -1,6 +1,11 @@
 package lu.itrust.business.TS.controller;
 
-import static lu.itrust.business.TS.constants.Constant.*;
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.ANALYSIS_TASK_ID;
+import static lu.itrust.business.TS.constants.Constant.CURRENT_CUSTOMER;
+import static lu.itrust.business.TS.constants.Constant.FILTER_ANALYSIS_NAME;
+import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_ANALYSIS_NAME;
+import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
@@ -23,68 +28,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
-import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.CustomerManager;
-import lu.itrust.business.TS.component.Duplicator;
-import lu.itrust.business.TS.component.GeneralComperator;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.database.service.ServiceActionPlan;
-import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
-import lu.itrust.business.TS.database.service.ServiceActionPlanType;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAssessment;
-import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceHistory;
-import lu.itrust.business.TS.database.service.ServiceItemInformation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.database.service.ServiceRole;
-import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.database.service.ServiceStandard;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.ServiceUserSqLite;
-import lu.itrust.business.TS.database.service.ServiceWordReport;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.ResourceNotFoundException;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.ExportAnalysisReport;
-import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
-import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.history.History;
-import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-import lu.itrust.business.TS.usermanagement.RoleType;
-import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.validator.HistoryValidator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -113,6 +56,50 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
+import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.CustomerManager;
+import lu.itrust.business.TS.component.GeneralComperator;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exportation.ExportAnalysisReport;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
+import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.history.History;
+import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.validator.HistoryValidator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
+
 /**
  * ControllerAnalysis.java: <br>
  * Detailed description...
@@ -132,16 +119,10 @@ public class ControllerAnalysis {
 	private ServiceUser serviceUser;
 
 	@Autowired
-	private ServiceActionPlanType serviceActionPlanType;
-
-	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
-	private ServiceAssetType serviceAssetType;
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
@@ -150,22 +131,7 @@ public class ControllerAnalysis {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private ServiceActionPlan serviceActionPlan;
-
-	@Autowired
-	private ServiceActionPlanSummary serviceActionPlanSummary;
-
-	@Autowired
 	private AssessmentManager assessmentManager;
-
-	@Autowired
-	private ServiceStandard serviceStandard;
-
-	@Autowired
-	private ServiceUserSqLite serviceUserSqLite;
-
-	@Autowired
-	private ServiceWordReport serviceWordReport;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -183,43 +149,10 @@ public class ControllerAnalysis {
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceHistory serviceHistory;
-
-	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
 	@Autowired
-	private ServiceItemInformation serviceItemInformation;
-
-	@Autowired
-	private ServiceAsset serviceAsset;
-
-	@Autowired
-	private ServiceScenario serviceScenario;
-
-	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
-	private ServiceMeasure serviceMeasure;
-
-	@Autowired
-	private ServicePhase servicePhase;
-
-	@Autowired
 	private ServiceRole serviceRole;
-
-	@Autowired
-	private MeasureManager measureManager;
-
-	@Autowired
-	private ServiceAssessment serviceAssessment;
-
-	@Autowired
-	private Duplicator duplicator;
-
-	@Autowired
-	private ManageAnalysisRight manageAnalysisRight;
 
 	@Autowired
 	private CustomerManager customerManager;

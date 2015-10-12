@@ -1,6 +1,13 @@
 package lu.itrust.business.TS.controller;
 
-import static lu.itrust.business.TS.constants.Constant.*;
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.EMPTY_STRING;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_FILTER_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_REPORT;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SIZE_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_DIRCTION_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SQLITE;
 
 import java.security.Principal;
 import java.util.LinkedHashMap;
@@ -9,27 +16,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceRole;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.ServiceUserSqLite;
-import lu.itrust.business.TS.database.service.ServiceWordReport;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.UserSQLite;
-import lu.itrust.business.TS.model.general.WordReport;
-import lu.itrust.business.TS.model.general.helper.FilterControl;
-import lu.itrust.business.TS.model.general.helper.TrickFilter;
-import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.validator.UserValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -51,6 +37,26 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.ServiceUserSqLite;
+import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.UserSQLite;
+import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.helper.FilterControl;
+import lu.itrust.business.TS.model.general.helper.TrickFilter;
+import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.validator.UserValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
+
 /**
  * ControllerProfile.java: <br>
  * Detailed description...
@@ -66,9 +72,6 @@ public class ControllerProfile {
 
 	@Autowired
 	private ServiceUser serviceUser;
-
-	@Autowired
-	private ServiceRole serviceRole;
 
 	@Autowired
 	private MessageSource messageSource;

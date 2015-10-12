@@ -11,6 +11,25 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -25,7 +44,6 @@ import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -46,25 +64,6 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.helper.UserDeleteHelper;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerAdministration.java: <br>
@@ -110,9 +109,6 @@ public class ControllerAdministration {
 
 	@Autowired
 	private CustomDelete customDelete;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
@@ -413,7 +409,8 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Analysis/{analysisID}/ManageAccess/Update")
-	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
+	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale)
+			throws Exception {
 
 		try {
 			// create json parser
@@ -525,6 +522,107 @@ public class ControllerAdministration {
 	}
 
 	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @param result
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+
+		Map<String, String> errors = new LinkedHashMap<>();
+		try {
+			List<Role> userRoles = new LinkedList<Role>();
+			User user = buildUser(errors, value, locale, userRoles, principal);
+			if (!errors.isEmpty())
+				return errors;
+			RoleType userAccess = user.getAccess();
+			String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
+			if (user.getId() < 1) {
+				serviceUser.save(user);
+				/**
+				 * Log
+				 */
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
+						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
+				// give access
+				user.getRoles().stream().filter(role -> role.getType() != userAccess)
+						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.get.access",
+								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GIVE_ACCESS,
+								user.getLogin(), role.getType().name()));
+			} else {
+				serviceUser.saveOrUpdate(user);
+				/**
+				 * Log
+				 */
+				// remove access
+				userRoles.stream().filter(role -> !user.hasRole(role))
+						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
+								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
+								user.getLogin(), role.getType().name()));
+				// give access
+				user.getRoles().stream().filter(role -> !userRoles.contains(role))
+						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.grant.access",
+								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
+								user.getLogin(), role.getType().name()));
+			}
+			return errors;
+
+		} catch (Exception e) {
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return errors;
+		}
+
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param userId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/User/{idUser}/Prepare-to-delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String deleteUser(@PathVariable int idUser, Model model, RedirectAttributes attributes, Locale locale) {
+		try {
+			User user = serviceUser.get(idUser);
+			if (user == null) {
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return "redirect:/Error";
+			}
+			model.addAttribute("user", user);
+			model.addAttribute("users", serviceUser.getAllOthers(user));
+			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
+			return "admin/user/delete-dialog";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/Error";
+		}
+	}
+
+	@RequestMapping(value = "/User/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Object deleteUser(@RequestBody UserDeleteHelper deleteHelper, Principal principal, Locale locale) {
+		Map<Object, String> errors = new LinkedHashMap<Object, String>();
+		try {
+			customDelete.deleteUser(deleteHelper, errors, principal, messageSource, locale);
+			if (errors.isEmpty())
+				return JsonMessage.Success(messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (errors.isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+		return errors;
+	}
+
+	/**
 	 * buildUser: <br>
 	 * Description
 	 * 
@@ -558,7 +656,7 @@ public class ControllerAdministration {
 			email = jsonNode.get("email").asText();
 			int id = jsonNode.get("id").asInt(), connexionType = jsonNode.get("connexionType").asInt();
 			if (id > 0) {
-				user = serviceUser.get(jsonNode.get("id").asInt());
+				user = serviceUser.get(id);
 			} else {
 				newUser = true;
 				user = new User();
@@ -621,15 +719,13 @@ public class ControllerAdministration {
 
 				for (int i = 0; i < roletypes.length; i++) {
 					Role role = serviceRole.getByName(roletypes[i].name());
-
 					if (role == null) {
 						role = new Role(roletypes[i]);
 						serviceRole.save(role);
 					}
-
-					if (jsonNode.get(role.getType().name()).asText().equals(Constant.CHECKBOX_CONTROL_ON)) {
+					JsonNode roleNode = jsonNode.get(role.getType().name());
+					if (roleNode != null && roleNode.asText().equals(Constant.CHECKBOX_CONTROL_ON))
 						user.addRole(role);
-					}
 				}
 			}
 
@@ -643,122 +739,11 @@ public class ControllerAdministration {
 			e.printStackTrace();
 			return null;
 		} catch (Exception e) {
-
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return null;
 		}
 
-	}
-
-	/**
-	 * save: <br>
-	 * Description
-	 * 
-	 * @param user
-	 * @param result
-	 * @param attributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) throws Exception {
-
-		Map<String, String> errors = new LinkedHashMap<>();
-		try {
-			List<Role> userRoles = new LinkedList<Role>();
-			User user = buildUser(errors, value, locale, userRoles, principal);
-			if (!errors.isEmpty())
-				return errors;
-			RoleType userAccess = user.getAccess();
-			String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
-			if (user.getId() < 1) {
-				serviceUser.save(user);
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
-						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-				// give access
-				user.getRoles()
-						.stream()
-						.filter(role -> role.getType() != userAccess)
-						.forEach(
-								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.get.access",
-										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GIVE_ACCESS,
-										user.getLogin(), role.getType().name()));
-			} else {
-				serviceUser.saveOrUpdate(user);
-				/**
-				 * Log
-				 */
-				// remove access
-				userRoles
-						.stream()
-						.filter(role -> !user.hasRole(role))
-						.forEach(
-								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
-										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
-										user.getLogin(), role.getType().name()));
-				// give access
-				user.getRoles()
-						.stream()
-						.filter(role -> !userRoles.contains(role))
-						.forEach(
-								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.grant.access",
-										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
-										user.getLogin(), role.getType().name()));
-			}
-			return errors;
-
-		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
-			return errors;
-		}
-
-	}
-
-	/**
-	 * delete: <br>
-	 * Description
-	 * 
-	 * @param userId
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/User/{idUser}/Prepare-to-delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public String deleteUser(@PathVariable int idUser, Model model, RedirectAttributes attributes, Locale locale) {
-		try {
-			User user = serviceUser.get(idUser);
-			if (user == null) {
-				attributes.addFlashAttribute("error", messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
-				return "redirect:/Error";
-			}
-			model.addAttribute("user", user);
-			model.addAttribute("users", serviceUser.getAllOthers(user));
-			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
-			return "admin/user/delete-dialog";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "redirect:/Error";
-		}
-	}
-
-	@RequestMapping(value = "/User/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Object deleteUser(@RequestBody UserDeleteHelper deleteHelper, Principal principal, Locale locale) {
-		Map<Object, String> errors = new LinkedHashMap<Object, String>();
-		try {
-			customDelete.deleteUser(deleteHelper, errors, principal, messageSource, locale);
-			if (errors.isEmpty())
-				return JsonMessage.Success(messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (errors.isEmpty())
-				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-		}
-		return errors;
 	}
 
 }

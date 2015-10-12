@@ -15,13 +15,16 @@ import static org.springframework.util.Assert.notNull;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.Test;
+
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -29,19 +32,12 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.Test;
-
 /**
  * @author eomar
  *
  */
 @Test(groups = "Computation", dependsOnGroups = "CreateAnalysis")
 public class TS_04_Computation extends SpringTestConfiguration {
-
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
 	private ServiceActionPlan serviceActionPlan;

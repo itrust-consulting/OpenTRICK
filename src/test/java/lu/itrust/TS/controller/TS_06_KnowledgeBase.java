@@ -4,7 +4,6 @@
 package lu.itrust.TS.controller;
 
 import static lu.itrust.TS.controller.TS_03_CreateAnAnlysis.ANALYSIS_ID;
-import static lu.itrust.TS.controller.TS_03_CreateAnAnlysis.SIMPLE_ANALYSIS_VERSION;
 import static lu.itrust.TS.helper.TestMethod.redirectedUrlMatch;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.getString;
@@ -25,26 +24,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notEmpty;
 import static org.springframework.util.Assert.notNull;
 
 import java.util.List;
-
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceStandard;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.standard.Standard;
 
 import org.apache.commons.io.FilenameUtils;
 import org.hibernate.Session;
@@ -60,6 +42,22 @@ import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.TS.helper.TestConstant;
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.standard.Standard;
 
 /**
  * @author eomar
@@ -281,7 +279,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(
 						post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8).param("author", "Admin Admin")
-								.param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
+								.param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
 								.param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.success").exists());
 	}
@@ -289,7 +287,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	@Test(dependsOnMethods = "test_04_CreateAnalysisUsedCustomerLanguageAndProfile")
 	@Transactional(readOnly = true)
 	public void test_04_LoadAnalysis() {
-		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(getInteger(CUSTOMER_MEME_ID), TEST_ANALYSIS_FROM_TEST_PROFILE, SIMPLE_ANALYSIS_VERSION);
+		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(getInteger(CUSTOMER_MEME_ID), TEST_ANALYSIS_FROM_TEST_PROFILE, TestConstant.SIMPLE_ANALYSIS_VERSION);
 		notNull(analysis, "Analysis cannot be found");
 		put(TEST_ANALYSIS_FROM_TEST_PROFILE, analysis.getId());
 	}

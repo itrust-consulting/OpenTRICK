@@ -2,7 +2,7 @@
  * 
  */
 package lu.itrust.TS.controller;
-
+import static lu.itrust.TS.helper.TestConstant.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -56,15 +56,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Test(groups = "CreateAnalysis", dependsOnGroups = "Installation")
 public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
+	
+
 	private static final String ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST = "Assessment-Trick service-Scenario test";
 
 	private static final String SCENARIO_SCENARIO_TEST = "Scenario-Scenario test";
 
 	private static final String ASSET_TRICK_SERVICE = "Asset-Trick service";
-
-	public static final String SIMPLE_ANALYSIS_VERSION = "0.0.1";
-
-	public static final String SIMPLE_ANALYSIS_NAME = "simple-analysis";
 
 	public static String SCENARIO_ASSET_TYPE_VALUE = "";
 
@@ -130,6 +128,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 	public void test_02_SelectAnalysis() throws Exception {
 		Analysis analysis = serviceAnalysis.getByCustomerAndLabelAndVersion(CUSTOMER_ID, SIMPLE_ANALYSIS_NAME, SIMPLE_ANALYSIS_VERSION);
 		notNull(analysis, "Analysis cannot be found");
+		put(SIMPLE_ANALYSIS_V0_0_1_ID, analysis.getId());
 		ANALYSIS_ID = analysis.getId();
 		this.mockMvc.perform(get(String.format("/Analysis/%d/Select", ANALYSIS_ID)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(forwardedUrl("analyses/single/home"));

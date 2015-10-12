@@ -7,10 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAsset;
-import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -19,10 +22,6 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * AssessmentManager.java: <br>
@@ -46,9 +45,6 @@ public class AssessmentManager {
 
 	@Autowired
 	private DAOAnalysis daoAnalysis;
-
-	@Autowired
-	private DAOParameter daoParameter;
 
 	@Transactional
 	public void selectAsset(Asset asset) throws Exception {

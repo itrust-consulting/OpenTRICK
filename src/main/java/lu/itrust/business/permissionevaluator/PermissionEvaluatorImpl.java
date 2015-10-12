@@ -6,6 +6,11 @@ import java.security.Principal;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -23,11 +28,6 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 
 /**
  * PermissionEvaluatorImpl.java: <br>
@@ -77,9 +77,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	private ServiceScenario serviceScenario;
 
 	@Autowired
-	private ServiceUser serviceUser;
-
-	@Autowired
 	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
@@ -89,13 +86,11 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	public PermissionEvaluatorImpl(ServiceUser serviceUser, ServiceAnalysis serviceAnalysis, ServiceUserAnalysisRight serviceUserAnalysisRight) {
-		this.serviceUser = serviceUser;
 		this.serviceAnalysis = serviceAnalysis;
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
 
 	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
 	}
 
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {

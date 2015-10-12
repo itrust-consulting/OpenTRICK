@@ -43,6 +43,8 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 	protected static final String USERNAME = "admin";
 
 	protected static final String PASSWORD = "test.TS_65";
+	
+	protected static final String ADMIN_USER_ID = "ADMIN_USER_ID";
 
 	protected static final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json;charset=UTF-8";
 

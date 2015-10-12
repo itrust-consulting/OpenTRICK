@@ -9,13 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.database.dao.DAOLanguage;
-import lu.itrust.business.TS.database.dao.DAOUser;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.usermanagement.User;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +16,12 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.LocaleResolver;
+
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.dao.DAOUser;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * AuthenticationSuccessHandler.java: <br>
@@ -41,9 +40,6 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 	@Autowired
 	private LocaleResolver localeResolver;
-
-	@Autowired
-	private DAOLanguage daoLanguage;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {

@@ -73,7 +73,7 @@ public class ControllerCustomer {
 	 * 
 	 * Display all customers
 	 * 
-	 * */
+	 */
 	@RequestMapping
 	public String loadAllCustomers(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
@@ -125,7 +125,8 @@ public class ControllerCustomer {
 			List<User> users = serviceUser.getAll();
 			List<User> customerusers = serviceUser.getAllFromCustomer(customerID);
 			for (User user : users) {
-				boolean userhasaccess = jsonNode.get("user_" + user.getId()).asBoolean();
+				JsonNode userNode = jsonNode.get("user_" + user.getId());
+				boolean userhasaccess = userNode != null && userNode.asBoolean();
 				if (userhasaccess) {
 					if (!user.containsCustomer(customer)) {
 						user.addCustomer(customer);
@@ -184,7 +185,7 @@ public class ControllerCustomer {
 	 * 
 	 * Display single customer
 	 * 
-	 * */
+	 */
 	@RequestMapping("/{customerId}")
 	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
 			Locale locale) throws Exception {
@@ -228,8 +229,8 @@ public class ControllerCustomer {
 					serviceCustomer.save(customer);
 				else
 					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
-			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed() || !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed())
-					&& (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
+			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed()
+					|| !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
 				errors.put("canBeUsed",
@@ -251,7 +252,7 @@ public class ControllerCustomer {
 	 * 
 	 * Delete single customer
 	 * 
-	 * */
+	 */
 	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 		try {

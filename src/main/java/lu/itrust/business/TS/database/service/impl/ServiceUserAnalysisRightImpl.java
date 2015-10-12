@@ -5,8 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lu.itrust.business.TS.database.dao.DAOAnalysis;
-import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -27,12 +25,6 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 
 	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
-
-	@Autowired
-	private DAOAnalysis daoAnalysis;
-
-	@Autowired
-	private DAOUser daoUser;
 
 	/**
 	 * get: <br>

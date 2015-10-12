@@ -133,7 +133,7 @@ public class ControllerRRF {
 	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
 
 	private static final String TS_INFO_FOR_IMPORT = "^!TS-InfO_fOr-ImpOrt!^";
-	
+
 	private static final String RAW_SCENARIOS = "Scenarios";
 
 	private static final String RAW_PREVENTIVE = "Preventive";
@@ -474,9 +474,12 @@ public class ControllerRRF {
 		JsonNode jsonNode = mapper.readTree(requestbody);
 
 		// retrieve analysis id to compute
-		Integer scenariotypeid = jsonNode.get("scenariotype").asInt();
-		if (scenariotypeid == null)
+		JsonNode idJsonNode = jsonNode.get("scenariotype");
+		if (idJsonNode == null || !idJsonNode.isNumber())
 			return null;
+		
+		Integer scenariotypeid = idJsonNode.asInt();
+
 		ScenarioType scenariotype = ScenarioType.valueOf(scenariotypeid);
 
 		Integer scenarioid = null;
@@ -582,8 +585,8 @@ public class ControllerRRF {
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_analysis", null, "No analysis selected", locale));
 			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
-			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis()) || serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(),
-					AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
+			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis())
+					|| serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 			else if (!rrfForm.getStandards().stream().allMatch(idStandard -> serviceStandard.belongToAnalysis(idStandard, rrfForm.getAnalysis())))
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
@@ -635,8 +638,8 @@ public class ControllerRRF {
 	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, XSSFWorkbook workbook, Locale locale) {
 		XSSFSheet sheet = workbook.createSheet(analysisStandard.getStandard().getLabel());
 		List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
-		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream())
-				.map(assetValue -> assetValue.getAsset()).distinct().collect(Collectors.toList());
+		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream()).map(assetValue -> assetValue.getAsset())
+				.distinct().collect(Collectors.toList());
 		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
 		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
 		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assets.size() + categories.length, rowIndex = 0;
@@ -671,9 +674,8 @@ public class ControllerRRF {
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
 		for (AssetType assetType : assetTypes)
 			row.getCell(++colIndex).setCellValue(assetType.getType());
-		measures.stream().forEach(
-				measure -> measure.getAssetTypeValues().forEach(
-						assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+		measures.stream().forEach(measure -> measure.getAssetTypeValues()
+				.forEach(assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
 		for (NormalMeasure measure : measures) {
 			row = sheet.getRow(++rowIndex);
 			if (row == null)
@@ -772,9 +774,8 @@ public class ControllerRRF {
 		for (AssetType assetType : assetTypes)
 			row.getCell(++colIndex).setCellValue(assetType.getType());
 		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
-		scenarios.stream().forEach(
-				scenario -> scenario.getAssetTypeValues().forEach(
-						assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+		scenarios.stream().forEach(scenario -> scenario.getAssetTypeValues()
+				.forEach(assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
 		for (Scenario scenario : scenarios) {
 			row = scenarioSheet.getRow(++rowIndex);
 			if (row == null)
@@ -847,7 +848,7 @@ public class ControllerRRF {
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
 					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
 					analysis.getIdentifier(), analysis.getVersion());
-			
+
 			return JsonMessage.Success(messageSource.getMessage("success.import.raw.rrf", null, "RRF was been successfully update from raw data", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));

@@ -9,20 +9,8 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
-import lu.itrust.business.TS.model.general.Phase;
-
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +18,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
+import lu.itrust.business.TS.model.general.Phase;
 
 /**
  * @author eomar
@@ -47,16 +45,10 @@ public class ControllerSummary {
 	private ServicePhase servicePhase;
 
 	@Autowired
-	private MessageSource messageSource;
-
-	@Autowired
 	private ChartGenerator chartGenerator;
 	
 	@Autowired
 	private ServiceLanguage serviceLanguage;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;

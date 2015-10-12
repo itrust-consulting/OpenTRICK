@@ -6,22 +6,25 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerRestoreAnalyisRight;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceActionPlan;
-import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceTrickService;
-import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
@@ -36,17 +39,6 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
-
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * ControllerPatch.java: <br>
@@ -62,40 +54,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ControllerPatch {
 
 	@Autowired
-	private ServiceTrickService serviceTrickService;
-
-	@Autowired
 	private ServiceScenario serviceScenario;
 
 	@Autowired
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
-	private ServiceActionPlanSummary serviceActionPlanSummary;
-
-	@Autowired
-	private ServiceMeasure serviceMeasure;
-
-	@Autowired
 	private AssessmentManager assessmentManager;
-
-	@Autowired
-	private MeasureManager measureManager;
-
-	@Autowired
-	private ServiceActionPlan serviceActionPlan;
-
-	@Autowired
-	private ServiceAnalysisStandard serviceAnalysisStandard;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;

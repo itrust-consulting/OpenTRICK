@@ -9,32 +9,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAssessment;
-import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
-import lu.itrust.business.TS.model.asset.AssetType;
-import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.model.general.AssetTypeValue;
-import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.TS.model.scenario.ScenarioType;
-import lu.itrust.business.TS.validator.ScenarioValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +22,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssessment;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
+import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.model.general.AssetTypeValue;
+import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
+import lu.itrust.business.TS.validator.ScenarioValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
  * ControllerScenario.java: <br>
@@ -75,9 +73,6 @@ public class ControllerScenario {
 	private ChartGenerator chartGenerator;
 
 	@Autowired
-	private ServiceMeasure serviceMeasure;
-
-	@Autowired
 	private CustomDelete customDelete;
 
 	@Autowired
@@ -97,9 +92,6 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	/**
 	 * select: <br>
