@@ -91,48 +91,56 @@ public class TS_08_Administration extends SpringTestConfiguration {
 						.with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(status().isOk()).andExpect(view().name("knowledgebase/customer/customerusers")).andExpect(model().attributeDoesNotExist("errors"));
 	}
-	
-	@Test(dependsOnMethods="test_01_AddCustomer")
-	@Transactional(readOnly=true)
+
+	@Test(dependsOnMethods = "test_01_AddCustomer", dependsOnGroups = "CreateAnalysis")
+	@Transactional(readOnly = true)
 	public void test_03_SwitchCustomer() throws Exception {
-		this.mockMvc.perform(post(String.format("/Admin/Analysis/%d/Switch/Customer", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-				.content(String.format(
-						"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
-						CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_CITY, CUSTOMER_NAME))
-				.with(httpBasic(USERNAME, PASSWORD))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
+		this.mockMvc
+				.perform(post(String.format("/Admin/Analysis/%d/Switch/Customer", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(view().name("admin/analysis/switch-customer"));
 	}
-	
-	@Test(dependsOnMethods="test_03_SwitchCustomer")
-	@Transactional(readOnly=true)
+
+	@Test(dependsOnMethods = "test_03_SwitchCustomer")
+	@Transactional(readOnly = true)
 	public void test_04_SwitchCustomer() throws Exception {
-		this.mockMvc.perform(post(String.format("/Analysis/{idAnalysis}/Switch/Customer/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-				.content(String.format(
-						"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
-						CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_CITY, CUSTOMER_NAME))
-				.with(httpBasic(USERNAME, PASSWORD))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
+		this.mockMvc
+				.perform(post(String.format("/Admin/Analysis/%d/Switch/Customer/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(CUSTOMER_TO_DELETE_ID)))
+						.with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
-	
-	@Test(dependsOnGroups="test_00_addUser")
-	@Transactional(readOnly=true)
-	public void test_05_SwitchOwner() {
-		
+
+	@Test(dependsOnMethods = "test_00_addUser", dependsOnGroups = "CreateAnalysis")
+	@Transactional(readOnly = true)
+	public void test_05_SwitchOwner() throws Exception {
+		this.mockMvc
+				.perform(post(String.format("/Admin/Analysis/%d/Switch/Owner", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(status().isOk()).andExpect(view().name("admin/analysis/switch-owner"));
 	}
-	
-	@Test(dependsOnMethods = "test_01_AddCustomerUser")
+
+	@Test(dependsOnMethods = "test_05_SwitchOwner")
+	@Transactional(readOnly = true)
+	public void test_06_SwitchOwner() throws Exception {
+		this.mockMvc
+				.perform(post(String.format("/Admin/Analysis/%d/Switch/Owner/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(USER_TO_DELETE_ID)))
+						.with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+	}
+
+	@Test(dependsOnMethods = { "test_02_AddCustomerUser", "test_04_SwitchCustomer" })
 	public void test_01_DeleteCustomer() throws Exception {
 		this.mockMvc
 				.perform(get("/KnowledgeBase/Customer/Delete/" + getInteger(CUSTOMER_TO_DELETE_ID)).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
-	
-	
-	@Test(dependsOnMethods = "test_01_AddCustomerUser")
+
+	@Test(dependsOnMethods = { "test_02_AddCustomerUser", "test_06_SwitchOwner" })
 	public void test_00_deleteUser() throws Exception {
 		this.mockMvc
 				.perform(post("/Admin/User/Delete").with(csrf()).contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD))
 						.content(String.format("{\"idUser\":%d, \"switchOwners\": {}, \"deleteAnalysis\":[] }", getInteger(USER_TO_DELETE_ID))))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists());
 	}
-	
+
 }
