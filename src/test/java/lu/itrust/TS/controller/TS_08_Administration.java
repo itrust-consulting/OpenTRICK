@@ -97,7 +97,8 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	public void test_03_SwitchCustomer() throws Exception {
 		this.mockMvc
 				.perform(post(String.format("/Admin/Analysis/%d/Switch/Customer", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
-						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(view().name("admin/analysis/switch-customer"));
+						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(status().isOk()).andExpect(view().name("admin/analysis/switch-customer"));
 	}
 
 	@Test(dependsOnMethods = "test_03_SwitchCustomer")
@@ -105,7 +106,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	public void test_04_SwitchCustomer() throws Exception {
 		this.mockMvc
 				.perform(post(String.format("/Admin/Analysis/%d/Switch/Customer/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(CUSTOMER_TO_DELETE_ID)))
-						.with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
@@ -123,7 +124,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	public void test_06_SwitchOwner() throws Exception {
 		this.mockMvc
 				.perform(post(String.format("/Admin/Analysis/%d/Switch/Owner/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(USER_TO_DELETE_ID)))
-						.with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
+						.contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
