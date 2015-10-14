@@ -3,9 +3,9 @@
  */
 package lu.itrust.TS.controller;
 
+import static lu.itrust.TS.helper.TestConstant.SIMPLE_ANALYSIS_V0_0_1_ID;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
 import static lu.itrust.TS.helper.TestSharingData.put;
-import static lu.itrust.TS.helper.TestConstant.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -96,7 +96,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_03_SwitchCustomer() throws Exception {
 		this.mockMvc
-				.perform(post(String.format("/Admin/Analysis/%d/Switch/Customer", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+				.perform(get(String.format("/Admin/Analysis/%d/Switch/Customer", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(status().isOk()).andExpect(view().name("admin/analysis/switch-customer"));
 	}
@@ -105,7 +105,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_04_SwitchCustomer() throws Exception {
 		this.mockMvc
-				.perform(post(String.format("/Admin/Analysis/%d/Switch/Customer/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(CUSTOMER_TO_DELETE_ID)))
+				.perform(get(String.format("/Admin/Analysis/%d/Switch/Customer/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(CUSTOMER_TO_DELETE_ID)))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
@@ -114,7 +114,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_05_SwitchOwner() throws Exception {
 		this.mockMvc
-				.perform(post(String.format("/Admin/Analysis/%d/Switch/Owner", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+				.perform(get(String.format("/Admin/Analysis/%d/Switch/Owner", getInteger(CUSTOMER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(status().isOk()).andExpect(view().name("admin/analysis/switch-owner"));
 	}
@@ -123,7 +123,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_06_SwitchOwner() throws Exception {
 		this.mockMvc
-				.perform(post(String.format("/Admin/Analysis/%d/Switch/Owner/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(USER_TO_DELETE_ID)))
+				.perform(get(String.format("/Admin/Analysis/%d/Switch/Owner/%d", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(USER_TO_DELETE_ID)))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
