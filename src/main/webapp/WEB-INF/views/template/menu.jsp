@@ -33,6 +33,8 @@
 								code="label.menu.import.analysis" text="Import" /></a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" style="padding: 16px"><spring:message code="label.background.task" /> <span id="task-counter" class="fa badge">0</span></a>
+						<ul class="dropdown-menu" id="task-manager"></ul></li>
 					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile"> <spring:message code="label.profile" text="Profile" /></a></li>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 						<li ${menu.equals("Admin")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Admin"> <spring:message code="label.administration" text="Admin" /></a></li>
@@ -57,12 +59,10 @@
 								</a></li>
 							</ul></li>
 					</sec:authorize>
-					<li> <a href="#" onclick="return $('#logoutFormSubmiter').click()"><spring:message code="label.menu.logout" text="Logout" /></a>
-					<form action="${pageContext.request.contextPath}/signout" method="post"  style="display: none">
-							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-							<input type="submit" id="logoutFormSubmiter" />
-						</form>
-					</li>
+					<li><a href="#" onclick="return $('#logoutFormSubmiter').click()"><spring:message code="label.menu.logout" text="Logout" /></a>
+						<form action="${pageContext.request.contextPath}/signout" method="post" style="display: none">
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> <input type="submit" id="logoutFormSubmiter" />
+						</form></li>
 				</ul>
 			</div>
 		</sec:authorize>

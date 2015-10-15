@@ -5,32 +5,39 @@ function TaskManager(title) {
 	this.view = null;
 
 	TaskManager.prototype.Start = function() {
+		this.Hide();
 		var instance = this;
 		setTimeout(function() {
 			instance.UpdateTaskCount();
-		}, 1000);
+		}, 500);
 		return this;
 	};
 
+	TaskManager.prototype.UpdateUI = function() {
+		$("#task-counter").text($("li",this.view).length);
+	};
+
 	TaskManager.prototype.__CreateView = function() {
-		this.view = new Modal();
-		this.view.Intialise();
-		$(this.view.modal_footer).remove();
-		this.view.setTitle(this.title);
+		this.view = $("#task-manager");
 		return this;
 	};
-	
-	TaskManager.prototype.SetTitle= function(title){
+
+	TaskManager.prototype.SetTitle = function(title) {
 		this.title = title;
-		if(!(this.view == undefined ||this.view == null || this.view.isDisposed))
-			this.view.setTitle(title)
 		return this;
 	};
 
 	TaskManager.prototype.Show = function() {
-		if (this.view == undefined ||this.view == null || this.view.isDisposed)
+		if (this.view == null)
 			this.__CreateView();
-		this.view.Show();
+		this.view.removeAttr("style");
+		return this;
+	};
+	
+	TaskManager.prototype.Hide = function() {
+		if (this.view == null)
+			this.__CreateView();
+		this.view.hide();
 		return this;
 	};
 
@@ -39,8 +46,7 @@ function TaskManager(title) {
 	};
 
 	TaskManager.prototype.Destroy = function() {
-		if (this.view != null)
-			this.view.Destroy();
+		this.Hide().view.empty();
 		return true;
 	};
 
@@ -51,8 +57,10 @@ function TaskManager(title) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
-				if (reponse == null || reponse == "")
+				if (reponse == null || reponse == ""){
+					instance.Destroy();
 					return false;
+				}
 				else if (reponse.length) {
 					for (var int = 0; int < reponse.length; int++) {
 						if ($.isNumeric(reponse[int]) && !(reponse[int] in instance.tasks)) {
@@ -60,7 +68,8 @@ function TaskManager(title) {
 							instance.UpdateStatus(reponse[int]);
 						}
 					}
-					if (!instance.isEmpty())
+					instance.UpdateUI();
+					if(!instance.isEmpty())
 						instance.Show();
 				}
 			},
@@ -70,24 +79,29 @@ function TaskManager(title) {
 	};
 
 	TaskManager.prototype.createProgressBar = function(taskId) {
-		if (this.view == null || this.view == undefined)
+		if (this.view == null)
 			this.__CreateView();
 		var progressBar = new ProgressBar();
 		var instance = this;
 		progressBar.Initialise();
 		progressBar.progress.setAttribute("id", "task_" + taskId);
-		if (this.view != null && this.view.modal_body)
-			progressBar.Anchor(this.view.modal_body);
+		if (this.view != null) {
+			$container = $("<li />").attr("id", "task-container-" + taskId);
+			$container.appendTo(this.view);
+			progressBar.Anchor($container[0]);
+		}
 		progressBar.OnComplete(function(sender) {
 			setTimeout(function() {
 				progressBar.Destroy();
 				instance.Remove(taskId);
 			}, 10000);
 		});
+		this.UpdateUI();
 		return progressBar;
 	};
 
 	TaskManager.prototype.Remove = function(taskId) {
+		$("#task-container-" + taskId).remove();
 		var index = this.tasks.indexOf(taskId);
 		if (index > -1)
 			this.tasks.splice(index, 1);
@@ -95,7 +109,8 @@ function TaskManager(title) {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
-		if(this.isEmpty())
+		this.UpdateUI();
+		if (this.isEmpty())
 			this.Destroy();
 		return this;
 	};
@@ -114,10 +129,9 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					return false;
 				}
-				
-				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined) {
+				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined)
 					instance.progressBars[taskId] = instance.createProgressBar(taskId);
-				}
+
 				if (reponse.message != null) {
 					instance.progressBars[taskId].Update(reponse.progress, reponse.message);
 				}

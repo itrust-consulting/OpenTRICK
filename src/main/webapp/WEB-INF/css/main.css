@@ -494,3 +494,16 @@ td.selected, .table>tbody>tr.info>td.selected {
 td.unselected,.table>tbody>tr.info>td.unselected {
 	background-color: window;
 }
+
+ul#task-manager {
+	padding: 0;
+	min-width: 450px;
+	padding: 10px;
+	max-height: 250px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+ul#task-manager>li>li {
+	border-top: 1px solid #777;
+}

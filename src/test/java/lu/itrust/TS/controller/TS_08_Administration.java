@@ -24,6 +24,10 @@ import org.testng.annotations.Test;
 
 import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSettingName;
 
 /**
  * @author eomar
@@ -129,19 +133,69 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	}
 
 	@Test(dependsOnMethods = { "test_02_AddCustomerUser", "test_04_SwitchCustomer" })
-	public void test_01_DeleteCustomer() throws Exception {
+	public void test_07_DeleteCustomer() throws Exception {
 		this.mockMvc
 				.perform(get("/KnowledgeBase/Customer/Delete/" + getInteger(CUSTOMER_TO_DELETE_ID)).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
-	@Test(dependsOnMethods = { "test_02_AddCustomerUser", "test_06_SwitchOwner" })
-	public void test_00_deleteUser() throws Exception {
+	@Test(dependsOnMethods = "test_00_addUser", dependsOnGroups = "CreateAnalysis")
+	public void test_08_ManageAnalysisAccessView() throws Exception {
+		this.mockMvc.perform(get(String.format("/Admin/Analysis/%d/ManageAccess", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+				.with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(view().name("analyses/all/forms/manageUserAnalysisRights"));
+	}
+
+	@Test(dependsOnMethods = "test_08_ManageAnalysisAccessView")
+	public void test_09_ManageAnalysisAccessSave() throws Exception {
+		this.mockMvc.perform(post(String.format("/Admin/Analysis/%d/ManageAccess/Update", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID)))
+				.content(String.format("{\"userselect\" : %d}", getInteger(USER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
+				.with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(view().name("analyses/all/forms/manageUserAnalysisRights"));
+	}
+
+	@Test
+	public void test_10_Home() throws Exception {
+		this.mockMvc
+				.perform(post(String.format("/Admin", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD))
+						.with(csrf()).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(status().isOk()).andExpect(view().name("admin/administration"))
+				.andExpect(model().attributeExists("tsSettings", "logFilter", "logLevels", "logTypes", "actions", "authors"));
+	}
+
+	@Test
+	public void test_11_UpdateTSSettings() throws Exception {
+		this.mockMvc
+				.perform(post("/Admin/TSSetting/Update").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"name\" : \"%s\", \"value\" : \"false\"}", TSSettingName.SETTING_ALLOWED_SIGNUP)).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(status().isOk()).andExpect(content().string("true"));
+		this.mockMvc
+				.perform(post("/Admin/TSSetting/Update").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"name\" : \"%s\", \"value\" : \"false\"}", TSSettingName.SETTING_ALLOWED_SIGNUP)).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(status().isOk()).andExpect(content().string("true"));
+	}
+
+	@Test(dependsOnMethods = { "test_02_AddCustomerUser", "test_06_SwitchOwner", "test_09_ManageAnalysisAccessSave" })
+	public void test_11_deleteUser() throws Exception {
 		this.mockMvc
 				.perform(post("/Admin/User/Delete").with(csrf()).contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD))
 						.content(String.format("{\"idUser\":%d, \"switchOwners\": {}, \"deleteAnalysis\":[] }", getInteger(USER_TO_DELETE_ID))))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists());
 	}
 
+	@Test(dependsOnMethods = "test_11_deleteUser")
+	public void test_12_UpdateLogsSettings() throws Exception {
+		this.mockMvc
+				.perform(post("/Admin/Log/Filter/Update").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"type\" : \"%s\", \"level\" : \"%s\", \"action\" : \"%s\", \"author\" : \"%s\",\"direction\" : \"%s\", \"size\" : %d}",
+								LogType.ADMINISTRATION, LogLevel.WARNING, LogAction.DELETE, USERNAME, "desc", 200))
+						.with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+	}
+
+	@Test(dependsOnMethods = "test_12_UpdateLogsSettings")
+	public void test_12_LoadLogsSection() throws Exception {
+		this.mockMvc
+				.perform(get("/Admin/Log/Section").contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(status().isOk()).andExpect(view().name("admin/log/section")).andExpect(model().attributeExists("trickLogs"));
+	}
 }
