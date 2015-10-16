@@ -595,7 +595,7 @@ public class ControllerKnowledgeBaseStandard {
 			 */
 
 			ByteArrayOutputStream standardFile = new ByteArrayOutputStream();
-			
+
 			workbook.write(standardFile);
 
 			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();
@@ -615,9 +615,9 @@ public class ControllerKnowledgeBaseStandard {
 			// whihc
 			// creates on the
 			// client side the sqlite file)
-			
+
 			response.getOutputStream().write(standardFile.toByteArray());
-			
+
 			/**
 			 * Log
 			 */
@@ -691,7 +691,7 @@ public class ControllerKnowledgeBaseStandard {
 			model.addAttribute("standard", serviceStandard.get(idStandard));
 			model.addAttribute("measureDescriptions", mesDescs);
 		}
-		return "knowledgebase/standards/measure/measures";
+		return "knowledgebase/standards/measure/section";
 	}
 
 	/**
@@ -845,11 +845,11 @@ public class ControllerKnowledgeBaseStandard {
 
 			// retrieve measure id
 			int id = jsonNode.get("id").asInt();
-
+			boolean isNew = false;
 			// create new empty measuredescription object
 			MeasureDescription measureDescription = serviceMeasureDescription.get(id);
 
-			if (measureDescription == null) {
+			if ((isNew = measureDescription == null)) {
 				// retrieve standard
 				measureDescription = new MeasureDescription();
 				Standard standard = serviceStandard.get(idStandard);
@@ -861,8 +861,9 @@ public class ControllerKnowledgeBaseStandard {
 						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, jsonNode, locale)) {
-				serviceMeasureDescription.saveOrUpdate(measureDescription);
-				measureManager.createNewMeasureForAllAnalyses(measureDescription);
+				if (isNew)
+					measureManager.createNewMeasureForAllAnalyses(measureDescription);
+				else serviceMeasureDescription.saveOrUpdate(measureDescription);
 			}
 
 			// System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");

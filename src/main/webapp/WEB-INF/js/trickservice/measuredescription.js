@@ -1,42 +1,63 @@
-function showMeasures(idStandard, languageId) {
+function findDefaultLanguageId() {
+	var $language = $("#section_language tbody tr[data-trick-id]:first-child");
+	return $language.length ? $language.attr('data-trick-id') : 1;
+}
+
+function rebuildMeasureLanguage() {
+	var $languageSelect = $("#languageselect"), selected = $languageSelect.val();
+	$languageSelect.empty();
+	$("#section_language tbody tr[data-trick-id]").each(function() {
+		var $this = $(this), $option = $("<option />"), id = $this.attr("data-trick-id");
+		$option.text($("td[data-field-name='name']", $this).text());
+		$option.attr("value", id);
+		$option.appendTo($languageSelect);
+		if (id == selected)
+			$option.prop("selected", true);
+	});
+}
+
+function showTabMeasure(idStandard, idLanguage) {
+	if (idLanguage == undefined || idLanguage == null)
+		idLanguage = findDefaultLanguageId();
+	var $measureTab = $("#control_tab_measure");
+	if ($("#section_kb_standard input:checked").length)
+		$measureTab.show();
+	else
+		$measureTab.hide();
+	var $tab = $("#tab_measure"), $section = $("#section_kb_measure");
+	$tab.attr("data-update-required", !($section.attr("data-standard-id") == idStandard && $section.attr("data-language-id") == idLanguage));
+}
+
+function showMeasures(idStandard, languageId, reloadBody) {
 	if (idStandard == null || idStandard == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_kb_standard"));
+		var selectedScenario = findSelectItemIdBySection("section_kb_standard");
 		if (selectedScenario.length != 1)
 			return false;
 		idStandard = selectedScenario[0];
 	}
-
-	if (languageId == undefined || languageId == null) {
-		var language = $("#section_language tbody tr[data-trick-id]:first-child");
-		languageId = language.length ? $(language).attr('data-trick-id') : 1;
-	}
-
+	if (languageId == undefined || languageId == null)
+		languageId = findDefaultLanguageId();
 	$("#progress-dialog").modal("show");
-
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Language/" + languageId + "/Measures",
 		type : "POST",
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
+			var $newSection = $("#section_kb_measure", new DOMParser().parseFromString(response, "text/html"));
+			if ($newSection.length) {
+				$section = $("#section_kb_measure");
+				var sectionSmartUpdate = new SectionSmartUpdate("section_kb_measure", $newSection);
+				if (reloadBody || sectionSmartUpdate.Update()) {
+					$("tbody", $section).replaceWith($("tbody", $newSection));
+					console.log("here");
+				}
+				$("#hidden-standard-data", $section).replaceWith($("#hidden-standard-data", $newSection));
+				$("#section_title_measure", $section).text($("#section_title_measure", $newSection).text());
+				$section.attr("data-standard-id", idStandard);
+				$section.attr("data-language-id", languageId);
 
-			var content = new DOMParser().parseFromString(response, "text/html");
-
-			if (content.getElementById("measures_header") == null || content.getElementById("measures_body") == null)
+			} else
 				unknowError();
-			else {
-
-				$("#section_measure_description #measures_header").replaceWith($("#measures_header", content));
-
-				$("#section_measure_description #measures_body").replaceWith($("#measures_body", content));
-
-				updateMenu(undefined, "#section_measure_description", "#menu_measure_description", undefined);
-
-				$("#languageselect").change(function(e) {
-					showMeasures($("#section_measure_description #measures_header #idStandard").val(), $(e.target).val());
-				});
-
-				$("#section_measure_description").modal("show");
-			}
 
 		},
 		error : unknowError,
@@ -48,10 +69,10 @@ function showMeasures(idStandard, languageId) {
 }
 
 function newMeasure(idStandard) {
-	if (findSelectItemIdBySection("section_measure_description").length)
+	if (findSelectItemIdBySection("section_kb_measure").length)
 		return false;
 	if (idStandard == null || idStandard == undefined)
-		idStandard = $("#section_measure_description #measures_header #idStandard").val();
+		idStandard = $("#section_kb_measure #idStandard").val();
 	var alert = $("#addMeasureModel .label-danger");
 	if (alert.length)
 		alert.remove();
@@ -97,19 +118,19 @@ function newMeasure(idStandard) {
 function editSingleMeasure(measureId, idStandard) {
 
 	if (idStandard == null || idStandard == undefined)
-		idStandard = $("#section_measure_description #measures_header #idStandard").val();
+		idStandard = $("#section_kb_measure #idStandard").val();
 
 	var alert = $("#addMeasureModel .label-danger");
 	if (alert.length)
 		alert.remove();
 
 	if (measureId == null || measureId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_measure_description");
+		var selectedScenario = findSelectItemIdBySection("section_kb_measure");
 		if (selectedScenario.length != 1)
 			return false;
 		measureId = selectedScenario[0];
 	}
-	var measure = $("#section_measure_description #measures_body tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
+	var measure = $("#section_kb_measure tbody tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 
 	$("#addMeasureModel #measure_id").prop("value", measureId);
 	$("#addMeasureModel #measure_reference").prop("value", $(measure[1]).text());
@@ -119,7 +140,6 @@ function editSingleMeasure(measureId, idStandard) {
 	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.edit", "Update"));
-
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
 		type : "post",
@@ -127,7 +147,7 @@ function editSingleMeasure(measureId, idStandard) {
 		success : function(response, textStatus, jqXHR) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
 			if ($(doc).find("#measurelanguageselect").length) {
-				var language = $("#measures_body #languageselect").val();
+				var language = $("#section_kb_measure #languageselect").val();
 				$("#addMeasureModel #measurelanguages").html(response);
 				$("#addMeasureModel #measurelanguageselect").change(function() {
 					var language = parseInt($(this).find("option:selected").attr("value"));
@@ -148,17 +168,19 @@ function editSingleMeasure(measureId, idStandard) {
 }
 
 function saveMeasure() {
-	var form = $("#addMeasureModel #measure_form");
+	var $form = $("#addMeasureModel #measure_form"), $progressBar = $("#addMeasureModel #save-measure-progress-bar"), $buttonSubmit = $("#addMeasureModel #addmeasurebutton");
+	$buttonSubmit.prop("disabled", true);
+	$progressBar.show();
 	$.ajax({
-		url : form.prop("action"),
+		url : $form.prop("action"),
 		type : "post",
-		data : serializeForm(form),
+		data : serializeForm($form),
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
 			var alert = $("#addMeasureModel").find(".label-danger");
 			if (alert.length)
 				alert.remove();
-			var languages = form.find("select option");
+			var languages = $form.find("select option");
 			var languageDataValidation = {};
 			for (var i = 0; i < languages.length; i++) {
 				var idLanguage = $(languages[i]).val();
@@ -171,30 +193,35 @@ function saveMeasure() {
 				$(errorElement).text(response[error]);
 				var languageData = languageDataValidation[error];
 				if (languageData != undefined) {
-					$(errorElement).appendTo(form.find(languageData).parent());
+					$(errorElement).appendTo($form.find(languageData).parent());
 					continue;
 				}
 				switch (error) {
 				case "measuredescription.reference":
-					$(errorElement).appendTo(form.find("#measure_reference").parent());
+					$(errorElement).appendTo($form.find("#measure_reference").parent());
 					break;
 				case "measuredescription.level":
-					$(errorElement).appendTo(form.find("#measure_level").parent());
+					$(errorElement).appendTo($form.find("#measure_level").parent());
 					break;
 				case "measureDescription":
-					$(errorElement).appendTo(form.parent());
+					$(errorElement).appendTo($form.parent());
 					break;
 				}
 			}
 			if (!$("#addMeasureModel").find(".label-danger").length) {
 				$("#addMeasureModel").modal("hide");
-				var language = $("#measures_body #languageselect").val();
-				var idStandard = $("#section_measure_description #measures_header #idStandard").val();
-				return showMeasures(idStandard, language);
-			}
+				var language = $("#section_kb_measure #languageselect").val();
+				var idStandard = $("#section_kb_measure #idStandard").val();
+				showMeasures(idStandard, language, $("#measure_id", $form).val() < 1);
+			} else
+				$("#progress-dialog").modal("hide");
 			return false;
 		},
-		error : unknowError
+		error : unknowError,
+		complete : function() {
+			$buttonSubmit.prop("disabled", false);
+			$progressBar.hide();
+		}
 	});
 
 	return false;
@@ -207,18 +234,18 @@ function deleteMeasure(measureId, reference, standard) {
 		alert.remove();
 
 	if (measureId == null || measureId == undefined) {
-		var selectedMeasure = findSelectItemIdBySection("section_measure_description");
+		var selectedMeasure = findSelectItemIdBySection("section_kb_measure");
 		if (selectedMeasure.length != 1)
 			return false;
 		measureId = selectedMeasure[0];
 	}
 
-	idStandard = $("#section_measure_description #measures_header #idStandard").val();
+	idStandard = $("#section_kb_measure #idStandard").val();
 
 	if (standard == null || standard == undefined)
-		standard = $("#section_measure_description #measures_header #standardLabel").val();
+		standard = $("#section_kb_measure #standardLabel").val();
 
-	var measure = $("#section_measure_description #measures_body tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
+	var measure = $("#section_kb_measure tbody tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 	reference = $(measure[1]).text();
 
 	var deleteModal = new Modal();
@@ -236,7 +263,7 @@ function deleteMeasure(measureId, reference, standard) {
 			async : false,
 			success : function(response, textStatus, jqXHR) {
 				if (response.success) {
-					var language = $("#measures_body #languageselect").val();
+					var language = $("#section_kb_measure #languageselect").val();
 					return showMeasures(idStandard, language);
 				} else if (response.error) {
 					var error = new Modal();
@@ -263,18 +290,18 @@ function forceDeleteMeasure(measureId, reference, standard) {
 		alert.remove();
 
 	if (measureId == null || measureId == undefined) {
-		var selectedMeasure = findSelectItemIdBySection("section_measure_description");
+		var selectedMeasure = findSelectItemIdBySection("section_kb_measure");
 		if (selectedMeasure.length != 1)
 			return false;
 		measureId = selectedMeasure[0];
 	}
 
-	idStandard = $("#section_measure_description #measures_header #idStandard").val();
+	idStandard = $("#section_kb_measure #idStandard").val();
 
 	if (standard == null || standard == undefined)
-		standard = $("#section_measure_description #measures_header #standardLabel").val();
+		standard = $("#section_kb_measure #standardLabel").val();
 
-	var measure = $("#section_measure_description #measures_body tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
+	var measure = $("#section_kb_measure tbody tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 	reference = $(measure[1]).text();
 	var deleteModal = new Modal($("#deleteMeasureModel").clone());
 	deleteModal.setBody(MessageResolver("label.measure.question.force.delete", "Are you sure that you want to force deleting of the measure with the Reference: <strong>"
@@ -289,7 +316,7 @@ function forceDeleteMeasure(measureId, reference, standard) {
 			async : false,
 			success : function(response, textStatus, jqXHR) {
 				if (response.success != undefined)
-					showMeasures(idStandard, $("#measures_body #languageselect").val());
+					showMeasures(idStandard, $("#section_kb_measure #languageselect").val());
 				else if (response.error != undefined)
 					showDialog("#alert-dialog", response.error)
 				else

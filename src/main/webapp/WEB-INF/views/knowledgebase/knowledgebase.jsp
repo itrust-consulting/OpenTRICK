@@ -24,6 +24,7 @@
 				<li><a href="#tab_language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language" /></a></li>
 				<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
 				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
+				<li id="control_tab_measure" style="display: none;"><a href="#tab_measure" data-toggle="tab"><spring:message code="label.menu.knowledgebase.measures" text="Measures" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
 			</ul>
@@ -32,7 +33,9 @@
 				<jsp:include page="language/languages.jsp" />
 				<jsp:include page="standards/standard/standards.jsp" />
 				<jsp:include page="analysis/analyses.jsp" />
+				<jsp:include page="standards/measure/measures.jsp" />
 				<jsp:include page="widget.jsp" />
+				
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

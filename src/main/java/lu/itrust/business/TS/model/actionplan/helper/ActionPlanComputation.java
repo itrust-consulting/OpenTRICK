@@ -187,7 +187,7 @@ public class ActionPlanComputation {
 		// if no: select 27002
 		for (AnalysisStandard analysisStandard : this.standards) {
 
-			if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_MATURITY) && analysisStandard.getStandard().isComputable()) {
+			if (analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable()) {
 
 				this.maturitycomputation = true;
 

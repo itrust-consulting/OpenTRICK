@@ -16,9 +16,9 @@ function Application() {
 	this.fixedOffset = 5
 }
 
-function checkExtention(value,extention,button){
+function checkExtention(value, extention, button) {
 	var extentions = extention.split(","), match = false;
-	for (var i = 0; i < extentions.length; i++) 
+	for (var i = 0; i < extentions.length; i++)
 		match |= value.endsWith(extentions[i]);
 	$(button).prop("disabled", !match);
 	return match;
@@ -43,6 +43,11 @@ function downloadWordReport(id) {
 
 function downloadExportedSqLite(id) {
 	window.location = context + '/Profile/Sqlite/' + id + "/Download";
+	return false;
+}
+
+function swithTab(tabName) {
+	$(".nav-tab a[href='#" + tabName + "']").tab('show');
 	return false;
 }
 
@@ -140,8 +145,9 @@ $(function() {
 		});
 	}
 
-	if (!$("ul.nav-analysis").length) {
+	if ($("ul.nav-analysis,ul.nav-tab").length) {
 		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+			console.log($(target).attr("data-trigger"));
 			var target = $(e.target).attr("href");
 			if ($(target).attr("data-update-required") == "true") {
 				window[$(target).attr("data-trigger")].apply();
@@ -426,7 +432,7 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 	return false;
 }
 
-function updateMenu(sender, idsection, idMenu, appModalVar) {
+function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	if (sender) {
 		if ($(sender).is(":checked")) {
 			$(sender).parent().parent().addClass("info")
@@ -488,6 +494,16 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 		}
 	}
 
+	if (callback != undefined) {
+		try {
+			if ($.isFunction(callback))
+				callback();
+			else
+				eval(callback);
+		} catch (e) {
+			console.log(e);
+		}
+	}
 	return false;
 }
 

@@ -5,8 +5,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="section_measure_description" class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
-	<div class="modal-dialog" style="width: 95%;min-width:1170px;">
-		<div class="modal-content" style="padding-bottom:20px">
+	<div class="modal-dialog" style="width: 95%; min-width: 1170px;">
+		<div class="modal-content" style="padding-bottom: 20px">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="measures_header"></h4>
@@ -47,6 +47,9 @@
 					</div>
 					<div id="measurelanguages"></div>
 				</form>
+				<div id="save-measure-progress-bar" class="progress progress-striped active" hidden="true" style="margin-bottom: -17px;">
+					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">

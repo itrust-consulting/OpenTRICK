@@ -123,7 +123,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	@Test
 	public void test_00_Show27001Standard() throws Exception {
 		this.mockMvc.perform(get("/KnowledgeBase/Standard/1/Language/1/Measures").with(csrf()).with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk())
-				.andExpect(view().name("knowledgebase/standards/measure/measures"))
+				.andExpect(view().name("knowledgebase/standards/measure/section"))
 				.andExpect(model().attributeExists("selectedLanguage", "languages", "standard", "measureDescriptions"));
 	}
 

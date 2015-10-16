@@ -81,7 +81,7 @@ function reloadSection(section, subSection, refreshOnly) {
 						tableFixedHeader = $("#" + section).find("table.table-fixed-header-analysis");
 						if(tableFixedHeader.length){
 							$(tableFixedHeader).stickyTableHeaders({
-								cssTopOffset : ".nav-analysis",
+								cssTopOffset : ".nav-tabs",
 								fixedOffset : application.fixedOffset
 							});
 						}
@@ -176,6 +176,8 @@ function callbackBySection(section) {
 			$("#standardmenu").prepend(text);
 
 			$("#" + section + " td.popover-element").popover("hide");
+		},"section_language" : function(){
+			rebuildMeasureLanguage();
 		}
 
 	};
@@ -204,6 +206,7 @@ SectionSmartUpdate.prototype = {
 		case "section_language":
 		case "section_customer":
 		case "section_profile_analysis":
+		case "section_kb_measure":
 			return this.__generic_update(this.data, "#" + this.sectionName, -1);
 		default:
 			break;

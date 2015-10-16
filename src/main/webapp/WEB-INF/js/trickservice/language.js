@@ -68,7 +68,6 @@ function deleteLanguage(languageId, name) {
 		$("#deleteLanguageModel").modal('hide');
 		$.ajax({
 			url : context + "/KnowledgeBase/Language/Delete/" + languageId,
-			type : "POST",
 			contentType : "application/json",
 			success : function(response,textStatus,jqXHR) {
 				if(response["success"]!=undefined)

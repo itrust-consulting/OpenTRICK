@@ -4,27 +4,14 @@ $(document).ready(function() {
 		cssTopOffset : ".nav-tab",
 		fixedOffset : application.fixedOffset
 	});
-	
-	var resizer = function() {
-		$("#measures_body").css({
-			'max-height' : ($(window).height() * 0.78) + 'px',
-			'overflow' : 'auto'
-		});
-	};
-	
-	$("#section_measure_description").on("hidden.bs.modal", function() {
-		$(window).off(resizer);
+
+	$("#section_kb_measure #languageselect").change(function() {
+		showMeasures($("#section_kb_measure").attr("data-standard-id"), $(this).val());
 	});
-	
-	$("#section_measure_description").on("show.bs.modal", function() {
-		resizer.apply(resizer, null);
-	});
-	
-	$("#section_measure_description").on("shown.bs.modal", function() {
-		$(window).resize(resizer);
-	});
-	
+
 });
+
+
 
 function editSingleAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
@@ -39,7 +26,7 @@ function editSingleAnalysis(analysisId) {
 		url : context + "/Analysis/Edit/" + analysisId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			if ((form = doc.getElementById("form_edit_analysis")) == null) {
@@ -67,7 +54,7 @@ function setAsDefaultProfile(analysisId) {
 		url : context + "/Analysis/SetDefaultProfile/" + analysisId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			reloadSection("section_profile_analysis");
 		},
 		error : unknowError
@@ -101,7 +88,7 @@ function saveAnalysis(form, reloadaction) {
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
+		success : function(response, textStatus, jqXHR) {
 			$("#editAnalysisModel .progress").hide();
 			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 			var alert = $("#editAnalysisModel .label-danger");
@@ -151,7 +138,7 @@ function deleteAnalysis(analysisId) {
 			url : context + "/Analysis/Delete/" + analysisId,
 			type : "GET",
 			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
+			success : function(response, textStatus, jqXHR) {
 				$("#deleteprogressbar").hide();
 				$("#deleteanalysisbuttonYes").prop("disabled", false);
 				$("#deleteAnalysisModel").modal('toggle');
@@ -162,7 +149,8 @@ function deleteAnalysis(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		$("#deleteanalysisbuttonYes").unbind();
 		return false;

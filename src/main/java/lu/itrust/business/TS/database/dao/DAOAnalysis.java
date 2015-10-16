@@ -152,6 +152,8 @@ public interface DAOAnalysis {
 
 	public Analysis getProfileByName(String name);
 
+	public Analysis getByAnalysisStandardId(int idAnalysisStandard);
+
 	
 
 }
