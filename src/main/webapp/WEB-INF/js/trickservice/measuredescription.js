@@ -1,5 +1,8 @@
 function findDefaultLanguageId() {
-	var $language = $("#section_language tbody tr[data-trick-id]:first-child");
+	var $language =  $("#section_kb_measure #languageselect").val();
+	if($.isNumeric($language))
+		return $language;
+	$language = $("#section_language tbody tr[data-trick-id]:first-child");
 	return $language.length ? $language.attr('data-trick-id') : 1;
 }
 
