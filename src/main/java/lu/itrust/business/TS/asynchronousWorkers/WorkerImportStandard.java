@@ -122,8 +122,8 @@ public class WorkerImportStandard implements Worker {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()),
-					username, LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()), username,
+					LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
 		} catch (Exception e) {
 			this.error = e;
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null, e));
@@ -257,6 +257,8 @@ public class WorkerImportStandard implements Worker {
 									messageHandler = new MessageHandler("error.import.norm.exists", new Object[] { newstandard.getLabel(), newstandard.getVersion() },
 											"Standard label (" + newstandard.getLabel() + ") and version (" + newstandard.getVersion()
 													+ ") already exist, updating existing Standard");
+									newstandard.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
+									newstandard.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
 									serviceTaskFeedback.send(id, messageHandler);
 									System.out.println("Updating existing Standard (" + newstandard.getLabel() + " - " + newstandard.getVersion() + ")...");
 								} else {
@@ -371,12 +373,12 @@ public class WorkerImportStandard implements Worker {
 												}
 
 												if (daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId())) {
-													measureDescriptionText = daoMeasureDescriptionText
-															.getForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId());
+													measureDescriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(),
+															lang.getId());
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1)
-															.getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null
+															? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
 
 													if (domain.isEmpty() || measureDescription.isComputable() && description.isEmpty())
 														System.out.println("Measuredescriptiontext not valid! Skipping...");
@@ -391,8 +393,8 @@ public class WorkerImportStandard implements Worker {
 													measureDescriptionText.setLanguage(lang);
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1)
-															.getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null
+															? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
 
 													if (!domain.isEmpty())
 														measureDescriptionText.setDomain(domain);
