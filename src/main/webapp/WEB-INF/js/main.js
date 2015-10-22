@@ -47,7 +47,7 @@ function downloadExportedSqLite(id) {
 }
 
 function swithTab(tabName) {
-	$(".nav-tab a[href='#" + tabName + "']").tab('show');
+	$(".nav-tab a[href='#" + tabName + "']").tab("show");
 	return false;
 }
 
@@ -62,6 +62,18 @@ $(function() {
 	// prevent unknown error modal display
 	$(window).bind("beforeunload", function() {
 		application["isReloading"] = true;
+	});
+
+	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
+		var $target = $(e.currentTarget);
+		if ($target.find("li.active").length && !$target.hasClass("active"))
+			$target.addClass("active");
+	});
+
+	$('ul.nav-tab .dropdown-submenu a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+		var $parent = $(e.target).closest("li.dropdown-submenu");
+		if (!$parent.hasClass("active"))
+			$parent.addClass("active");
 	});
 
 	if ($("#tab-container").length || $("#nav-container").length) {
@@ -147,7 +159,6 @@ $(function() {
 
 	if ($("ul.nav-analysis,ul.nav-tab").length) {
 		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-			console.log($(target).attr("data-trigger"));
 			var target = $(e.target).attr("href");
 			if ($(target).attr("data-update-required") == "true") {
 				window[$(target).attr("data-trigger")].apply();

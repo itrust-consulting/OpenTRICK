@@ -42,7 +42,7 @@
 									<th style="width:3%;" title='<fmt:message key="label.title.measure.iw" />' ><fmt:message key="label.measure.iw" /></th>
 									<th style="width:3%;" title='<fmt:message key="label.title.measure.ew" />' ><fmt:message key="label.measure.ew" /></th>
 									<th style="width:3%;" title='<fmt:message key="label.title.measure.inv" />' ><fmt:message key="label.measure.inv" /></th>
-									<th style="width:3%;" title='<fmt:message key="label.measure.phase" />' ><fmt:message key="label.action_plan.phase" /></th>
+									<th style="width:3%;" title='<fmt:message key="label.title.measure.phase" />' ><fmt:message key="label.measure.phase" /></th>
 								</tr>
 							</thead>
 							<tbody>

@@ -31,6 +31,7 @@ function TaskManager(title) {
 		if (this.view == null)
 			this.__CreateView();
 		this.view.removeAttr("style");
+		this.view.parent().addClass("open");
 		return this;
 	};
 	
@@ -38,6 +39,7 @@ function TaskManager(title) {
 		if (this.view == null)
 			this.__CreateView();
 		this.view.hide();
+		this.view.parent().removeClass("open");
 		return this;
 	};
 

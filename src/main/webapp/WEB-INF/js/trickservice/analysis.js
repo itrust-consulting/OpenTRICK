@@ -18,12 +18,6 @@ $(document).ready(function() {
 		cssTopOffset : ".nav-analysis",
 		fixedOffset : application.fixedOffset
 	});
-	
-	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-		var $target = $(e.currentTarget);
-		if ($target.find("li.active").length && !$target.hasClass("active"))
-			$target.addClass("active");
-	});
 
 	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 		disableEditMode();
