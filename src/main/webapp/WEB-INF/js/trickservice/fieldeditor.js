@@ -41,7 +41,7 @@ function FieldBoundedValidator(min, max) {
 	this.maxValue = $.isNumeric(max) ? parseFloat(max) : undefined;
 
 	FieldBoundedValidator.prototype.Validate = function(element) {
-		var $element = $(element), value = parseFloat($(element).val().replace(",","."));
+		var $element = $(element), value = parseFloat($(element).val().replace(",", "."));
 		if (!$.isNumeric(value))
 			return false;
 		if (this.minValue != undefined && value < this.minValue)
@@ -69,7 +69,8 @@ function FieldEditor(element, validator) {
 	this.async = true;
 	this.backupData = {
 		orginalStyle : undefined,
-		parentClass : undefined
+		parentClass : undefined,
+		width : undefined
 	};
 
 	FieldEditor.prototype.GeneratefieldEditor = function() {
@@ -79,6 +80,7 @@ function FieldEditor(element, validator) {
 		if (!this.LoadData())
 			return true;
 		this.backupData.orginalStyle = $element.attr("style");
+		this.backupData.width = $element.width();
 		if (!this.choose.length) {
 			var height = 0, rows = 2;
 			if ($element.is("td")) {
@@ -220,11 +222,11 @@ function FieldEditor(element, validator) {
 			$element.closest("td").css("padding", "3px");
 		else
 			$element.css("padding", "3px");
-		
+
 		this.backupData.parentClass = $fieldEditor.parent().attr("class")
 		if (!application.editMode || $(this.element).attr("data-trick-content") != "text")
 			$fieldEditor.focus();
-		
+
 		return false;
 	};
 
@@ -328,6 +330,9 @@ function FieldEditor(element, validator) {
 				}
 			} else
 				$element.text(value);
+
+			if ($element.width != this.backupData.width)
+				window.dispatchEvent(new Event('resize'));
 		}
 		return this;
 	};

@@ -16,6 +16,12 @@
 		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>
+<c:set var="todoCSS">
+	<c:choose>
+		<c:when test="${empty measure.toDo && fn:contains(css,'success')}">class="danger"</c:when>
+		<c:otherwise>${css}</c:otherwise>
+	</c:choose>
+</c:set>
 <c:choose>
 	<c:when test="${measure.measureDescription.computable==false}">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
@@ -87,7 +93,7 @@
 				<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 			</c:if>
 			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
-			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
+			<td ${todoCSS} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 			<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 		</tr>
 	</c:otherwise>
