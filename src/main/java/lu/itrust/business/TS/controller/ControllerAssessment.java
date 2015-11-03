@@ -9,7 +9,18 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
@@ -26,16 +37,6 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author eom
@@ -109,14 +110,14 @@ public class ControllerAssessment {
 			return new String("{\"success\":\""
 					+ messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", customLocale != null ? customLocale : locale) + "\"}");
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
@@ -163,14 +164,14 @@ public class ControllerAssessment {
 			return new String("{\"success\":\""
 					+ messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", customLocale != null ? customLocale : locale) + "\"}");
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
@@ -212,7 +213,7 @@ public class ControllerAssessment {
 		} catch (Exception e) {
 
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
@@ -317,7 +318,7 @@ public class ControllerAssessment {
 		} catch (Exception e) {
 
 			// return null
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 	}
@@ -416,7 +417,7 @@ public class ControllerAssessment {
 		} catch (Exception e) {
 
 			// return null on error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 

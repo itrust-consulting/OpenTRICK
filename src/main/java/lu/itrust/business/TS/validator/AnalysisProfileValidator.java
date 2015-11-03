@@ -1,10 +1,10 @@
 package lu.itrust.business.TS.validator;
 
-import lu.itrust.business.TS.model.analysis.helper.AnalysisProfile;
-
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+
+import lu.itrust.business.TS.model.analysis.helper.AnalysisProfile;
 
 public class AnalysisProfileValidator implements Validator {
 

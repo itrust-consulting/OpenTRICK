@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.context.MessageSource;
+
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
@@ -25,12 +32,6 @@ import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.context.MessageSource;
 
 /**
  * @author eomar
@@ -188,36 +189,34 @@ public class WorkerComputeActionPlan implements Worker {
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} catch (TrickException e) {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 		} catch (Exception e) {
 			try {
-
 				String language = null;
 				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
-
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", language, e));
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 		} finally {
 			try {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -407,7 +406,7 @@ public class WorkerComputeActionPlan implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			error = e;
 		} finally {
 			if (isWorking()) {

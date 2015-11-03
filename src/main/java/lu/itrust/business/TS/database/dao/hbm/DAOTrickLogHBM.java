@@ -5,18 +5,18 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Property;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.TrickLog;
 import lu.itrust.business.TS.model.general.helper.TrickLogFilter;
-
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Property;
-import org.springframework.stereotype.Repository;
 
 /**
  * @author eomar

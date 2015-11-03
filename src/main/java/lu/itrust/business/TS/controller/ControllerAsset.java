@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
@@ -135,7 +136,7 @@ public class ControllerAsset {
 			if (integer != null)
 				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 
 		} catch (Exception e) {
@@ -146,7 +147,7 @@ public class ControllerAsset {
 			if (integer != null)
 				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 		}
 	}
@@ -192,7 +193,7 @@ public class ControllerAsset {
 				select(id, principal, customLocale != null ? customLocale : locale, session);
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
@@ -233,10 +234,10 @@ public class ControllerAsset {
 			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", customLocale != null ? customLocale
 					: locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", customLocale != null ? customLocale : locale));
 		}
 	}
@@ -372,10 +373,10 @@ public class ControllerAsset {
 				errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 			} else
 				errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis != null) {
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
@@ -504,11 +505,11 @@ public class ControllerAsset {
 		} catch (TrickException e) {
 			// return error message
 			errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			// return error message
 			errors.put("asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 
 		// return error message

@@ -14,7 +14,7 @@
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
 		<form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler"
 			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
-		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID"/>
+		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID" />
 	</http>
 
 	<beans:import resource="authentication-manager.xml" />

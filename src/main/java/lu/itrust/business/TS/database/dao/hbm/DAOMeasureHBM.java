@@ -5,15 +5,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOMeasureHBM.java: <br>

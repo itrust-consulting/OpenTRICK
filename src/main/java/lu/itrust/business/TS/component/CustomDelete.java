@@ -12,6 +12,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
@@ -54,13 +61,6 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.helper.UserDeleteHelper;
-
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author eom
@@ -350,7 +350,7 @@ public class CustomDelete {
 				deleteAnalysis(analysis, username);
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -410,11 +410,11 @@ public class CustomDelete {
 						if (userAnalysisRight != null && analysis.getUserRights().remove(userAnalysisRight))
 							daoUserAnalysisRight.delete(userAnalysisRight);
 					} catch (TrickException e) {
-						e.printStackTrace();
+						TrickLogManager.Persist(e);
 						errors.put(entry.getKey(), messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 						throw new DataIntegrityViolationException(e.getMessage(), e);
 					} catch (Exception e) {
-						e.printStackTrace();
+						TrickLogManager.Persist(e);
 						errors.put(entry.getKey(), messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 						throw e;
 					}

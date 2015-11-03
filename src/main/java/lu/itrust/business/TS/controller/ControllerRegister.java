@@ -12,28 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceEmailSender;
-import lu.itrust.business.TS.database.service.ServiceResetPassword;
-import lu.itrust.business.TS.database.service.ServiceRole;
-import lu.itrust.business.TS.database.service.ServiceTSSetting;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.TSSetting;
-import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
-import lu.itrust.business.TS.usermanagement.ResetPassword;
-import lu.itrust.business.TS.usermanagement.Role;
-import lu.itrust.business.TS.usermanagement.RoleType;
-import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.usermanagement.helper.ResetPasswordHelper;
-import lu.itrust.business.TS.validator.UserValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
-
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,6 +33,28 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceEmailSender;
+import lu.itrust.business.TS.database.service.ServiceResetPassword;
+import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
+import lu.itrust.business.TS.usermanagement.ResetPassword;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.usermanagement.helper.ResetPasswordHelper;
+import lu.itrust.business.TS.validator.UserValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
  * ControllerAdministration.java: <br>
@@ -178,7 +178,7 @@ public class ControllerRegister {
 
 			} catch (Exception e) {
 				// save user
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 
 				errors.put("general", messageSource.getMessage("error.user.save", null, "Error during account creation, please try again later...", locale));
 			}
@@ -273,7 +273,7 @@ public class ControllerRegister {
 					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have one hour to do.", locale));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return "redirect:/Login";
@@ -361,7 +361,7 @@ public class ControllerRegister {
 				ipAdress = request.getRemoteAddr();
 			TrickLogManager.Persist(LogLevel.INFO, LogType.AUTHENTICATION, "log.reset.password", String.format("from: %s", ipAdress), username, LogAction.RESET_PASSWORD, ipAdress);
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 
@@ -443,7 +443,7 @@ public class ControllerRegister {
 
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 
 		return errors.isEmpty();

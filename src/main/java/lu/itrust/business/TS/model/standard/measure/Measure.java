@@ -12,6 +12,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -19,9 +22,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Measure: <br>

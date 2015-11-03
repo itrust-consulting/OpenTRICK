@@ -7,13 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAORole;
-import lu.itrust.business.TS.database.dao.DAOUser;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.usermanagement.Role;
-import lu.itrust.business.TS.usermanagement.RoleType;
-import lu.itrust.business.TS.usermanagement.User;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -29,6 +22,14 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.dao.DAORole;
+import lu.itrust.business.TS.database.dao.DAOUser;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * Base on org.springframework.security.ldap.userdetails.LdapUserDetailsMapper
@@ -153,7 +154,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		} catch (BadCredentialsException | DisabledException e) {
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			throw new InternalAuthenticationServiceException(e.getMessage(), e);
 		}
 	}

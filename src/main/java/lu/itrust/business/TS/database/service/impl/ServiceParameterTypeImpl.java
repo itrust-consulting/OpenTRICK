@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOParameterType;
-import lu.itrust.business.TS.database.service.ServiceParameterType;
-import lu.itrust.business.TS.model.parameter.ParameterType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOParameterType;
+import lu.itrust.business.TS.database.service.ServiceParameterType;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 
 /**
  * ServiceParameterTypeImpl.java: <br>

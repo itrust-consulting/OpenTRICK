@@ -13,14 +13,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * MaturityMeasure: <br>
@@ -231,7 +231,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The To Check Value
 	 */
-	@Column(name = "dtToCheck", nullable = false)
+	@Column(name = "dtToCheck", nullable = false, length=1024)
 	public String getToCheck() {
 		return this.toCheck;
 	}

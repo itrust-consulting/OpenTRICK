@@ -11,10 +11,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import lu.itrust.business.TS.exception.TrickException;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+
+import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * Standard: <br>

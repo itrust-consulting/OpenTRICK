@@ -8,12 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,6 +15,12 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 
 /**
  * CustomAuthenticationFailureHandler.java: <br>

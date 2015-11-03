@@ -9,10 +9,6 @@ import java.util.Properties;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
-import lu.itrust.business.TS.database.service.ServiceEmailSender;
-import lu.itrust.business.TS.usermanagement.ResetPassword;
-import lu.itrust.business.TS.usermanagement.User;
-
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +19,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
+
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.service.ServiceEmailSender;
+import lu.itrust.business.TS.usermanagement.ResetPassword;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * ServiceEmailImpl.java: <br>
@@ -108,7 +109,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					};
 					sender.send(preparator);
 				} catch (Exception e) {
-					e.printStackTrace();
+					TrickLogManager.Persist(e);
 				}
 			}
 		}
@@ -142,7 +143,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			sender.send(preparator);
 		} catch (MailException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 	}
 

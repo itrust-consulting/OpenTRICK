@@ -1,10 +1,10 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import lu.itrust.business.TS.database.dao.DAOTrickService;
-import lu.itrust.business.TS.model.TrickService;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAOTrickService;
+import lu.itrust.business.TS.model.TrickService;
 
 /**
  * DAOTrickServiceHBM.java: <br>

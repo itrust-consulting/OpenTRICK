@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOParameterType;
-import lu.itrust.business.TS.model.parameter.ParameterType;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAOParameterType;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 
 /**
  * DAOParameterTypeHBM.java: <br>

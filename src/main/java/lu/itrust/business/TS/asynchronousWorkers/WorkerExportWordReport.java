@@ -7,6 +7,11 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.util.FileCopyUtils;
+
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -21,11 +26,6 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.util.FileCopyUtils;
 
 /**
  * @author eomar
@@ -63,7 +63,8 @@ public class WorkerExportWordReport implements Worker {
 	 * @param exportAnalysisReport
 	 * @param workersPoolManager
 	 */
-	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportAnalysisReport exportAnalysisReport, WorkersPoolManager workersPoolManager) {
+	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportAnalysisReport exportAnalysisReport,
+			WorkersPoolManager workersPoolManager) {
 		this.idAnalysis = idAnalysis;
 		this.username = username;
 		this.sessionFactory = sessionFactory;
@@ -98,17 +99,17 @@ public class WorkerExportWordReport implements Worker {
 			exportAnalysisReport.exportToWordDocument(analysis, true);
 			saveWordDocument(session);
 		} catch (TrickException e) {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-			e.printStackTrace();
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", (String) null, e));
-			e.printStackTrace();
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", (String) null, this.error = e));
+			TrickLogManager.Persist(e);
 		} finally {
 			try {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 
 			if (isWorking()) {
@@ -154,7 +155,7 @@ public class WorkerExportWordReport implements Worker {
 				if (session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 			throw e;
 		}
@@ -207,8 +208,7 @@ public class WorkerExportWordReport implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

@@ -3,15 +3,15 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.model.analysis.Analysis;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOActionPlanSummaryHBM.java: <br>

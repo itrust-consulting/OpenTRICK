@@ -7,13 +7,13 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import lu.itrust.business.TS.database.dao.DAOResetPassword;
 import lu.itrust.business.TS.database.service.ServiceResetPassword;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author eomar

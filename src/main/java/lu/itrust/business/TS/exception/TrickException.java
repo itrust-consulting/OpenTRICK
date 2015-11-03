@@ -13,16 +13,16 @@ public class TrickException extends RuntimeException {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private String code = null;
-	
-	private Object [] parameters;
+
+	private Object[] parameters;
 
 	/**
 	 * @param code
 	 * @param message
 	 */
-	public TrickException(String code , String message) {
+	public TrickException(String code, String message) {
 		super(message);
 		this.code = code;
 	}
@@ -32,12 +32,11 @@ public class TrickException extends RuntimeException {
 	 * @param meassage
 	 * @param parameters
 	 */
-	public TrickException(String code,String meassage, Object[] parameters) {
+	public TrickException(String code, String meassage, Object[] parameters) {
 		super(meassage);
 		this.code = code;
 		this.parameters = parameters;
 	}
-	
 
 	public TrickException(String code, String message, String... parameters) {
 		super(message);
@@ -53,7 +52,8 @@ public class TrickException extends RuntimeException {
 	}
 
 	/**
-	 * @param code the code to set
+	 * @param code
+	 *            the code to set
 	 */
 	public void setCode(String code) {
 		this.code = code;
@@ -62,17 +62,25 @@ public class TrickException extends RuntimeException {
 	/**
 	 * @return the parameters
 	 */
-	public Object [] getParameters() {
+	public Object[] getParameters() {
 		return parameters;
 	}
 
 	/**
-	 * @param parameters the parameters to set
+	 * @param parameters
+	 *            the parameters to set
 	 */
-	public void setParameters(Object [] parameters) {
+	public void setParameters(Object[] parameters) {
 		this.parameters = parameters;
 	}
-	
-	
-	
+
+	public String[] getStringParameters() {
+		if (this.parameters == null)
+			return null;
+		String[] strings = new String[parameters.length];
+		for (int i = 0; i < parameters.length; i++)
+			strings[i] = parameters[i] + "";
+		return strings;
+	}
+
 }

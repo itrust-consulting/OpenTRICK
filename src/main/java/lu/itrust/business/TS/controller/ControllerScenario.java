@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
@@ -133,7 +134,7 @@ public class ControllerScenario {
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha2());
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 		}
 	}
@@ -189,7 +190,7 @@ public class ControllerScenario {
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale)));
 			return errors;
 		}
@@ -219,11 +220,11 @@ public class ControllerScenario {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null, "Scenario was deleted successfully",
 					customLocale != null ? customLocale : locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.scenario.delete.failed", null, "Scenario cannot be deleted", customLocale != null ? customLocale : locale));
 		}
 	}
@@ -325,7 +326,7 @@ public class ControllerScenario {
 			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.delete.assettypevalue.duplication", null, "Duplication cannot be deleted", customLocale != null ? customLocale
 					: locale));
 		}
@@ -413,14 +414,14 @@ public class ControllerScenario {
 				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 			} else
 				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
 			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 
@@ -562,11 +563,11 @@ public class ControllerScenario {
 		} catch (TrickException e) {
 			// return error message
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 
 			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 
 		return null;

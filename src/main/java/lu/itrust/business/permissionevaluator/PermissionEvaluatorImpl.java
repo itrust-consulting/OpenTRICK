@@ -11,6 +11,7 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -196,7 +197,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			}
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -208,7 +209,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				return false;
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -240,7 +241,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right) || serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}

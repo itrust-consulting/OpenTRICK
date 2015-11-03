@@ -5,6 +5,11 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -16,10 +21,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 /**
  * WorkerComputeRiskRegister.java: <br>
@@ -87,7 +88,8 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * @param idAnalysis
 	 * @param reloadSection
 	 */
-	public WorkerComputeRiskRegister(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, Boolean reloadSection) {
+	public WorkerComputeRiskRegister(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis,
+			Boolean reloadSection) {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 		this.serviceTaskFeedback = serviceTaskFeedback;
@@ -158,16 +160,16 @@ public class WorkerComputeRiskRegister implements Worker {
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} catch (TrickException e) {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} catch (Exception e) {
 			try {
@@ -179,20 +181,20 @@ public class WorkerComputeRiskRegister implements Worker {
 				} catch (Exception e1) {
 					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), null, e));
 				}
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} finally {
 			try {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
-			} catch (Exception ex) {
-				ex.printStackTrace();
+				TrickLogManager.Persist(e);
+			} catch (Exception e) {
+				TrickLogManager.Persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -263,8 +265,8 @@ public class WorkerComputeRiskRegister implements Worker {
 		if (!analysis.getRiskRegisters().isEmpty()) {
 			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.backup", "Backup of user changes", lang, 10));
 			ownerBackup = new LinkedHashMap<String, RiskRegisterItem>(analysis.getRiskRegisters().size());
-			analysis.getRiskRegisters().forEach(
-					riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()), riskRegister));
+			analysis.getRiskRegisters()
+					.forEach(riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()), riskRegister));
 		}
 		analysis.getRiskRegisters().clear();
 	}
@@ -358,8 +360,7 @@ public class WorkerComputeRiskRegister implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

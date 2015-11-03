@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -113,7 +114,7 @@ public class ControllerAnalysisManageAccess {
 		} catch (Exception e) {
 			// return errors
 			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return "analyses/all/forms/manageUserAnalysisRights";
 		}
 	}

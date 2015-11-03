@@ -2,15 +2,15 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceAnalysisStandardImpl.java: <br>

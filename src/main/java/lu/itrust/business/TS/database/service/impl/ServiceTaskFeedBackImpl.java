@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.messagehandler.MessageHandler;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
 
 /**
  * ServiceTaskFeedBackImpl.java: <br>

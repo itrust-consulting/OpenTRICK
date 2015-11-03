@@ -9,6 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
@@ -44,10 +48,6 @@ import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureReferance;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * MeasureManager.java: <br>

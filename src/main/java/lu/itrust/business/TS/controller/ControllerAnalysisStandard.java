@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
@@ -350,7 +351,7 @@ public class ControllerAnalysisStandard {
 		} catch (Exception e) {
 
 			// retrun error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 	}
@@ -401,7 +402,7 @@ public class ControllerAnalysisStandard {
 		} catch (Exception e) {
 
 			// retrun error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 	}
@@ -542,17 +543,17 @@ public class ControllerAnalysisStandard {
 				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 			} else
 				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis != null) {
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 				errors.put("standard", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
 			} else
 				errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 		return errors;
@@ -608,17 +609,17 @@ public class ControllerAnalysisStandard {
 				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 			} else
 				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis != null) {
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 				errors.put("standard", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
 			} else
 				errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 		return errors;
@@ -653,7 +654,7 @@ public class ControllerAnalysisStandard {
 			return availableStandards;
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			availableStandards.clear();
@@ -744,7 +745,7 @@ public class ControllerAnalysisStandard {
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			return JsonMessage.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving",
@@ -774,7 +775,7 @@ public class ControllerAnalysisStandard {
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis",
 					customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", customLocale != null ? customLocale : locale));
@@ -813,7 +814,7 @@ public class ControllerAnalysisStandard {
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in use", locale));
 		}
 	}
@@ -884,10 +885,10 @@ public class ControllerAnalysisStandard {
 			// return success message
 			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return "redirect:/Error";
@@ -959,10 +960,10 @@ public class ControllerAnalysisStandard {
 			// return success message
 			return "analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return "redirect:/Error";
@@ -1051,10 +1052,10 @@ public class ControllerAnalysisStandard {
 
 			serviceMeasure.saveOrUpdate(measure);
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
@@ -1270,7 +1271,7 @@ public class ControllerAnalysisStandard {
 		} catch (Exception e) {
 			// return error
 			errors.put("standard", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 	}

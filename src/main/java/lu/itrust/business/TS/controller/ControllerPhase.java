@@ -16,16 +16,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.general.Phase;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,6 +30,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.Phase;
 
 /**
  * @author eomar
@@ -159,7 +160,7 @@ public class ControllerPhase {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", customLocale != null ? customLocale
 					: locale));
 		}
@@ -265,11 +266,11 @@ public class ControllerPhase {
 			}
 
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("phase", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			// return errors
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 		}
 		// return empty errors (no errors -> success)
@@ -301,26 +302,26 @@ public class ControllerPhase {
 		} catch (JsonProcessingException e) {
 			// set error
 			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		} catch (IOException e) {
 			// set error
 			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		} catch (IllegalArgumentException e) {
 			// set error
 			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		} catch (TrickException e) {
 			errors.put("date", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		} catch (Exception e) {
 			// set error
 			errors.put("phase", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}

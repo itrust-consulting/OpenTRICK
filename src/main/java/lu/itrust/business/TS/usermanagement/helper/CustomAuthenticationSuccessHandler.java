@@ -59,7 +59,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", user.getUsername(), remoteaddr), user.getUsername(),
 					LogAction.SIGN_IN, remoteaddr);
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		} finally {
 			super.onAuthenticationSuccess(request, response, authentication);
 		}

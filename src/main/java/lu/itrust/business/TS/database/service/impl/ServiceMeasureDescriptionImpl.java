@@ -2,14 +2,14 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceMeasureDescriptionImpl.java: <br>

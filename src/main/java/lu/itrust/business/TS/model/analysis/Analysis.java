@@ -25,6 +25,9 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
@@ -53,9 +56,6 @@ import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Analysis: <br>

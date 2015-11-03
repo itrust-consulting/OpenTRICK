@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.scenario.Scenario;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOAssessmentHBM.java: <br>

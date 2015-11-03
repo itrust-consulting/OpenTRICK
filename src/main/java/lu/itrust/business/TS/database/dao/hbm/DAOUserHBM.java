@@ -6,14 +6,14 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOUserHBM.java: <br>

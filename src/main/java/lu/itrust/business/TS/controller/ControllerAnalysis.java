@@ -404,7 +404,7 @@ public class ControllerAnalysis {
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", customLocale != null ? customLocale : locale));
 		}
@@ -549,7 +549,7 @@ public class ControllerAnalysis {
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		} catch (Exception e) {
 			errors.put("owner", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -621,7 +621,7 @@ public class ControllerAnalysis {
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
 		}
 	}
@@ -757,13 +757,13 @@ public class ControllerAnalysis {
 				errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 
 		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicated!", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during duplication!", locale));
 		}
 
@@ -921,10 +921,10 @@ public class ControllerAnalysis {
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
@@ -1122,7 +1122,7 @@ public class ControllerAnalysis {
 			return true;
 		} catch (Exception e) {
 			errors.put("analysis", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}

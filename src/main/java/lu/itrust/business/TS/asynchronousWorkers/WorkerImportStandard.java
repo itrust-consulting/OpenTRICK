@@ -8,6 +8,15 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFTable;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
@@ -28,15 +37,6 @@ import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 public class WorkerImportStandard implements Worker {
 
@@ -125,9 +125,8 @@ public class WorkerImportStandard implements Worker {
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()), username,
 					LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
 		} catch (Exception e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null, e));
-			e.printStackTrace();
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null,this.error = e));
+			TrickLogManager.Persist(e);
 			if (transaction != null && transaction.isInitiator())
 				session.getTransaction().rollback();
 		} finally {
@@ -135,7 +134,7 @@ public class WorkerImportStandard implements Worker {
 				if (session != null && !session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -473,8 +472,7 @@ public class WorkerImportStandard implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

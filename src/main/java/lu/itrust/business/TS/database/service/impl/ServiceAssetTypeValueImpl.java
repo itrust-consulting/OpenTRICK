@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
-import lu.itrust.business.TS.database.service.ServiceAssetTypeValue;
-import lu.itrust.business.TS.model.general.AssetTypeValue;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
+import lu.itrust.business.TS.database.service.ServiceAssetTypeValue;
+import lu.itrust.business.TS.model.general.AssetTypeValue;
 
 /**
  * ServiceAssetTypeValueImpl.java: <br>

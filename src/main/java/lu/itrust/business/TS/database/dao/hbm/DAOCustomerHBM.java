@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOCustomer;
-import lu.itrust.business.TS.model.general.Customer;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAOCustomer;
+import lu.itrust.business.TS.model.general.Customer;
 
 /**
  * DAOCustomerHBM.java: <br>

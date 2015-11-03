@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -127,7 +128,7 @@ public class RiskRegisterComputation {
 
 			// print error message
 			System.out.println("Risk Register calculation and saving failed!");
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 
 			return new MessageHandler(e);
 		}

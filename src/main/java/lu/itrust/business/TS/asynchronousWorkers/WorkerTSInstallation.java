@@ -5,6 +5,9 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.IOException;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
@@ -16,9 +19,6 @@ import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 /**
  * @author eomar
@@ -131,9 +131,9 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.system.install", String.format("System: TRCIK Service, version: %s", trickService.getVersion()), username,
 					LogAction.INSTALL, trickService.getVersion());
 		} catch (Exception e) {
+			TrickLogManager.Persist(e);
 			if (session != null && session.getTransaction().isInitiator())
 				session.getTransaction().rollback();
-			e.printStackTrace();
 		} finally {
 			super.OnSuccess();
 			if (session != null)

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -90,11 +91,11 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 				if (error != null)
 					errors.put(field.getName(), error);
 			} catch (SecurityException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 		}
 		return errors;
@@ -118,11 +119,11 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 				if (error != null)
 					errors.put(field.getName(), error);
 			} catch (SecurityException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 		}
 		return errors;

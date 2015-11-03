@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.model.standard.Standard;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * DAOMeasureDescription.java: <br>

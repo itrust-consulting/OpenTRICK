@@ -340,7 +340,7 @@ public class ControllerProfile {
 		} catch (Exception e) {
 
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 	}
@@ -434,7 +434,7 @@ public class ControllerProfile {
 			}
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 
 		return errors.isEmpty();

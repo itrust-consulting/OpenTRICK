@@ -9,6 +9,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
@@ -24,10 +28,6 @@ import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 /**
  * @author eomar
@@ -109,15 +109,16 @@ public class WorkerRestoreAnalyisRight implements Worker {
 			session.getTransaction().commit();
 			messageHandler.update("sucess.restore.analysis.right", "Analysis rights", 100);
 		} catch (Exception e) {
+			serviceTaskFeedback.send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", null, this.error = e));
+			TrickLogManager.Persist(e);
 			if (session != null && session.getTransaction().isInitiator())
 				session.getTransaction().rollback();
-			serviceTaskFeedback.send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", null, e));
 		} finally {
 			try {
 				if (session != null)
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -171,21 +172,21 @@ public class WorkerRestoreAnalyisRight implements Worker {
 		Analysis previous = null;
 		for (Analysis analysis : analyses) {
 			if (previous != null) {
-				previous.getUserRights().forEach(
-						analysisRight -> {
-							UserAnalysisRight userAnalysisRight = analysis.getRightsforUser(analysisRight.getUser());
-							if (userAnalysisRight != null && userAnalysisRight.getRight() != analysisRight.getRight()) {
-								AnalysisRight old = userAnalysisRight.getRight();
-								userAnalysisRight.setRight(analysisRight.getRight());
-								/**
-								 * Log
-								 */
-								TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.restore.analysis.right", String.format(
-										"Analysis: %s, version: %s, old: %s, new: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), old.toLower(),
-										userAnalysisRight.rightToLower(), analysisRight.getUser().getLogin()), username, LogAction.RESTORE_ACCESS_RIGHT, analysis.getIdentifier(),
-										analysis.getVersion(), old.name(), userAnalysisRight.getRight().name(), analysisRight.getUser().getLogin());
-							}
-						});
+				previous.getUserRights().forEach(analysisRight -> {
+					UserAnalysisRight userAnalysisRight = analysis.getRightsforUser(analysisRight.getUser());
+					if (userAnalysisRight != null && userAnalysisRight.getRight() != analysisRight.getRight()) {
+						AnalysisRight old = userAnalysisRight.getRight();
+						userAnalysisRight.setRight(analysisRight.getRight());
+						/**
+						 * Log
+						 */
+						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.restore.analysis.right",
+								String.format("Analysis: %s, version: %s, old: %s, new: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), old.toLower(),
+										userAnalysisRight.rightToLower(), analysisRight.getUser().getLogin()),
+								username, LogAction.RESTORE_ACCESS_RIGHT, analysis.getIdentifier(), analysis.getVersion(), old.name(), userAnalysisRight.getRight().name(),
+								analysisRight.getUser().getLogin());
+					}
+				});
 				daoAnalysis.saveOrUpdate(analysis);
 			}
 
@@ -288,8 +289,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

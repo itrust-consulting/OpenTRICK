@@ -6,6 +6,10 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -19,10 +23,6 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.history.History;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 /**
  * @author eomar
@@ -183,21 +183,20 @@ public class WorkerCreateAnalysisVersion implements Worker {
 		} catch (InterruptedException e) {
 			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", language, 0));
 			rollback(session);
-			e.getStackTrace();
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
 			rollback(session);
-			e.getStackTrace();
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			rollback(session);
 			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", language, 0));
-			e.getStackTrace();
+			TrickLogManager.Persist(e);
 		} finally {
 			try {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -215,7 +214,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			if (session != null && session.isOpen() && session.getTransaction().isInitiator())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 	}
 
@@ -309,8 +308,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

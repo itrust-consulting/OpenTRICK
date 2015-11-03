@@ -18,6 +18,23 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFStyles;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
+import org.springframework.context.MessageSource;
+
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -46,23 +63,6 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackagePart;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFStyles;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
-import org.springframework.context.MessageSource;
 
 /**
  * ExportReport.java: <br>

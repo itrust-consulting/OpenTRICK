@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -121,7 +122,7 @@ public class ControllerIntstallation {
 			errors.put("installProfileCustomer", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("installProfileCustomer", e.getMessage());
 			return null;
 		}
@@ -172,7 +173,7 @@ public class ControllerIntstallation {
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("error", e.getMessage());
 			return false;
 		}

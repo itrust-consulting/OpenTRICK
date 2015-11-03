@@ -2,14 +2,14 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAORole;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceRoleImpl.java: <br>

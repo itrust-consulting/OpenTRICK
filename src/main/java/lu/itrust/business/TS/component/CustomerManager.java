@@ -7,6 +7,9 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -14,9 +17,6 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author eomar

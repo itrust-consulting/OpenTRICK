@@ -6,12 +6,12 @@ import java.util.List;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import org.hibernate.proxy.HibernateProxy;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-
-import org.hibernate.proxy.HibernateProxy;
 
 /**
  * MaturityStandard: <br>

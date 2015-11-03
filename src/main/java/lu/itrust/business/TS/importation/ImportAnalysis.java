@@ -14,7 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+
 import lu.itrust.business.TS.component.GeneralComperator;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -78,8 +81,6 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureDescription;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.Session;
 
 /**
  * ImportAnalysis: <br>
@@ -337,7 +338,7 @@ public class ImportAnalysis {
 		} catch (Exception e) {
 			try {
 				serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), null, e));
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {

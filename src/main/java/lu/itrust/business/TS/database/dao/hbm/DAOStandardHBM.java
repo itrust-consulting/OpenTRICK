@@ -3,15 +3,15 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOStandardHBM.java: <br>

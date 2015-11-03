@@ -5,11 +5,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAORiskRegister;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAORiskRegister;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 /**
  * DAORiskRegisterHBM.java: <br>

@@ -2,12 +2,12 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOScenarioHBM.java: <br>

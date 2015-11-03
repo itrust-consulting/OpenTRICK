@@ -15,8 +15,20 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import lu.itrust.business.TS.component.FieldEditor;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
@@ -64,17 +76,6 @@ import lu.itrust.business.TS.validator.MeasureValidator;
 import lu.itrust.business.TS.validator.ParameterValidator;
 import lu.itrust.business.TS.validator.RiskInformationValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
-
-import org.springframework.beans.PropertyAccessorFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 
@@ -197,7 +198,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
@@ -209,7 +210,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (InvocationTargetException e) {
 			// retrieve analysis id
@@ -221,7 +222,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
@@ -232,7 +233,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 		catch (RuntimeException e) {
@@ -245,7 +246,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -257,7 +258,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -312,7 +313,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -324,7 +325,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -418,7 +419,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
@@ -430,7 +431,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
@@ -442,7 +443,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
@@ -454,7 +455,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
@@ -466,7 +467,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
@@ -478,7 +479,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 
@@ -491,7 +492,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 
@@ -505,7 +506,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -578,7 +579,7 @@ public class ControllerEditField {
 					try {
 						assessmentManager.UpdateAcronym(id, parameter, acronym);
 					} catch (Exception e) {
-						e.printStackTrace();
+						TrickLogManager.Persist(e);
 						return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, parameter.getAcronym() },
 								"Assessment acronym (" + acronym + ") cannot be updated to (" + parameter.getAcronym() + ")", cutomLocale != null ? cutomLocale : locale));
 					}
@@ -612,7 +613,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
@@ -624,7 +625,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
@@ -636,7 +637,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
@@ -648,7 +649,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
@@ -660,7 +661,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
@@ -672,7 +673,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
@@ -684,7 +685,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -696,7 +697,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -771,7 +772,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
@@ -783,7 +784,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
@@ -795,7 +796,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
@@ -807,7 +808,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
@@ -819,7 +820,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
@@ -831,7 +832,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
@@ -843,7 +844,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -855,7 +856,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -905,7 +906,7 @@ public class ControllerEditField {
 					if (!chooses.contains(fieldEditor.getValue()))
 						fieldEditor.setValue(Double.toString(NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000));
 				} catch (Exception e) {
-					e.printStackTrace();
+					TrickLogManager.Persist(e);
 				}
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
 				chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
@@ -960,7 +961,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -972,7 +973,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 
@@ -1048,7 +1049,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error rmessage
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (SecurityException e) {
 			// retrieve analysis id
@@ -1060,7 +1061,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error rmessage
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (NumberFormatException e) {
 			// retrieve analysis id
@@ -1072,7 +1073,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error rmessage
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.format.number", null, "Number expected", cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalArgumentException e) {
 			// retrieve analysis id
@@ -1084,7 +1085,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error rmessage
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (IllegalAccessException e) {
 			// retrieve analysis id
@@ -1096,7 +1097,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error rmessage
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (ParseException e) {
 			// retrieve analysis id
@@ -1108,7 +1109,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error rmessage
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.format.date", null, "Date expected", cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
@@ -1120,7 +1121,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -1132,7 +1133,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error rmessage
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1219,7 +1220,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -1231,7 +1232,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1449,7 +1450,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -1461,7 +1462,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1524,7 +1525,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -1536,7 +1537,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1618,7 +1619,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -1630,7 +1631,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1696,7 +1697,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -1708,7 +1709,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// retrun error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1766,7 +1767,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1816,7 +1817,7 @@ public class ControllerEditField {
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
@@ -1827,7 +1828,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
@@ -1849,10 +1850,10 @@ public class ControllerEditField {
 				return JsonMessage.Success(messageSource.getMessage("success.risk_register.updated", null, "Risk register was successfully updated",
 						cutomLocale != null ? cutomLocale : locale));
 			} catch (TrickException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 			} catch (Exception e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 			}
 		} else
@@ -1910,10 +1911,10 @@ public class ControllerEditField {
 			}
 		} catch (NumberFormatException e) {
 			// print error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		} catch (ParseException e) {
 			// print error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		// data type not found, return error
 		return null;

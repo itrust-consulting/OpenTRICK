@@ -7,6 +7,11 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -23,11 +28,6 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 /**
  * @author eomar
@@ -153,23 +153,22 @@ public class WorkerCreateAnalysisProfile implements Worker {
 					copy.getLabel(), copy.getVersion());
 		} catch (TrickException e) {
 			try {
-				this.error = e;
-				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-				e.printStackTrace();
+				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+				TrickLogManager.Persist(e);
 				if (transaction != null)
 					transaction.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} catch (Exception e) {
 			try {
 				this.error = e;
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", null, e));
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (transaction != null)
 					transaction.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 
 		} finally {
@@ -177,7 +176,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -240,8 +239,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

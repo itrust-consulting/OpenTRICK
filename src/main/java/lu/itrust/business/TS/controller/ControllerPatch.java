@@ -105,7 +105,7 @@ public class ControllerPatch {
 
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null, "Scenarios were successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
@@ -127,7 +127,7 @@ public class ControllerPatch {
 			return errors;
 		} catch (Exception e) {
 			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		} finally {
 			/**
@@ -150,7 +150,7 @@ public class ControllerPatch {
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.restore.analysis.right", null, "Restoring analysis rights", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
@@ -191,7 +191,7 @@ public class ControllerPatch {
 			}
 			return JsonMessage.Success(messageSource.getMessage("success.update.analyses.scopes", null, "Scopes of analyses were successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-scopes-of-analyses"), principal.getName(),
@@ -247,7 +247,7 @@ public class ControllerPatch {
 
 			return JsonMessage.Success(messageSource.getMessage("success.matv.update", null, "MeasureAssetTypeValues successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**

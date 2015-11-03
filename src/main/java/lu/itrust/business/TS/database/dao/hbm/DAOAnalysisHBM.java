@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.model.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
@@ -20,10 +24,6 @@ import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOAnalysisHBM: <br>

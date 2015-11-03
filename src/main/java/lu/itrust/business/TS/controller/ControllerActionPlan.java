@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -158,7 +159,7 @@ public class ControllerActionPlan {
 			model.addAttribute("assets", ActionPlanManager.getAssetsByActionPlanType((List<ActionPlanEntry>)model.asMap().get("actionplans")));
 			return "analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			throw e;
 		}
 	}

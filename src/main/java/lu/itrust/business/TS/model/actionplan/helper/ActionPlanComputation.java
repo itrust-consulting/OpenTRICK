@@ -14,6 +14,9 @@ import java.util.Optional;
 
 import javax.naming.directory.InvalidAttributesException;
 
+import org.springframework.context.MessageSource;
+
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -44,8 +47,6 @@ import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-
-import org.springframework.context.MessageSource;
 
 /**
  * ActionPlanComputation: <br>
@@ -445,7 +446,7 @@ public class ActionPlanComputation {
 			// return null: no errors
 			return null;
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			MessageHandler messageHandler = new MessageHandler(e);
 			serviceTaskFeedback.send(idTask, messageHandler);
 			return messageHandler;
@@ -453,7 +454,7 @@ public class ActionPlanComputation {
 			System.out.println("Action Plan saving failed! ");
 			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed", language, e);
 			serviceTaskFeedback.send(idTask, messageHandler);
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			// return messagehandler with errors
 			return messageHandler;
 		}
@@ -1089,7 +1090,7 @@ public class ActionPlanComputation {
 		try {
 			val = nf.parse(nf.format(val)).doubleValue();
 		} catch (ParseException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			throw new TrickException("error.number.format", e.getMessage());
 		}
 

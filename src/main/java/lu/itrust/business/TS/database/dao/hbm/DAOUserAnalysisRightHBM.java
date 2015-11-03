@@ -2,15 +2,15 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOUserAnalysisRightHBM.java: <br>

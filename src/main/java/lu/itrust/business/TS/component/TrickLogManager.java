@@ -3,24 +3,28 @@
  */
 package lu.itrust.business.TS.component;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import lu.itrust.business.TS.database.dao.DAOTrickLog;
-import lu.itrust.business.TS.database.dao.hbm.DAOTrickLogHBM;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.TrickLog;
-
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import lu.itrust.business.TS.database.dao.DAOTrickLog;
+import lu.itrust.business.TS.database.dao.hbm.DAOTrickLogHBM;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TrickLog;
 
 /**
  * @author eomar
@@ -32,7 +36,7 @@ public class TrickLogManager {
 
 	private static volatile TrickLogManager instance;
 
-	private Queue<TrickLog> trickLogs =  new LinkedList<TrickLog>();
+	private Queue<TrickLog> trickLogs = new LinkedList<TrickLog>();
 
 	private Logger logger = Logger.getLogger("TRICKLogManager");
 
@@ -200,5 +204,36 @@ public class TrickLogManager {
 			}
 		}
 
+	}
+
+	public static boolean Persist(Exception e) {
+		ByteArrayOutputStream outStream = null;
+		PrintStream printStream = null;
+		try {
+			if (e == null)
+				return false;
+			if (e instanceof TrickException)
+				return Persist((TrickException) e);
+			e.printStackTrace(printStream = new PrintStream(outStream = new ByteArrayOutputStream()));
+			String stackTrace = outStream.toString();
+			return Persist(LogLevel.ERROR, LogType.SYSTEM, "error.system.exception", String.format("Stack trace: %s", stackTrace), "TS logger", LogAction.RISE_EXCEPTION, stackTrace);
+		} finally {
+			try {
+				if (outStream != null)
+					outStream.close();
+			} catch (IOException e1) {
+			}
+			try {
+				if (printStream != null)
+					printStream.close();
+			} catch (Exception e1) {
+			}
+		}
+	}
+
+	public static boolean Persist(TrickException e) {
+		if (e == null)
+			return false;
+		return Persist(LogLevel.ERROR, LogType.SYSTEM, e.getCode(), e.getMessage(), "TS logger", LogAction.RISE_EXCEPTION, e.getStringParameters());
 	}
 }

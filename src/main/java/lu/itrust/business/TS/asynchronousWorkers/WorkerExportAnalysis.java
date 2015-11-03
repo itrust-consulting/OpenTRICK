@@ -16,6 +16,12 @@ import java.util.Date;
 
 import javax.servlet.ServletContext;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.springframework.util.FileCopyUtils;
+
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -34,12 +40,6 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.springframework.util.FileCopyUtils;
 
 /**
  * WorkerExportAnalysis.java: <br>
@@ -133,23 +133,20 @@ public class WorkerExportAnalysis implements Worker {
 					saveSqLite(session, analysis);
 			}
 		} catch (HibernateException e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, e));
-			e.printStackTrace();
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, this.error = e));
+			TrickLogManager.Persist(e);
 		} catch (TrickException e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-			e.printStackTrace();
+			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, e));
-			e.printStackTrace();
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, this.error = e));
+			TrickLogManager.Persist(e);
 		} finally {
 			try {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 
 			if (isWorking()) {
@@ -230,12 +227,12 @@ public class WorkerExportAnalysis implements Worker {
 					String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.EXPORT,
 					analysis.getIdentifier(), analysis.getVersion());
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			try {
 				if (transaction != null)
 					transaction.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		}
 	}
@@ -304,14 +301,14 @@ public class WorkerExportAnalysis implements Worker {
 				try {
 					isr.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					TrickLogManager.Persist(e);
 				}
 			}
 			if (reader != null) {
 				try {
 					reader.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					TrickLogManager.Persist(e);
 				}
 			}
 			// close file
@@ -319,7 +316,7 @@ public class WorkerExportAnalysis implements Worker {
 				try {
 					inp.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					TrickLogManager.Persist(e);
 				}
 			}
 		}
@@ -374,8 +371,7 @@ public class WorkerExportAnalysis implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

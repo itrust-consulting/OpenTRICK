@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisProfile;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
@@ -141,7 +142,7 @@ public class ControllerAnalysisProfile {
 			} else
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("analysisprofile", e.getMessage());
 		}
 

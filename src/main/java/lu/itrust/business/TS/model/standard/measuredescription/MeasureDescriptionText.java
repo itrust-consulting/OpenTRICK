@@ -9,11 +9,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.general.Language;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.Language;
 
 /**
  * MeasureDescriptionText: <br>

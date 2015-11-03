@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.hbm.DAOCustomerHBM;
@@ -19,9 +22,6 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 /**
  * @author eom
@@ -157,7 +157,7 @@ public class WorkerAnalysisImport implements Worker {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			error = e;
 		} finally {
 			if (isWorking()) {
@@ -284,7 +284,7 @@ public class WorkerAnalysisImport implements Worker {
 				OnSuccess();
 		} catch (TrickException e) {
 			try {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
@@ -294,7 +294,7 @@ public class WorkerAnalysisImport implements Worker {
 			}
 		} catch (Exception e) {
 			try {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
@@ -307,7 +307,7 @@ public class WorkerAnalysisImport implements Worker {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (Exception e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			} finally {
 				if (isWorking()) {
 					synchronized (this) {

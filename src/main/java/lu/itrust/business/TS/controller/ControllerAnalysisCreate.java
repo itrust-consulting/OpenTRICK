@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
@@ -378,7 +379,7 @@ public class ControllerAnalysisCreate {
 
 			return JsonMessage.Success(messageSource.getMessage("success.analysis_custom.create", null, "Your analysis has been successfully created", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}

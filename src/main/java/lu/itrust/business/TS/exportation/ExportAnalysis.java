@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
@@ -35,8 +38,6 @@ import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-
-import org.hibernate.Session;
 
 /**
  * ExportAnalysis: <br>
@@ -209,7 +210,7 @@ public class ExportAnalysis {
 			MessageHandler handler = new MessageHandler(e);
 			serviceTaskFeedback.send(idTask, handler);
 			System.out.println(e.getMessage());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return handler;
 		} catch (Exception e) {
 			// ****************************************************************
@@ -217,7 +218,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.unknown", "An unknown error occurred while exporting", null, e));
 			System.out.println("Error while exporting!");
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return new MessageHandler(e);
 			// set return value exception
 		}

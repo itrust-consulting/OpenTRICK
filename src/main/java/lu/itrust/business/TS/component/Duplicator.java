@@ -9,6 +9,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
@@ -46,11 +51,6 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Duplicator.java: <br>
@@ -518,11 +518,11 @@ public class Duplicator {
 			}
 
 			return copy;
-		} catch (CloneNotSupportedException cex) {
-			cex.printStackTrace();
+		} catch (CloneNotSupportedException e) {
+			TrickLogManager.Persist(e);
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 

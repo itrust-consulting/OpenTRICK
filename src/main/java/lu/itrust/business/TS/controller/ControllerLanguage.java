@@ -134,7 +134,7 @@ public class ControllerLanguage {
 			}
 		} catch (Exception e) {
 			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -161,7 +161,7 @@ public class ControllerLanguage {
 			return JsonMessage.Success(messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale));
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used.", locale));
 		}
 	}
@@ -211,7 +211,7 @@ public class ControllerLanguage {
 
 		} catch (Exception e) {
 			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 

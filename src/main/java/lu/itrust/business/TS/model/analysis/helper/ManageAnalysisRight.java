@@ -8,6 +8,11 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
@@ -18,11 +23,6 @@ import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * @author eomar

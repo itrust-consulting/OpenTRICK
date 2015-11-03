@@ -225,7 +225,7 @@ public class ControllerKnowledgeBaseStandard {
 					TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.add", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
 							principal.getName(), LogAction.CREATE, standard.getLabel(), String.valueOf(standard.getVersion()));
 				} catch (Exception e) {
-					e.printStackTrace();
+					TrickLogManager.Persist(e);
 					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
 				}
 
@@ -255,7 +255,7 @@ public class ControllerKnowledgeBaseStandard {
 		} catch (Exception e) {
 			// return errors
 			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -288,11 +288,11 @@ public class ControllerKnowledgeBaseStandard {
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Standard was deleted successfully", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			String[] parts = e.getMessage().split(":");
 			String code = parts[0];
 			String defaultmessage = parts[1];
@@ -876,7 +876,7 @@ public class ControllerKnowledgeBaseStandard {
 
 			// return errors
 			errors.put("measuredescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 
@@ -904,7 +904,7 @@ public class ControllerKnowledgeBaseStandard {
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
@@ -930,7 +930,7 @@ public class ControllerKnowledgeBaseStandard {
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
@@ -1049,7 +1049,7 @@ public class ControllerKnowledgeBaseStandard {
 
 			// return error message
 			errors.put("measureDescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -1091,7 +1091,7 @@ public class ControllerKnowledgeBaseStandard {
 			try {
 				version = jsonNode.get("version").asInt();
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 
 			// check if standard has to be updated
@@ -1138,7 +1138,7 @@ public class ControllerKnowledgeBaseStandard {
 		} catch (Exception e) {
 			// return error
 			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}

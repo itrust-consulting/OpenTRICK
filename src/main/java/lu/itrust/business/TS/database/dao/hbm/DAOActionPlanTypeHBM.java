@@ -2,12 +2,12 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOActionPlanType;
-import lu.itrust.business.TS.model.actionplan.ActionPlanType;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAOActionPlanType;
+import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 
 /**
  * DAOActionPlanTypeHBM.java: <br>

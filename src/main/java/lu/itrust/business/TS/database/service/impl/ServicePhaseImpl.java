@@ -3,13 +3,13 @@ package lu.itrust.business.TS.database.service.impl;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOPhase;
-import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.model.general.Phase;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOPhase;
+import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.model.general.Phase;
 
 /**
  * ServicePhaseImpl.java: <br>

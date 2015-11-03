@@ -281,7 +281,7 @@ public class ControllerAdministration {
 			model.addAttribute("userAnalysisRights", userAnalysisRights);
 			return "admin/analysis/switch-owner";
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		}
 	}
@@ -301,7 +301,7 @@ public class ControllerAdministration {
 			new SwitchAnalysisOwnerHelper(serviceAnalysis).switchOwner(principal, analysis, owner);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null, "Analysis owner was successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
@@ -336,7 +336,7 @@ public class ControllerAdministration {
 				session.removeAttribute(Constant.SELECTED_ANALYSIS);
 			return customDelete.deleteAnalysis(ids, principal.getName());
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -346,7 +346,7 @@ public class ControllerAdministration {
 		try {
 			model.addAttribute("trickLogs", serviceTrickLog.getAll(page, loadLogFilter(session, principal.getName())));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return "admin/log/section";
 	}
@@ -365,7 +365,7 @@ public class ControllerAdministration {
 			serviceUser.saveOrUpdate(user);
 			return JsonMessage.Success(messageSource.getMessage("success.filter.updated", null, "Filter has been successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		}
 	}
@@ -432,7 +432,7 @@ public class ControllerAdministration {
 		} catch (Exception e) {
 			// return errors
 			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return "analyses/all/forms/manageUserAnalysisRights";
 		}
 	}
@@ -575,7 +575,7 @@ public class ControllerAdministration {
 
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 
@@ -602,7 +602,7 @@ public class ControllerAdministration {
 			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
 			return "admin/user/delete-dialog";
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return "redirect:/Error";
 		}
 	}
@@ -615,7 +615,7 @@ public class ControllerAdministration {
 			if (errors.isEmpty())
 				return JsonMessage.Success(messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			if (errors.isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
@@ -736,11 +736,11 @@ public class ControllerAdministration {
 
 		} catch (TrickException e) {
 			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 
