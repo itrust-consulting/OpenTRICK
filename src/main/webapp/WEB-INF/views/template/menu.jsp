@@ -33,7 +33,7 @@
 								code="label.menu.import.analysis" text="Import" /></a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" style="padding: 16px"><spring:message code="label.background.task" /> <span id="task-counter" class="fa badge">0</span></a>
+					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="taskmanager" style="padding: 16px"><spring:message code="label.background.task" /> <span id="task-counter" class="fa badge">0</span></a>
 						<ul class="dropdown-menu" id="task-manager"></ul></li>
 					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile"> <spring:message code="label.profile" text="Profile" /></a></li>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">

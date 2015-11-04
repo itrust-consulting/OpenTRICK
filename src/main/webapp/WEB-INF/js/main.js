@@ -76,6 +76,17 @@ $(function() {
 			$parent.addClass("active");
 	});
 
+	$("a[data-toggle='taskmanager']").on("click", function(e) { // task manager
+		var taksmanager = application['taskManager'];
+		if (taksmanager.isEmpty())
+			return false;
+		var $target = $(e.currentTarget), $parent = $target.parent();
+		if ($parent.hasClass("open"))
+			taksmanager.Hide();
+		else
+			taksmanager.Show();
+	});
+
 	if ($("#tab-container").length || $("#nav-container").length) {
 		var tabMenu = $(".nav-tab").length ? $(".nav-tab") : $(".nav-analysis");
 		var tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container");

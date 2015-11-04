@@ -5,12 +5,18 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="section_kb_measure" data-standard-id='${standard.id}' data-language-id='${selectedLanguage.id}'>
+	<div class="page-header tab-content-header">
+		<div class="container">
+			<div class="row-fluid">
+				<h3 id="section_title_measure">
+					<c:if test="${not empty standard}">
+						<spring:message text="${standard.label} - ${standard.version}. ${standard.description}" />
+					</c:if>
+				</h3>
+			</div>
+		</div>
+	</div>
 	<ul class="nav nav-pills bordered-bottom" id="menu_measure_description">
-		<li data-role='title'><h3 style="margin: 7px auto;" id="section_title_measure">
-				<c:if test="${not empty standard}">
-					<spring:message text="${standard.label} - ${standard.version}" />
-				</c:if>
-			</h3></li>
 		<li><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.norm" text="Add" /> </a></li>
 		<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleMeasure();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 					code="label.menu.edit.norm" text="Edit" /> </a></li>
