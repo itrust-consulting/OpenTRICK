@@ -169,7 +169,7 @@ public class Constant {
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
 	/** Regular expression for Parameter types */
-	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE";
+	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC";
 
 	/** Regular expression for asset types */
 	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl";

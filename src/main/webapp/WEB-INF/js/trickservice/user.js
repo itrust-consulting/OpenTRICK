@@ -234,7 +234,7 @@ function newUser(isIDSUser) {
 		$("#addUserModel-title").text(MessageResolver("title.administration.idsuser.add", "Add a new IDS User"));
 	$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#user_form").prop("action", "/Save");
-	$("#addUserModel").modal('toggle');
+	//$("#addUserModel").modal('toggle');
 	return false;
 }
 
