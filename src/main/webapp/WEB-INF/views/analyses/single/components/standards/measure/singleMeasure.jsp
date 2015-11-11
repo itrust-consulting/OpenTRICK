@@ -12,7 +12,7 @@
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
-	<c:if test="${isEditable && (isAnalysisOnly || measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY' && measure.measureDescription.computable) }">
+	<c:if test="${isEditable and ( analysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>
@@ -22,14 +22,26 @@
 		<c:otherwise>${css}</c:otherwise>
 	</c:choose>
 </c:set>
+<c:set var="popoverRef">
+	<c:if test="${not(empty measure.measureDescription.reference or empty measureDescriptionText.description)}">
+					class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
+					data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
+	</c:if>
+</c:set>
+<c:set var="popoverDescription">
+	<c:if test="${not(empty measureDescriptionText.domain or empty measureDescriptionText.description)}">
+				class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
+				data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' 
+	</c:if>
+</c:set>
 <c:choose>
-	<c:when test="${measure.measureDescription.computable==false}">
+	<c:when test="${not measure.measureDescription.computable}">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 			<c:if test="${isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td><spring:message text="${measure.measureDescription.reference}" /></td>
+			<td ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
 			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
 					text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 		</tr>
@@ -40,11 +52,8 @@
 			<c:if test="${isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
 			</c:if>
-			<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-				data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message
-	text="${measure.measureDescription.reference}" />'
-				${dblclickaction}><spring:message text="${measure.measureDescription.reference}" /></td>
-			<td ${dblclickaction}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
+			<td ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 					text="${measure.status}" /></td>
 			<c:choose>

@@ -142,13 +142,18 @@ function importNewStandard() {
 				$(progressBar.progress).appendTo($("#uploadStandard_form").parent());
 				callback = {
 					failed : function() {
-						progressBar.Destroy();
-						$("#updateStandardNotification").text(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
+						setTimeout(function() {
+							progressBar.Destroy();
+						}, 2000);
+						//$("#updateStandardNotification").text(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
 					},
 					success : function() {
-						progressBar.Destroy();
+						
 						reloadSection('section_kb_standard');
-						$("#uploadStandardModal").modal("hide");
+						setTimeout(function() {
+							progressBar.Destroy();
+							$("#uploadStandardModal").modal("hide");
+						}, 2000);
 					}
 				};
 				progressBar.OnComplete(callback.success);

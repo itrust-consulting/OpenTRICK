@@ -32,13 +32,13 @@ public class MessageHandler {
 	private String message = null;
 
 	private String language = null;
-	
+
 	private int progress = 0;
 
 	/** The Exception */
 
 	private Exception exception = null;
-	
+
 	public MessageHandler() {
 	}
 
@@ -57,7 +57,7 @@ public class MessageHandler {
 		this.language = language;
 		setException(exception);
 	}
-	
+
 	/**
 	 * @param code
 	 * @param message
@@ -84,6 +84,18 @@ public class MessageHandler {
 	 * @param code
 	 * @param parameters
 	 * @param message
+	 */
+	public MessageHandler(String code, Object[] parameters, String message, int progress) {
+		this.code = code;
+		this.parameters = parameters;
+		this.message = message;
+		this.progress = progress;
+	}
+
+	/**
+	 * @param code
+	 * @param parameters
+	 * @param message
 	 * @param exception
 	 */
 	public MessageHandler(String code, Object[] parameters, String message, Exception exception) {
@@ -99,15 +111,22 @@ public class MessageHandler {
 	 * @param message
 	 * @param exception
 	 */
-	public MessageHandler(String code, Object[] parameters, String message,String locale, Exception exception) {
+	public MessageHandler(String code, Object[] parameters, String message, String locale, Exception exception) {
 		this.code = code;
 		this.parameters = parameters;
 		this.message = message;
 		this.language = locale;
 		setException(exception);
 	}
-	
-	/** getLanguage: <br>
+
+	public MessageHandler(String code, String message, int progress) {
+		this.code = code;
+		this.message = message;
+		this.progress = progress;
+	}
+
+	/**
+	 * getLanguage: <br>
 	 * Returns the language field value.
 	 * 
 	 * @return The value of the language field
@@ -116,11 +135,12 @@ public class MessageHandler {
 		return language;
 	}
 
-	/** setLanguage: <br>
+	/**
+	 * setLanguage: <br>
 	 * Sets the Field "language" with a value.
 	 * 
-	 * @param language 
-	 * 			The Value to set the language field
+	 * @param language
+	 *            The Value to set the language field
 	 */
 	public void setLanguage(String language) {
 		this.language = language;

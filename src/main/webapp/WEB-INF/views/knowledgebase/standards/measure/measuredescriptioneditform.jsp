@@ -27,7 +27,7 @@
 			<div class="form-group">
 				<label for="description_${measureDescriptionText.language.id}" class="col-sm-2 control-label"> <spring:message code="label.measure.description" text="Description" /></label>
 				<div class="col-sm-10">
-					<textarea name="description_${measureDescriptionText.language.id}" id="measure_description_${measureDescriptionText.language.id}" class="form-control"><spring:message
+					<textarea name="description_${measureDescriptionText.language.id}" rows="15" id="measure_description_${measureDescriptionText.language.id}" class="form-control"><spring:message
 							text="${measureDescriptionText.description}" /></textarea>
 				</div>
 			</div>

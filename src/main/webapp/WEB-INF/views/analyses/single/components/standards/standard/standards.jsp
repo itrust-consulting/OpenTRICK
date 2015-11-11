@@ -45,12 +45,19 @@
 			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
 				<thead>
 					<tr>
-						<c:if test="${analysisOnly and isEditable}">
-							<th width="1%"></th>
-						</c:if>
-						<th width="2%" title='<fmt:message key="label.reference" />'  ><fmt:message key="label.measure.ref" /></th>
-						<th width="15%" title='<fmt:message key="label.measure.domain" />' ><fmt:message key="label.measure.domain" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.status" />' ><fmt:message key="label.measure.status" /></th>
+						<c:choose>
+							<c:when test="${analysisOnly and isEditable}">
+								<th width="1%"></th>
+								<th width="2%" title='<fmt:message key="label.reference" />'><fmt:message key="label.measure.ref" /></th>
+								<th width="10%" title='<fmt:message key="label.measure.domain" />'><fmt:message key="label.measure.domain" /></th>
+								<th width="2%" title='<fmt:message key="label.title.measure.status" />'><fmt:message key="label.measure.status" /></th>
+							</c:when>
+							<c:otherwise>
+								<th width="2.5%" title='<fmt:message key="label.reference" />'><fmt:message key="label.measure.ref" /></th>
+								<th width="10%" title='<fmt:message key="label.measure.domain" />'><fmt:message key="label.measure.domain" /></th>
+								<th width="2.5%" title='<fmt:message key="label.title.measure.status" />'><fmt:message key="label.measure.status" /></th>
+							</c:otherwise>
+						</c:choose>
 						<th width="2%" title='<fmt:message key="label.title.measure.ir" />' ><fmt:message key="label.measure.ir" /></th>
 						<th width="2%" title='<fmt:message key="label.title.measure.iw" />' ><fmt:message key="label.measure.iw" /></th>
 						<th width="2%" title='<fmt:message key="label.title.measure.ew" />' ><fmt:message key="label.measure.ew" /></th>
@@ -63,13 +70,13 @@
 						<th width="2%" title='<fmt:message key="label.title.measure.phase" />' ><fmt:message key="label.measure.phase" /></th>
 						<c:choose>
 							<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-								<th width="19.333%" title='<fmt:message key="label.measure.tocheck" />' ><fmt:message key="label.measure.tocheck" /></th>
-								<th width="19.333%"  title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
-								<th width="19.333%" title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
+								<th width="14%" title='<fmt:message key="label.measure.tocheck" />' ><fmt:message key="label.measure.tocheck" /></th>
+								<th width="25%"  title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
+								<th width="25%" title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
 							</c:when>
 							<c:otherwise>
-								<th width="29.5%"  title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
-								<th width="29.5%" title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
+								<th width="32%"  title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
+								<th width="32%" title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
 							</c:otherwise>
 						</c:choose>
 						<th width="1%" title='<fmt:message key="label.title.measure.responsible" />' ><fmt:message key="label.measure.responsible" /></th>
@@ -95,6 +102,18 @@
 								ondblclick="return editMeasure(this,${standardid},${measure.id});"
 							</c:if>
 						</c:set>
+						<c:set var="popoverRef">
+							<c:if test="${not(empty measure.measureDescription.reference or empty measureDescriptionText.description)}">
+											class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
+											data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
+							</c:if>
+						</c:set>
+						<c:set var="popoverDescription">
+							<c:if test="${not(empty measureDescriptionText.domain or empty measureDescriptionText.description)}">
+										class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
+										data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' 
+							</c:if>
+						</c:set>
 						<c:choose>
 							<c:when test="${not measure.measureDescription.computable}">
 								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
@@ -102,7 +121,8 @@
 									<c:if test="${analysisOnly and isEditable}">
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-									<td><spring:message text="${measure.measureDescription.reference}" /></td>
+									
+									<td ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
 											text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 								</tr>
@@ -113,10 +133,8 @@
 									<c:if test="${analysisOnly and isEditable}">
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-									<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-										data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
-										${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
-									<td ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+									<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
+									<td ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 											text="${measure.status}" /></td>
 									<c:choose>
