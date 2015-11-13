@@ -2,10 +2,11 @@ var previous;
 
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
-	$("#tab-container table").stickyTableHeaders({
-		cssTopOffset : ".nav-tab",
-		fixedOffset : application.fixedOffset
-	});
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".nav-tab"),
+		marginTop : application.fixedOffset
+	};
+	fixTableHeader("#tab-container table");
 });
 
 $(function() {
@@ -211,15 +212,10 @@ function adminCustomerChange(selector) {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var $newSection = $(doc).find("#section_admin_analysis");
+			var $newSection = $("#section_admin_analysis", new DOMParser().parseFromString(response, "text/html"));
 			if ($newSection.length) {
 				$("#section_admin_analysis").replaceWith($newSection);
-				$("#section_admin_analysis table").stickyTableHeaders({
-					cssTopOffset : ".nav-tab",
-					fixedOffset : application.fixedOffset
-				});
+				fixTableHeader($("table", $newSection));
 			} else
 				unknowError();
 		},
@@ -312,13 +308,10 @@ function loadSystemLog() {
 		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
-			if (section.length) {
-				$("#section_log").replaceWith(section);
-				$("#section_log table.table-fixed-header-analysis").stickyTableHeaders({
-					cssTopOffset : ".nav-tab",
-					fixedOffset : application.fixedOffset
-				});
+			var $section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
+			if ($section.length) {
+				$("#section_log").replaceWith($section);
+				fixTableHeader($("table.table-fixed-header-analysis", $section));
 			} else
 				unknowError();
 		},

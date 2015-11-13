@@ -2,9 +2,11 @@ var taskManager = undefined;
 
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
-	$("#section_analysis table").stickyTableHeaders({
-		cssTopOffset : ".navbar-fixed-top"
-	});
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".navbar-fixed-top"),
+		scrollStartFixMulti : 1.02
+	};
+	fixTableHeader("#section_analysis table");
 });
 
 function manageAnalysisAccess(analysisId, section_analysis) {

@@ -24,14 +24,14 @@
 </c:set>
 <c:set var="popoverRef">
 	<c:if test="${not(empty measure.measureDescription.reference or empty measureDescriptionText.description)}">
-					class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
-					data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
+		data-toggle="tooltip" data-container="body" data-trigger="hover click" data-placement='auto'
+		data-title='<spring:message text="${measureDescriptionText.description}" />'
 	</c:if>
 </c:set>
 <c:set var="popoverDescription">
 	<c:if test="${not(empty measureDescriptionText.domain or empty measureDescriptionText.description)}">
-				class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
-				data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' 
+		class="popover-element" data-toggle="popover" data-container="body" data-trigger="click" data-html="true" data-placement='auto'
+		data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' style='cursor: pointer;'
 	</c:if>
 </c:set>
 <c:choose>

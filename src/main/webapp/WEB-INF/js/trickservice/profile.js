@@ -1,4 +1,8 @@
 $(function() {
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".nav-tab"),
+		marginTop : application.fixedOffset,
+	};
 	$(window).scroll(function(e) {
 		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
 			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
@@ -165,13 +169,8 @@ function loadUserSqlite(update) {
 						$(this).appendTo($("#section_sqlite>table>tbody"));
 				});
 			} else {
-				$("#section_sqlite").replaceWith($(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite"));
-				setTimeout(function() {
-					$("#section_sqlite>table").stickyTableHeaders({
-						cssTopOffset : ".nav-tab",
-						fixedOffset : application.fixedOffset
-					});
-				}, 500);
+				$("#section_sqlite").replaceWith($("#section_sqlite", new DOMParser().parseFromString(response, "text/html")));
+				fixTableHeader("#section_sqlite table");
 			}
 			return false;
 		},
@@ -197,13 +196,8 @@ function loadUserReport(update) {
 						$(this).appendTo($("#section_sqlite>table>tbody"));
 				});
 			} else {
-				$("#section_report").replaceWith($(new DOMParser().parseFromString(response, "text/html")).find("#section_report"));
-				setTimeout(function() {
-					$("#section_report table").stickyTableHeaders({
-						cssTopOffset : ".nav-tab",
-						fixedOffset : application.fixedOffset
-					});
-				}, 500);
+				$("#section_report").replaceWith($("#section_report", new DOMParser().parseFromString(response, "text/html")));
+				fixTableHeader("#section_report table");
 			}
 			return false;
 		},

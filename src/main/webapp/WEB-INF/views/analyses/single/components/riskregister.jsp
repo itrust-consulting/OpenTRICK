@@ -8,6 +8,15 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <div class="tab-pane" id="tabRiskRegister">
 	<div class="section" id="section_riskregister">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.risk_register" />
+					</h3>
+				</div>
+			</div>
+		</div>
 		<ul class="nav nav-pills bordered-bottom" id="menu_riskRegister">
 			<c:if test="${not empty riskregister}">
 				<li class="disabled" data-trick-role="menu-risk-register-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message

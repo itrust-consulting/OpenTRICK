@@ -34,20 +34,20 @@
 		<table id="${categoryRiskInformation}table" class="table table-condensed table-hover table-fixed-header-analysis">
 			<thead>
 				<tr>
-					<th style="width: 5%" title='<fmt:message key="label.title.id" />'><fmt:message key="label.risk_information.id" /></th>
+					<th width="5%" title='<fmt:message key="label.title.id" />'><fmt:message key="label.risk_information.id" /></th>
 					<c:choose>
 						<c:when test="${categoryRiskInformation == 'Threat'}">
-							<th style="width: 15%" title='<fmt:message key="label.risk_information.threats" />'><fmt:message key="label.risk_information.threats" /></th>
-							<th style="width: 5%" title='<fmt:message key="label.risk_information.acronym" />'><fmt:message key="label.risk_information.acro" /></th>
+							<th width="15%" title='<fmt:message key="label.name" />'><fmt:message key="label.name" /></th>
+							<th width="5%" title='<fmt:message key="label.risk_information.acronym" />'><fmt:message key="label.risk_information.acro" /></th>
 						</c:when>
 						<c:when test="${categoryRiskInformation == 'Vul'}">
-							<th style="width: 25%" title='<fmt:message key="label.risk_information.vulnerabilities" />'><fmt:message key="label.risk_information.vulnerabilities" /></th>
+							<th width="25%" title='<fmt:message key="label.name" />'><fmt:message key="label.name" /></th>
 						</c:when>
 						<c:otherwise>
-							<th style="width: 15%" title='<fmt:message key="label.risk_information.risks" />'><fmt:message key="label.risk_information.risks" /></th>
+							<th width="15%" title='<fmt:message key="label.name" />'><fmt:message key="label.name" /></th>
 						</c:otherwise>
 					</c:choose>
-					<th style="width: 5%" title='<fmt:message key="label.risk_information.exposed" />'><fmt:message key="label.risk_information.expo" /></th>
+					<th width="5%" title='<fmt:message key="label.risk_information.exposed" />'><fmt:message key="label.risk_information.expo" /></th>
 					<th title='<fmt:message key="label.risk_information.comment" />'><fmt:message key="label.risk_information.comment" /></th>
 					<th title='<fmt:message key="label.risk_information.comment_hidden" />'><fmt:message key="label.risk_information.comment_hidden" /></th>
 				</tr>

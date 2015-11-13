@@ -8,6 +8,15 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane"  id="tabAsset">
 	<div class="section" id="section_asset">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.asset" />
+					</h3>
+				</div>
+			</div>
+		</div>
 		<ul class="nav nav-pills bordered-bottom" id="menu_asset">
 			<c:if test="${isEditable}">
 				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add.asset" /></a></li>

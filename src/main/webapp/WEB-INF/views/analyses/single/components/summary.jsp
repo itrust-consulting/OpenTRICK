@@ -10,6 +10,15 @@
 <div class="tab-pane" id="tabSummary">
 	<div class="section" id="section_summary">
 		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.action_plan.summary" />
+					</h3>
+				</div>
+			</div>
+		</div>
 		<ul id="menu_summary" class="nav nav-pills bordered-bottom">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
@@ -25,7 +34,7 @@
 		<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 			<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 			<div data-trick-nav-content="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
-				<table class="table table-hover table-condensed table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />">
+				<table class="table table-hover table-condensed table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />" >
 					<thead>
 						<tr>
 							<th style="width: 30%;"><fmt:message key="label.characteristic" /></th>

@@ -1,17 +1,17 @@
 $(document).ready(function() {
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".nav-tab"),
+		marginTop : application.fixedOffset
+	};
+	
+	fixTableHeader("#tab-container table");
+	
 	$("input[type='checkbox']").removeAttr("checked");
-	$("#tab-container table").stickyTableHeaders({
-		cssTopOffset : ".nav-tab",
-		fixedOffset : application.fixedOffset
-	});
-
 	$("#section_kb_measure #languageselect").change(function() {
 		showMeasures($("#section_kb_measure").attr("data-standard-id"), $(this).val());
 	});
 
 });
-
-
 
 function editSingleAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {

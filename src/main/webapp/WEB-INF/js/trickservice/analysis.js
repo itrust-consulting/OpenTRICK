@@ -13,11 +13,14 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 
 	$("input[type='checkbox']").removeAttr("checked");
-	
-	$("table.table-fixed-header-analysis").stickyTableHeaders({
-		cssTopOffset : ".nav-analysis",
-		fixedOffset : application.fixedOffset
-	});
+
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".nav-analysis"),
+		marginTop : application.fixedOffset,
+		scrollStartFixMulti : 0.99998
+	};
+
+	fixTableHeader("table.table-fixed-header-analysis");
 
 	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 		disableEditMode();
@@ -86,14 +89,15 @@ function reloadMeasureRow(idMeasure, standard) {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $newData = $("tr" ,$("<div/>").html(response));
-			if (!$newData.length)
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").addClass("danger").attr("title",
-						MessageResolver("error.ui.no.synchronise", "User interface does not update"));
+			var $newRow = $("tr", $("<div/>").html(response)), $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']");
+			if (!$newRow.length)
+				$currentRow.addClass("danger").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
 			else {
-				$(".popover").remove();
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith($newData);
-				$("td[data-toggle='popover']",$newData).popover("hide");
+				$("[data-toggle='popover']", $currentRow).popover('destroy');
+				$("[data-toggle='tooltip']", $currentRow).tooltip('destroy');
+				$currentRow.replaceWith($newRow);
+				$("[data-toggle='popover']", $newRow).popover().on('show.bs.popover', togglePopever);
+				$("[data-toggle='tooltip']", $newRow).tooltip();
 			}
 		},
 		error : unknowError
@@ -119,9 +123,10 @@ function compliances() {
 				return;
 			var $complianceBody = $("#chart_compliance_body").empty();
 			$.each(response.standards, function(key, data) {
-				if($complianceBody.children().length)
+				if ($complianceBody.children().length)
 					$complianceBody.append("<hr class='col-xs-12' style='margin: 30px 0;'> <div id='chart_compliance_" + key + "'></div>");
-				else $complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
+				else
+					$complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
 				$('div[id="chart_compliance_' + key + '"]').highcharts(data[0]);
 			});
 		},
@@ -241,20 +246,19 @@ function reloadCharts() {
 	return false;
 };
 
-function displayChart(id,response) {
+function displayChart(id, response) {
 	var $element = $(id);
-	if($.isArray(response)){
+	if ($.isArray(response)) {
 		$element.empty();
-		for (var i = 0; i < response.length; i++){
-			if(i == 0)
+		for (var i = 0; i < response.length; i++) {
+			if (i == 0)
 				$("<div/>").appendTo($element).highcharts(response[i]);
 			else {
 				$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
 				$("<div></div>").appendTo($element).highcharts(response[i]);
 			}
 		}
-	}
-	else
+	} else
 		$element.highcharts(response);
 }
 
@@ -269,7 +273,7 @@ function loadChartAsset() {
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_asset',response);
+					displayChart('#chart_ale_asset', response);
 				},
 				error : unknowError
 			});
@@ -283,7 +287,7 @@ function loadChartAsset() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_asset_type',response);
+					displayChart('#chart_ale_asset_type', response);
 				},
 				error : unknowError
 			});
@@ -302,7 +306,7 @@ function loadChartScenario() {
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_scenario_type',response);
+					displayChart('#chart_ale_scenario_type', response);
 				},
 				error : unknowError
 			});
@@ -317,7 +321,7 @@ function loadChartScenario() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_scenario',response);
+					displayChart('#chart_ale_scenario', response);
 				},
 				error : unknowError
 			});
@@ -338,25 +342,24 @@ function chartALE() {
 
 // common
 function navToogled(section, parentMenu, navSelected) {
-	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']",parentMenu);
+	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']", parentMenu);
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	$("li[data-trick-nav-control]",parentMenu).each(function() {
+	$("li[data-trick-nav-control]", parentMenu).each(function() {
 		var $this = $(this);
 		if ($this.attr("data-trick-nav-control") == navSelected)
 			$this.addClass("disabled");
-		else if($this.hasClass('disabled'))
+		else if ($this.hasClass('disabled'))
 			$this.removeClass("disabled");
 	});
 
-	$("[data-trick-nav-content]",section).each(function() {
+	$("[data-trick-nav-content]", section).each(function() {
 		var $this = $(this);
 		if ($this.attr("data-trick-nav-content") == navSelected)
 			$this.show();
-		else if($this.is(":visible"))
+		else if ($this.is(":visible"))
 			$this.hide();
 	});
 	$(window).scroll();
 	return false;
 }
-

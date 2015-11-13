@@ -10,6 +10,15 @@
 <div class="tab-pane" id="tabActionPlan">
 	<div class="section" id="section_actionplans">
 		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.action_plan" />
+					</h3>
+				</div>
+			</div>
+		</div>
 		<ul class="nav nav-pills bordered-bottom" id="menu_actionplan">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"

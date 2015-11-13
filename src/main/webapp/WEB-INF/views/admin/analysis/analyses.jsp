@@ -39,7 +39,7 @@
 				</select>
 			</form>
 		</div>
-		<table class="table table-hover" style="border-top: 1px solid #dddddd;">
+		<table class="table table-hover" style="border-top: 1px solid #dddddd;" data-fh-scroll-multi="0.995">
 			<thead>
 				<tr>
 					<th width="1%"></th>

@@ -14,35 +14,26 @@
 	<div class="tab-pane" id="tabStandard_${standardid}" data-trick-id="${standardid}">
 		<span class="anchor" id="anchorMeasure_${standardid}"></span>
 		<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}">
-			<c:choose>
-				<c:when test="${analysisOnly}">
-					<ul style="padding: 3px 5px 9px 51px" class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
-						<li style="min-width: 5%" data-role="title"><h3 style="margin: 7px auto;">
-								<spring:message text="${standard}" />
-							</h3></li>
-						<c:if test="${isEditable}">
-							<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
-									class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
-							<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
-							<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
-								href="#"><span class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
-						</c:if>
-					</ul>
-				</c:when>
-				<c:otherwise>
-					<div class="page-header tab-content-header">
-						<div class="container">
-							<div class="row-fluid">
-								<h3>
-									<spring:message text="${standard}" />
-								</h3>
-							</div>
-						</div>
+			<div class="page-header tab-content-header">
+				<div class="container">
+					<div class="row-fluid">
+						<h3>
+							<spring:message text="${standard}" />
+						</h3>
 					</div>
-				</c:otherwise>
-			</c:choose>
-			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
+				</div>
+			</div>
+			<c:if test="${analysisOnly and isEditable}">
+				<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
+					<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+					<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
+							class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
+					<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+					<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
+						href="#"><span class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
+				</ul>
+			</c:if>
+			<table class="table table-hover table-fixed-header-analysis" id="table_Measure_${standardid}">
 				<thead>
 					<tr>
 						<c:choose>
@@ -104,14 +95,14 @@
 						</c:set>
 						<c:set var="popoverRef">
 							<c:if test="${not(empty measure.measureDescription.reference or empty measureDescriptionText.description)}">
-											class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
-											data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
+											data-toggle="tooltip" data-container="body" data-trigger="hover click" data-placement='auto'
+											data-title='<spring:message text="${measureDescriptionText.description}" />'
 							</c:if>
 						</c:set>
 						<c:set var="popoverDescription">
 							<c:if test="${not(empty measureDescriptionText.domain or empty measureDescriptionText.description)}">
-										class="popover-element" data-toggle="popover" data-container="body" data-trigger="hover" data-html="true"
-										data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' 
+										data-toggle="popover" data-container="body" data-trigger="click" data-html="true" data-placement='auto'
+										data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' style='cursor: pointer;'
 							</c:if>
 						</c:set>
 						<c:choose>

@@ -9,6 +9,10 @@ body {
 	width: auto !important; /* Firefox will set width as auto */
 }
 
+/*body, .dropdown-menu, .form-control{
+	font-size: 13px;
+}*/
+
 /* Wrapper for page content to push down footer */
 #wrap {
 	min-height: 100%;
@@ -57,41 +61,9 @@ body {
 	padding-right: 15px;
 }
 
-.carousel-control.no-background {
-	width: 15px;
-	margin-top: 0;
-	z-index: 10;
-}
-
-.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev {
-	font-size: 60px;
-}
-
-.carousel-control.no-background .icon-next {
-	margin-right: -23px;
-}
-
-.carousel-control.no-background .icon-prev {
-	margin-left: -23px;
-}
-
-.vertical-text {
-	transform: rotate(12deg);
-}
-
-.nav-container {
-	padding-top: 80px;
-	margin-top: -50px;
-}
-
 #nav-container, #tab-container {
 	margin-top: 50px;
 	padding-top: 5px;
-}
-
-.nav-container h3, .sectionpanel {
-	margin-top: -120px;
-	padding-top: 120px;
 }
 
 .nav.bordered-bottom {
@@ -119,27 +91,8 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	background-color: #FFFFFF;
 }
 
-#contextMenu {
-	z-index: 1080;
-}
-
 .actionplanassethidden {
 	display: none;
-}
-
-.tooltip {
-	display: none;
-	position: absolute;
-	border: 1px solid #333;
-	background-color: #161616;
-	border-radius: 5px;
-	padding: 10px;
-	color: #fff;
-	font-size: 12px;
-}
-
-.tablesorter thead tr.tablesorter-filter-row {
-	display: none
 }
 
 .checkboxselectable {
@@ -304,15 +257,6 @@ table.floatThead-table {
 	resize: vertical;
 }
 
-table th {
-	font-size: 14px;
-}
-
-table td {
-	font-size: 13px;
-	color: #101010;
-}
-
 td>pre {
 	border: none;
 	background-color: inherit;
@@ -471,15 +415,14 @@ ul.asset-measure>li {
 #measure_form .slider.slider-vertical {
 	height: 310px;
 }
-
+/*
 #nav-container .tab-pane.active, #tab-container .tab-pane.active {
 	overflow: auto;
 }
 
 #nav-container .tab-pane.trick-chart-tab{
 	overflow:inherit;
-}
-
+}*/
 #uploadStandardModal .progress {
 	max-width: 95%;
 	margin-top: 10px;
@@ -491,7 +434,7 @@ td.selected, .table>tbody>tr.info>td.selected {
 	background-color: #dff0d8
 }
 
-td.unselected,.table>tbody>tr.info>td.unselected {
+td.unselected, .table>tbody>tr.info>td.unselected {
 	background-color: window;
 }
 
@@ -506,4 +449,22 @@ ul#task-manager {
 
 ul#task-manager>li>li {
 	border-top: 1px solid #777;
+}
+
+.tooltip-inner {
+	max-width: 800px;
+	white-space: pre-wrap;
+	word-break: normal;
+	overflow: hidden;
+	text-align: justify;
+}
+
+.popover {
+	max-width: 800px;
+	max-height: 660px;
+}
+
+.popover pre{
+	overflow: auto;
+	max-height: 600px;
 }
