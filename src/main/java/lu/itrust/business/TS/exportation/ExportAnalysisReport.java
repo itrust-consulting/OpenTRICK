@@ -85,6 +85,8 @@ public class ExportAnalysisReport {
 	private static final String SUPER_HEAD_COLOR = "95b3d7";
 
 	private static final String ZERO_COST_COLOR = "e6b8b7";
+	
+	private static int MEASURE_CELL_WIDTH[] = { 430, 1790, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 6500, 6500, 430 };
 
 	private Analysis analysis = null;
 
@@ -1318,7 +1320,7 @@ public class ExportAnalysisReport {
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
 
-		int cellWidth[] = { 784, 2290, 454, 454, 454, 454, 454, 398, 454, 454, 454, 454, 3500, 3500, 784 };
+		
 
 		if (paragraph != null && analysisStandards.size() > 0) {
 
@@ -1354,7 +1356,7 @@ public class ExportAnalysisReport {
 				table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 				table.setStyleID("TableTSMeasure");
-				table.setWidth(15307);
+				//table.setWidth(15307);
 				// set header
 				row = table.getRow(0);
 
@@ -1364,8 +1366,8 @@ public class ExportAnalysisReport {
 				while (row.getTableCells().size() < 15)
 					row.createCell().setColor(SUPER_HEAD_COLOR);
 
-				for (int i = 0; i < cellWidth.length; i++)
-					row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
+				for (int i = 0; i < MEASURE_CELL_WIDTH.length; i++)
+					row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(MEASURE_CELL_WIDTH[i]));
 
 				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
 				row.getCell(1).setText(getMessage("report.measure.domain", null, "Domain", locale));
@@ -1395,13 +1397,13 @@ public class ExportAnalysisReport {
 					row.getCell(1).setText(description == null ? "" : description.getDomain());
 					if (!measure.getMeasureDescription().isComputable()) {
 						MergeCell(row, 1, 14, measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
-						for (int i = 0; i < cellWidth.length; i++)
-							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
+						for (int i = 0; i < MEASURE_CELL_WIDTH.length; i++)
+							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(MEASURE_CELL_WIDTH[i]));
 					} else {
 						while (row.getTableCells().size() < 15)
 							row.createCell();
-						for (int i = 0; i < cellWidth.length; i++)
-							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(cellWidth[i]));
+						for (int i = 0; i < MEASURE_CELL_WIDTH.length; i++)
+							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(MEASURE_CELL_WIDTH[i]));
 						row.getCell(2).setText(measure.getStatus());
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
@@ -1723,5 +1725,11 @@ public class ExportAnalysisReport {
 
 	public void setMaxProgress(int maxProgress) {
 		this.maxProgress = maxProgress;
+	}
+	
+	public static void setMeasureWidths(int [] WIDTHS){
+		if(WIDTHS == null || WIDTHS.length!=MEASURE_CELL_WIDTH.length)
+			return;
+		MEASURE_CELL_WIDTH = WIDTHS;
 	}
 }

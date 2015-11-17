@@ -76,11 +76,44 @@ function restoreAnalysisRights() {
 
 function updateAnalysesScopes() {
 	var $confirmDialog = $("#confirm-dialog");
-	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.update.analyses.scopes", "Are you sure, you want to update scopes of analyses?"));
+	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.update.analyses.scopes", "Are you sure, you want to update missing scopes of analyses?"));
 	$confirmDialog.find("button[name='yes']").click(function() {
 		$(this).unbind();
 		$.ajax({
 			url : context + "/Patch/Update/Analyses/Scopes",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if(response["success"] != undefined){
+					$("#info-dialog .modal-body").text(response["success"]);
+					$("#info-dialog").modal("show");
+				}
+				else if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("show");
+				} else {
+					$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+					$("#alert-dialog").modal("show");
+				}
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+				$("#alert-dialog").modal("show");
+			}
+		}).complete(function() {
+			$confirmDialog.modal("hide");
+		});
+	});
+	$confirmDialog.modal("show");
+	return false;
+}
+
+function updateAnalysesRiskAndItemInformation(){
+	var $confirmDialog = $("#confirm-dialog");
+	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.update.analyses.risk_item.information", "Are you sure, you want to update missing risk and item information of analyses?"));
+	$confirmDialog.find("button[name='yes']").click(function() {
+		$(this).unbind();
+		$.ajax({
+			url : context + "/Patch/Update/Analyses/Risk-item-information",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				if(response["success"] != undefined){

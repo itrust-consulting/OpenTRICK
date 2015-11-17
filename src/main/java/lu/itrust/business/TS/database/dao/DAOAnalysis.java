@@ -146,6 +146,9 @@ public interface DAOAnalysis {
 
 	public int countNotEmpty();
 
+	public int countNotEmptyNoItemInformationAndRiskInformation();
+
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
 	
 
 }

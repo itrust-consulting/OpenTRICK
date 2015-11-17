@@ -10,17 +10,17 @@
 <c:set var="css">
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 </c:set>
-<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-<c:set var="dblclickaction">
-	<c:if test="${isEditable && (isAnalysisOnly || measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY' && measure.measureDescription.computable) }">
-		ondblclick="return editMeasure(this,${standardid},${measure.id});"
-	</c:if>
-</c:set>
 <c:set var="todoCSS">
 	<c:choose>
 		<c:when test="${empty measure.toDo && fn:contains(css,'success')}">class="danger"</c:when>
 		<c:otherwise>${css}</c:otherwise>
 	</c:choose>
+</c:set>
+<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
+<c:set var="dblclickaction">
+	<c:if test="${isEditable && (isAnalysisOnly || measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY' && measure.measureDescription.computable) }">
+		ondblclick="return editMeasure(this,${standardid},${measure.id});"
+	</c:if>
 </c:set>
 <c:choose>
 	<c:when test="${measure.measureDescription.computable==false}">
