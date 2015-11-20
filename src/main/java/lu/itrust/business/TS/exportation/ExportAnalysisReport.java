@@ -1553,25 +1553,11 @@ public class ExportAnalysisReport {
 
 					previouselement = riskinfo;
 					row = table.createRow();
-					chapter = riskinfo.getChapter().matches("\\d(\\.0){2}");
 					row.getCell(0).setText(riskinfo.getChapter());
-					switch (riskinfo.getCategory()) {
-					case "Risk_TBA":
-						row.getCell(1).setText(
-								getMessage(String.format("label.risk_information.%s_tba.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
-										riskinfo.getLabel(), locale));
-						break;
-					case "Risk_TBS":
-						row.getCell(1).setText(
-								getMessage(String.format("label.risk_information.%s_tbs.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
-										riskinfo.getLabel(), locale));
-						break;
-					default:
-						row.getCell(1).setText(
-								getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
-										riskinfo.getLabel(), locale));
-						break;
-					}
+					row.getCell(1).setText(
+							getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
+									riskinfo.getLabel(), locale));
+					chapter = riskinfo.getChapter().matches("\\d(\\.0){2}");
 					if (riskinfo.getCategory().equals("Threat")) {
 						for (int i = 0; i < 3; i++)
 							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
@@ -1622,7 +1608,6 @@ public class ExportAnalysisReport {
 	}
 
 	private String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
-		// System.out.println(String.format("%s=%s", code, defaultMessage));
 		return messageSource.getMessage(code, parameters, defaultMessage, locale);
 	}
 
