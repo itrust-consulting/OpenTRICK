@@ -127,6 +127,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 			if (user == null) {
 				if (!StringUtils.isEmpty(email))
 					user = daoUser.getByEmail(email);
+				else 
+					throw new TrickException("error.ldap.email.empty", "Please contact your administrator, your email cannot be loaded");
 				if (user == null)
 					user = new User(username, firstName, lastName, email, User.LADP_CONNEXION);
 			} else if (!(email == null || email.equalsIgnoreCase(user.getEmail())) && daoUser.existByEmail(email))

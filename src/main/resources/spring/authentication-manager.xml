@@ -8,12 +8,18 @@
 	<authentication-manager>
 		<!-- Standard Authentication, it can be commented if not used -->
 		<authentication-provider>
-			<jdbc-user-service data-source-ref="dataSource" users-by-username-query="SELECT dtLogin as username, dtPassword as password, dtEnabled as enable from User where 1> dtConnexionType and dtLogin=?"
-				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.fiUser = User.idUser AND UserRole.fiRole = Role.idRole AND User.dtLogin = ?" />
+			<jdbc-user-service data-source-ref="dataSource"
+				users-by-username-query="SELECT dtLogin as username, dtPassword as password, dtEnabled as enable from 
+			User where 1> dtConnexionType and dtLogin=?"
+				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.fiUser = User.idUser 
+			AND UserRole.fiRole = Role.idRole AND User.dtLogin = ?" />
 			<password-encoder ref="passwordEncoder">
 				<salt-source user-property="username" />
 			</password-encoder>
 		</authentication-provider>
+
+		<!-- LDAP Active Directory Authentication, it can be commented if not used -->
+		<authentication-provider ref="adAuthenticationProvider" />
 
 		<!-- LDAP Authentication, it can be commented if not used -->
 		<ldap-authentication-provider user-context-mapper-ref="TRICKLdapUserDetailsMapper" user-dn-pattern="${app.settings.ldap.user_dn_pattern}"
@@ -36,8 +42,32 @@
 		<beans:property name="userRoles" value="${app.settings.ldap.role.user}" />
 	</beans:bean>
 
+	<!-- LDAP Active Directory Authentication, it can be commented if not used -->
+	<beans:bean id="TRICKLdapADUserDetailsMapper" class="lu.itrust.business.TS.usermanagement.helper.TRICKLdapUserDetailsMapper">
+		<beans:property name="allowedAuthentication" value="${app.settings.ldap.allowed.authentication}" />
+		<beans:property name="passwordAttributeName" value="${app.settings.ldap.attribute.user_password}" />
+		<beans:property name="alwaysLoadRole" value="${app.settings.ldap.always.load.role}" />
+		<beans:property name="firstNameAttribute" value="${app.settings.ldap.attribute.firstname}" />
+		<beans:property name="lastNameAttribute" value="${app.settings.ldap.attribute.lastname}" />
+		<beans:property name="roleAttributes" value="${app.settings.ldap.role.attributes}" />
+		<beans:property name="supervisorRoles" value="${app.settings.ldap.role.supervisor}" />
+		<beans:property name="adminRoles" value="${app.settings.ldap.role.admin}" />
+		<beans:property name="consultantRoles" value="${app.settings.ldap.role.consultant}" />
+		<beans:property name="userRoles" value="${app.settings.ldap.role.user}" />
+		<!-- it must be removed for active directory -->
+		<beans:property name="rolePrefix" value="" />
+	</beans:bean>
+
 	<!-- LDAP Authentication, it can be commented if not used. -->
 	<ldap-server url="${app.settings.ldap.server.url}" manager-dn="${app.settings.ldap.server.manager_dn}" manager-password="${app.settings.ldap.server.manager_password}"
 		root="${app.settings.ldap.server.root}" />
+
+
+	<!-- LDAP Active Directory Authentication, it can be commented if not used. -->
+	<beans:bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+		<beans:constructor-arg value="itrust.lu" name="domain" />
+		<beans:constructor-arg value="ldaps://ad.itrust.lu" name="url" />
+		<beans:property name="userDetailsContextMapper" ref="TRICKLdapADUserDetailsMapper" />
+	</beans:bean>
 
 </beans:beans>
