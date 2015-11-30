@@ -74,7 +74,7 @@
 				$('#login_reload_button').show();
 				$("#login_signin_button").hide();
 			}, 899400);
-			$("input[name='j_username']").focus();
+			$("input[name='username']").focus();
 			-->
 		</script>
 	</div>
