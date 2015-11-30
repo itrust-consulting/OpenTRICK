@@ -54,7 +54,6 @@
 		<beans:property name="adminRoles" value="${app.settings.ldap.role.admin}" />
 		<beans:property name="consultantRoles" value="${app.settings.ldap.role.consultant}" />
 		<beans:property name="userRoles" value="${app.settings.ldap.role.user}" />
-		<!-- it must be removed for active directory -->
 		<beans:property name="rolePrefix" value="" />
 	</beans:bean>
 
