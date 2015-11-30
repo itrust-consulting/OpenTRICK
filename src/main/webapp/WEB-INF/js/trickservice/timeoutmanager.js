@@ -1,5 +1,5 @@
 $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
-				// Dialog
+	// Dialog
 
 	// StringHelpers Module
 	// Call by using StringHelpers.padLeft("1", "000");
@@ -16,19 +16,17 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 
 	// SessionManager Module
 	var SessionManager = function() {
-		var originalTitle = document.title;
-		var minutetext = MessageResolver("info.session.minute", "minute"),
-		minutestext = MessageResolver("info.session.minutes", "minutes"),
-		secondtext = MessageResolver("info.session.second", "second"),
-		secondstext = MessageResolver("info.session.seconds", "seconds");
-		($("#nav-container").attr("data-trick-id") != undefined) ? expireSessionUrl = context + "/Analysis/" + $("#nav-container").attr("data-trick-id") + "/Select?readOnly=" + (application.isReloading === true) : expireSessionUrl = window.location.href;
-		var sessionTimeoutSeconds = 15.005 * 60, countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds,
-		displayCountdownIntervalId, promptToExtendSessionTimeoutId, count = countdownSeconds, extendSessionUrl = context + '/IsAuthenticate';
+		var originalTitle = document.title, extending = false, minutetext = MessageResolver("info.session.minute", "minute"), minutestext = MessageResolver("info.session.minutes",
+				"minutes"), secondtext = MessageResolver("info.session.second", "second"), secondstext = MessageResolver("info.session.seconds", "seconds");
+		($("#nav-container").attr("data-trick-id") != undefined) ? expireSessionUrl = context + "/Analysis/" + $("#nav-container").attr("data-trick-id") + "/Select?readOnly="
+				+ (application.isReloading === true) : expireSessionUrl = window.location.href;
+		var sessionTimeoutSeconds = 14.9999 * 60, countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds, displayCountdownIntervalId, promptToExtendSessionTimeoutId, count = countdownSeconds, extendSessionUrl = context
+				+ '/IsAuthenticate';
 
 		var endSession = function() {
 			location.href = expireSessionUrl;
 		};
-		
+
 		var displayCountdown = function() {
 			var countdown = function() {
 				var cd = new Date(count * 1000);
@@ -52,7 +50,7 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 					else
 						secondsDisplay = '<strong>' + seconds + "</strong> " + secondstext + '.';
 				}
-				
+
 				cdDisplay = minutesDisplay + secondsDisplay;
 
 				document.title = 'Expire in ' + StringHelpers.padLeft(minutes, '00') + ':' + StringHelpers.padLeft(seconds, '00');
@@ -80,10 +78,22 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 		};
 
 		var refreshSession = function() {
-			window.clearInterval(displayCountdownIntervalId);
-			document.title = originalTitle;
-			window.clearTimeout(promptToExtendSessionTimeoutId);
-			startSessionManager();
+			try {
+				if (extending)
+					return;
+				extending = true;
+				$.get(extendSessionUrl, function(expired) {
+					if (expired === true) {
+						window.clearInterval(displayCountdownIntervalId);
+						document.title = originalTitle;
+						window.clearTimeout(promptToExtendSessionTimeoutId);
+						startSessionManager();
+					} else
+						endSession();
+				});
+			} finally {
+				extending = false;
+			}
 		};
 
 		var startSessionManager = function() {
@@ -103,8 +113,8 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 	}();
 
 	SessionManager.start();
-	
-	$(document).ajaxStart(function(){
+
+	$(document).ajaxStart(function() {
 		SessionManager.extend();
 	});
 });
