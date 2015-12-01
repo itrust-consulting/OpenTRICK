@@ -57,8 +57,8 @@
 
 							<div class="form-group">
 								<label for="computable" class="col-sm-3 control-label"> <fmt:message key="label.measure.computable" /></label>
-								<div class="col-sm-9">
-									<input name="computable" id="computable" ${measureForm.computable?'checked':''} class="form-control" type="checkbox" />
+								<div class="col-sm-9" align="center">
+									<input name="computable" id="computable" ${measureForm.computable?'checked':''} class="checkbox" type="checkbox" />
 								</div>
 							</div>
 

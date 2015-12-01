@@ -69,21 +69,24 @@
 							<input name="description" id="standard_description" class="form-control" type="text" />
 						</div>
 					</div>
+					<div class="form-group">
+						<label for="computable" class="col-sm-2 control-label"> <fmt:message key="label.norm.computable" />
+						</label>
+						<div class="col-sm-10" align="center">
+							<input name="computable" id="standard_computable" class="checkbox" type="checkbox" checked />
+						</div>
+					</div>
 					<div class="panel panel-primary">
-						<div class="panel-body">
-							<label class="col-sm-12 text-center"><fmt:message key="label.norm.standard_type" /></label> <label class="radio-inline col-sm-4" style="margin-left: 0;"> <input
-								type="radio" name="type" value="NORMAL"> <fmt:message key="label.norm.standard_type.normal" /></label> <label class="radio-inline col-sm-4" style="margin-left: 0;">
+						<div class="panel-body" align="center">
+							<label class="col-sm-12"><fmt:message key="label.norm.standard_type" /></label> 
+							<label class="radio-inline col-sm-offset-2 col-sm-4"> <input
+								type="radio" name="type" value="NORMAL"> <fmt:message key="label.norm.standard_type.normal" /></label>
+								<label class="radio-inline col-sm-4">
 								<input type="radio" name="type" value="ASSET"> <fmt:message key="label.norm.standard_type.asset" />
 							</label>
 						</div>
 					</div>
-					<div class="form-group">
-						<label for="computable" class="col-sm-2 control-label"> <fmt:message key="label.norm.computable" />
-						</label>
-						<div class="col-sm-10">
-							<input name="computable" id="standard_computable" class="form-control" type="checkbox" checked />
-						</div>
-					</div>
+					
 				</form>
 			</div>
 			<div class="modal-footer" style="margin-top: 0;">

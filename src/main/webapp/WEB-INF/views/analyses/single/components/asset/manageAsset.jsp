@@ -72,8 +72,8 @@
 					<div class="form-group">
 						<label for="selected" class="col-sm-2 control-label"> <fmt:message key="label.asset.selected" />
 						</label>
-						<div class="col-sm-10">
-							<input name="selected" id="asset_selected" class="form-control" type="checkbox" ${empty(asset)? '': asset.selected? 'checked' : ''} />
+						<div class="col-sm-10" align="center">
+							<input name="selected" id="asset_selected" class="checkbox" type="checkbox" ${empty(asset)? '': asset.selected? 'checked' : ''} />
 						</div>
 					</div>
 					<div class="form-group">

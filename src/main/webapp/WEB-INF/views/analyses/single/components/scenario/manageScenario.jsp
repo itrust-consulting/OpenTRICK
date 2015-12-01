@@ -55,8 +55,8 @@
 					<div class="form-group">
 						<label for="selected" class="col-sm-2 control-label"> <fmt:message key="label.scenario.selected" />
 						</label>
-						<div class="col-sm-10">
-							<input name="selected" id="scenario_selected" class="form-control checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
+						<div class="col-sm-10" align="center">
+							<input name="selected" id="scenario_selected" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
 						</div>
 					</div>
 					<div class="panel panel-primary">
@@ -75,7 +75,7 @@
 										<tbody>
 											<tr>
 												<c:forEach items="${scenario.assetTypeValues}" var="assetTypeValue" varStatus="status">
-													<td><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1" name="<spring:message text="${assetTypeValue.assetType.type}" />" /></td>
+													<td align="center"><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1" name="<spring:message text="${assetTypeValue.assetType.type}" />" /></td>
 												</c:forEach>
 											</tr>
 										</tbody>
@@ -84,14 +84,14 @@
 										<thead>
 											<tr>
 												<c:forEach items="${assetTypes}" var="assetType">
-													<td><fmt:message key="label.asset_type.${fn:toLowerCase(assetType.type)}" /></td>
+													<td align="center"><fmt:message key="label.asset_type.${fn:toLowerCase(assetType.type)}" /></td>
 												</c:forEach>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<c:forEach items="${assetTypes}" var="assetType" varStatus="status">
-													<td><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
+													<td align="center"><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
 												</c:forEach>
 											</tr>
 										</tbody>
