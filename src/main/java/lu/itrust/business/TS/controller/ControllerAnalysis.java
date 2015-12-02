@@ -1193,9 +1193,4 @@ public class ControllerAnalysis {
 			return false;
 		}
 	}
-	
-	@Value("${app.settings.report.measure.cell.width}")
-	protected void setMeasureWidths(int [] widths){
-		ExportAnalysisReport.setMeasureWidths(widths);
-	}
 }

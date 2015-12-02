@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +16,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFStyles;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
+import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
@@ -47,23 +63,6 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackagePart;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFStyles;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
-import org.springframework.context.MessageSource;
-
 /**
  * ExportReport.java: <br>
  * Detailed description...
@@ -85,8 +84,6 @@ public class ExportAnalysisReport {
 	private static final String SUPER_HEAD_COLOR = "95b3d7";
 
 	private static final String ZERO_COST_COLOR = "e6b8b7";
-	
-	private static int MEASURE_CELL_WIDTH[] = { 430, 1790, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 6500, 6500, 430 };
 
 	private Analysis analysis = null;
 
@@ -1356,7 +1353,6 @@ public class ExportAnalysisReport {
 				table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 				table.setStyleID("TableTSMeasure");
-				//table.setWidth(15307);
 				// set header
 				row = table.getRow(0);
 
@@ -1365,9 +1361,6 @@ public class ExportAnalysisReport {
 
 				while (row.getTableCells().size() < 15)
 					row.createCell().setColor(SUPER_HEAD_COLOR);
-
-				for (int i = 0; i < MEASURE_CELL_WIDTH.length; i++)
-					row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(MEASURE_CELL_WIDTH[i]));
 
 				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
 				row.getCell(1).setText(getMessage("report.measure.domain", null, "Domain", locale));
@@ -1396,14 +1389,13 @@ public class ExportAnalysisReport {
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
 					row.getCell(1).setText(description == null ? "" : description.getDomain());
 					if (!measure.getMeasureDescription().isComputable()) {
-						MergeCell(row, 1, 14, measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
-						for (int i = 0; i < MEASURE_CELL_WIDTH.length; i++)
-							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(MEASURE_CELL_WIDTH[i]));
+						//MergeCell(row, 1, 14, measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
+						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
+						for (int i = 0; i < 15; i++)
+							row.getCell(i).setColor(color);
 					} else {
 						while (row.getTableCells().size() < 15)
 							row.createCell();
-						for (int i = 0; i < MEASURE_CELL_WIDTH.length; i++)
-							row.getCell(i).getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(MEASURE_CELL_WIDTH[i]));
 						row.getCell(2).setText(measure.getStatus());
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
@@ -1710,11 +1702,5 @@ public class ExportAnalysisReport {
 
 	public void setMaxProgress(int maxProgress) {
 		this.maxProgress = maxProgress;
-	}
-	
-	public static void setMeasureWidths(int [] WIDTHS){
-		if(WIDTHS == null || WIDTHS.length!=MEASURE_CELL_WIDTH.length)
-			return;
-		MEASURE_CELL_WIDTH = WIDTHS;
 	}
 }
