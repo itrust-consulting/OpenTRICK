@@ -6,6 +6,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
+<fmt:message key="label.measure.status.m" var="statusM" />
+<fmt:message key="label.measure.status.ap" var="statusAP" />
+<fmt:message key="label.measure.status.na" var="statusNA" />
 <c:forEach items="${measures.keySet()}" var="standard">
 	<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
 	<c:set var="standardType" value="${selectedStandard.type}" scope="page"/>
@@ -117,8 +120,7 @@
 										data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
 										${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-field-type="string" onclick="return editField(this);"><spring:message
-											text="${measure.status}" /></td>
+									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate="${statusM},${statusAP},${statusNA}" data-trick-field-type="string" onclick="return editField(this);"><fmt:message key="label.measure.status.${fn:toLowerCase(measure.status)}" /></td>
 									<c:choose>
 										<c:when test="${standardType.name.equals('MATURITY')}">
 											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
