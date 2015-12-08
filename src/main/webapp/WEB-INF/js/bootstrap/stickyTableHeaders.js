@@ -45,7 +45,7 @@
 		base.hasBeenSticky = false;
 		base.leftOffset = null;
 		base.topOffset = null;
-		
+
 		base.height = base.$el.height();
 
 		base.init = function() {
@@ -87,6 +87,19 @@
 			base.$el.unbind('destroyed', base.teardown);
 			base.teardown();
 		};
+
+		base.fixHeader = function() {
+			base.setPositionValues();
+			base.$originalHeader.css({
+				'position' : 'fixed',
+				'margin-top' : base.options.marginTop,
+				'left' : base.leftOffset,
+				'z-index' : base.options.zindex, // #18: opacity
+				// bug
+				'background-color' : base.options.backgroundColor
+			});
+			base.$clonedHeader.css('display', '');
+		}
 
 		base.loadAttributes = function() {
 			var attributes = base.el.attributes;
@@ -150,6 +163,8 @@
 			}
 			base.$scrollableArea.on('resize.' + name, base.toggleHeaders);
 			base.$scrollableArea.on('resize.' + name, base.updateWidth);
+			base.$el.on('enabledStickiness' + name, base.updateWidth)
+			base.$el.on('updateStickiness.' + name, base.fixHeader);
 		};
 
 		base.unbind = function() {
@@ -161,6 +176,8 @@
 				base.$window.off('.' + name + base.id, base.toggleHeaders);
 			}
 			base.$scrollableArea.off('.' + name, base.updateWidth);
+			base.$el.off('enabledStickiness' + name, base.updateWidth)
+			base.$el.off('updateStickiness.' + name, base.fixHeader);
 		};
 
 		// We debounce the functions bound to the scroll and resize events
@@ -175,53 +192,50 @@
 			};
 		};
 
-		base.toggleHeaders = base.debounce(function(e) {
-			if (base.$el) {
-				base.$el.each(function() {
-					
-					var $this = base.$el, newLeft, newTopOffset = base.isWindowScrolling ? (isNaN(base.options.fixedOffset) ? base.options.fixedOffset.position().top
-							+ base.options.fixedOffset.outerHeight() : base.options.fixedOffset) : base.$scrollableArea.offset().top
-							+ (!isNaN(base.options.fixedOffset) ? base.options.fixedOffset : 0), offset = $this.offset(), scrollTop = base.$scrollableArea.scrollTop()
-							+ newTopOffset, scrollLeft = base.$scrollableArea.scrollLeft(),
+		base.toggleHeaders = base
+				.debounce(
+						function(e) {
+							if (base.$el) {
+								base.$el
+										.each(function() {
 
-					headerHeight = base.options.cacheHeaderHeight ? base.cachedHeaderHeight : base.$clonedHeader.height(),
+											var $this = base.$el, newLeft, newTopOffset = base.isWindowScrolling ? (isNaN(base.options.fixedOffset) ? base.options.fixedOffset
+													.position().top
+													+ base.options.fixedOffset.outerHeight() : base.options.fixedOffset) : base.$scrollableArea.offset().top
+													+ (!isNaN(base.options.fixedOffset) ? base.options.fixedOffset : 0), offset = $this.offset(), scrollTop = base.$scrollableArea
+													.scrollTop()
+													+ newTopOffset, scrollLeft = base.$scrollableArea.scrollLeft(),
 
-					scrolledPastTop = base.isWindowScrolling ? scrollTop * base.options.scrollStartFixMulti > offset.top
-							: newTopOffset > offset.top, notScrolledPastBottom = (base.isWindowScrolling ? scrollTop : 0) < (offset.top
-							+ $this.height() - (base.isSticky? headerHeight : 0) - (base.isWindowScrolling ? 0 : newTopOffset));
-							
-					if (scrolledPastTop && notScrolledPastBottom) {
-						newLeft = offset.left - scrollLeft + base.options.leftOffset;
-						base.$originalHeader.css({
-							'position' : 'fixed',
-							'margin-top' : base.options.marginTop,
-							'left' : newLeft,
-							'z-index' : base.options.zindex, // #18: opacity
-							// bug
-							'background-color' : base.options.backgroundColor
-						});
-						base.leftOffset = newLeft;
-						base.topOffset = newTopOffset;
-						if (!base.isSticky) {
-							base.isSticky = true;
-							// make sure the width is correct: the user might
-							// have resized the browser while in static mode
-							base.updateWidth();
-							$this.trigger('enabledStickiness.' + name);
-						}
-						base.setPositionValues();
-						base.$clonedHeader.css('display', '');
-					} else if (base.isSticky) {
-						base.$originalHeader.css('position', 'static');
-						base.isSticky = false;
-						if (!base.$clonedHeaderCells)
-							base.resetWidth($('td,th', base.$clonedHeader), $('td,th', base.$originalHeader));
-						$this.trigger('disabledStickiness.' + name);
-						base.$clonedHeader.css('display', 'none');
-					}
-				});
-			}
-		}, 1);
+											headerHeight = base.options.cacheHeaderHeight ? base.cachedHeaderHeight : base.$clonedHeader.height(),
+
+											scrolledPastTop = base.isWindowScrolling ? scrollTop * base.options.scrollStartFixMulti > offset.top : newTopOffset > offset.top, notScrolledPastBottom = (base.isWindowScrolling ? scrollTop
+													: 0) < (offset.top + $this.height() - (base.isSticky ? headerHeight : 0) - (base.isWindowScrolling ? 0 : newTopOffset));
+
+											if (scrolledPastTop && notScrolledPastBottom) {
+												newLeft = offset.left - scrollLeft + base.options.leftOffset;
+												base.leftOffset = newLeft;
+												base.topOffset = newTopOffset;
+												if (!base.isSticky) {
+													base.isSticky = true;
+													// make sure the width is
+													// correct: the user might
+													// have resized the browser
+													// while in static mode
+													$this.trigger('enabledStickiness.' + name);
+												}
+												$this.trigger('updateStickiness.' + name);
+
+											} else if (base.isSticky) {
+												base.$originalHeader.css('position', 'static');
+												base.isSticky = false;
+												if (!base.$clonedHeaderCells)
+													base.resetWidth($('td,th', base.$clonedHeader), $('td,th', base.$originalHeader));
+												$this.trigger('disabledStickiness.' + name);
+												base.$clonedHeader.css('display', 'none');
+											}
+										});
+							}
+						}, 0);
 
 		base.setPositionValues = base.debounce(function() {
 			var winScrollTop = base.$window.scrollTop(), winScrollLeft = base.$window.scrollLeft();
@@ -233,13 +247,14 @@
 				'top' : base.topOffset - (base.isWindowScrolling ? 0 : winScrollTop),
 				'left' : base.leftOffset - (base.isWindowScrolling ? 0 : winScrollLeft)
 			});
-		}, 1);
+		}, 0);
 
 		base.updateWidth = base.debounce(function(e) {
 			if (!base.isSticky && !base.$el.is(":visible")) {
 				base.updateRequired = true
 				return;
 			}
+			console.log(e);
 			try {
 				if (base.updateRequired || !base.cacheHeaderHeight || e != undefined) {
 					base.updateRequired = false;
@@ -267,7 +282,7 @@
 				base.updateRequired = true;
 				console.log(e)
 			}
-		}, 1);
+		}, 0);
 
 		base.getWidth = function($clonedHeaders) {
 			var widths = [];
