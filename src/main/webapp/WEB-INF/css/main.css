@@ -32,6 +32,10 @@ body {
 /* Custom page CSS
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
+.container {
+	width: 99%;
+}
+
 #wrap>.container {
 	min-height: 100%;
 	margin-top: 50px;
@@ -41,15 +45,11 @@ body {
 	margin: 20px 0;
 }
 
-.container {
-	width: 96%;
-}
-
 .nav-analysis, .nav-tab {
 	z-index: 1029;
 	background-color: white;
 	padding-top: 5px;
-	max-width: 94.5%;
+	max-width: 97.5%;
 }
 
 .nav-analysis li.dropdown-submenu.active>a:HOVER {
@@ -242,17 +242,6 @@ table.floatThead-table {
 	background-color: #FFF;
 }
 
-.headertofixtable {
-	width: 100%;
-	table-layout: fixed;
-	padding: 0;
-	margin: 0;
-}
-
-.headertofixtablelargecolumn {
-	overflow: hidden;
-}
-
 .resize_vectical_only {
 	resize: vertical;
 }
@@ -271,55 +260,6 @@ td>pre {
 
 .popover-content>pre {
 	word-break: normal;
-}
-
-.text-rotate-360 {
-	transform: rotate(360deg);
-}
-
-.text-rotate-270 {
-	display: block;
-	margin-bottom: -13px;
-	margin-top: -50px;
-	padding-bottom: 85px;
-	padding-left: 8px;
-	transform: rotate(270deg);
-}
-
-.text-rotate-270-fix-1 {
-	margin-bottom: inherit;
-	margin-left: -20px;
-	margin-right: inherit;
-	margin-top: inherit;
-	padding: inherit;
-}
-
-.text-rotate-270-fix-2 {
-	margin-bottom: 10px;
-	margin-left: -30px;
-	margin-right: inherit;
-	margin-top: inherit;
-	padding: inherit;
-}
-
-.text-rotate-180 {
-	transform: rotate(180deg);
-}
-
-.text-rotate-90 {
-	transform: rotate(90deg);
-}
-
-.text-rotate-75 {
-	transform: rotate(75deg);
-}
-
-.text-rotate-45 {
-	transform: rotate(45deg);
-}
-
-.text-rotate-30 {
-	transform: rotate(30deg);
 }
 
 #buildAnalysisModal .well.well-sm {
@@ -415,14 +355,7 @@ ul.asset-measure>li {
 #measure_form .slider.slider-vertical {
 	height: 310px;
 }
-/*
-#nav-container .tab-pane.active, #tab-container .tab-pane.active {
-	overflow: auto;
-}
 
-#nav-container .tab-pane.trick-chart-tab{
-	overflow:inherit;
-}*/
 #uploadStandardModal .progress {
 	max-width: 95%;
 	margin-top: 10px;
@@ -464,7 +397,7 @@ ul#task-manager>li>li {
 	max-height: 660px;
 }
 
-.popover pre{
+.popover pre {
 	overflow: auto;
 	max-height: 600px;
 }

@@ -104,36 +104,36 @@
 		base.loadAttributes = function() {
 			var attributes = base.el.attributes;
 			for (var i = 0; i < attributes.length; i++) {
-				switch (attributes[i].nodeName) {
+				switch (attributes[i].name) {
 				case "data-fh-scroll-multi":
-					base.options.scrollStartFixMulti = parseFloat(attributes[i].nodeValue);
+					base.options.scrollStartFixMulti = parseFloat(attributes[i].value);
 					break;
 				case "data-fh-offset-top":
-					if (isNaN(attributes[i].nodeValue))
-						base.options.fixedOffset = $(attributes[i].nodeValue);
+					if (isNaN(attributes[i].value))
+						base.options.fixedOffset = $(attributes[i].value);
 					else
-						base.options.fixedOffset = parseInt(attributes[i].nodeValue);
+						base.options.fixedOffset = parseInt(attributes[i].value);
 					break;
 				case "data-fh-offset-left":
-					if (!isNaN(attributes[i].nodeValue))
-						base.options.leftOffset = parseInt(attributes[i].nodeValue);
+					if (!isNaN(attributes[i].value))
+						base.options.leftOffset = parseInt(attributes[i].value);
 					break;
 				case "data-fh-margin-top":
-					if (!isNaN(attributes[i].nodeValue))
-						base.options.marginTop = parseInt(attributes[i].nodeValue);
+					if (!isNaN(attributes[i].value))
+						base.options.marginTop = parseInt(attributes[i].value);
 					break;
 				case "data-fh-z-index":
-					if (!isNaN(attributes[i].nodeValue))
-						base.options.zindex = parseInt(attributes[i].nodeValue);
+					if (!isNaN(attributes[i].value))
+						base.options.zindex = parseInt(attributes[i].value);
 					break;
 				case "data-fh-cahing":
-					base.options.cacheHeaderHeight = attributes[i].nodeValue === "true";
+					base.options.cacheHeaderHeight = attributes[i].value === "true";
 					break;
 				case "data-fh-bg-color":
-					base.options.backgroundColor = attributes[i].nodeValue;
+					base.options.backgroundColor = attributes[i].value;
 					break;
 				case "data-fh-force-first-update":
-					base.options.forceFirstUpdate = attributes[i].nodeValue === "true";
+					base.options.forceFirstUpdate = attributes[i].value === "true";
 					break;
 				}
 			}
@@ -163,7 +163,7 @@
 			}
 			base.$scrollableArea.on('resize.' + name, base.toggleHeaders);
 			base.$scrollableArea.on('resize.' + name, base.updateWidth);
-			base.$el.on('enabledStickiness' + name, base.updateWidth)
+			base.$el.on('enabledStickiness.' + name, base.updateWidth)
 			base.$el.on('updateStickiness.' + name, base.fixHeader);
 		};
 
@@ -176,7 +176,7 @@
 				base.$window.off('.' + name + base.id, base.toggleHeaders);
 			}
 			base.$scrollableArea.off('.' + name, base.updateWidth);
-			base.$el.off('enabledStickiness' + name, base.updateWidth)
+			base.$el.off('enabledStickiness.' + name, base.updateWidth)
 			base.$el.off('updateStickiness.' + name, base.fixHeader);
 		};
 
@@ -250,12 +250,10 @@
 		}, 0);
 
 		base.updateWidth = base.debounce(function(e) {
-			if (!base.isSticky && !base.$el.is(":visible")) {
-				base.updateRequired = true
-				return;
-			}
-			console.log(e);
+
 			try {
+				if (!base.isSticky && !base.$el.is(":visible"))
+					throw base.isSticky ? "Element is not visisble" : "Element is not fixed";
 				if (base.updateRequired || !base.cacheHeaderHeight || e != undefined) {
 					base.updateRequired = false;
 					// Copy cell widths from clone
@@ -280,7 +278,6 @@
 				}
 			} catch (e) {
 				base.updateRequired = true;
-				console.log(e)
 			}
 		}, 0);
 
