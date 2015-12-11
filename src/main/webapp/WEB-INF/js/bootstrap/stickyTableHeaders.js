@@ -87,6 +87,14 @@
 			base.$el.unbind('destroyed', base.teardown);
 			base.teardown();
 		};
+		
+		base.releaseHeader = function() {
+			base.$originalHeader.css('position', 'static');
+			base.isSticky = false;
+			if (!base.$clonedHeaderCells)
+				base.resetWidth($('td,th', base.$clonedHeader), $('td,th', base.$originalHeader));
+			base.$clonedHeader.css('display', 'none');
+		}
 
 		base.fixHeader = function() {
 			base.setPositionValues();
@@ -165,6 +173,7 @@
 			base.$scrollableArea.on('resize.' + name, base.updateWidth);
 			base.$el.on('enabledStickiness.' + name, base.updateWidth)
 			base.$el.on('updateStickiness.' + name, base.fixHeader);
+			base.$el.on('disabledStickiness.'+name, base.releaseHeader);
 		};
 
 		base.unbind = function() {
@@ -178,6 +187,7 @@
 			base.$scrollableArea.off('.' + name, base.updateWidth);
 			base.$el.off('enabledStickiness.' + name, base.updateWidth)
 			base.$el.off('updateStickiness.' + name, base.fixHeader);
+			base.$el.off('disabledStickiness.'+name, base.releaseHeader);
 		};
 
 		// We debounce the functions bound to the scroll and resize events
@@ -225,14 +235,8 @@
 												}
 												$this.trigger('updateStickiness.' + name);
 
-											} else if (base.isSticky) {
-												base.$originalHeader.css('position', 'static');
-												base.isSticky = false;
-												if (!base.$clonedHeaderCells)
-													base.resetWidth($('td,th', base.$clonedHeader), $('td,th', base.$originalHeader));
+											} else if (base.isSticky)
 												$this.trigger('disabledStickiness.' + name);
-												base.$clonedHeader.css('display', 'none');
-											}
 										});
 							}
 						}, 0);
