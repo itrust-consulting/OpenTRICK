@@ -536,6 +536,23 @@ function customAnalysis(element) {
 							}
 						};
 
+						var $locker = $("<a href='#' title='"
+								+ $lockText
+								+ "' style='margin-right:3px;' class='pull-right' ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), lockerTigger = function(
+								e) {
+							var $this = $(e.currentTarget), $input = $("input", $this), $flag = $(".fa", $this);
+							if ($input.is(":checked")) {
+								$flag.removeClass('fa-lock');
+								$flag.addClass("fa-unlock");
+								$input.prop("checked", false);
+							} else {
+								$flag.removeClass('fa-unlock');
+								$flag.addClass("fa-lock");
+								$input.prop("checked", true);
+							}
+							return false;
+						};
+
 						// Event user select a customer
 						$("#selector-customer").on("change", function(e) {
 							$("#selector-analysis option[value!=-1]").remove();
@@ -568,9 +585,9 @@ function customAnalysis(element) {
 										$this.attr("title", ui.draggable.attr("title"));
 										$this.text(ui.draggable.attr("title"));
 										$this.addClass("success");
-										$parent.find('input:hidden').attr("value", ui.draggable.attr("data-trick-id"));
+										$parent.find('input[data-trick-field]').attr("value", ui.draggable.attr("data-trick-id"));
 										var callback = $parent.attr("data-trick-callback");
-									
+
 										$(
 												"<a href='#' class='pull-right text-danger' title='" + $removeText
 														+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(function() {
@@ -579,11 +596,12 @@ function customAnalysis(element) {
 											$newParent.removeAttr("title");
 											$newParent.removeClass("success");
 											$newParent.text($emptyText);
-											$newParent.parent().find('input:hidden').attr("value", '-1');
+											$newParent.parent().find('input[data-trick-field]').attr("value", '-1');
 											analysesCaching.applyCallback(callback);
 											return false;
 										});
-										$("<input class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' title='"+$lockText+"'>").appendTo($this);
+
+										$locker.clone().appendTo($this).on("click", lockerTigger);
 										analysesCaching.applyCallback(callback);
 									}
 								});
@@ -595,7 +613,7 @@ function customAnalysis(element) {
 											activeClass : "warning",
 											drop : function(event, ui) {
 												var $this = $(this), $parent = $this.parent();
-												var isEmpty = $("input:hidden", $parent).length;
+												var isEmpty = $("input[data-trick-field]", $parent).length;
 												var callback = $parent.attr("data-trick-callback");
 												if (!isEmpty) {
 													$this.empty();
@@ -604,10 +622,11 @@ function customAnalysis(element) {
 												$(analysesCaching.findAnalysisById(ui.draggable.attr("data-trick-id")).analysisStandardBaseInfo)
 														.each(
 																function() {
-																	
-																	var $selector = $("label[data-trick-id='" + this.idAnalysis + "'][data-trick-owner-id='" + this.idAnalysisStandard + "']",
-																			$this), $locked = $("label[data-trick-name='" + this.name + "']>input:checked", $this);
-																	
+
+																	var $selector = $("label[data-trick-id='" + this.idAnalysis + "'][data-trick-owner-id='"
+																			+ this.idAnalysisStandard + "']", $this), $locked = $("label[data-trick-name='" + this.name
+																			+ "'] input:checked", $this);
+
 																	if ($selector.length || $locked.length)
 																		return this;
 
@@ -626,26 +645,26 @@ function customAnalysis(element) {
 																				"input[data-trick-id='" + $current.attr('data-trick-id') + "']" + "[data-trick-owner-id='"
 																						+ $current.attr('data-trick-owner-id') + "']", $parent).remove();
 																		$current.replaceWith($content)
-																	} else 
+																	} else
 																		$content.appendTo($this);
-																		$(
-																				"<a href='#' class='pull-right text-danger' title='" + $removeText
-																						+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
-																				.appendTo($content).click(
-																						function() {
-																							$(
-																									"[data-trick-id='" + data.idAnalysis + "'][data-trick-owner-id='"
-																											+ data.idAnalysisStandard + "']", $parent).remove();
-																							if (!$("input:hidden", $parent).length) {
-																								$this.text($emptyText)
-																								$this.removeClass("success");
-																							}
+																	$(
+																			"<a href='#' class='pull-right text-danger' title='" + $removeText
+																					+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
+																			.appendTo($content).click(
+																					function() {
+																						$(
+																								"[data-trick-id='" + data.idAnalysis + "'][data-trick-owner-id='"
+																										+ data.idAnalysisStandard + "']", $parent).remove();
+																						if (!$("input:hidden", $parent).length) {
+																							$this.text($emptyText)
+																							$this.removeClass("success");
+																						}
 
-																							analysesCaching.applyCallback(callback).nameAnalysisStandard();
+																						analysesCaching.applyCallback(callback).nameAnalysisStandard();
 
-																							return false;
-																						});
-																		$("<input class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' title='"+$lockText+"'>").appendTo($content);
+																						return false;
+																					});
+																	$locker.clone().appendTo($content).on("click", lockerTigger);
 
 																});
 												analysesCaching.applyCallback(callback).nameAnalysisStandard();
