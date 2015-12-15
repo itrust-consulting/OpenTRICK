@@ -1,7 +1,11 @@
 /**
  * 
  */
+
 package lu.itrust.business.TS.controller;
+
+import static lu.itrust.business.TS.model.general.OpenMode.READ;
+import static lu.itrust.business.TS.model.general.OpenMode.defaultValue;
 
 import java.security.Principal;
 import java.text.NumberFormat;
@@ -47,6 +51,7 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.validator.AssetValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -126,8 +131,8 @@ public class ControllerAsset {
 				assessmentManager.selectAsset(asset);
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", customLocale != null ? customLocale
-					: locale));
+			return JsonMessage
+					.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", customLocale != null ? customLocale : locale));
 		} catch (InvalidAttributesException e) {
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -231,8 +236,8 @@ public class ControllerAsset {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			customDelete.deleteAsset(idAsset, idAnalysis);
-			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", customLocale != null ? customLocale
-					: locale));
+			return JsonMessage
+					.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", customLocale != null ? customLocale : locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
@@ -260,9 +265,9 @@ public class ControllerAsset {
 		if (integer == null)
 			return null;
 
-		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		if (isReadOnly == null)
-			isReadOnly = false;
+		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
+		if (open == null)
+			open = defaultValue();
 
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
@@ -270,7 +275,7 @@ public class ControllerAsset {
 		// load all assets of analysis to model
 		model.addAttribute("assetALE", AssessmentManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
-		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", open != READ && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/single/components/asset/asset";
@@ -323,7 +328,7 @@ public class ControllerAsset {
 				errors.put("asset", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 				return errors;
 			}
-			
+
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 			// create new asset object

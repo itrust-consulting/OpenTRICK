@@ -753,7 +753,7 @@ public class Constant {
 	/** Controller */
 	public static final String SELECTED_ANALYSIS = "selectedAnalysis";
 	
-	public static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
+	public static final String OPEN_MODE = "selected-analysis-open-mode";
 
 	public static final String SELECTED_ANALYSIS_LANGUAGE = "selected-analysis-language";
 

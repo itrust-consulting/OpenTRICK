@@ -1,5 +1,8 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.model.general.OpenMode.READ;
+import static lu.itrust.business.TS.model.general.OpenMode.defaultValue;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -43,6 +46,7 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
+import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.validator.ScenarioValidator;
@@ -247,16 +251,16 @@ public class ControllerScenario {
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (integer == null)
 			return null;
-		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		if (isReadOnly == null)
-			isReadOnly = false;
+		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
+		if (open == null)
+			open = defaultValue();
 
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
-		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", open!=READ && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/single/components/scenario/scenario";

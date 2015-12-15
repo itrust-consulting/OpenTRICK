@@ -37,7 +37,7 @@ function loadRRF() {
 
 								initialiseStandardFilter();
 
-								if (!application.isReadOnly) {
+								if (application.openMode!==OPEN_MODE.READ) {
 
 									var $controlApplySubChapter = $("#measure-control-apply-sub-chapter", $rrfUI), $selectetiveControlApplySubChapter = $(
 											"#measure-control-apply-selective-sub-chapter", $rrfUI), applyMeasureCharacteristics = function(data, idMeasure) {
@@ -127,7 +127,7 @@ function initialiseMeasureSliders() {
 		$("[id^='measure-control-apply']").hide();
 
 	$("#rrfEditor #control_rrf_measure .slider").slider().each(function() {
-		if (application.isReadOnly === true) {
+		if (application.openMode === OPEN_MODE.READ) {
 			$(this).prop("disabled", true);
 			$(this).addClass("disabled");
 		} else {
@@ -172,7 +172,7 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 
 function initialiseScenarioSliders() {
 	$("#rrfEditor #control_rrf_scenario .slider").slider().each(function() {
-		if (application.isReadOnly === true) {
+		if (application.openMode === OPEN_MODE.READ) {
 			$(this).prop("disabled", true);
 			$(this).addClass("disabled");
 		} else {

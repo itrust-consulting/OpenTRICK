@@ -819,16 +819,16 @@ function editSingleAnalysis(analysisId) {
 	return false;
 }
 
-function selectAnalysis(analysisId, selectionOnly, isReadOnly) {
+function selectAnalysis(analysisId, mode) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var right = isReadOnly === true ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
+	var open  = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
 	if (userCan(analysisId, right))
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select" + ((isReadOnly === true) ? "?readOnly=true" : ""));
+		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open="+open.value+"");
 }
 
 function calculateActionPlan(analysisId) {

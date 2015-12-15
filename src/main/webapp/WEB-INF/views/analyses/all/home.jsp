@@ -19,10 +19,16 @@
 				<ul class="nav nav-pills bordered-bottom" style="margin-top: 5px; margin-bottom: 5px;" id="menu_analysis">
 					<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.build.analysis"
 								text="Build an analysis" /></a></li>
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined, 'true', true)"> <span
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.READ)"> <span
 							class="glyphicon glyphicon-eye-open"></span> &nbsp;<spring:message code="label.action.read_only" text="Read only" /></a></li>
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span
-							class="glyphicon glyphicon-edit"></span> &nbsp;<spring:message code="label.action.edit" text="Edit" /></a></li>
+					<li class="dropdown-submenu disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span
+							class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.edit" text="Edit" /> <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)" class="text-danger"><span class="glyphicon glyphicon-book"></span> <spring:message
+										code="label.analysis" text="Analysis" /></a></li>
+							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT_MEASURE)" class="text-danger"><span class="glyphicon glyphicon-file"></span> <spring:message
+										code="label.measure" text="Measure" /></a></li>
+						</ul></li>
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
 						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
 								code="label.menu.manage.access.analysis" text="Manage Access Rights" /></a></li>

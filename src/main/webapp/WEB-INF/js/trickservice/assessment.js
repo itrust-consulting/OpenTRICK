@@ -19,7 +19,7 @@ function AssessmentViewer() {
 
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
 		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
-		if (application.isReadOnly !== true) {
+		if (application.openMode !== OPEN_MODE.READ) {
 			var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
 			var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
 			$(this.modal_title).replaceWith(

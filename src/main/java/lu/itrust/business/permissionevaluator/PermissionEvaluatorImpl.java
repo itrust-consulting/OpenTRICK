@@ -29,6 +29,7 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.OpenMode;
 
 /**
  * PermissionEvaluatorImpl.java: <br>
@@ -260,10 +261,10 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		if (analysisId == null || principal == null || right == null)
 			return null;
-		if (isReadOnly != null && isReadOnly && right != AnalysisRight.READ)
+		if (open == OpenMode.READ && right != AnalysisRight.READ)
 			return null;
 		return analysisId;
 	}

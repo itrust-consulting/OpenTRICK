@@ -69,6 +69,18 @@ $(function() {
 		xhr.setRequestHeader(header, token);
 	});
 
+	// prevent perform click while a menu is disabled
+	$("ul.nav li>a").on("click", function(e) {
+		if ($(e.currentTarget).parent().hasClass("disabled"))
+			e.preventDefault();
+	});
+
+	// prevent perform click while a menu is disabled
+	$("ul.nav li").on("click", function(e) {
+		if ($(e.currentTarget).hasClass("disabled"))
+			e.stopPropagation();
+	});
+
 	// prevent unknown error modal display
 	$(window).bind("beforeunload", function() {
 		application["isReloading"] = true;
@@ -288,6 +300,30 @@ var ANALYSIS_RIGHT = {
 	}
 };
 
+/**
+ * Open mode
+ */
+var OPEN_MODE = {
+	READ : {
+		value : "read-only",
+		name : "READ"
+	},
+	EDIT : {
+		value : "edit",
+		name : "EDIT"
+	},
+	EDIT_MEASURE : {
+		value : "edit-measure",
+		name : "EDIT_MEASURE"
+	},
+	valueOf : function(value) {
+		for ( var key in OPEN_MODE)
+			if (OPEN_MODE[key] == value || OPEN_MODE[key].value == value || OPEN_MODE[key].name == value)
+				return OPEN_MODE[key];
+		return undefined;
+	}
+}
+
 function permissionError() {
 	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!", null, $("#nav-container").attr("data-trick-language")));
 	return false;
@@ -309,7 +345,7 @@ function findRight(idAnalysis) {
 function userCan(idAnalysis, action) {
 	var right = findRight(idAnalysis);
 	if (right != undefined && action.value != undefined) {
-		if (application.isReadOnly === true)
+		if (application.openMode === OPEN_MODE.READ)
 			return action == ANALYSIS_RIGHT.READ
 		else
 			return right.value <= action.value;

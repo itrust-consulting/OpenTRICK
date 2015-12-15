@@ -6,11 +6,11 @@ import static lu.itrust.business.TS.constants.Constant.CURRENT_CUSTOMER;
 import static lu.itrust.business.TS.constants.Constant.FILTER_ANALYSIS_NAME;
 import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_ANALYSIS_NAME;
 import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID;
+import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAGE;
-import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_READ_ONLY;
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 
 import java.io.File;
@@ -88,6 +88,7 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -112,8 +113,6 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
-
-	
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -182,17 +181,19 @@ public class ControllerAnalysis {
 	public String home(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 		// retrieve analysisId if an analysis was already selected
 		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
-		Boolean isReadOnly = (Boolean) session.getAttribute(SELECTED_ANALYSIS_READ_ONLY);
+		OpenMode openMode = OpenMode.parseOrDefault(session.getAttribute(OPEN_MODE));
 		// check if an analysis is selected
 		if (selected != null)
-			return isReadOnly == null || !isReadOnly ? String.format("redirect:/Analysis/%d/Select", selected) : String.format("redirect:/Analysis/%d/Select?readOnly=true",
-					selected);
+			return String.format("redirect:/Analysis/%d/Select?open=%s", selected, openMode.getValue());
 		else
 			return "redirect:/Analysis/All";
 	}
 
 	@RequestMapping("/All")
 	public String AllAnalysis(Model model, Principal principal, HttpSession session) throws Exception {
+		session.removeAttribute(OPEN_MODE);
+		session.removeAttribute(SELECTED_ANALYSIS);
+		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
 		return LoadUserAnalyses(session, principal, model);
 	}
 
@@ -211,38 +212,44 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/{analysisId}/Select")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId,
-			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
+	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "edit") String open,
+			HttpSession session, Locale locale) throws Exception {
 		// select the analysis
+		OpenMode mode = OpenMode.parseOrDefault(open);
 		session.setAttribute(SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		session.setAttribute(OPEN_MODE, mode);
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
-		boolean hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : readOnly ? true : permissionEvaluator
-				.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
+		Boolean readOnly = mode == OpenMode.READ;
+		boolean hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN)
+				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
 			// initialise analysis
-			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 			Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-			Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
-			model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
-			model.addAttribute("login", user.getLogin());
+			if (mode != OpenMode.EDIT_MEASURE) {
+				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
+				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
+				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
+				model.addAttribute("soa", measures.get("27002"));
+				model.addAttribute("show_uncertainty", analysis.isUncertainty());
+				model.addAttribute("show_cssf", analysis.isCssf());
+			}
+
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("standards", analysis.getStandards());
 			model.addAttribute("measures", measures);
-			model.addAttribute("soa", measures.get("27002"));
-			model.addAttribute("show_uncertainty", analysis.isUncertainty());
-			model.addAttribute("show_cssf", analysis.isCssf());
-			model.addAttribute("isReadOnly", readOnly);
 			model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
+			model.addAttribute("login", user.getLogin());
+			model.addAttribute("open", mode);
+
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, readOnly ? "log.open.analysis" : "log.edit.analysis",
+			TrickLogManager.Persist(LogType.ANALYSIS, readOnly ? "log.open.analysis" : mode == OpenMode.EDIT ? "log.edit.analysis" : "log.edit.analysis.measure",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), readOnly ? LogAction.OPEN : LogAction.EDIT,
 					analysis.getIdentifier(), analysis.getVersion());
 		} else {
@@ -251,7 +258,7 @@ public class ControllerAnalysis {
 					analysis.getVersion());
 			throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return "analyses/single/home";
+		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form" : "analyses/single/home";
 	}
 
 	/**
@@ -425,13 +432,13 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
-			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
+	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "edit") String open,
+			HttpSession session, Locale locale) throws Exception {
 		// select the analysis
 		Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
 		session.setAttribute(SELECTED_ANALYSIS, analysisId);
 		session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, language == null ? locale.getISO3Country() : language.getAlpha2());
-		session.setAttribute(SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		session.setAttribute(OPEN_MODE, OpenMode.parseOrDefault(open));
 		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
 
@@ -451,7 +458,8 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
-		session.removeAttribute(SELECTED_ANALYSIS_READ_ONLY);
+		session.removeAttribute(OPEN_MODE);
+		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
 		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (integer != null) {
 			session.removeAttribute(SELECTED_ANALYSIS);
@@ -726,10 +734,8 @@ public class ControllerAnalysis {
 				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				if (GeneralComperator.VersionComparator(lastVersion, version) >= 0)
-					errors.put(
-							"version",
-							messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
-									String.format("Version has to be bigger than last %s", lastVersion), locale));
+					errors.put("version", messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
+							String.format("Version has to be bigger than last %s", lastVersion), locale));
 				else
 					history.setVersion(version);
 			}
@@ -839,7 +845,6 @@ public class ControllerAnalysis {
 
 		// transfer form file to java file
 		file.transferTo(importFile);
-		
 
 		// create worker
 		Worker worker = new WorkerAnalysisImport(sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
@@ -954,19 +959,19 @@ public class ControllerAnalysis {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, actionPlanEntry,locale);
+				writeActionPLanData(row, actionPlanEntry, locale);
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
-			
+
 			workbook.write(response.getOutputStream());
-			
-			//Log
+
+			// Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
 					String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
 					analysis.getIdentifier(), analysis.getVersion());
-			
+
 		} finally {
 			try {
 				if (workbook != null)

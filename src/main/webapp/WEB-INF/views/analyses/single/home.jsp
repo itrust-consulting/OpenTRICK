@@ -5,23 +5,23 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set var="language" value="${analysis.language.alpha2}" scope="request"/>
+<c:set var="language" value="${analysis.language.alpha2}" scope="request" />
 <!DOCTYPE html>
 <html lang="${language}">
 <fmt:setLocale value="${language}" scope="session" />
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <jsp:include page="../../template/header.jsp" />
-<c:set var="canModify" value="${analysis.profile or analysis.getRightsforUserString(login).right.ordinal()<3}"/>
+<c:set var="canModify" value="${analysis.profile or analysis.getRightsforUserString(login).right.ordinal()<3}" />
 <body>
 	<div id="wrap">
-		<c:set var="isEditable" value="${canModify && not isReadOnly}" scope="request" />
+		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="menu.jsp" />
 			<jsp:include page="../../template/successErrors.jsp" />
-			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis" data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
-				data-trick-language="${language}">
-				
+			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis"
+				data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}" data-trick-language="${language}">
+
 				<c:if test="${!analysis.isProfile()}">
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />
@@ -81,8 +81,8 @@
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>
 	</c:if>
 	<script type="text/javascript">
-		<!-- 
-			application.isReadOnly =  ${!isEditable}; 
+	<!--
+		application.openMode = OPEN_MODE.valueOf('${open}');
 		-->
 	</script>
 </body>
