@@ -536,22 +536,8 @@ function customAnalysis(element) {
 							}
 						};
 
-						var $locker = $("<a href='#' title='"
-								+ $lockText
-								+ "' style='margin-right:3px;' class='pull-right' ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), lockerTigger = function(
-								e) {
-							var $this = $(e.currentTarget), $input = $("input", $this), $flag = $(".fa", $this);
-							if ($input.is(":checked")) {
-								$flag.removeClass('fa-lock');
-								$flag.addClass("fa-unlock");
-								$input.prop("checked", false);
-							} else {
-								$flag.removeClass('fa-unlock');
-								$flag.addClass("fa-lock");
-								$input.prop("checked", true);
-							}
-							return false;
-						};
+						var $locker = $("<a href='#' style='margin-right:3px;' class='pull-right' title='" + $lockText
+								+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>");
 
 						// Event user select a customer
 						$("#selector-customer").on("change", function(e) {
@@ -587,7 +573,6 @@ function customAnalysis(element) {
 										$this.addClass("success");
 										$parent.find('input[data-trick-field]').attr("value", ui.draggable.attr("data-trick-id"));
 										var callback = $parent.attr("data-trick-callback");
-
 										$(
 												"<a href='#' class='pull-right text-danger' title='" + $removeText
 														+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(function() {
@@ -601,7 +586,6 @@ function customAnalysis(element) {
 											return false;
 										});
 
-										$locker.clone().appendTo($this).on("click", lockerTigger);
 										analysesCaching.applyCallback(callback);
 									}
 								});
@@ -664,7 +648,19 @@ function customAnalysis(element) {
 
 																						return false;
 																					});
-																	$locker.clone().appendTo($content).on("click", lockerTigger);
+																	$locker.clone().appendTo($content).on("click", function(e) {
+																		var $this = $(e.currentTarget), $input = $("input", $this), $flag = $(".fa", $this);
+																		if ($input.is(":checked")) {
+																			$flag.removeClass('fa-lock');
+																			$flag.addClass("fa-unlock");
+																			$input.prop("checked", false);
+																		} else {
+																			$flag.removeClass('fa-unlock');
+																			$flag.addClass("fa-lock");
+																			$input.prop("checked", true);
+																		}
+																		return false;
+																	});
 
 																});
 												analysesCaching.applyCallback(callback).nameAnalysisStandard();
