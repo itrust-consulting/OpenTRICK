@@ -16,34 +16,64 @@
 	<div id="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../../../template/menu.jsp" />
-		<div class="container">
-			<div style="margin-top: 15px;">
-				<div class="col-lg-2">
-					<div class='form-horizontal'>
-						<div class='form-group'>
-							<label class="col-xs-4 control-label"><fmt:message key="label.standards" /></label>
-							<div class='col-xs-8'>
-								<select name="standard" class="form-control">
-									<c:forEach items="${standards}" var="standard">
-										<option value="${standard.id}"><spring:message text="${standard.label}" /></option>
+		<div class="container max-height">
+			<div class="max-height" style="margin-top: 15px; padding-bottom: 50px;">
+				<div class="col-lg-2 max-height">
+					<div class="form-group">
+						<select name="standard" class="form-control">
+							<c:forEach items="${standards}" var="standard">
+								<option value="${standard.id}"><fmt:message key='label.index.standard'>
+										<fmt:param value="${standard.label}" />
+									</fmt:message></option>
+							</c:forEach>
+						</select>
+					</div>
+
+					<c:forEach items="${standards}" var="standard" varStatus="status">
+						<div ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />' data-trick-id='${standard.id}'>
+							<div class='form-group'>
+								<select name="chapter" class="form-control">
+									<c:forEach items="${standardChapters[standard.label].keySet()}" var="chapter">
+										<spring:message text="${chapter}" var="chapterText" />
+										<option value="${chapterText}">
+											<fmt:message key="label.index.chapter">
+												<fmt:param value="${chapterText}" />
+											</fmt:message></option>
 									</c:forEach>
 								</select>
 							</div>
 						</div>
-					</div>
-					<div style="height: 750px; overflow: auto;">
-						<c:forEach items="${standards}" var="standard" varStatus="status">
-							<div class='list-group' ${status.index==0?'':'hidden="hidden"'} data-trick-control-name='<spring:message text="${standard.label}" />' data-trick-id='${standard.id}'>
-								<c:forEach items="${measures[standard.label]}" var="measure" varStatus="statusMeasure">
-									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-									<a href="#" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${statusMeasure.index==0?'active':''}"
-										data-trick-id='${measure.id}'><spring:message text="${measure.measureDescription.reference} - ${measureDescriptionText.domain}" /></a>
-								</c:forEach>
-							</div>
-						</c:forEach>
-					</div>
+					</c:forEach>
+
+					<c:forEach items="${standards}" var="standard" varStatus="status">
+						<div class="form-group" style="height: 80%; overflow: auto;" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />'
+							data-trick-id='${standard.id}'>
+							<c:set var="measureChapters" value="${standardChapters[standard.label]}" />
+							<c:forEach items="${measureChapters.keySet()}" var="chapter" varStatus="chapterStatus">
+								<spring:message text="${chapter}" var="chapterText" />
+								<div ${chapterStatus.index==0?'':'hidden="hidden"'} class='list-group' data-trick-chapter-name='${chapterText}'>
+									<c:forEach items="${measureChapters[chapter]}" var="measure" varStatus="measureStatus">
+										<c:if test="${empty selectedMeasure}">
+											<c:set var="selectedMeasure" value="${measure}" scope="request"/>
+										</c:if>
+										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
+										<a href="#" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
+											data-trick-id='${measure.id}'><spring:message text="${measure.measureDescription.reference} - ${measureDescriptionText.domain}" /></a>
+									</c:forEach>
+								</div>
+							</c:forEach>
+						</div>
+					</c:forEach>
+					<ul class="nav nav-pills" style="font-size: 20px;">
+						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-exchange"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.previous.chapter" />'><i class="fa fa-angle-double-left"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.previous.measure" />'><i class="fa fa-angle-left"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.next.measure" />'><i class="fa fa-angle-right"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.next.chapter" />'><i class="fa fa-angle-double-right"></i> </a></li>
+						<li><a href='<spring:url value="/Analysis/All"/>' title='<fmt:message key="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
+					</ul>
 				</div>
-				<div class='col-lg-10'></div>
+				<jsp:include page="measure.jsp" />
 			</div>
 		</div>
 		<jsp:include page="../../../../template/footer.jsp" />

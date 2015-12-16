@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -80,6 +81,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.ExportAnalysisReport;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
@@ -94,6 +96,7 @@ import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformat
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -228,19 +231,22 @@ public class ControllerAnalysis {
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
 			// initialise analysis
-			Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-			if (mode != OpenMode.EDIT_MEASURE) {
+
+			if (mode == OpenMode.EDIT_MEASURE)
+				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));
+			else {
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
+				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
 				model.addAttribute("soa", measures.get("27002"));
+				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
 			}
 
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("standards", analysis.getStandards());
-			model.addAttribute("measures", measures);
 			model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
 			model.addAttribute("login", user.getLogin());
@@ -261,6 +267,25 @@ public class ControllerAnalysis {
 		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form" : "analyses/single/home";
 	}
 
+	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(List<AnalysisStandard> analysisStandards) {
+		Comparator<Measure> comparator = new MeasureComparator();
+		Map<String, Map<String, List<Measure>>> mapper = new LinkedHashMap<>();
+		analysisStandards.forEach(analysisStandard -> {
+			Map<String, List<Measure>> chapters = new LinkedHashMap<>();
+			Collections.sort(analysisStandard.getMeasures(), comparator);
+			analysisStandard.getMeasures().forEach(measure -> {
+				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
+				List<Measure> measures = chapters.get(chapter);
+				if (measures == null)
+					chapters.put(chapter, measures = new LinkedList<Measure>());
+				measures.add(measure);
+			});
+			
+			mapper.put(analysisStandard.getStandard().getLabel(), chapters);
+		});
+		return mapper;
+	}
+
 	/**
 	 * mapMeasures: <br>
 	 * Description
@@ -269,20 +294,12 @@ public class ControllerAnalysis {
 	 * @return
 	 */
 	private Map<String, List<Measure>> mapMeasures(List<AnalysisStandard> standards) {
-
+		Comparator<Measure> comparator = new MeasureComparator();
 		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
-
 		for (AnalysisStandard standard : standards) {
-			List<Measure> measures = standard.getMeasures();
-			Comparator<Measure> cmp = new Comparator<Measure>() {
-				public int compare(Measure o1, Measure o2) {
-					return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
-				}
-			};
-			Collections.sort(measures, cmp);
-			measuresmap.put(standard.getStandard().getLabel(), measures);
+			Collections.sort(standard.getMeasures(), comparator);
+			measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
 		}
-
 		return measuresmap;
 	}
 

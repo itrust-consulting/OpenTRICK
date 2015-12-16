@@ -11,7 +11,7 @@
 <html>
 <jsp:include page="../../template/header.jsp" />
 <body>
-	<div id="wrap">
+	<div id="wrap" class="wrap">
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<div class="section" id="section_analysis">

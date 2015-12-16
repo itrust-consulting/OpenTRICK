@@ -13,7 +13,7 @@
 <jsp:include page="../../template/header.jsp" />
 <c:set var="canModify" value="${analysis.profile or analysis.getRightsforUserString(login).right.ordinal()<3}" />
 <body>
-	<div id="wrap">
+	<div id="wrap" class="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">

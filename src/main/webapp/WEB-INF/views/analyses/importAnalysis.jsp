@@ -8,7 +8,7 @@
 <c:set scope="request" var="title" value="label.title.analysis.import" />
 <jsp:include page="../template/header.jsp" />
 <body>
-	<div id="wrap">
+	<div id="wrap" class="wrap">
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<div class="page-header">
