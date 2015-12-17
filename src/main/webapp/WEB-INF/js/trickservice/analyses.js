@@ -571,7 +571,7 @@ function customAnalysis(element) {
 										$this.attr("title", ui.draggable.attr("title"));
 										$this.text(ui.draggable.attr("title"));
 										$this.addClass("success");
-										$parent.find('input[data-trick-field]').attr("value", ui.draggable.attr("data-trick-id"));
+										$parent.find('input[name]').attr("value", ui.draggable.attr("data-trick-id"));
 										var callback = $parent.attr("data-trick-callback");
 										$(
 												"<a href='#' class='pull-right text-danger' title='" + $removeText
@@ -581,7 +581,7 @@ function customAnalysis(element) {
 											$newParent.removeAttr("title");
 											$newParent.removeClass("success");
 											$newParent.text($emptyText);
-											$newParent.parent().find('input[data-trick-field]').attr("value", '-1');
+											$newParent.parent().find('input[name]').attr("value", '-1');
 											analysesCaching.applyCallback(callback);
 											return false;
 										});
