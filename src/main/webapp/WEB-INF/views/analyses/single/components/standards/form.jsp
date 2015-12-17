@@ -22,7 +22,7 @@
 					<div class="form-group">
 						<select name="standard" class="form-control">
 							<c:forEach items="${standards}" var="standard">
-								<option value="${standard.id}"><fmt:message key='label.index.standard'>
+								<option value="${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>" ><fmt:message key='label.index.standard'>
 										<fmt:param value="${standard.label}" />
 									</fmt:message></option>
 							</c:forEach>
@@ -30,7 +30,7 @@
 					</div>
 
 					<c:forEach items="${standards}" var="standard" varStatus="status">
-						<div ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />' data-trick-id='${standard.id}'>
+						<div ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />' data-trick-id='${standard.id}' data-trick-content='chapter' >
 							<div class='form-group'>
 								<select name="chapter" class="form-control">
 									<c:forEach items="${standardChapters[standard.label].keySet()}" var="chapter">
@@ -47,15 +47,12 @@
 
 					<c:forEach items="${standards}" var="standard" varStatus="status">
 						<div class="form-group" style="height: 80%; overflow: auto;" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />'
-							data-trick-id='${standard.id}'>
+							data-trick-id='${standard.id}' data-trick-content='measure' >
 							<c:set var="measureChapters" value="${standardChapters[standard.label]}" />
 							<c:forEach items="${measureChapters.keySet()}" var="chapter" varStatus="chapterStatus">
 								<spring:message text="${chapter}" var="chapterText" />
 								<div ${chapterStatus.index==0?'':'hidden="hidden"'} class='list-group' data-trick-chapter-name='${chapterText}'>
 									<c:forEach items="${measureChapters[chapter]}" var="measure" varStatus="measureStatus">
-										<c:if test="${empty selectedMeasure}">
-											<c:set var="selectedMeasure" value="${measure}" scope="request"/>
-										</c:if>
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 										<a href="#" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
 											data-trick-id='${measure.id}'><spring:message text="${measure.measureDescription.reference} - ${measureDescriptionText.domain}" /></a>
@@ -64,12 +61,12 @@
 							</c:forEach>
 						</div>
 					</c:forEach>
-					<ul class="nav nav-pills" style="font-size: 20px;">
+					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-measure'>
 						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-exchange"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous.chapter" />'><i class="fa fa-angle-double-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous.measure" />'><i class="fa fa-angle-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next.measure" />'><i class="fa fa-angle-right"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next.chapter" />'><i class="fa fa-angle-double-right"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.previous.measure" />' data-trick-nav='previous-measure' ><i class="fa fa-angle-left"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.next.measure" />' data-trick-nav='next-measure' ><i class="fa fa-angle-right"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.next.chapter" />' data-trick-nav='next-chapter' ><i class="fa fa-angle-double-right"></i> </a></li>
 						<li><a href='<spring:url value="/Analysis/All"/>' title='<fmt:message key="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
 					</ul>
 				</div>
@@ -81,6 +78,8 @@
 	<jsp:include page="../../../../template/scripts.jsp" />
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/fieldeditor.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisStandard.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-measure.js" />"></script>
+	
 	<script type="text/javascript">
 	<!--
 		application.openMode = OPEN_MODE.valueOf('${open}');

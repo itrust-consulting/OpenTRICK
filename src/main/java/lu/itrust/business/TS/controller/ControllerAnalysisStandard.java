@@ -59,6 +59,7 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
@@ -1062,6 +1063,24 @@ public class ControllerAnalysisStandard {
 			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
+	}
+	
+	@RequestMapping(value = "/Measure/{idMeasure}/Form", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String measureForm(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		try {
+			Measure measure = serviceMeasure.get(idMeasure);
+			List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
+			//List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, ParameterType)
+			model.addAttribute("selectedMeasure", measure);
+			model.addAttribute("phases", phases);
+			model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+		return "analyses/single/components/standards/measure";
+			
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)
