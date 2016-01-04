@@ -59,7 +59,6 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
@@ -145,6 +144,7 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+
 
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get
@@ -1073,9 +1073,22 @@ public class ControllerAnalysisStandard {
 			Measure measure = serviceMeasure.get(idMeasure);
 			List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
 			//List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, ParameterType)
+			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
+			MeasureDescription measureDescription = measure.getMeasureDescription();
+			MeasureDescriptionText measureDescriptionText = measureDescription.findByLanguage(language);
+			model.addAttribute("measureDescriptionText", measureDescriptionText);
+			model.addAttribute("measureDescription", measureDescription);
+			if(measureDescriptionText!=null)
+				model.addAttribute("countLine", measureDescriptionText.getDescription().trim().split("\r\n|\r|\n").length);
+			model.addAttribute("measureDescription", measureDescription);
+			boolean isMaturity = measure instanceof MaturityMeasure;
+			model.addAttribute("isMaturity", isMaturity);
+			if(isMaturity)
+				model.addAttribute("impscales", serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
+			model.addAttribute("showTodo", measureDescription.isComputable());
+			model.addAttribute("language", language.getAlpha2());
 			model.addAttribute("selectedMeasure", measure);
 			model.addAttribute("phases", phases);
-			model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}

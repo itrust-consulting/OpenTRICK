@@ -341,8 +341,8 @@ a[role="changeUILanguage"]:hover {
 }
 
 }
+
 .container { .clearfix ();
-	
 }
 
 ul.asset-measure {
@@ -404,4 +404,13 @@ ul#task-manager>li>li {
 .popover pre {
 	overflow: auto;
 	max-height: 600px;
+}
+
+#measure-ui table .form-control{
+	padding-right: 3px;
+	padding-left: 3px;
+}
+
+.numeric{
+	text-align: right;
 }

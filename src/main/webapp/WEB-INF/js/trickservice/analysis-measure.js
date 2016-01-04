@@ -7,13 +7,33 @@ function loadMeasureData(id) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var $measureUI = $("div#measure-ui", new DOMParser().parseFromString(response, "text/html"));
-			if ($measureUI.length)
+			if ($measureUI.length) {
+				backupDescriptionHeight();
 				$currentUI.replaceWith($measureUI);
-			else unknowError();
-				
+				restoreDescriptionHeight();
+			} else
+				unknowError();
+
 		},
 		error : unknowError
 	});
+	return false;
+}
+
+function backupDescriptionHeight() {
+	var $description = $("#description"), height = $description.outerHeight(), defaultHeight = $description.attr('data-default-height');
+	if ($description.length && Math.abs(height - defaultHeight) > 3)
+		application["measure-description-size"] = $description.outerHeight();
+	return false;
+}
+
+function restoreDescriptionHeight() {
+	var height = application["measure-description-size"];
+	if (height != undefined) {
+		$("#description").css({
+			"height" : height
+		});
+	}
 	return false;
 }
 
@@ -70,6 +90,7 @@ function changeMeasure(e) {
 }
 
 $(function() {
+
 	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateNavigation), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']");
 
 	$previousChatper.on("click", function() {

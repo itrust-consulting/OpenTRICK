@@ -27,7 +27,7 @@
 							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)" class="text-danger"><span class="glyphicon glyphicon-book"></span> <spring:message
 										code="label.analysis" text="Analysis" /></a></li>
 							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT_MEASURE)" class="text-danger"><span class="glyphicon glyphicon-file"></span> <spring:message
-										code="label.measure" text="Measure" /></a></li>
+										code="label.measures" text="Measures" /></a></li>
 						</ul></li>
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
 						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
