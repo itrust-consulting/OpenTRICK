@@ -11,7 +11,7 @@
 	</c:when>
 	<c:otherwise>
 		<spring:message text="${typeValue?'success':'danger'}" var="cssclass" />
-		<table data-trick-controller-name='scenario' class="table" style="margin-bottom: 0;">
+		<table data-trick-controller-name='scenario' class="table table-condensed" style="margin-bottom: 0;">
 			<thead>
 				<tr>
 					<th class="${cssclass} pdlc" data-trick-type="type"><fmt:message key="label.rrf.scenario.preventive" /></th>

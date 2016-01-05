@@ -64,6 +64,7 @@ import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
+import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
@@ -168,12 +169,11 @@ public class ControllerEditField {
 			// get item information object from id
 			ItemInformation itemInformation = serviceItemInformation.getFromAnalysisById(id, elementID);
 			if (itemInformation == null)
-				return JsonMessage.Error(messageSource.getMessage("error.item_information.not_found", null, "Item information cannot be found", cutomLocale != null ? cutomLocale
-						: locale));
+				return JsonMessage
+						.Error(messageSource.getMessage("error.item_information.not_found", null, "Item information cannot be found", cutomLocale != null ? cutomLocale : locale));
 
 			// initialise field
 			Field field = itemInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
-			field.setAccessible(true);
 
 			// set field with new data
 			if (SetFieldData(field, itemInformation, fieldEditor, null)) {
@@ -235,8 +235,7 @@ public class ControllerEditField {
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		}
-		catch (RuntimeException e) {
+		} catch (RuntimeException e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -285,8 +284,6 @@ public class ControllerEditField {
 
 				Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
 				// check if field is a phase
-
-				field.setAccessible(true);
 
 				field.set(asset, fieldEditor.getValue());
 			} else {
@@ -345,7 +342,6 @@ public class ControllerEditField {
 			throws Exception {
 
 		try {
-
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -397,14 +393,14 @@ public class ControllerEditField {
 			}
 			// create field
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
-			field.setAccessible(true);
+
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", cutomLocale != null ? cutomLocale
-						: locale));
+				return JsonMessage
+						.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", cutomLocale != null ? cutomLocale : locale));
 			} else
 
 				// return error message
@@ -527,8 +523,6 @@ public class ControllerEditField {
 			throws Exception {
 		try {
 
-			
-			
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -568,7 +562,6 @@ public class ControllerEditField {
 				field = parameter.getClass().getSuperclass().getDeclaredField(fieldEditor.getFieldName());
 			else
 				field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
-			field.setAccessible(true);
 
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
@@ -597,8 +590,8 @@ public class ControllerEditField {
 				serviceParameter.saveOrUpdate(parameters);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.extendedParameter.update", null, "Parameter was successfully update",
-						cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Success(
+						messageSource.getMessage("success.extendedParameter.update", null, "Parameter was successfully update", cutomLocale != null ? cutomLocale : locale));
 			} else
 
 				// return error message
@@ -756,8 +749,8 @@ public class ControllerEditField {
 				serviceParameter.saveOrUpdate(parameter);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", cutomLocale != null ? cutomLocale
-						: locale));
+				return JsonMessage
+						.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", cutomLocale != null ? cutomLocale : locale));
 			} else
 
 				// return error message
@@ -876,7 +869,7 @@ public class ControllerEditField {
 	public @ResponseBody String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
-			
+
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -926,7 +919,6 @@ public class ControllerEditField {
 
 			// init field
 			Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
-			field.setAccessible(true);
 
 			// set data to field
 			if (!SetFieldData(field, assessment, fieldEditor, null))
@@ -949,8 +941,8 @@ public class ControllerEditField {
 			serviceAssessment.saveOrUpdate(assessment);
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", cutomLocale != null ? cutomLocale
-					: locale));
+			return JsonMessage
+					.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -1024,7 +1016,6 @@ public class ControllerEditField {
 
 			// set field
 			Field field = history.getClass().getDeclaredField(fieldEditor.getFieldName());
-			field.setAccessible(true);
 
 			// set field data
 			if (SetFieldData(field, history, fieldEditor, null)) {
@@ -1033,8 +1024,8 @@ public class ControllerEditField {
 				serviceHistory.saveOrUpdate(history);
 
 				// return success message
-				return JsonMessage.Success(messageSource
-						.getMessage("success.history.updated", null, "History was successfully updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage
+						.Success(messageSource.getMessage("success.history.updated", null, "History was successfully updated", cutomLocale != null ? cutomLocale : locale));
 			} else
 
 				// return error rmessage
@@ -1176,8 +1167,6 @@ public class ControllerEditField {
 			if (field != null) {
 				// check if field is a phase
 
-				field.setAccessible(true);
-
 				if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative") || field.getName().equals("corrective")) {
 					if (!(fieldEditor.getValue() instanceof Integer))
 						fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
@@ -1268,13 +1257,12 @@ public class ControllerEditField {
 
 			// set field
 
-			Field field = ControllerEditField.FindField(Measure.class, fieldEditor.getFieldName());
+			Field field = FindField(Measure.class, fieldEditor.getFieldName());
 
 			// means that field belongs to the Measure class
 
 			if (field != null) {
 				// check if field is a phase
-				field.setAccessible(true);
 
 				if (fieldEditor.getFieldName().equals("phase")) {
 
@@ -1305,13 +1293,15 @@ public class ControllerEditField {
 					if (error != null)
 						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
 
-					if (fieldEditor.getFieldName().equals("implementationRate"))
+					field.setAccessible(true);
+
+					if (fieldEditor.getFieldName().equals("implementationRate")) {
 						if ((Double) value < 0. || (Double) value > 100.)
 							return JsonMessage.Error(messageSource.getMessage("error.edit.implementationrate.field", null, "Implementation rate needs to be >= 0 and <= 100 !",
 									cutomLocale != null ? cutomLocale : locale));
 						else
 							field.set(measure, value);
-					else
+					} else
 						field.set(measure, value);
 
 				}
@@ -1343,8 +1333,6 @@ public class ControllerEditField {
 					// normalmeasure
 
 					if (field != null) {
-
-						field.setAccessible(true);
 
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor, null))
@@ -1394,8 +1382,6 @@ public class ControllerEditField {
 					// normalmeasure
 
 					if (field != null) {
-
-						field.setAccessible(true);
 
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor, null))
@@ -1501,7 +1487,6 @@ public class ControllerEditField {
 
 			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
 			Field field = mesprep.getClass().getDeclaredField(fieldEditor.getFieldName());
-			field.setAccessible(true);
 
 			// check if field is a phase
 			if (!SetFieldData(field, mesprep, fieldEditor, null))
@@ -1598,8 +1583,8 @@ public class ControllerEditField {
 						serviceMeasure.saveOrUpdate(measure);
 
 						// return success message
-						return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale
-								: locale));
+						return JsonMessage
+								.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
 					}
 				}
 
@@ -1636,6 +1621,51 @@ public class ControllerEditField {
 		}
 	}
 
+	@RequestMapping(value = "/Measure/{id}/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #id, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object updateMeasure(@PathVariable int id, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+		try {
+			// retrieve analysis
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			if (cutomLocale != null)
+				locale = cutomLocale;
+			Measure measure = serviceMeasure.get(id);
+			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
+				Object value = null;
+				if (measure instanceof MaturityMeasure)
+					value = serviceParameter.getFromAnalysisById(idAnalysis, (Integer) fieldEditor.getValue());
+				else
+					value = fieldEditor.getValue();
+				measure.setImplementationRate(value);
+			} else if (fieldEditor.getFieldName().equalsIgnoreCase("phase")) {
+				measure.setPhase(servicePhase.getFromAnalysisById(idAnalysis, (Integer) fieldEditor.getValue()));
+			} else {
+				Field field = FindField(measure.getClass(), fieldEditor.getFieldName());
+				System.out.println(field);
+				if (field == null)
+					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				if (!SetFieldData(field, measure, fieldEditor, null))
+					return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+				if (fieldEditor.getFieldName().equals("investment"))
+					measure.setInvestment(measure.getInvestment() * 1000);
+				if (fieldEditor.getFieldName().equals("recurrentInvestment"))
+					measure.setRecurrentInvestment(measure.getRecurrentInvestment() * 1000);
+				if (fieldEditor.getFieldName().matches("internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment")) {
+					Measure.ComputeCost(measure, serviceAnalysis.get(idAnalysis));
+				}
+				serviceMeasure.saveOrUpdate(measure);
+
+			}
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+		return null;
+
+	}
+
 	/**
 	 * actionplanentry: <br>
 	 * Description
@@ -1665,8 +1695,8 @@ public class ControllerEditField {
 			// get acion plan entry
 			ActionPlanEntry ape = serviceActionPlan.getFromAnalysisById(idAnalysis, elementID);
 			if (ape == null)
-				return JsonMessage.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", cutomLocale != null ? cutomLocale
-						: locale));
+				return JsonMessage
+						.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", cutomLocale != null ? cutomLocale : locale));
 
 			// retrieve phase
 			Integer number = null;
@@ -1684,8 +1714,8 @@ public class ControllerEditField {
 			serviceMeasure.saveOrUpdate(ape.getMeasure());
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.ationplan.updated", null, "ActionPlan entry was successfully updated", cutomLocale != null ? cutomLocale
-					: locale));
+			return JsonMessage
+					.Success(messageSource.getMessage("success.ationplan.updated", null, "ActionPlan entry was successfully updated", cutomLocale != null ? cutomLocale : locale));
 
 		} catch (TrickException e) {
 			// retrieve analysis id
@@ -1787,8 +1817,8 @@ public class ControllerEditField {
 
 			RiskInformation riskInformation = serviceRiskInformation.getFromAnalysisById(idAnalysis, elementID);
 			if (riskInformation == null)
-				return JsonMessage.Error(messageSource.getMessage("error.risk_information.not_found", null, "Risk information cannot be found", cutomLocale != null ? cutomLocale
-						: locale));
+				return JsonMessage
+						.Error(messageSource.getMessage("error.risk_information.not_found", null, "Risk information cannot be found", cutomLocale != null ? cutomLocale : locale));
 
 			// set field
 			Field field = riskInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
@@ -1805,8 +1835,8 @@ public class ControllerEditField {
 			// update phase
 			serviceRiskInformation.saveOrUpdate(riskInformation);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null, "Risk information was successfully updated",
-					cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(
+					messageSource.getMessage("success.risk_information.updated", null, "Risk information was successfully updated", cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -1842,13 +1872,13 @@ public class ControllerEditField {
 		if (fieldEditor.getFieldName().matches("strategy|owner")) {
 			RiskRegisterItem registerItem = serviceRiskRegister.get(elementID);
 			if (registerItem == null)
-				return JsonMessage.Error(messageSource.getMessage("error.risk_register.not_found", null, "Risk register cannot be found", cutomLocale != null ? cutomLocale
-						: locale));
+				return JsonMessage
+						.Error(messageSource.getMessage("error.risk_register.not_found", null, "Risk register cannot be found", cutomLocale != null ? cutomLocale : locale));
 			try {
 				PropertyAccessorFactory.forBeanPropertyAccess(registerItem).setPropertyValue(fieldEditor.getFieldName(), fieldEditor.getValue());
 				serviceRiskRegister.saveOrUpdate(registerItem);
-				return JsonMessage.Success(messageSource.getMessage("success.risk_register.updated", null, "Risk register was successfully updated",
-						cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Success(
+						messageSource.getMessage("success.risk_register.updated", null, "Risk register was successfully updated", cutomLocale != null ? cutomLocale : locale));
 			} catch (TrickException e) {
 				TrickLogManager.Persist(e);
 				return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
@@ -1868,20 +1898,20 @@ public class ControllerEditField {
 	 * @param object
 	 * @param fieldEditor
 	 * @param pattern
-	 * @return
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws ParseException
-	 * @throws NumberFormatException
+	 * @return true / false
 	 */
-	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException,
-			ParseException, NumberFormatException {
-		Object value = FieldValue(fieldEditor, pattern);
-		if (value == null)
+	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) {
+		try {
+			Object value = FieldValue(fieldEditor, pattern);
+			if (value == null)
+				return false;
+			field.setAccessible(true);
+			field.set(object, value);
+			return true;
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
 			return false;
-		field.set(object, value);
-		// return success
-		return true;
+		}
 	}
 
 	/**

@@ -17,7 +17,7 @@
 					</div>
 				</div>
 			</div>
-			<table class="table table-hover table-fixed-header-analysis" id="table_SOA_27002">
+			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_SOA_27002">
 				<thead>
 					<tr>
 						<th style="width: 5%;" title='<fmt:message key="label.title.sao.measure.ref" />' ><fmt:message key="label.measure.ref" /></th>

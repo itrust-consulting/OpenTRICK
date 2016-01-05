@@ -24,7 +24,7 @@
 		</ul>
 		<c:choose>
 			<c:when test="${!empty standards}">
-				<table class="table text-left">
+				<table class="table table-hover text-left">
 					<thead>
 						<tr>
 							<th width="1%"></th>

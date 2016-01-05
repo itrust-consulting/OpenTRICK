@@ -18,7 +18,7 @@
 	</div>
 	<div class="panel-body" style="max-height: 700px; overflow: auto;">
 		<c:if test="${!empty(currentStandards)}">
-			<table class="table">
+			<table class="table table-condensed">
 				<thead>
 					<tr>
 						<th>&nbsp;</th>

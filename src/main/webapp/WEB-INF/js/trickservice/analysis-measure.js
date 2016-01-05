@@ -1,3 +1,47 @@
+function escape(key, val) {
+	if (typeof (val) != "string")
+		return val;
+	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
+			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
+}
+
+function defaultValueByType(value, type) {
+	if (value.length == 0) {
+		if (type == "int" || type == "integer")
+			value = 0;
+		else if (type == "float")
+			value = 0.0;
+		else if (type == "double")
+			value = 0.0;
+		else if (type == "bool" || type == "boolean")
+			value = false;
+		else if (type == "date")
+			return new Date().toDateString();
+		else
+			value = "";
+	}
+	return escape(undefined, value);
+}
+
+function saveMeasureData(e) {
+	var $target = $(e.currentTarget), value = $target.val(), id = $("#measure-ui").attr('data-trick-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target
+			.hasAttr("placeholder") ? $target.attr("placeholder") : $target.attr("data-trick-value");
+	if (value != oldValue) {
+		$.ajax({
+			url : context + "/Analysis/EditField/Measure/" + id + "/Update",
+			type : "post",
+			async : false,
+			data : '{"id":' + id + ', "fieldName":"' + name + '", "value":"' + defaultValueByType(value, type) + '", "type": "' + type + '"}',
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				
+			},
+			error : unknowError
+		});
+	}
+	return false;
+}
+
 function loadMeasureData(id) {
 	var $currentUI = $("#measure-ui");
 	if ($currentUI.attr("data-trick-id") == id)
@@ -11,9 +55,9 @@ function loadMeasureData(id) {
 				backupDescriptionHeight();
 				$currentUI.replaceWith($measureUI);
 				restoreDescriptionHeight();
+				$(".form-control[name!='cost']").on("blur", saveMeasureData);
 			} else
 				unknowError();
-
 		},
 		error : unknowError
 	});
@@ -22,8 +66,15 @@ function loadMeasureData(id) {
 
 function backupDescriptionHeight() {
 	var $description = $("#description"), height = $description.outerHeight(), defaultHeight = $description.attr('data-default-height');
-	if ($description.length && Math.abs(height - defaultHeight) > 3)
-		application["measure-description-size"] = $description.outerHeight();
+	if ($description.length) {
+		if (Math.abs(height - defaultHeight) > 5) {
+			application["measure-description-size-prev"] = application["measure-description-size"];
+			application["measure-description-size"] = $description.outerHeight();
+		} else if (application["measure-description-size"] && application["measure-description-size"] != height && application["measure-description-size-prev"] != height) {
+			delete application["measure-description-size"];
+			delete application["measure-description-size-prev"]
+		}
+	}
 	return false;
 }
 

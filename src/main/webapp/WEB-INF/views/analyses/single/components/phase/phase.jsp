@@ -26,7 +26,7 @@
 						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /> </a></li>
 			</ul>
 		</c:if>
-		<table class="table table-hover table-fixed-header-analysis">
+		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
 					<c:if test="${isEditable}">

@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<table data-trick-controller-name='measure' class="table" style="margin-bottom: 0;">
+<table data-trick-controller-name='measure' class="table table-condensed" style="margin-bottom: 0;">
 	<thead>
 		<tr>
 			<th class="warning"><fmt:message key="label.rrf.measure.strength_measure" /></th>

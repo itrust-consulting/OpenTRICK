@@ -16,7 +16,7 @@
 				<fmt:message key="label.title.parameter.extended.impact" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
 							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>
@@ -64,7 +64,7 @@
 				<fmt:message key="label.parameter.extended.probability" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
 							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>
@@ -121,7 +121,7 @@
 				<fmt:message key="label.title.parameter.maturity_ilps" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover table-fixed-header-analysis" id="tableMaturityIlps">
+				<table class="table table-hover table-fixed-header-analysis table-condensed" id="tableMaturityIlps">
 					<thead>
 						<tr>
 							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.category" /></th>
@@ -168,7 +168,7 @@
 				<fmt:message key="label.title.parameter.simple.various" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.internal_setup" /></th>
@@ -219,7 +219,7 @@
 				<fmt:message key="label.title.parameter.simple.maturity_level" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
 							<th class="textaligncenter"><fmt:message key="label.parameter.simple.sml0" /> (%)</th>
@@ -251,7 +251,7 @@
 				<fmt:message key="label.title.parameter.simple.smt" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
 							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>

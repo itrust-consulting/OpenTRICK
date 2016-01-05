@@ -38,7 +38,7 @@
 						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /> </a></li>
 			</c:if>
 		</ul>
-		<table id="scenariotable" class="table table-hover table-fixed-header-analysis">
+		<table id="scenariotable" class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
 					<c:choose>

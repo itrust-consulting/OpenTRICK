@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="col-md-9" id="section_report">
-	<table class="table">
+	<table class="table table-hover table-condensed">
 		<thead>
 			<tr>
 				<th><spring:message code="label.analysis.identifier" text="TRICK name"/></th>

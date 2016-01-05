@@ -200,6 +200,11 @@ $(function() {
 	$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
 });
 
+$.fn.hasAttr = function(name) {
+	var attr = this.attr(name);
+	return  typeof attr !== typeof undefined && attr !== false;
+};
+
 $.fn.removeAttributes = function(only, except) {
 	if (only) {
 		only = $.map(only, function(item) {
