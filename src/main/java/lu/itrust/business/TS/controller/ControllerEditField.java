@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
@@ -27,7 +28,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.FieldEditor;
+import lu.itrust.business.TS.component.FieldValue;
+import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.Result;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
@@ -140,6 +144,8 @@ public class ControllerEditField {
 	@Autowired
 	private ServiceAssetType serviceAssetType;
 
+	private Pattern computeCostPattern = Pattern.compile("internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment");
+
 	/**
 	 * itemInformation: <br>
 	 * Description
@@ -176,7 +182,7 @@ public class ControllerEditField {
 			Field field = itemInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
 
 			// set field with new data
-			if (SetFieldData(field, itemInformation, fieldEditor, null)) {
+			if (SetFieldData(field, itemInformation, fieldEditor)) {
 
 				// update iteminformation
 				serviceItemInformation.saveOrUpdate(itemInformation);
@@ -284,8 +290,8 @@ public class ControllerEditField {
 
 				Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
 				// check if field is a phase
-
-				field.set(asset, fieldEditor.getValue());
+				if (!SetFieldData(field, asset, fieldEditor))
+					JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 			} else {
 				AssetType assetType = serviceAssetType.getByName(fieldEditor.getValue().toString());
 				if (assetType != null)
@@ -365,7 +371,7 @@ public class ControllerEditField {
 				serviceDataValidation.register(new ParameterValidator());
 
 			// retireve value
-			Object value = FieldValue(fieldEditor, null);
+			Object value = FieldValue(fieldEditor);
 
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
@@ -395,7 +401,7 @@ public class ControllerEditField {
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 
 			// set field data
-			if (SetFieldData(field, parameter, fieldEditor, null)) {
+			if (SetFieldData(field, parameter, fieldEditor)) {
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
 				// return success message
@@ -725,7 +731,7 @@ public class ControllerEditField {
 				serviceDataValidation.register(new MaturityParameterValidator());
 
 			// retireve value
-			Object value = FieldValue(fieldEditor, null);
+			Object value = FieldValue(fieldEditor);
 
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
@@ -734,7 +740,6 @@ public class ControllerEditField {
 
 			// create field
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
-			field.setAccessible(true);
 
 			// set value /100 to save as values between 0 and 1
 			Double val = Double.valueOf(((String) fieldEditor.getValue())) / 100;
@@ -742,7 +747,7 @@ public class ControllerEditField {
 			fieldEditor.setValue(String.valueOf(val));
 
 			// set field data
-			if (SetFieldData(field, parameter, fieldEditor, null)) {
+			if (SetFieldData(field, parameter, fieldEditor)) {
 
 				// update field
 
@@ -1005,7 +1010,7 @@ public class ControllerEditField {
 				serviceDataValidation.register(new HistoryValidator());
 
 			// get new value
-			Object value = FieldValue(fieldEditor, null);
+			Object value = FieldValue(fieldEditor);
 
 			// validate
 			String error = serviceDataValidation.validate(history, fieldEditor.getFieldName(), value);
@@ -1018,7 +1023,7 @@ public class ControllerEditField {
 			Field field = history.getClass().getDeclaredField(fieldEditor.getFieldName());
 
 			// set field data
-			if (SetFieldData(field, history, fieldEditor, null)) {
+			if (SetFieldData(field, history, fieldEditor)) {
 
 				// update history
 				serviceHistory.saveOrUpdate(history);
@@ -1268,7 +1273,7 @@ public class ControllerEditField {
 
 					// retireve phase
 					Integer number = null;
-					number = (Integer) FieldValue(fieldEditor, null);
+					number = (Integer) FieldValue(fieldEditor);
 					if (number == null)
 						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 					Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
@@ -1281,7 +1286,7 @@ public class ControllerEditField {
 					// set field data
 				} else {
 
-					Object value = FieldValue(fieldEditor, null);
+					Object value = FieldValue(fieldEditor);
 					if (value == null)
 						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 
@@ -1335,7 +1340,7 @@ public class ControllerEditField {
 					if (field != null) {
 
 						// check if field is a phase
-						if (!SetFieldData(field, measure, fieldEditor, null))
+						if (!SetFieldData(field, measure, fieldEditor))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 
 						// update measure
@@ -1384,7 +1389,7 @@ public class ControllerEditField {
 					if (field != null) {
 
 						// check if field is a phase
-						if (!SetFieldData(field, measure, fieldEditor, null))
+						if (!SetFieldData(field, measure, fieldEditor))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 
 						// update measure
@@ -1489,7 +1494,7 @@ public class ControllerEditField {
 			Field field = mesprep.getClass().getDeclaredField(fieldEditor.getFieldName());
 
 			// check if field is a phase
-			if (!SetFieldData(field, mesprep, fieldEditor, null))
+			if (!SetFieldData(field, mesprep, fieldEditor))
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 
 			measure.setMeasurePropertyList(mesprep);
@@ -1623,47 +1628,70 @@ public class ControllerEditField {
 
 	@RequestMapping(value = "/Measure/{id}/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #id, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Object updateMeasure(@PathVariable int id, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	public @ResponseBody Result updateMeasure(@PathVariable int id, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+		Result result = null;
 		try {
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+				return Result.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			if (cutomLocale != null)
 				locale = cutomLocale;
+			if (fieldEditor.getFieldName().equalsIgnoreCase("cost"))
+				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Measure measure = serviceMeasure.get(id);
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 				Object value = null;
 				if (measure instanceof MaturityMeasure)
-					value = serviceParameter.getFromAnalysisById(idAnalysis, (Integer) fieldEditor.getValue());
+					value = serviceParameter.getFromAnalysisById(idAnalysis, (Integer) FieldValue(fieldEditor));
 				else
-					value = fieldEditor.getValue();
+					value = FieldValue(fieldEditor);
 				measure.setImplementationRate(value);
 			} else if (fieldEditor.getFieldName().equalsIgnoreCase("phase")) {
-				measure.setPhase(servicePhase.getFromAnalysisById(idAnalysis, (Integer) fieldEditor.getValue()));
+				measure.setPhase(servicePhase.getFromAnalysisById(idAnalysis, (Integer) FieldValue(fieldEditor)));
 			} else {
 				Field field = FindField(measure.getClass(), fieldEditor.getFieldName());
-				System.out.println(field);
 				if (field == null)
-					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-				if (!SetFieldData(field, measure, fieldEditor, null))
-					return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				if (!SetFieldData(field, measure, fieldEditor))
+					return Result.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+				else
+					result = Result.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+				Object realValue = null;
 				if (fieldEditor.getFieldName().equals("investment"))
-					measure.setInvestment(measure.getInvestment() * 1000);
+					measure.setInvestment((double) (realValue = measure.getInvestment() * 1000));
 				if (fieldEditor.getFieldName().equals("recurrentInvestment"))
-					measure.setRecurrentInvestment(measure.getRecurrentInvestment() * 1000);
-				if (fieldEditor.getFieldName().matches("internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment")) {
+					measure.setRecurrentInvestment((double) (realValue = measure.getRecurrentInvestment() * 1000));
+				if (computeCostPattern.matcher(fieldEditor.getFieldName()).find()) {
 					Measure.ComputeCost(measure, serviceAnalysis.get(idAnalysis));
+					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
+					result.add(new FieldValue("cost", format(measure.getCost() * .001, numberFormat, 0), format(measure.getCost(), numberFormat, 0) + "€"));
+					if (realValue == null)
+						result.add(new FieldValue(fieldEditor.getFieldName(), format((Double) field.get(measure), numberFormat, 3)));
+					else
+						result.add(
+								new FieldValue(fieldEditor.getFieldName(), format((Double) realValue * .001, numberFormat, 3), format((Double) realValue, numberFormat, 0) + "€"));
 				}
-				serviceMeasure.saveOrUpdate(measure);
-
 			}
+			serviceMeasure.saveOrUpdate(measure);
+			if (result == null)
+				result = Result.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+		} catch (TrickException e) {
+			if (result == null)
+				result = Result.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			else
+				result.turnOnError(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		}
-		return null;
+		return result;
 
+	}
+
+	private String format(double value, NumberFormat numberFormat, int decimal) {
+		numberFormat.setMaximumFractionDigits(decimal);
+		return numberFormat.format(JSTLFunctions.round(value, decimal));
 	}
 
 	/**
@@ -1699,8 +1727,7 @@ public class ControllerEditField {
 						.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", cutomLocale != null ? cutomLocale : locale));
 
 			// retrieve phase
-			Integer number = null;
-			number = (Integer) FieldValue(fieldEditor, null);
+			Integer number = (Integer) FieldValue(fieldEditor);
 			if (number == null)
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
 			Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
@@ -1900,6 +1927,24 @@ public class ControllerEditField {
 	 * @param pattern
 	 * @return true / false
 	 */
+	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor) {
+		return SetFieldData(field, object, fieldEditor, null);
+	}
+
+	private Object FieldValue(FieldEditor fieldEditor) {
+		return FieldValue(fieldEditor, null);
+	}
+
+	/**
+	 * setFieldData: <br>
+	 * Description
+	 * 
+	 * @param field
+	 * @param object
+	 * @param fieldEditor
+	 * @param pattern
+	 * @return true / false
+	 */
 	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) {
 		try {
 			Object value = FieldValue(fieldEditor, pattern);
@@ -1908,6 +1953,8 @@ public class ControllerEditField {
 			field.setAccessible(true);
 			field.set(object, value);
 			return true;
+		} catch (TrickException e) {
+			throw e;
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;
@@ -1940,11 +1987,11 @@ public class ControllerEditField {
 				return format.parse(fieldEditor.getValue().toString());
 			}
 		} catch (NumberFormatException e) {
-			// print error
-			TrickLogManager.Persist(e);
+			throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
 		} catch (ParseException e) {
-			// print error
-			TrickLogManager.Persist(e);
+			if(fieldEditor.getType().equalsIgnoreCase("date"))
+				throw new TrickException("error.parse.date", String.format("%s is not valid date", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
+			else throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
 		}
 		// data type not found, return error
 		return null;

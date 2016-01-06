@@ -26,15 +26,54 @@ function defaultValueByType(value, type) {
 function saveMeasureData(e) {
 	var $target = $(e.currentTarget), value = $target.val(), id = $("#measure-ui").attr('data-trick-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target
 			.hasAttr("placeholder") ? $target.attr("placeholder") : $target.attr("data-trick-value");
-	if (value != oldValue) {
+	if (value == oldValue)
+		$target.parent().removeClass('has-error');
+	else {
 		$.ajax({
 			url : context + "/Analysis/EditField/Measure/" + id + "/Update",
-			type : "post",
 			async : false,
+			type : "post",
 			data : '{"id":' + id + ', "fieldName":"' + name + '", "value":"' + defaultValueByType(value, type) + '", "type": "' + type + '"}',
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				
+				if (response.message == undefined)
+					unknowError();
+				else {
+					var $parent = $target.parent();
+					if (response.error) {
+						$parent.addClass("has-error");
+						$parent.removeClass("has-success");
+						$parent.attr("title", response.message);
+					} else {
+						$parent.removeAttr("title");
+						$parent.removeClass("has-error");
+						$parent.addClass("has-success");
+						if (response.empty) {
+							$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", value);
+						} else {
+							for (var i = 0; i < response.fields.length; i++) {
+								var field = response.fields[i], $element = name == field.name ? $target : $("#measure-ui [name='" + field.name + "'].form-control");
+								for ( var fieldName in field) {
+									switch (fieldName) {
+									case "value":
+										$element.attr("placeholder", field[fieldName]);
+										$element.val(field[fieldName]);
+										break;
+									case "title":
+										$element.attr(fieldName, field[fieldName]);
+										break;
+									}
+								}
+							}
+						}
+						var status = name == 'status' ? value : $("#measure-ui select[name='status']").val(), $cost = $("#measure-ui input[name='cost']"), cost = $cost
+								.attr("title");
+						if (status != "NA" && cost == "0€")
+							$cost.parent().addClass("has-error");
+						else
+							$cost.parent().removeClass("has-error");
+					}
+				}
 			},
 			error : unknowError
 		});
@@ -55,7 +94,14 @@ function loadMeasureData(id) {
 				backupDescriptionHeight();
 				$currentUI.replaceWith($measureUI);
 				restoreDescriptionHeight();
-				$(".form-control[name!='cost']").on("blur", saveMeasureData);
+				$("select", $measureUI).on("change", saveMeasureData);
+				$("input[name!='cost'],textarea", $measureUI).on("blur", saveMeasureData);
+				$("input[type='number']", $measureUI).on("change", function(e) {
+					var $target = $(e.currentTarget);
+					if (!$target.is(":focus"))
+						$target.focus();
+					return this;
+				});
 			} else
 				unknowError();
 		},
@@ -67,6 +113,7 @@ function loadMeasureData(id) {
 function backupDescriptionHeight() {
 	var $description = $("#description"), height = $description.outerHeight(), defaultHeight = $description.attr('data-default-height');
 	if ($description.length) {
+		console.log($description.css("height"))
 		if (Math.abs(height - defaultHeight) > 5) {
 			application["measure-description-size-prev"] = application["measure-description-size"];
 			application["measure-description-size"] = $description.outerHeight();
