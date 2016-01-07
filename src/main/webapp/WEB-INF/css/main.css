@@ -14,7 +14,7 @@ body {
 }*/
 
 /* Wrapper for page content to push down footer */
-#wrap,.max-height {
+#wrap, .max-height {
 	height: 100%;
 }
 
@@ -26,7 +26,6 @@ body {
 	/* Pad bottom by footer height */
 	padding: 0 0 60px;
 }
-
 
 /* Set the fixed height of the footer here */
 #footer {
@@ -341,8 +340,8 @@ a[role="changeUILanguage"]:hover {
 }
 
 }
-
 .container { .clearfix ();
+	
 }
 
 ul.asset-measure {
@@ -406,10 +405,52 @@ ul#task-manager>li>li {
 	max-height: 600px;
 }
 
-#measure-ui table .form-control, #measure-ui table .input-group-addon{
+#measure-ui table .form-control, #measure-ui table .input-group-addon {
 	padding: 0px 3px;
 }
 
-.numeric{
+#measure-ui {
+	height: auto !important;
+	padding-bottom:18px;
+}
+
+.numeric {
 	text-align: right;
+}
+
+@media ( min-height :600px) {
+	.nav-chapter {
+		height: 60%;
+		overflow: auto;
+	}
+}
+
+@media ( min-height :766px) {
+	.nav-chapter {
+		height: 69%;
+		overflow: auto;
+	}
+}
+
+@media ( min-height :800px) {
+	.nav-chapter {
+		height: 78%;
+		overflow: auto;
+	}
+}
+
+@media ( min-height :900px) {
+	.nav-chapter {
+		height: 84%;
+		overflow: auto;
+	}
+}
+
+@media ( min-height :1000px) {
+	.nav-chapter {
+		height: auto;
+	}
+	.max-height {
+		height: auto;
+	}
 }

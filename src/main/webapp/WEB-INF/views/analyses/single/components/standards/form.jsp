@@ -47,7 +47,7 @@
 					</c:forEach>
 
 					<c:forEach items="${standards}" var="standard" varStatus="status">
-						<div class="form-group" style="height: 80%; overflow: auto;" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />'
+						<div class="form-group nav-chapter" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />'
 							data-trick-id='${standard.id}' data-trick-content='measure'>
 							<c:set var="measureChapters" value="${standardChapters[standard.label]}" />
 							<c:forEach items="${measureChapters.keySet()}" var="chapter" varStatus="chapterStatus">
@@ -63,7 +63,7 @@
 						</div>
 					</c:forEach>
 					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-measure'>
-						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-exchange"></i> </a></li>
+						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
 						<li><a href="#" title='<fmt:message key="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i> </a></li>
 						<li><a href="#" title='<fmt:message key="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>
 						<li><a href="#" title='<fmt:message key="label.action.next.measure" />' data-trick-nav='next-measure'><i class="fa fa-angle-right"></i> </a></li>

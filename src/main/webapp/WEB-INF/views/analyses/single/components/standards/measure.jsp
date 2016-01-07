@@ -9,8 +9,8 @@
 <div id="measure-ui" class='col-lg-10' data-trick-id='${selectedMeasure.id}'>
 	<c:if test="${not empty selectedMeasure }">
 		<c:set var="rowSize" value="${showTodo ? (isMaturity? 10 : 5) : (isMaturity ? 25: 10)}" />
-		<div class="col-md-12">
-			<fieldset class="col-xs-12">
+		<div>
+			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' />
 				</legend>
@@ -20,10 +20,8 @@
 						style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; ${countLine>6? 'height:129px;':''}">${description}</div>
 				</c:if>
 			</fieldset>
-			<fieldset class="col-xs-12">
-
+			<fieldset>
 				<c:if test="${measureDescription.computable}">
-
 					<fmt:setLocale value="fr" scope="session" />
 					<fmt:formatNumber value="${selectedMeasure.internalWL}" maxFractionDigits="2" var="internalWL" />
 					<fmt:formatNumber value="${selectedMeasure.externalWL}" maxFractionDigits="2" var="externalWL" />
@@ -36,21 +34,26 @@
 					<fmt:formatNumber value="${fct:round(selectedMeasure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" var="kRecurrentInvestment" />
 					<fmt:formatNumber value="${fct:round(selectedMeasure.cost,0)}" maxFractionDigits="0" var="cost" />
 					<fmt:formatNumber value="${fct:round(selectedMeasure.cost*0.001,0)}" maxFractionDigits="0" var="kCost" />
-					<c:choose>
-						<c:when test="${isMaturity}">
-							<c:set var="implementationRate">
+					<c:set var="implementationRate">
+						<c:choose>
+							<c:when test="${isMaturity}">
 								<select name="implementationRate" class='form-control' data-trick-value='${selectedMeasure.implementationRate.id}' data-trick-type='integer'>
 									<c:forEach items="${impscales}" var="parameter">
 										<option value="${parameter.id}" ${selectedMeasure.implementationRate==parameter?'selected':''}><fmt:formatNumber value=" ${parameter.value}"
 												maxFractionDigits="0" /></option>
 									</c:forEach>
 								</select>
-							</c:set>
-						</c:when>
-						<c:otherwise>
-							<fmt:formatNumber value="${selectedMeasure.implementationRate}" maxFractionDigits="0" var="implementationRate" />
-						</c:otherwise>
-					</c:choose>
+							</c:when>
+							<c:otherwise>
+								<fmt:formatNumber value="${selectedMeasure.implementationRate}" maxFractionDigits="0" var="implementationRateValue" />
+								<select name="implementationRate" class='form-control' data-trick-value='${implementationRateValue}' data-trick-type='double'>
+									<c:forEach begin="0" step="1" end="100" var="implValue">
+										<option value="${implValue}" ${implementationRateValue==implValue?'selected':''}>${implValue}</option>
+									</c:forEach>
+								</select>
+							</c:otherwise>
+						</c:choose>
+					</c:set>
 					<fmt:setLocale value="${language}" scope="session" />
 					<fmt:message key="label.metric.year" var="metricYear" />
 					<fmt:message key="label.metric.euro" var="metricEuro" />
@@ -96,15 +99,7 @@
 									</select></td>
 									<td style="border-right: 2px solid #ddd"><div class="input-group">
 											<span class="input-group-addon">%</span>
-											<c:choose>
-												<c:when test="${isMaturity}">
-													 ${implementationRate}
-												</c:when>
-												<c:otherwise>
-													<input class="form-control numeric" name="implementationRate" value="${implementationRate}" placeholder="${implementationRate}" data-trick-type='double' type="number"
-														max="100" min="0">
-												</c:otherwise>
-											</c:choose>
+											${implementationRate}
 										</div></td>
 									<td><div class="input-group">
 											<span class="input-group-addon">${metricMd}</span> <input name="internalWL" value="${internalWL}" class="form-control numeric" placeholder="${internalWL}"
@@ -116,7 +111,7 @@
 										</div></td>
 									<td><div class="input-group">
 											<span class="input-group-addon">${metricKEuro}</span><input name="investment" value="${kInvestment}" title="${investment}${metricEuro}" class="form-control numeric"
-												placeholder="${kInvestment}" data-trick-type='double' >
+												placeholder="${kInvestment}" data-trick-type='double'>
 										</div></td>
 									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
 											<span class="input-group-addon">${metricYear}</span><input name="lifetime" value="${lifetime}" class="form-control numeric" placeholder="${lifetime}"

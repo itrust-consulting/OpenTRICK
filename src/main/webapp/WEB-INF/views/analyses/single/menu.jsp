@@ -52,6 +52,11 @@
 				<li><a href="#tabActionPlan" data-toggle="tab"> <fmt:message key="label.menu.analysis.action_plan" /></a></li>
 			</c:if>
 			<c:if test="${analysis.isProfile() || isEditable}">
+				<c:if test="${!empty(standards)}">
+					<li class="divider"></li>
+					<li class="dropdown-header"><fmt:message key="label.action.edit" /></li>
+					<li><a href="?open=edit-measure"> <fmt:message key="label.menu.view.measures" /></a></li>
+				</c:if>
 				<li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 				<li><a href="#" onclick="return manageStandard();"> <fmt:message key="label.menu.manage_standard" /></a></li>
