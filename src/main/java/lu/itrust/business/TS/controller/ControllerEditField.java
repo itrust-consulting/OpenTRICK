@@ -1168,17 +1168,16 @@ public class ControllerEditField {
 
 			Field field = FindField(Scenario.class, fieldEditor.getFieldName());
 			// means that field belongs to the Measure class
-
+			
 			if (field != null) {
 				// check if field is a phase
-
+				field.setAccessible(true);
 				if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative") || field.getName().equals("corrective")) {
 					if (!(fieldEditor.getValue() instanceof Integer))
 						fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
 				}
 
 				field.set(scenario, fieldEditor.getValue());
-
 				// update measure
 				serviceScenario.saveOrUpdate(scenario);
 
@@ -1200,7 +1199,6 @@ public class ControllerEditField {
 						return null;
 				}
 				serviceScenario.saveOrUpdate(scenario);
-
 			}
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", cutomLocale != null ? cutomLocale : locale));
