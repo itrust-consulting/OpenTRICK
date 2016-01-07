@@ -112,7 +112,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		CUSTOMER_ID = customer.getId();
 	}
 
-	@Test(timeOut = 30000, dependsOnMethods = "test_00_loadData")
+	@Test(timeOut = 120000, dependsOnMethods = "test_00_loadData")
 	public void test_01_CreateSimpleAnalysis() throws Exception {
 		this.mockMvc
 				.perform(

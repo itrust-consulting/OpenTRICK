@@ -81,7 +81,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 								.getResponse().getContentAsString()).findValue("idTask").asText(null);
 	}
 
-	@Test(timeOut=30000)
+	@Test(timeOut=120000)
 	public synchronized void test_01_WaitForWorker() throws InterruptedException {
 		Worker worker = workersPoolManager.get(INSTALL_TASK_ID);
 		notNull(worker, "Installation worker cannot be found");
