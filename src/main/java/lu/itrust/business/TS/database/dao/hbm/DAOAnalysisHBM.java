@@ -726,4 +726,16 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.createQuery("Select analysis From Analysis analysis inner join analysis.analysisStandards as analysisStandard where analysisStandard.id = :idAnalysisStandard")
 				.setInteger("idAnalysisStandard", idAnalysisStandard).uniqueResult();
 	}
+
+	public int countNotEmptyNoItemInformationAndRiskInformation() {
+		return ((Long) getSession().createQuery("Select count(analysis) From Analysis analysis where analysis.data = true and (analysis.itemInformations IS EMPTY or analysis.riskInformations IS EMPTY)").uniqueResult())
+				.intValue();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize) {
+		return getSession().createQuery("Select analysis From Analysis analysis where analysis.data = true and (analysis.itemInformations IS EMPTY or analysis.riskInformations IS EMPTY)").setMaxResults(pageSize)
+				.setFirstResult((pageIndex - 1) * pageSize).list();
+	}
 }

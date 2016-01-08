@@ -29,6 +29,10 @@
 		</ul>
 		<c:choose>
 			<c:when test="${!empty(riskregister)}">
+				<fmt:message key="label.risk_register.strategy.accept" var="accept" />
+				<fmt:message key="label.risk_register.strategy.reduce" var="reduce" />
+				<fmt:message key="label.risk_register.strategy.transfer" var="transfer" />
+				<fmt:message key="label.risk_register.strategy.avoid" var="avoid" />
 				<table class="table table-hover table-condensed table-fixed-header-analysis">
 					<thead>
 						<tr>
@@ -100,12 +104,7 @@
 									class="text-center" title='<fmt:formatNumber value="${item.expectedEvaluation.importance}" maxFractionDigits="2" />${euro_by_year}'>${importance}</td>
 
 								<fmt:setLocale value="${language}" scope="session" />
-
-								<fmt:message key="label.risk_register.strategy.accept" var="accept" />
-								<fmt:message key="label.risk_register.strategy.reduce" var="reduce" />
-								<fmt:message key="label.risk_register.strategy.transfer" var="transfer" />
-								<fmt:message key="label.risk_register.strategy.avoid" var="avoid" />
-
+								
 								<c:set value="${fn:toLowerCase(item.strategy)}" var="strategy" />
 								<c:if test="${strategy=='shrink' }">
 									<c:set value="reduce" var="strategy" />

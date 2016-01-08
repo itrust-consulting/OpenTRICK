@@ -53,6 +53,8 @@
 								</a></li>
 								<li class="divider"></li>
 								<li class="dropdown-header"><spring:message code="label.runtime.dropdown_header.Major" text="Major patches" /></li>
+								<li><a href="#" onclick="return updateAnalysesRiskAndItemInformation()"> <spring:message code="label.update.analyses.risk_item.information" text="Copy missing risk or item information from default profile" />
+								</a></li>
 								<li><a href="#" onclick="return restoreAnalysisRights()"> <spring:message code="label.restore.analysis.right" text="Restore analysis rights" />
 								</a></li>
 								<li><a href="#" onclick="return updateAnalysesScopes()"> <spring:message code="label.update.analyses.scopes" text="Update analyses scopes" />

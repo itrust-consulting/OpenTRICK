@@ -154,6 +154,8 @@ public interface DAOAnalysis {
 
 	public Analysis getByAnalysisStandardId(int idAnalysisStandard);
 
-	
+	public int countNotEmptyNoItemInformationAndRiskInformation();
+
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
 
 }

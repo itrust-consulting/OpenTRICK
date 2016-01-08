@@ -105,7 +105,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(java.lang.String,
+	 *      java.lang.String)
 	 */
 
 	@Override
@@ -471,7 +472,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier,List<AnalysisRight> rights) {
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights) {
 		return daoAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, username, identifier, rights);
 	}
 
@@ -562,17 +563,17 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer) {
-		return daoAnalysis.isAnalysisCustomer(idAnalysis,idCustomer);
+		return daoAnalysis.isAnalysisCustomer(idAnalysis, idCustomer);
 	}
 
 	@Override
 	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer) {
-		return daoAnalysis.getNamesByUserAndCustomerAndNotEmpty(username,idCustomer);
+		return daoAnalysis.getNamesByUserAndCustomerAndNotEmpty(username, idCustomer);
 	}
 
 	@Override
 	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name) {
-		return daoAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(username,idCustomer, name);
+		return daoAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(username, idCustomer, name);
 	}
 
 	@Override
@@ -592,17 +593,17 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards) {
-		return daoAnalysis.getAllHasRightsAndContainsStandard(username,rights,  standards);
+		return daoAnalysis.getAllHasRightsAndContainsStandard(username, rights, standards);
 	}
 
 	@Override
 	public boolean existsByNameAndCustomerId(String name, int idCustomer) {
-		return daoAnalysis.existsByNameAndCustomerId(name,idCustomer);
+		return daoAnalysis.existsByNameAndCustomerId(name, idCustomer);
 	}
 
 	@Override
 	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize) {
-		return daoAnalysis.getAllNotEmpty(pageIndex,pageSize);
+		return daoAnalysis.getAllNotEmpty(pageIndex, pageSize);
 	}
 
 	@Override
@@ -623,5 +624,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public Analysis getProfileByName(String name) {
 		return daoAnalysis.getProfileByName(name);
+	}
+
+	public int countNotEmptyNoItemInformationAndRiskInformation() {
+		return daoAnalysis.countNotEmptyNoItemInformationAndRiskInformation();
+	}
+
+	@Override
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize) {
+		return daoAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(pageIndex, pageSize);
 	}
 }

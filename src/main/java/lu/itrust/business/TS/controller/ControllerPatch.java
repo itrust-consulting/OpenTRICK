@@ -26,6 +26,7 @@ import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -35,6 +36,7 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -161,6 +163,48 @@ public class ControllerPatch {
 		}
 	}
 
+	@RequestMapping(value = "/Update/Analyses/Risk-item-information", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	public @ResponseBody String updateRiskInformationAndRiskItem(Principal principal, Locale locale) {
+		try {
+			Analysis profile = serviceAnalysis.getDefaultProfile();
+			if (profile == null)
+				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			List<Analysis> analyses = serviceAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(1, 30);
+			while (!analyses.isEmpty()) {
+				Analysis analysis = analyses.remove(0);
+				if (analysis.getRiskInformations().isEmpty()) {
+					for (RiskInformation riskInformation : profile.getRiskInformations())
+						analysis.addARiskInformation(riskInformation.duplicate());
+				}
+
+				if (analysis.getItemInformations().isEmpty()) {
+					for (ItemInformation itemInformation : profile.getItemInformations())
+						analysis.addAnItemInformation(itemInformation.duplicate());
+				}
+
+				serviceAnalysis.saveOrUpdate(analysis);
+
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.copy.risk_item.information",
+						String.format("Analysis: %s, version: %s; Copy risk and item information from default profile", analysis.getIdentifier(), analysis.getVersion()),
+						principal.getName(), LogAction.UPDATE, analysis.getIdentifier(), analysis.getVersion());
+				if (analyses.isEmpty())
+					analyses = serviceAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(1, 30);
+			}
+			return JsonMessage
+					.Success(messageSource.getMessage("success.update.risk_item.information", null, "Risk and item information were imported from the default profile", locale));
+		} catch (CloneNotSupportedException e) {
+			return JsonMessage.Error(messageSource.getMessage("error.clone.object", null, "An error occurred while copy data", locale));
+		} catch (TrickException e) {
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		} finally {
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Copy-risk-item-information-from-default-profile"),
+					principal.getName(), LogAction.APPLY, "Copy-risk-item-information-from-default-profile");
+		}
+	}
+
 	@RequestMapping(value = "/Update/Analyses/Scopes", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateScope(Principal principal, Locale locale) {
 		try {
@@ -175,7 +219,6 @@ public class ControllerPatch {
 						if (!analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName))) {
 							analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 							saveRequired = true;
-							System.out.println("Here");
 						}
 					}
 					if (saveRequired) {

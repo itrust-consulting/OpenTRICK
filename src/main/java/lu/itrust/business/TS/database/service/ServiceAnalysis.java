@@ -141,4 +141,8 @@ public interface ServiceAnalysis {
 
 	public Analysis getProfileByName(String string);
 
+	public int countNotEmptyNoItemInformationAndRiskInformation();
+	
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
+
 }
