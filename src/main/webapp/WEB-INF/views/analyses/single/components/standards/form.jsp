@@ -17,7 +17,7 @@
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../../../template/menu.jsp" />
 		<div class="container max-height">
-			<div class="max-height" style="margin-top: 15px; padding-bottom: 50px;">
+			<div class="max-height" style="padding-top: 15px;">
 				<div class="col-lg-2 max-height">
 					<div class="form-group">
 						<select name="standard" class="form-control">

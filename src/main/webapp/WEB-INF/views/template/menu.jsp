@@ -14,12 +14,12 @@
 <div class="navbar navbar-inverse navbar-fixed-top" role="main-menu" style="z-index: 1030;">
 	<div class="container">
 		<div class="navbar-header">
+			<a class="navbar-brand" style="color: #ffffff; font-weight: bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 				<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 			</button>
 		</div>
 		<sec:authorize access="authenticated">
-			<a class="navbar-brand" style="color: #ffffff; font-weight: bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<li ${menu.equals("Home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Home"> <spring:message code="label.menu.home" text="Home" /></a></li>

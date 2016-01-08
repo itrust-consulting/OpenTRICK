@@ -16,7 +16,7 @@
 				</legend>
 				<spring:message text="${fn:trim(measureDescriptionText.description)}" var="description" />
 				<c:if test="${not empty description }">
-					<div id="description" data-default-height="${39+(countLine>6? 5 : (countLine-1))*18}" class='well well-sm'
+					<div id="description" class='well well-sm'
 						style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; ${countLine>6? 'height:129px;':''}">${description}</div>
 				</c:if>
 			</fieldset>
@@ -70,14 +70,7 @@
 								</tr>
 								<tr>
 									<th title='<fmt:message key="label.title.measure.status" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.status" /></th>
-									<c:choose>
-										<c:when test="${isMaturity}">
-											<th title='<fmt:message key="label.title.measure.ir" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><fmt:message key="label.implementation" /></th>
-										</c:when>
-										<c:otherwise>
-											<th title='<fmt:message key="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 2px solid #ddd"><fmt:message key="label.implement" /></th>
-										</c:otherwise>
-									</c:choose>
+									<th title='<fmt:message key="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 2px solid #ddd"><fmt:message key="label.implement" /></th>
 									<th title='<fmt:message key="label.title.measure.iw" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.iw" /></th>
 									<th title='<fmt:message key="label.title.measure.ew" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.ew" /></th>
 									<th title='<fmt:message key="label.title.measure.inv" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.inv" /></th>

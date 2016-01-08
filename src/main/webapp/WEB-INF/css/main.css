@@ -411,46 +411,105 @@ ul#task-manager>li>li {
 
 #measure-ui {
 	height: auto !important;
-	padding-bottom:18px;
+	padding-bottom: 18px;
+	margin-bottom: -18px;
 }
 
 .numeric {
 	text-align: right;
 }
 
+.nav-chapter {
+	overflow: auto;
+}
+
 @media ( min-height :600px) {
 	.nav-chapter {
 		height: 60%;
-		overflow: auto;
 	}
 }
 
 @media ( min-height :766px) {
-	.nav-chapter {
-		height: 69%;
-		overflow: auto;
+	@media ( min-width :800px) {
+		.nav-chapter {
+			height: auto;
+		}
+		.max-height {
+			height: auto;
+		}
+	}
+	@media ( min-width :900px) {
+		.nav-chapter {
+			height: 68%;
+		}
+		.max-height {
+			height: 100%;
+		}
 	}
 }
 
 @media ( min-height :800px) {
-	.nav-chapter {
-		height: 78%;
-		overflow: auto;
+	@media ( min-width :800px) {
+		.nav-chapter {
+			height: auto;
+		}
+		.max-height {
+			height: auto;
+		}
+	}
+	@media ( min-width :900px) {
+		.nav-chapter {
+			height: 74%;
+		}
+		.max-height {
+			height: 100%;
+		}
 	}
 }
 
 @media ( min-height :900px) {
-	.nav-chapter {
-		height: 84%;
-		overflow: auto;
+	@media ( min-width :1600px) {
+		.nav-chapter {
+			height: 74%;
+		}
+	}
+	@media ( min-width :1700px) {
+		.nav-chapter {
+			height: 81%;
+		}
 	}
 }
 
 @media ( min-height :1000px) {
-	.nav-chapter {
-		height: auto;
+	@media ( min-width :900px) {
+		.nav-chapter {
+			height: auto;
+		}
+		.max-height {
+			height: auto;
+		}
 	}
-	.max-height {
-		height: auto;
+	@media ( min-width :1200px) {
+		.nav-chapter {
+			height: 78%;
+		}
+		.max-height {
+			height: 100%;
+		}
+	}
+	@media ( min-width :1600px) {
+		.nav-chapter {
+			height: 80%;
+		}
+	}
+	@media ( min-width :1700px) {
+		.nav-chapter {
+			height: 82%;
+		}
+	}
+	@media ( min-width :1800px) {
+		.nav-chapter {
+			height: 84%;
+		}
 	}
 }

@@ -111,10 +111,10 @@ function loadMeasureData(id) {
 }
 
 function backupDescriptionHeight() {
-	var $description = $("#description"), height = $description.outerHeight(), defaultHeight = $description.attr('data-default-height');
+	var $description = $("#description");
 	if ($description.length) {
-		console.log($description.css("height"))
-		if (Math.abs(height - defaultHeight) > 5) {
+		var height = $description.outerHeight(), defaultHeight = application["measure-description-default-size"];
+		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
 			application["measure-description-size-prev"] = application["measure-description-size"];
 			application["measure-description-size"] = $description.outerHeight();
 		} else if (application["measure-description-size"] && application["measure-description-size"] != height && application["measure-description-size-prev"] != height) {
@@ -126,11 +126,15 @@ function backupDescriptionHeight() {
 }
 
 function restoreDescriptionHeight() {
-	var height = application["measure-description-size"];
-	if (height != undefined) {
-		$("#description").css({
-			"height" : height
-		});
+	var $description = $("#description");
+	if ($description.length) {
+		application["measure-description-default-size"] = $description.outerHeight();
+		var height = application["measure-description-size"];
+		if (height != undefined) {
+			$("#description").css({
+				"height" : height
+			});
+		}
 	}
 	return false;
 }
