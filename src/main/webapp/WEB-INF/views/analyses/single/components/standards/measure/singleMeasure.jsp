@@ -6,6 +6,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<fmt:setLocale value="${language}" scope="session" />
+<fmt:message key="label.measure.status.m" var="statusM" />
+<fmt:message key="label.measure.status.ap" var="statusAP" />
+<fmt:message key="label.measure.status.na" var="statusNA" />
 <fmt:setLocale value="fr" scope="session" />
 <c:set var="css">
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
@@ -34,10 +38,6 @@
 		data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' style='cursor: pointer;'
 	</c:if>
 </c:set>
-<fmt:message key="label.measure.status.m" var="statusM" />
-<fmt:message key="label.measure.status.ap" var="statusAP" />
-<fmt:message key="label.measure.status.na" var="statusNA" />
-
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
