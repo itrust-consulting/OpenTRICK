@@ -202,7 +202,7 @@ $(function() {
 
 $.fn.hasAttr = function(name) {
 	var attr = this.attr(name);
-	return  typeof attr !== typeof undefined && attr !== false;
+	return typeof attr !== typeof undefined && attr !== false;
 };
 
 $.fn.removeAttributes = function(only, except) {

@@ -46,8 +46,10 @@
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
-			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
+			<td ${popoverDescription} colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'14':'13'}"><spring:message
 					text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 		</tr>
 	</c:when>
 	<c:otherwise>
@@ -102,12 +104,13 @@
 					<c:when test="${measure.phase.number == 0}">NA</c:when>
 					<c:otherwise>${measure.phase.number}</c:otherwise>
 				</c:choose></td>
+			<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 			<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 				<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 			</c:if>
 			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
 			<td ${todoCSS} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
-			<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
+			
 		</tr>
 	</c:otherwise>
 </c:choose>

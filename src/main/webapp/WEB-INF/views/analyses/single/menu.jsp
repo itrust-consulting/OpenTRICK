@@ -39,27 +39,24 @@
 	<li class="dropdown-submenu" id="tabStandard"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.risk_treatment_compliance" /><span
 			class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
+			<li class="dropdown-header"><fmt:message key="label.menu.analysis.standards" /></li>
 			<c:if test="${!empty(standards)}">
-				<li class="dropdown-header"><fmt:message key="label.menu.analysis.standards" /></li>
 				<c:forEach items="${standards}" var="standard">
 					<li><a href="#tabStandard_${standard.id}" data-toggle="tab"> <spring:message text="${standard.label}" /></a>
 				</c:forEach>
+				<li class="divider"></li>
+			</c:if>
+			<c:if test="${analysis.isProfile() || isEditable}">
+				<c:if test="${!empty(standards)}">
+					<li title='<fmt:message key="label.menu.view.measures"/>' ><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <fmt:message key="label.action.edit" /></a></li>
+				</c:if>
+				<li title='<fmt:message key="label.menu.manage_standard"/>' ><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <fmt:message key="label.action.manage" /></a></li>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><fmt:message key="label.menu.analysis.implementation" /></li>
 			<li><a href="#tabPhase" data-toggle="tab"> <fmt:message key="label.menu.analysis.phase" /></a></li>
 			<c:if test="${!analysis.isProfile()}">
 				<li><a href="#tabActionPlan" data-toggle="tab"> <fmt:message key="label.menu.analysis.action_plan" /></a></li>
-			</c:if>
-			<c:if test="${analysis.isProfile() || isEditable}">
-				<c:if test="${!empty(standards)}">
-					<li class="divider"></li>
-					<li class="dropdown-header"><fmt:message key="label.action.edit" /></li>
-					<li><a href="?open=edit-measure"> <fmt:message key="label.menu.view.measures" /></a></li>
-				</c:if>
-				<li class="divider"></li>
-				<li class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
-				<li><a href="#" onclick="return manageStandard();"> <fmt:message key="label.menu.manage_standard" /></a></li>
 			</c:if>
 		</ul></li>
 	<c:if test="${!analysis.isProfile()}">

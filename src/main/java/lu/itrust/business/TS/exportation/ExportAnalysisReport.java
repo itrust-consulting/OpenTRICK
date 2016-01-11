@@ -96,7 +96,7 @@ public class ExportAnalysisReport {
 	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
 	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-	
+
 	private Locale locale = null;
 
 	private MessageSource messageSource;
@@ -324,7 +324,7 @@ public class ExportAnalysisReport {
 
 			row = table.getRow(0);
 
-			for (int i = 1; i < 12; i++)
+			for (int i = 1; i < 13; i++)
 				row.addNewTableCell();
 
 			row.getCell(0).setText(getMessage("report.action_plan.row_number", null, "Nr", locale));
@@ -338,7 +338,8 @@ public class ExportAnalysisReport {
 			row.getCell(8).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
 			row.getCell(9).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
 			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV", locale));
-			row.getCell(11).setText(getMessage("report.action_plan.phase", null, "P", locale));
+			row.getCell(11).setText(getMessage("report.measure.phase", null, "P", locale));
+			row.getCell(12).setText(getMessage("report.measure.responsable", null, "Resp.", locale));
 			int nr = 0;
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
@@ -362,8 +363,9 @@ public class ExportAnalysisReport {
 				addCellNumber(row.getCell(9), numberFormat.format(entry.getMeasure().getExternalWL()));
 				numberFormat.setMaximumFractionDigits(0);
 				addCellNumber(row.getCell(10), numberFormat.format(entry.getMeasure().getInvestment() * 0.001));
-				addCellNumber(row.getCell(11), "" + entry.getMeasure().getPhase().getNumber());
-				for (int i = 0; i < 11; i++)
+				addCellNumber(row.getCell(11), entry.getMeasure().getPhase().getNumber() + "");
+				addCellNumber(row.getCell(12), entry.getMeasure().getResponsible());
+				for (int i = 0; i < 13; i++)
 					row.getCell(i).setColor(SUB_HEADER_COLOR);
 			}
 		}
@@ -527,20 +529,20 @@ public class ExportAnalysisReport {
 			}
 			case 16: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("4.5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
+				row.getCell(0).setText("5	" + getMessage("report.summary_stage.resource.planning", null, "Resource planning", locale));
 				// mrege columns
 				break;
 			}
 
 			case 17: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("4.5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
+				row.getCell(0).setText("5.1	" + getMessage("report.summary_stage.implementation.cost", null, "Implementation costs", locale));
 				// mrege columns
 				break;
 			}
 			case 18: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
+				row.getCell(cellnumber).setText("5.1.1	" + getMessage("report.summary_stage.workload.internal", null, "Internal workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalWorkload()));
@@ -549,7 +551,7 @@ public class ExportAnalysisReport {
 			}
 			case 19: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
+				row.getCell(cellnumber).setText("5.1.2	" + getMessage("report.summary_stage.workload.external", null, "External workload (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalWorkload()));
@@ -558,7 +560,7 @@ public class ExportAnalysisReport {
 			}
 			case 20: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
+				row.getCell(cellnumber).setText("5.1.3	" + getMessage("report.summary_stage.investment", null, "Investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getInvestment() * 0.001)));
@@ -568,7 +570,7 @@ public class ExportAnalysisReport {
 
 			case 21: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
+				row.getCell(cellnumber).setText("5.1.4	" + getMessage("report.summary_stage.total.implement.phase.cost", null, "Total implement cost of phase (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getImplementCostOfPhase() * 0.001), true);
@@ -578,13 +580,13 @@ public class ExportAnalysisReport {
 
 			case 22: {
 				MergeCell(row, 0, summary.size() + 1, null);
-				row.getCell(0).setText("4.5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
+				row.getCell(0).setText("5.2	" + getMessage("report.summary_stage.cost.recurrent", null, "Recurrent costs", locale));
 				break;
 			}
 
 			case 23: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
+				row.getCell(cellnumber).setText("5.2.1	" + getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
@@ -593,7 +595,7 @@ public class ExportAnalysisReport {
 			}
 			case 24: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
+				row.getCell(cellnumber).setText("5.2.2	" + getMessage("report.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalMaintenance()));
@@ -602,7 +604,7 @@ public class ExportAnalysisReport {
 			}
 			case 25: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
+				row.getCell(cellnumber).setText("5.2.3	" + getMessage("report.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRecurrentInvestment() * 0.001));
@@ -612,7 +614,7 @@ public class ExportAnalysisReport {
 
 			case 26: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("4.5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
+				row.getCell(cellnumber).setText("5.2.4	" + getMessage("report.summary_stage.total.cost.recurrent", null, "Total recurrent costs (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRecurrentCost() * 0.001), true);
@@ -621,7 +623,7 @@ public class ExportAnalysisReport {
 			}
 			case 27: {
 				int cellnumber = 0;
-				row.getCell(cellnumber).setText("5	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
+				row.getCell(cellnumber).setText("5.3	" + getMessage("report.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
 				numberFormat.setMaximumFractionDigits(1);
 				for (SummaryStage stage : summary)
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getTotalCostofStage() * 0.001), true);
@@ -1093,7 +1095,8 @@ public class ExportAnalysisReport {
 		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27002");
 		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale));
 		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale));
-		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale));
+		xssfSheet.getRow(0).getCell(5)
+				.setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale));
 		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
 		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
 		rowIndex = 1;
@@ -1362,7 +1365,7 @@ public class ExportAnalysisReport {
 				if (!row.getTableCells().isEmpty())
 					row.getCell(0).setColor(SUPER_HEAD_COLOR);
 
-				while (row.getTableCells().size() < 15)
+				while (row.getTableCells().size() < 16)
 					row.createCell().setColor(SUPER_HEAD_COLOR);
 
 				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
@@ -1377,10 +1380,10 @@ public class ExportAnalysisReport {
 				row.getCell(9).setText(getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
 				row.getCell(10).setText(getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
 				row.getCell(11).setText(getMessage("report.measure.cost", null, "CS(k€)", locale));
-				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
-				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
-				row.getCell(14).setText(getMessage("report.measure.responsible", null, "Resp.", locale));
-
+				row.getCell(12).setText(getMessage("report.measure.phase", null, "P", locale));
+				row.getCell(13).setText(getMessage("report.measure.responsible", null, "Resp.", locale));
+				row.getCell(14).setText(getMessage("report.measure.comment", null, "Comment", locale));
+				row.getCell(15).setText(getMessage("report.measure.to_do", null, "To Do", locale));
 				// set data
 				Collections.sort(analysisStandard.getMeasures(), comparator);
 
@@ -1393,10 +1396,10 @@ public class ExportAnalysisReport {
 					row.getCell(1).setText(description == null ? "" : description.getDomain());
 					if (!measure.getMeasureDescription().isComputable()) {
 						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
-						for (int i = 0; i < 15; i++)
-							row.getCell(i).setColor(color);
+						for (int i = 0; i < 16; i++)
+							row.getCell(i).setColor(i < 14 ? color : DEFAULT_CELL_COLOR);
 					} else {
-						while (row.getTableCells().size() < 15)
+						while (row.getTableCells().size() < 16)
 							row.createCell();
 						row.getCell(2).setText(getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
@@ -1408,11 +1411,10 @@ public class ExportAnalysisReport {
 						addCellNumber(row.getCell(9), kEuroFormat.format(measure.getExternalMaintenance()));
 						addCellNumber(row.getCell(10), numberFormat.format(measure.getRecurrentInvestment() * 0.001));
 						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
-						addCellParagraph(row.getCell(12), measure.getComment());
-						addCellParagraph(row.getCell(13), measure.getToDo());
-						addCellParagraph(row.getCell(14), measure.getResponsible());
+						addCellParagraph(row.getCell(12), measure.getPhase().getNumber() + "");
+						addCellParagraph(row.getCell(13), measure.getResponsible());
 						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
-							for (int i = 0; i < 15; i++)
+							for (int i = 0; i < 16; i++)
 								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
 						} else {
 							row.getCell(0).setColor(SUB_HEADER_COLOR);
@@ -1420,6 +1422,8 @@ public class ExportAnalysisReport {
 							row.getCell(11).setColor(measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
 						}
 					}
+					addCellParagraph(row.getCell(14), measure.getComment());
+					addCellParagraph(row.getCell(15), measure.getToDo());
 				}
 			}
 		}

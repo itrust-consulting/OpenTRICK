@@ -228,6 +228,9 @@ public class TrickLogManager {
 					printStream.close();
 			} catch (Exception e1) {
 			}
+			
+			if(e!=null && instance.logger.isDebugEnabled())
+				e.printStackTrace();
 		}
 	}
 
