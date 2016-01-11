@@ -411,7 +411,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();
-		assertEquals("Bad length", 486400/1024.0, response.getContentLength()/1024.0, 1E-2);
+		assertEquals("Bad length", 486400/1048576.0, response.getContentLength()/1048576.0, 1E-2);
 		assertEquals("Bad content-disposition", "attachment; filename=\"ENG_2015_07_13_07_31_14.sqlite\"", response.getHeaderValue("Content-Disposition"));
 		assertEquals("Bad contentType", "sqlite", response.getContentType());
 	}
@@ -468,7 +468,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");
 		MockHttpServletResponse response = result.getResponse();
-		assertEquals("Bad length", 1457983/1048576.0, response.getContentLength()/1048576.0,1E-2);
+		assertEquals("Bad length", 856229.229/1048576.0, response.getContentLength()/1048576.0,1E-2);
 		assertEquals("Bad content-disposition", "attachment; filename=\"STA_TS Validation Analysis_V0.2.docm\"", response.getHeaderValue("Content-Disposition"));
 		assertEquals("Bad contentType", "docm", response.getContentType());
 	}

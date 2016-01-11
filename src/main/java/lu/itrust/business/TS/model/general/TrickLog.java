@@ -44,7 +44,7 @@ public class TrickLog {
 	@Column(name = "dtCode")
 	private String code;
 
-	@Column(name = "dtMessage")
+	@Column(name = "dtMessage",length=2048)
 	private String message;
 
 	@Column(name = "dtAuthor")
