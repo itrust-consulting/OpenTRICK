@@ -739,6 +739,7 @@ public class Constant {
 	public static final String RI_TYPE = "type";
 	public static final String RI_COMMENT2 = "comment2";
 	public static final String RI_COMMENT = MEASURE_COMMENT;
+	public static final String RI_OWNER = "owner";
 	public static final String RI_EXPO = "expo";
 	public static final String RI_LEVEL = "level";
 	public static final String RI_ACRO = "acro";

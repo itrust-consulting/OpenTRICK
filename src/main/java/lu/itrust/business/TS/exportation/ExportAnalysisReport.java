@@ -1540,12 +1540,16 @@ public class ExportAnalysisReport {
 							row.addNewTableCell();
 							row.getCell(3).setText(getMessage(String.format("report.risk_information.title.%s", "expo"), null, "Expo.", locale));
 							row.addNewTableCell();
-							row.getCell(4).setText(getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
+							row.getCell(4).setText(getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
+							row.addNewTableCell();
+							row.getCell(5).setText(getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
 						} else {
 							row.addNewTableCell();
 							row.getCell(2).setText(getMessage(String.format("report.risk_information.title.%s", "expo"), null, "Expo.", locale));
 							row.addNewTableCell();
-							row.getCell(3).setText(getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
+							row.getCell(3).setText(getMessage(String.format("report.risk_information.title.%s", "owner"), null, "Owner", locale));
+							row.addNewTableCell();
+							row.getCell(4).setText(getMessage(String.format("report.risk_information.title.%s", "comment"), null, "Comment", locale));
 						}
 					}
 

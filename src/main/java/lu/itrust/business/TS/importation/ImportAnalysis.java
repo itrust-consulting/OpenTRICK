@@ -527,8 +527,8 @@ public class ImportAnalysis {
 
 		Collections.sort(versions, comparator);
 
-		if (!(versions.isEmpty() || daoUserAnalysisRight.isUserAuthorizedOrOwner(this.analysis.getIdentifier(), versions.get(versions.size() - 1), this.analysis.getOwner(),
-				AnalysisRight.ALL)))
+		if (!(versions.isEmpty()
+				|| daoUserAnalysisRight.isUserAuthorizedOrOwner(this.analysis.getIdentifier(), versions.get(versions.size() - 1), this.analysis.getOwner(), AnalysisRight.ALL)))
 			throw new TrickException("error.not_authorized", "Insufficient permissions!");
 
 		// initialise analysis version to the last history version
@@ -565,8 +565,8 @@ public class ImportAnalysis {
 				// create new analysis object
 				analysis = new Analysis();
 				int indexOfVersion = versions.indexOf(history.getVersion());
-				Analysis previousVersion = indexOfVersion > 0 ? daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), versions.get(indexOfVersion - 1),
-						this.analysis.getCustomer().getId()) : null;
+				Analysis previousVersion = indexOfVersion > 0
+						? daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), versions.get(indexOfVersion - 1), this.analysis.getCustomer().getId()) : null;
 
 				// set data for analyses
 				analysis.setIdentifier(this.analysis.getIdentifier());
@@ -616,13 +616,14 @@ public class ImportAnalysis {
 				this.analysis.setData(true);
 			} else {
 				// analysis had already been imported and has data
-				throw new TrickException("error.import.analysis.version.exist", String.format(
-						"Your file has already been imported, whether it is a new version( %s ), do not forget to increase version", analysis.getVersion()), analysis.getVersion());
+				throw new TrickException("error.import.analysis.version.exist",
+						String.format("Your file has already been imported, whether it is a new version( %s ), do not forget to increase version", analysis.getVersion()),
+						analysis.getVersion());
 			}
 		}
 
-		Analysis previousVersion = history == null ? null : daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(), this.analysis
-				.getCustomer().getId());
+		Analysis previousVersion = history == null ? null
+				: daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(), this.analysis.getCustomer().getId());
 		this.analysis.setBasedOnAnalysis(previousVersion);
 		if (previousVersion != null) {
 			for (UserAnalysisRight analysisRight : previousVersion.getUserRights())
@@ -634,7 +635,8 @@ public class ImportAnalysis {
 	/**
 	 * importRiskInformation: <br>
 	 * <ul>
-	 * <li>Imports all Risk Information: Threat Source, Risks, Vulnerabilities</li>
+	 * <li>Imports all Risk Information: Threat Source, Risks, Vulnerabilities
+	 * </li>
 	 * <li>Creates Objects for each Risk Information</li>
 	 * <li>Adds the Objects to the "riskInfo" field List</li>
 	 * </ul>
@@ -677,6 +679,7 @@ public class ImportAnalysis {
 			tempRI.setChapter(rs.getString(Constant.RI_LEVEL));
 			tempRI.setLabel(rs.getString(Constant.RI_NAME));
 			tempRI.setAcronym(rs.getString(Constant.RI_ACRO));
+			tempRI.setOwner(getStringOrEmpty(rs, Constant.RI_OWNER));
 			tempRI.setExposed(rs.getString(Constant.RI_EXPO));
 			tempRI.setComment(rs.getString(Constant.RI_COMMENT));
 			tempRI.setHiddenComment(rs.getString(Constant.RI_COMMENT2));
@@ -717,6 +720,7 @@ public class ImportAnalysis {
 			tempRI.setLabel(rs.getString(Constant.RI_NAME));
 			tempRI.setAcronym(Constant.EMPTY_STRING);
 			tempRI.setExposed(rs.getString(Constant.RI_EXPO));
+			tempRI.setOwner(getStringOrEmpty(rs, Constant.RI_OWNER));
 			tempRI.setComment(rs.getString(Constant.RI_COMMENT));
 			tempRI.setHiddenComment(rs.getString(Constant.RI_COMMENT2));
 
@@ -757,6 +761,7 @@ public class ImportAnalysis {
 			tempRI.setLabel(rs.getString(Constant.RI_NAME));
 			tempRI.setAcronym(Constant.EMPTY_STRING);
 			tempRI.setExposed(rs.getString(Constant.RI_EXPO));
+			tempRI.setOwner(getStringOrEmpty(rs, Constant.RI_OWNER));
 			tempRI.setComment(rs.getString(Constant.RI_COMMENT));
 			tempRI.setHiddenComment(rs.getString(Constant.RI_COMMENT2));
 
@@ -2062,8 +2067,7 @@ public class ImportAnalysis {
 
 			measure.setToDo(rs.getString(Constant.MEASURE_TODO));
 
-			if (columnExists(rs, Constant.MEASURE_RESPONSIBLE))
-				measure.setResponsible(rs.getString(Constant.MEASURE_RESPONSIBLE));
+			measure.setResponsible(getStringOrEmpty(rs,Constant.MEASURE_RESPONSIBLE));
 
 			measure.getMeasureDescription().setComputable(measurecomputable);
 
@@ -2414,8 +2418,8 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * add instance to list of item information
 				// ****************************************************************
-				this.analysis.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION,
-						rs.getString(rsMetaData.getColumnName(i))));
+				this.analysis
+						.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
 			}
 		}
 	}
@@ -2686,8 +2690,7 @@ public class ImportAnalysis {
 			maturityMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 			maturityMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS).replace("'", "''"));
 			maturityMeasure.setToDo(rs.getString(Constant.MEASURE_TODO).replace("'", "''"));
-			if (columnExists(rs, Constant.MEASURE_RESPONSIBLE))
-				maturityMeasure.setResponsible(rs.getString(Constant.MEASURE_RESPONSIBLE));
+			maturityMeasure.setResponsible(getStringOrEmpty(rs,Constant.MEASURE_RESPONSIBLE));
 			maturityMeasure.setReachedLevel(rs.getInt(Constant.MATURITY_REACHED));
 			maturityMeasure.setSML1Cost(rs.getInt(Constant.MATURITY_SML1));
 			maturityMeasure.setSML2Cost(rs.getInt(Constant.MATURITY_SML2));
@@ -2783,7 +2786,8 @@ public class ImportAnalysis {
 
 	/**
 	 * setAllCriteriaCategories: <br>
-	 * Adds all Scenario Categories to the given scenario or measure object. <br>
+	 * Adds all Scenario Categories to the given scenario or measure object.
+	 * <br>
 	 * Scenario categories are: <br>
 	 * <ul>
 	 * <li>Direct: d1, d2, d3, d4, d5, d6, d6.1, d6.2, d6.3, d6.4, d7</li>
@@ -2955,207 +2959,8 @@ public class ImportAnalysis {
 		return result;
 	}
 
-	/**
-	 * createAssetTypeDefaultValuesInDatabase: <br>
-	 * This method Inserts the Default Asset Type Values from the Sqlite File.
-	 * Values of -1 are changed into 101 (still illegal value).
-	 * 
-	 * @throws Exception
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated
-	private void createAssetTypeDefaultValues() throws Exception {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		ResultSet rs = null;
-		NormalMeasure measure = null;
-		String query = "";
-		AssetTypeValue assetTypeValue = null;
-		AssetType assetType = null;
-
-		// ****************************************************************
-		// * retrieve asset type values for measures
-		// ****************************************************************
-
-		currentSqliteTable = "spec_default_type_asset_measure";
-
-		// build query
-		query = "SELECT * FROM spec_default_type_asset_measure";
-
-		// execute query
-		rs = sqlite.query(query, null);
-
-		while (rs.next()) {
-
-			// ****************************************************************
-			// * retrieve standard and measure
-			// ****************************************************************
-			measure = null;
-			assetTypeValue = new AssetTypeValue();
-
-			int standardVersion = 2005;
-
-			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
-				standardVersion = rs.getInt(Constant.MEASURE_VERSION_NORM);
-			}
-
-			measure = (NormalMeasure) measures.get(rs.getString(Constant.MEASURE_ID_NORM) + "_" + standardVersion + "_" + rs.getString(Constant.MEASURE_REF_MEASURE));
-
-			// ****************************************************************
-			// * retrieve asset type label for the instance creation
-			// ****************************************************************
-
-			assetType = assetTypes.get(rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
-			assetTypeValue.setAssetType(assetType);
-			assetTypeValue.setValue(rs.getInt(Constant.VALUE_SPEC));
-
-			// add the asset type value to the measure
-			measure.addAnAssetTypeValue(assetTypeValue);
-		}
-		// close result
-		rs.close();
-	}
-
-	/**
-	 * updateAssetTypeValue: <br>
-	 * <ul>
-	 * <li>Update a given Asset Type Value for a given Measure in a given
-	 * AnalysisStandard</li>
-	 * </ul>
-	 * 
-	 * @param normalMeasure
-	 * @param assetTypeValue
-	 * @throws Exception
-	 */
-	@SuppressWarnings("unused")
-	@Deprecated
-	private void updateAssetTypeValue(NormalMeasure normalMeasure, AssetTypeValue assetTypeValue) throws Exception {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		String[] cuttedLevel = null;
-		boolean hasFound = false;
-		String previousLevel = "";
-		String level = normalMeasure.getMeasureDescription().getReference();
-		String standardLabel = normalMeasure.getAnalysisStandard().getStandard().getLabel();
-		int standardVersion = normalMeasure.getAnalysisStandard().getStandard().getVersion();
-		NormalMeasure previousStandardMeasure = null;
-		int value = -1;
-
-		// intitialise to original reference to split
-		// (to find upper level above
-		// ex. : A.5.1.1(level 3) -> A.5.1(level 2) -> A.5(level
-		// 1)
-		// ****************************************************************
-		// * parse previous level until you find a valid value
-		// ****************************************************************
-		// do this as long as you do not found the correct
-		// value
-		do {
-
-			// *************************************************************
-			// * create a list of the splitted reference parts
-			// * example: A.5.1 -> Vector (A,5,1)
-			// *************************************************************
-
-			// empty the vector of the splitted reference
-			// cuttedLevel.clear();
-
-			// split the reference into the vector
-			cuttedLevel = level.split("[.]");
-
-			// Add last part to the vector
-			// cuttedLevel.add(level);
-
-			// *************************************************************
-			// * build previous level
-			// * (always (current level - 1) -> vector size - 1)
-			// * example: A.5.1 --> A.5
-			// *************************************************************
-
-			// parse the vector to size -1 of the reference
-			for (int index = 0; index < cuttedLevel.length - 1; index++) {
-
-				// concatenate vector values to build previous reference
-				if (index == 0)
-					previousLevel = cuttedLevel[index];
-				else
-					previousLevel += "." + cuttedLevel[index];
-			}
-
-			// in case this previous level is also -1: check level above for the
-			// previous level
-			// (used when reentering loop)
-			level = previousLevel;
-
-			// *************************************************************
-			// * parse all measures of this standard to find measure with the
-			// reference built above
-			// * (level above)
-			// *************************************************************
-
-			// parse measures of the same standard
-
-			previousStandardMeasure = (NormalMeasure) measures.get(standardLabel + "_" + standardVersion + "_" + previousLevel);
-
-			// check if the reference met the reference that was built above ->
-			// YES
-			if (previousStandardMeasure != null) {
-
-				// *****************************************************
-				// * measure was found -> parse assettype values to find
-				// matching assettype and
-				// * update ifnot 101(-1)
-				// *****************************************************
-
-				// parse assettypevalues
-				for (AssetTypeValue assetTypeValue2 : previousStandardMeasure.getAssetTypeValues()) {
-
-					// check if the assettype is the same AND check if the value
-					// of it is not
-					// 101 (usable)
-
-					if (assetTypeValue2.getAssetType().equals(assetTypeValue.getAssetType())) {
-
-						if (assetTypeValue2.getValue() != -1 || previousStandardMeasure.getMeasureDescription().getLevel() == 1) {
-
-							// *********************************************
-							// * valid value was found update object and
-							// database
-							// *********************************************
-
-							// valid value found, set flag to leave loop
-							hasFound = true;
-
-							// set value when previous value was not -1 or if
-							// level is -1 and still
-							// -1
-							value = assetTypeValue2.getValue() == -1 ? 100 : assetTypeValue2.getValue();
-
-							// *********************************************
-							// * set new value for the object
-							// *********************************************
-							assetTypeValue.setValue(value);
-
-							// value found, exit this loop
-							break;
-						}
-					}
-				}
-
-				// initialise reference variable
-				previousLevel = "";
-			} else
-				throw new Exception("Error level " + normalMeasure.getMeasureDescription().getReference());
-		} while (!hasFound);
-	}
-
 	public void setAnalysis(Analysis analysis2) {
 		this.analysis = analysis2;
-
 	}
 
 	public void setDatabaseHandler(DatabaseHandler sqlite2) {
@@ -3187,6 +2992,48 @@ public class ImportAnalysis {
 		setDaoStandard(new DAOStandardHBM(session));
 		setDaoParameterType(new DAOParameterTypeHBM(session));
 		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
+	}
+	
+	public static String getString(ResultSet rs, String name) {
+		return getString(rs, name, null);
+	}
+	
+	public static String getStringOrEmpty(ResultSet rs, String name) {
+		return getString(rs, name, "");
+	}
+	
+	public static String getString(ResultSet rs, String name,String defaultValue) {
+		try {
+			return rs.getString(name);
+		} catch (SQLException e) {
+			return defaultValue;
+		}
+	}
+
+	
+
+	public static double getDouble(ResultSet rs, String name) {
+		try {
+			return rs.getDouble(name);
+		} catch (SQLException e) {
+			return 0;
+		}
+	}
+
+	public static int getInt(ResultSet rs, String name) {
+		try {
+			return rs.getInt(name);
+		} catch (SQLException e) {
+			return 0;
+		}
+	}
+
+	public static boolean getBoolean(ResultSet rs, String name) {
+		try {
+			return rs.getBoolean(name);
+		} catch (SQLException e) {
+			return false;
+		}
 	}
 
 	/**

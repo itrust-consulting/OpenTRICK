@@ -65,11 +65,28 @@ public class RiskInformation implements Cloneable {
 	/** The Risk Information Acronym */
 	@Column(name = "dtAcronym", nullable = false, length = 15)
 	private String acronym;
+	
+	@Column(name = "dtOwner", nullable = false)
+	private String owner;
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
 
+	/**
+	 * @return the owner
+	 */
+	public String getOwner() {
+		return owner;
+	}
+
+	/**
+	 * @param owner the owner to set
+	 */
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	
 	/**
 	 * getAcronym: <br>
 	 * Returns the "acronym" field value
@@ -287,5 +304,7 @@ public class RiskInformation implements Cloneable {
 	public void setEditable(boolean editable) {
 		this.editable = editable;
 	}
+
+	
 
 }

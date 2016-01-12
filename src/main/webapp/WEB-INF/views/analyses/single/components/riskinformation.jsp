@@ -48,6 +48,7 @@
 						</c:otherwise>
 					</c:choose>
 					<th width="5%" title='<fmt:message key="label.risk_information.exposed" />'><fmt:message key="label.risk_information.expo" /></th>
+					<th width="5%" title='<fmt:message key="label.title.risk_information.owner" />'><fmt:message key="label.risk_information.owner" /></th>
 					<th title='<fmt:message key="label.risk_information.comment" />'><fmt:message key="label.risk_information.comment" /></th>
 					<th title='<fmt:message key="label.risk_information.comment_hidden" />'><fmt:message key="label.risk_information.comment_hidden" /></th>
 				</tr>
@@ -113,6 +114,7 @@
 								</c:if>
 								<td class="success" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 										text="${risk_information.exposed}" /></td>
+								<td class="success" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string" ><spring:message text="${risk_information.owner}" /></td>
 								<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string">
 										<spring:message text="${risk_information.comment}" />
 									</pre></td>
