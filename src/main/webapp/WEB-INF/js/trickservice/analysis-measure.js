@@ -148,7 +148,8 @@ function updateScroll(element) {
 
 function updateMeasureUI() {
 	var $measure = $("div.list-group:visible>.list-group-item.active"), id = $measure.attr('data-trick-id');
-	updateScroll($measure);
+	if(!$measure.is(":focus"))
+		updateScroll($measure);
 	loadMeasureData(id);
 }
 

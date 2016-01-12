@@ -1564,16 +1564,22 @@ public class ExportAnalysisReport {
 							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
 						row.getCell(2).setText(riskinfo.getAcronym());
 						row.getCell(3).setText("" + riskinfo.getExposed());
-						addCellParagraph(row.getCell(4), riskinfo.getComment());
+						row.getCell(4).setText(getValueOrEmpty(riskinfo.getOwner()));
+						addCellParagraph(row.getCell(5), riskinfo.getComment());
 					} else {
 						for (int i = 0; i < 2; i++)
 							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
 						row.getCell(2).setText("" + riskinfo.getExposed());
-						addCellParagraph(row.getCell(3), riskinfo.getComment());
+						row.getCell(3).setText(getValueOrEmpty(riskinfo.getOwner()));
+						addCellParagraph(row.getCell(4), riskinfo.getComment());
 					}
 				}
 			}
 		}
+	}
+
+	private String getValueOrEmpty(String value) {
+		return value == null? "" : value;
 	}
 
 	/**
