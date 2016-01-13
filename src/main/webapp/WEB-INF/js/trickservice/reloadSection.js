@@ -1,38 +1,47 @@
 // load sections
 function loadPanelBodiesOfSection(section, refreshOnly) {
-
-	var controller = controllerBySection(section, subSection);
-	if (controller == null || controller == undefined)
-		return false;
-
-	$.ajax({
-		url : context + controller,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			if (subSection != null && subSection != undefined)
-				section += "_" + subSection;
-			var $newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html")), smartUpdate = new SectionSmartUpdate(section, $newSection);
-			if (smartUpdate.Update()) {
-				$("#" + section).replaceWith($newSection);
-				fixTableHeader($("table.table-fixed-header-analysis", $newSection));
-				console.log("here")
-			}
-			if (!refreshOnly) {
-				var callback = callbackBySection(section);
-				if ($.isFunction(callback))
-					callback();
-			}
+	if (refreshOnly == "")
+		refreshOnly = undefined
+	var $section = $("#" + section);
+	if ($section.is(":visible")) {
+		var controller = findControllerBySection(section);
+		if (controller == null || controller == undefined)
 			return false;
-		},
-		error : unknowError
-	});
+		$
+				.ajax({
+					url : context + controller,
+					type : "get",
+					async : true,
+					contentType : "application/json;charset=UTF-8",
+					success : function(response, textStatus, jqXHR) {
+						var $newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html")), smartUpdate = new SectionSmartUpdate(section,
+								$newSection);
+						if (smartUpdate.Update())
+							$section.replaceWith($newSection);
+						if (!refreshOnly) {
+							var callback = callbackBySection(section);
+							if ($.isFunction(callback))
+								callback();
+						}
+						return false;
+					},
+					error : unknowError
+				});
+	} else {
+		var $tab = $section.closest(".tab-tab-pane");
+		$tab.attr("data-update-required", true);
+		$tab.attr("data-trigger", 'loadPanelBodiesOfSection');
+		$tab.attr("data-parameters", [ section, refreshOnly ]);
+	}
 	return false;
 }
 
 // reload sections
 function reloadSection(section, subSection, refreshOnly) {
+	if (subSection == "")
+		subSection = undefined;
+	if (refreshOnly == "")
+		refreshOnly = undefined
 	if (Array.isArray(section)) {
 		for (var int = 0; int < section.length; int++) {
 			if (Array.isArray(section[int]))
@@ -40,50 +49,54 @@ function reloadSection(section, subSection, refreshOnly) {
 			else
 				reloadSection(section[int], subSection, refreshOnly);
 		}
-	} else {
-		var controller = controllerBySection(section, subSection);
-		if (controller == null || controller == undefined)
-			return false;
-
-		if (section == "section_standard") {
-			location.reload();
-			return false;
-		}
-
-		$.ajax({
-			url : context + controller,
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				if (subSection != null && subSection != undefined)
-					section += "_" + subSection;
-				$newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html"));
-				if ($newSection.length) {
-					var smartUpdate = new SectionSmartUpdate(section, $newSection);
-					if (smartUpdate.Update()) {
-						$("#" + section).replaceWith($newSection);
-						fixTableHeader($("table.table-fixed-header,table.table-fixed-header-analysis", $newSection));
-					}
-				} else {
-					var $tabsSection = $(doc).find(".tab-pane");
-					for (var i = 0; i < $tabsSection.length; i++)
-						$("#" + $($tabsSection[i]).attr("id")).html($($tabsSection[i]).html());
-				}
-				if (!refreshOnly) {
-					var callback = callbackBySection(section);
-					if ($.isFunction(callback))
-						callback();
-				}
+	} else if (section == "section_standard")
+		location.reload();
+	else {
+		var $section = $("#" + section);
+		if ($section.is(":visible")) {
+			var controller = findControllerBySection(section, subSection);
+			if (controller == null || controller == undefined)
 				return false;
-			},
-			error : unknowError
-		});
+			$.ajax({
+				url : context + controller,
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				success : function(response, textStatus, jqXHR) {
+					if (subSection != null && subSection != undefined)
+						section += "_" + subSection;
+					$newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html"));
+					if ($newSection.length) {
+						var smartUpdate = new SectionSmartUpdate(section, $newSection);
+						if (smartUpdate.Update()) {
+							$("#" + section).replaceWith($newSection);
+							fixTableHeader($("table.table-fixed-header,table.table-fixed-header-analysis", $newSection));
+						}
+					} else {
+						var $tabsSection = $(doc).find(".tab-pane");
+						for (var i = 0; i < $tabsSection.length; i++)
+							$("#" + $($tabsSection[i]).attr("id")).html($($tabsSection[i]).html());
+					}
+					if (!refreshOnly) {
+						var callback = callbackBySection(section);
+						if ($.isFunction(callback))
+							callback();
+					}
+					return false;
+				},
+				error : unknowError
+			});
+		} else {
+			var $tab = $section.closest(".tab-pane");
+			$tab.attr("data-update-required", true);
+			$tab.attr("data-trigger", 'reloadSection');
+			$tab.attr("data-parameters", [ section, subSection, refreshOnly ]);
+		}
 	}
 	return false;
 }
 
-function controllerBySection(section, subSection) {
+function findControllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Analysis/Asset/Section",
 		"section_parameter" : "/Analysis/Parameter/Section",

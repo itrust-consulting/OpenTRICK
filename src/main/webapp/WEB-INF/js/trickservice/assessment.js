@@ -42,7 +42,7 @@ function AssessmentViewer() {
 		$(this.modal).on("hidden.bs.modal", function() {
 			disableEditMode();
 			reloadSection("section_asset");// it will call reloadSection for
-			// scenario
+			//scenario
 		});
 
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {

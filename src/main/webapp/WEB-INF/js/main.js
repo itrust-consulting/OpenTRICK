@@ -188,15 +188,21 @@ $(function() {
 	}
 
 	if ($("ul.nav-analysis,ul.nav-tab").length) {
-		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-			var target = $(e.target).attr("href");
-			if ($(target).attr("data-update-required") == "true") {
-				window[$(target).attr("data-trigger")].apply();
-				$(target).attr("data-update-required", "false");
+		$('a[data-toggle="tab"]',"ul.nav-analysis,ul.nav-tab").on('shown.bs.tab', function(e) {
+			var $target = $($(e.target).attr("href"));
+			if ($target.attr("data-update-required") == "true") {
+				var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
+				if (parameters == undefined)
+					window[trigger].apply();
+				else
+					window[trigger].apply(null,parameters.split(","));
+				$target.attr("data-update-required", "false");
 			}
 		});
 	}
+	
 	$('[data-toggle="tooltip"]').tooltip();
+	
 	$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
 });
 

@@ -24,11 +24,11 @@ $(document).ready(function() {
 
 	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 		disableEditMode();
-		var target = $(e.target).attr("href");
+		/*var target = $(e.target).attr("href");
 		if ($(target).attr("data-update-required") == "true") {
 			window[$(target).attr("data-trigger")].apply();
 			$(target).attr("data-update-required", "false");
-		}
+		}*/
 		$("#tabOption").hide();
 	});
 	Highcharts.setOptions({

@@ -34,6 +34,8 @@
 				<li><a href="#tabAsset" data-toggle="tab"><fmt:message key="label.menu.analysis.asset" /></a></li>
 			</c:if>
 			<li><a href="#tabScenario" data-toggle="tab"><fmt:message key="label.menu.analysis.scenario" /></a></li>
+			<li hidden="hidden" data-menu='estimation' data-type='asset'><a href="#tabEstimationAsset" data-toggle="tab"><fmt:message key="label.action.assessment" /></a></li>
+			<li hidden="hidden" data-menu='estimation' data-type='scenario'><a href="#tabEstimationScenario" data-toggle="tab"><fmt:message key="label.action.assessment" /></a></li>
 		</ul></li>
 
 	<li class="dropdown-submenu" id="tabStandard"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.risk_treatment_compliance" /><span
