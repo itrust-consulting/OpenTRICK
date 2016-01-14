@@ -47,7 +47,8 @@ function downloadExportedSqLite(id) {
 }
 
 function swithTab(tabName) {
-	$(".nav-tab a[href='#" + tabName + "']").tab("show");
+	console.log(tabName);
+	$("a[href='#" + tabName + "']",".nav-tab,.nav-analysis").tab("show");
 	return false;
 }
 
@@ -92,7 +93,7 @@ $(function() {
 			$target.addClass("active");
 	});
 
-	$('ul.nav-tab .dropdown-submenu a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+	$('.dropdown-submenu a[data-toggle="tab"]', "ul.nav-tab,ul.nav-analysis").on('shown.bs.tab', function(e) {
 		var $parent = $(e.target).closest("li.dropdown-submenu");
 		if (!$parent.hasClass("active"))
 			$parent.addClass("active");

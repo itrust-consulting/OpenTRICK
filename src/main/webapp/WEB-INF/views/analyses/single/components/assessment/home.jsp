@@ -9,7 +9,7 @@
 <fmt:message key="label.menu.show.probability_scale"  var="probabilityScaleMenu"/>
 <fmt:message key="label.title.impact_scale"  var="impactScaleTitle"/>
 <fmt:message key="label.title.probability_scale"  var="probabilityScaleTitle"/>
-<div class="tab-pane trick-chart-tab" id="tabEstimationScenario" data-update-required="true" data-trigger="loadScenarioEstimation()">
+<div class="tab-pane trick-chart-tab" id="tabEstimationScenario" data-update-required="true" data-trigger="showEstimation">
 	<div class="page-header tab-content-header">
 		<div class="container">
 			<div class="row-fluid">
@@ -25,7 +25,7 @@
 	<jsp:include page="scenarios.jsp" />
 </div>
 <c:if test="${!analysis.isProfile() }">
-	<div class="tab-pane" id="tabEstimationAsset" data-update-required="true" data-trigger="loadAssetEstimation()">
+	<div class="tab-pane" id="tabEstimationAsset" data-update-required="true" data-trigger="showEstimation">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">

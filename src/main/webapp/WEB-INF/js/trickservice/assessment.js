@@ -1,20 +1,164 @@
+function displayParameters(name, title){
+	var view = new Modal();
+	view.Intialise();
+	$(view.modal_footer).remove();
+	view.setTitle(title);
+	view.setBody($(".panel-body", "#"+name).html());
+	$(view.modal_body).find("td").removeAttributes();
+	view.Show();
+	return false;
+}
+
+function EstimationHelper(name, id) {
+	this.name = name;
+	this.id = id;
+}
+
+EstimationHelper.prototype = {
+
+	tabMenu : function() {
+		return $("li[data-menu='estimation'][data-type='" + this.name + "']");
+	},
+	tabContent : function() {
+		return $("li[data-menu='estimation'][data-type='" + this.name + "']>a").attr("href");
+	},
+	hiddenTabMenu : function() {
+		return $("li[data-menu='estimation'][data-type!='" + this.name + "']");
+	},
+	hiddenTabContent : function() {
+		return $("li[data-menu='estimation'][data-type!='" + this.name + "']>a").attr("href");
+	},
+	section : function() {
+		return "#" + this.sectionName();
+	},
+	sectionName : function() {
+		if (this.name === "asset")
+			return "section_asset_assessment";
+		if (this.name === "scenario")
+			return "section_scenario_assessment";
+		throw "Unsupported name";
+	},
+
+	loadUrl : function() {
+		if (this.name === "asset")
+			return context + "/Analysis/Assessment/Asset/" + this.id;
+		if (this.name === "scenario")
+			return context + "/Analysis/Assessment/Scenario/" + this.id;
+		throw "Unsupported name";
+	},
+	error : function(message) {
+		$("#alert-dialog .modal-body").text(message);
+		return $("#alert-dialog").modal("show")
+	},
+
+	updateUrl : function() {
+		return this.loadUrl() + "/Update";
+	},
+	updateContent : function(content, first) {
+		var section = this.section(), $content = $(section, new DOMParser().parseFromString(content, "text/html"));
+		if ($content.length) {
+			if (first || this.SmartUpdate($content)) {
+				$(section).replaceWith($content);
+				$("h3[role='title']", this.tabContent()).text($content.attr("data-trick-name"));
+			}
+		} else
+			unknowError();
+		return false;
+	},
+	swithTo : function(id, name) {
+		if (id == this.id && name == this.name)
+			this.update();
+		else {
+			this.id = id;
+			this.name = name;
+			this.load();
+		}
+		return this;
+	},
+	show : function() {
+		$(this.tabMenu()).show()
+		$(this.hiddenTabMenu()).hide();
+		$("a[data-toggle='tab']", this.tabMenu()).tab("show");
+		return this;
+	},
+	load : function() {
+		var instance = this;
+		$.ajax({
+			url : instance.updateUrl(),
+			contentType : "application/json;charset=UTF-8",
+			async : false,
+			success : function(reponse) {
+				return instance.updateContent(reponse, true);
+			},
+			error : unknowError
+		});
+		return this;
+	},
+	update : function() {
+		var instance = this;
+		$.ajax({
+			url : instance.updateUrl(),
+			contentType : "application/json;charset=UTF-8",
+			async : false,
+			success : function(reponse) {
+				return instance.updateContent(reponse);
+			},
+			error : unknowError
+		});
+		return this;
+	},
+	SmartUpdate : function(assessments) {
+		var $section = $(this.section()), tableDestTrs = $("tbody tr", $section);
+		if (!(tableDestTrs.length && $("td", tableDestTrs[0]).length == $("tbody>tr:first>td", assessments).length))
+			return true;
+		for (var i = 0; i < tableDestTrs.length; i++) {
+			var trickId = $(tableDestTrs[i]).attr("data-trick-id");
+			if (trickId == undefined && $(tableDestTrs[i]).hasClass("panel-footer")) {
+				var $tr = $(assessments).find("tbody tr.panel-footer");
+				if ($tr.length)
+					$(tableDestTrs[i]).replaceWith($tr);
+				else
+					$(tableDestTrs[i]).appendTo($("tbody", $section));
+			} else {
+				var $tr = $(assessments).find("tbody tr[data-trick-id='" + trickId + "']");
+				if (!$tr.length)
+					$(tableDestTrs[i]).remove();
+				else
+					$(tableDestTrs[i]).replaceWith($tr);
+			}
+		}
+		var $tbody = $("tbody", $section);
+		var $footer = $("tbody tr.panel-footer", $section);
+		if (!$footer.length) {
+			$footer = $("tbody tr.panel-footer", assessments);
+			if ($footer.length)
+				$footer.appendTo($tbody);
+		}
+		var tableSourceTrs = $("tbody tr[data-trick-id]", assessments);
+		for (var i = 0; i < tableSourceTrs.length; i++) {
+			var trickId = $(tableSourceTrs[i]).attr("data-trick-id");
+			var $tr = $("tbody tr[data-trick-id='" + trickId + "']", $section);
+			if (!$tr.length) {
+				if ($footer.length)
+					$tr.before($footer);
+				else
+					$tr.appendTo($tbody);
+			}
+		}
+		return false;
+	}
+
+}
+
 AssessmentViewer.prototype = new Modal();
 
 function AssessmentViewer() {
 
-	AssessmentViewer.prototype.FixHeader = function(container) {
-		/*var instance = this;
-		setTimeout(function(){
-			$("table", instance.modal_body).stickyTableHeaders({
-				cssTopOffset : container,
-				fixedOffset : application.fixedOffset
-			});
-		},500);*/
-	}
-	
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).css({"width": "98.0%"});
+		$(this.modal_dialog).css({
+			"width" : "98.0%"
+		});
 		var lang = $("#nav-container").attr("data-trick-language");
 
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
@@ -42,7 +186,7 @@ function AssessmentViewer() {
 		$(this.modal).on("hidden.bs.modal", function() {
 			disableEditMode();
 			reloadSection("section_asset");// it will call reloadSection for
-			//scenario
+			// scenario
 		});
 
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
@@ -257,11 +401,10 @@ function AssessmentScenarioViewer(scenarioId) {
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
-				var assessments = $("#section_scenario_assessment",new DOMParser().parseFromString(reponse, "text/html"));
-				if (assessments.length) {
-					$(instance.modal_body).html($(assessments).html());
-					instance.setTitle($(assessments).attr("data-trick-name"));
-					instance.FixHeader("#section_scenario_assessment .modal-body");
+				var $assessments = $("#section_scenario_assessment", new DOMParser().parseFromString(reponse, "text/html"));
+				if ($assessments.length) {
+					$(instance.modal_body).html($assessments.html());
+					instance.setTitle($assessments.attr("data-trick-name"));
 					if (callback != null && $.isFunction(callback))
 						return callback();
 				} else
@@ -279,14 +422,11 @@ function AssessmentScenarioViewer(scenarioId) {
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_scenario_assessment']");
-				if (assessments.length) {
-					if (instance.SmartUpdate.apply(instance, assessments)) {
+				var $assessments = $("#section_scenario_assessment", new DOMParser().parseFromString(reponse, "text/html"));
+				if ($assessments.length) {
+					if (instance.SmartUpdate.apply(instance, $assessments)) {
 						instance.setBody(assessments);
-						instance.setTitle($(assessments).attr("data-trick-name"));
-						instance.FixHeader("#section_scenario_assessment .modal-body");
+						instance.setTitle($assessments.attr("data-trick-name"));
 					}
 				} else
 					unknowError();
@@ -297,22 +437,27 @@ function AssessmentScenarioViewer(scenarioId) {
 	};
 }
 
-function displayAssessmentByScenario() {
-	var selectedItem = findSelectItemIdBySection("section_scenario");
-	if (selectedItem.length != 1 || !isSelected("scenario"))
-		return false;
-	application.modal["AssessmentViewer"] = new AssessmentScenarioViewer(selectedItem[0]);
-	application.modal["AssessmentViewer"].Show();
+function showEstimation() {
+	var name = $("#section_asset").is(":visible") ? "asset" : $("#section_scenario").is(":visible") ? "scenario" : undefined;
+	if (name) {
+		var selectedItem = findSelectItemIdBySection("section_" + name);
+		if (selectedItem.length == 1 && isSelected(name)) {
+			var helper = application["estimation-helper"];
+			if (helper === undefined)
+				application["estimation-helper"] = helper = new EstimationHelper();
+			helper.swithTo(selectedItem[0], name).show();
+		}
+	} else
+		$("li[data-menu='estimation'][data-type]").hide();
 	return false;
 }
 
+function displayAssessmentByScenario() {
+	return showEstimation();
+}
+
 function displayAssessmentByAsset() {
-	var selectedItem = findSelectItemIdBySection("section_asset");
-	if (selectedItem.length != 1 || !isSelected("asset"))
-		return false;
-	application.modal["AssessmentViewer"] = new AssessmentAssetViewer(selectedItem[0]);
-	application.modal["AssessmentViewer"].Show();
-	return false;
+	return showEstimation();
 }
 
 function computeAssessment(silent) {

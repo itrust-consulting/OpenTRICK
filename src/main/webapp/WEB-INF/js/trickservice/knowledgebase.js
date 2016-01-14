@@ -123,7 +123,7 @@ function saveAnalysis(form, reloadaction) {
 
 function deleteAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_profile_analysis"));
+		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];

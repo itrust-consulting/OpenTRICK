@@ -408,6 +408,7 @@ function ExtendedFieldEditor(element) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
+							that.UpdateUI();
 							reloadSection("section_parameter");
 							if (that.fieldName == "value" || that.fieldName == "acronym")
 								updateAssessmentAle(true);
@@ -423,7 +424,7 @@ function ExtendedFieldEditor(element) {
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
 						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-						$("#alert-dialog").modal("toggle");
+						$("#alert-dialog").modal("show");
 					},
 				});
 			} else {
@@ -505,17 +506,21 @@ function AssessmentFieldEditor(element) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
-							if (application.modal["AssessmentViewer"] != undefined)
-								application.modal["AssessmentViewer"].Update();
+							that.UpdateUI();
+							if (application["estimation-helper"] != undefined){
+								application["estimation-helper"].update();
+								reloadSection(["section_asset", "section_scenario"],undefined, true);
+								chartALE();
+							}
 						} else {
 							that.Rollback();
-							application.modal["AssessmentViewer"].ShowError(response["error"]);
+							application["estimation-helper"].error(response["error"]);
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						application.modal["AssessmentViewer"].ShowError(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						application["estimation-helper"].error(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					}
 				});
 
@@ -746,8 +751,7 @@ function enableEditMode() {
 		$("li[role='leaveEditMode']").removeClass("disabled");
 		$("li[role='enterEditMode']").addClass("disabled");
 		application.fieldEditors = [];
-		var $data = application.modal["AssessmentViewer"] ? $(application.modal["AssessmentViewer"].modal_body).find("[data-trick-content='text']")
-				: $(".tab-pane.active [data-trick-content='text']");
+		var $data = $(".tab-pane.active [data-trick-content='text']");
 		$data.each(function() {
 			var that = this;
 			var fieldEditor = editField(that);
