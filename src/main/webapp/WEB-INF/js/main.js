@@ -48,7 +48,7 @@ function downloadExportedSqLite(id) {
 
 function swithTab(tabName) {
 	console.log(tabName);
-	$("a[href='#" + tabName + "']",".nav-tab,.nav-analysis").tab("show");
+	$("a[href='#" + tabName + "']", ".nav-tab,.nav-analysis").tab("show");
 	return false;
 }
 
@@ -189,21 +189,28 @@ $(function() {
 	}
 
 	if ($("ul.nav-analysis,ul.nav-tab").length) {
-		$('a[data-toggle="tab"]',"ul.nav-analysis,ul.nav-tab").on('shown.bs.tab', function(e) {
-			var $target = $($(e.target).attr("href"));
+		$('a[data-toggle="tab"]', "ul.nav-analysis,ul.nav-tab").on('shown.bs.tab', function(e) {
+			var $target = $($(e.target).attr("href")), callback = $target.attr("data-callback");
+			if (callback != undefined) {
+				var data = $target.attr("data-callback-data");
+				if (data == undefined)
+					window[callback].apply();
+				else
+					window[callback].apply(null, data.split(","));
+			}
 			if ($target.attr("data-update-required") == "true") {
 				var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
 				if (parameters == undefined)
 					window[trigger].apply();
 				else
-					window[trigger].apply(null,parameters.split(","));
+					window[trigger].apply(null, parameters.split(","));
 				$target.attr("data-update-required", "false");
 			}
 		});
 	}
-	
+
 	$('[data-toggle="tooltip"]').tooltip();
-	
+
 	$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
 });
 

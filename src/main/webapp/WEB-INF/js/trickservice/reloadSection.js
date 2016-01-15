@@ -27,12 +27,8 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 					},
 					error : unknowError
 				});
-	} else {
-		var $tab = $section.closest(".tab-tab-pane");
-		$tab.attr("data-update-required", true);
-		$tab.attr("data-trigger", 'loadPanelBodiesOfSection');
-		$tab.attr("data-parameters", [ section, refreshOnly ]);
-	}
+	} else 
+		$section.closest(".tab-tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
 	return false;
 }
 
@@ -245,7 +241,6 @@ SectionSmartUpdate.prototype = {
 					$($td[indexColnum]).html(i + 1);
 				}
 			}
-			console.log("success");
 			return false;
 		} catch (e) {
 			console.log("reload error: " + e);

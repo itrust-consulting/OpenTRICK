@@ -6,35 +6,35 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="section" id="section_scenario_assessment" data-trick-name="<fmt:message key="label.assessment.for.scenario"><fmt:param value="${scenario.name}" /></fmt:message>">
+<div class="section" id="section_scenario_assessment" data-type='scenario' data-trick-id='${scenario.id}' data-trick-name="<fmt:message key="label.assessment.for.scenario"><fmt:param value="${scenario.name}" /></fmt:message>">
 	<table class="table table-hover table-condensed">
 		<thead>
 			<tr>
-				<th style="width: 25%" title='<fmt:message key="label.assessment.asset" />' ><fmt:message key="label.assessment.asset" /></th>
-				<th style="width: 5%" title='<fmt:message key="label.assessment.asset.value" />' ><fmt:message key="label.assessment.asset.value" /></th>
+				<th style="width: 10%" title='<fmt:message key="label.assessment.asset" />' ><fmt:message key="label.assessment.asset" /></th>
+				<th style="width: 2%" title='<fmt:message key="label.assessment.asset.value" />' ><fmt:message key="label.assessment.asset.value" /></th>
 				<c:if test="${show_cssf}">
-					<th style="width: 5%" title='<fmt:message key="label.title.assessment.impact_rep" />' ><fmt:message key="label.assessment.impact_rep" /></th>
-					<th style="width: 5%" title='<fmt:message key="label.title.assessment.impact_op" />' ><fmt:message key="label.assessment.impact_op" /></th>
-					<th style="width: 5%" title='<fmt:message key="label.title.assessment.impact_leg" />' ><fmt:message key="label.assessment.impact_leg" /></th>
-					<th style="width: 5%" title='<fmt:message key="label.title.assessment.impact_fin" />' ><fmt:message key="label.assessment.impact_fin" /></th>
+					<th style="width: 2%" title='<fmt:message key="label.title.assessment.impact_rep" />' ><fmt:message key="label.assessment.impact_rep" /></th>
+					<th style="width: 2%" title='<fmt:message key="label.title.assessment.impact_op" />' ><fmt:message key="label.assessment.impact_op" /></th>
+					<th style="width: 2%" title='<fmt:message key="label.title.assessment.impact_leg" />' ><fmt:message key="label.assessment.impact_leg" /></th>
+					<th style="width: 2%" title='<fmt:message key="label.title.assessment.impact_fin" />' ><fmt:message key="label.assessment.impact_fin" /></th>
 				</c:if>
 				<c:if test="${!show_cssf}">
-					<th style="width: 5%" title='<fmt:message key="label.title.impact" />' ><fmt:message key="label.assessment.impact" /></th>
+					<th style="width: 2%" title='<fmt:message key="label.title.impact" />' ><fmt:message key="label.assessment.impact" /></th>
 				</c:if>
-				<th style="width: 5%" title='<fmt:message key="label.title.likelihood" />' ><fmt:message key="label.assessment.likelihood" /></th>
+				<th style="width: 2%" title='<fmt:message key="label.title.likelihood" />' ><fmt:message key="label.assessment.likelihood" /></th>
 				<c:choose>
 					<c:when test="${show_uncertainty}">
-						<th style="width: 5%" title='<fmt:message key="label.title.uncertainty" />' ><fmt:message key="label.assessment.uncertainty" /></th>
-						<th style="width: 5%" title='<fmt:message key="label.title.alep" />' ><fmt:message key="label.assessment.alep" /></th>
-						<th style="width: 5%" title='<fmt:message key="label.title.ale" />' ><fmt:message key="label.assessment.ale" /></th>
-						<th style="width: 5%" title='<fmt:message key="label.title.aleo" />' ><fmt:message key="label.assessment.aleo" /></th>
+						<th style="width: 2%" title='<fmt:message key="label.title.uncertainty" />' ><fmt:message key="label.assessment.uncertainty" /></th>
+						<th style="width: 2%" title='<fmt:message key="label.title.alep" />' ><fmt:message key="label.assessment.alep" /></th>
+						<th style="width: 2%" title='<fmt:message key="label.title.ale" />' ><fmt:message key="label.assessment.ale" /></th>
+						<th style="width: 2%" title='<fmt:message key="label.title.aleo" />' ><fmt:message key="label.assessment.aleo" /></th>
 					</c:when>
 					<c:otherwise>
-						<th style="width: 5%" title='<fmt:message key="label.title.ale" />' ><fmt:message key="label.assessment.ale" /></th>
+						<th style="width: 2%" title='<fmt:message key="label.title.ale" />' ><fmt:message key="label.assessment.ale" /></th>
 					</c:otherwise>
 				</c:choose>
-				<th title='<fmt:message key="label.assessment.comment" />' ><fmt:message key="label.assessment.comment" /></th>
-				<th title='<fmt:message key="label.assessment.hidden_comment" />' ><fmt:message key="label.assessment.hidden_comment" /></th>
+				<th style="width: 30%" title='<fmt:message key="label.assessment.comment" />' ><fmt:message key="label.assessment.comment" /></th>
+				<th style="width: 30%" title='<fmt:message key="label.assessment.hidden_comment" />' ><fmt:message key="label.assessment.hidden_comment" /></th>
 			</tr>
 		</thead>
 		<tbody>

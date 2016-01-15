@@ -9,6 +9,12 @@
 <fmt:message key="label.menu.show.probability_scale"  var="probabilityScaleMenu"/>
 <fmt:message key="label.title.impact_scale"  var="impactScaleTitle"/>
 <fmt:message key="label.title.probability_scale"  var="probabilityScaleTitle"/>
+<c:set var="impactScaleTitle">
+	${ fn:replace(impactScaleTitle,"'", "\\'" )}
+</c:set>
+<c:set var="probabilityScaleTitle">
+	${ fn:replace(probabilityScaleTitle,"'", "\\'" )}
+</c:set>
 <div class="tab-pane trick-chart-tab" id="tabEstimationScenario" data-update-required="true" data-trigger="showEstimation">
 	<div class="page-header tab-content-header">
 		<div class="container">
@@ -19,8 +25,8 @@
 		</div>
 	</div>
 	<ul class="nav nav-pills bordered-bottom" id="menu_scenario_assessment">
-		<li><a href="#" onclick="return displayParameters('impact_scale', '${impactScaleTitle}')" >${impactScaleMenu}</a></li>
-		<li><a href="#" onclick="return displayParameters('probability_scale', '${probabilityScaleTitle}')" >${probabilityScaleMenu}</a></li>
+		<li><a href="#" onclick="return displayParameters('#Scale_Impact', '${impactScaleTitle}')" >${impactScaleMenu}</a></li>
+		<li><a href="#" onclick="return displayParameters('#Scale_Probability', '${probabilityScaleTitle}')" >${probabilityScaleMenu}</a></li>
 	</ul>
 	<jsp:include page="scenarios.jsp" />
 </div>
@@ -35,8 +41,8 @@
 			</div>
 		</div>
 		<ul class="nav nav-pills bordered-bottom" id="menu_asset_assessment">
-			<li><a href="#" onclick="return displayParameters('impact_scale', '${impactScaleTitle}')" >${impactScaleMenu}</a></li>
-			<li><a href="#" onclick="return displayParameters('probability_scale', '${probabilityScaleTitle}')" >${probabilityScaleMenu}</a></li>
+			<li><a href="#" onclick="return displayParameters('#Scale_Impact', '${impactScaleTitle}')" >${impactScaleMenu}</a></li>
+			<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")' >${probabilityScaleMenu}</a></li>
 		</ul>
 		<jsp:include page="assets.jsp" />
 	</div>

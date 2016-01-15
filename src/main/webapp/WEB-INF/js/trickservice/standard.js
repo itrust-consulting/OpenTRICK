@@ -15,7 +15,6 @@ function saveStandard(form) {
 			for ( var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
-
 				$(errorElement).text(response[error]);
 				switch (error) {
 				case "label":

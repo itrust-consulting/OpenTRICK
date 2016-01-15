@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="tab-pane"  id="tabAsset">
+<div class="tab-pane"  id="tabAsset" data-callback="showTabEstimation" data-callback-data='asset'>
 	<div class="section" id="section_asset" >
 		<div class="page-header tab-content-header">
 			<div class="container">
@@ -28,7 +28,7 @@
 				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span
 						class="glyphicon glyphicon-minus-sign "></span> <fmt:message key="label.action.unselect.asset" /> </a></li>
 			</c:if>
-			<li  class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
+			<li  class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return showEstimation('asset')"><span
 					class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.show.asset.assessment" /> </a></li>
 			<c:if test="${isEditable}">
 				<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
@@ -73,7 +73,7 @@
 						<c:set var="ale" value="${assetALE[asset.id]}" />
 						<c:set var="totalAssetValue" value="${totalAssetValue + asset.value}" />
 						<c:set var="selectClass" value="${asset.selected?'selected':'unselected'}" />
-						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
+						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset', null, 'showTabEstimation(\'asset\')');"></td>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${asset.name}" /></td>
 						<td><spring:message text="${asset.assetType.type}" /></td>

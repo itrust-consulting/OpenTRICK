@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="tab-pane" id="tabScenario">
+<div class="tab-pane" id="tabScenario" data-callback="showTabEstimation" data-callback-data='scenario'>
 	<div class="section" id="section_scenario">
 		<div class="page-header tab-content-header">
 			<div class="container">
@@ -29,7 +29,7 @@
 						key="label.action.unselect" /> </a></li>
 			</c:if>
 			<c:if test="${!analysis.isProfile() }">
-				<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return displayAssessmentByScenario()"><span
+				<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return showEstimation('scenario')"><span
 						class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.assessment" /> </a></li>
 			</c:if>
 			<c:if test="${isEditable}">
@@ -71,7 +71,7 @@
 					<tr data-trick-id="${scenario.id}" data-trick-selected="${scenario.selected}" ${scenario.selected? 'class="success"' : ''} data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
 						<c:set var="ale" value="${scenarioALE[scenario.id]}" />
 						<c:set var="selectClass" value="${scenario.selected?'selected':'unselected'}" />
-						<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
+						<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario', null,'showTabEstimation(\'scenario\')');"></td>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${scenario.name}" /></td>
 						<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
