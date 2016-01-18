@@ -50,7 +50,21 @@ EstimationHelper.prototype = {
 		$("#alert-dialog .modal-body").text(message);
 		return $("#alert-dialog").modal("show")
 	},
+	updateNav : function() {
+		var $current = $(this.current()), $section = $(this.tabContent()), $next = $current.next("tr[data-trick-selected='true']"), $prev = $current
+				.prev("tr[data-trick-selected='true']"), $nextNav = $("ul.nav>li[data-role='nav-next']", $section), $prevNav = $("ul.nav>li[data-role='nav-prev']", $section);
+		if ($next.length)
+			$nextNav.removeClass("disabled");
+		else
+			$nextNav.addClass("disabled");
 
+		if ($prev.length)
+			$prevNav.removeClass("disabled");
+		else
+			$prevNav.addClass("disabled");
+		return this;
+
+	},
 	updateUrl : function() {
 		return this.loadUrl() + "/Update";
 	},
@@ -58,13 +72,44 @@ EstimationHelper.prototype = {
 		var section = this.section(), $section = $(section), $content = $(section, new DOMParser().parseFromString(content, "text/html"));
 		if ($content.length) {
 			if ($section.attr("data-trick-id") != this.id || this.SmartUpdate($content)) {
-				$section.replaceWith($content);
+				var $tbody = $section.find("tbody");
+				if ($tbody.length)
+					$tbody.replaceWith($content.find("tbody"));
+				else {
+					$section.replaceWith($content);
+					fixTableHeader($("table", $content));
+				}
 				$("h3[role='title']", this.tabContent()).text($content.attr("data-trick-name"));
-				fixTableHeader($("table", $content));
 			}
 		} else
 			unknowError();
 		return false;
+	},
+	current : function() {
+		return $("tbody input:checked", "#section_" + this.name).closest("tr[data-trick-selected='true']");
+	},
+	hasNext : function() {
+		return $(this.current()).next("tr[data-trick-selected='true']").length > 0;
+	},
+	hasPrev : function() {
+		return $(this.current()).prev("tr[data-trick-selected='true']").length > 0;
+	},
+	next : function() {
+		var $current = $(this.current()), $next = $current.next("tr[data-trick-selected='true']");
+		if ($next.length) {
+			$current.find("input:checked").prop("checked", false).trigger("change");
+			$next.find("input[type='checkbox']").prop("checked", true).trigger("change");
+		}
+		return this;
+
+	},
+	prev : function() {
+		var $current = $(this.current()), $prev = $current.prev("tr[data-trick-selected='true']");
+		if ($prev.length) {
+			$current.find("input:checked").prop("checked", false).trigger("change");
+			$prev.find("input[type='checkbox']").prop("checked", true).trigger("change");
+		}
+		return this;
 	},
 	swithTo : function(id, name) {
 		if (id == this.id && name == this.name)
@@ -160,7 +205,20 @@ EstimationHelper.prototype = {
 		}
 		return false;
 	}
+}
 
+function nextSelected() {
+	var helper = application["estimation-helper"];
+	if (helper)
+		helper.next();
+	return false;
+}
+
+function prevSelected() {
+	var helper = application["estimation-helper"];
+	if (helper)
+		helper.prev();
+	return false;
 }
 
 function showEstimation(name) {
@@ -180,13 +238,18 @@ function showEstimation(name) {
 
 function showTabEstimation(name) {
 	var selectedItem = findSelectItemIdBySection("section_" + name);
-	if (selectedItem.length == 1) {
+	if (selectedItem.length == 1 && isSelected(name)) {
 		var helper = application["estimation-helper"];
 		if (helper === undefined)
 			application["estimation-helper"] = helper = new EstimationHelper();
-		helper.select(selectedItem[0], name).display();
+		helper.select(selectedItem[0], name).updateNav();
+		if ($(helper.tabContent()).is(":visible"))
+			$(helper.update().tabMenu()).show();
+		else
+			helper.display();
 	} else
 		$("li[data-menu='estimation'][data-type]").hide();
+	return false;
 }
 
 function computeAssessment(silent) {

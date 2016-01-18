@@ -46,8 +46,7 @@ function downloadExportedSqLite(id) {
 	return false;
 }
 
-function swithTab(tabName) {
-	console.log(tabName);
+function switchTab(tabName) {
 	$("a[href='#" + tabName + "']", ".nav-tab,.nav-analysis").tab("show");
 	return false;
 }

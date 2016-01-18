@@ -9,7 +9,7 @@
 	<div class="section" id="section_kb_standard">
 		<ul class="nav nav-pills bordered-bottom" id="menu_standard">
 			<li><a href="#" onclick="return newStandard();"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.menu.add.norm" text="Add" /> </a></li>
-			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return swithTab('tab_measure')"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message
+			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return switchTab('tab_measure')"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message
 						code="label.action.show_measures" text="Show measures" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportSingleStandard();"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<spring:message
 						code="label.menu.export.norm" text="Export" /> </a></li>

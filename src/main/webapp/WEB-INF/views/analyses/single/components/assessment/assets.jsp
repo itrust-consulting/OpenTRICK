@@ -7,7 +7,7 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_asset_assessment" data-type='asset' data-trick-id='${asset.id}' data-trick-name="<fmt:message key="label.assessment.for.asset"  ><fmt:param value="${asset.name}" /></fmt:message>">
-	<table class="table table-hover table-condensed">
+	<table class="table table-hover table-condensed table-fixed-header-analysis">
 		<thead>
 			<tr>
 				<th style="width: 10%" title='<fmt:message key="label.assessment.scenario" />' ><fmt:message key="label.assessment.scenario" /></th>
