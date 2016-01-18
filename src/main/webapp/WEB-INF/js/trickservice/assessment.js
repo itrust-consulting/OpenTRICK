@@ -12,6 +12,7 @@ function displayParameters(name, title) {
 function EstimationHelper(name, id) {
 	this.name = name;
 	this.id = id;
+	this.navSelector = "tr[data-trick-selected='true']:first";
 }
 
 EstimationHelper.prototype = {
@@ -51,8 +52,8 @@ EstimationHelper.prototype = {
 		return $("#alert-dialog").modal("show")
 	},
 	updateNav : function() {
-		var $current = $(this.current()), $section = $(this.tabContent()), $next = $current.next("tr[data-trick-selected='true']"), $prev = $current
-				.prev("tr[data-trick-selected='true']"), $nextNav = $("ul.nav>li[data-role='nav-next']", $section), $prevNav = $("ul.nav>li[data-role='nav-prev']", $section);
+		var $current = $(this.current()), $section = $(this.tabContent()), $next = $current.nextAll(this.navSelector), $prev = $current.prevAll(this.navSelector), $nextNav = $(
+				"ul.nav>li[data-role='nav-next']", $section), $prevNav = $("ul.nav>li[data-role='nav-prev']", $section);
 		if ($next.length)
 			$nextNav.removeClass("disabled");
 		else
@@ -89,13 +90,13 @@ EstimationHelper.prototype = {
 		return $("tbody input:checked", "#section_" + this.name).closest("tr[data-trick-selected='true']");
 	},
 	hasNext : function() {
-		return $(this.current()).next("tr[data-trick-selected='true']").length > 0;
+		return $(this.current()).nextAll(this.navSelector).length > 0;
 	},
 	hasPrev : function() {
-		return $(this.current()).prev("tr[data-trick-selected='true']").length > 0;
+		return $(this.current()).prevAll(this.navSelector).length > 0;
 	},
 	next : function() {
-		var $current = $(this.current()), $next = $current.next("tr[data-trick-selected='true']");
+		var $current = $(this.current()), $next = $current.nextAll(this.navSelector);
 		if ($next.length) {
 			$current.find("input:checked").prop("checked", false).trigger("change");
 			$next.find("input[type='checkbox']").prop("checked", true).trigger("change");
@@ -104,7 +105,7 @@ EstimationHelper.prototype = {
 
 	},
 	prev : function() {
-		var $current = $(this.current()), $prev = $current.prev("tr[data-trick-selected='true']");
+		var $current = $(this.current()), $prev = $current.prevAll(this.navSelector);
 		if ($prev.length) {
 			$current.find("input:checked").prop("checked", false).trigger("change");
 			$prev.find("input[type='checkbox']").prop("checked", true).trigger("change");

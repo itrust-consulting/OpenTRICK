@@ -225,6 +225,7 @@
 												newLeft = offset.left - scrollLeft + base.options.leftOffset;
 												base.leftOffset = newLeft;
 												base.topOffset = newTopOffset;
+												$this.trigger('updateStickiness.' + name);
 												if (!base.isSticky) {
 													base.isSticky = true;
 													// make sure the width is
@@ -233,8 +234,6 @@
 													// while in static mode
 													$this.trigger('enabledStickiness.' + name);
 												}
-												$this.trigger('updateStickiness.' + name);
-
 											} else if (base.isSticky)
 												$this.trigger('disabledStickiness.' + name);
 										});
