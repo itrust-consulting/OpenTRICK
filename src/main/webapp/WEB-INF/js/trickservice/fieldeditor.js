@@ -224,8 +224,17 @@ function FieldEditor(element, validator) {
 			$element.css("padding", "3px");
 
 		this.backupData.parentClass = $fieldEditor.parent().attr("class")
-		if (!application.editMode || $(this.element).attr("data-trick-content") != "text")
+		if (!application.editMode || $(this.element).attr("data-trick-content") != "text") {
 			$fieldEditor.focus();
+			$fieldEditor.keypress(function(e) {
+				if (e.keyCode == 9) {
+					var $td = $element[0].tagName == "TD" ? $element : $element.closest("td[onclick*='editField']"), $next = $td.nextAll("[onclick*='editField']:first");
+					if (!$next.length)
+						$next = $td.parent().nextAll("tr[data-trick-id]:first").find("[onclick*='editField']:first");
+					$next.click();
+				}
+			});
+		}
 
 		return false;
 	};
@@ -507,9 +516,9 @@ function AssessmentFieldEditor(element) {
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
-							if (application["estimation-helper"] != undefined){
+							if (application["estimation-helper"] != undefined) {
 								application["estimation-helper"].update();
-								reloadSection(["section_asset", "section_scenario"],undefined, true);
+								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
 								chartALE();
 							}
 						} else {
