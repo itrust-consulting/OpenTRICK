@@ -24,11 +24,12 @@ $(document).ready(function() {
 
 	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 		disableEditMode();
-		/*var target = $(e.target).attr("href");
-		if ($(target).attr("data-update-required") == "true") {
-			window[$(target).attr("data-trigger")].apply();
-			$(target).attr("data-update-required", "false");
-		}*/
+		/*
+		 * var target = $(e.target).attr("href"); if
+		 * ($(target).attr("data-update-required") == "true") {
+		 * window[$(target).attr("data-trigger")].apply();
+		 * $(target).attr("data-update-required", "false"); }
+		 */
 		$("#tabOption").hide();
 	});
 	Highcharts.setOptions({
@@ -83,25 +84,29 @@ function updateSettings(element, entryKey) {
 
 // reload measures
 function reloadMeasureRow(idMeasure, standard) {
-	$.ajax({
-		url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var $newRow = $("tr", $("<div/>").html(response)), $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']");
-			if (!$newRow.length)
-				$currentRow.addClass("danger").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
-			else {
-				$("[data-toggle='popover']", $currentRow).popover('destroy');
-				$("[data-toggle='tooltip']", $currentRow).tooltip('destroy');
-				$currentRow.replaceWith($newRow);
-				$("[data-toggle='popover']", $newRow).popover().on('show.bs.popover', togglePopever);
-				$("[data-toggle='tooltip']", $newRow).tooltip();
-			}
-		},
-		error : unknowError
-	});
+	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']")
+	if (!$currentRow.find("input,select,textarea").length) {
+		$.ajax({
+			url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				var $newRow = $("tr", $("<div/>").html(response));
+				if (!$newRow.length)
+					$currentRow.addClass("warning").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
+				else {
+					$("[data-toggle='popover']", $currentRow).popover('destroy');
+					$("[data-toggle='tooltip']", $currentRow).tooltip('destroy');
+					$currentRow.replaceWith($newRow);
+					$("[data-toggle='popover']", $newRow).popover().on('show.bs.popover', togglePopever);
+					$("[data-toggle='tooltip']", $newRow).tooltip();
+				}
+			},
+			error : unknowError
+		});
+	} else
+		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title", MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
 	return false;
 }
 

@@ -67,6 +67,7 @@ function FieldEditor(element, validator) {
 	this.fieldType = null;
 	this.callback = null;
 	this.async = true;
+	this.tabPress = undefined;
 	this.backupData = {
 		orginalStyle : undefined,
 		parentClass : undefined,
@@ -74,43 +75,54 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.GeneratefieldEditor = function() {
-		var $element = $(this.element);
+		var $element = $(this.element), height = 0, rows = 2, $td;
 		if ($element.find("input").length || $element.find("select").length || $element.find("textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
-		this.backupData.orginalStyle = $element.attr("style");
 		this.backupData.width = $element.width();
 		if (!this.choose.length) {
-			var height = 0, rows = 2;
-			if ($element.is("td")) {
-				$element.css("width", $element.outerWidth());
-				$element.css("height", height = $element.outerHeight());
-			} else {
-				var $td = $element.closest("td");
-				this.backupData.orginalStyle = $td.attr("style");
-				$td.css("width", $td.outerWidth());
-				$td.css("height", height = $td.outerHeight());
+
+			if ($element.is("td"))
+				$td = $element;
+			else {
+				$td = $element.closest("td");
 				rows = $element.text().split(/\n/).length;
 				if (rows == 1)
 					rows = 2;
 			}
-			if (this.defaultValue.length > 100 || $element.attr("data-trick-content") == "text") {
+			this.backupData.orginalStyle = $td.attr("style");
+
+			$td.css({
+				"width" : $td.outerWidth(),
+				"height" : height = $td.outerHeight(),
+				"margin-left" : "auto",
+				"margin-right" : "auto",
+				"padding" : 0,
+			});
+
+			if (this.defaultValue.length > 100 || $element.attr("data-trick-content") == "text")
 				this.fieldEditor = document.createElement("textarea");
-				this.fieldEditor.setAttribute("style", "width:100%; height:" + (height - 8) + "px; padding:2px;");
-			} else {
+			else {
 				this.fieldEditor = document.createElement("input");
 				this.realValue = this.element.hasAttribute("data-real-value") ? $element.attr("data-real-value") : null;
-				this.fieldEditor.setAttribute("style", "width:100%; height:34px; padding:2px;");
 				var minValue = $element.attr("data-trick-min-value"), maxValue = $element.attr("data-trick-max-value");
 				if (minValue != undefined || maxValue != undefined)
 					this.validator = new FieldBoundedValidator(minValue, maxValue);
 			}
+			this.fieldEditor.setAttribute("style", "width:100%; padding: 4px; height:" + (height - 2) + "px;");
 		} else {
-			$element.css("min-width", "40px");
-			$element.css("height", "34px");
+			this.backupData.orginalStyle = $element.attr("style");
+
+			$element.css({
+				"height" : height = $element.outerHeight(),
+				"min-width" : "45px",
+				"margin-left" : "auto",
+				"margin-right" : "auto"
+
+			});
+
 			this.fieldEditor = document.createElement("select");
-			this.fieldEditor.setAttribute("style", "width:100%; height:34px; padding:2px;");
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
@@ -125,6 +137,7 @@ function FieldEditor(element, validator) {
 				}
 				$(option).appendTo($(this.fieldEditor));
 			}
+			this.fieldEditor.setAttribute("style", "width:100%; padding:2px; height:" + (height - 4) + "px;");
 		}
 
 		this.fieldEditor.setAttribute("class", "form-control");
@@ -160,82 +173,81 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.__findChoose = function(element) {
-		if ($(element).attr("data-trick-choose") != undefined)
-			return $(element).attr("data-trick-choose").split(",");
+		var content = $(element).attr("data-trick-choose");
+		if (content != undefined)
+			return content.split(",");
 		return [];
 	};
 
 	FieldEditor.prototype.__findChooseTranslate = function(element) {
-		if ($(element).attr("data-trick-choose-translate") != undefined)
-			return $(element).attr("data-trick-choose-translate").split(",");
+		var content = $(element).attr("data-trick-choose-translate");
+		if (content != undefined)
+			return content.split(",");
 		return [];
 	};
 
 	FieldEditor.prototype.__findControllor = function(element) {
-		if ($(element).attr("data-trick-class") != undefined)
-			return $(element).attr("data-trick-class");
-		else if ($(element).parent().prop("tagName") != "BODY")
-			return this.__findControllor($(element).parent());
-		else
-			return null;
+		return this.__finder(element, "data-trick-class");
 	};
 
 	FieldEditor.prototype.__findClassId = function(element) {
-		if ($(element).attr("data-trick-id") != undefined)
-			return $(element).attr("data-trick-id");
-		else if ($(element).parent().prop("tagName") != "BODY")
-			return this.__findClassId($(element).parent());
-		else
-			return null;
+		return this.__finder(element, "data-trick-id");
 	};
 
 	FieldEditor.prototype.__findCallback = function(element) {
-		if ($(element).attr("data-trick-callback") != undefined)
-			return $(element).attr("data-trick-callback");
-		else if ($(element).parent().prop("tagName") != "BODY")
-			return this.__findCallback($(element).parent());
-		else
-			return null;
+		return this.__finder(element, "data-trick-callback");
 	};
 
 	FieldEditor.prototype.__findCallbackPreExec = function(element) {
-		if ($(element).attr("data-trick-callback-pre") != undefined)
-			return $(element).attr("data-trick-callback-pre");
-		else if ($(element).parent().prop("tagName") != "BODY")
-			return this.__findCallbackPreExec($(element).parent());
-		else
-			return null;
+		return this.__finder(element, "data-trick-callback-pre");
 	};
+
+	FieldEditor.prototype.__finder = function(element, attr) {
+		var $element = $(element);
+		if (!$element.length)
+			return null;
+		var content = $element.attr(attr);
+		if (typeof content === "undefined")
+			return this.__finder($element.closest("[" + attr + "]"), attr);
+		return content;
+	}
+
+	FieldEditor.prototype.__findNextEditable = function($tr, isNext) {
+		var $nextTr = isNext ? $tr.nextAll("tr[data-trick-id]:first") : $tr.prevAll("tr[data-trick-id]:first")
+		if (!$nextTr.length)
+			return $nextTr;
+		var $next = $nextTr.find("[onclick*='editField']" + (isNext ? ":first" : ":last"))
+		if (!$next.length)
+			return this.__findNextEditable($nextTr, isNext)
+		return $next;
+	};
+
+	FieldEditor.prototype.__supportTabNav = function() {
+		var that = this;
+		$(this.fieldEditor).keypress(function(e) {
+			if (e.keyCode == 9) {
+				if (e.shiftKey)
+					that.tabPress = "prev";
+				else
+					that.tabPress = "next";
+			}
+		});
+		return this;
+	}
 
 	FieldEditor.prototype.Show = function() {
 		if (this.fieldEditor == null || this.fieldEditor == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		var $fieldEditor = $(this.fieldEditor), $element = $(this.element), style = $fieldEditor.attr("style");
-		$fieldEditor.prop("value", this.realValue != null ? this.realValue : $element.text().trim());
-		$fieldEditor.attr("style", style + (style.endsWith(";") ? ";" : "") + "position: relative;")
-
+		var $fieldEditor = $(this.fieldEditor), $element = $(this.element);
+		$fieldEditor.val(this.realValue != null ? this.realValue : $element.text().trim());
 		$element.html(this.fieldEditor);
-
-		if (!$element.is("td"))
-			$element.closest("td").css("padding", "3px");
-		else
-			$element.css("padding", "3px");
-
 		this.backupData.parentClass = $fieldEditor.parent().attr("class")
 		if (!application.editMode || $(this.element).attr("data-trick-content") != "text") {
 			$fieldEditor.focus();
-			$fieldEditor.keypress(function(e) {
-				if (e.keyCode == 9) {
-					var $td = $element[0].tagName == "TD" ? $element : $element.closest("td[onclick*='editField']"), $next = $td.nextAll("[onclick*='editField']:first");
-					if (!$next.length)
-						$next = $td.parent().nextAll("tr[data-trick-id]:first").find("[onclick*='editField']:first");
-					$next.click();
-				}
-			});
+			this.__supportTabNav();
 		}
-
 		return false;
 	};
 
@@ -257,9 +269,10 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.HasChanged = function() {
-		if (this.realValue != null && this.realValue != undefined)
-			return $(this.fieldEditor).prop("value") != this.realValue;
-		return $(this.fieldEditor).prop("value") != this.defaultValue;
+		if (this.realValue == null || this.realValue == undefined)
+			return this.GetValue() != this.defaultValue;
+		else
+			return this.GetValue() != this.realValue;
 	};
 
 	FieldEditor.prototype.UpdateUI = function() {
@@ -284,9 +297,10 @@ function FieldEditor(element, validator) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
-							that.UpdateUI();
-							if (that.callback != null && that.callback != undefined)
-								setTimeout(that.callback, 10);
+							var callback = that.callback;
+							that.Restore();
+							if (callback != null && callback != undefined)
+								setTimeout(callback, 0);
 						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");
@@ -326,10 +340,12 @@ function FieldEditor(element, validator) {
 		else
 			$(this.fieldEditor).parent().removeAttr("class");
 
-		if (rollback)
+		if (rollback) {
 			$element.text(this.defaultValue);
-		else {
-			var value = $(this.fieldEditor).prop("value");
+			if ($td.parent().attr("data-force-callback"))
+				setTimeout(this.callback, 0);
+		} else {
+			var value = this.GetValue();
 			if (this.choose.length && this.chooseTranslate.length) {
 				for (var i = 0; i < this.choose.length; i++) {
 					if (this.choose[i] == value) {
@@ -343,56 +359,16 @@ function FieldEditor(element, validator) {
 			if ($element.width != this.backupData.width)
 				window.dispatchEvent(new Event('resize'));
 		}
-		return this;
-	};
 
-}
-
-PhaseFieldEditor.prototype = new FieldEditor();
-
-function PhaseFieldEditor(element) {
-	FieldEditor.call(this, element);
-	PhaseFieldEditor.prototype.GeneratefieldEditor = function() {
-		var result = FieldEditor.prototype.GeneratefieldEditor.apply(this);
-		if (!result) {
-
-			var l_lang;
-			if (navigator.userLanguage) // Explorer
-				l_lang = navigator.userLanguage;
-			else if (navigator.language) // FF
-				l_lang = navigator.language;
-			else
-				l_lang = "en";
-
-			if (l_lang == "en-US") {
-				l_lang = "en";
-			}
-
-			var that = this;
-
-			$(this.fieldEditor).unbind("blur");
-
-			$(this.fieldEditor).css({
-				'z-index' : 1000
-			});
-
-			$(this.fieldEditor).attr("readonly", "true");
-
-			$(this.fieldEditor).datepicker({
-				format : "yyyy-mm-dd",
-				language : l_lang,
-				autoclose : true,
-				weekStart : 1,
-				todayHighlight : true,
-			}).on("hide", function() {
-				if ($(that.fieldEditor).val() == "")
-					that.Rollback();
-				else
-					that.Save(that);
-			});
+		if (this.tabPress) {
+			var isNext = this.tabPress == "next", $next = isNext ? $td.nextAll("[onclick*='editField']:first") : $td.prevAll("[onclick*='editField']:first");
+			if (!$next.length)
+				$next = this.__findNextEditable($td.parent(), isNext);
+			$next.click();
 		}
-		return result;
-	}
+		delete this;
+		return null;
+	};
 
 }
 
@@ -417,9 +393,10 @@ function ExtendedFieldEditor(element) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
+							var computeAle = that.fieldName == "value" || that.fieldName == "acronym";
 							that.UpdateUI();
 							reloadSection("section_parameter");
-							if (that.fieldName == "value" || that.fieldName == "acronym")
+							if (computeAle)
 								updateAssessmentAle(true);
 						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
@@ -471,7 +448,7 @@ function MaturityMeasureFieldEditor(element) {
 			return true;
 		this.fieldEditor = document.createElement("select");
 		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("style", "min-width:70px;");
+		this.fieldEditor.setAttribute("style", "min-width:45px;");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
@@ -501,6 +478,13 @@ function AssessmentFieldEditor(element) {
 
 	FieldEditor.call(this, element);
 
+	AssessmentFieldEditor.prototype.Rollback = function() {
+		FieldEditor.prototype.Rollback.call(this);
+		if (application["estimation-helper"] != undefined)
+			application["estimation-helper"].tryUpdate();
+		return this;
+	};
+
 	AssessmentFieldEditor.prototype.Save = function(that) {
 		if (!that.Validate()) {
 			that.Rollback();
@@ -517,7 +501,7 @@ function AssessmentFieldEditor(element) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
 							if (application["estimation-helper"] != undefined) {
-								application["estimation-helper"].update();
+								application["estimation-helper"].tryUpdate(that.classId);
 								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
 								chartALE();
 							}
@@ -533,20 +517,19 @@ function AssessmentFieldEditor(element) {
 					}
 				});
 
-			} else {
+			} else
 				that.Rollback();
-				return false;
-			}
+
 		}
 		return false;
 	};
 }
 
-AssessmentExtendedParameterEditor.prototype = new FieldEditor();
+AssessmentExtendedParameterEditor.prototype = new AssessmentFieldEditor();
 
 function AssessmentExtendedParameterEditor(element) {
 
-	FieldEditor.call(this, element);
+	AssessmentFieldEditor.call(this, element);
 
 	this.acromym = [];
 
@@ -565,9 +548,10 @@ function AssessmentExtendedParameterEditor(element) {
 
 		var height = $(this.element).outerHeight();
 
-		$(this.element).css("width", width);
-
-		$(this.element).css("height", height);
+		$(this.element).css({
+			"width" : width,
+			"height" : height
+		});
 
 		this.fieldEditor = document.createElement("input");
 		this.fieldEditor.setAttribute("class", "form-control");
@@ -586,7 +570,34 @@ function AssessmentExtendedParameterEditor(element) {
 		return false;
 	};
 
-	AssessmentExtendedParameterEditor.prototype.Show = function() {
+	AssessmentExtendedParameterEditor.prototype.__extractAcronym = function(value) {
+		if (this.choose.indexOf(value) == -1)
+			return value;
+		return value.split(" (", 1)[0];
+	};
+
+	AssessmentExtendedParameterEditor.prototype.GetValue = function() {
+		return this.__extractAcronym(FieldEditor.prototype.GetValue.call(this));
+	};
+}
+
+AssessmentImpactFieldEditor.prototype = new AssessmentExtendedParameterEditor();
+
+function AssessmentImpactFieldEditor(element) {
+
+	AssessmentExtendedParameterEditor.call(this, element);
+
+	AssessmentImpactFieldEditor.prototype.LoadData = function() {
+		var $impactAcronyms = $("#Scale_Impact td[data-trick-field='acronym']");
+		var $impactValue = $("#Scale_Impact td[data-trick-field='value']");
+		for (var i = 0; i < $impactAcronyms.length; i++) {
+			this.acromym[i] = $($impactAcronyms[i]).text();
+			this.choose[i] = this.acromym[i] + " (" + $($impactValue[i]).text() + ")";
+		}
+		return this.choose.length;
+	};
+
+	AssessmentImpactFieldEditor.prototype.Show = function() {
 		if (this.fieldEditor == null || this.fieldEditor == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
@@ -598,7 +609,6 @@ function AssessmentExtendedParameterEditor(element) {
 			data.push({
 				value : this.choose[i]
 			});
-
 		var iteams = new Bloodhound({
 			datumTokenizer : function(d) {
 				return Bloodhound.tokenizers.whitespace(d.value);
@@ -611,62 +621,17 @@ function AssessmentExtendedParameterEditor(element) {
 		$(this.fieldEditor).typeahead(null, {
 			displayKey : 'value',
 			source : iteams.ttAdapter()
-		});
-		$(this.fieldEditor).focus();
+		}).focus();
+		this.__supportTabNav();
 		return false;
-	};
-
-	AssessmentExtendedParameterEditor.prototype.HasChanged = function() {
-		return this.defaultValue != this.__extractAcronym(this.GetValue());
-	};
-
-	AssessmentExtendedParameterEditor.prototype.__extractAcronym = function(value) {
-		if (this.choose.indexOf(value) == -1)
-			return value;
-		return value.split(" (", 1);
-	};
-
-	AssessmentExtendedParameterEditor.prototype.Rollback = function() {
-		if (this.defaultValue == '')
-			this.defaultValue = 0;
-		$(this.element).html(this.defaultValue);
-		$(this.element).css("padding", "5px");
-		return false;
-	};
-
-	AssessmentExtendedParameterEditor.prototype.GetValue = function() {
-		return this.__extractAcronym(FieldEditor.prototype.GetValue.call(this));
-	};
-
-	AssessmentExtendedParameterEditor.prototype.Save = function(that) {
-		return new AssessmentFieldEditor().Save(that);
 	};
 }
 
-AssessmentImpactFieldEditor.prototype = new AssessmentExtendedParameterEditor();
-
-function AssessmentImpactFieldEditor(element) {
-
-	FieldEditor.call(this, element);
-
-	AssessmentImpactFieldEditor.prototype.LoadData = function() {
-		var $impactAcronyms = $("#Scale_Impact td[data-trick-field='acronym']");
-		var $impactValue = $("#Scale_Impact td[data-trick-field='value']");
-		for (var i = 0; i < $impactAcronyms.length; i++) {
-			this.acromym[i] = $($impactAcronyms[i]).text();
-			this.choose[i] = this.acromym[i] + " (" + $($impactValue[i]).text() + ")";
-		}
-		return this.choose.length;
-	};
-}
-
-AssessmentProbaFieldEditor.prototype = new FieldEditor();
+AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 
 function AssessmentProbaFieldEditor(element) {
 
-	FieldEditor.call(this, element);
-
-	this.acromym = [];
+	AssessmentExtendedParameterEditor.call(this, element);
 
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
 		var $probAcronyms = $("#Scale_Probability td[data-trick-field='acronym']");
@@ -713,10 +678,12 @@ function AssessmentProbaFieldEditor(element) {
 		return false;
 	};
 
-	AssessmentProbaFieldEditor.prototype.Save = function(that) {
-		return new AssessmentFieldEditor().Save(that);
+	AssessmentProbaFieldEditor.prototype.__extractAcronym = function(value) {
+		var value = AssessmentExtendedParameterEditor.prototype.__extractAcronym.call(this, value);
+		if (value == "NA")
+			return '0';
+		return value;
 	};
-
 }
 
 function SelectText(element) {
@@ -774,7 +741,7 @@ function enableEditMode() {
 }
 
 function editField(element, controller, id, field, type) {
-	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
+	idAnalysis = $("[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	var fieldEditor = null;
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		if (controller == null || controller == undefined)
@@ -793,8 +760,6 @@ function editField(element, controller, id, field, type) {
 				fieldEditor = new AssessmentFieldEditor(element);
 		} else if (controller == "MaturityMeasure")
 			fieldEditor = new MaturityMeasureFieldEditor(element);
-		else if (controller == "Phase")
-			fieldEditor = new PhaseFieldEditor(element);
 		else
 			fieldEditor = new FieldEditor(element);
 		if (!fieldEditor.Initialise())

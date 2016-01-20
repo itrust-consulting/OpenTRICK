@@ -12,6 +12,7 @@ function displayParameters(name, title) {
 function EstimationHelper(name, id) {
 	this.name = name;
 	this.id = id;
+	this.outOfDate = true;
 	this.navSelector = "tr[data-trick-selected='true']:first";
 }
 
@@ -81,6 +82,7 @@ EstimationHelper.prototype = {
 					fixTableHeader($("table", $content));
 				}
 				$("h3[role='title']", this.tabContent()).text($content.attr("data-trick-name"));
+				this.outOfDate = false;
 			}
 		} else
 			unknowError();
@@ -105,7 +107,7 @@ EstimationHelper.prototype = {
 
 	},
 	prev : function() {
-		var $current = $(this.current()), $prev = $current.prevAll(this.navSelector);
+		var $current = this.current(), $prev = $current.prevAll(this.navSelector);
 		if ($prev.length) {
 			$current.find("input:checked").prop("checked", false).trigger("change");
 			$prev.find("input[type='checkbox']").prop("checked", true).trigger("change");
@@ -164,6 +166,19 @@ EstimationHelper.prototype = {
 			},
 			error : unknowError
 		});
+		return this;
+	},
+	tryUpdate : function(id) {
+		var $fields = $("input,select,textarea", this.section());
+		if ($fields.length) {
+			this.outOfDate = true;
+			var $tr = $("tr[data-trick-id='" + id + "']", this.section()), $trTotal = $("tr.panel-footer", this.section());
+			$trTotal.addClass('warning').attr("title",
+					MessageResolver("error.ui.update.wait.editing", 'Data was saved but user interface was not updated, it will be updated after edition'));
+			$tr.addClass('warning').attr("title",
+					MessageResolver("error.ui.update.wait.editing", 'Data was saved but user interface was not updated, it will be updated after edition'));
+		} else if (this.outOfDate || id != undefined)
+			this.update();
 		return this;
 	},
 	SmartUpdate : function(assessments) {
