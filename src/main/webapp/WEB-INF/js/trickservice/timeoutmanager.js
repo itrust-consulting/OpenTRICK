@@ -23,7 +23,7 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 				: window.location.href;
 		var sessionTimeoutSeconds = 14.9999 * 60, countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds, displayCountdownIntervalId, promptToExtendSessionTimeoutId, count = countdownSeconds, extendSessionUrl = context
 				+ '/IsAuthenticate';
-		
+
 		var endSession = function() {
 			location.href = expireSessionUrl;
 		};
@@ -78,27 +78,33 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 			displayCountdown();
 		};
 
-		var refreshSession = function() {
-			try {
-				if (extending)
-					return;
-				extending = true;
-				$.get(extendSessionUrl, function(expired) {
-					if (expired === true) {
-						window.clearInterval(displayCountdownIntervalId);
-						document.title = originalTitle;
-						window.clearTimeout(promptToExtendSessionTimeoutId);
-						startSessionManager();
-					} else
-						endSession();
-				});
-			} finally {
-				extending = false;
+		var startSessionManager = function() {
+			promptToExtendSessionTimeoutId = window.setTimeout(promptToExtendSession, secondsBeforePrompt * 1000);
+		};
+
+		var resetSessionManager = function(force) {
+			if (!extending || force) {
+				window.clearInterval(displayCountdownIntervalId);
+				document.title = originalTitle;
+				window.clearTimeout(promptToExtendSessionTimeoutId);
+				startSessionManager();
 			}
 		};
 
-		var startSessionManager = function() {
-			promptToExtendSessionTimeoutId = window.setTimeout(promptToExtendSession, secondsBeforePrompt * 1000);
+		var refreshSession = function() {
+			if (extending)
+				return;
+			try {
+				extending = true;
+				$.get(extendSessionUrl, function(isAuthenticated) {
+					if (isAuthenticated === true)
+						resetSessionManager(true);
+					else
+						endSession();
+				});
+			} finally {
+				extending = true;
+			}
 		};
 
 		// Public Functions
@@ -106,10 +112,10 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 			start : function() {
 				startSessionManager();
 			},
-
 			extend : function() {
-				refreshSession();
+				resetSessionManager();
 			}
+
 		};
 	}();
 
