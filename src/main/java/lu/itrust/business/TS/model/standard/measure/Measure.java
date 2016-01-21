@@ -68,10 +68,14 @@ public abstract class Measure implements Cloneable {
 	/** The LifeTime of the Measure (in Years) */
 	private double lifetime = 0;
 
-	/** The internal MaintenanceRecurrentInvestment of the Measure (in Man Days) */
+	/**
+	 * The internal MaintenanceRecurrentInvestment of the Measure (in Man Days)
+	 */
 	private double internalMaintenance = 0;
 
-	/** The external MaintenanceRecurrentInvestment of the Measure (in Man Days) */
+	/**
+	 * The external MaintenanceRecurrentInvestment of the Measure (in Man Days)
+	 */
 	private double externalMaintenance = 0;
 
 	/** The recurrent investment of maintenance of the Measure (Currency) */
@@ -325,7 +329,7 @@ public abstract class Measure implements Cloneable {
 	 * @throws TrickException
 	 */
 	public void setCost(double cost) throws TrickException {
-		if (cost < 0)
+		if (cost < 0 && cost != -1)
 			throw new TrickException("error.measure.cost", "Cost cannot be negative");
 		this.cost = cost;
 	}

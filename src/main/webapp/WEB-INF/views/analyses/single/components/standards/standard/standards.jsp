@@ -146,18 +146,18 @@
 													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 										</c:otherwise>
 									</c:choose>
-									<td ${css} data-trick-field="internalWL" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}"
+									<td ${css} data-trick-field="internalWL" data-trick-field-type="double" onclick="return editField(this);" data-trick-min-value='0' ><fmt:formatNumber value="${measure.internalWL}"
 											maxFractionDigits="2" /></td>
-									<td ${css} data-trick-field="externalWL" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
+									<td ${css} data-trick-field="externalWL" data-trick-field-type="double" onclick="return editField(this);" data-trick-min-value='0' ><fmt:formatNumber value="${measure.externalWL}"
 											maxFractionDigits="2" /></td>
-									<td ${css} data-trick-field="investment" data-trick-field-type="double" onclick="return editField(this);"
+									<td ${css} data-trick-field="investment" data-trick-field-type="double" onclick="return editField(this);" data-trick-min-value='0'
 										title='<fmt:formatNumber value="${fct:round(measure.investment,0)}" maxFractionDigits="0" /> &euro;'
 										data-real-value='<fmt:formatNumber value="${measure.investment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber maxFractionDigits="0"
 											value="${fct:round(measure.investment*0.001,0)}" /></td>
-									<td ${css} data-trick-field="lifetime" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
+									<td ${css} data-trick-field="lifetime" data-trick-field-type="double" onclick="return editField(this);" data-trick-min-value='0' ><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
 									<td ${css} data-trick-field="internalMaintenance" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalMaintenance}"
 											maxFractionDigits="2" /></td>
-									<td ${css} data-trick-field="externalMaintenance" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalMaintenance}"
+									<td ${css} data-trick-field="externalMaintenance" data-trick-field-type="double" onclick="return editField(this);" ><fmt:formatNumber value="${measure.externalMaintenance}"
 											maxFractionDigits="2" /></td>
 									<td ${css} data-trick-field="recurrentInvestment" data-trick-field-type="double" onclick="return editField(this);"
 										title='<fmt:formatNumber value="${fct:round(measure.recurrentInvestment,0)}" maxFractionDigits="0" /> &euro;'

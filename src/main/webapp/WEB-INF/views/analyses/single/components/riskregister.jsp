@@ -36,15 +36,15 @@
 				<table class="table table-hover table-condensed table-fixed-header-analysis">
 					<thead>
 						<tr>
-							<th style="width: 1%;" rowspan="2" title='<fmt:message key="label.title.id" />' ><fmt:message key="label.risk_register.id" /></th>
-							<th style="width: 4%;" rowspan="2" title='<fmt:message key="label.risk_register.category" />' ><fmt:message key="label.risk_register.category" /></th>
+							<th style="width: 1%" rowspan="2" title='<fmt:message key="label.title.id" />' ><fmt:message key="label.risk_register.id" /></th>
+							<th style="width: 5%" rowspan="2" title='<fmt:message key="label.risk_register.category" />' ><fmt:message key="label.risk_register.category" /></th>
 							<th rowspan="2" title='<fmt:message key="label.risk_register.risk_title" />' ><fmt:message key="label.risk_register.risk_title" /></th>
-							<th style="width: 10%;" rowspan="2" title='<fmt:message key="label.risk_register.asset" />'><fmt:message key="label.risk_register.asset" /></th>
+							<th style="width: 15%" rowspan="2" title='<fmt:message key="label.risk_register.asset" />'><fmt:message key="label.risk_register.asset" /></th>
 							<th colspan="3"  class="text-center" title='<fmt:message key="label.title.risk_register.raw_eval" />' ><fmt:message key="label.risk_register.raw_eval" /></th>
 							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.net_eval" />' ><fmt:message key="label.risk_register.net_eval" /></th>
 							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.exp_eval" />' ><fmt:message key="label.risk_register.exp_eval" /></th>
-							<th rowspan="2" title='<fmt:message key="label.risk_register.strategy" />' ><fmt:message key="label.risk_register.strategy" /></th>
-							<th style="width: 4%;" rowspan="2" title='<fmt:message key="label.risk_register.owner" />' ><fmt:message key="label.risk_register.owner" /></th>
+							<th rowspan="2" style="width: 5%" title='<fmt:message key="label.risk_register.strategy" />' ><fmt:message key="label.risk_register.strategy" /></th>
+							<th style="width: 4%" rowspan="2" title='<fmt:message key="label.risk_register.owner" />' ><fmt:message key="label.risk_register.owner" /></th>
 						</tr>
 						<tr>
 							<th class="text-center" title='<fmt:message key="label.risk_register.probability" />'><fmt:message key="label.risk_register.acro.probability" /></th>

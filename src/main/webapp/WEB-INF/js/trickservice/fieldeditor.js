@@ -75,14 +75,13 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.GeneratefieldEditor = function() {
-		var $element = $(this.element), height = 0, rows = 2, $td;
-		if ($element.find("input").length || $element.find("select").length || $element.find("textarea").length)
+		var $element = $(this.element);
+		if ($element.find("input,select,textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
-		this.backupData.width = $element.width();
+		var $fieldEditor, height = 0, width = 0, minWidth = 0, rows = 2, $td;
 		if (!this.choose.length) {
-
 			if ($element.is("td"))
 				$td = $element;
 			else {
@@ -91,57 +90,52 @@ function FieldEditor(element, validator) {
 				if (rows == 1)
 					rows = 2;
 			}
-			this.backupData.orginalStyle = $td.attr("style");
-
-			$td.css({
-				"width" : $td.outerWidth(),
-				"height" : height = $td.outerHeight(),
-				"margin-left" : "auto",
-				"margin-right" : "auto",
-				"padding" : 0,
-			});
-
+			width = $td.outerWidth();
+			height = $td.outerHeight();
 			if (this.defaultValue.length > 100 || $element.attr("data-trick-content") == "text")
 				this.fieldEditor = document.createElement("textarea");
 			else {
 				this.fieldEditor = document.createElement("input");
-				this.realValue = this.element.hasAttribute("data-real-value") ? $element.attr("data-real-value") : null;
+				if (this.element.hasAttribute("data-real-value"))
+					this.realValue = this.element.getAttribute("data-real-value");
 				var minValue = $element.attr("data-trick-min-value"), maxValue = $element.attr("data-trick-max-value");
 				if (minValue != undefined || maxValue != undefined)
 					this.validator = new FieldBoundedValidator(minValue, maxValue);
 			}
-			this.fieldEditor.setAttribute("style", "width:100%; padding: 4px; height:" + (height - 2) + "px;");
+			$fieldEditor = $(this.fieldEditor)
+
 		} else {
-			this.backupData.orginalStyle = $element.attr("style");
-
-			$element.css({
-				"height" : height = $element.outerHeight(),
-				"min-width" : "45px",
-				"margin-left" : "auto",
-				"margin-right" : "auto"
-
-			});
-
+			$td = $element;
+			minWidth = 50;
+			height = $td.outerHeight();
 			this.fieldEditor = document.createElement("select");
+			$fieldEditor = $(this.fieldEditor);
 			for (var i = 0; i < this.choose.length; i++) {
-				var option = document.createElement("option");
+				var option = document.createElement("option"), $option = $(option);
 				option.setAttribute("value", this.choose[i]);
 				if (this.chooseTranslate.length) {
-					$(option).text(this.chooseTranslate[i]);
+					$option.text(this.chooseTranslate[i]);
 					if (this.chooseTranslate[i] == this.defaultValue)
 						option.setAttribute("selected", true);
 				} else {
-					$(option).text(this.choose[i]);
+					$option.text(this.choose[i]);
 					if (this.choose[i] == this.defaultValue)
 						option.setAttribute("selected", true);
 				}
-				$(option).appendTo($(this.fieldEditor));
+				$option.appendTo($fieldEditor);
 			}
-			this.fieldEditor.setAttribute("style", "width:100%; padding:2px; height:" + (height - 4) + "px;");
 		}
-
+		this.backupData.width = $td.width();
+		this.backupData.orginalStyle = $td.attr("style");
 		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
+		this.fieldEditor.setAttribute("placeholder", this.realValue == null || this.realValue == undefined ? this.defaultValue : this.realValue);
+		$td.css({
+			"height" : height,
+			"width" : width ? width : "auto",
+			"min-width" : minWidth ? minWidth : 'auto',
+			"padding" : 0
+		});
 		if (!application.editMode || $element.attr("data-trick-content") != "text") {
 			var that = this, $fieldEditor = $(this.fieldEditor);
 			$fieldEditor.blur(function() {
@@ -241,12 +235,13 @@ function FieldEditor(element, validator) {
 		if (this.element == null || this.element == undefined)
 			return false;
 		var $fieldEditor = $(this.fieldEditor), $element = $(this.element);
-		$fieldEditor.val(this.realValue != null ? this.realValue : $element.text().trim());
-		$element.html(this.fieldEditor);
+		if (!$fieldEditor.is("select"))
+			$fieldEditor.val(this.realValue == null ? $element.text().trim() : this.realValue);
+		$element.html($fieldEditor);
 		this.backupData.parentClass = $fieldEditor.parent().attr("class")
-		if (!application.editMode || $(this.element).attr("data-trick-content") != "text") {
-			$fieldEditor.focus();
+		if (!application.editMode || $element.attr("data-trick-content") != "text") {
 			this.__supportTabNav();
+			$fieldEditor.focus();
 		}
 		return false;
 	};
@@ -356,7 +351,7 @@ function FieldEditor(element, validator) {
 			} else
 				$element.text(value);
 
-			if ($element.width != this.backupData.width)
+			if ($td.width != this.backupData.width)
 				window.dispatchEvent(new Event('resize'));
 		}
 
@@ -430,40 +425,58 @@ function MaturityMeasureFieldEditor(element) {
 	this.implementations = [];
 
 	MaturityMeasureFieldEditor.prototype.LoadData = function() {
-		var $implementationRate = $("#Maturity_implementation_rate tr[data-trick-class='Parameter']");
-		if (!$implementationRate.length)
+		var $implementationRates = $("#Maturity_implementation_rate tr[data-trick-class='Parameter']");
+		if (!$implementationRates.length)
 			return true;
-		for (var i = 0; i < $implementationRate.length; i++)
+		for (var i = 0; i < $implementationRates.length; i++) {
+			var $implementationRate = $($implementationRates[i]);
 			this.implementations[i] = {
-				'id' : $($implementationRate[i]).attr('data-trick-id'),
-				'value' : $($implementationRate[i]).find("td[data-trick-field='value']").text()
+				'id' : $implementationRate.attr('data-trick-id'),
+				'value' : $implementationRate.find("td[data-trick-field='value']").text()
 			};
+		}
 		return !this.implementations.length;
 	};
 
 	MaturityMeasureFieldEditor.prototype.GeneratefieldEditor = function() {
-		if ($(this.element).find("select").length)
+		var $element = $(this.element);
+		if ($element.find("select").length)
 			return true;
 		if (this.LoadData())
 			return true;
+
 		this.fieldEditor = document.createElement("select");
+
+		var that = this, height = $element.outerHeight(), minWidth = 45, $fieldEditor = $(this.fieldEditor);
+
 		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("style", "min-width:45px;");
+		this.realValue = this.element.hasAttribute("data-real-value") ? $element.attr("data-real-value") : null;
+		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+
 		for ( var i in this.implementations) {
-			var option = document.createElement("option");
+			var option = document.createElement("option"), $option = $(option);
 			option.setAttribute("value", this.implementations[i].value);
 			option.setAttribute("data-trick-id", this.implementations[i].id);
-			$(option).text(this.implementations[i].value);
-			$(option).appendTo($(this.fieldEditor));
+
 			if (this.defaultValue == this.implementations[i].value)
-				$(option).prop("selected", true);
+				option.setAttribute("selected", true);
+
+			$option.text(this.implementations[i].value);
+			$option.appendTo($fieldEditor);
 		}
 
-		var that = this;
-		this.realValue = this.element.hasAttribute("data-real-value") ? $(this.element).attr("data-real-value") : null;
+		this.backupData.width = $element.width();
+		this.backupData.orginalStyle = $element.attr("style");
+
+		$element.css({
+			"height" : height,
+			"min-width" : minWidth,
+			"padding" : 0
+		});
+
 		if (!application.editMode) {
-			$(this.fieldEditor).blur(function() {
+			$fieldEditor.blur(function() {
 				return that.Save(that);
 			});
 		}
@@ -534,32 +547,31 @@ function AssessmentExtendedParameterEditor(element) {
 	this.acromym = [];
 
 	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
-		if ($(this.element).find("select").length || $(this.element).find("input").length)
+		var $element = $(this.element);
+		if ($element.find("select,input,textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
-		if ($(this.element).attr("data-real-value") != undefined)
-			this.realValue = $(this.element).attr("data-real-value").trim();
+		if (this.element.hasAttribute("data-real-value"))
+			this.realValue = $element.attr("data-real-value").trim();
 
-		var indexOf = this.acromym.indexOf(this.defaultValue);
-		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue : this.defaultValue;
-
-		var width = $(this.element).outerWidth();
-
-		var height = $(this.element).outerHeight();
-
-		$(this.element).css({
-			"width" : width,
-			"height" : height
-		});
+		var that = this, indexOf = this.acromym.indexOf(this.defaultValue), value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue
+				: this.defaultValue, height = $element.outerHeight();
 
 		this.fieldEditor = document.createElement("input");
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", value);
 		this.fieldEditor.setAttribute("value", value);
-		this.fieldEditor.setAttribute("style", "width:100%; height:100%;min-width:80px;");
+		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
 
-		var that = this;
+		this.backupData.width = $element.width();
+		this.backupData.orginalStyle = $element.attr("style");
+
+		$element.css({
+			"min-width" : 50,
+			"height" : height,
+			"padding" : 0
+		});
 
 		if (!application.editMode) {
 			$(this.fieldEditor).blur(function() {
@@ -588,8 +600,7 @@ function AssessmentImpactFieldEditor(element) {
 	AssessmentExtendedParameterEditor.call(this, element);
 
 	AssessmentImpactFieldEditor.prototype.LoadData = function() {
-		var $impactAcronyms = $("#Scale_Impact td[data-trick-field='acronym']");
-		var $impactValue = $("#Scale_Impact td[data-trick-field='value']");
+		var $impactAcronyms = $("#Scale_Impact td[data-trick-field='acronym']"), $impactValue = $("#Scale_Impact td[data-trick-field='value']");
 		for (var i = 0; i < $impactAcronyms.length; i++) {
 			this.acromym[i] = $($impactAcronyms[i]).text();
 			this.choose[i] = this.acromym[i] + " (" + $($impactValue[i]).text() + ")";
@@ -602,8 +613,7 @@ function AssessmentImpactFieldEditor(element) {
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.element).html(this.fieldEditor);
-		$(this.element).css("padding", "3px");
+
 		var data = [];
 		for (var i = 0; i < this.choose.length; i++)
 			data.push({
@@ -618,6 +628,7 @@ function AssessmentImpactFieldEditor(element) {
 			local : data
 		});
 		iteams.initialize();
+		$(this.element).html(this.fieldEditor);
 		$(this.fieldEditor).typeahead(null, {
 			displayKey : 'value',
 			source : iteams.ttAdapter()
@@ -634,8 +645,7 @@ function AssessmentProbaFieldEditor(element) {
 	AssessmentExtendedParameterEditor.call(this, element);
 
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
-		var $probAcronyms = $("#Scale_Probability td[data-trick-field='acronym']");
-		var $probaAcronymsValues = $("#Scale_Probability td[data-trick-field='value']");
+		var $probAcronyms = $("#Scale_Probability td[data-trick-field='acronym']"), $probaAcronymsValues = $("#Scale_Probability td[data-trick-field='value']");
 		for (var i = 0; i < $probAcronyms.length; i++) {
 			this.acromym[i] = $($probAcronyms[i]).text();
 			this.choose[i] = this.acromym[i] + " (" + $($probaAcronymsValues[i]).text() + ")";
@@ -644,34 +654,38 @@ function AssessmentProbaFieldEditor(element) {
 	};
 
 	AssessmentProbaFieldEditor.prototype.GeneratefieldEditor = function() {
-		if ($(this.element).find("input").length || $(this.element).find("select").length)
+		var $element = $(this.element);
+		if ($element.find("input,select,textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
-
-		var width = $(this.element).outerWidth();
-
-		var height = $(this.element).outerHeight();
-
-		$(this.element).css("width", width);
-
-		$(this.element).css("height", height);
-
+		if (this.element.hasAttribute("data-real-value"))
+			this.realValue = this.element.getAttribute("data-real-value");
 		this.fieldEditor = document.createElement("select");
-		this.fieldEditor.setAttribute("style", "width:100%;height:36px;min-width:90px;padding:2px;");
-		for (var i = 0; i < this.choose.length; i++) {
-			var option = document.createElement("option");
-			option.setAttribute("value", this.acromym[i]);
-			$(option).text(this.choose[i]);
-			if (this.acromym[i] == this.defaultValue)
-				option.setAttribute("selected", true);
-			$(option).appendTo($(this.fieldEditor));
-		}
-		var that = this;
 		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.fieldEditor.setAttribute("placeholder", this.realValue == null || this.realValue == undefined ? this.defaultValue : this.realValue == '0' ? this.acromym[0]
+				: this.realValue);
+		var that = this, height = $element.outerHeight(), $fieldEditor = $(this.fieldEditor);
+		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
+		for (var i = 0; i < this.choose.length; i++) {
+			var option = document.createElement("option"), $option = $(option);
+			option.setAttribute("value", this.acromym[i]);
+			if (this.acromym[i] == this.defaultValue)
+				option.setAttribute("selected", "selected");
+			$option.text(this.choose[i]).appendTo($fieldEditor);
+		}
+
+		this.backupData.width = $element.width();
+		this.backupData.orginalStyle = $element.attr("style");
+
+		$element.css({
+			"min-width" : 60,
+			"height" : height,
+			"padding" : 0
+		});
+
 		if (!application.editMode) {
-			$(this.fieldEditor).blur(function() {
+			$fieldEditor.blur(function() {
 				return that.Save(that);
 			});
 		}
@@ -680,7 +694,7 @@ function AssessmentProbaFieldEditor(element) {
 
 	AssessmentProbaFieldEditor.prototype.__extractAcronym = function(value) {
 		var value = AssessmentExtendedParameterEditor.prototype.__extractAcronym.call(this, value);
-		if (value == "NA")
+		if (value == this.acromym[0])
 			return '0';
 		return value;
 	};

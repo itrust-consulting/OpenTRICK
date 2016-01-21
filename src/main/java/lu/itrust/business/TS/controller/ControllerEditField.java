@@ -1168,7 +1168,7 @@ public class ControllerEditField {
 
 			Field field = FindField(Scenario.class, fieldEditor.getFieldName());
 			// means that field belongs to the Measure class
-			
+
 			if (field != null) {
 				// check if field is a phase
 				field.setAccessible(true);
@@ -1296,17 +1296,14 @@ public class ControllerEditField {
 					if (error != null)
 						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
 
-					field.setAccessible(true);
-
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
 						if ((Double) value < 0. || (Double) value > 100.)
 							return JsonMessage.Error(messageSource.getMessage("error.edit.implementationrate.field", null, "Implementation rate needs to be >= 0 and <= 100 !",
 									cutomLocale != null ? cutomLocale : locale));
 						else
-							field.set(measure, value);
+							SetFieldValue(measure, field, value);
 					} else
-						field.set(measure, value);
-
+						SetFieldValue(measure, field, value);
 				}
 
 				// retrieve parameters
@@ -1330,7 +1327,7 @@ public class ControllerEditField {
 
 					NormalMeasure normalMeasure = (NormalMeasure) measure;
 
-					field = ControllerEditField.FindField(NormalMeasure.class, fieldEditor.getFieldName());
+					field = FindField(NormalMeasure.class, fieldEditor.getFieldName());
 
 					// means that field belongs to either measure or
 					// normalmeasure
@@ -1346,7 +1343,7 @@ public class ControllerEditField {
 
 					} else {
 
-						field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
+						field = FindField(MeasureProperties.class, fieldEditor.getFieldName());
 
 						if (field != null) {
 							field.setAccessible(true);
@@ -1379,7 +1376,7 @@ public class ControllerEditField {
 				} else if (measure instanceof AssetMeasure) {
 					AssetMeasure assetMeasure = (AssetMeasure) measure;
 
-					field = ControllerEditField.FindField(AssetMeasure.class, fieldEditor.getFieldName());
+					field = FindField(AssetMeasure.class, fieldEditor.getFieldName());
 
 					// means that field belongs to either measure or
 					// normalmeasure
@@ -1395,7 +1392,7 @@ public class ControllerEditField {
 
 					} else {
 
-						field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
+						field = FindField(MeasureProperties.class, fieldEditor.getFieldName());
 
 						if (field != null) {
 							field.setAccessible(true);
@@ -1652,10 +1649,21 @@ public class ControllerEditField {
 				Field field = FindField(measure.getClass(), fieldEditor.getFieldName());
 				if (field == null)
 					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-				if (!SetFieldData(field, measure, fieldEditor))
-					return Result.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
-				else
+
+				Object value = FieldValue(fieldEditor);
+
+				if (!serviceDataValidation.isRegistred(Measure.class))
+					serviceDataValidation.register(new MeasureValidator());
+
+				String error = serviceDataValidation.validate(measure, fieldEditor.getFieldName(), value);
+				if (error != null)
+					return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+
+				if (SetFieldValue(measure, field, value))
 					result = Result.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+				else
+					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+
 				Object realValue = null;
 				if (fieldEditor.getFieldName().equals("investment"))
 					measure.setInvestment((double) (realValue = measure.getInvestment() * 1000));
@@ -1681,6 +1689,10 @@ public class ControllerEditField {
 			else
 				result.turnOnError(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
+			if (result == null)
+				result = Result.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+			else
+				result.turnOnError(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
 			TrickLogManager.Persist(e);
 		}
 		return result;
@@ -1929,6 +1941,18 @@ public class ControllerEditField {
 		return SetFieldData(field, object, fieldEditor, null);
 	}
 
+	private static Boolean SetFieldValue(Object object, Field field, Object value) {
+		try {
+			field.setAccessible(true);
+			field.set(object, value);
+			return true;
+		} catch (TrickException e) {
+			throw e;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	private Object FieldValue(FieldEditor fieldEditor) {
 		return FieldValue(fieldEditor, null);
 	}
@@ -1948,9 +1972,7 @@ public class ControllerEditField {
 			Object value = FieldValue(fieldEditor, pattern);
 			if (value == null)
 				return false;
-			field.setAccessible(true);
-			field.set(object, value);
-			return true;
+			return SetFieldValue(object, field, value);
 		} catch (TrickException e) {
 			throw e;
 		} catch (Exception e) {
@@ -1987,9 +2009,10 @@ public class ControllerEditField {
 		} catch (NumberFormatException e) {
 			throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
 		} catch (ParseException e) {
-			if(fieldEditor.getType().equalsIgnoreCase("date"))
+			if (fieldEditor.getType().equalsIgnoreCase("date"))
 				throw new TrickException("error.parse.date", String.format("%s is not valid date", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
-			else throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
+			else
+				throw new TrickException("error.parse.number", String.format("%s is not a number", fieldEditor.getValue()), String.valueOf(fieldEditor.getValue().toString()));
 		}
 		// data type not found, return error
 		return null;
