@@ -1,6 +1,6 @@
 function importRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
-		idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
+		idAnalysis = findAnalysisId();
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/RRF/Import",
@@ -102,7 +102,7 @@ function importRRF(idAnalysis) {
 
 function importRawRRFForm(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
-		idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
+		idAnalysis = findAnalysisId();
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/RRF/Form/Import/Raw/" + idAnalysis,
@@ -128,7 +128,7 @@ function importRawRRFForm(idAnalysis) {
 
 function importDataRawRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
-		idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
+		idAnalysis = findAnalysisId();
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$("#import_raw_rrf_modal .modal-footer .btn").prop("disabled", true);
 		$("#import_raw_rrf_modal .modal-header .close").prop("disabled", true);

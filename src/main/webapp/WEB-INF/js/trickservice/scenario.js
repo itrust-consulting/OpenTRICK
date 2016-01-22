@@ -98,7 +98,7 @@ function deleteScenario(scenarioId) {
 			var selectedScenario = findSelectItemIdBySection(("section_scenario"));
 			if (!selectedScenario.length)
 				return false;
-			var lang = $("#nav-container").attr("data-trick-language");
+			var lang = findAnalysisLocale();
 			var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver(
 					"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios", null, lang);
 			$("#confirm-dialog .modal-body").text(text);
@@ -158,7 +158,7 @@ function serializeScenarioForm(formId) {
 }
 
 function clearScenarioFormData() {
-	var lang = $("#nav-container").attr("data-trick-language");
+	var lang = findAnalysisLocale();
 	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario", null, lang));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }

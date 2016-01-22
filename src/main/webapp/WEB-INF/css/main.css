@@ -69,7 +69,7 @@ body {
 	padding-top: 5px;
 }
 
-.nav.bordered-bottom {
+.nav.bordered-bottom,.bordered-bottom  {
 	border-bottom: 1px solid #dddddd;
 }
 
@@ -345,7 +345,7 @@ a[role="changeUILanguage"]:hover {
 }
 
 ul.asset-measure {
-	height: 250px;
+	height: 265px;
 	padding: 0px;
 	overflow: auto;
 	margin: 8px auto 0 auto;

@@ -269,8 +269,7 @@ function showTabEstimation(name) {
 }
 
 function computeAssessment(silent) {
-	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update",
 			type : "get",
@@ -298,8 +297,7 @@ function computeAssessment(silent) {
 }
 
 function refreshAssessment() {
-	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
 		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
@@ -329,8 +327,7 @@ function refreshAssessment() {
 }
 
 function updateAssessmentAle(silent) {
-	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update/ALE",
 			type : "get",

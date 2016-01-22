@@ -14,6 +14,8 @@ $(document).ready(function() {
 
 	$("input[type='checkbox']").removeAttr("checked");
 
+	var $tabOption = $("#tabOption");
+
 	application["settings-fixed-header"] = {
 		fixedOffset : $(".nav-analysis"),
 		marginTop : application.fixedOffset,
@@ -24,13 +26,7 @@ $(document).ready(function() {
 
 	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 		disableEditMode();
-		/*
-		 * var target = $(e.target).attr("href"); if
-		 * ($(target).attr("data-update-required") == "true") {
-		 * window[$(target).attr("data-trigger")].apply();
-		 * $(target).attr("data-update-required", "false"); }
-		 */
-		$("#tabOption").hide();
+		$tabOption.hide();
 	});
 	Highcharts.setOptions({
 		lang : {
@@ -41,7 +37,19 @@ $(document).ready(function() {
 });
 
 function findAnalysisId() {
-	return $("#nav-container").attr("data-trick-id");
+	var id = application['selected-analysis-id'];
+	if (id === undefined){
+		var 
+		id = application['selected-analysis-id'] = $("#nav-container").attr("data-trick-id");
+	}
+	return id;
+}
+
+function findAnalysisLocale() {
+	var locale = application['selected-analysis-locale'];
+	if(locale ===undefined)
+		locale = application['selected-analysis-locale'] = $("#nav-container").attr("data-trick-language");
+	return locale;
 }
 
 function isEditable() {
@@ -106,7 +114,8 @@ function reloadMeasureRow(idMeasure, standard) {
 			error : unknowError
 		});
 	} else
-		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title", MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
+		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title",
+				MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
 	return false;
 }
 

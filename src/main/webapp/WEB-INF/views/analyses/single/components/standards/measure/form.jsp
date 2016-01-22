@@ -72,7 +72,7 @@
 							<div class="form-group">
 								<label for="description" class="col-sm-3 control-label"><fmt:message key="label.measure.description" /></label>
 								<div class="col-sm-9">
-									<textarea name="description" id="description" rows="10" class="form-control resize_vectical_only"><spring:message text="${measureForm.description}" /></textarea>
+									<textarea name="description" id="description" rows="9" class="form-control resize_vectical_only"><spring:message text="${measureForm.description}" /></textarea>
 								</div>
 							</div>
 						</div>
@@ -83,11 +83,11 @@
 										<h3>
 											<fmt:message key="label.assetmeasure.assets.title" />
 										</h3>
-										<p>
+										<p class="bordered-bottom" style="padding-bottom: 10px;">
 											<fmt:message key="label.assetmeasure.assets.description" />
 										</p>
+										
 									</div>
-									<hr class="center-block" style="width: 96%">
 									<div class="form-group" style="width: 47%; margin: 5px 15px;">
 										<label class="col-xs-3" style="padding: 5px;"><fmt:message key="label.asset_type" /></label>
 										<div class="col-xs-9">

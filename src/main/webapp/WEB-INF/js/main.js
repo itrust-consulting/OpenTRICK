@@ -343,7 +343,7 @@ var OPEN_MODE = {
 }
 
 function permissionError() {
-	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!", null, $("#nav-container").attr("data-trick-language")));
+	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!", null, findAnalysisLocale()));
 	return false;
 }
 

@@ -55,7 +55,7 @@ function deleteAsset() {
 		if (!selectedAsset.length)
 			return false;
 
-		var lang = $("#nav-container").attr("data-trick-language");
+		var lang = findAnalysisLocale();
 		if (selectedAsset.length == 1) {
 			var assetname = $("#section_asset tr[data-trick-id='" + selectedAsset[0] + "'] td:nth-child(3)").text();
 			$("#confirm-dialog .modal-body").html(

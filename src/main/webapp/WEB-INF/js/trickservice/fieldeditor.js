@@ -755,9 +755,8 @@ function enableEditMode() {
 }
 
 function editField(element, controller, id, field, type) {
-	idAnalysis = $("[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	var fieldEditor = null;
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (controller == null || controller == undefined)
 			controller = FieldEditor.prototype.__findControllor(element);
 		if (controller == "ExtendedParameter")
