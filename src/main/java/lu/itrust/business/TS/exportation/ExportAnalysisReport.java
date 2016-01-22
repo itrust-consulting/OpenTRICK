@@ -1382,8 +1382,8 @@ public class ExportAnalysisReport {
 				row.getCell(11).setText(getMessage("report.measure.cost", null, "CS(k€)", locale));
 				row.getCell(12).setText(getMessage("report.measure.phase", null, "P", locale));
 				row.getCell(13).setText(getMessage("report.measure.responsible", null, "Resp.", locale));
-				row.getCell(14).setText(getMessage("report.measure.comment", null, "Comment", locale));
-				row.getCell(15).setText(getMessage("report.measure.to_do", null, "To Do", locale));
+				row.getCell(14).setText(getMessage("report.measure.to_do", null, "To Do", locale));
+				row.getCell(15).setText(getMessage("report.measure.comment", null, "Comment", locale));
 				// set data
 				Collections.sort(analysisStandard.getMeasures(), comparator);
 
@@ -1397,7 +1397,7 @@ public class ExportAnalysisReport {
 					if (!measure.getMeasureDescription().isComputable()) {
 						String color = measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR;
 						for (int i = 0; i < 16; i++)
-							row.getCell(i).setColor(i < 14 ? color : DEFAULT_CELL_COLOR);
+							row.getCell(i).setColor(i == 15 ? DEFAULT_CELL_COLOR : color);
 					} else {
 						while (row.getTableCells().size() < 16)
 							row.createCell();
@@ -1413,6 +1413,7 @@ public class ExportAnalysisReport {
 						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
 						addCellParagraph(row.getCell(12), measure.getPhase().getNumber() + "");
 						addCellParagraph(row.getCell(13), measure.getResponsible());
+						addCellParagraph(row.getCell(14), measure.getToDo());
 						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
 							for (int i = 0; i < 16; i++)
 								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
@@ -1422,8 +1423,7 @@ public class ExportAnalysisReport {
 							row.getCell(11).setColor(measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
 						}
 					}
-					addCellParagraph(row.getCell(14), measure.getComment());
-					addCellParagraph(row.getCell(15), measure.getToDo());
+					addCellParagraph(row.getCell(15), measure.getComment());
 				}
 			}
 		}
@@ -1579,7 +1579,7 @@ public class ExportAnalysisReport {
 	}
 
 	private String getValueOrEmpty(String value) {
-		return value == null? "" : value;
+		return value == null ? "" : value;
 	}
 
 	/**

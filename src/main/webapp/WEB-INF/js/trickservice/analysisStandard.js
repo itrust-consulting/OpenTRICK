@@ -184,8 +184,7 @@ function editStandard(standardrowobject) {
 
 function doEditStandard(form) {
 	$("#createStandardModal #createstandardbutton").prop("disabled", true);
-	idAnalysis = findAnalysisId();
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Standard/Save",
 			type : "post",

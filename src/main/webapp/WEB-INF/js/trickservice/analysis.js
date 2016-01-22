@@ -38,17 +38,23 @@ $(document).ready(function() {
 
 function findAnalysisId() {
 	var id = application['selected-analysis-id'];
-	if (id === undefined){
-		var 
-		id = application['selected-analysis-id'] = $("#nav-container").attr("data-trick-id");
+	if (id === undefined) {
+		var el = document.querySelector("#nav-container");
+		if (el == null)
+			return -1;
+		id = application['selected-analysis-id'] = el.getAttribute("data-trick-id");
 	}
 	return id;
 }
 
 function findAnalysisLocale() {
 	var locale = application['selected-analysis-locale'];
-	if(locale ===undefined)
-		locale = application['selected-analysis-locale'] = $("#nav-container").attr("data-trick-language");
+	if (locale === undefined) {
+		var el = document.querySelector("#nav-container");
+		if (el == null)
+			return 'en';
+		locale = application['selected-analysis-locale'] = el.getAttribute("data-trick-language");
+	}
 	return locale;
 }
 
