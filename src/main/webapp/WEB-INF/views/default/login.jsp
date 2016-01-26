@@ -35,7 +35,7 @@
 				<jsp:include page="../template/successErrors.jsp" />
 				<form id="login_form" method="post" action="${pageContext.request.contextPath}/signin">
 					<div class="form-group">
-						<input id="username" name="username" value="${(!empty (username))? username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
+						<input id="username" name="username" autofocus="autofocus" value="${(!empty (username))? username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
 							required="required" class="form-control" pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}" />
 					</div>
 					<div class="form-group">
@@ -74,7 +74,6 @@
 				$('#login_reload_button').show();
 				$("#login_signin_button").hide();
 			}, 899400);
-			$("input[name='username']").focus();
 			-->
 		</script>
 	</div>
