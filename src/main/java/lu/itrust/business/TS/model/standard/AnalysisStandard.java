@@ -35,7 +35,7 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtDiscriminator")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }) )
 public abstract class AnalysisStandard implements Cloneable {
 
 	/***********************************************************************************************
@@ -52,7 +52,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
 	@Access(AccessType.FIELD)
-	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE})
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	private Standard standard = null;
 
 	/** AnalysisStandard List of measures */
@@ -94,6 +94,18 @@ public abstract class AnalysisStandard implements Cloneable {
 	 */
 	public Standard getStandard() {
 		return standard;
+	}
+
+	public boolean isComputable() {
+		if (standard == null)
+			throw new TrickException("error.standard.null", "Standard cannot be null");
+		return standard.isComputable();
+	}
+
+	public boolean isAnalysisOnly() {
+		if (standard == null)
+			throw new TrickException("error.standard.null", "Standard cannot be null");
+		return standard.isAnalysisOnly();
 	}
 
 	/**
@@ -141,14 +153,14 @@ public abstract class AnalysisStandard implements Cloneable {
 	public List<Measure> getMeasures() {
 		return measures;
 	}
-	
+
 	/**
 	 * getMeasures: <br>
 	 * Returns the measures field value.
 	 * 
 	 * @return The value of the measures field
 	 */
-	public List<? extends Measure > getExendedMeasures() {
+	public List<? extends Measure> getExendedMeasures() {
 		return measures;
 	}
 
@@ -189,7 +201,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	 * 
 	 * @return
 	 * @throws CloneNotSupportedException
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public AnalysisStandard duplicate() throws CloneNotSupportedException, TrickException {
 		AnalysisStandard analysisStandard = (AnalysisStandard) super.clone();
@@ -219,8 +231,8 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Check if this object equals another object of the same type. Equal means: the field id,
-	 * description, domain and reference.
+	 * Check if this object equals another object of the same type. Equal means:
+	 * the field id, description, domain and reference.
 	 * 
 	 * @param obj
 	 *            The other object to check on

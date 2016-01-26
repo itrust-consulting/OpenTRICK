@@ -450,9 +450,8 @@ function showError(parent, text) {
 	close.setAttribute("class", "close");
 	close.setAttribute("href", "#");
 	close.setAttribute("data-dismiss", "alert");
-	error.setAttribute("class", "alert alert-error");
+	error.setAttribute("class", "alert alert-danger");
 	error.setAttribute("aria-hidden", "true");
-	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1;color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	content.setAttribute("style", "text-align: left");

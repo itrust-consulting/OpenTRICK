@@ -78,7 +78,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }) )
 public class Analysis implements Cloneable {
 
 	/***********************************************************************************************
@@ -460,14 +460,16 @@ public class Analysis implements Cloneable {
 	 * computeCost: <br>
 	 * Returns the Calculated Cost of a Measure. <br>
 	 * Formula used: <br>
-	 * Formula: Cost = ((is * iw) + (es * ew) + in) * ((1 / lt) + (ma / 100))<br>
+	 * Formula: Cost = ((is * iw) + (es * ew) + in) * ((1 / lt) + (ma / 100))
+	 * <br>
 	 * With:<br>
 	 * is: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
 	 * es: The External Setup Rate in Euro per Man Day<br>
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in Euro<br>
-	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
+	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years
+	 * <br>
 	 * ma: The MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE
 	 * 0,00 = 0% and 0,1 = 100%) :: if 0 -> use The Default
 	 * MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE 0,00 = 0%
@@ -557,7 +559,8 @@ public class Analysis implements Cloneable {
 	 * er: The External Setup Rate in Euro per Man Day<br>
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in kEuro<br>
-	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
+	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years
+	 * <br>
 	 * im: The Internal MaintenanceRecurrentInvestment in Man Days<br>
 	 * em: The External MaintenanceRecurrentInvestment in Man Days<br>
 	 * ri: The recurrent Investment in kEuro<br>
@@ -2533,5 +2536,10 @@ public class Analysis implements Cloneable {
 
 	public List<AssetType> distinctAssetType() {
 		return this.assets.stream().map(asset -> asset.getAssetType()).distinct().collect(Collectors.toList());
+	}
+
+	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
+		return this.analysisStandards.stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
+				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
 	}
 }

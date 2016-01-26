@@ -145,7 +145,6 @@ public class ControllerAnalysisStandard {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
-
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get
 	 * compliances)
@@ -343,12 +342,12 @@ public class ControllerAnalysisStandard {
 
 		try {
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 			for (AnalysisStandard standard : standards)
 				if (standard.getStandard().getId() == standardid)
-					return chartGenerator.compliance(idAnalysis, standard.getStandard().getLabel(), customLocale != null ? customLocale : locale);
+					return chartGenerator.compliance(idAnalysis, standard.getStandard().getLabel(), locale);
 			// return chart of either standard 27001 or 27002 or null
 
 			return null;
@@ -379,7 +378,7 @@ public class ControllerAnalysisStandard {
 
 		try {
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
@@ -389,7 +388,7 @@ public class ControllerAnalysisStandard {
 
 				value += "\"" + analysisStandard.getStandard().getId() + "\":[";
 
-				value += chartGenerator.compliance(idAnalysis, analysisStandard.getStandard().getLabel(), customLocale != null ? customLocale : locale);
+				value += chartGenerator.compliance(idAnalysis, analysisStandard.getStandard().getLabel(), locale);
 
 				value += "],";
 			}
@@ -482,21 +481,17 @@ public class ControllerAnalysisStandard {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+
 		try {
 
 			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null) {
-				errors.put("standard", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
-				return errors;
-			}
-
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// create new standard object
-			Standard standard = buildStandard(errors, value, customLocale != null ? customLocale : locale, analysis);
+			Standard standard = buildStandard(errors, value, locale, analysis);
 
 			if (!errors.isEmpty())
 				// return error on failure
@@ -538,27 +533,15 @@ public class ControllerAnalysisStandard {
 				serviceAnalysis.saveOrUpdate(analysis);
 			}
 
-			errors.put("success",
-					messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", customLocale != null ? customLocale : locale));
+			errors.put("success", messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", locale));
 
 		} catch (TrickException e) {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
-			} else
-				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-				errors.put("standard", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
-			} else
-				errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
-			TrickLogManager.Persist(e);
+			errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
 			return errors;
 		}
 		return errors;
@@ -583,21 +566,16 @@ public class ControllerAnalysisStandard {
 			Locale locale) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-
 			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null) {
-				errors.put("standard", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
-				return errors;
-			}
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// create new standard object
-			Standard standard = buildStandard(errors, value, customLocale != null ? customLocale : locale, analysis);
+			Standard standard = buildStandard(errors, value, locale, analysis);
 
 			// build standard
 
@@ -608,22 +586,11 @@ public class ControllerAnalysisStandard {
 			serviceStandard.saveOrUpdate(standard);
 
 		} catch (TrickException e) {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
-			} else
-				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-				errors.put("standard", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
-			} else
-				errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
+			errors.put("standard", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -646,25 +613,18 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody Map<Integer, String> getAvailableStandards(HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		Map<Integer, String> availableStandards = new LinkedHashMap<Integer, String>();
-
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 			List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
-
 			for (Standard standard : standards)
 				availableStandards.put(standard.getId(), standard.getLabel() + " - " + standard.getVersion());
-
 			return availableStandards;
 
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			availableStandards.clear();
-			availableStandards.put(0, messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving",
-					customLocale != null ? customLocale : locale));
+			availableStandards.put(0, messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred",
+					new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2())));
 			return availableStandards;
 		}
 	}
@@ -683,16 +643,14 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Add/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			Standard standard = serviceStandard.get(idStandard);
 			if (standard == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist",
-						customLocale != null ? customLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			Measure measure = null;
@@ -742,19 +700,18 @@ public class ControllerAnalysisStandard {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			return JsonMessage
-					.Success(messageSource.getMessage("success.analysis.add.standard", null, "The standard was successfully added", customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "The standard was successfully added", locale));
 		} catch (TrickException e) {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			return JsonMessage.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving",
-					customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving", locale));
 		}
+	}
+
+	private Locale loadAnalysisLocale(Integer idAnalysis, Locale locale) throws Exception {
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+		return customLocale == null ? locale : customLocale;
 	}
 
 	/**
@@ -771,18 +728,14 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
-
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis",
-					customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", locale));
 		}
 	}
 
@@ -1064,7 +1017,7 @@ public class ControllerAnalysisStandard {
 		}
 		return errors;
 	}
-	
+
 	@RequestMapping(value = "/Measure/{idMeasure}/Form", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String measureForm(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
@@ -1072,18 +1025,17 @@ public class ControllerAnalysisStandard {
 		try {
 			Measure measure = serviceMeasure.get(idMeasure);
 			List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
-			//List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, ParameterType)
 			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 			MeasureDescription measureDescription = measure.getMeasureDescription();
 			MeasureDescriptionText measureDescriptionText = measureDescription.findByLanguage(language);
 			model.addAttribute("measureDescriptionText", measureDescriptionText);
 			model.addAttribute("measureDescription", measureDescription);
-			if(measureDescriptionText!=null)
+			if (measureDescriptionText != null)
 				model.addAttribute("countLine", measureDescriptionText.getDescription().trim().split("\r\n|\r|\n").length);
 			model.addAttribute("measureDescription", measureDescription);
 			boolean isMaturity = measure instanceof MaturityMeasure;
 			model.addAttribute("isMaturity", isMaturity);
-			if(isMaturity)
+			if (isMaturity)
 				model.addAttribute("impscales", serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
 			model.addAttribute("showTodo", measureDescription.isComputable());
 			model.addAttribute("language", language.getAlpha2());
@@ -1093,7 +1045,7 @@ public class ControllerAnalysisStandard {
 			TrickLogManager.Persist(e);
 		}
 		return "analyses/single/components/standards/measure";
-			
+
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)
@@ -1256,22 +1208,22 @@ public class ControllerAnalysisStandard {
 
 			Integer id = jsonNode.get("id").asInt();
 
-			if (id > 0)
-				standard = serviceStandard.get(id);
-			else {
+			if (id > 0) {
+				standard = analysis.findStandardByAndAnalysisOnly(id);
+				if (standard == null) {
+					errors.put("standard", messageSource.getMessage("error.standard.not.belong.selected.analysis", null, "Standard does not belong to selected analysis", locale));
+					return null;
+				}
+			} else {
 				standard = new Standard();
 				standard.setAnalysisOnly(true);
 			}
 
 			String prevlabel = standard.getLabel();
 
-			StandardType prevtype = standard.getType();
-
 			String label = jsonNode.get("label").asText();
 
 			String description = jsonNode.get("description").asText();
-
-			StandardType type = StandardType.getByName(jsonNode.get("type").asText());
 
 			// set data
 			String error = validator.validate(standard, "label", label);
@@ -1287,27 +1239,34 @@ public class ControllerAnalysisStandard {
 			else
 				standard.setDescription(description);
 
-			error = validator.validate(standard, "type", type);
+			if (standard.getId() < 1) {
 
-			if (error != null)
-				errors.put("type", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				standard.setType(type);
+				StandardType type = StandardType.getByName(jsonNode.get("type").asText());
+
+				error = validator.validate(standard, "type", type);
+				if (error != null)
+					errors.put("type", serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					standard.setType(type);
+			}
 
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			if (label != prevlabel || type != prevtype)
-				standard.setVersion(serviceStandard.getNextVersionByNameAndType(label, type));
+			if (!label.equals(prevlabel) || standard.getId() < 1)
+				standard.setVersion(serviceStandard.getNextVersionByNameAndType(label, standard.getType()));
 			// return success
 			return standard;
 
+		} catch (TrickException e) {
+			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			// return error
 			errors.put("standard", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 			TrickLogManager.Persist(e);
-			return null;
 		}
+		return null;
 	}
 
 }

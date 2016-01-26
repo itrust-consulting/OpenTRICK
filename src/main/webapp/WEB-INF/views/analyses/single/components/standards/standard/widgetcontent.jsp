@@ -78,24 +78,25 @@
 					</div>
 					<div class="panel panel-primary">
 						<div class="panel-body" align="center">
-							<label class="col-sm-12"><fmt:message key="label.norm.standard_type" /></label> 
-							<label class="radio-inline col-sm-offset-2 col-sm-4"> <input
-								type="radio" name="type" value="NORMAL"> <fmt:message key="label.norm.standard_type.normal" /></label>
-								<label class="radio-inline col-sm-4">
-								<input type="radio" name="type" value="ASSET"> <fmt:message key="label.norm.standard_type.asset" />
+							<label class="col-sm-12"><fmt:message key="label.norm.standard_type" /></label> <label class="radio-inline col-sm-offset-2 col-sm-4"> <input type="radio"
+								name="type" value="NORMAL"> <fmt:message key="label.norm.standard_type.normal" /></label> <label class="radio-inline col-sm-4"> <input type="radio" name="type"
+								value="ASSET"> <fmt:message key="label.norm.standard_type.asset" />
 							</label>
 						</div>
 					</div>
-					
+
 				</form>
 			</div>
 			<div class="modal-footer" style="margin-top: 0;">
-				<button id="createstandardbutton" type="button" class="btn btn-primary" onclick="doCreateStandard('standard_form')">
-					<fmt:message key="label.action.create" />
-				</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">
-					<spring:message code="label.action.cancel" text="Cancel" />
-				</button>
+				<div class='col-xs-8' id='standard-modal-error-zone' style="text-align: left"></div>
+				<div class='col-xs-4'>
+					<button id="createstandardbutton" type="button" class="btn btn-primary" onclick="doCreateStandard('standard_form')">
+						<fmt:message key="label.action.create" />
+					</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						<spring:message code="label.action.cancel" text="Cancel" />
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>

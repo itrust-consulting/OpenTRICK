@@ -62,6 +62,7 @@ function createStandard() {
 		$("#createStandardModal #standard_label").prop("value", "");
 		$("#createStandardModal #standard_version").prop("value", "");
 		$("#createStandardModal #standard_description").prop("value", "");
+		$("#createStandardModal #standard_form input[name='type']").prop("disabled", false);
 		$("#createStandardModal #standard_form input[name='type'][value='NORMAL']").prop("checked", "checked");
 		$("#createStandardModal #standard_computable").prop("checked", "checked");
 		$("#createStandardModal #createstandardtitle").text(MessageResolver("label.title.analysis.manage_standard.create", "Create new standard", null, locale));
@@ -156,20 +157,21 @@ function editStandard(standardrowobject) {
 
 		if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 
-			var id = $(selectedItem).attr("data-trick-id"), $model = $("#createStandardModal"), locale = findAnalysisLocale(), label = $(selectedItem).find("td:nth-child(2)").text(), description = $(selectedItem)
-					.find("td:nth-child(4)").text(), type = $(selectedItem).attr("data-trick-type"), computable = $(selectedItem).attr("data-trick-computable");
+			var id = $(selectedItem).attr("data-trick-id"), $model = $("#createStandardModal"), locale = findAnalysisLocale(), label = $(selectedItem).find("td:nth-child(2)")
+					.text(), description = $(selectedItem).find("td:nth-child(4)").text(), type = $(selectedItem).attr("data-trick-type"), computable = $(selectedItem).attr(
+					"data-trick-computable");
 			$("#createStandardModal .label-danger").remove();
 
 			$("#createstandardbutton", $model).prop("disabled", false);
-			$("#standard_label",$model).prop("value", label);
-			$("#standard_description",$model).prop("value", description);
-			$("#standard_form input[name='type']",$model).removeProp("checked");
-			$("#standard_form input[name='type'][value='" + type + "']",$model).prop("checked", true);
-			$("#id",$model).val(id);
+			$("#standard_label", $model).prop("value", label);
+			$("#standard_description", $model).prop("value", description);
+			$("#standard_form input[name='type']", $model).removeProp("checked").prop("disabled", true);
+			$("#standard_form input[name='type'][value='" + type + "']", $model).prop("checked", true);
+			$("#id", $model).val(id);
 			if (computable === "true")
-				$("#standard_computable",$model).prop("checked", true);
+				$("#standard_computable", $model).prop("checked", true);
 			else
-				$("#standard_computable",$model).removeProp("checked");
+				$("#standard_computable", $model).removeProp("checked");
 			$("#createstandardtitle", $model).text(MessageResolver("label.title.analysis.manage_standard.edit", "Edit standard", null, locale));
 			$("#createstandardbutton").text(MessageResolver("label.action.edit", "Edit", null, locale));
 			$("#createstandardbutton").attr("onclick", "doEditStandard('standard_form')");
@@ -183,7 +185,8 @@ function editStandard(standardrowobject) {
 }
 
 function doEditStandard(form) {
-	$("#createStandardModal #createstandardbutton").prop("disabled", true);
+	var $modal = $("#createStandardModal");
+	$("#createstandardbutton", $modal).prop("disabled", true);
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Standard/Save",
@@ -191,37 +194,31 @@ function doEditStandard(form) {
 			data : serializeForm(form),
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-
-				$("#createStandardModal #createstandardbutton").prop("disabled", false);
-				var alert = $("#createStandardModal .label-danger");
-				if (alert.length)
-					alert.remove();
+				$("#createstandardbutton", $modal).prop("disabled", false);
+				$(".label-danger,.alert-danger", $modal).remove();
 				for ( var error in response) {
-					var errorElement = document.createElement("label");
+					var errorElement = document.createElement("label"), $error = $(errorElement);
 					errorElement.setAttribute("class", "label label-danger");
-
-					$(errorElement).text(response[error]);
+					$error.text(response[error]);
 					switch (error) {
 					case "label":
-						$(errorElement).appendTo($("#createStandardModal #standard_form #standard_label").parent());
+						$error.appendTo($("#standard_form #standard_label", $modal).parent());
 						break;
 					case "description":
-						$(errorElement).appendTo($("#createStandardModal #standard_form #standard_description").parent());
+						$error.appendTo($("#standard_form #standard_description", $modal).parent());
 						break;
 					case "type":
-						$(errorElement).css({
+						$error.css({
 							"display" : "inline-block",
 							"margin-top" : "5px"
-						});
-						$(errorElement).appendTo($("#createStandardModal #standard_form .panel-body"));
+						}).appendTo($("#standard_form .panel-body", $modal));
 						break;
-					case "standard":
-						showError($("#createStandardModal .modal-footer")[0], response["error"]);
-						$("#createStandardModal .modal-footer div[class='alert alert-danger']").css("margin-bottom", "0");
+					default:
+						$error.appendTo($("#standard-modal-error-zone", $modal));
 						break;
 					}
 				}
-				if (!$("#createStandardModal .label-danger").length) {
+				if (!$(".label-danger,.alert-danger", $modal).length) {
 					$.ajax({
 						url : context + "/Analysis/Standard/Manage",
 						type : "get",
@@ -237,14 +234,14 @@ function doEditStandard(form) {
 						},
 						error : unknowError
 					});
-					$("#createStandardModal").modal("hide");
+					$modal.modal("hide");
 				}
 				return false;
 
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
 				unknowError(jqXHR, textStatus, errorThrown);
-				$("#createStandardModal #createstandardbutton").prop("disabled", false);
+				$("#createstandardbutton", $modal).prop("disabled", false);
 			}
 		});
 	} else
@@ -257,12 +254,10 @@ function addStandard() {
 	var selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
 	if (selectedItem.length != 0)
 		return false;
-
-	idAnalysis = findAnalysisId();
 	var alert = $("#addStandardModal .alert");
 	if (alert.length)
 		alert.remove();
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan( findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#add_standard_progressbar").css("display", "none");
 		$.ajax({
 			url : context + "/Analysis/Standard/Available",
@@ -314,8 +309,7 @@ function doAddStandard(form) {
 	var alert = $("#standardModal .alert");
 	if (alert.length)
 		alert.remove();
-	idAnalysis = findAnalysisId();
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#add_standard_progressbar").css("display", "inline-block");
 		var idStandard = $("#" + form + " select").val();
 		$.ajax({
@@ -358,8 +352,7 @@ function doAddStandard(form) {
 
 function removeStandard() {
 
-	var lang = findAnalysisLocale();
-	var selectedStandard = $("#section_manage_standards :checked");
+	var lang = findAnalysisLocale(), selectedStandard = $("#section_manage_standards :checked");
 	if (selectedStandard.length != 1)
 		return false;
 	selectedStandard = findTrickID(selectedStandard[0]);
