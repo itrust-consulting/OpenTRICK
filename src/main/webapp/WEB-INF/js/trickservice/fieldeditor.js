@@ -718,39 +718,29 @@ function SelectText(element) {
 function disableEditMode() {
 	if (!application.editMode)
 		return false;
-	try {
-		$("#progress-dialog").modal("show");
-		application.editMode = false
-		$("li[role='enterEditMode']").removeClass("disabled");
-		$("li[role='leaveEditMode']").addClass("disabled");
-		$(application.fieldEditors).each(function() {
-			this.Save(this);
-		});
-		return false;
-	} finally {
-		$("#progress-dialog").modal("hide");
-	}
+	application.editMode = false
+	$("li[role='enterEditMode']").removeClass("disabled");
+	$("li[role='leaveEditMode']").addClass("disabled");
+	$(application.fieldEditors).each(function() {
+		this.Save(this);
+	});
+	return false;
 }
 
 function enableEditMode() {
 	if (application.editMode)
 		return false;
-	try {
-		$("#progress-dialog").modal("show");
-		application.editMode = true;
-		$("li[role='leaveEditMode']").removeClass("disabled");
-		$("li[role='enterEditMode']").addClass("disabled");
-		application.fieldEditors = [];
-		var $data = $(".tab-pane.active [data-trick-content='text']");
-		$data.each(function() {
-			var that = this;
-			var fieldEditor = editField(that);
-			if (fieldEditor != null)
-				application.fieldEditors.push(fieldEditor);
-		});
-	} finally {
-		$("#progress-dialog").modal("hide");
-	}
+	application.editMode = true;
+	$("li[role='leaveEditMode']").removeClass("disabled");
+	$("li[role='enterEditMode']").addClass("disabled");
+	application.fieldEditors = [];
+	var $data = $(".tab-pane.active [data-trick-content='text']");
+	$data.each(function() {
+		var that = this;
+		var fieldEditor = editField(that);
+		if (fieldEditor != null)
+			application.fieldEditors.push(fieldEditor);
+	});
 	return false;
 }
 

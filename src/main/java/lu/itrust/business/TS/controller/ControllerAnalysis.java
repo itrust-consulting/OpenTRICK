@@ -227,7 +227,7 @@ public class ControllerAnalysis {
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
 		Boolean readOnly = mode == OpenMode.READ;
-		boolean hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN)
+		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
 			// initialise analysis
@@ -280,7 +280,7 @@ public class ControllerAnalysis {
 					chapters.put(chapter, measures = new LinkedList<Measure>());
 				measures.add(measure);
 			});
-			
+
 			mapper.put(analysisStandard.getStandard().getLabel(), chapters);
 		});
 		return mapper;
