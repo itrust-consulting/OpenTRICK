@@ -222,4 +222,19 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	public boolean isUsed(Language language) {
 		return daoLanguage.isInUse(language);
 	}
+
+	@Override
+	public boolean existsByIdAndAlpha3(int id, String alpha3) {
+		return daoLanguage.existsByIdAndAlpha3(id, alpha3);
+	}
+
+	@Override
+	public boolean existsByIdAndName(int id, String name) {
+		return daoLanguage.existsByIdAndName(id, name);
+	}
+
+	@Override
+	public boolean existsByIdAndAltName(int id, String altName) {
+		return daoLanguage.existsByIdAndAltName(id, altName);
+	}
 }

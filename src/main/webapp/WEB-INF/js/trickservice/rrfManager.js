@@ -345,8 +345,8 @@ function loadMeasureChart() {
 		url : context + "/Analysis/RRF/Measure/" + idMeasure + "/Chart",
 		type : "POST",
 		data : JSON.stringify({
-			"scenariotype" : idScenarioType,
-			"scenario" : idScenario
+			"idScenarioType" : idScenarioType,
+			"idScenario" : idScenario
 		}),
 		async : true,
 		contentType : "application/json;charset=UTF-8",

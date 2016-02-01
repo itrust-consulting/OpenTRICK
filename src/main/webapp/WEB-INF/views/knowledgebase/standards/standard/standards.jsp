@@ -11,10 +11,10 @@
 			<li><a href="#" onclick="return newStandard();"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.menu.add.norm" text="Add" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return switchTab('tab_measure')"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message
 						code="label.action.show_measures" text="Show measures" /> </a></li>
-			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportSingleStandard();"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<spring:message
-						code="label.menu.export.norm" text="Export" /> </a></li>
-			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleStandard();"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<spring:message
+			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleStandard();"><span class="glyphicon glyphicon-edit"></span>&nbsp;<spring:message
 						code="label.menu.edit.norm" text="Edit" /> </a></li>
+						<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportSingleStandard();"><span class="glyphicon glyphicon-export"></span>&nbsp;<spring:message
+						code="label.menu.export.norm" text="Export" /> </a></li>
 			<li><a href="#" onclick="return getImportStandardTemplate();"><span class="glyphicon glyphicon-file"></span>&nbsp;<spring:message
 						code="label.menu.norm.download.import_norm_template" text="Get Import Template" /> </a></li>
 			<li><a href="#" onclick="return uploadImportStandardFile();"><span class="glyphicon glyphicon-import"></span>&nbsp;<spring:message code="label.menu.import.norm"

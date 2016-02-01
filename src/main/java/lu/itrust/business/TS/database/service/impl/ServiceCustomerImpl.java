@@ -257,7 +257,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 
 	@Override
 	public boolean exists(int idCustomer) {
-
 		return daoCustomer.exists(idCustomer);
+	}
+
+	@Override
+	public boolean existsByIdAndOrganisation(int id, String organisation) {
+		return daoCustomer.existsByIdAndOrganisation(id, organisation);
 	}
 }

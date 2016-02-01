@@ -60,7 +60,7 @@ public class ControllerLanguage {
 	 * 
 	 * Display all Language
 	 * 
-	 * */
+	 */
 	@RequestMapping
 	public String loadAllLanguages(Map<String, Object> model) throws Exception {
 		model.put("languages", serviceLanguage.getAll());
@@ -85,7 +85,7 @@ public class ControllerLanguage {
 	 * 
 	 * Display single Language
 	 * 
-	 * */
+	 */
 	@RequestMapping("/{languageId}")
 	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
 			Locale locale) throws Exception {
@@ -116,22 +116,13 @@ public class ControllerLanguage {
 			Language language = new Language();
 			if (!buildLanguage(errors, language, value, locale))
 				return errors;
-			if (language.getId() < 1) {
-				if (serviceLanguage.existsByAlpha3(language.getAlpha3()))
-					errors.put("alpha3", messageSource.getMessage("error.language.alph_3.duplicate", null, "Alpha 3 code is already in use", locale));
-				if (serviceLanguage.existsByAltName(language.getAltName()))
-					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
-				if (serviceLanguage.existsByName(language.getName()))
-					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
-			}
-			if (errors.isEmpty()) {
-				serviceLanguage.saveOrUpdate(language);
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.language.add_or_update", String.format("Language: %s", language.getAlpha3()), principal.getName(),
-						LogAction.CREATE_OR_UPDATE, language.getAlpha3());
-			}
+			serviceLanguage.saveOrUpdate(language);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.language.add_or_update", String.format("Language: %s", language.getAlpha3()), principal.getName(),
+					LogAction.CREATE_OR_UPDATE, language.getAlpha3());
+
 		} catch (Exception e) {
 			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			TrickLogManager.Persist(e);
@@ -143,7 +134,7 @@ public class ControllerLanguage {
 	 * 
 	 * Delete single language
 	 * 
-	 * */
+	 */
 	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteLanguage(@PathVariable("languageId") Integer languageId, Principal principal, Locale locale) {
 		try {
@@ -159,8 +150,7 @@ public class ControllerLanguage {
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.language.delete", String.format("Language: %s", language.getAlpha3()), principal.getName(),
 					LogAction.DELETE, language.getAlpha3());
 			return JsonMessage.Success(messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale));
-		} 
-		catch (Exception e) {
+		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used.", locale));
 		}
@@ -181,8 +171,7 @@ public class ControllerLanguage {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			int id = jsonNode.get("id").asInt();
-			if (id > 0)
-				language.setId(jsonNode.get("id").asInt());
+
 			ValidatorField validator = serviceDataValidation.findByClass(Language.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new LanguageValidator());
@@ -207,6 +196,24 @@ public class ControllerLanguage {
 				errors.put("altName", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				language.setAltName(altName);
+
+			if (id > 0) {
+				language.setId(id);
+				if (serviceLanguage.existsByIdAndAlpha3(id, alpha3))
+					errors.put("alpha3", messageSource.getMessage("error.language.alph_3.duplicate", null, "Alpha 3 code is already in use", locale));
+				if (serviceLanguage.existsByIdAndName(id, name))
+					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
+				if (serviceLanguage.existsByIdAndAltName(id, altName))
+					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
+
+			} else {
+				if (serviceLanguage.existsByAlpha3(language.getAlpha3()))
+					errors.put("alpha3", messageSource.getMessage("error.language.alph_3.duplicate", null, "Alpha 3 code is already in use", locale));
+				if (serviceLanguage.existsByAltName(language.getAltName()))
+					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
+				if (serviceLanguage.existsByName(language.getName()))
+					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
+			}
 			return errors.isEmpty();
 
 		} catch (Exception e) {

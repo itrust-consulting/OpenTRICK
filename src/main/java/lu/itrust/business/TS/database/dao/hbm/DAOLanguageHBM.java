@@ -185,4 +185,22 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	public boolean isInUse(Language language) {
 		return (boolean) getSession().createQuery("Select count(*) > 0 From Analysis where language = :language").setParameter("language", language).uniqueResult();
 	}
+
+	@Override
+	public boolean existsByIdAndAlpha3(int id, String alpha3) {
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and alpha3 = :alpha3").setInteger("id", id)
+				.setParameter("alpha3", String.valueOf(alpha3).toUpperCase()).uniqueResult();
+	}
+
+	@Override
+	public boolean existsByIdAndName(int id, String name) {
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and name = :name").setInteger("id", id)
+				.setParameter("name", String.valueOf(name).toUpperCase()).uniqueResult();
+	}
+
+	@Override
+	public boolean existsByIdAndAltName(int id, String altName) {
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and altName = :altName").setInteger("id", id)
+				.setParameter("altName", String.valueOf(altName).toUpperCase()).uniqueResult();
+	}
 }

@@ -51,4 +51,6 @@ public interface DAOCustomer {
 
 	public boolean isInUsed(Customer customer);
 
+	public boolean existsByIdAndOrganisation(int id, String organisation);
+
 }

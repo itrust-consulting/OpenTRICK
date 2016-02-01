@@ -111,8 +111,8 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@Override
 	public boolean existsByOrganisation(String organisation) throws Exception {
-		String query = "Select count(customer) From Customer as customer where customer.organisation = :organisation";
-		return ((Long) getSession().createQuery(query).setParameter("organisation", organisation).uniqueResult()).intValue() > 0;
+		return (Boolean) getSession().createQuery("Select count(customer)>0 From Customer as customer where customer.organisation = :organisation")
+				.setParameter("organisation", organisation).uniqueResult();
 	}
 
 	/**
@@ -231,5 +231,11 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	@Override
 	public boolean isInUsed(Customer customer) {
 		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where customer = :customer").setParameter("customer", customer).uniqueResult();
+	}
+
+	@Override
+	public boolean existsByIdAndOrganisation(int id, String organisation) {
+		return (Boolean) getSession().createQuery("Select count(customer)>0 From Customer as customer where customer.id <> :id and customer.organisation = :organisation")
+				.setInteger("id", id).setParameter("organisation", organisation).uniqueResult();
 	}
 }

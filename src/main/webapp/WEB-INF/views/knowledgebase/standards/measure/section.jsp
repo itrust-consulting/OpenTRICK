@@ -21,21 +21,17 @@
 		<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleMeasure();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 					code="label.menu.edit.norm" text="Edit" /> </a></li>
 		<c:if test="${!empty languages}">
-			<li data-role='title' class="pull-right">
-				<div>
-					<select id="languageselect" class="form-control" style="width: auto;">
-						<c:forEach items="${languages}" var="language">
-							<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}"><spring:message text="${language.name}" /></option>
-						</c:forEach>
-					</select>
-				</div>
-			</li>
+			<li data-role='title' class="pull-right"><select id="languageselect" class="form-control" style="width: auto; margin-top: 5px;">
+					<c:forEach items="${languages}" var="language">
+						<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}"><spring:message text="${language.name}" /></option>
+					</c:forEach>
+			</select></li>
 		</c:if>
 		<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 			<li class="disabled pull-right" data-trick-selectable="true" title='<spring:message code="label.action.force.delete" text="Force delete"/>'><a href="#" class="text-danger"
-				onclick="return forceDeleteMeasure();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.force.delete" text="Force delete" /> </a></li>
+				onclick="return forceDeleteMeasure();"><span class="glyphicon glyphicon-remove-circle"></span> <spring:message code="label.action.force.delete" text="Force delete" /> </a></li>
 		</sec:authorize>
-		<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-remove"></span>
+		<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-trash"></span>
 				<spring:message code="label.menu.delete.norm" text="Delete" /> </a></li>
 	</ul>
 	<table class="table table-hover" data-fh-scroll-multi="0.995">
@@ -56,9 +52,7 @@
 					<td>${measureDescription.level}</td>
 					<td><spring:message text='${measureDescription.reference}' /></td>
 					<td><spring:message text='${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:""}' /></td>
-					<td><pre>
-									<spring:message text='${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:""}' />
-								</pre></td>
+					<td><pre><spring:message text='${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:""}' /></pre></td>
 					<td data-trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
 							text="${measureDescription.computable?'Yes':'No'}" /></td>
 				</tr>

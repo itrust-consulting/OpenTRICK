@@ -111,6 +111,7 @@ function deleteCustomer(customerId, organisation) {
 		$.ajax({
 			url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
 			type : "POST",
+			async : false,
 			contentType : "application/json",
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] == undefined) {
@@ -125,9 +126,10 @@ function deleteCustomer(customerId, organisation) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$("#deleteCustomerModel").modal('hide');
+			$("#deletecustomerbuttonYes").unbind();
 		});
-		$("#deleteCustomerModel").modal('hide');
-		$("#deletecustomerbuttonYes").unbind();
 		return false;
 	});
 	$("#deleteCustomerModel").modal('show');

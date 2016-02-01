@@ -189,7 +189,7 @@ $(function() {
 
 	if ($("ul.nav-analysis,ul.nav-tab").length) {
 		$('a[data-toggle="tab"]', "ul.nav-analysis,ul.nav-tab").on('shown.bs.tab', function(e) {
-			var $target = $($(e.target).attr("href")), callback = $target.attr("data-callback");
+			var $target = $(e.target.getAttribute("href")), callback = $target.attr("data-callback");
 			if (window[callback] != undefined) {
 				var data = $target.attr("data-callback-data");
 				if (data == undefined)

@@ -55,7 +55,7 @@
 										</h4>
 										<div class="col-lg-7">
 											<div class="input-group-btn">
-												<input id="file" onchange="checkFile(true)" type="file" name="file" style="display: none;" disabled /> <input id="upload-file-info" class="form-control"
+												<input id="file" onchange="checkFile(true)" type="file" name="file" accept=".sqlite" style="display: none;" disabled /> <input id="upload-file-info" class="form-control"
 													readonly="readonly" />
 												<button class="btn btn-default" type="button" id="browse-button" onclick="$('input[id=file]').click();" disabled><spring:message code="label.action.browse" text="Browse"/></button>
 											</div>

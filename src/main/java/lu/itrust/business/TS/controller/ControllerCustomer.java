@@ -219,10 +219,7 @@ public class ControllerCustomer {
 			User user = serviceUser.get(principal.getName());
 
 			if (customer.getId() < 1) {
-				if (serviceCustomer.existsByOrganisation(customer.getOrganisation())) {
-					errors.put("organisation", messageSource.getMessage("error.customer.duplicate.organisation", null, "Name is not available", locale));
-					return errors;
-				} else if (customer.isCanBeUsed()) {
+				if (customer.isCanBeUsed()) {
 					user.addCustomer(customer);
 					serviceUser.saveOrUpdate(user);
 				} else if (!serviceCustomer.profileExists())
@@ -253,7 +250,7 @@ public class ControllerCustomer {
 	 * Delete single customer
 	 * 
 	 */
-	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 		try {
 			customDelete.deleteCustomer(customerId, principal.getName());
@@ -279,7 +276,7 @@ public class ControllerCustomer {
 			JsonNode jsonNode = mapper.readTree(source);
 			int id = jsonNode.get("id").asInt();
 			if (id > 0)
-				customer.setId(jsonNode.get("id").asInt());
+				customer.setId(id);
 
 			ValidatorField validator = serviceDataValidation.findByClass(Customer.class);
 			if (validator == null)
@@ -298,6 +295,9 @@ public class ControllerCustomer {
 			error = validator.validate(customer, "organisation", organisation);
 			if (error != null)
 				errors.put("organisation", serviceDataValidation.ParseError(error, messageSource, locale));
+			else if (id > 0 && serviceCustomer.existsByIdAndOrganisation(id, organisation) || id < 1 && serviceCustomer.existsByOrganisation(organisation))
+				errors.put("organisation",
+						messageSource.getMessage("error.customer.name.already.exists", new String[] { organisation }, String.format("A customer with this name '%s' already exists", organisation), locale));
 			else
 				customer.setOrganisation(organisation);
 

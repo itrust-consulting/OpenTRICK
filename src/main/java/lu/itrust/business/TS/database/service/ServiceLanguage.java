@@ -40,4 +40,10 @@ public interface ServiceLanguage {
 	public void delete(Language language) throws Exception;
 
 	public boolean isUsed(Language language);
+
+	public boolean existsByIdAndAlpha3(int id, String alpha3);
+
+	public boolean existsByIdAndName(int id, String name);
+
+	public boolean existsByIdAndAltName(int id, String altName);
 }

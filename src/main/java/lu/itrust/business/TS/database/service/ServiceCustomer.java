@@ -48,4 +48,6 @@ public interface ServiceCustomer {
 	public Customer getFromUsernameAndId(String username, int idCustomer);
 
 	public boolean exists(int idCustomer);
+
+	public boolean existsByIdAndOrganisation(int id, String organisation);
 }

@@ -27,6 +27,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,12 +37,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.RFFMeasureFilter;
+import lu.itrust.business.TS.component.RRFScenarioFilter;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
@@ -321,43 +321,32 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID,'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFScenarioChart(@RequestBody String requestBody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
-			Locale locale) throws Exception {
+	public @ResponseBody String loadRRFScenarioChart(@RequestBody RFFMeasureFilter measureFilter, @PathVariable int elementID, Model model, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		System.out.println(measureFilter.getIdStandard() + " "+measureFilter.getChapter());
 
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = mapper.readTree(requestBody);
-
-		// retrieve analysis id to compute
-		Integer standardid = jsonNode.get("idStandard") == null ? null : jsonNode.get("idStandard").asInt();
-		if (standardid == null)
+		if (measureFilter.getIdStandard() < 1 || StringUtils.isEmpty(measureFilter.getChapter()))
 			return null;
-
-		String chapter = jsonNode.get("chapter") == null ? null : jsonNode.get("chapter").asText();
-		if (chapter == null)
-			return null;
-
-		Integer measureid = jsonNode.get("idMeasure") == null ? null : jsonNode.get("idMeasure").asInt();
 
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 		List<Measure> measures = new ArrayList<Measure>();
 		for (AnalysisStandard standard : standards)
-			if (standard.getStandard().getId() == standardid && standard.getStandard().getType() != StandardType.MATURITY) {
-				if (measureid == null && standard.getStandard().getType() == StandardType.ASSET)
+			if (standard.getStandard().getId() == measureFilter.getIdStandard() && standard.getStandard().getType() != StandardType.MATURITY) {
+				if (measureFilter.getIdMeasure() < 1 && standard.getStandard().getType() == StandardType.ASSET)
 					return JsonMessage.Error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
 							"This standard type permits only to see RRF by single measure (Select a single measure of this standard)", locale));
 
 				for (Measure measure : standard.getMeasures())
-					if (measureid != null) {
-						if (measure.getId() == measureid) {
+					if (measureFilter.getIdMeasure() > 0) {
+						if (measure.getId() == measureFilter.getIdMeasure()) {
 							measures.add(measure);
 							break;
 						}
-					} else {
-						if (measure.getMeasureDescription().getReference().startsWith(chapter + ".") && measure.getMeasureDescription().isComputable())
-							measures.add(measure);
-					}
+					} else if (measure.getMeasureDescription().getReference().startsWith(measureFilter.getChapter() + ".") && measure.getMeasureDescription().isComputable())
+						measures.add(measure);
+
 			}
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
@@ -466,32 +455,22 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFStandardChart(@RequestBody String requestbody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
-			Locale locale) throws Exception {
+	public @ResponseBody String loadRRFStandardChart(@RequestBody RRFScenarioFilter scenarioFilter, @PathVariable int elementID, Model model, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = mapper.readTree(requestbody);
 
 		// retrieve analysis id to compute
-		JsonNode idJsonNode = jsonNode.get("scenariotype");
-		if (idJsonNode == null || !idJsonNode.isNumber())
+		if (scenarioFilter.getIdScenarioType() < 1)
 			return null;
-		
-		Integer scenariotypeid = idJsonNode.asInt();
 
-		ScenarioType scenariotype = ScenarioType.valueOf(scenariotypeid);
-
-		Integer scenarioid = null;
-
-		if (jsonNode.get("scenario") != null)
-			scenarioid = jsonNode.get("scenario").asInt();
+		ScenarioType scenariotype = ScenarioType.valueOf(scenarioFilter.getIdScenarioType());
 
 		List<Scenario> scenarios = null;
 
-		if (scenarioid != null) {
+		if (scenarioFilter.getIdScenario() > 0) {
 			scenarios = new ArrayList<Scenario>();
-			scenarios.add(serviceScenario.getFromAnalysisById(idAnalysis, scenarioid));
+			scenarios.add(serviceScenario.getFromAnalysisById(idAnalysis, scenarioFilter.getIdScenario()));
 		} else
 			scenarios = serviceScenario.getAllSelectedFromAnalysisByType(idAnalysis, scenariotype);
 

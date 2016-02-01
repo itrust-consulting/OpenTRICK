@@ -40,4 +40,10 @@ public interface DAOLanguage {
 	public void delete(Language language) throws Exception;
 
 	public boolean isInUse(Language language);
+
+	public boolean existsByIdAndAlpha3(int id, String alpha3);
+
+	public boolean existsByIdAndName(int id, String name);
+
+	public boolean existsByIdAndAltName(int id, String altName);
 }
