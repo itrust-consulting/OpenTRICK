@@ -286,7 +286,7 @@ public class ControllerAdministration {
 		}
 	}
 
-	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner/{idOwner}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Owner/{idOwner}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String switchAnalysisOwner(@PathVariable Integer idAnalysis, @PathVariable Integer idOwner, Model model, Principal principal,
 			RedirectAttributes attributes, Locale locale) {
 		try {
@@ -408,7 +408,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Analysis/{analysisID}/ManageAccess/Update")
+	@RequestMapping(value = "/Analysis/{analysisID}/ManageAccess/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale)
 			throws Exception {
 
@@ -445,7 +445,7 @@ public class ControllerAdministration {
 		return "admin/analysis/switch-customer";
 	}
 
-	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Customer/{idCustomer}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Customer/{idCustomer}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String switchCUstomerForm(@PathVariable("idAnalysis") int idAnalysis, @PathVariable("idCustomer") int idCustomer, Principal principal, Model model,
 			RedirectAttributes attributes, Locale locale) throws Exception {
 		String identifier = serviceAnalysis.getIdentifierByIdAnalysis(idAnalysis);

@@ -52,7 +52,7 @@ function setAsDefaultProfile(analysisId) {
 
 	$.ajax({
 		url : context + "/Analysis/SetDefaultProfile/" + analysisId,
-		type : "get",
+		type : "POST",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			reloadSection("section_profile_analysis");
@@ -136,7 +136,7 @@ function deleteAnalysis(analysisId) {
 		$("#deleteanalysisbuttonYes").prop("disabled", true);
 		$.ajax({
 			url : context + "/Analysis/Delete/" + analysisId,
-			type : "GET",
+			type : "POST",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				$("#deleteprogressbar").hide();

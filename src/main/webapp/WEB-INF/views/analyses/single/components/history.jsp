@@ -10,8 +10,8 @@
 		<table class="table table-hover table-fixed-header-analysis table-condensed"  data-fh-scroll-multi="1.09">
 			<thead>
 				<tr>
-					<th style="width: 3%"><fmt:message key="label.history.version" /></th>
-					<th style="width: 5%"><fmt:message key="label.history.date" /></th>
+					<th style="width: 6%"><fmt:message key="label.history.version" /></th>
+					<th style="width: 6%"><fmt:message key="label.history.date" /></th>
 					<th style="width: 15%"><fmt:message key="label.history.author" /></th>
 					<th><fmt:message key="label.history.comment" /></th>
 				</tr>

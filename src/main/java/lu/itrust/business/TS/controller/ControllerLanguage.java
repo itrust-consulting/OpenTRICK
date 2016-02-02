@@ -135,7 +135,7 @@ public class ControllerLanguage {
 	 * Delete single language
 	 * 
 	 */
-	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteLanguage(@PathVariable("languageId") Integer languageId, Principal principal, Locale locale) {
 		try {
 			Language language = serviceLanguage.get(languageId);

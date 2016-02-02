@@ -65,14 +65,11 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-danger pull-left" name="show_rrf">
-					<fmt:message key="label.action.switch.rrf" />
+				<button type="button" class="btn btn-default" name="cancel">
+					<fmt:message key="label.action.cancel" />
 				</button>
 				<button type="button" class="btn btn-primary" name="import">
 					<fmt:message key="label.action.import" />
-				</button>
-				<button type="button" class="btn btn-default" name="cancel">
-					<fmt:message key="label.action.cancel" />
 				</button>
 			</div>
 		</div>

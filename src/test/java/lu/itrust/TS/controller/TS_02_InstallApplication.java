@@ -1,10 +1,9 @@
 package lu.itrust.TS.controller;
 
-import static lu.itrust.TS.helper.TestSharingData.*;
+import static lu.itrust.TS.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,6 +13,13 @@ import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
 import java.io.UnsupportedEncodingException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -25,13 +31,6 @@ import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Test(groups="Installation", dependsOnGroups="firstAccount")
 public class TS_02_InstallApplication extends SpringTestConfiguration {
@@ -77,7 +76,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	public void test_00_Install() throws Exception {
 		INSTALL_TASK_ID = new ObjectMapper()
 				.readTree(
-						this.mockMvc.perform(get("/Install").with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn()
+						this.mockMvc.perform(post("/Install").with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn()
 								.getResponse().getContentAsString()).findValue("idTask").asText(null);
 	}
 

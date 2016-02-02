@@ -82,7 +82,7 @@ public class ControllerPatch {
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String updateAllScenario(Principal principal, Locale locale) {
 		try {
 
@@ -118,7 +118,7 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> updateAssessments(Principal principal, Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -140,7 +140,7 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Restore/Analysis/Right", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Restore/Analysis/Right", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String RestoreAnalysisRights(Principal principal, Locale locale) {
 		try {
 			Worker worker = new WorkerRestoreAnalyisRight(principal.getName(), workersPoolManager, sessionFactory, serviceTaskFeedback);
@@ -163,7 +163,7 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Update/Analyses/Risk-item-information", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Update/Analyses/Risk-item-information", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateRiskInformationAndRiskItem(Principal principal, Locale locale) {
 		try {
 			Analysis profile = serviceAnalysis.getDefaultProfile();
@@ -205,7 +205,7 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Update/Analyses/Scopes", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Update/Analyses/Scopes", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateScope(Principal principal, Locale locale) {
 		try {
 			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
@@ -243,7 +243,7 @@ public class ControllerPatch {
 	}
 
 	// public
-	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateMeasureAssetTypes(Principal principal, Locale locale) {
 
 		try {

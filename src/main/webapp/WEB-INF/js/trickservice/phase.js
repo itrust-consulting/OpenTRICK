@@ -283,6 +283,7 @@ function deletePhase(idPhase) {
 		$.ajax({
 			url : context + "/Analysis/Phase/Delete/" + idPhase,
 			contentType : "application/json;charset=UTF-8",
+			type : 'POST',
 			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {

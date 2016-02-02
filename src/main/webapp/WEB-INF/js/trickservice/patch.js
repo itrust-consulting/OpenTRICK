@@ -2,6 +2,7 @@ function fixAllScenarioCategories() {
 	$.ajax({
 		url : context + "/Patch/Update/ScenarioCategoryValue",
 		contentType : "application/json;charset=UTF-8",
+		type : 'POST',
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
@@ -27,6 +28,7 @@ function updateMeasureAssetTypeValue() {
 	$.ajax({
 		url : context + "/Patch/Update/Measure/MeasureAssetTypeValues",
 		contentType : "application/json;charset=UTF-8",
+		type : 'POST',
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
@@ -51,6 +53,7 @@ function restoreAnalysisRights() {
 		$.ajax({
 			url : context + "/Patch/Restore/Analysis/Right",
 			contentType : "application/json;charset=UTF-8",
+			type : 'POST',
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined)
 					application['taskManager'].Start();
@@ -82,6 +85,7 @@ function updateAnalysesScopes() {
 		$.ajax({
 			url : context + "/Patch/Update/Analyses/Scopes",
 			contentType : "application/json;charset=UTF-8",
+			type : 'POST',
 			success : function(response, textStatus, jqXHR) {
 				if(response["success"] != undefined){
 					$("#info-dialog .modal-body").text(response["success"]);
@@ -115,6 +119,7 @@ function updateAnalysesRiskAndItemInformation(){
 		$.ajax({
 			url : context + "/Patch/Update/Analyses/Risk-item-information",
 			contentType : "application/json;charset=UTF-8",
+			type : 'POST',
 			success : function(response, textStatus, jqXHR) {
 				if(response["success"] != undefined){
 					$("#info-dialog .modal-body").text(response["success"]);
@@ -144,6 +149,7 @@ function fixAllAssessments() {
 	$.ajax({
 		url : context + "/Patch/Update/Assessments",
 		contentType : "application/json;charset=UTF-8",
+		type : 'POST',
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);

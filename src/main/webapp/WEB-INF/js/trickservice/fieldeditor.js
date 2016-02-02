@@ -67,6 +67,7 @@ function FieldEditor(element, validator) {
 	this.fieldType = null;
 	this.callback = null;
 	this.async = true;
+	this.isText = false;
 	this.tabPress = undefined;
 	this.backupData = {
 		orginalStyle : undefined,
@@ -125,6 +126,7 @@ function FieldEditor(element, validator) {
 				$option.appendTo($fieldEditor);
 			}
 		}
+		this.isText = $element.attr("data-trick-content") == "text";
 		this.backupData.width = $td.width();
 		this.backupData.orginalStyle = $td.attr("style");
 		this.fieldEditor.setAttribute("class", "form-control");
@@ -136,7 +138,7 @@ function FieldEditor(element, validator) {
 			"min-width" : minWidth ? minWidth : 'auto',
 			"padding" : 0
 		});
-		if (!application.editMode || $element.attr("data-trick-content") != "text") {
+		if (!application.editMode || !this.isText) {
 			var that = this, $fieldEditor = $(this.fieldEditor);
 			$fieldEditor.blur(function() {
 				if (that.Validate())
@@ -218,13 +220,17 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.__supportTabNav = function() {
 		var that = this;
-		$(this.fieldEditor).keypress(function(e) {
+		$(this.fieldEditor).keydown(function(e) {
 			if (e.keyCode == 9) {
 				if (e.shiftKey)
 					that.tabPress = "prev";
 				else
 					that.tabPress = "next";
 			}
+			if (e.keyCode == 27)
+				that.Rollback();
+			else if (!that.isText && e.keyCode == 13)
+				that.Save(that);
 		});
 		return this;
 	}

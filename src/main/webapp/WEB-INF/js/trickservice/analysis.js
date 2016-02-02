@@ -289,9 +289,7 @@ function loadChartAsset() {
 			$.ajax({
 				url : context + "/Analysis/Asset/Chart/Ale",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
-				async : true,
 				success : function(response, textStatus, jqXHR) {
 					displayChart('#chart_ale_asset', response);
 				},
@@ -322,9 +320,7 @@ function loadChartScenario() {
 			$.ajax({
 				url : context + "/Analysis/Scenario/Chart/Type/Ale",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
-				async : true,
 				success : function(response, textStatus, jqXHR) {
 					displayChart('#chart_ale_scenario_type', response);
 				},

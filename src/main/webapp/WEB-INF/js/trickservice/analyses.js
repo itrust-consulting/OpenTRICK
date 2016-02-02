@@ -176,7 +176,7 @@ function deleteAnalysis(analysisId) {
 			$("#deleteAnalysisModel .btn").prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
-				type : "GET",
+				type : "POST",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					$("#deleteprogressbar").hide();

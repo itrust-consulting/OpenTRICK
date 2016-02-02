@@ -16,7 +16,7 @@ function deleteSqlite(id) {
 	var currentSize = $("#section_sqlite>table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val());
 	$.ajax({
 		url : context + "/Profile/Sqlite/" + id + "/Delete",
-		type : "get",
+		type : "POST",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
@@ -37,7 +37,7 @@ function deleteReport(id) {
 	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val());
 	$.ajax({
 		url : context + "/Profile/Report/" + id + "/Delete",
-		type : "get",
+		type : "POST",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {

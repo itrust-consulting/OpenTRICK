@@ -300,13 +300,13 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		notNull(idLanguage, "Language id cannot be found");
 		notNull(idCustomer, "Customer id cannot be found");
 		notNull(idProfile, "Customer id cannot be found");
-		this.mockMvc.perform(get("/KnowledgeBase/Language/Delete/" + idLanguage).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/KnowledgeBase/Language/Delete/" + idLanguage).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
-		this.mockMvc.perform(get("/KnowledgeBase/Customer/Delete/" + idCustomer).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/KnowledgeBase/Customer/Delete/" + idCustomer).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
-		this.mockMvc.perform(get("/Analysis/Delete/" + idProfile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/Analysis/Delete/" + idProfile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 	}
@@ -383,7 +383,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_08_CreateAnalysisUseStandard() throws Exception {
 		this.mockMvc
 				.perform(
-						get("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD)).sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf())
+						post("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD)).sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf())
 								.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
@@ -427,7 +427,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_10_DeleteAnalysisAndStandardUsedLanguageAndCustomer() throws Exception {
 		Integer idAnalysis = getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE);
 		notNull(idAnalysis, "Analysis id cannot be found");
-		this.mockMvc.perform(get("/Analysis/Delete/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/Analysis/Delete/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
@@ -435,7 +435,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_10_DeleteStandard() throws Exception {
 		Integer idAnalysis = getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE);
 		notNull(idAnalysis, "Analysis id cannot be found");
-		this.mockMvc.perform(get("/KnowledgeBase/Standard/Delete/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/KnowledgeBase/Standard/Delete/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
@@ -445,10 +445,10 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Integer idCustomer = getInteger(CUSTOMER_MEME_ID);
 		notNull(idLanguage, "Language id cannot be found");
 		notNull(idCustomer, "Customer id cannot be found");
-		this.mockMvc.perform(get("/KnowledgeBase/Language/Delete/" + idLanguage).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/KnowledgeBase/Language/Delete/" + idLanguage).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
-		this.mockMvc.perform(get("/KnowledgeBase/Customer/Delete/" + idCustomer).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		this.mockMvc.perform(post("/KnowledgeBase/Customer/Delete/" + idCustomer).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

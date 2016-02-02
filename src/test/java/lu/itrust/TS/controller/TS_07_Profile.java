@@ -273,7 +273,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	public void test_04_DeleteSQLITE() throws Exception {
 		this.mockMvc
 				.perform(
-						get(String.format("/Profile/Report/%d/Delete", getInteger("key_word_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						post(String.format("/Profile/Report/%d/Delete", getInteger("key_word_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
@@ -281,7 +281,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	public void test_04_DeleteReport() throws Exception {
 		this.mockMvc
 		.perform(
-				get(String.format("/Profile/Sqlite/%d/Delete", getInteger("key_sql_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				post(String.format("/Profile/Sqlite/%d/Delete", getInteger("key_sql_export_delete"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

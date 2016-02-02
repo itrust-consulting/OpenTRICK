@@ -160,6 +160,7 @@ EstimationHelper.prototype = {
 		$.ajax({
 			url : instance.updateUrl(),
 			contentType : "application/json;charset=UTF-8",
+			type : "post",
 			async : false,
 			success : function(reponse) {
 				return instance.updateContent(reponse);
@@ -201,17 +202,14 @@ EstimationHelper.prototype = {
 					$(tableDestTrs[i]).replaceWith($tr);
 			}
 		}
-		var $tbody = $("tbody", $section);
-		var $footer = $("tbody tr.panel-footer", $section);
+		var $tbody = $("tbody", $section), $footer = $("tbody tr.panel-footer", $section), tableSourceTrs = $("tbody tr[data-trick-id]", assessments);
 		if (!$footer.length) {
 			$footer = $("tbody tr.panel-footer", assessments);
 			if ($footer.length)
 				$footer.appendTo($tbody);
 		}
-		var tableSourceTrs = $("tbody tr[data-trick-id]", assessments);
 		for (var i = 0; i < tableSourceTrs.length; i++) {
-			var trickId = $(tableSourceTrs[i]).attr("data-trick-id");
-			var $tr = $("tbody tr[data-trick-id='" + trickId + "']", $section);
+			var trickId = $(tableSourceTrs[i]).attr("data-trick-id"), $tr = $("tbody tr[data-trick-id='" + trickId + "']", $section);
 			if (!$tr.length) {
 				if ($footer.length)
 					$tr.before($footer);
@@ -259,9 +257,12 @@ function showTabEstimation(name) {
 		if (helper === undefined)
 			application["estimation-helper"] = helper = new EstimationHelper();
 		helper.select(selectedItem[0], name).updateNav();
-		if ($(helper.tabContent()).is(":visible"))
-			$(helper.update().tabMenu()).show();
-		else
+		if ($(helper.tabContent()).is(":visible")) {
+			if ($(helper.tabContent()).attr("data-update-required") == "true")
+				$(helper.tabMenu()).show();
+			else
+				$(helper.update().tabMenu()).show();
+		} else
 			helper.display();
 	} else
 		$("li[data-menu='estimation'][data-type]").hide();
@@ -272,7 +273,7 @@ function computeAssessment(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update",
-			type : "get",
+			type : "POST",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response, textStatus, jqXHR) {
@@ -302,7 +303,7 @@ function refreshAssessment() {
 		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
 				url : context + "/Analysis/Assessment/Refresh",
-				type : "get",
+				type : "POST",
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
@@ -330,7 +331,7 @@ function updateAssessmentAle(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update/ALE",
-			type : "get",
+			type : "POST",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response, textStatus, jqXHR) {

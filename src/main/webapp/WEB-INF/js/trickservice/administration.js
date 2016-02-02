@@ -22,7 +22,7 @@ $(function() {
 function installTrickService() {
 	$.ajax({
 		url : context + "/Install",
-		type : "GET",
+		type : "POST",
 		async : true,
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
@@ -57,7 +57,7 @@ function switchCustomer(section) {
 					$content.find(".label").remove();
 					$.ajax({
 						url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Customer/" + $content.find("select").val(),
-						type : "get",
+						type : "post",
 						contentType : "application/json;charset=UTF-8",
 						success : function(response, textStatus, jqXHR) {
 							if (response["success"] != undefined) {
@@ -103,7 +103,7 @@ function switchOwner(section) {
 						$content.find(".label").remove();
 						$.ajax({
 							url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Owner/" + $content.find("select").val(),
-							type : "get",
+							type : "post",
 							contentType : "application/json;charset=UTF-8",
 							success : function(response, textStatus, jqXHR) {
 								if (response["success"] != undefined) {

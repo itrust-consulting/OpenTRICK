@@ -73,6 +73,7 @@ function deleteAsset() {
 				var assetId = selectedAsset.pop();
 				$.ajax({
 					url : context + "/Analysis/Asset/Delete/" + assetId,
+					type : "POST",
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined)

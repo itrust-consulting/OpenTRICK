@@ -107,6 +107,7 @@ function deleteScenario(scenarioId) {
 					rowTrickId = selectedScenario.pop();
 					$.ajax({
 						url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
+						type : 'POST',
 						contentType : "application/json;charset=UTF-8",
 						async : false,
 						success : function(response, textStatus, jqXHR) {

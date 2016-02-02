@@ -369,7 +369,7 @@ function removeStandard() {
 		$(deleteModal.modal_footer).find("#delete_standard_progressbar").css("display", "inline-block");
 		$.ajax({
 			url : context + "/Analysis/Standard/Delete/" + selectedStandard,
-			type : "get",
+			type : "POST",
 			async : false,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
@@ -629,6 +629,7 @@ function deleteMeasure(measureId, standardid) {
 			$.ajax({
 				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + rowTrickId,
 				async : false,
+				type : "POST",
 				contentType : "application/json",
 				success : function(response, textStatus, jqXHR) {
 					if (response["success"] == undefined) {

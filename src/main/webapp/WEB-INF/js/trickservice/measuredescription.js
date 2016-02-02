@@ -145,7 +145,7 @@ function editSingleMeasure(measureId, idStandard) {
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.edit", "Update"));
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
-		type : "post",
+		type : "GET",
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
