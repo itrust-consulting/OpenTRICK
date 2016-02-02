@@ -58,6 +58,9 @@
 					<fmt:message key="label.measure.status.m" var="statusM" />
 					<fmt:message key="label.measure.status.ap" var="statusAP" />
 					<fmt:message key="label.measure.status.na" var="statusNA" />
+					<fmt:message key="label.title.measure.status.m" var="titleStatusM" />
+					<fmt:message key="label.title.measure.status.ap" var="titleStatusAP" />
+					<fmt:message key="label.title.measure.status.na" var="titleStatusNA" />
 					<fmt:message key="label.metric.year" var="metricYear" />
 					<fmt:message key="label.metric.euro" var="metricEuro" />
 					<fmt:message key="label.metric.keuro" var="metricKEuro" />
@@ -89,9 +92,9 @@
 							<tbody>
 								<tr>
 									<td><select class='form-control' name="status" data-trick-value='${selectedMeasure.status}' data-trick-type='string'>
-											<option value='NA' ${selectedMeasure.status=='NA'?'selected' : ''}>${statusNA}</option>
-											<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''}>${statusAP}</option>
-											<option value='M' ${selectedMeasure.status=='M'?'selected' : ''}>${statusM}</option>
+											<option value='NA' ${selectedMeasure.status=='NA'?'selected' : ''} title='${titleStatusNA}' >${statusNA}</option>
+											<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''} title='${titleStatusAP}' >${statusAP}</option>
+											<option value='M' ${selectedMeasure.status=='M'?'selected' : ''} title='${titleStatusM}' >${statusM}</option>
 									</select></td>
 									<td style="border-right: 2px solid #ddd"><div class="input-group">
 											<span class="input-group-addon">%</span>

@@ -60,6 +60,7 @@ function FieldEditor(element, validator) {
 	this.defaultValue = $(element).text().trim();
 	this.choose = [];
 	this.chooseTranslate = [];
+	this.chooseTitle = [];
 	this.fieldEditor = null;
 	this.realValue = null;
 	this.fieldName = null;
@@ -81,7 +82,14 @@ function FieldEditor(element, validator) {
 			return true;
 		if (!this.LoadData())
 			return true;
-		var $fieldEditor, height = 0, width = 0, minWidth = 0, rows = 2, $td;
+		var $fieldEditor, height = 0, width = 0, minWidth = 0, rows = 2, $td, minValue = $element.attr("data-trick-min-value"), maxValue = $element.attr("data-trick-max-value"), stepValue = $element
+				.attr("data-trick-step-value");
+		this.isText = $element.attr("data-trick-content") == "text";
+		if (!(stepValue == undefined || maxValue == undefined || minValue == undefined)) {
+			stepValue = parseInt(stepValue), maxValue = parseInt(maxValue), minValue = parseInt(minValue);
+			for (var i = minValue; i <= maxValue; i += stepValue)
+				this.choose.push(i);
+		}
 		if (!this.choose.length) {
 			if ($element.is("td"))
 				$td = $element;
@@ -93,13 +101,12 @@ function FieldEditor(element, validator) {
 			}
 			width = $td.outerWidth();
 			height = $td.outerHeight();
-			if (this.defaultValue.length > 100 || $element.attr("data-trick-content") == "text")
+			if (this.defaultValue.length > 100 || this.isText)
 				this.fieldEditor = document.createElement("textarea");
 			else {
 				this.fieldEditor = document.createElement("input");
 				if (this.element.hasAttribute("data-real-value"))
 					this.realValue = this.element.getAttribute("data-real-value");
-				var minValue = $element.attr("data-trick-min-value"), maxValue = $element.attr("data-trick-max-value");
 				if (minValue != undefined || maxValue != undefined)
 					this.validator = new FieldBoundedValidator(minValue, maxValue);
 			}
@@ -123,10 +130,12 @@ function FieldEditor(element, validator) {
 					if (this.choose[i] == this.defaultValue)
 						option.setAttribute("selected", true);
 				}
+				if (this.chooseTitle.length)
+					$option.attr("title", this.chooseTitle[i]);
 				$option.appendTo($fieldEditor);
 			}
 		}
-		this.isText = $element.attr("data-trick-content") == "text";
+
 		this.backupData.width = $td.width();
 		this.backupData.orginalStyle = $td.attr("style");
 		this.fieldEditor.setAttribute("class", "form-control");
@@ -177,6 +186,13 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.__findChooseTranslate = function(element) {
 		var content = $(element).attr("data-trick-choose-translate");
+		if (content != undefined)
+			return content.split(",");
+		return [];
+	};
+	
+	FieldEditor.prototype.__findChooseTitle = function(element) {
+		var content = $(element).attr("data-trick-choose-title");
 		if (content != undefined)
 			return content.split(",");
 		return [];
@@ -264,8 +280,12 @@ function FieldEditor(element, validator) {
 			eval(callback);
 		if (!this.choose.length)
 			this.choose = this.__findChoose(this.element);
-		if (this.choose.length && !this.chooseTranslate.length)
-			this.chooseTranslate = this.__findChooseTranslate(element);
+		if (this.choose.length) {
+			if (!this.chooseTranslate.length)
+				this.chooseTranslate = this.__findChooseTranslate(this.element);
+			if (!this.chooseTitle.length)
+				this.chooseTitle = this.__findChooseTitle(this.element);
+		}
 		return true;
 	};
 

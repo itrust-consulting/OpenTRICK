@@ -10,6 +10,9 @@
 <fmt:message key="label.measure.status.m" var="statusM" />
 <fmt:message key="label.measure.status.ap" var="statusAP" />
 <fmt:message key="label.measure.status.na" var="statusNA" />
+<fmt:message key="label.title.measure.status.m" var="titleStatusM" />
+<fmt:message key="label.title.measure.status.ap" var="titleStatusAP" />
+<fmt:message key="label.title.measure.status.na" var="titleStatusNA" />
 <fmt:setLocale value="fr" scope="session" />
 <c:set var="css">
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
@@ -61,8 +64,19 @@
 			</c:if>
 			<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
 			<td ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}' data-trick-field-type="string" onclick="return editField(this);"><spring:message
-					text="${measure.status}" /></td>
+			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}' data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);">
+				<c:choose>
+					<c:when test="${measure.status=='NA'}">
+						${statusNA}
+					</c:when>
+					<c:when test="${measure.status=='AP'}">
+						${statusAP}
+					</c:when>
+					<c:otherwise>
+						${statusM}
+					</c:otherwise>
+				</c:choose>
+			</td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('MATURITY')}">
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
@@ -70,7 +84,7 @@
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:when>
 				<c:otherwise>
-					<td ${css} data-trick-field="implementationRate" data-trick-field-type="double" data-trick-max-value="100" data-trick-min-value="0"
+					<td ${css} data-trick-field="implementationRate" data-trick-field-type="double" data-trick-max-value="100" data-trick-min-value="0" data-trick-step-value='1'
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:otherwise>
