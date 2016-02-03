@@ -63,13 +63,12 @@ function deleteLanguage(languageId, name) {
 
 	}
 	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language <strong>" + name + "</strong>?", name));
-	$("#deletelanguagebuttonYes").click(function() {
-		$("#deletelanguagebuttonYes").unbind();
-		$("#deleteLanguageModel").modal('hide');
+	$("#deletelanguagebuttonYes").unbind().click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Language/Delete/" + languageId,
 			type : "POST",
 			contentType : "application/json",
+			async : true,
 			success : function(response,textStatus,jqXHR) {
 				if(response["success"]!=undefined)
 					reloadSection("section_language");
@@ -79,6 +78,8 @@ function deleteLanguage(languageId, name) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$("#deleteLanguageModel").modal('hide');
 		});
 		return false;
 	});

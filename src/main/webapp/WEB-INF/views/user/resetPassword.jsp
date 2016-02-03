@@ -16,7 +16,8 @@
 			<h2 class="form-signin-heading col-sm-offset-3">
 				<spring:message code="label.title.user.reset.password" text="Reset your password" />
 			</h2>
-			<form:form modelAttribute="resetPassword" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/ResetPassword/Save?${_csrf.parameterName}=${_csrf.token}">
+			<form:form modelAttribute="resetPassword" class="form-horizontal" method="post"
+				action="${pageContext.request.contextPath}/ResetPassword/Save?${_csrf.parameterName}=${_csrf.token}">
 				<div class="form-group" style="margin-top: 20px; margin-bottom: 5px;">
 					<form:label path="username" class="col-sm-3 control-label">
 						<spring:message code="label.user.login" text="Username" />
@@ -44,17 +45,16 @@
 				<spring:hasBindErrors name="resetPassword">
 					<div class="form-group">
 						<div class="col-sm-offset-3 col-sm-9">
-							<form:errors path="*" element="label" cssClass="label label-danger " cssStyle="font-size: 12px"/>
+							<form:errors path="*" element="label" cssClass="label label-danger " cssStyle="font-size: 12px" />
 						</div>
 					</div>
 				</spring:hasBindErrors>
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-9">
-					<a class="btn btn-default" href="${pageContext.request.contextPath}/Login" ><spring:message code="label.action.cancel" text="Cancel" /></a>
-						<button class="btn btn-primary pull-right" type="submit">
+						<button class="btn btn-primary" type="submit">
 							<spring:message code="label.action.reset.password" text="Reset password" />
 						</button>
-						
+						<a class="btn btn-default pull-right" href="${pageContext.request.contextPath}/Login"><spring:message code="label.action.cancel" text="Cancel" /></a>
 					</div>
 				</div>
 			</form:form>

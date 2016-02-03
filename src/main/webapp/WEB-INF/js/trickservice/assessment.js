@@ -73,6 +73,7 @@ EstimationHelper.prototype = {
 	updateContent : function(content) {
 		var section = this.section(), $section = $(section), $content = $(section, new DOMParser().parseFromString(content, "text/html"));
 		if ($content.length) {
+			var $tabContent = $(this.tabContent()).attr("data-update-required", false);
 			if ($section.attr("data-trick-id") != this.id || this.SmartUpdate($content)) {
 				var $tbody = $section.find("tbody");
 				if ($tbody.length)
@@ -81,7 +82,7 @@ EstimationHelper.prototype = {
 					$section.replaceWith($content);
 					fixTableHeader($("table", $content));
 				}
-				$("h3[role='title']", this.tabContent()).text($content.attr("data-trick-name"));
+				$("h3[role='title']", $tabContent).text($content.attr("data-trick-name"));
 				this.outOfDate = false;
 			}
 		} else
@@ -117,9 +118,8 @@ EstimationHelper.prototype = {
 	swithTo : function(id, name) {
 		if (id == this.id && name == this.name)
 			return this.update();
-		else
+		else 
 			return this.select(id, name, true).load();
-
 	},
 	planReload : function() {
 		$(this.tabContent()).attr("data-update-required", true).attr("data-trigger", 'showEstimation').attr("data-parameters", [ this.name, this.id ]);
@@ -257,12 +257,9 @@ function showTabEstimation(name) {
 		if (helper === undefined)
 			application["estimation-helper"] = helper = new EstimationHelper();
 		helper.select(selectedItem[0], name).updateNav();
-		if ($(helper.tabContent()).is(":visible")) {
-			if ($(helper.tabContent()).attr("data-update-required") == "true")
-				$(helper.tabMenu()).show();
-			else
-				$(helper.update().tabMenu()).show();
-		} else
+		if ($(helper.tabContent()).is(":visible"))
+			$(helper.update().tabMenu()).show();
+		 else
 			helper.display();
 	} else
 		$("li[data-menu='estimation'][data-type]").hide();

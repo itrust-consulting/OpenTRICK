@@ -84,10 +84,11 @@
 				<div class="form-group">
 					
 					<div class="col-sm-offset-4 col-sm-8">
-						<a class="btn btn-default" href="${pageContext.request.contextPath}/Login" ><spring:message code="label.menu.action" text="Cancel" /></a>
-						<button class="btn btn-primary pull-right" type="submit">
+						
+						<button class="btn btn-primary" type="submit">
 							<spring:message code="label.action.sign_up.user" text="Signup" />
 						</button>
+						<a class="btn btn-default pull-right" href="${pageContext.request.contextPath}/Login" ><spring:message code="label.menu.action" text="Cancel" /></a>
 					</div>
 				</div>
 			</form>
