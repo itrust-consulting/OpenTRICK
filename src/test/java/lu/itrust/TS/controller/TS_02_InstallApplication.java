@@ -32,7 +32,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 
-@Test(groups="Installation", dependsOnGroups="firstAccount")
+@Test(groups = "Installation", dependsOnGroups = "firstAccount")
 public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	public static final String PROFILE_CUSTOMER = "profile-customer";
@@ -48,14 +48,14 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	private static final String CUSTOMER_OTHER_FIELDS = "me";
 
 	private static final String CUSTOMER_EMAIL = "me@me.me";
-	
+
 	private static String INSTALL_TASK_ID;
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
-	
+
 	@Autowired
-	private ServiceTaskFeedback  serviceTaskFeedback;
+	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
@@ -65,7 +65,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	/**
 	 * Properties
 	 */
@@ -74,13 +74,11 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	@Test
 	public void test_00_Install() throws Exception {
-		INSTALL_TASK_ID = new ObjectMapper()
-				.readTree(
-						this.mockMvc.perform(post("/Install").with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn()
-								.getResponse().getContentAsString()).findValue("idTask").asText(null);
+		INSTALL_TASK_ID = new ObjectMapper().readTree(this.mockMvc.perform(post("/Install").with(httpBasic(USERNAME, PASSWORD)).with(csrf())).andExpect(status().isOk())
+				.andExpect(jsonPath("$.idTask").exists()).andReturn().getResponse().getContentAsString()).findValue("idTask").asText(null);
 	}
 
-	@Test(timeOut=120000)
+	@Test(timeOut = 120000)
 	public synchronized void test_01_WaitForWorker() throws InterruptedException {
 		Worker worker = workersPoolManager.get(INSTALL_TASK_ID);
 		notNull(worker, "Installation worker cannot be found");
@@ -125,16 +123,12 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	@Test
 	public void test_08_CreateCustomer() throws UnsupportedEncodingException, Exception {
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Customer/Save")
-								.with(httpBasic(USERNAME, PASSWORD))
-								.with(csrf())
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(
-										String.format(
-												"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
-												CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_EMAIL, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS,
-												CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS)).with(httpBasic(USERNAME, PASSWORD)))
+				.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(
+								"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
+								CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_EMAIL, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS,
+								CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS))
+						.with(httpBasic(USERNAME, PASSWORD)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
@@ -149,11 +143,10 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	@Test
 	public void test_10_AddFRLanguage() throws Exception {
 		this.mockMvc
-				.perform(
-						post("/KnowledgeBase/Language/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-								.content(String.format("{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", FRA_ALPHA_3, FRA_FRANÇAIS, FRA_FRENCH))
-								.with(httpBasic(USERNAME, PASSWORD))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
-				.andExpect(content().string("{}"));
+				.perform(post("/KnowledgeBase/Language/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format("{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}", FRA_ALPHA_3, FRA_FRANÇAIS, FRA_FRENCH))
+						.with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
 	@Test
