@@ -178,17 +178,15 @@
 		base.toggleHeaders = base.debounce(function (e) {
 			if (base.$el) {
 				base.$el.each(function () {
-					var $this = base.$el, topPosition = base.topPosition == null || !base.cacheHeaderHeight || e.type=='resize'? base.topPosition = base.options.fixedOffset.position().top : base.topPosition,
-						newTopOffset = base.isWindowScrolling ? (
-									isNaN(base.options.fixedOffset) ? base.options.fixedOffset.outerHeight() + topPosition : base.options.fixedOffset) : base.$scrollableArea.offset().top 
+					var $this = base.$el, topPosition = (base.topPosition == null || !base.cacheHeaderHeight || e.type=='resize'? base.topPosition = (isNaN(base.options.fixedOffset) ? 
+							base.options.fixedOffset.outerHeight() + base.options.fixedOffset.position().top  : base.options.fixedOffset) :
+							base.topPosition), newTopOffset = base.isWindowScrolling ? topPosition : base.$scrollableArea.offset().top 
 									+ (!isNaN(base.options.fixedOffset) ? base.options.fixedOffset : 0),offset = $this.offset(), 
 									scrollTop = base.$scrollableArea.scrollTop() + newTopOffset, scrollLeft = base.$scrollableArea.scrollLeft(),
 
 						headerHeight = base.options.cacheHeaderHeight ? base.cachedHeaderHeight : base.$clonedHeader.height(),
 
-						scrolledPastTop = base.isWindowScrolling ?
-								scrollTop * base.options.scrollStartFixMulti > offset.top :
-								newTopOffset > offset.top,
+						scrolledPastTop = base.isWindowScrolling ? scrollTop * base.options.scrollStartFixMulti > offset.top : newTopOffset > offset.top,
 						notScrolledPastBottom = (base.isWindowScrolling ? scrollTop : 0) <
 							(offset.top + $this.height() - headerHeight - (base.isWindowScrolling ? 0 : newTopOffset));
 								

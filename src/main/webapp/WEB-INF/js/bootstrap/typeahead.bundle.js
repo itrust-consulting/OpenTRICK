@@ -690,7 +690,7 @@
     };
     var css = {
         wrapper: {
-            position: "relative",
+            position: "absolute",
             display: "inline-block"
         },
         hint: {

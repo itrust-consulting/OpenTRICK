@@ -69,6 +69,8 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	private static final String STANDARD_FOR_TEST = "Standard for test";
 
 	private static final String TEST_STANDARD = "Test standard";
+	
+	private static final String TEST_STANDARD_ID = "Test-standard-id";
 
 	private static final String TEST_ANALYSIS_FROM_TEST_PROFILE = "test analysis from test profile";
 
@@ -327,7 +329,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 			session = sessionFactory.openSession();
 			Standard standard = new DAOStandardHBM(session).getStandardByNameAndVersion(TEST_STANDARD, 2015);
 			notNull(standard, "Standard cannot be found");
-			put(TEST_STANDARD, standard.getId());
+			put(TEST_STANDARD_ID, standard.getId());
 		} finally {
 			if (session != null && session.isOpen())
 				session.close();
@@ -337,7 +339,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_06_CreateStandard")
 	public void test_07_CreateMeasure() throws Exception {
-		Integer idStandard = getInteger(TEST_STANDARD);
+		Integer idStandard = getInteger(TEST_STANDARD_ID);
 		notNull(idStandard, "Standard id cannot be found");
 		Session session = null;
 		try {
@@ -383,7 +385,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_08_CreateAnalysisUseStandard() throws Exception {
 		this.mockMvc
 				.perform(
-						post("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD)).sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf())
+						post("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD_ID)).sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf())
 								.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
@@ -397,7 +399,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 								.accept(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(
 										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "ASSET", 2016, "on"))).andExpect(status().isOk())
+												getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "ASSET", 2016, "on"))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.type").exists());
 
 		this.mockMvc
@@ -408,7 +410,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 								.accept(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(
 										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "MATURITY", 2016, "on"))).andExpect(status().isOk())
+												getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "MATURITY", 2016, "on"))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.type").exists());
 
 		this.mockMvc
@@ -419,7 +421,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 								.accept(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(
 										String.format("{\"id\":%d, \"label\":\"%s\", \"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
-												getInteger(TEST_STANDARD), TEST_STANDARD, "test standard description", "NORMAL", 2016, "on"))).andExpect(status().isOk())
+												getInteger(TEST_STANDARD_ID), TEST_STANDARD, "test standard description", "NORMAL", 2016, "on"))).andExpect(status().isOk())
 				.andExpect(content().string("{}"));
 	}
 
@@ -433,9 +435,9 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_10_DeleteAnalysisAndStandardUsedLanguageAndCustomer")
 	public void test_10_DeleteStandard() throws Exception {
-		Integer idAnalysis = getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE);
-		notNull(idAnalysis, "Analysis id cannot be found");
-		this.mockMvc.perform(post("/KnowledgeBase/Standard/Delete/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
+		Integer idStandard = getInteger(TEST_STANDARD_ID);
+		notNull(idStandard, "Standard id cannot be found");
+		this.mockMvc.perform(post("/KnowledgeBase/Standard/Delete/" + idStandard).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

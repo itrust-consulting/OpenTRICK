@@ -106,6 +106,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 			else
 				break;
 		}
+		
 		notNull(worker, "Risk register worker cannot be found");
 		while (worker.isWorking())
 			wait(100);

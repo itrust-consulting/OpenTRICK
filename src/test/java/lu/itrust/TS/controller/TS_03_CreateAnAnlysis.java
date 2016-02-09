@@ -56,8 +56,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Test(groups = "CreateAnalysis", dependsOnGroups = "Installation")
 public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
-	
-
 	private static final String ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST = "Assessment-Trick service-Scenario test";
 
 	private static final String SCENARIO_SCENARIO_TEST = "Scenario-Scenario test";

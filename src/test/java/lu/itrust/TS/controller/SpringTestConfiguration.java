@@ -53,8 +53,6 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 
 	@Autowired
 	protected FilterChainProxy springSecurityFilterChain;
-	
-
 
 	/**
 	 * Services
@@ -64,7 +62,7 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 
 	protected MockMvc mockMvc;
 
-	@BeforeMethod
+	@BeforeMethod(groups="setup")
 	public void setUp() throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).apply(springSecurity(springSecurityFilterChain)).build();
 	}

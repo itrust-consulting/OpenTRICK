@@ -74,6 +74,7 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.validator.AssessmentValidator;
+import lu.itrust.business.TS.validator.AssetValidator;
 import lu.itrust.business.TS.validator.ExtendedParameterValidator;
 import lu.itrust.business.TS.validator.HistoryValidator;
 import lu.itrust.business.TS.validator.MaturityParameterValidator;
@@ -278,58 +279,49 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+
+			if (analysisLocale != null)
+				locale = analysisLocale;
 
 			// retrieve measure
 			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, elementID);
 			if (asset == null)
-				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale));
 			// set field
 
-			if (!fieldEditor.getFieldName().equalsIgnoreCase("assetType")) {
-
-				Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
-				// check if field is a phase
-				if (!SetFieldData(field, asset, fieldEditor))
-					JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
-			} else {
+			if (fieldEditor.getFieldName().equalsIgnoreCase("assetType")) {
 				AssetType assetType = serviceAssetType.getByName(fieldEditor.getValue().toString());
 				if (assetType != null)
 					asset.setAssetType(assetType);
 				else
-					return JsonMessage
-							.Error(messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", cutomLocale != null ? cutomLocale : locale));
-			}
+					return JsonMessage.Error(messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", locale));
+			} else {
+				ValidatorField validator = serviceDataValidation.findByClass(Asset.class);
+				if (validator == null)
+					serviceDataValidation.register(validator = new AssetValidator());
+				Object value = FieldValue(fieldEditor);
 
+				String error = serviceDataValidation.validate(asset, fieldEditor.getFieldName(), value);
+
+				if (error != null)
+					return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+
+				Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
+				// check if field is a phase
+				if (!SetFieldValue(asset, field, value))
+					JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+			}
 			// update measure
 			serviceAsset.saveOrUpdate(asset);
-
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.asset.updated", null, "Asset was successfully updated", cutomLocale != null ? cutomLocale : locale));
-
+			return JsonMessage.Success(messageSource.getMessage("success.asset.updated", null, "Asset was successfully updated", locale));
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
 		}
 	}
 

@@ -100,7 +100,7 @@ function FieldEditor(element, validator) {
 					rows = 2;
 			}
 			width = $td.outerWidth();
-			height = $td.outerHeight();
+			height = this.isText ? $td.outerHeight() : 0;
 			if (this.defaultValue.length > 100 || this.isText)
 				this.fieldEditor = document.createElement("textarea");
 			else {
@@ -114,8 +114,6 @@ function FieldEditor(element, validator) {
 
 		} else {
 			$td = $element;
-			minWidth = 50;
-			height = $td.outerHeight();
 			this.fieldEditor = document.createElement("select");
 			$fieldEditor = $(this.fieldEditor);
 			for (var i = 0; i < this.choose.length; i++) {
@@ -139,14 +137,16 @@ function FieldEditor(element, validator) {
 		this.backupData.width = $td.width();
 		this.backupData.orginalStyle = $td.attr("style");
 		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
+		this.fieldEditor.setAttribute("style", "padding: 4px; position:absolute; z-index:2; width:" + (width ? width : minWidth ? minWidth : '80')
+				+ "px;  margin-left:auto; margin-right:auto; height:" + (height == 0 ? "auto" : (height+ "px;")));
 		this.fieldEditor.setAttribute("placeholder", this.realValue == null || this.realValue == undefined ? this.defaultValue : this.realValue);
+		
 		$td.css({
-			"height" : height,
-			"width" : width ? width : "auto",
-			"min-width" : minWidth ? minWidth : 'auto',
-			"padding" : 0
+			"padding" : 0,
+			"width" : $td.outerWidth(),
+			"height" : height == 0 ? undefined : height
 		});
+		
 		if (!application.editMode || !this.isText) {
 			var that = this, $fieldEditor = $(this.fieldEditor);
 			$fieldEditor.blur(function() {
@@ -190,7 +190,7 @@ function FieldEditor(element, validator) {
 			return content.split(",");
 		return [];
 	};
-	
+
 	FieldEditor.prototype.__findChooseTitle = function(element) {
 		var content = $(element).attr("data-trick-choose-title");
 		if (content != undefined)
@@ -473,11 +473,11 @@ function MaturityMeasureFieldEditor(element) {
 
 		this.fieldEditor = document.createElement("select");
 
-		var that = this, height = $element.outerHeight(), minWidth = 45, $fieldEditor = $(this.fieldEditor);
+		var that = this, $fieldEditor = $(this.fieldEditor);
 
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.realValue = this.element.hasAttribute("data-real-value") ? $element.attr("data-real-value") : null;
-		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
+		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; width:80px; position:absolute; z-index:2; margin-right:auto;");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 
 		for ( var i in this.implementations) {
@@ -494,18 +494,13 @@ function MaturityMeasureFieldEditor(element) {
 
 		this.backupData.width = $element.width();
 		this.backupData.orginalStyle = $element.attr("style");
-
 		$element.css({
-			"height" : height,
-			"min-width" : minWidth,
-			"padding" : 0
+			"padding" : 0,
+			"width" : this.backupData.width,
 		});
-
-		if (!application.editMode) {
-			$fieldEditor.blur(function() {
-				return that.Save(that);
-			});
-		}
+		$fieldEditor.blur(function() {
+			return that.Save(that);
+		});
 		return false;
 	};
 
@@ -582,28 +577,25 @@ function AssessmentExtendedParameterEditor(element) {
 			this.realValue = $element.attr("data-real-value").trim();
 
 		var that = this, indexOf = this.acromym.indexOf(this.defaultValue), value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue
-				: this.defaultValue, height = $element.outerHeight();
+				: this.defaultValue;
 
 		this.fieldEditor = document.createElement("input");
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", value);
 		this.fieldEditor.setAttribute("value", value);
-		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
+		this.fieldEditor.setAttribute("style", "padding: 4px; width:80px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
 
 		this.backupData.width = $element.width();
 		this.backupData.orginalStyle = $element.attr("style");
 
 		$element.css({
-			"min-width" : 50,
-			"height" : height,
-			"padding" : 0
+			"padding" : 0,
+			"width" : this.backupData.width,
 		});
 
-		if (!application.editMode) {
-			$(this.fieldEditor).blur(function() {
-				return that.Save(that);
-			});
-		}
+		$(this.fieldEditor).blur(function() {
+			return that.Save(that);
+		});
 
 		return false;
 	};
@@ -640,7 +632,7 @@ function AssessmentImpactFieldEditor(element) {
 		if (this.element == null || this.element == undefined)
 			return false;
 
-		var data = [];
+		var data = [], $element = $(this.element);
 		for (var i = 0; i < this.choose.length; i++)
 			data.push({
 				value : this.choose[i]
@@ -654,7 +646,7 @@ function AssessmentImpactFieldEditor(element) {
 			local : data
 		});
 		iteams.initialize();
-		$(this.element).html(this.fieldEditor);
+		$element.html(this.fieldEditor)
 		$(this.fieldEditor).typeahead(null, {
 			displayKey : 'value',
 			source : iteams.ttAdapter()
@@ -691,8 +683,10 @@ function AssessmentProbaFieldEditor(element) {
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", this.realValue == null || this.realValue == undefined ? this.defaultValue : this.realValue == '0' ? this.acromym[0]
 				: this.realValue);
-		var that = this, height = $element.outerHeight(), $fieldEditor = $(this.fieldEditor);
-		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; margin-right:auto; height:" + (height - 2) + "px;");
+		var that = this, $fieldEditor = $(this.fieldEditor);
+
+		this.fieldEditor.setAttribute("style", "padding: 4px; width:80px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
+
 		for (var i = 0; i < this.choose.length; i++) {
 			var option = document.createElement("option"), $option = $(option);
 			option.setAttribute("value", this.acromym[i]);
@@ -703,18 +697,14 @@ function AssessmentProbaFieldEditor(element) {
 
 		this.backupData.width = $element.width();
 		this.backupData.orginalStyle = $element.attr("style");
-
 		$element.css({
-			"min-width" : 60,
-			"height" : height,
-			"padding" : 0
+			"padding" : 0,
+			"width" : this.backupData.width,
+		});
+		$fieldEditor.blur(function() {
+			return that.Save(that);
 		});
 
-		if (!application.editMode) {
-			$fieldEditor.blur(function() {
-				return that.Save(that);
-			});
-		}
 		return false;
 	};
 

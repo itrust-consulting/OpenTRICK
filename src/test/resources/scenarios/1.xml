@@ -1,8 +1,50 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="controllers">
 	<test name="All Components">
-		<packages>
+	
+		<groups>
+			<define name="INITIALISE">
+				<include name="setup" />
+				<include name="firstAccount" />
+				<include name="Installation" />
+			</define>
+			
+			<define name="ANALYSIS">
+				<include name="CreateAnalysis" />
+				<include name="Computation" />
+				
+			</define>
+			
+			<define name="PROFILE_ANALYSIS">
+				<include name="ImportExport" />
+				<include name="Profile" />
+			</define>
+			
+			<define name="KNOWLEDGE_BASE_ADMINISTRATION">
+				<include name="KnowledgeBase" />
+				<include name="Administration" />
+			</define>
+			
+			<define name="FAILURE_CASE">
+				<include name="EditFieldFailure" />
+			</define>
+			
+			<define name="ALL">
+				<include name="INITIALISE" />
+				<include name="ANALYSIS" />
+				<include name="PROFILE_ANALYSIS" />
+				<include name="KNOWLEDGE_BASE_ADMINISTRATION" />
+				<include name="FAILURE_CASE" />
+			</define>
+			
+			<run>
+				<include name="ALL" />
+			</run>
+		</groups>
+
+		 <packages>
 			<package name="lu.itrust.TS.controller" />
-		</packages>
+		</packages> 
+		
 	</test>
 </suite>

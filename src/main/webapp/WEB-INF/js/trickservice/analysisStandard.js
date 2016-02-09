@@ -314,7 +314,7 @@ function doAddStandard(form) {
 		var idStandard = $("#" + form + " select").val();
 		$.ajax({
 			url : context + "/Analysis/Standard/Add/" + idStandard,
-			type : "get",
+			type : "post",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				if (response["error"] != undefined) {

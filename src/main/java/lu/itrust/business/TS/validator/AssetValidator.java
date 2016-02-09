@@ -24,6 +24,8 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 				return "error.asset.name.unsupported::Name value is not supported";
 			else if (candidate.toString().trim().isEmpty())
 				return "error.asset.name.empty::Name cannot be empty";
+			else if (!candidate.toString().matches(Constant.REGEXP_VALID_NAME))
+				return "error.asset.name.invalid::Name is not valid";
 			break;
 		case "assetType":
 			if (candidate == null || !(candidate instanceof AssetType))
@@ -32,8 +34,16 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 		case "value":
 			if (candidate == null || !(candidate instanceof Double))
 				return "error.asset.value.unsupported::Value is not supported";
-			else if ((Double)candidate <0)
+			else if ((Double) candidate < 0)
 				return "error.asset.value.invalid::Value has to be 0 or greater";
+			break;
+		case "comment":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.asset.comment.unsupported::Comment should be a string";
+			break;
+		case "hiddenComment":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.asset.hidden_comment.unsupported::Hidden comment should be a string";
 			break;
 		}
 		return null;
