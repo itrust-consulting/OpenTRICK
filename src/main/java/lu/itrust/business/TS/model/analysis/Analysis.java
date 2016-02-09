@@ -551,8 +551,7 @@ public class Analysis implements Cloneable {
 	 * external maintenance in md as well as the recurrent investment per year
 	 * in keuro. <br>
 	 * Formula used:<br>
-	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er)
-	 * + ri))<br>
+	 * Cost = ((ir * iw) + (er * ew) + in) * ((1.0 / lt) + ((im * ir) + (em * er)+ ri))<br>
 	 * With:<br>
 	 * ir: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
@@ -593,23 +592,12 @@ public class Analysis implements Cloneable {
 		// ****************************************************************
 		// * variable initialisation
 		// ****************************************************************
-		double cost = 0;
-
 		// internal setup * internal wokload + external setup * external
 		// workload
-		cost = (internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad);
-		// + investment
-		cost += investment;
 		// check if lifetime is not 0 -> YES: use default lifetime
-		if (lifetime == 0)
-			cost *= (1. / lifetimeDefault);
-		else
-			cost *= (1. / lifetime);
-
-		cost += ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
-
 		// return calculated cost
-		return cost;
+		return (((internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad) + investment) * (1. / (lifetime == 0 ? lifetimeDefault : lifetime)))
+				+ ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
 	}
 
 	/***********************************************************************************************
