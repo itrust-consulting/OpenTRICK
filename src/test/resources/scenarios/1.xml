@@ -25,7 +25,7 @@
 				<include name="Administration" />
 			</define>
 			
-			<define name="FAILURE_CASE">
+			<define name="FAILURE_TEST_SUITE">
 				<include name="EditFieldFailure" />
 			</define>
 			
@@ -34,10 +34,12 @@
 				<include name="ANALYSIS" />
 				<include name="PROFILE_ANALYSIS" />
 				<include name="KNOWLEDGE_BASE_ADMINISTRATION" />
-				<include name="FAILURE_CASE" />
+				<include name="FAILURE_TEST_SUITE" />
 			</define>
 			
 			<run>
+				<!-- <include name="INITIALISE" />
+				<include name="FAILURE_TEST_SUITE" /> -->
 				<include name="ALL" />
 			</run>
 		</groups>

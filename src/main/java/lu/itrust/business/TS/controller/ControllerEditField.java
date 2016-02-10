@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.controller;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.sql.Date;
 import java.text.DateFormat;
@@ -39,7 +38,6 @@ import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceHistory;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
@@ -55,7 +53,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
@@ -81,6 +78,7 @@ import lu.itrust.business.TS.validator.MaturityParameterValidator;
 import lu.itrust.business.TS.validator.MeasureValidator;
 import lu.itrust.business.TS.validator.ParameterValidator;
 import lu.itrust.business.TS.validator.RiskInformationValidator;
+import lu.itrust.business.TS.validator.ScenarioValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
@@ -142,9 +140,6 @@ public class ControllerEditField {
 	@Autowired
 	private ServiceAsset serviceAsset;
 
-	@Autowired
-	private ServiceAssetType serviceAssetType;
-
 	private Pattern computeCostPattern = Pattern.compile("internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment");
 
 	/**
@@ -168,105 +163,42 @@ public class ControllerEditField {
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			locale = loadAnalysisLocale(id, locale);
 
 			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// get item information object from id
 			ItemInformation itemInformation = serviceItemInformation.getFromAnalysisById(id, elementID);
 			if (itemInformation == null)
-				return JsonMessage
-						.Error(messageSource.getMessage("error.item_information.not_found", null, "Item information cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.item_information.not_found", null, "Item information cannot be found", locale));
 
 			// initialise field
 			Field field = itemInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
 
 			// set field with new data
 			if (SetFieldData(field, itemInformation, fieldEditor)) {
-
 				// update iteminformation
 				serviceItemInformation.saveOrUpdate(itemInformation);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.item_information.updated", null, "Item information was successfully updated",
-						cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Success(messageSource.getMessage("success.item_information.updated", null, "Item information was successfully updated", locale));
 			} else
-
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-		} catch (NumberFormatException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalAccessException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (InvocationTargetException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (RuntimeException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
+	}
+
+	private Locale loadAnalysisLocale(Integer id, Locale locale) throws Exception {
+		Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+		return cutomLocale == null ? locale : cutomLocale;
 	}
 
 	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
@@ -279,10 +211,7 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
-			if (analysisLocale != null)
-				locale = analysisLocale;
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// retrieve measure
 			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, elementID);
@@ -290,28 +219,24 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale));
 			// set field
 
-			if (fieldEditor.getFieldName().equalsIgnoreCase("assetType")) {
-				AssetType assetType = serviceAssetType.getByName(fieldEditor.getValue().toString());
-				if (assetType != null)
-					asset.setAssetType(assetType);
-				else
-					return JsonMessage.Error(messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", locale));
-			} else {
-				ValidatorField validator = serviceDataValidation.findByClass(Asset.class);
-				if (validator == null)
-					serviceDataValidation.register(validator = new AssetValidator());
-				Object value = FieldValue(fieldEditor);
+			ValidatorField validator = serviceDataValidation.findByClass(Asset.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new AssetValidator());
+			if (!validator.isEditable(fieldEditor.getFieldName()))
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 
-				String error = serviceDataValidation.validate(asset, fieldEditor.getFieldName(), value);
+			Object value = FieldValue(fieldEditor);
 
-				if (error != null)
-					return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+			String error = serviceDataValidation.validate(asset, fieldEditor.getFieldName(), value);
 
-				Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
-				// check if field is a phase
-				if (!SetFieldValue(asset, field, value))
-					JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
-			}
+			if (error != null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+
+			Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
+			// check if field is a phase
+			if (!SetFieldValue(asset, field, value))
+				JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+
 			// update measure
 			serviceAsset.saveOrUpdate(asset);
 			// return success message
@@ -320,8 +245,9 @@ public class ControllerEditField {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
+			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -347,15 +273,15 @@ public class ControllerEditField {
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			locale = loadAnalysisLocale(id, locale);
 
 			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// get parameter object
 			Parameter parameter = serviceParameter.getFromAnalysisById(id, elementID);
 			if (parameter == null)
-				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
@@ -368,24 +294,23 @@ public class ControllerEditField {
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			switch (parameter.getType().getLabel()) {
 			case Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME:
 			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME:
 			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME:
 				if (((double) value) < 0 || ((double) value) > 100)
 					return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound", new Object[] { value },
-							String.format("Invalid input: value (%f) should be between 0 and 100", value), cutomLocale != null ? cutomLocale : locale));
+							String.format("Invalid input: value (%f) should be between 0 and 100", value), locale));
 				break;
 			case Constant.PARAMETERTYPE_TYPE_SINGLE_NAME:
 				if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
 					if (((double) value) <= 0)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0",
-								cutomLocale != null ? cutomLocale : locale));
+						return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0", locale));
 				} else if (parameter.getDescription().equals(Constant.PARAMETER_MAX_RRF) || parameter.getDescription().equals(Constant.SOA_THRESHOLD)) {
 					if (((double) value) < 0 || ((double) value) > 100)
 						return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound", new Object[] { value },
-								String.format("Invalid input: value (%f) should be between 0 and 100", value), cutomLocale != null ? cutomLocale : locale));
+								String.format("Invalid input: value (%f) should be between 0 and 100", value), locale));
 				}
 				break;
 			}
@@ -397,111 +322,17 @@ public class ControllerEditField {
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
 				// return success message
-				return JsonMessage
-						.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
 			} else
-
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-		} catch (NoSuchFieldException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (SecurityException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (NumberFormatException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalArgumentException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalAccessException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (ParseException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		}
-
-		catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		}
-
-		catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -528,15 +359,15 @@ public class ControllerEditField {
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			locale = loadAnalysisLocale(id, locale);
 
 			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve parameter
 			ExtendedParameter parameter = (ExtendedParameter) serviceParameter.getFromAnalysisById(id, elementID);
 			if (parameter == null)
-				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
 			String acronym = parameter.getAcronym();
 
@@ -552,7 +383,7 @@ public class ControllerEditField {
 
 			// return error validation
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 			// set field
 			Field field = null;
@@ -572,7 +403,7 @@ public class ControllerEditField {
 					} catch (Exception e) {
 						TrickLogManager.Persist(e);
 						return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, parameter.getAcronym() },
-								"Assessment acronym (" + acronym + ") cannot be updated to (" + parameter.getAcronym() + ")", cutomLocale != null ? cutomLocale : locale));
+								"Assessment acronym (" + acronym + ") cannot be updated to (" + parameter.getAcronym() + ")", locale));
 					}
 				}
 				// update field
@@ -588,108 +419,18 @@ public class ControllerEditField {
 				serviceParameter.saveOrUpdate(parameters);
 
 				// return success message
-				return JsonMessage.Success(
-						messageSource.getMessage("success.extendedParameter.update", null, "Parameter was successfully update", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Success(messageSource.getMessage("success.extendedParameter.update", null, "Parameter was successfully update", locale));
 			} else
-
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-		} catch (NoSuchFieldException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (SecurityException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (NumberFormatException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalArgumentException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalAccessException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (ParseException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -707,15 +448,15 @@ public class ControllerEditField {
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			locale = loadAnalysisLocale(id, locale);
 
 			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// get parameter object
 			MaturityParameter parameter = (MaturityParameter) serviceParameter.getFromAnalysisById(id, elementID);
 			if (parameter == null)
-				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
@@ -728,7 +469,7 @@ public class ControllerEditField {
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 			// create field
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
@@ -746,108 +487,18 @@ public class ControllerEditField {
 				serviceParameter.saveOrUpdate(parameter);
 
 				// return success message
-				return JsonMessage
-						.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
 			} else
 
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-		} catch (NoSuchFieldException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (SecurityException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (NumberFormatException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalArgumentException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalAccessException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (ParseException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -874,15 +525,15 @@ public class ControllerEditField {
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			locale = loadAnalysisLocale(id, locale);
 
 			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve assessment
 			Assessment assessment = serviceAssessment.getFromAnalysisById(id, elementID);
 			if (assessment == null)
-				return JsonMessage.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", locale));
 
 			// set validator
 			if (!serviceDataValidation.isRegistred(assessment.getClass()))
@@ -893,8 +544,12 @@ public class ControllerEditField {
 			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName())) {
 				try {
 					chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
-					if (!chooses.contains(fieldEditor.getValue()))
-						fieldEditor.setValue(Double.toString(NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000));
+					if (!chooses.contains(fieldEditor.getValue())) {
+						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
+						if (value < 0)
+							return JsonMessage.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negatif", locale));
+						fieldEditor.setValue(value + "");
+					}
 				} catch (Exception e) {
 					TrickLogManager.Persist(e);
 				}
@@ -905,15 +560,13 @@ public class ControllerEditField {
 			}
 
 			// get value
-			Object value = FieldValue(fieldEditor, null);
+			Object value = FieldValue(fieldEditor);
 
 			// validate new value
 			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses != null ? chooses.toArray() : null);
 			if (error != null)
-
 				// return error message
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
-
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// init field
 			Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
 
@@ -921,7 +574,7 @@ public class ControllerEditField {
 			if (!SetFieldData(field, assessment, fieldEditor, null))
 
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 			// retrieve parameters
 			Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
@@ -938,32 +591,14 @@ public class ControllerEditField {
 			serviceAssessment.saveOrUpdate(assessment);
 
 			// return success message
-			return JsonMessage
-					.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 
 	}
@@ -990,12 +625,12 @@ public class ControllerEditField {
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			locale = loadAnalysisLocale(id, locale);
 
 			// retireve history object
 			History history = serviceHistory.getFromAnalysisById(id, elementID);
 			if (history == null)
-				return JsonMessage.Error(messageSource.getMessage("error.history.not_found", null, "History cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.history.not_found", null, "History cannot be found", locale));
 
 			// get validator
 			if (!serviceDataValidation.isRegistred(history.getClass()))
@@ -1009,7 +644,7 @@ public class ControllerEditField {
 
 			// return errors on validation fail
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 			// set field
 			Field field = history.getClass().getDeclaredField(fieldEditor.getFieldName());
@@ -1021,108 +656,18 @@ public class ControllerEditField {
 				serviceHistory.saveOrUpdate(history);
 
 				// return success message
-				return JsonMessage
-						.Success(messageSource.getMessage("success.history.updated", null, "History was successfully updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Success(messageSource.getMessage("success.history.updated", null, "History was successfully updated", locale));
 			} else
 
 				// return error rmessage
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-		} catch (NoSuchFieldException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error rmessage
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (SecurityException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error rmessage
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (NumberFormatException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error rmessage
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.format.number", null, "Number expected", cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalArgumentException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error rmessage
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (IllegalAccessException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error rmessage
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (ParseException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error rmessage
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.format.date", null, "Date expected", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error rmessage
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1149,15 +694,19 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// retrieve measure
 			Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 			if (scenario == null)
-				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
+
+			ValidatorField validator = serviceDataValidation.findByClass(Scenario.class);
+
+			if (validator == null)
+				serviceDataValidation.register(validator = new ScenarioValidator());
 
 			// set field
-
 			Field field = FindField(Scenario.class, fieldEditor.getFieldName());
 			// means that field belongs to the Measure class
 
@@ -1168,56 +717,35 @@ public class ControllerEditField {
 					if (!(fieldEditor.getValue() instanceof Integer))
 						fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
 				}
-
-				field.set(scenario, fieldEditor.getValue());
-				// update measure
-				serviceScenario.saveOrUpdate(scenario);
-
+				String error = validator.validate(scenario, fieldEditor.getFieldName(), fieldEditor.getValue());
+				if (error == null)
+					field.set(scenario, fieldEditor.getValue());
+				else
+					return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			} else {
-
 				if (Scenario.isCategoryKey(fieldEditor.getFieldName()))
 					scenario.setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
 				else {
-					AssetTypeValue assetData = null;
-					for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues()) {
-						if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
-							assetData = assetTypeValue;
-							break;
-						}
-					}
+					AssetTypeValue assetData = scenario.getAssetTypeValues().stream().filter(assetTypeValue -> assetTypeValue.hasSameType(fieldEditor.getFieldName())).findAny()
+							.orElse(null);
 					if (assetData != null)
 						assetData.setValue((Integer) fieldEditor.getValue());
 					else
-						return null;
+						return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 				}
-				serviceScenario.saveOrUpdate(scenario);
 			}
+
+			serviceScenario.saveOrUpdate(scenario);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", locale));
 
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1243,12 +771,12 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// retrieve measure
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 			if (measure == null)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
 			// set field
 
@@ -1265,10 +793,10 @@ public class ControllerEditField {
 					Integer number = null;
 					number = (Integer) FieldValue(fieldEditor);
 					if (number == null)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 					Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 					if (phase == null)
-						return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", cutomLocale != null ? cutomLocale : locale));
+						return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 
 					// set new phase number
 					measure.setPhase(phase);
@@ -1278,7 +806,7 @@ public class ControllerEditField {
 
 					Object value = FieldValue(fieldEditor);
 					if (value == null)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 					// get validator
 					if (!serviceDataValidation.isRegistred(Measure.class))
@@ -1286,12 +814,12 @@ public class ControllerEditField {
 
 					String error = serviceDataValidation.validate(measure, fieldEditor.getFieldName(), value);
 					if (error != null)
-						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
+						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
 						if ((Double) value < 0. || (Double) value > 100.)
-							return JsonMessage.Error(messageSource.getMessage("error.edit.implementationrate.field", null, "Implementation rate needs to be >= 0 and <= 100 !",
-									cutomLocale != null ? cutomLocale : locale));
+							return JsonMessage
+									.Error(messageSource.getMessage("error.edit.implementationrate.field", null, "Implementation rate needs to be >= 0 and <= 100 !", locale));
 						else
 							SetFieldValue(measure, field, value);
 					} else
@@ -1328,7 +856,7 @@ public class ControllerEditField {
 
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);
@@ -1377,7 +905,7 @@ public class ControllerEditField {
 
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);
@@ -1417,31 +945,15 @@ public class ControllerEditField {
 				}
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1466,12 +978,12 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 			// retrieve measure
 			NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 
 			if (measure == null)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
 			// set field
 
@@ -1482,7 +994,7 @@ public class ControllerEditField {
 
 			// check if field is a phase
 			if (!SetFieldData(field, mesprep, fieldEditor))
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 			measure.setMeasurePropertyList(mesprep);
 
@@ -1490,32 +1002,15 @@ public class ControllerEditField {
 			serviceMeasure.saveOrUpdate(measure);
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1541,11 +1036,11 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 			// retrieve measure
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 			if (measure == null)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
 			// check if field is implementationrate
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
@@ -1575,41 +1070,23 @@ public class ControllerEditField {
 						serviceMeasure.saveOrUpdate(measure);
 
 						// return success message
-						return JsonMessage
-								.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
+						return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
 					}
 				}
 
 				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			} else
 
 				// update as if it would be a normal measure
-				return measure(elementID, fieldEditor, session, cutomLocale != null ? cutomLocale : locale, principal);
+				return measure(elementID, fieldEditor, session, locale, principal);
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1622,9 +1099,7 @@ public class ControllerEditField {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (idAnalysis == null)
 				return Result.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			if (cutomLocale != null)
-				locale = cutomLocale;
+			locale = loadAnalysisLocale(idAnalysis, locale);
 			if (fieldEditor.getFieldName().equalsIgnoreCase("cost"))
 				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Measure measure = serviceMeasure.get(id);
@@ -1682,9 +1157,9 @@ public class ControllerEditField {
 				result.turnOnError(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			if (result == null)
-				result = Result.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+				result = Result.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 			else
-				result.turnOnError(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+				result.turnOnError(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 			TrickLogManager.Persist(e);
 		}
 		return result;
@@ -1720,21 +1195,20 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// get acion plan entry
 			ActionPlanEntry ape = serviceActionPlan.getFromAnalysisById(idAnalysis, elementID);
 			if (ape == null)
-				return JsonMessage
-						.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", locale));
 
 			// retrieve phase
 			Integer number = (Integer) FieldValue(fieldEditor);
 			if (number == null)
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 			if (phase == null)
-				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 
 			// set new phase value of measure
 			ape.getMeasure().setPhase(phase);
@@ -1743,33 +1217,15 @@ public class ControllerEditField {
 			serviceMeasure.saveOrUpdate(ape.getMeasure());
 
 			// return success message
-			return JsonMessage
-					.Success(messageSource.getMessage("success.ationplan.updated", null, "ActionPlan entry was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.ationplan.updated", null, "ActionPlan entry was successfully updated", locale));
 
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			// retrun error message
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1788,46 +1244,33 @@ public class ControllerEditField {
 	public @ResponseBody String phase(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		try {
-
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 			// retireve phase
 			Phase phase = servicePhase.getFromAnalysisById(idAnalysis, elementID);
-
 			if (phase == null)
-				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", cutomLocale != null ? cutomLocale : locale));
-
+				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 			// set field
 			Field field = phase.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
-
 			// set field date
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 			field.set(phase, new Date(format.parse(fieldEditor.getValue().toString()).getTime()));
-
 			// update phase
 			servicePhase.saveOrUpdate(phase);
-
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.phase.updated", null, "Phase was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.phase.updated", null, "Phase was successfully updated", locale));
 
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
@@ -1842,12 +1285,11 @@ public class ControllerEditField {
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			RiskInformation riskInformation = serviceRiskInformation.getFromAnalysisById(idAnalysis, elementID);
 			if (riskInformation == null)
-				return JsonMessage
-						.Error(messageSource.getMessage("error.risk_information.not_found", null, "Risk information cannot be found", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.risk_information.not_found", null, "Risk information cannot be found", locale));
 
 			// set field
 			Field field = riskInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
@@ -1857,66 +1299,55 @@ public class ControllerEditField {
 				serviceDataValidation.register(validatorField = new RiskInformationValidator());
 			String error = validatorField.validate(riskInformation, fieldEditor.getFieldName(), fieldEditor.getValue());
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			field.setAccessible(true);
 			if (!SetFieldData(field, riskInformation, fieldEditor, null))
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			// update phase
 			serviceRiskInformation.saveOrUpdate(riskInformation);
 			// return success message
-			return JsonMessage.Success(
-					messageSource.getMessage("success.risk_information.updated", null, "Risk information was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null, "Risk information was successfully updated", locale));
 		} catch (TrickException e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-		} catch (Exception e) {
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 	}
 
 	@RequestMapping(value = "/RiskRegister/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String riskRegister(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
-			throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		if (fieldEditor.getFieldName().matches("strategy|owner")) {
-			RiskRegisterItem registerItem = serviceRiskRegister.get(elementID);
-			if (registerItem == null)
-				return JsonMessage
-						.Error(messageSource.getMessage("error.risk_register.not_found", null, "Risk register cannot be found", cutomLocale != null ? cutomLocale : locale));
-			try {
-				PropertyAccessorFactory.forBeanPropertyAccess(registerItem).setPropertyValue(fieldEditor.getFieldName(), fieldEditor.getValue());
-				serviceRiskRegister.saveOrUpdate(registerItem);
-				return JsonMessage.Success(
-						messageSource.getMessage("success.risk_register.updated", null, "Risk register was successfully updated", cutomLocale != null ? cutomLocale : locale));
-			} catch (TrickException e) {
-				TrickLogManager.Persist(e);
-				return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
-			} catch (Exception e) {
-				TrickLogManager.Persist(e);
-				return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
-			}
-		} else
-			return JsonMessage.Error(messageSource.getMessage("error.edit.field.unsupported", null, "Field cannot be edited", locale));
+	public @ResponseBody String riskRegister(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+		try {
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			locale = loadAnalysisLocale(idAnalysis, locale);
+			if (fieldEditor.getFieldName().matches("strategy|owner")) {
+				RiskRegisterItem registerItem = serviceRiskRegister.get(elementID);
+				if (registerItem == null)
+					return JsonMessage.Error(messageSource.getMessage("error.risk_register.not_found", null, "Risk register cannot be found", locale));
+				try {
+					PropertyAccessorFactory.forBeanPropertyAccess(registerItem).setPropertyValue(fieldEditor.getFieldName(), fieldEditor.getValue());
+					serviceRiskRegister.saveOrUpdate(registerItem);
+					return JsonMessage.Success(messageSource.getMessage("success.risk_register.updated", null, "Risk register was successfully updated", locale));
+				} catch (TrickException e) {
+					TrickLogManager.Persist(e);
+					return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+				} catch (Exception e) {
+					TrickLogManager.Persist(e);
+					return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+				}
+			} else
+				return JsonMessage.Error(messageSource.getMessage("error.edit.field.unsupported", null, "Field cannot be edited", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			// return error
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+		}
 	}
 
 	/**

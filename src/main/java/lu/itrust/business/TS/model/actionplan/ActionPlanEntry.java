@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.actionplan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -24,8 +25,9 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * ActionPlanEntry: <br>
- * Contains an entry in the action plan: This entry's structure is: AnalysisStandard object, Measure
- * object, the total ALE, delta ALE and the ROSI/ROSMI.
+ * Contains an entry in the action plan: This entry's structure is:
+ * AnalysisStandard object, Measure object, the total ALE, delta ALE and the
+ * ROSI/ROSMI.
  * 
  * @author itrust consulting s.a r.l. - BJA,SME
  * @version 0.1
@@ -35,9 +37,12 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 @Table(name = "ActionPlan")
 public class ActionPlanEntry {
 
-	/** Regular expression to match valid entry position (positive or negative number or =) */
+	/**
+	 * Regular expression to match valid entry position (positive or negative
+	 * number or =)
+	 */
 	@Transient
-	public static final String POSITION_REGEX = "[-+]\\d+|=|\\d+";
+	public static final Pattern POSITION_REGEX = Pattern.compile("[-+]\\d+|=|\\d+");
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -84,8 +89,8 @@ public class ActionPlanEntry {
 	private double cost = 0;
 
 	/**
-	 * Return of investment for Security and Maturity investment of each mode (normal, pessimistic,
-	 * optimistic)
+	 * Return of investment for Security and Maturity investment of each mode
+	 * (normal, pessimistic, optimistic)
 	 */
 	@Column(name = "dtROI", nullable = false)
 	private double ROI = 0;
@@ -132,9 +137,9 @@ public class ActionPlanEntry {
 
 	/**
 	 * Constructor: <br>
-	 * This constructor is only used inside the generateNormalActionPlanEntries method to use a
-	 * existing ALE to calculate a new ROSI and set the new list of assets (with current asset
-	 * values)
+	 * This constructor is only used inside the generateNormalActionPlanEntries
+	 * method to use a existing ALE to calculate a new ROSI and set the new list
+	 * of assets (with current asset values)
 	 * 
 	 * @param measure
 	 * @param actionPlanType
@@ -169,10 +174,11 @@ public class ActionPlanEntry {
 
 	/**
 	 * calculateROI: <br>
-	 * Calculates the ROI for this entry. This takes the cost of this class. This is for normal
-	 * measures the cost of the measure, for the maturity counts the cost from one SML to the next.
-	 * The cost value will be adapted at the moment of creation of the class. In the end, this
-	 * method adapts the totalALE value for this stage of the action plan
+	 * Calculates the ROI for this entry. This takes the cost of this class.
+	 * This is for normal measures the cost of the measure, for the maturity
+	 * counts the cost from one SML to the next. The cost value will be adapted
+	 * at the moment of creation of the class. In the end, this method adapts
+	 * the totalALE value for this stage of the action plan
 	 */
 	public void calculcateROI() {
 		this.ROI = this.deltaALE - this.cost;
@@ -219,7 +225,8 @@ public class ActionPlanEntry {
 
 	/**
 	 * setMeasure: <br>
-	 * Sets the "measure" field with an Measure Object. Measure cost is not updated at this moment.
+	 * Sets the "measure" field with an Measure Object. Measure cost is not
+	 * updated at this moment.
 	 * 
 	 * @param measure
 	 *            The value to set the Measure
@@ -250,7 +257,7 @@ public class ActionPlanEntry {
 	 * @throws TrickException
 	 */
 	public void setOrder(String order) throws TrickException {
-		if (order == null || !order.matches(POSITION_REGEX))
+		if (order == null || !POSITION_REGEX.matcher(order).find())
 			throw new TrickException("error.action_plan_entry.position", "Position is not valid");
 		this.order = order;
 	}
@@ -450,9 +457,10 @@ public class ActionPlanEntry {
 	 */
 	@Override
 	public String toString() {
-		return "ActionPlanEntry {id=" + id + ",actionplantype=" + actionPlanType.getName() + ",position=" + position + ",cost=" + cost + ",ROI=" + ROI + ",totalALE=" + totalALE + "," + "Measure {id="
-			+ measure.getId() + ",standard=" + measure.getAnalysisStandard().getStandard().getLabel() + ",reference=" + measure.getMeasureDescription().getReference() + ",cost=" + measure.getCost()
-			+ ",IS=" + measure.getInternalWL() + ",ES=" + measure.getExternalWL() + ",INV=" + measure.getInvestment() + ",phase=" + measure.getPhase().getNumber() + "}} ";
+		return "ActionPlanEntry {id=" + id + ",actionplantype=" + actionPlanType.getName() + ",position=" + position + ",cost=" + cost + ",ROI=" + ROI + ",totalALE=" + totalALE
+				+ "," + "Measure {id=" + measure.getId() + ",standard=" + measure.getAnalysisStandard().getStandard().getLabel() + ",reference="
+				+ measure.getMeasureDescription().getReference() + ",cost=" + measure.getCost() + ",IS=" + measure.getInternalWL() + ",ES=" + measure.getExternalWL() + ",INV="
+				+ measure.getInvestment() + ",phase=" + measure.getPhase().getNumber() + "}} ";
 
 	}
 

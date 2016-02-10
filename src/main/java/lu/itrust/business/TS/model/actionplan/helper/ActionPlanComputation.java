@@ -318,8 +318,8 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - optimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", language,
-						progress));
+				serviceTaskFeedback.send(idTask,
+						new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", language, progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPO);
@@ -334,8 +334,8 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", language,
-						progress));
+				serviceTaskFeedback.send(idTask,
+						new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", language, progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPP);
@@ -372,8 +372,8 @@ public class ActionPlanComputation {
 				progress = 80;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary",
-					language, progress));
+			serviceTaskFeedback.send(idTask,
+					new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", language, progress));
 
 			parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
@@ -403,8 +403,8 @@ public class ActionPlanComputation {
 				// ****************************************************************
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase",
-						"Create summary for optimistic phase action plan summary", language, progress));
+				serviceTaskFeedback.send(idTask,
+						new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary", language, progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPO);
@@ -839,7 +839,7 @@ public class ActionPlanComputation {
 	 * @param mode
 	 *            The Mode to Compute: Normal, Optimistic or Pessimistic
 	 * @throws Exception
-	 * */
+	 */
 	private void computePhaseActionPlan(ActionPlanMode mode) throws Exception {
 
 		// ****************************************************************
@@ -916,28 +916,28 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * edit the ALE value
 					// ****************************************************************
-						tma.setALE(tmpTMA.getALE());
+					tma.setALE(tmpTMA.getALE());
+
+					// ****************************************************************
+					// * recalculate the delta ALE
+					// ****************************************************************
+					tma.calculateDeltaALE();
+
+					// ****************************************************************
+					// * if 27002 standard, recalculate deltaALE
+					// maturity if
+					// maturity
+					// computation -> YES
+					// ****************************************************************
+					if (tma.getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
 
 						// ****************************************************************
-						// * recalculate the delta ALE
+						// * recalculate delta ALE Maturity
 						// ****************************************************************
-						tma.calculateDeltaALE();
+						tma.calculateDeltaALEMaturity();
+					}
 
-						// ****************************************************************
-						// * if 27002 standard, recalculate deltaALE
-						// maturity if
-						// maturity
-						// computation -> YES
-						// ****************************************************************
-						if (tma.getStandard().getLabel().equals(Constant.STANDARD_27002) && maturitycomputation) {
-
-							// ****************************************************************
-							// * recalculate delta ALE Maturity
-							// ****************************************************************
-							tma.calculateDeltaALEMaturity();
-						}
-
-					}));
+				}));
 			}
 
 			// ****************************************************************
@@ -1114,8 +1114,8 @@ public class ActionPlanComputation {
 	 * @throws TrickException
 	 * @throws CloneNotSupportedException
 	 */
-	private List<ActionPlanEntry> generateTemporaryActionPlan(List<Measure> usedMeasures, ActionPlanType actionPlanType, List<TMA> TMAList) throws InvalidAttributesException,
-			TrickException, CloneNotSupportedException {
+	private List<ActionPlanEntry> generateTemporaryActionPlan(List<Measure> usedMeasures, ActionPlanType actionPlanType, List<TMA> TMAList)
+			throws InvalidAttributesException, TrickException, CloneNotSupportedException {
 
 		// ****************************************************************
 		// * variables initialisation
@@ -1304,8 +1304,8 @@ public class ActionPlanComputation {
 	 * @throws TrickException
 	 * @throws CloneNotSupportedException
 	 */
-	private void generateMaturtiyChapterActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, List<Measure> usedMeasures, List<TMA> TMAList) throws InvalidAttributesException,
-			TrickException, CloneNotSupportedException {
+	private void generateMaturtiyChapterActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, List<Measure> usedMeasures, List<TMA> TMAList)
+			throws InvalidAttributesException, TrickException, CloneNotSupportedException {
 
 		// ****************************************************************
 		// * inistialise variables
@@ -2064,6 +2064,8 @@ public class ActionPlanComputation {
 		double rrf = 0;
 		double cMaxEff = -1;
 		double nMaxEff = -1;
+		Parameter parameterMaxRRF = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
+				.findAny().orElse(null);
 
 		// ****************************************************************
 		// * parse assesments to generate TMA entries
@@ -2085,7 +2087,7 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * calculate RRF
 					// ****************************************************************
-					rrf = RRF.calculateRRF(tmpAssessment, analysis.getParameters(), measure);
+					rrf = RRF.calculateRRF(tmpAssessment, parameterMaxRRF, measure);
 
 					// ****************************************************************
 					// * create TMA object and initialise with assessment and
@@ -2431,8 +2433,8 @@ public class ActionPlanComputation {
 			// check if reference starts with
 			// "M.<currentChapter>.<currentSML+1>." and if applicable
 			// and implementation rate is less than 100%
-			if ((maturityStandard.getMeasure(i).getMeasureDescription().getReference().startsWith(Constant.MATURITY_REFERENCE + chapterValue + "."
-					+ String.valueOf(chapter.getReachedLevel() + 1) + "."))
+			if ((maturityStandard.getMeasure(i).getMeasureDescription().getReference()
+					.startsWith(Constant.MATURITY_REFERENCE + chapterValue + "." + String.valueOf(chapter.getReachedLevel() + 1) + "."))
 					&& (!maturityStandard.getMeasure(i).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 					&& (maturityStandard.getMeasure(i).getImplementationRateValue() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)) {
 
@@ -2502,8 +2504,8 @@ public class ActionPlanComputation {
 			// is applicable or
 			// mandatory
 			if ((normalStandard.getMeasure(j).getMeasureDescription().getReference().startsWith(chapter + "."))
-					&& (!normalStandard.getMeasure(j).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (normalStandard.getMeasure(j).getMeasureDescription()
-							.isComputable()))) {
+					&& (!normalStandard.getMeasure(j).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+							&& (normalStandard.getMeasure(j).getMeasureDescription().isComputable()))) {
 
 				// *************************************************
 				// * measure found increment counter
@@ -2880,14 +2882,14 @@ public class ActionPlanComputation {
 			tmpval.recurrentInvestment += preImplementedMeasures.getRecurrentInvestment();
 		}
 
-		MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = maintenanceRecurrentInvestments.containsKey(phasenumber - 1) ? maintenanceRecurrentInvestments
-				.get(phasenumber - 1) : new MaintenanceRecurrentInvestment();
+		MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = maintenanceRecurrentInvestments.containsKey(phasenumber - 1)
+				? maintenanceRecurrentInvestments.get(phasenumber - 1) : new MaintenanceRecurrentInvestment();
 
 		if (maintenanceRecurrentInvestments.containsKey(phasenumber))
 			maintenanceRecurrentInvestments.get(phasenumber).update(tmpval.internalMaintenance, tmpval.externalMaintenance, tmpval.recurrentInvestment);
 		else
-			maintenanceRecurrentInvestments
-					.put(phasenumber, new MaintenanceRecurrentInvestment(tmpval.internalMaintenance, tmpval.externalMaintenance, tmpval.recurrentInvestment));
+			maintenanceRecurrentInvestments.put(phasenumber,
+					new MaintenanceRecurrentInvestment(tmpval.internalMaintenance, tmpval.externalMaintenance, tmpval.recurrentInvestment));
 
 		// ****************************************************************
 		// * create summary stage object
@@ -2930,8 +2932,8 @@ public class ActionPlanComputation {
 				+ aStage.getRecurrentInvestment());
 
 		// update total cost
-		aStage.setImplementCostOfPhase(tmpval.implementCostOfPhase = (tmpval.internalWorkload * parameterInternalSetupRate)
-				+ (tmpval.externalWorkload * parameterExternalSetupRate) + tmpval.investment);
+		aStage.setImplementCostOfPhase(
+				tmpval.implementCostOfPhase = (tmpval.internalWorkload * parameterInternalSetupRate) + (tmpval.externalWorkload * parameterExternalSetupRate) + tmpval.investment);
 
 		// in case of a phase calculation multiply external maintenance,
 		// internal maintenance with

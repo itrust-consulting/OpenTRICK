@@ -19,7 +19,7 @@ import lu.itrust.business.TS.exception.TrickException;
  * @version 0.1
  * @since 25 janv. 2013
  */
-@Entity 
+@Entity
 public class AssetType implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -31,12 +31,13 @@ public class AssetType implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** AssetType id, unsaved value = -1 */
-	@Id @GeneratedValue
-	@Column(name="idAssetType")
+	@Id
+	@GeneratedValue
+	@Column(name = "idAssetType")
 	private int id = -1;
 
 	/** AssetType Type name */
-	@Column(name="dtLabel", nullable=false, unique=true)
+	@Column(name = "dtLabel", nullable = false, unique = true)
 	private String type = "";
 
 	/***********************************************************************************************
@@ -54,7 +55,7 @@ public class AssetType implements Serializable, Cloneable {
 	 * 
 	 * @param type
 	 *            Type Name
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public AssetType(String type) throws TrickException {
 		setType(type);
@@ -101,13 +102,13 @@ public class AssetType implements Serializable, Cloneable {
 	 * 
 	 * @param type
 	 *            The Value to set the type field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setType(String type) throws TrickException {
 		if (type == null)
-			throw new TrickException("error.assettype.type_null","Asset type cannot be empty");
+			throw new TrickException("error.assettype.type_null", "Asset type cannot be empty");
 		else if (!type.trim().matches(Constant.REGEXP_VALID_ASSET_TYPE))
-			throw new TrickException("error.assettype.type_no_meet","Asset type: wrong type");
+			throw new TrickException("error.assettype.type_no_meet", "Asset type: wrong type");
 		this.type = type.trim();
 	}
 
@@ -159,5 +160,9 @@ public class AssetType implements Serializable, Cloneable {
 			return false;
 		}
 		return true;
+	}
+
+	public boolean isSame(String type) {
+		return this.type == null ? (type == null ? true : false) : this.type.equals(type);
 	}
 }

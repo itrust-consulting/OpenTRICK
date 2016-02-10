@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.validator;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -13,6 +14,16 @@ import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 public class AssetValidator extends ValidatorFieldImpl implements Validator {
+
+	private Pattern editableField = Pattern.compile("comment|hiddenComment");
+	
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.validator.field.ValidatorField#isEditable(java.lang.String)
+	 */
+	@Override
+	public boolean isEditable(String fieldName) {
+		return editableField.matcher(fieldName).find();
+	}
 
 	@Override
 	public String validate(String fieldName, Object candidate) {

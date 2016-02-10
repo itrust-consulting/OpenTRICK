@@ -239,10 +239,6 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	}
 
 	private void validate(ActionPlanEntry actionPlanEntry, Object[] objects, Language language) {
-		System.out.println();
-		for (Object object : objects)
-			System.out.print(object + " ");
-		System.out.println();
 		Measure measure = actionPlanEntry.getMeasure();
 		notNull(measure, "Action plan measure should not be null");
 		MeasureDescription measureDescription = measure.getMeasureDescription();
@@ -341,10 +337,6 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	}
 
 	private void validate(RiskRegisterItem riskRegisterItem, Object[] objects) {
-		System.out.println();
-		for (Object object : objects)
-			System.out.print(object + " ");
-		System.out.println();
 		assertEquals("Bad scenario", objects[0], riskRegisterItem.getScenario().getName());
 		assertEquals("Bad asset", objects[1], riskRegisterItem.getAsset().getName());
 		assertEquals("Bad raw probability", (double) objects[2], riskRegisterItem.getRawEvaluation().getProbability(), 1E-3);

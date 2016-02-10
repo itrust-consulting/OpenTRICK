@@ -59,7 +59,7 @@ public class TrickLog {
 
 	@ElementCollection
 	@JoinTable(name = "TrickLogParameters", joinColumns = @JoinColumn(name = "fiTrickLog"))
-	@Column(name = "parameter")
+	@Column(name = "dtParameter",length=1024)
 	@Cascade(CascadeType.ALL)
 	private List<String> parameters;
 

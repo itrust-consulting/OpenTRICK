@@ -35,11 +35,13 @@ import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
@@ -50,11 +52,33 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 @Test(groups = "EditFieldFailure", dependsOnGroups = "Installation")
 public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 
+	private static final String ANALYSIS_EDIT_FIELD_ASSESSMENT = "/Analysis/EditField/Assessment/";
+
+	private static final String ANALYSIS_EDIT_FIELD_SCENARIO = "/Analysis/EditField/Scenario/";
+
+	private static final String SCENARIO_ID_CANNOT_BE_NULL = "Scenario id cannot be null";
+
+	private static final String ANALYSIS_EDIT_FIELD_ASSET = "/Analysis/EditField/Asset/";
+
+	private static final String ID_D_FIELD_NAME_S_TYPE_S_VALUE_F = "{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}";
+
+	private static final String ID_D_FIELD_NAME_S_TYPE_S_VALUE_D = "{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}";
+
+	private static final String ID_D_FIELD_NAME_S_TYPE_S_VALUE_S = "{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}";
+
+	private static final String ID_D_FIELD_NAME_S_TYPE_S = "{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\"}";
+
+	private static final String ASSET_ID_CANNOT_BE_NULL = "Asset id cannot be null";
+
+	private static final String SCENARIO_FAILURE_ID = "scenario-failure-id";
+
 	private static final String ASSET_FAILURE_ID = "asset-failure-id";
 
 	private static final String ASSET_TEST_FAILURE = "Servers";
 
 	private static final String SCNEARIO_TEST_FAILURE = "A_1 - Partial loss or temporary";
+
+	private static final String ASSESSMENT_FAILURE_ID = "assessment-failure-id";
 
 	public static String ANALYSIS_KEY;
 
@@ -72,6 +96,9 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 
 	@Autowired
 	private ServiceAsset serviceAsset;
+	
+	@Autowired
+	private ServiceAssessment serviceAssessment;
 
 	@Autowired
 	private ServiceScenario serviceScenario;
@@ -148,120 +175,227 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 	public void loadScenario() {
 		Scenario scenario = serviceScenario.getByNameAndAnalysisId(SCNEARIO_TEST_FAILURE, getInteger(ANALYSIS_KEY));
 		notNull(scenario, SCNEARIO_TEST_FAILURE + " cannot be found");
-		put("scenario-failure-id", scenario.getId());
+		put(SCENARIO_FAILURE_ID, scenario.getId());
+	}
+	
+	@Test(dependsOnMethods = "loadAsset")
+	@Transactional(readOnly = true)
+	public void loadAssessment() throws Exception {
+		List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(getInteger(ANALYSIS_KEY));
+		notEmpty(assessments, "No assessment selected");
+		put(ASSESSMENT_FAILURE_ID, assessments.get(0).getId());
+		
 	}
 
 	@Test(dependsOnMethods = "loadAsset")
 	public void editAssetName() throws Exception {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
-		notNull(idAsset, "Asset id cannot be null");
+		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "name", "String", "")))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "name", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idAsset, "name", "Integer", 1568822)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "name", "Integer", 1568822)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "name", "String", "Customer documents")))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "name", "String", "Customer documents")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 	}
 
 	@Test(dependsOnMethods = "loadAsset")
 	public void editAssetValue() throws Exception {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
-		notNull(idAsset, "Asset id cannot be null");
+		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "value", "String", "")))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "value", "Boolean", true)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d }", idAsset, "value", "Integer", 85554)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "value", "Integer", 85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 	}
 
 	@Test(dependsOnMethods = "loadAsset")
 	public void editAssetType() throws Exception {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
-		notNull(idAsset, "Asset id cannot be null");
+		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "assetType", "String", "")))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "assetType", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "assetType", "Boolean", true)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "assetType", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idAsset, "assetType", "Integer", -85554)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "assetType", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 	}
 
 	@Test(dependsOnMethods = "loadAsset")
 	public void editAssetComment() throws Exception {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
-		notNull(idAsset, "Asset id cannot be null");
+		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\"}", idAsset, "comment", "String")))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S, idAsset, "comment", "String")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "comment", "Boolean", true)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "comment", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idAsset, "comment", "Integer", -85554)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "comment", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 	}
 
 	@Test(dependsOnMethods = "loadAsset")
 	public void editAssetHiddenComment() throws Exception {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
-		notNull(idAsset, "Asset id cannot be null");
+		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\"}", idAsset, "hiddenComment", "String")))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S, idAsset, "hiddenComment", "String")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAsset, "hiddenComment", "Boolean", true)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "hiddenComment", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Asset/" + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idAsset, "hiddenComment", "Integer", -85554)))
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "hiddenComment", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 	}
 
+	@Test(dependsOnMethods = "loadScenario")
+	public void editScenarioName() throws Exception {
+		Integer idAsset = getInteger(SCENARIO_FAILURE_ID);
+		notNull(idAsset, SCENARIO_ID_CANNOT_BE_NULL);
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "String", "")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "Boolean", true)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "value", "Integer", 85554)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+	}
+
+	@Test(dependsOnMethods = "loadScenario")
+	public void editScenarioType() throws Exception {
+		Integer idAsset = getInteger(SCENARIO_FAILURE_ID);
+		notNull(idAsset, SCENARIO_ID_CANNOT_BE_NULL);
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "scanrioType", "String", "")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "scenarioType", "Boolean", true)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "scenarioType", "Integer", -85554)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+	}
+	
+	@Test(dependsOnMethods = "loadScenario")
+	public void editScenarioDescription() throws Exception {
+		Integer idAsset = getInteger(SCENARIO_FAILURE_ID);
+		notNull(idAsset, SCENARIO_ID_CANNOT_BE_NULL);
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S, idAsset, "description", "String")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+		
+		this.mockMvc
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "description", "Integer", -85554)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+	}
+	
+	@Test(dependsOnMethods = "loadAssessment")
+	public void updateAssessment() throws Exception {
+		Integer idAssessment = getInteger(ASSESSMENT_FAILURE_ID);
+		notNull(idAssessment, "Assessment id cannot be null");
+		this.mockMvc
+				.perform(
+						post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAssessment, "impactFin", "String", "-9")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+		
+		this.mockMvc
+		.perform(
+				post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_F, idAssessment, "impactOP", "double", 16582.0)))
+		.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+		
+		this.mockMvc
+		.perform(
+				post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAssessment, "asset", "Asset", "Asset1")))
+		.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+		
+		this.mockMvc
+				.perform(
+						post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+								.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+								.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAssessment, "likelihood", "String", "-9")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
+
+	}
+
+	
 }

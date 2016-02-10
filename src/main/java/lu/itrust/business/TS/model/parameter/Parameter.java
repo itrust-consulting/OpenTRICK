@@ -185,4 +185,9 @@ public class Parameter implements Cloneable {
 		return parameter;
 	}
 
+	public Boolean isMatch(String typeName, String description) {
+		return this.type == null ? (typeName == null ? (this.description == null ? description == null : this.description.equals(description)) : false)
+				: this.type.getLabel().equals(typeName) && (this.description == null ? description == null : this.description.equals(description));
+	}
+
 }

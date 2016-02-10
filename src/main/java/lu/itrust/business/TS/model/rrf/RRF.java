@@ -52,25 +52,45 @@ public class RRF {
 		// ****************************************************************
 		// * retrieve tuning value
 		// ****************************************************************
-		Parameter parameter = null;
-		// parse parameters
-		for (int i = 0; i < parameters.size(); i++) {
-
-			// check if parameter is tuning -> YES
-			if ((parameters.get(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME))
-					&& (parameters.get(i).getDescription().equals(Constant.PARAMETER_MAX_RRF))) {
-				// ****************************************************************
-				// * store tuning value
-				// ****************************************************************
-				parameter = parameters.get(i);
-				// leave loop when found
-				break;
-			}
-		}
-
+		Parameter parameter = parameters.stream().filter(param -> param.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF)).findAny().orElse(null);
 		if (parameter == null)
 			return 0;
+		if (measure instanceof NormalMeasure)
+			return calculateNormalMeasureRRF(tmpAssessment.getScenario(), tmpAssessment.getAsset().getAssetType(), parameter, (NormalMeasure) measure);
+		else if (measure instanceof AssetMeasure)
+			return calculateAssetMeasureRRF(tmpAssessment.getScenario(), tmpAssessment.getAsset(), parameter, (AssetMeasure) measure);
+		else
+			return 0;
+	}
+	
+	
+	/***********************************************************************************************
+	 * RRF - BEGIN
+	 **********************************************************************************************/
 
+	/**
+	 * calculateRRF: <br>
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
+	 * given measure, given Scenario and given Asset (asset and scenario
+	 * together: assessment) values.
+	 * 
+	 * @param tmpAssessment
+	 *            The Assessment to take Values to calculate
+	 * @param parameters
+	 *            The Parameters List
+	 * @param measure
+	 *            The Measure to take Values to calculate
+	 * 
+	 * @return The Calculated RRF
+	 * @throws TrickException
+	 */
+	public static double calculateRRF(Assessment tmpAssessment, Parameter parameter, Measure measure) throws TrickException {
+
+		// ****************************************************************
+		// * retrieve tuning value
+		// ****************************************************************
+		if (parameter == null)
+			return 0;
 		if (measure instanceof NormalMeasure)
 			return calculateNormalMeasureRRF(tmpAssessment.getScenario(), tmpAssessment.getAsset().getAssetType(), parameter, (NormalMeasure) measure);
 		else if (measure instanceof AssetMeasure)

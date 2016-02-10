@@ -194,5 +194,9 @@ public class AssetTypeValue implements Cloneable {
 			return false;
 		return true;
 	}
+	
+	public boolean hasSameType(String type){
+		return assetType == null? (type == null? true : false) : assetType.isSame(type);
+	}
 
 }
