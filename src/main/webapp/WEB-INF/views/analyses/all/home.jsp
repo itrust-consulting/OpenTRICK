@@ -21,17 +21,10 @@
 								text="Build an analysis" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.READ)"> <span
 							class="glyphicon glyphicon-eye-open"></span> &nbsp;<spring:message code="label.action.read_only" text="Read only" /></a></li>
-					<li class="dropdown-submenu disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span
-							class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.edit" text="Edit" /> <span class="caret"></span></a>
-						<ul class="dropdown-menu">
-							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)" class="text-danger"><span class="glyphicon glyphicon-book"></span> <spring:message
-										code="label.analysis" text="Analysis" /></a></li>
-							<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT_MEASURE)" class="text-danger"><span class="glyphicon glyphicon-file"></span> <spring:message
-										code="label.measures" text="Measures" /></a></li>
-						</ul></li>
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.edit" text="Edit" /></a></li>
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
-						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-cog"></span> <spring:message
-								code="label.menu.manage.access.analysis" text="Manage Access Rights" /></a></li>
+						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-cog"></span> <spring:message code="label.menu.manage.access.analysis"
+								text="Manage Access Rights" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRoleToCreateVersion()"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-duplicate"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
@@ -98,9 +91,7 @@
 								data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><spring:message text="${analysis.label}" /></td>
-								<td><pre>
-										<spring:message text="${analysis.lastHistory.comment}" />
-									</pre></td>
+								<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
 								<td data-trick-version="${analysis.version}">${analysis.version}</td>
 								<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 								<td><spring:message text="${analysis.lastHistory.author}" /></td>

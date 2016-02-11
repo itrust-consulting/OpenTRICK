@@ -22,7 +22,7 @@
 		<ul id="menu_summary" class="nav nav-pills bordered-bottom">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
-					onclick="return navToogled('#section_summary','#menu_summary','${actionPlanType.name}', true);"><fmt:message
+					onclick="return navToogled('#section_summary','#menu_summary,#tabOption','${actionPlanType.name}', true);"><fmt:message
 							key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
 			</c:forEach>
 			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message

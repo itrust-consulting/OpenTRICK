@@ -363,16 +363,15 @@ function navToogled(section, parentMenu, navSelected) {
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
 	$("li[data-trick-nav-control]", parentMenu).each(function() {
-		var $this = $(this);
-		if ($this.attr("data-trick-nav-control") == navSelected)
-			$this.addClass("disabled");
-		else if ($this.hasClass('disabled'))
-			$this.removeClass("disabled");
+		if (this.getAttribute("data-trick-nav-control") == navSelected)
+			this.classList.add("disabled");
+		else if (this.classList.contains('disabled'))
+			this.classList.remove("disabled");
 	});
 
 	$("[data-trick-nav-content]", section).each(function() {
 		var $this = $(this);
-		if ($this.attr("data-trick-nav-content") == navSelected)
+		if (this.getAttribute("data-trick-nav-content") == navSelected)
 			$this.show();
 		else if ($this.is(":visible"))
 			$this.hide();

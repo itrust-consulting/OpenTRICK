@@ -64,8 +64,7 @@ function togglePopever(e) {
 }
 
 $.fn.hasAttr = function(name) {
-	var attr = this.attr(name);
-	return typeof attr !== typeof undefined && attr !== false;
+	return this[0].hasAttribute(name);
 };
 
 $.fn.removeAttributes = function(only, except) {
