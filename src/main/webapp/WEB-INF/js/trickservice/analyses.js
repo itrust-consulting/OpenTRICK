@@ -684,10 +684,11 @@ function customAnalysis(element) {
 								url : context + "/Analysis/Build/Save",
 								type : "post",
 								data : $("form", $modalBody).serialize(),
+								contentType: "application/x-www-form-urlencoded;charset=UTF-8",
 								async : false,
-								success : function(response, textStatus, jqXHR) {
+								success : function(data, textStatus, jqXHR) {
+									var response = parseJson(data);
 									if (typeof response == 'object') {
-
 										if (response.error != undefined)
 											$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
 												'margin-bottom' : '0',

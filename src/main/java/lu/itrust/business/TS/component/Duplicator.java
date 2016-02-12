@@ -205,17 +205,19 @@ public class Duplicator {
 
 			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
 
-			Integer percentageperstandard = (int) 40 / analysis.getAnalysisStandards().size();
+			if (!analysis.getAnalysisStandards().isEmpty()) {
 
-			int copycounter = 0;
+				Integer percentageperstandard = (int) 40 / analysis.getAnalysisStandards().size();
 
-			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-				copycounter++;
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", language, (int) (minProgress + bound
-						* (60 + (percentageperstandard * copycounter)))));
-				copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
+				int copycounter = 0;
+
+				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+					copycounter++;
+					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", language,
+							(int) (minProgress + bound * (60 + (percentageperstandard * copycounter)))));
+					copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
+				}
 			}
-
 			return copy;
 		} finally {
 			scenarios.clear();
@@ -250,14 +252,14 @@ public class Duplicator {
 					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, assets, parameters, anonymize));
 				else
 					measures.add(duplicateMeasure(measure,
-							phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), astandard,
-							assets, parameters, anonymize));
+							phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), astandard, assets,
+							parameters, anonymize));
 
 			astandard.setMeasures(measures);
 			return astandard;
 		} else {
 			Standard standard = analysisStandard.getStandard().duplicate();
-			
+
 			standard.setVersion(daoStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 
 			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
@@ -332,8 +334,8 @@ public class Duplicator {
 		}
 		if (copy instanceof MaturityMeasure) {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
-			Parameter parameter = parameters.get(String.format(KEY_PARAMETER_FORMAT, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, anonymize ? Constant.IS_NOT_ACHIEVED
-					: ((MaturityMeasure) measure).getImplementationRate().getDescription()));
+			Parameter parameter = parameters.get(String.format(KEY_PARAMETER_FORMAT, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME,
+					anonymize ? Constant.IS_NOT_ACHIEVED : ((MaturityMeasure) measure).getImplementationRate().getDescription()));
 			if (parameter == null) {
 				for (Parameter param : parameters.values()) {
 					if (param instanceof MaturityParameter && param.getValue() == 0) {
@@ -505,18 +507,20 @@ public class Duplicator {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60));
 
 			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
-			Integer percentageperstandard = (int) 40 / standards.size();
+			if (!standards.isEmpty()) {
+				Integer percentageperstandard = (int) 40 / standards.size();
 
-			int copycounter = 0;
-			for (Integer standardID : standards) {
-				copycounter++;
-				AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
-				if (standard != null) {
-					copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, null, true));
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60 + (percentageperstandard * copycounter)));
+				int copycounter = 0;
+				for (Integer standardID : standards) {
+					copycounter++;
+					AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
+					if (standard != null) {
+						copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, null, true));
+						serviceTaskFeedback.send(idTask,
+								new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60 + (percentageperstandard * copycounter)));
+					}
 				}
 			}
-
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			TrickLogManager.Persist(e);

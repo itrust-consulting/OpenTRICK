@@ -618,7 +618,7 @@ public abstract class Measure implements Cloneable {
 		return GeneralComperator.VersionComparator(reference, reference2);
 	}
 
-	@Column(name = "dtResponsible", nullable = false)
+	@Column(name = "dtResponsible")
 	public String getResponsible() {
 		return responsible;
 	}

@@ -140,7 +140,7 @@ public class ControllerAnalysisCreate {
 
 	}
 
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST,consumes="application/x-www-form-urlencoded;charset=UTF-8")
 	public @ResponseBody Object buildCustomSave(@ModelAttribute CustomAnalysisForm customAnalysisForm, Principal principal, Locale locale) throws Exception {
 		try {
 			if (!serviceDataValidation.isRegistred(CustomAnalysisForm.class))
@@ -381,6 +381,9 @@ public class ControllerAnalysisCreate {
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.create.analysis", null, "An unknown error occurred while saving analysis", locale));
 		}
 	}
 

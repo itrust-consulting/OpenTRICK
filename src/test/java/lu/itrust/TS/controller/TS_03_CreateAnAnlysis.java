@@ -56,6 +56,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Test(groups = "CreateAnalysis", dependsOnGroups = "Installation")
 public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
+	private static final String APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8 = "application/x-www-form-urlencoded;charset=UTF-8";
+
 	private static final String ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST = "Assessment-Trick service-Scenario test";
 
 	private static final String SCENARIO_SCENARIO_TEST = "Scenario-Scenario test";
@@ -114,7 +116,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 	public void test_01_CreateSimpleAnalysis() throws Exception {
 		this.mockMvc
 				.perform(
-						post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8).param("author", "Admin Admin")
+						post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8).param("author", "Admin Admin")
 								.param("name", SIMPLE_ANALYSIS_NAME).param("version", SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
 								.param("customer", String.valueOf(CUSTOMER_ID)).param("language", String.valueOf(LANGUAGE_ID))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.success").exists());

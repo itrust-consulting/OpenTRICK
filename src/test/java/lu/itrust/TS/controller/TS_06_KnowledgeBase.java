@@ -66,6 +66,8 @@ import lu.itrust.business.TS.model.standard.Standard;
 @Test(groups = "KnowledgeBase", dependsOnGroups = "Installation")
 public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
+	private static final String APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8 = "application/x-www-form-urlencoded;charset=UTF-8";
+
 	private static final String STANDARD_FOR_TEST = "Standard for test";
 
 	private static final String TEST_STANDARD = "Test standard";
@@ -280,7 +282,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		notNull(idProfile, "Profile analysis cannot be found");
 		this.mockMvc
 				.perform(
-						post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8).param("author", "Admin Admin")
+						post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8).param("author", "Admin Admin")
 								.param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
 								.param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.success").exists());
