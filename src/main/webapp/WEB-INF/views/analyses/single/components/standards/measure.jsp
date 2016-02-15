@@ -8,15 +8,13 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <div id="measure-ui" class='col-lg-10' data-trick-id='${selectedMeasure.id}'>
 	<c:if test="${not empty selectedMeasure }">
-		<c:set var="rowSize" value="${showTodo ? (isMaturity? 10 : 5) : (isMaturity ? 25: 10)}" />
+		<c:set var="rowSize" value="${isMaturity? 10 : 5}" />
 		<fieldset style="display: block; width: 100%; clear: left;">
 			<legend>
 				<spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' />
 			</legend>
 			<spring:message text="${fn:trim(measureDescriptionText.description)}" var="description" />
-			<c:if test="${not empty description }">
-				<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; ${countLine>6? 'height:129px;':''}">${description}</div>
-			</c:if>
+			<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>
 		</fieldset>
 		<fieldset>
 			<c:if test="${measureDescription.computable}">
@@ -52,109 +50,151 @@
 					</c:choose>
 				</c:set>
 				<fmt:setLocale value="${language}" scope="session" />
-				<fmt:message key="label.measure.status.m" var="statusM" />
-				<fmt:message key="label.measure.status.ap" var="statusAP" />
-				<fmt:message key="label.measure.status.na" var="statusNA" />
-				<fmt:message key="label.title.measure.status.m" var="titleStatusM" />
-				<fmt:message key="label.title.measure.status.ap" var="titleStatusAP" />
-				<fmt:message key="label.title.measure.status.na" var="titleStatusNA" />
-				<fmt:message key="label.metric.year" var="metricYear" />
-				<fmt:message key="label.metric.euro" var="metricEuro" />
-				<fmt:message key="label.metric.keuro" var="metricKEuro" />
-				<fmt:message key="label.metric.man_day" var="metricMd" />
-				<div class='form-group'>
-					<table class="table table-condensed">
-						<thead>
-							<tr>
-								<th colspan="2" style="text-align: center;"><fmt:message key="label.actual.status" /></th>
-								<th colspan="4" style="text-align: center;"><fmt:message key="label.initial.setup" /></th>
-								<th colspan="3" style="text-align: center;"><fmt:message key="label.maintenance" /></th>
-								<th colspan="3" style="text-align: center;"><fmt:message key="label.planning" /></th>
-							</tr>
-							<tr>
-								<th title='<fmt:message key="label.title.measure.status" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.status" /></th>
-								<th title='<fmt:message key="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 2px solid #ddd"><fmt:message key="label.implement" /></th>
-								<th title='<fmt:message key="label.title.measure.iw" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.iw" /></th>
-								<th title='<fmt:message key="label.title.measure.ew" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.ew" /></th>
-								<th title='<fmt:message key="label.title.measure.inv" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.inv" /></th>
-								<th title='<fmt:message key="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><fmt:message key="label.title.measure.lt" /></th>
-								<th title='<fmt:message key="label.title.measure.im" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.internal" /></th>
-								<th title='<fmt:message key="label.title.measure.em" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.external" /></th>
-								<th title='<fmt:message key="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><fmt:message key="label.recurrent" /></th>
-								<th title='<fmt:message key="label.title.measure.cost" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.cost" /></th>
-								<th title='<fmt:message key="label.title.measure.phase" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.phase" /></th>
-								<th title='<fmt:message key="label.title.measure.responsible" />' style="width: 2%"><fmt:message key="label.title.measure.responsible" /></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td><select class='form-control' name="status" data-trick-value='${selectedMeasure.status}' data-trick-type='string'>
-										<option value='NA' ${selectedMeasure.status=='NA'?'selected' : ''} title='${titleStatusNA}'>${statusNA}</option>
-										<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''} title='${titleStatusAP}'>${statusAP}</option>
-										<option value='M' ${selectedMeasure.status=='M'?'selected' : ''} title='${titleStatusM}'>${statusM}</option>
-								</select></td>
-								<td style="border-right: 2px solid #ddd"><div class="input-group">
-										<span class="input-group-addon">%</span> ${implementationRate}
-									</div></td>
-								<td><div class="input-group">
-										<span class="input-group-addon">${metricMd}</span> <input name="internalWL" value="${internalWL}" class="form-control numeric" placeholder="${internalWL}"
-											data-trick-type='double'>
-									</div></td>
-								<td><div class="input-group">
-										<span class="input-group-addon">${metricMd}</span><input name="externalWL" value="${externalWL}" class="form-control numeric" placeholder="${externalWL}"
-											data-trick-type='double'>
-									</div></td>
-								<td><div class="input-group">
-										<span class="input-group-addon">${metricKEuro}</span><input name="investment" value="${kInvestment}" title="${investment}${metricEuro}" class="form-control numeric"
-											placeholder="${kInvestment}" data-trick-type='double'>
-									</div></td>
-								<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
-										<span class="input-group-addon">${metricYear}</span><input name="lifetime" value="${lifetime}" class="form-control numeric" placeholder="${lifetime}"
-											data-trick-type='double'>
-									</div></td>
-								<td><div class="input-group">
-										<span class="input-group-addon">${metricMd}</span><input name="internalMaintenance" value="${internalMaintenance}" class="form-control numeric"
-											placeholder="${internalMaintenance}" data-trick-type='double'>
-									</div></td>
-								<td><div class="input-group">
-										<span class="input-group-addon">${metricMd}</span><input name="externalMaintenance" value="${externalMaintenance}" class="form-control numeric"
-											placeholder="${externalMaintenance}" data-trick-type='double'>
-									</div></td>
-								<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
-										<span class="input-group-addon">${metricKEuro}</span><input name="recurrentInvestment" value="${kRecurrentInvestment}" title="${recurrentInvestment}${metricEuro}"
-											class="form-control numeric" placeholder="${kRecurrentInvestment}" data-trick-type='double'>
-									</div></td>
-								<td><div class="input-group ${selectedMeasure.status!='NA' && selectedMeasure.cost==0?'has-error':''}">
-										<span class="input-group-addon">${metricKEuro}</span><input name="cost" value="${kCost}" readonly="readonly" title="${cost}${metricEuro}" class="form-control numeric">
-									</div></td>
-								<td><select name='phase' class="form-control" style="padding-left: 6px; padding-right: 6px" data-trick-value='${selectedMeasure.phase.id}' data-trick-type='integer'>
-										<c:forEach items="${phases}" var="phase">
-											<option value="${phase.id}" ${selectedMeasure.phase.number == phase.number?'selected':''}>${phase.number}</option>
-										</c:forEach>
-								</select></td>
-								<td><spring:message text="${selectedMeasure.responsible}" var="responsible" /> <input name="responsible" class="form-control" value='${responsible}'
-									placeholder="${responsible}" data-trick-type='string'></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
 			</c:if>
+			<fmt:message key="label.measure.status.m" var="statusM" />
+			<fmt:message key="label.measure.status.ap" var="statusAP" />
+			<fmt:message key="label.measure.status.na" var="statusNA" />
+			<fmt:message key="label.title.measure.status.m" var="titleStatusM" />
+			<fmt:message key="label.title.measure.status.ap" var="titleStatusAP" />
+			<fmt:message key="label.title.measure.status.na" var="titleStatusNA" />
+			<fmt:message key="label.metric.year" var="metricYear" />
+			<fmt:message key="label.metric.euro" var="metricEuro" />
+			<fmt:message key="label.metric.keuro" var="metricKEuro" />
+			<fmt:message key="label.metric.man_day" var="metricMd" />
+			<div class='form-group'>
+				<table class="table table-condensed">
+					<thead>
+						<tr>
+							<th colspan="2" style="text-align: center;"><fmt:message key="label.actual.status" /></th>
+							<th colspan="4" style="text-align: center;"><fmt:message key="label.initial.setup" /></th>
+							<th colspan="3" style="text-align: center;"><fmt:message key="label.maintenance" /></th>
+							<th colspan="3" style="text-align: center;"><fmt:message key="label.planning" /></th>
+						</tr>
+						<tr>
+							<th title='<fmt:message key="label.title.measure.status" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.status" /></th>
+							<th title='<fmt:message key="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 2px solid #ddd"><fmt:message key="label.implement" /></th>
+							<th title='<fmt:message key="label.title.measure.iw" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.iw" /></th>
+							<th title='<fmt:message key="label.title.measure.ew" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.ew" /></th>
+							<th title='<fmt:message key="label.title.measure.inv" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.inv" /></th>
+							<th title='<fmt:message key="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><fmt:message key="label.title.measure.lt" /></th>
+							<th title='<fmt:message key="label.title.measure.im" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.internal" /></th>
+							<th title='<fmt:message key="label.title.measure.em" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.external" /></th>
+							<th title='<fmt:message key="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><fmt:message key="label.recurrent" /></th>
+							<th title='<fmt:message key="label.title.measure.cost" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.cost" /></th>
+							<th title='<fmt:message key="label.title.measure.phase" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.phase" /></th>
+							<th title='<fmt:message key="label.title.measure.responsible" />' style="width: 2%"><fmt:message key="label.title.measure.responsible" /></th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:choose>
+							<c:when test="${measureDescription.computable}">
+								<tr>
+									<td><select class='form-control' name="status" data-trick-value='${selectedMeasure.status}' data-trick-type='string'>
+											<option value='NA' ${selectedMeasure.status=='NA'?'selected' : ''} title='${titleStatusNA}'>${statusNA}</option>
+											<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''} title='${titleStatusAP}'>${statusAP}</option>
+											<option value='M' ${selectedMeasure.status=='M'?'selected' : ''} title='${titleStatusM}'>${statusM}</option>
+									</select></td>
+									<td style="border-right: 2px solid #ddd"><div class="input-group">
+											<span class="input-group-addon">%</span> ${implementationRate}
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span> <input name="internalWL" value="${internalWL}" class="form-control numeric" placeholder="${internalWL}"
+												data-trick-type='double'>
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span><input name="externalWL" value="${externalWL}" class="form-control numeric" placeholder="${externalWL}"
+												data-trick-type='double'>
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricKEuro}</span><input name="investment" value="${kInvestment}" title="${investment}${metricEuro}" class="form-control numeric"
+												placeholder="${kInvestment}" data-trick-type='double'>
+										</div></td>
+									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+											<span class="input-group-addon">${metricYear}</span><input name="lifetime" value="${lifetime}" class="form-control numeric" placeholder="${lifetime}"
+												data-trick-type='double'>
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span><input name="internalMaintenance" value="${internalMaintenance}" class="form-control numeric"
+												placeholder="${internalMaintenance}" data-trick-type='double'>
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span><input name="externalMaintenance" value="${externalMaintenance}" class="form-control numeric"
+												placeholder="${externalMaintenance}" data-trick-type='double'>
+										</div></td>
+									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+											<span class="input-group-addon">${metricKEuro}</span><input name="recurrentInvestment" value="${kRecurrentInvestment}" title="${recurrentInvestment}${metricEuro}"
+												class="form-control numeric" placeholder="${kRecurrentInvestment}" data-trick-type='double'>
+										</div></td>
+									<td><div class="input-group ${selectedMeasure.status!='NA' && selectedMeasure.cost==0?'has-error':''}">
+											<span class="input-group-addon">${metricKEuro}</span><input name="cost" value="${kCost}" readonly="readonly" title="${cost}${metricEuro}" class="form-control numeric">
+										</div></td>
+									<td><select name='phase' class="form-control" style="padding-left: 6px; padding-right: 6px" data-trick-value='${selectedMeasure.phase.id}' data-trick-type='integer'>
+											<c:forEach items="${phases}" var="phase">
+												<option value="${phase.id}" ${selectedMeasure.phase.number == phase.number?'selected':''}>${phase.number}</option>
+											</c:forEach>
+									</select></td>
+									<td><spring:message text="${selectedMeasure.responsible}" var="responsible" /> <input name="responsible" class="form-control" value='${responsible}'
+										placeholder="${responsible}" data-trick-type='string'></td>
+								</tr>
+							</c:when>
+							<c:otherwise>
+								<tr>
+									<td><select class='form-control' name="status" disabled="disabled"></select></td>
+									<td style="border-right: 2px solid #ddd"><div class="input-group">
+											<span class="input-group-addon">%</span> <select class="form-control" disabled="disabled"></select>
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span> <input name="internalWL" class="form-control numeric" disabled="disabled">
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span><input name="externalWL" class="form-control numeric" disabled="disabled">
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricKEuro}</span><input name="investment" class="form-control numeric" disabled="disabled">
+										</div></td>
+									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+											<span class="input-group-addon">${metricYear}</span><input name="lifetime" class="form-control numeric" disabled="disabled">
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span><input name="internalMaintenance" class="form-control numeric" disabled="disabled">
+										</div></td>
+									<td><div class="input-group">
+											<span class="input-group-addon">${metricMd}</span><input name="externalMaintenance" class="form-control numeric" disabled="disabled">
+										</div></td>
+									<td style="border-right: 2px solid #ddd"><div class="input-group" align="right">
+											<span class="input-group-addon">${metricKEuro}</span><input name="recurrentInvestment" class="form-control numeric" disabled="disabled">
+										</div></td>
+									<td><div class="input-group" >
+											<span class="input-group-addon">${metricKEuro}</span><input name="cost" readonly="readonly" class="form-control numeric"  disabled="disabled" >
+										</div></td>
+									<td><select name='phase' class="form-control" style="padding-left: 6px; padding-right: 6px" disabled="disabled"></select></td>
+									<td><spring:message text="${selectedMeasure.responsible}" var="responsible" /> <input name="responsible" class="form-control" disabled="disabled"></td>
+								</tr>
+							</c:otherwise>
+						</c:choose>
+					</tbody>
+				</table>
+			</div>
 
+	
+			<div class='form-group'>
+				<fmt:message key="label.measure.todo" var='todo' />
+				<label class='label-control'>${todo}</label>
+				<spring:message text="${selectedMeasure.toDo}" var="todoContent" />
+				<c:choose>
+					<c:when test="${showTodo}"><textarea rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea></c:when>
+					<c:otherwise><textarea rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled" ></textarea></c:otherwise>
+				</c:choose>
+				
+			</div>
+	
 			<div class='form-group'>
 				<fmt:message key="label.comment" var='comment' />
 				<spring:message text="${selectedMeasure.comment}" var="commentContent" />
 				<label class='label-control'>${comment}</label>
 				<textarea rows="${rowSize}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 			</div>
-			<c:if test="${showTodo}">
-				<div class='form-group'>
-					<fmt:message key="label.measure.todo" var='todo' />
-					<label class='label-control'>${todo}</label>
-					<spring:message text="${selectedMeasure.toDo}" var="todoContent" />
-					<textarea rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea>
-				</div>
-			</c:if>
+
 			<c:if test="${not isMaturity}">
 				<div class='form-group'>
 					<fmt:message key="label.measure.tocheck" var='tocheck' />

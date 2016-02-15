@@ -433,6 +433,11 @@ ul#task-manager>li>li {
 	margin-bottom: -18px;
 }
 
+
+#measure-ui label, #measure-ui th{
+	font-weight: normal;
+}
+
 .numeric {
 	text-align: right;
 }
