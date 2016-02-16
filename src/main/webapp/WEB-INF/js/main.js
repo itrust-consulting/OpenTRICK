@@ -47,7 +47,9 @@ function downloadExportedSqLite(id) {
 }
 
 function switchTab(tabName) {
-	$("a[href='#" + tabName + "']", ".nav-tab,.nav-analysis").tab("show");
+	var $tab = $(tabName ? "a[href='#" + tabName + "']" : "a[data-toggle='tab']:first", ".nav-tab,.nav-analysis");
+	if ($tab.is(":visible"))
+		$tab.tab("show");
 	return false;
 }
 
@@ -591,7 +593,7 @@ function closePopover() {
 $(document)
 		.ready(
 				function() {
-					var token = $("meta[name='_csrf']").attr("content"), header = $("meta[name='_csrf_header']").attr("content"), $window = $(window);
+					var token = $("meta[name='_csrf']").attr("content"), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
 					$(document).ajaxSend(function(e, xhr, options) {
 						xhr.setRequestHeader(header, token);
 					});
@@ -619,7 +621,7 @@ $(document)
 							$target.addClass("active");
 					});
 
-					$('.dropdown-submenu a[data-toggle="tab"]', "ul.nav-tab,ul.nav-analysis").on('shown.bs.tab', function(e) {
+					$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
 						var $parent = $(e.target).closest("li.dropdown-submenu");
 						if (!$parent.hasClass("active"))
 							$parent.addClass("active");
@@ -704,21 +706,25 @@ $(document)
 						}
 					}
 
-					if ($('#confirm-dialog').length) {
-						$('#confirm-dialog').on('hidden.bs.modal', function() {
-							$("#confirm-dialog .btn-danger").unbind("click");
-						});
-					}
+					$('#confirm-dialog').on('hidden.bs.modal', function() {
+						$("#confirm-dialog .btn-danger").unbind("click");
+					});
 
-					if ($('#alert-dialog').length) {
-						$('#alert-dialog').on('hidden.bs.modal', function() {
-							$("#alert-dialog .btn-danger").unbind("click");
-						});
-					}
+					$('#alert-dialog').on('hidden.bs.modal', function() {
+						$("#alert-dialog .btn-danger").unbind("click");
+					});
 
-					if ($("ul.nav-analysis,ul.nav-tab").length) {
-						$('a[data-toggle="tab"]', "ul.nav-analysis,ul.nav-tab").on('shown.bs.tab', function(e) {
-							var $target = $(e.target.getAttribute("href")), callback = $target.attr("data-callback");
+					if ($tabNav.length) {
+
+						$window.on('hashchange', function() {
+							var hash = window.location.hash;
+							application["no-update-hash"] = true;
+							switchTab(hash ? hash.split('#')[1] : hash);
+							application["no-update-hash"] = false;
+						});
+
+						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
 							if (window[callback] != undefined) {
 								var data = $target.attr("data-callback-data");
 								if (data == undefined)
@@ -734,6 +740,9 @@ $(document)
 									window[trigger].apply(null, parameters.split(","));
 								$target.attr("data-update-required", "false");
 							}
+
+							if (!application["no-update-hash"])
+								window.location.hash = $target.attr("id");
 						});
 					}
 
@@ -746,5 +755,10 @@ $(document)
 							if (e.keyCode == 27)
 								closePopover();
 						});
+					}
+
+					if (window.location.hash) {
+						$window.trigger("hashchange");
+						console.log("here");
 					}
 				});

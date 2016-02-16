@@ -8,7 +8,7 @@ package lu.itrust.business.TS.model.general;
  *
  */
 public enum OpenMode {
-	READ("read-only"), EDIT("edit"), EDIT_MEASURE("edit-measure");
+	READ("read-only"), EDIT("edit"), EDIT_MEASURE("edit-measure"), READ_ESTIMATION("read-only-estimation"), EDIT_ESTIMATION("edit-estimation");
 
 	private String value;
 
@@ -18,8 +18,8 @@ public enum OpenMode {
 	private OpenMode(String value) {
 		this.value = value;
 	}
-	
-	public static OpenMode defaultValue(){
+
+	public static OpenMode defaultValue() {
 		return EDIT;
 	}
 
@@ -37,14 +37,10 @@ public enum OpenMode {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
-	
 
 	public static OpenMode parse(Object data) {
 		return parse(data, null);
 	}
-	
-	
 
 	protected static OpenMode parse(String data, OpenMode defaultValue) {
 		data = data.trim().replace("_", "-").toLowerCase();
@@ -67,6 +63,5 @@ public enum OpenMode {
 	public static OpenMode parseOrDefault(Object open) {
 		return parse(open, defaultValue());
 	}
-	
-	
+
 }
