@@ -48,7 +48,7 @@ function downloadExportedSqLite(id) {
 
 function switchTab(tabName) {
 	var $tab = $(tabName ? "a[href='#" + tabName + "']" : "a[data-toggle='tab']:first", ".nav-tab,.nav-analysis");
-	if ($tab.is(":visible"))
+	if ($tab.parent().css("display") != "none")
 		$tab.tab("show");
 	return false;
 }
@@ -722,6 +722,9 @@ $(document)
 							switchTab(hash ? hash.split('#')[1] : hash);
 							application["no-update-hash"] = false;
 						});
+						
+						if (window.location.hash)
+							$window.trigger("hashchange");
 
 						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
 							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
@@ -755,10 +758,5 @@ $(document)
 							if (e.keyCode == 27)
 								closePopover();
 						});
-					}
-
-					if (window.location.hash) {
-						$window.trigger("hashchange");
-						console.log("here");
 					}
 				});
