@@ -64,4 +64,8 @@ public enum OpenMode {
 		return parse(open, defaultValue());
 	}
 
+	public static Boolean isReadOnly(OpenMode mode) {
+		return mode == null || mode.value.startsWith("read-only");
+	}
+
 }

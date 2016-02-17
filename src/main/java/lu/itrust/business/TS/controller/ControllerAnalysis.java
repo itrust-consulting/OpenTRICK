@@ -226,15 +226,14 @@ public class ControllerAnalysis {
 		if (analysis == null)
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
-		Boolean readOnly = mode == OpenMode.READ;
+		Boolean readOnly = OpenMode.isReadOnly(mode);
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
 			// initialise analysis
-
-			if (mode == OpenMode.EDIT_MEASURE)
-				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));
-			else {
+			switch (mode) {
+			case READ:
+			case EDIT:
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
@@ -243,10 +242,16 @@ public class ControllerAnalysis {
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
+				model.addAttribute("standards", analysis.getStandards());
+				break;
+			case EDIT_MEASURE:
+				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));
+				model.addAttribute("standards", analysis.getStandards());
+				break;
+			default:
+				break;
 			}
-
 			model.addAttribute("analysis", analysis);
-			model.addAttribute("standards", analysis.getStandards());
 			model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
 			model.addAttribute("login", user.getLogin());
@@ -264,7 +269,8 @@ public class ControllerAnalysis {
 					analysis.getVersion());
 			throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form" : "analyses/single/home";
+		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form"
+				: mode == OpenMode.EDIT_ESTIMATION || mode == OpenMode.READ_ESTIMATION ? "analyses/single/components/estimation/home" : "analyses/single/home";
 	}
 
 	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(List<AnalysisStandard> analysisStandards) {
@@ -827,7 +833,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/Import/Execute", method = RequestMethod.POST)
+	@RequestMapping(value = "/Import/Execute", method = RequestMethod.POST)
 	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
 			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 

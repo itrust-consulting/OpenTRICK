@@ -16,35 +16,29 @@
 	<div id="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../../../template/menu.jsp" />
+		<fmt:message key="label.all" var="allText"/>
 		<div class="container max-height">
 			<div class="max-height" style="padding-top: 15px;">
-				<div class="col-lg-2 max-height" style="z-index: 1" >
+				<div class="col-lg-2 max-height" style="z-index: 1">
 					<div class="form-group">
-						<select name="standard" class="form-control">
-							<c:forEach items="${standards}" var="standard">
-								<option value="${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><fmt:message key='label.index.standard'>
-										<fmt:param value="${standard.label}" />
-									</fmt:message></option>
+						<select name="assets" class="form-control">
+							<option id='-1' title="${allText}" >${allText}</option>
+							<c:forEach items="${analysis.assets}" var="asset">
+								<spring:message text='${asset.name}' var="assetName" />
+								<option value="${asset.id}" title="${assetName}" >${assetName}</option>
 							</c:forEach>
 						</select>
 					</div>
 
-					<c:forEach items="${standards}" var="standard" varStatus="status">
-						<div ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />' data-trick-id='${standard.id}'
-							data-trick-content='chapter'>
-							<div class='form-group'>
-								<select name="chapter" class="form-control">
-									<c:forEach items="${standardChapters[standard.label].keySet()}" var="chapter">
-										<spring:message text="${chapter}" var="chapterText" />
-										<option value="${chapterText}">
-											<fmt:message key="label.index.chapter">
-												<fmt:param value="${chapterText}" />
-											</fmt:message></option>
-									</c:forEach>
-								</select>
-							</div>
-						</div>
-					</c:forEach>
+					<div class='form-group'>
+						<select name="scenarios" class="form-control">
+							<option id='-1' title="${allText}">${allText}</option>
+							<c:forEach items="${analysis.scenarios}" var="scenario">
+								<spring:message text="${scenario.name}" var="scenarioName" />
+								<option value="${scenario.id}" title="${scenarioName}">${scenarioName}</option>
+							</c:forEach>
+						</select>
+					</div>
 
 					<c:forEach items="${standards}" var="standard" varStatus="status">
 						<div class="form-group nav-chapter" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />'
@@ -55,7 +49,7 @@
 								<div ${chapterStatus.index==0?'':'hidden="hidden"'} class='list-group' data-trick-chapter-name='${chapterText}'>
 									<c:forEach items="${measureChapters[chapter]}" var="measure" varStatus="measureStatus">
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-										<spring:message text="${measureDescriptionText.domain}" var="domain"/>
+										<spring:message text="${measureDescriptionText.domain}" var="domain" />
 										<a href="#" title="${domain}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
 											data-trick-id='${measure.id}'><spring:message text="${measure.measureDescription.reference}" /> - ${domain}</a>
 									</c:forEach>
@@ -63,7 +57,7 @@
 							</c:forEach>
 						</div>
 					</c:forEach>
-					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-measure'>
+					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-estimation'>
 						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
 						<li><a href="#" title='<fmt:message key="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i> </a></li>
 						<li><a href="#" title='<fmt:message key="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>
@@ -79,9 +73,6 @@
 	</div>
 	<jsp:include page="../../../../template/scripts.jsp" />
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/fieldeditor.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisStandard.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-measure.js" />"></script>
-
 	<script type="text/javascript">
 	<!--
 		application.openMode = OPEN_MODE.valueOf('${open}');
