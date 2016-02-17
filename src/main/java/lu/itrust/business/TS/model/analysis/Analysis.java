@@ -551,7 +551,8 @@ public class Analysis implements Cloneable {
 	 * external maintenance in md as well as the recurrent investment per year
 	 * in keuro. <br>
 	 * Formula used:<br>
-	 * Cost = ((ir * iw) + (er * ew) + in) * ((1.0 / lt) + ((im * ir) + (em * er)+ ri))<br>
+	 * Cost = ((ir * iw) + (er * ew) + in) * ((1.0 / lt) + ((im * ir) + (em *
+	 * er)+ ri))<br>
 	 * With:<br>
 	 * ir: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
@@ -2529,5 +2530,42 @@ public class Analysis implements Cloneable {
 	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
 		return this.analysisStandards.stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
 				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
+	}
+
+	public Map<Scenario, List<Assessment>> getAssessmentByScenario() {
+		Map<Scenario, List<Assessment>> mapping = new LinkedHashMap<>();
+		assessments.forEach(assessment -> {
+			List<Assessment> assessments = mapping.get(assessment.getScenario());
+			if (assessments == null)
+				mapping.put(assessment.getScenario(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
+		return mapping;
+	}
+
+	public Map<Asset, List<Assessment>> getAssessmentByAsset() {
+		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
+		assessments.forEach(assessment -> {
+			List<Assessment> assessments = mapping.get(assessment.getScenario());
+			if (assessments == null)
+				mapping.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
+		return mapping;
+	}
+
+	public void groupAssessmentByAssetAndScenario(Map<Asset, List<Assessment>> assetAssessments, Map<Scenario, List<Assessment>> scenarioAssessments) {
+		if (assetAssessments == null || scenarioAssessments == null)
+			return;
+		assessments.forEach(assessment -> {
+			List<Assessment> assessments = assetAssessments.get(assessment.getAsset());
+			if (assessments == null)
+				assetAssessments.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+			assessments = assetAssessments.get(assessment.getScenario());
+			if (assessments == null)
+				scenarioAssessments.put(assessment.getScenario(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
 	}
 }

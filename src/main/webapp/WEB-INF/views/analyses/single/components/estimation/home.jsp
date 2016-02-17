@@ -16,16 +16,16 @@
 	<div id="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../../../template/menu.jsp" />
-		<fmt:message key="label.all" var="allText"/>
+		<fmt:message key="label.all" var="allText" />
 		<div class="container max-height">
 			<div class="max-height" style="padding-top: 15px;">
 				<div class="col-lg-2 max-height" style="z-index: 1">
 					<div class="form-group">
 						<select name="assets" class="form-control">
-							<option id='-1' title="${allText}" >${allText}</option>
-							<c:forEach items="${analysis.assets}" var="asset">
+							<option id='-1' title="${allText}">${allText}</option>
+							<c:forEach items="${analysis.assets}" var="asset" varStatus="assetStatus">
 								<spring:message text='${asset.name}' var="assetName" />
-								<option value="${asset.id}" title="${assetName}" >${assetName}</option>
+								<option value="${asset.id}" title="${assetName}" ${assetStatus.index == 0? 'selected="selected"' : ""}>${assetName}</option>
 							</c:forEach>
 						</select>
 					</div>
@@ -40,29 +40,41 @@
 						</select>
 					</div>
 
-					<c:forEach items="${standards}" var="standard" varStatus="status">
-						<div class="form-group nav-chapter" ${status.index==0?'':'hidden="hidden"'} data-trick-standard-name='<spring:message text="${standard.label}" />'
-							data-trick-id='${standard.id}' data-trick-content='measure'>
-							<c:set var="measureChapters" value="${standardChapters[standard.label]}" />
-							<c:forEach items="${measureChapters.keySet()}" var="chapter" varStatus="chapterStatus">
-								<spring:message text="${chapter}" var="chapterText" />
-								<div ${chapterStatus.index==0?'':'hidden="hidden"'} class='list-group' data-trick-chapter-name='${chapterText}'>
-									<c:forEach items="${measureChapters[chapter]}" var="measure" varStatus="measureStatus">
-										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-										<spring:message text="${measureDescriptionText.domain}" var="domain" />
-										<a href="#" title="${domain}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
-											data-trick-id='${measure.id}'><spring:message text="${measure.measureDescription.reference}" /> - ${domain}</a>
-									</c:forEach>
-								</div>
-							</c:forEach>
-						</div>
-					</c:forEach>
+					<div class="form-group nav-chapter" data-trick-content='asset'>
+						<c:forEach items="${estimationAsset.keySet()}" var="asset" varStatus="status">
+							<c:set var="assetAssessment" value="${estimationAsset[asset]}" />
+							<div ${status.index==0?'':'hidden="hidden"'} class='list-group'>
+								<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
+									data-trick-id='-1'>${allText}</a>
+								<c:forEach items="${assetAssessment}" var="assessment">
+									<spring:message text="${assessment.scenario.name}" var="scenarioName" />
+									<a href="#" title="${scenarioName}" data-trick-id='${assessment.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${scenarioName}</a>
+								</c:forEach>
+							</div>
+						</c:forEach>
+					</div>
+
+					<div class="form-group nav-chapter" hidden="hidden" data-trick-content='scenario'>
+						<c:forEach items="${estimationScenario.keySet()}" var="scenario" varStatus="status">
+							<c:set var="scenarioAssessment" value="${estimationScenario[scenario]}" />
+							<div ${status.index==0?'':'hidden="hidden"'} class='list-group'>
+								<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
+									data-trick-id='-1'>${allText}</a>
+								<c:forEach items="${scenarioAssessment}" var="assessment">
+									<spring:message text="${assessment.asset.name}" var="assetName" />
+									<a href="#" title="${assetName}" data-trick-id='${assessment.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${assetName}</a>
+								</c:forEach>
+							</div>
+						</c:forEach>
+					</div>
+
+
 					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-estimation'>
 						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next.measure" />' data-trick-nav='next-measure'><i class="fa fa-angle-right"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next.chapter" />' data-trick-nav='next-chapter'><i class="fa fa-angle-double-right"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
+						<li><a href="#" title='<fmt:message key="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
 						<li><a href='<spring:url value="/Analysis/All"/>' title='<fmt:message key="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
 					</ul>
 				</div>
@@ -72,7 +84,7 @@
 		<jsp:include page="../../../../template/footer.jsp" />
 	</div>
 	<jsp:include page="../../../../template/scripts.jsp" />
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/fieldeditor.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-assessment.js" />"></script>
 	<script type="text/javascript">
 	<!--
 		application.openMode = OPEN_MODE.valueOf('${open}');
