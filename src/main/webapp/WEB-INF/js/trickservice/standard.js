@@ -144,10 +144,12 @@ function importNewStandard() {
 						setTimeout(function() {
 							progressBar.Destroy();
 						}, 2000);
-						//$("#updateStandardNotification").text(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
+						// $("#updateStandardNotification").text(MessageResolver("error.unknown.task.execution",
+						// "An unknown error occurred during the execution of
+						// the task"));
 					},
 					success : function() {
-						
+
 						reloadSection('section_kb_standard');
 						setTimeout(function() {
 							progressBar.Destroy();
@@ -224,7 +226,7 @@ function editSingleStandard(idStandard) {
 function getImportStandardTemplate() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
-	$.fileDownload(context + '/KnowledgeBase/Standard/Template').fail(unknowError);
+	window.location = context + '/KnowledgeBase/Standard/Template';
 	return false;
 }
 
@@ -235,7 +237,7 @@ function exportSingleStandard(idStandard) {
 			return false;
 		idStandard = selectedScenario[0];
 	}
-	$.fileDownload(context + '/KnowledgeBase/Standard/Export/' + idStandard).fail(unknowError);
+	window.location = context + '/KnowledgeBase/Standard/Export/' + idStandard
 	return false;
 
 }
