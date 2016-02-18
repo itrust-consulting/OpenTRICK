@@ -84,9 +84,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
-import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -96,7 +94,6 @@ import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
@@ -253,11 +250,8 @@ public class ControllerAnalysis {
 				break;
 			case EDIT_ESTIMATION:
 			case READ_ESTIMATION:
-				Map<Scenario,List<Assessment>> scenarioAssessments = new LinkedHashMap<>();
-				Map<Asset,List<Assessment>> assetAssessments = new LinkedHashMap<>();
-				analysis.groupAssessmentByAssetAndScenario(assetAssessments, scenarioAssessments);
-				model.addAttribute("estimationScenario", scenarioAssessments);
-				model.addAttribute("estimationAsset", assetAssessments);
+				model.addAttribute("assets", analysis.findSelectedAssets());
+				model.addAttribute("scenarios", analysis.findSelectedScenarios());
 				break;
 			}
 			model.addAttribute("analysis", analysis);

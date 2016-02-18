@@ -140,15 +140,17 @@ function restoreDescriptionHeight() {
 }
 
 function updateScroll(element) {
-	var $measure = $(element), $parent = $measure.closest("div[data-trick-standard-name][data-trick-content='measure']"), parentTop = $parent.offset().top, measureTop = $measure
-			.offset().top;
-	$parent.scrollTop(measureTop > parentTop ? measureTop - parentTop : 0);
+	var currentActive = document.activeElement;
+	if (element != currentActive) {
+		element.focus();// update scroll
+		currentActive.focus();
+	}
 	return false;
 }
 
 function updateMeasureUI() {
 	var $measure = $("div.list-group:visible>.list-group-item.active"), id = $measure.attr('data-trick-id');
-	if(!$measure.is(":focus"))
+	if (!$measure.is(":focus"))
 		updateScroll($measure);
 	loadMeasureData(id);
 }

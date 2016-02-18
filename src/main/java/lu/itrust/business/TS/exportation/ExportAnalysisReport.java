@@ -884,7 +884,7 @@ public class ExportAnalysisReport {
 	}
 
 	private void generateAssets() {
-		generateAssets("<Asset>", analysis.findAssetSelected());
+		generateAssets("<Asset>", analysis.findSelectedAssets());
 		generateAssets("<Asset-no-selected>", analysis.findNoAssetSelected());
 	}
 
@@ -1457,7 +1457,7 @@ public class ExportAnalysisReport {
 
 		paragraph = findParagraphByText("<Scenario>");
 
-		List<Scenario> scenarios = analysis.getSelectedScenarios();
+		List<Scenario> scenarios = analysis.findSelectedScenarios();
 
 		if (paragraph != null && scenarios.size() > 0) {
 

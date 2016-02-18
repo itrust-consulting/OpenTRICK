@@ -142,29 +142,32 @@ function restoreDescriptionHeight() {
 }
 
 function updateScroll(element) {
-	var $assessment = $(element), $parent = $assessment.closest("div[data-trick-content]"), parentTop = $parent.offset().top, assessmentTop = $assessment
-			.offset().top;
-	$parent.scrollTop(assessmentTop > parentTop ? assessmentTop - parentTop : 0);
+	var currentActive = document.activeElement;
+	if (element != currentActive) {
+		element.focus();// update scroll
+		currentActive.focus();
+	}
 	return false;
 }
 
 function updateMeasureUI() {
-	var $assessment = $("div.list-group:visible>.list-group-item.active"), id = $assessment.attr('data-trick-id');
+	var $assessment = $("div.list-group:visible>.list-group-item.active");
 	if (!$assessment.is(":focus"))
 		updateScroll($assessment);
-	loadMeasureData(id);
+	// loadMeasureData(id);
 }
 
 function updateNavigation() {
 	var $currentSelector = $("select[name='" + activeSelector + "']:visible>option:selected"), $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active"), $previousSelector = $(
 			"[data-trick-nav='previous-selector']").parent(), $nextSelector = $("[data-trick-nav='next-selector']").parent(), $previousAssessment = $(
 			"[data-trick-nav='previous-assessment']").parent(), $nextAssessment = $("[data-trick-nav='next-assessment']").parent();
+
 	if ($currentSelector.next(":first").length)
 		$nextSelector.removeClass("disabled");
 	else
 		$nextSelector.addClass("disabled");
 
-	if ($currentSelector.prev(":last").length)
+	if ($currentSelector.prev("[value!='-1']:last").length)
 		$previousSelector.removeClass("disabled");
 	else
 		$previousSelector.addClass("disabled");
@@ -189,27 +192,58 @@ function changeAssessment(e) {
 		$(".list-group-item.active", $parent).removeClass("active");
 		$target.addClass('active');
 	}
-	//updateMeasureUI();
+	updateMeasureUI();
 	updateNavigation();
 	return false;
 }
 
+function AssessmentHelder() {
+	this.names = [ "asset", "scenario" ];
+	this.asset = $("select[name='asset']");
+	this.scenario = $("select[name='scenario']");
+	this.lastSelected = {
+		asset : this.asset.find("option[value!='-1']:first").val(),
+		scenario : this.scenario.find("option[value!='-1']:first").val()
+	}
+}
+
+AssessmentHelder.prototype = {
+
+	getCurrent : function(name) {
+		return name == "asset" ? this.asset : this.scenario;
+	},
+	getOther : function(name) {
+		return name == "asset" ? this.scenario : this.asset;
+	},
+	getOtherName : function(name) {
+		return name == "asset" ? 'scenario' : 'asset';
+	},
+	setLastSelected : function(name, id) {
+		if (id == "-1")
+			return false;
+		this.lastSelected[name] = id;
+	},
+	getLastSelected : function(name) {
+		return this.lastSelected[name];
+	}
+}
+
 $(function() {
 
-	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']");
+	var helper = new AssessmentHelder(), $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
 
 	$previousSelector.on("click", function() {
-		$("select[name='" + activeSelector + "']:visible>option:selected").prev(":last").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected").prev("[value!='-1']:last").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$nextSelector.on("click", function() {
-		$("select[name='" + activeSelector + "']:visible>option:selected").next(":first").prop('selected', true).parent().change();
+		$("select[name='" + activeSelector + "']>option:selected").next(":first").prop('selected', true).parent().change();
 		return false;
 	});
 
 	$previousAssessment.on("click", function() {
-		$("div[data-trick-content]:visisble .list-group-item.active").prev(":visible:last").click();
+		$("div[data-trick-content]:visible .list-group-item.active").prev(":visible:last").click();
 		return false;
 	});
 
@@ -218,39 +252,27 @@ $(function() {
 		return false;
 	});
 
-	$("select[name='scenario']").on('change', function(e) {
-		/*
-		 * var $target = $(e.currentTarget), value = $target.val();
-		 * $("div[data-trick-standard-name][data-trick-id!='" + value +
-		 * "']:visible").hide();
-		 * $("div[data-trick-standard-name][data-trick-id='" + value +
-		 * "']:hidden").show(); updateMeasureUI();
-		 * $nav.trigger("trick.update.nav");
-		 */
-		return false;
-	});
+	activeSelector = $("div[data-trick-content]:hidden").attr("data-trick-content");
 
-	$("select[name='asset']").on('change', function(e) {
-		/*
-		 * var $target = $(e.currentTarget), $parent =
-		 * $target.closest("div[data-trick-standard-name]"), standardId =
-		 * $parent.attr('data-trick-id'), value = $target .val(),
-		 * $assessmentsContainer =
-		 * $("div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='" +
-		 * standardId + "']:visible");
-		 * $assessmentsContainer.find("div.list-group[data-trick-chapter-name!='" +
-		 * value + "']:visible").hide();
-		 * $assessmentsContainer.find("div.list-group[data-trick-chapter-name='" +
-		 * value + "']:hidden").show(); updateMeasureUI();
-		 * $nav.trigger("trick.update.nav");
-		 */
+	var updateSelector = function(e) {
+		var $target = $(e.currentTarget), value = $target.val(), name = $target.attr("name"), other = helper.getOtherName(name);
+		if (value == '-1') {
+			$("div[data-trick-content]").toggle();
+			helper.getCurrent(activeSelector = other).find("option[value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
+		} else if (helper.getCurrent(other).val() != "-1") {
+			activeSelector = name;
+			$("div[data-trick-content]").toggle();
+			helper.getCurrent(other).find("option[value='-1']").prop('selected', true);
+		} else
+			helper.setLastSelected(name, value);
+		updateMeasureUI();
+		$nav.trigger("trick.update.nav");
 		return false;
-	});
+	};
 
+	for ( var i in helper.names)
+		helper.getCurrent(helper.names[i]).on('change', updateSelector);
 	$("div.list-group>.list-group-item").on("click", changeAssessment);
-
-	activeSelector = $("div[data-trick-content]:visible:first").attr("data-trick-content")
-
 	updateNavigation();
-	//updateMeasureUI();
+	updateMeasureUI();
 });

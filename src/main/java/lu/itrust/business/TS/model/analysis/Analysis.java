@@ -1338,7 +1338,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The Scenario List Object
 	 */
-	public List<Scenario> getSelectedScenarios() {
+	public List<Scenario> findSelectedScenarios() {
 		List<Scenario> tmpscenarios = new ArrayList<Scenario>();
 		for (Scenario scenario : scenarios)
 			if (scenario.isSelected())
@@ -2342,7 +2342,7 @@ public class Analysis implements Cloneable {
 		this.defaultProfile = defaultProfile;
 	}
 
-	public List<Asset> findAssetSelected() {
+	public List<Asset> findSelectedAssets() {
 		List<Asset> selectedAssets = new ArrayList<>();
 		if (assets == null)
 			return selectedAssets;

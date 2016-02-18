@@ -20,52 +20,46 @@
 		<div class="container max-height">
 			<div class="max-height" style="padding-top: 15px;">
 				<div class="col-lg-2 max-height" style="z-index: 1">
-					<div class="form-group">
-						<select name="assets" class="form-control">
-							<option id='-1' title="${allText}">${allText}</option>
-							<c:forEach items="${analysis.assets}" var="asset" varStatus="assetStatus">
+					<div class="form-group input-group">
+						<span class="input-group-addon"><fmt:message key="label.title.asset" /></span> <select name="asset" class="form-control">
+							<option value='-1' title="${allText}">${allText}</option>
+							<c:forEach items="${assets}" var="asset" varStatus="assetStatus">
 								<spring:message text='${asset.name}' var="assetName" />
 								<option value="${asset.id}" title="${assetName}" ${assetStatus.index == 0? 'selected="selected"' : ""}>${assetName}</option>
 							</c:forEach>
 						</select>
 					</div>
 
-					<div class='form-group'>
-						<select name="scenarios" class="form-control">
-							<option id='-1' title="${allText}">${allText}</option>
-							<c:forEach items="${analysis.scenarios}" var="scenario">
+					<div class='form-group input-group'>
+						<span class="input-group-addon"><fmt:message key="label.title.scenario" /></span><select name="scenario" class="form-control">
+							<option value='-1' title="${allText}">${allText}</option>
+							<c:forEach items="${scenarios}" var="scenario">
 								<spring:message text="${scenario.name}" var="scenarioName" />
 								<option value="${scenario.id}" title="${scenarioName}">${scenarioName}</option>
 							</c:forEach>
 						</select>
 					</div>
 
-					<div class="form-group nav-chapter" data-trick-content='asset'>
-						<c:forEach items="${estimationAsset.keySet()}" var="asset" varStatus="status">
-							<c:set var="assetAssessment" value="${estimationAsset[asset]}" />
-							<div ${status.index==0?'':'hidden="hidden"'} class='list-group'>
-								<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
-									data-trick-id='-1'>${allText}</a>
-								<c:forEach items="${assetAssessment}" var="assessment">
-									<spring:message text="${assessment.scenario.name}" var="scenarioName" />
-									<a href="#" title="${scenarioName}" data-trick-id='${assessment.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${scenarioName}</a>
-								</c:forEach>
-							</div>
-						</c:forEach>
+					<div class="form-group nav-chapter" data-trick-content='scenario'>
+						<div class='list-group'>
+							<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
+								data-trick-id='-1'>${allText}</a>
+							<c:forEach items="${scenarios}" var="scenario">
+								<spring:message text="${scenario.name}" var="scenarioName" />
+								<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${scenarioName}</a>
+							</c:forEach>
+						</div>
 					</div>
 
-					<div class="form-group nav-chapter" hidden="hidden" data-trick-content='scenario'>
-						<c:forEach items="${estimationScenario.keySet()}" var="scenario" varStatus="status">
-							<c:set var="scenarioAssessment" value="${estimationScenario[scenario]}" />
-							<div ${status.index==0?'':'hidden="hidden"'} class='list-group'>
-								<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
-									data-trick-id='-1'>${allText}</a>
-								<c:forEach items="${scenarioAssessment}" var="assessment">
-									<spring:message text="${assessment.asset.name}" var="assetName" />
-									<a href="#" title="${assetName}" data-trick-id='${assessment.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${assetName}</a>
-								</c:forEach>
-							</div>
-						</c:forEach>
+					<div class="form-group nav-chapter" style="display: none;" data-trick-content='asset'>
+						<div class='list-group'>
+							<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
+								data-trick-id='-1'>${allText}</a>
+							<c:forEach items="${assets}" var="asset">
+								<spring:message text="${asset.name}" var="assetName" />
+								<a href="#" title="${assetName}" data-trick-id='${asset.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${assetName}</a>
+							</c:forEach>
+						</div>
 					</div>
 
 
