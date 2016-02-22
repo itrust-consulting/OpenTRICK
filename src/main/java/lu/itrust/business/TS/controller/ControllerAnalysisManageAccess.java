@@ -94,7 +94,6 @@ public class ControllerAnalysisManageAccess {
 	@RequestMapping(value="/Update/{analysisID}", method = RequestMethod.POST)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
-
 		try {
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
