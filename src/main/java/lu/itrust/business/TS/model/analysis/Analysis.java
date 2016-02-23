@@ -2568,4 +2568,29 @@ public class Analysis implements Cloneable {
 			assessments.add(assessment);
 		});
 	}
+
+	public Scenario findScenario(int idScenario) {
+		return scenarios.stream().filter(scenario -> scenario.getId() == idScenario).findAny().orElse(null);
+	}
+
+	public Asset findAsset(int idAsset) {
+		return assets.stream().filter(asset -> asset.getId() == idAsset).findAny().orElse(null);
+	}
+
+	public Assessment findAssessmentByAssetAndScenario(int idAsset, int idScenario) {
+		return assessments.stream().filter(assessment -> assessment.is(idAsset, idScenario)).findAny().orElse(null);
+	}
+
+	public List<Assessment> findSelectedAssessmentByScenario(int idScenario) {
+		return assessments.stream().filter(assessment -> assessment.getScenario().getId() == idScenario).collect(Collectors.toList());
+	}
+
+	public List<Assessment> findSelectedAssessmentByAsset(int idAsset) {
+		return assessments.stream().filter(assessment -> assessment.getAsset().getId() == idAsset).collect(Collectors.toList());
+	}
+
+	public Map<String, Double> mapAcronymToValue() {
+		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
+				.collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
+	}
 }

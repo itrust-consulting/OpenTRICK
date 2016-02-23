@@ -69,7 +69,7 @@ body {
 	padding-top: 5px;
 }
 
-.nav.bordered-bottom,.bordered-bottom  {
+.nav.bordered-bottom, .bordered-bottom {
 	border-bottom: 1px solid #dddddd;
 }
 
@@ -390,8 +390,6 @@ td.unselected, .table>tbody>tr.info>td.unselected {
 	background-color: window;
 }
 
-
-
 ul#task-manager {
 	padding: 0;
 	min-width: 450px;
@@ -433,8 +431,7 @@ ul#task-manager>li>li {
 	margin-bottom: -18px;
 }
 
-
-#measure-ui label, #measure-ui th{
+#measure-ui label, #measure-ui th {
 	font-weight: normal;
 }
 
@@ -450,6 +447,10 @@ ul#task-manager>li>li {
 	.nav-chapter {
 		height: 60%;
 	}
+}
+
+@media ( min-width : 1200px) {
+	
 }
 
 @media ( min-height :766px) {

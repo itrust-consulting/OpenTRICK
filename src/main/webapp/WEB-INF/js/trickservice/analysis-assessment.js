@@ -83,31 +83,40 @@ function saveMeasureData(e) {
 	return false;
 }
 
-function loadMeasureData(id) {
-	var $currentUI = $("#measure-ui");
-	if ($currentUI.attr("data-trick-id") == id)
-		return false;
+function loadAssessmentData(id) {
+	var $currentUI = $("#estimation-ui"), idCurrent = $("select[name='" + activeSelector + "']").val();
+	/*
+	 * if ($currentUI.attr("data-trick-id") == id &&
+	 * $currentUI.attr("data-trick-content") == activeSelector) return false;
+	 */
+	var url = (activeSelector == "asset" ? context + "/Analysis/Assessment/Asset/" + idCurrent + "/Load?idScenario=" : context + "/Analysis/Assessment/Scenario/" + idCurrent
+			+ "/Load?idAsset=");
 	$.ajax({
-		url : context + "/Analysis/Standard/Measure/" + id + "/Form",
+		url : url + id,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var $assessmentUI = $("div#measure-ui", new DOMParser().parseFromString(response, "text/html"));
+			var $assessmentUI = $("div#estimation-ui", new DOMParser().parseFromString(response, "text/html"));
 			if ($assessmentUI.length) {
-				backupDescriptionHeight();
+				// backupDescriptionHeight();
 				$currentUI.replaceWith($assessmentUI);
-				restoreDescriptionHeight();
-				$("select", $assessmentUI).on("change", saveMeasureData);
-				$("input[name!='cost'],textarea", $assessmentUI).on("blur", saveMeasureData);
-				$("input[type='number']", $assessmentUI).on("change", function(e) {
-					var $target = $(e.currentTarget);
-					if (!$target.is(":focus"))
-						$target.focus();
-					return this;
-				});
+				
+				
+				
+				// restoreDescriptionHeight();
+				/*
+				 * $("select", $assessmentUI).on("change", saveMeasureData);
+				 * $("input[name!='cost'],textarea", $assessmentUI).on("blur",
+				 * saveMeasureData); $("input[type='number']",
+				 * $assessmentUI).on("change", function(e) { var $target =
+				 * $(e.currentTarget); if (!$target.is(":focus"))
+				 * $target.focus(); return this; });
+				 */
 			} else
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function(){
+		fixTableHeader(".table-fixed-header-analysis");
 	});
 	return false;
 }
@@ -150,11 +159,12 @@ function updateScroll(element) {
 	return false;
 }
 
-function updateMeasureUI() {
+function updateAssessmentUI() {
 	var $assessment = $("div.list-group:visible>.list-group-item.active");
 	if (!$assessment.is(":focus"))
 		updateScroll($assessment);
-	// loadMeasureData(id);
+	loadAssessmentData($assessment.attr("data-trick-id"));
+
 }
 
 function updateNavigation() {
@@ -172,12 +182,12 @@ function updateNavigation() {
 	else
 		$previousSelector.addClass("disabled");
 
-	if ($currentAssessment.prev(".list-group-item:visible").length)
+	if ($currentAssessment.prevAll(".list-group-item:visible").length)
 		$previousAssessment.removeClass("disabled");
 	else
 		$previousAssessment.addClass("disabled");
 
-	if ($currentAssessment.next(".list-group-item:visible").length)
+	if ($currentAssessment.nextAll(".list-group-item:visible").length)
 		$nextAssessment.removeClass("disabled");
 	else
 		$nextAssessment.addClass("disabled");
@@ -192,7 +202,7 @@ function changeAssessment(e) {
 		$(".list-group-item.active", $parent).removeClass("active");
 		$target.addClass('active');
 	}
-	updateMeasureUI();
+	updateAssessmentUI();
 	updateNavigation();
 	return false;
 }
@@ -225,10 +235,43 @@ AssessmentHelder.prototype = {
 	},
 	getLastSelected : function(name) {
 		return this.lastSelected[name];
+	},
+
+	updateContent : function() {
+		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-id!='-1']");
+		if (activeSelector == "asset") {
+			$elements.each(function(i) {
+				var $this = $(this);
+				if ($this.attr("data-trick-type").contains(type))
+					$this.show();
+				else
+					$this.hide();
+			});
+		} else {
+			$elements.each(function() {
+				var $this = $(this);
+				if (type.contains($this.attr("data-trick-type")))
+					$this.show();
+				else
+					$this.hide();
+			});
+		}
+
+		if ($elements.filter(".active").is(":hidden"))
+			$elements.filter(":visible:first").click();
+		else
+			updateAssessmentUI();
+		return this;
 	}
 }
 
 $(function() {
+
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".navbar-fixed-top"),
+		scrollStartFixMulti : 1.02
+	};
+	
 
 	var helper = new AssessmentHelder(), $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
 
@@ -243,12 +286,12 @@ $(function() {
 	});
 
 	$previousAssessment.on("click", function() {
-		$("div[data-trick-content]:visible .list-group-item.active").prev(":visible:last").click();
+		$("div[data-trick-content]:visible .list-group-item.active").prevAll(":visible:first").click();
 		return false;
 	});
 
 	$nextAssessment.on("click", function() {
-		$("div[data-trick-content]:visible .list-group-item.active").next(":visible:first").click();
+		$("div[data-trick-content]:visible .list-group-item.active").nextAll(":visible:first").click();
 		return false;
 	});
 
@@ -265,7 +308,9 @@ $(function() {
 			helper.getCurrent(other).find("option[value='-1']").prop('selected', true);
 		} else
 			helper.setLastSelected(name, value);
-		updateMeasureUI();
+
+		helper.updateContent();
+
 		$nav.trigger("trick.update.nav");
 		return false;
 	};
@@ -274,5 +319,5 @@ $(function() {
 		helper.getCurrent(helper.names[i]).on('change', updateSelector);
 	$("div.list-group>.list-group-item").on("click", changeAssessment);
 	updateNavigation();
-	updateMeasureUI();
+	updateAssessmentUI();
 });

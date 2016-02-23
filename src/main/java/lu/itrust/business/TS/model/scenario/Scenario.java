@@ -40,7 +40,7 @@ import lu.itrust.business.TS.model.general.SecurityCriteria;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idScenario")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }) )
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -482,7 +482,8 @@ public class Scenario extends SecurityCriteria {
 	 * @return The List of AssetTypeValues
 	 */
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
+	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
+			@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }) )
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
@@ -498,6 +499,16 @@ public class Scenario extends SecurityCriteria {
 	 */
 	public void setAssetTypeValues(List<AssetTypeValue> assetTypeValues) {
 		this.assetTypeValues = assetTypeValues;
+	}
+
+	public String assetTypeString() {
+		String value = "";
+		for (AssetTypeValue assetTypeValue : assetTypeValues) {
+			if (assetTypeValue.getValue() > 0)
+				value += (value.isEmpty() ? "" : ";") + assetTypeValue.getAssetType().getType();
+		}
+		return value;
+
 	}
 
 	/**
@@ -540,7 +551,7 @@ public class Scenario extends SecurityCriteria {
 			return false;
 		}
 		Scenario other = (Scenario) obj;
-		
+
 		if (getId() > 0 && other.getId() > 0)
 			return getId() == other.getId();
 
@@ -601,13 +612,14 @@ public class Scenario extends SecurityCriteria {
 		return value == 0 ? 0 : 4;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "Scenario [name=" + name + ", type=" + type + ", selected=" + selected + ", description=" + description + ", assetTypeValues=" + assetTypeValues + "]";
 	}
-	
-	
+
 }

@@ -152,7 +152,7 @@ function updateMeasureUI() {
 	var $measure = $("div.list-group:visible>.list-group-item.active"), id = $measure.attr('data-trick-id');
 	if (!$measure.is(":focus"))
 		updateScroll($measure);
-	loadMeasureData(id);
+	loadAssessmentData(id);
 }
 
 function updateNavigation() {
@@ -189,7 +189,7 @@ function changeMeasure(e) {
 		$(".list-group-item.active", $parent).removeClass("active");
 		$target.addClass('active');
 	}
-	updateMeasureUI();
+	updateAssessmentUI();
 	updateNavigation();
 	return false;
 }
@@ -222,7 +222,7 @@ $(function() {
 		var $target = $(e.currentTarget), value = $target.val();
 		$("div[data-trick-standard-name][data-trick-id!='" + value + "']:visible").hide();
 		$("div[data-trick-standard-name][data-trick-id='" + value + "']:hidden").show();
-		updateMeasureUI();
+		updateAssessmentUI();
 		$nav.trigger("trick.update.nav");
 		return false;
 	});
@@ -235,7 +235,7 @@ $(function() {
 								.val(), $measuresContainer = $("div[data-trick-content='measure'][data-trick-standard-name][data-trick-id='" + standardId + "']:visible");
 						$measuresContainer.find("div.list-group[data-trick-chapter-name!='" + value + "']:visible").hide();
 						$measuresContainer.find("div.list-group[data-trick-chapter-name='" + value + "']:hidden").show();
-						updateMeasureUI();
+						updateAssessmentUI();
 						$nav.trigger("trick.update.nav");
 						return false;
 					});
@@ -243,5 +243,5 @@ $(function() {
 	$("div.list-group[data-trick-chapter-name]>.list-group-item").on("click", changeMeasure);
 
 	updateNavigation();
-	updateMeasureUI();
+	updateAssessmentUI();
 });

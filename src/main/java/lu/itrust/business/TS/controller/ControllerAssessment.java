@@ -2,21 +2,23 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.JsonMessage;
@@ -28,6 +30,7 @@ import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -108,7 +111,8 @@ public class ControllerAssessment {
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
 			return new String("{\"success\":\""
-					+ messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", customLocale != null ? customLocale : locale) + "\"}");
+					+ messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", customLocale != null ? customLocale : locale)
+					+ "\"}");
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -121,10 +125,85 @@ public class ControllerAssessment {
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return new String("{\"error\":\""
-					+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale
-							: locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation",
+					customLocale != null ? customLocale : locale) + "\"}");
 		}
+	}
+
+	@RequestMapping(value = "/Asset/{idAsset}/Load", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String loadAssetAssessment(@PathVariable int idAsset, @RequestParam(value = "idScenario", defaultValue = "-1") int idScenario, Model model, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		Asset asset = analysis.findAsset(idAsset);
+		if (idScenario < 1) {
+			ALE ale = new ALE(asset.getName(), 0);
+			ALE aleo = new ALE(asset.getName(), 0);
+			ALE alep = new ALE(asset.getName(), 0);
+			List<Assessment> assessments = analysis.findSelectedAssessmentByAsset(idAsset);
+			AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+			Collections.sort(assessments, new AssessmentComparator());
+			model.addAttribute("ale", ale);
+			model.addAttribute("aleo", aleo);
+			model.addAttribute("alep", alep);
+			model.addAttribute("parameters", analysis.mapAcronymToValue());
+			model.addAttribute("assessments", assessments);
+		} else {
+			Scenario scenario = analysis.findScenario(idScenario);
+			if (scenario == null)
+				throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
+			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
+			if (!assessment.isSelected())
+				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
+			model.addAttribute("assessment", assessment);
+			model.addAttribute("scenario", scenario);
+		}
+		model.addAttribute("asset", asset);
+		model.addAttribute("show_cssf", analysis.isCssf());
+		model.addAttribute("language", locale.getISO3Country());
+		model.addAttribute("show_uncertainty", analysis.isUncertainty());
+		return "analyses/single/components/estimation/asset";
+	}
+
+	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String loadSceanrioAssessment(@PathVariable int idScenario, @RequestParam(value = "idAsset", defaultValue = "-1") int idAsset, Model model, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		Scenario scenario = analysis.findScenario(idScenario);
+		if (idAsset < 1) {
+			ALE ale = new ALE(scenario.getName(), 0);
+			ALE aleo = new ALE(scenario.getName(), 0);
+			ALE alep = new ALE(scenario.getName(), 0);
+			model.addAttribute("ale", ale);
+			model.addAttribute("aleo", aleo);
+			model.addAttribute("alep", alep);
+			model.addAttribute("scenario", scenario);
+			model.addAttribute("parameters", analysis.mapAcronymToValue());
+			model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
+			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
+			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
+			AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+			Collections.sort(assessments, new AssessmentComparator());
+			model.addAttribute("assessments", assessments);
+		} else {
+			Asset asset = analysis.findAsset(idAsset);
+			if (scenario == null)
+				throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
+			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
+			if (!assessment.isSelected())
+				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
+			model.addAttribute("assessment", assessment);
+			model.addAttribute("asset", asset);
+		}
+		model.addAttribute("scenario", scenario);
+		model.addAttribute("show_cssf", analysis.isCssf());
+		model.addAttribute("language", locale.getISO3Country());
+		model.addAttribute("show_uncertainty", analysis.isUncertainty());
+		return "analyses/single/components/estimation/scenario";
+
 	}
 
 	/**
@@ -175,9 +254,8 @@ public class ControllerAssessment {
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return new String("{\"error\":\""
-					+ messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", customLocale != null ? customLocale
-							: locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation",
+					customLocale != null ? customLocale : locale) + "\"}");
 		}
 	}
 
@@ -217,9 +295,8 @@ public class ControllerAssessment {
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return new String("{\"error\":\""
-					+ messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", customLocale != null ? customLocale
-							: locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred",
+					customLocale != null ? customLocale : locale) + "\"}");
 		}
 	}
 
@@ -432,12 +509,7 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	private Map<String, Double> generateAcronymValueMatching(int idAnalysis) throws Exception {
-		List<ExtendedParameter> extendedParameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
-		Map<String, Double> matchingParameters = new LinkedHashMap<String, Double>(extendedParameters.size());
-		for (ExtendedParameter extendedParameter : extendedParameters)
-			matchingParameters.put(extendedParameter.getAcronym(), extendedParameter.getValue());
-		return matchingParameters;
-
+		return serviceParameter.getAllExtendedFromAnalysis(idAnalysis).stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
 	}
 
 	/**

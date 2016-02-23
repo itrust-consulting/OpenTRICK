@@ -20,59 +20,70 @@
 		<div class="container max-height">
 			<div class="max-height" style="padding-top: 15px;">
 				<div class="col-lg-2 max-height" style="z-index: 1">
-					<div class="form-group input-group">
-						<span class="input-group-addon"><fmt:message key="label.title.asset" /></span> <select name="asset" class="form-control">
-							<option value='-1' title="${allText}">${allText}</option>
-							<c:forEach items="${assets}" var="asset" varStatus="assetStatus">
-								<spring:message text='${asset.name}' var="assetName" />
-								<option value="${asset.id}" title="${assetName}" ${assetStatus.index == 0? 'selected="selected"' : ""}>${assetName}</option>
-							</c:forEach>
-						</select>
-					</div>
-
-					<div class='form-group input-group'>
-						<span class="input-group-addon"><fmt:message key="label.title.scenario" /></span><select name="scenario" class="form-control">
-							<option value='-1' title="${allText}">${allText}</option>
-							<c:forEach items="${scenarios}" var="scenario">
-								<spring:message text="${scenario.name}" var="scenarioName" />
-								<option value="${scenario.id}" title="${scenarioName}">${scenarioName}</option>
-							</c:forEach>
-						</select>
-					</div>
-
-					<div class="form-group nav-chapter" data-trick-content='scenario'>
-						<div class='list-group'>
-							<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
-								data-trick-id='-1'>${allText}</a>
-							<c:forEach items="${scenarios}" var="scenario">
-								<spring:message text="${scenario.name}" var="scenarioName" />
-								<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${scenarioName}</a>
-							</c:forEach>
+					<div class="affixMenu max-height">
+						<div class="form-group input-group">
+							<span class="input-group-addon"><fmt:message key="label.title.asset" /></span> <select name="asset" class="form-control">
+								<option value='-1' title="${allText}">${allText}</option>
+								<c:forEach items="${assets}" var="asset" varStatus="assetStatus">
+									<spring:message text='${asset.name}' var="assetName" />
+									<spring:message text="${asset.assetType.type}" var="assetTypeName" />
+									<c:if test="${assetStatus.index == 0}">
+										<c:set var="currentAssetType" value="${assetTypeName}" />
+									</c:if>
+									<option value="${asset.id}" data-trick-type='${assetTypeName}' title="${assetName}" ${assetStatus.index == 0? 'selected="selected"' : ""}>${assetName}</option>
+								</c:forEach>
+							</select>
 						</div>
-					</div>
 
-					<div class="form-group nav-chapter" style="display: none;" data-trick-content='asset'>
-						<div class='list-group'>
-							<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
-								data-trick-id='-1'>${allText}</a>
-							<c:forEach items="${assets}" var="asset">
-								<spring:message text="${asset.name}" var="assetName" />
-								<a href="#" title="${assetName}" data-trick-id='${asset.id}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item">${assetName}</a>
-							</c:forEach>
+						<div class='form-group input-group'>
+							<span class="input-group-addon"><fmt:message key="label.title.scenario" /></span><select name="scenario" class="form-control">
+								<option value='-1' title="${allText}">${allText}</option>
+								<c:forEach items="${scenarios}" var="scenario">
+									<spring:message text="${scenario.name}" var="scenarioName" />
+									<spring:message text="${scenario.assetTypeString()}" var="scenarioAssetTypeNames" />
+									<option value="${scenario.id}" title="${scenarioName}" data-trick-type='${scenarioAssetTypeNames}'>${scenarioName}</option>
+								</c:forEach>
+							</select>
 						</div>
+
+						<div class="form-group nav-chapter" data-trick-content='scenario'>
+							<div class='list-group'>
+								<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
+									data-trick-id='-1'>${allText}</a>
+								<c:forEach items="${scenarios}" var="scenario">
+									<spring:message text="${scenario.name}" var="scenarioName" />
+									<spring:message text="${scenario.assetTypeString()}" var="scenarioAssetTypeNames" />
+									<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-type='${scenarioAssetTypeNames}'
+										style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${scenarioAssetTypeNames.contains(currentAssetType)?'':'none'};" class="list-group-item">${scenarioName}</a>
+								</c:forEach>
+							</div>
+						</div>
+
+						<div class="form-group nav-chapter" style="display: none;" data-trick-content='asset'>
+							<div class='list-group'>
+								<a href="#" title="${allText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item list-group-item-success active"
+									data-trick-id='-1'>${allText}</a>
+								<c:forEach items="${assets}" var="asset">
+									<spring:message text="${asset.name}" var="assetName" />
+									<spring:message text="${asset.assetType.type}" var="assetTypeName" />
+									<a href="#" title="${assetName}" data-trick-id='${asset.id}' data-trick-type='${assetTypeName}' style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+										class="list-group-item">${assetName}</a>
+								</c:forEach>
+							</div>
+						</div>
+
+
+						<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-estimation'>
+							<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
+							<li><a href="#" title='<fmt:message key="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
+							<li><a href="#" title='<fmt:message key="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
+							<li><a href="#" title='<fmt:message key="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
+							<li><a href="#" title='<fmt:message key="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
+							<li><a href='<spring:url value="/Analysis/All"/>' title='<fmt:message key="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
+						</ul>
 					</div>
-
-
-					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-estimation'>
-						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
-						<li><a href='<spring:url value="/Analysis/All"/>' title='<fmt:message key="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
-					</ul>
 				</div>
-				<jsp:include page="section.jsp" />
+				<jsp:include page="asset.jsp" />
 			</div>
 		</div>
 		<jsp:include page="../../../../template/footer.jsp" />
