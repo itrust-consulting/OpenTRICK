@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
-<div id="measure-ui" class='col-lg-10' data-trick-id='${selectedMeasure.id}'>
+<div id="measure-ui" class='col-lg-10 trick-ui' data-trick-id='${selectedMeasure.id}'>
 	<c:if test="${not empty selectedMeasure }">
 		<c:set var="rowSize" value="${isMaturity? 10 : 5}" />
 		<fieldset style="display: block; width: 100%; clear: left;">

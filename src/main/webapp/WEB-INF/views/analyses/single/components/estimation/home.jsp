@@ -17,9 +17,9 @@
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../../../template/menu.jsp" />
 		<fmt:message key="label.all" var="allText" />
-		<div class="container max-height">
+		<div class="container trick-container max-height ">
 			<div class="max-height" style="padding-top: 15px;">
-				<div class="col-lg-2 max-height" style="z-index: 1">
+				<div class="col-lg-2 max-height" style="z-index: 1"  role="left-menu">
 					<div class="affixMenu max-height">
 						<div class="form-group input-group">
 							<span class="input-group-addon"><fmt:message key="label.title.asset" /></span> <select name="asset" class="form-control">

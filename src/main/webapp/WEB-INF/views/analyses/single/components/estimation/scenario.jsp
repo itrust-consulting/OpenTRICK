@@ -8,14 +8,14 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <c:choose>
 	<c:when test="${not empty assessments}">
-		<div id="estimation-ui" class='col-lg-10' data-trick-id='-1' data-trick-content='asset'>
+		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-id='-1' data-trick-content='asset'>
 			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${scenario.name}' />
 				</legend>
 				<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 40px;"><spring:message text="${fn:trim(scenario.description)}" /></div>
 			</fieldset>
-			<table class="table table-hover table-condensed table-fixed-header-analysis">
+			<table class="table table-hover table-fixed-header-analysis">
 				<thead>
 					<tr>
 						<th style="width: 10%" title='<fmt:message key="label.assessment.asset" />'><fmt:message key="label.assessment.asset" /></th>
@@ -130,15 +130,14 @@
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.likelihood)}">
 									<td
-										title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.likelihood),2)}" maxFractionDigits="2" />
-									<fmt:message key="label.assessment.likelihood.unit" />'><spring:message
+										title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.likelihood),2)}" maxFractionDigits="2" /><fmt:message key="label.assessment.likelihood.unit" />'><spring:message
 											text="${assessment.likelihood}" /></td>
 								</c:when>
 								<c:otherwise>
 									<td><c:catch>
 											<fmt:formatNumber value="${fct:round(assessment.likelihood,2)}" maxFractionDigits="2" var="likelihood" />
 										</c:catch> <c:choose>
-											<c:when test="${not empty likelihood }">
+											<c:when test="${not empty likelihood}">
 												<spring:message text="${likelihood}" />
 											</c:when>
 											<c:otherwise>
@@ -149,11 +148,11 @@
 							</c:choose>
 							<c:if test="${show_uncertainty}">
 								<td><fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
-								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></td>
 							</c:if>
 							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></td>
 							<c:if test="${show_uncertainty}">
-								<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
 							</c:if>
 							<fmt:setLocale value="${language}" scope="session" />
 							<td><pre><spring:message text="${assessment.comment}" /></pre></td>
@@ -173,9 +172,9 @@
 									</c:otherwise>
 								</c:choose>
 								<fmt:setLocale value="fr" scope="session" />
-								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,1)}" /></td>
-								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
 								<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,1)}" /></td>
 								<fmt:setLocale value="${language}" scope="session" />
 							</c:when>
 							<c:otherwise>

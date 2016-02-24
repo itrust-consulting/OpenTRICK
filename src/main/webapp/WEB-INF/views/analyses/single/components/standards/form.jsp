@@ -18,7 +18,7 @@
 		<jsp:include page="../../../../template/menu.jsp" />
 		<div class="container max-height">
 			<div class="max-height" style="padding-top: 15px;">
-				<div class="col-lg-2 max-height" style="z-index: 1" >
+				<div class="col-lg-2 max-height" style="z-index: 1" role="left-menu" >
 					<div class="form-group">
 						<select name="standard" class="form-control">
 							<c:forEach items="${standards}" var="standard">

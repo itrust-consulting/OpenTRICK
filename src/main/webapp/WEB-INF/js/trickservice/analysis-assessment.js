@@ -99,9 +99,7 @@ function loadAssessmentData(id) {
 			if ($assessmentUI.length) {
 				// backupDescriptionHeight();
 				$currentUI.replaceWith($assessmentUI);
-				
-				
-				
+
 				// restoreDescriptionHeight();
 				/*
 				 * $("select", $assessmentUI).on("change", saveMeasureData);
@@ -115,7 +113,7 @@ function loadAssessmentData(id) {
 				unknowError();
 		},
 		error : unknowError
-	}).complete(function(){
+	}).complete(function() {
 		fixTableHeader(".table-fixed-header-analysis");
 	});
 	return false;
@@ -161,7 +159,7 @@ function updateScroll(element) {
 
 function updateAssessmentUI() {
 	var $assessment = $("div.list-group:visible>.list-group-item.active");
-	if (!$assessment.is(":focus"))
+	if (!$assessment.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
 		updateScroll($assessment);
 	loadAssessmentData($assessment.attr("data-trick-id"));
 
@@ -214,7 +212,8 @@ function AssessmentHelder() {
 	this.lastSelected = {
 		asset : this.asset.find("option[value!='-1']:first").val(),
 		scenario : this.scenario.find("option[value!='-1']:first").val()
-	}
+	};
+	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
 }
 
 AssessmentHelder.prototype = {
@@ -237,12 +236,24 @@ AssessmentHelder.prototype = {
 		return this.lastSelected[name];
 	},
 
+	switchControl : function(name) {
+		if (name == activeSelector)
+			return this;
+		activeSelector = name;
+		$("div[data-trick-content]").each(function() {
+			if (this.getAttribute("data-trick-content") == name)
+				$(this).hide();
+			else
+				$(this).show();
+		});
+		return this;
+	},
 	updateContent : function() {
 		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-id!='-1']");
 		if (activeSelector == "asset") {
 			$elements.each(function(i) {
 				var $this = $(this);
-				if ($this.attr("data-trick-type").contains(type))
+				if ($this.attr("data-trick-type").search(type) != -1)
 					$this.show();
 				else
 					$this.hide();
@@ -250,7 +261,7 @@ AssessmentHelder.prototype = {
 		} else {
 			$elements.each(function() {
 				var $this = $(this);
-				if (type.contains($this.attr("data-trick-type")))
+				if (type.search($this.attr("data-trick-type")) != -1)
 					$this.show();
 				else
 					$this.hide();
@@ -271,10 +282,8 @@ $(function() {
 		fixedOffset : $(".navbar-fixed-top"),
 		scrollStartFixMulti : 1.02
 	};
-	
 
 	var helper = new AssessmentHelder(), $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
-
 	$previousSelector.on("click", function() {
 		$("select[name='" + activeSelector + "']>option:selected").prev("[value!='-1']:last").prop('selected', true).parent().change();
 		return false;
@@ -295,18 +304,13 @@ $(function() {
 		return false;
 	});
 
-	activeSelector = $("div[data-trick-content]:hidden").attr("data-trick-content");
-
 	var updateSelector = function(e) {
 		var $target = $(e.currentTarget), value = $target.val(), name = $target.attr("name"), other = helper.getOtherName(name);
-		if (value == '-1') {
-			$("div[data-trick-content]").toggle();
-			helper.getCurrent(activeSelector = other).find("option[value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
-		} else if (helper.getCurrent(other).val() != "-1") {
-			activeSelector = name;
-			$("div[data-trick-content]").toggle();
-			helper.getCurrent(other).find("option[value='-1']").prop('selected', true);
-		} else
+		if (value == '-1')
+			helper.switchControl(other).getCurrent(other).find("option[value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
+		else if (helper.getCurrent(other).val() != "-1")
+			helper.switchControl(name).getCurrent(other).find("option[value='-1']").prop('selected', true);
+		else
 			helper.setLastSelected(name, value);
 
 		helper.updateContent();
@@ -315,9 +319,11 @@ $(function() {
 		return false;
 	};
 
-	for ( var i in helper.names)
-		helper.getCurrent(helper.names[i]).on('change', updateSelector);
 	$("div.list-group>.list-group-item").on("click", changeAssessment);
+	
+	for ( var i in helper.names)
+		helper.getCurrent(helper.names[i]).on('change', updateSelector)
+	
 	updateNavigation();
 	updateAssessmentUI();
 });
