@@ -41,6 +41,7 @@
 								<th style="width: 2%" title='<fmt:message key="label.title.ale" />'><fmt:message key="label.assessment.ale" /></th>
 							</c:otherwise>
 						</c:choose>
+						<th width="2%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
 						<th style="width: 30%" title='<fmt:message key="label.assessment.comment" />'><fmt:message key="label.assessment.comment" /></th>
 						<th style="width: 30%" title='<fmt:message key="label.assessment.hidden_comment" />'><fmt:message key="label.assessment.hidden_comment" /></th>
 					</tr>
@@ -155,6 +156,7 @@
 								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
 							</c:if>
 							<fmt:setLocale value="${language}" scope="session" />
+							<td>owner</td>
 							<td><pre><spring:message text="${assessment.comment}" /></pre></td>
 							<td><pre><spring:message text="${assessment.hiddenComment}" /></pre></td>
 						</tr>
@@ -190,7 +192,7 @@
 								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
 							</c:otherwise>
 						</c:choose>
-						<td colspan="2" />
+						<td colspan="3" />
 					</tr>
 				</tbody>
 			</table>
@@ -205,6 +207,8 @@
 				<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 110px;"><spring:message text="${fn:trim(asset.comment)}" /><hr style="border-color: #ddd;"><spring:message text="${fn:trim(asset.hiddenComment)}" />
 				</div>
 			</fieldset>
+			<c:set var="rowLength" value="${show_cssf? 6 : 11 }" scope="request"/>
+			<jsp:include page="form.jsp" />
 		</div>
 	</c:when>
 	<c:otherwise>

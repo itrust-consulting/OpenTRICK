@@ -2593,4 +2593,19 @@ public class Analysis implements Cloneable {
 		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
 				.collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
 	}
+
+	/**
+	 * Retrieve extended parameters: Impact and Probabilities
+	 * 
+	 * @param probabilities
+	 * @param impacts
+	 */
+	public void groupExtended(List<ExtendedParameter> probabilities, List<ExtendedParameter> impacts) {
+		parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter).forEach(parameter -> {
+			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				impacts.add(parameter);
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+				probabilities.add(parameter);
+		});
+	}
 }

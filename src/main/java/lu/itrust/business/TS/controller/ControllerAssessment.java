@@ -2,6 +2,7 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -156,8 +157,13 @@ public class ControllerAssessment {
 			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
 			if (!assessment.isSelected())
 				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
+			List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
+			analysis.groupExtended(probabilities, impacts);
 			model.addAttribute("assessment", assessment);
 			model.addAttribute("scenario", scenario);
+			model.addAttribute("impacts", impacts);
+			model.addAttribute("probabilities", probabilities);
+			
 		}
 		model.addAttribute("asset", asset);
 		model.addAttribute("show_cssf", analysis.isCssf());
@@ -195,8 +201,12 @@ public class ControllerAssessment {
 			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
 			if (!assessment.isSelected())
 				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
-			model.addAttribute("assessment", assessment);
+			List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
+			analysis.groupExtended(probabilities, impacts);
 			model.addAttribute("asset", asset);
+			model.addAttribute("assessment", assessment);
+			model.addAttribute("impacts", impacts);
+			model.addAttribute("probabilities", probabilities);
 		}
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("show_cssf", analysis.isCssf());
