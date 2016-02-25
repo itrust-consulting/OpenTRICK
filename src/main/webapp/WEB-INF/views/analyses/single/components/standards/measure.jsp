@@ -176,25 +176,6 @@
 				</table>
 			</div>
 
-	
-			<div class='form-group'>
-				<fmt:message key="label.measure.todo" var='todo' />
-				<label class='label-control'>${todo}</label>
-				<spring:message text="${selectedMeasure.toDo}" var="todoContent" />
-				<c:choose>
-					<c:when test="${showTodo}"><textarea rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea></c:when>
-					<c:otherwise><textarea rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled" ></textarea></c:otherwise>
-				</c:choose>
-				
-			</div>
-	
-			<div class='form-group'>
-				<fmt:message key="label.comment" var='comment' />
-				<spring:message text="${selectedMeasure.comment}" var="commentContent" />
-				<label class='label-control'>${comment}</label>
-				<textarea rows="${rowSize}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
-			</div>
-
 			<c:if test="${not isMaturity}">
 				<div class='form-group'>
 					<fmt:message key="label.measure.tocheck" var='tocheck' />
@@ -203,6 +184,25 @@
 					<textarea rows="${rowSize}" class="form-control" name="toCheck" title="${tocheck}" style="resize: vertical;" placeholder="${toCheckContent}" data-trick-type='string'>${toCheckContent}</textarea>
 				</div>
 			</c:if>
+
+			<div class='form-group'>
+				<fmt:message key="label.comment" var='comment' />
+				<spring:message text="${selectedMeasure.comment}" var="commentContent" />
+				<label class='label-control'>${comment}</label>
+				<textarea rows="${rowSize}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
+			</div>
+			
+			<div class='form-group'>
+				<fmt:message key="label.measure.todo" var='todo' />
+				<label class='label-control'>${todo}</label>
+				<spring:message text="${selectedMeasure.toDo}" var="todoContent" />
+				<c:choose>
+					<c:when test="${showTodo}"><textarea rows="${rowSize}" class="form-control" name="toDo" title="${todo}" style="resize: vertical;" placeholder="${todoContent}" data-trick-type='string'>${todoContent}</textarea></c:when>
+					<c:otherwise><textarea rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled" ></textarea></c:otherwise>
+				</c:choose>
+			</div>
+
+			
 		</fieldset>
 	</c:if>
 </div>

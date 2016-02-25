@@ -14,6 +14,7 @@ function EstimationHelper(name, id) {
 	this.id = id;
 	this.outOfDate = true;
 	this.navSelector = "tr[data-trick-selected='true']:first";
+	this.isReadOnly = application.openMode.value.startsWith("read-only");
 }
 
 EstimationHelper.prototype = {
@@ -118,7 +119,7 @@ EstimationHelper.prototype = {
 	swithTo : function(id, name) {
 		if (id == this.id && name == this.name)
 			return this.update();
-		else 
+		else
 			return this.select(id, name, true).load();
 	},
 	planReload : function() {
@@ -156,6 +157,8 @@ EstimationHelper.prototype = {
 		return this;
 	},
 	update : function() {
+		if (this.isReadOnly)
+			return this.load();
 		var instance = this;
 		$.ajax({
 			url : instance.updateUrl(),
@@ -168,6 +171,7 @@ EstimationHelper.prototype = {
 			error : unknowError
 		});
 		return this;
+
 	},
 	tryUpdate : function(id) {
 		var $fields = $("input,select,textarea", this.section());
@@ -259,7 +263,7 @@ function showTabEstimation(name) {
 		helper.select(selectedItem[0], name).updateNav();
 		if ($(helper.tabContent()).is(":visible"))
 			$(helper.update().tabMenu()).show();
-		 else
+		else
 			helper.display();
 	} else
 		$("li[data-menu='estimation'][data-type]").hide();

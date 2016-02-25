@@ -12,7 +12,7 @@
 		<spring:eval expression="T(java.util.Calendar).getInstance().get(YEAR)" var="year" />
 		<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" />
 		<c:set var="copyRight">
-			<spring:message code="label.copy_right.text" text="2007-${year} itrust consulting - All Rights Reserved" />
+			<spring:message code="label.copy_right.text" text="2015-${year} itrust consulting - All Rights Reserved" />
 		</c:set>
 		<c:set var="persiteParameter">
 			?

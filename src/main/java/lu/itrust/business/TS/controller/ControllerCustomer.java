@@ -172,13 +172,14 @@ public class ControllerCustomer {
 		String referer = request.getHeader("Referer");
 		User user = serviceUser.get(principal.getName());
 		if (referer != null && referer.contains("/Admin")) {
-			model.addAttribute("adminView", true);
-			if (user.isAutorised(RoleType.ROLE_ADMIN))
+			if (user.isAutorised(RoleType.ROLE_ADMIN)) {
 				model.addAttribute("customers", serviceCustomer.getAll());
+				return "admin/customer/customers";
+			}
 		}
-		if (!model.containsAttribute("customers"))
-			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		return "knowledgebase/customer/customers";
+
 	}
 
 	/**
@@ -296,8 +297,8 @@ public class ControllerCustomer {
 			if (error != null)
 				errors.put("organisation", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if (id > 0 && serviceCustomer.existsByIdAndOrganisation(id, organisation) || id < 1 && serviceCustomer.existsByOrganisation(organisation))
-				errors.put("organisation",
-						messageSource.getMessage("error.customer.name.already.exists", new String[] { organisation }, String.format("A customer with this name '%s' already exists", organisation), locale));
+				errors.put("organisation", messageSource.getMessage("error.customer.name.already.exists", new String[] { organisation },
+						String.format("A customer with this name '%s' already exists", organisation), locale));
 			else
 				customer.setOrganisation(organisation);
 

@@ -7,7 +7,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -35,8 +34,6 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 				return "error.asset.name.unsupported::Name value is not supported";
 			else if (candidate.toString().trim().isEmpty())
 				return "error.asset.name.empty::Name cannot be empty";
-			else if (!candidate.toString().matches(Constant.REGEXP_VALID_NAME))
-				return "error.asset.name.invalid::Name is not valid";
 			break;
 		case "assetType":
 			if (candidate == null || !(candidate instanceof AssetType))
@@ -77,12 +74,11 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 
 	@Override
 	public void validate(Object arg0, Errors arg1) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.asset.name.empty", "Name cannot be empty");
-
+		
 		Asset asset = (Asset) arg0;
-		if (!arg1.hasFieldErrors("name") && !asset.getName().matches(Constant.REGEXP_VALID_NAME))
-			arg1.rejectValue("name", "error.asset.name.invalid", "Name is not valid");
-
+		
+		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.asset.name.empty", "Name cannot be empty");
+		
 		if (!arg1.hasFieldErrors("assetType") && !(asset.getAssetType() instanceof AssetType))
 			arg1.rejectValue("assetType", "error.asset.assetType.invalid", "Asset Type is not valid");
 

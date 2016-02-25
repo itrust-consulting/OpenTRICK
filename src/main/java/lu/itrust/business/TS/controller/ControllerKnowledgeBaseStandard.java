@@ -300,7 +300,7 @@ public class ControllerKnowledgeBaseStandard {
 		}
 	}
 
-	@RequestMapping("/Template")
+	@RequestMapping(value="/Template", method = RequestMethod.GET)
 	public void downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		File templateFile = new File(request.getServletContext().getRealPath(template));
 		if (!(templateFile.exists() && templateFile.isFile()))

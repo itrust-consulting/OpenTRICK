@@ -138,15 +138,15 @@ function FieldEditor(element, validator) {
 		this.backupData.orginalStyle = $td.attr("style");
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("style", "padding: 4px; position:absolute; z-index:2; width:" + (width ? width : minWidth ? minWidth : '80')
-				+ "px;  margin-left:auto; margin-right:auto; height:" + (height == 0 ? "auto" : (height+ "px;")));
+				+ "px;  margin-left:auto; margin-right:auto; height:" + (height == 0 ? "auto" : (height + "px;")));
 		this.fieldEditor.setAttribute("placeholder", this.realValue == null || this.realValue == undefined ? this.defaultValue : this.realValue);
-		
+
 		$td.css({
 			"padding" : 0,
 			"width" : $td.outerWidth(),
 			"height" : height == 0 ? undefined : height
 		});
-		
+
 		if (!application.editMode || !this.isText) {
 			var that = this, $fieldEditor = $(this.fieldEditor);
 			$fieldEditor.blur(function() {
@@ -732,31 +732,52 @@ function SelectText(element) {
 }
 
 function disableEditMode() {
-	if (!application.editMode)
-		return false;
-	application.editMode = false
-	$("li[role='enterEditMode']").removeClass("disabled");
-	$("li[role='leaveEditMode']").addClass("disabled");
-	$(application.fieldEditors).each(function() {
-		this.Save(this);
-	});
+	if (application.editMode) {
+		try {
+			application.editMode = false
+			var $waittingPop = $("#progress-dialog").modal("show");
+			setTimeout(function() {
+				try {
+					$("li[role='enterEditMode']").removeClass("disabled");
+					$("li[role='leaveEditMode']").addClass("disabled");
+					$(application.fieldEditors).each(function() {
+						this.Save(this);
+					});
+				} finally {
+					$waittingPop.modal("hide")
+				}
+			}, 250);
+		} catch (e) {
+			$waittingPop.modal("hide");
+		}
+	}
 	return false;
 }
 
 function enableEditMode() {
-	if (application.editMode)
-		return false;
-	application.editMode = true;
-	$("li[role='leaveEditMode']").removeClass("disabled");
-	$("li[role='enterEditMode']").addClass("disabled");
-	application.fieldEditors = [];
-	var $data = $(".tab-pane.active [data-trick-content='text']");
-	$data.each(function() {
-		var that = this;
-		var fieldEditor = editField(that);
-		if (fieldEditor != null)
-			application.fieldEditors.push(fieldEditor);
-	});
+	if (!application.editMode) {
+		try {
+			application.editMode = true;
+			var $waittingPop = $("#progress-dialog").modal("show");
+			setTimeout(function() {
+				try {
+					$("li[role='leaveEditMode']").removeClass("disabled");
+					$("li[role='enterEditMode']").addClass("disabled");
+					application.fieldEditors = [];
+					var $data = $(".tab-pane.active [data-trick-content='text']");
+					$data.each(function() {
+						var fieldEditor = editField(this);
+						if (fieldEditor != null)
+							application.fieldEditors.push(fieldEditor);
+					});
+				} finally {
+					$waittingPop.modal("hide")
+				}
+			}, 250);
+		} catch (e) {
+			$waittingPop.modal("hide");
+		}
+	}
 	return false;
 }
 
