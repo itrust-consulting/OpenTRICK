@@ -199,16 +199,23 @@
 		</div>
 	</c:when>
 	<c:when test="${not empty assessment}">
-		<div id="estimation-ui" class='col-lg-10' data-trick-id='${scenario.id}' data-trick-content='asset'>
+		<div id="estimation-ui" class='col-lg-10' data-trick-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='asset'>
 			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${asset.name}' />
 				</legend>
-				<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 110px;"><spring:message text="${fn:trim(asset.comment)}" /><hr style="border-color: #ddd;"><spring:message text="${fn:trim(asset.hiddenComment)}" />
-				</div>
+				<div id="description" class='well well-sm' 
+				style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 40px;"><spring:message text="${fn:trim(asset.comment)}" /></div>
 			</fieldset>
-			<c:set var="rowLength" value="${show_cssf? 6 : 11 }" scope="request"/>
-			<jsp:include page="form.jsp" />
+			<c:choose>
+				<c:when test="${show_cssf}">
+					<jsp:include page="form-cssf.jsp" />
+				</c:when>
+				<c:otherwise>
+					<c:set var="rowLength" value="${show_uncertainty? '12' : '13'}" scope="request"/>
+					<jsp:include page="form-normal.jsp" />
+				</c:otherwise>
+			</c:choose>
 		</div>
 	</c:when>
 	<c:otherwise>
