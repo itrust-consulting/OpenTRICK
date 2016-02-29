@@ -328,4 +328,8 @@ public class RiskRegisterItem {
 		}
 		return this;
 	}
+
+	public Boolean is(int idAsset, int idScenario) {
+		return asset.getId() == idAsset && scenario.getId() == idScenario;
+	}
 }

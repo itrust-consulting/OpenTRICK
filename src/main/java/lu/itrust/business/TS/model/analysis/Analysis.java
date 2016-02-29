@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.persistence.Access;
@@ -38,6 +39,7 @@ import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
@@ -208,6 +210,13 @@ public class Analysis implements Cloneable {
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
+	/** List of Assessment */
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
+	private List<RiskProfile> riskProfiles = new ArrayList<RiskProfile>();
+
 	/** List of Standards */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
@@ -276,7 +285,6 @@ public class Analysis implements Cloneable {
 
 		if (analysis == null)
 			return;
-
 		analysis.getItemInformations().clear();
 		ItemInformation iteminfo;
 		iteminfo = new ItemInformation(Constant.TYPE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
@@ -451,94 +459,6 @@ public class Analysis implements Cloneable {
 		// calculate the cost
 		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
 				measure.getLifetime(), measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
-
-		// return calculated cost
-		return cost;
-	}
-
-	/**
-	 * computeCost: <br>
-	 * Returns the Calculated Cost of a Measure. <br>
-	 * Formula used: <br>
-	 * Formula: Cost = ((is * iw) + (es * ew) + in) * ((1 / lt) + (ma / 100))
-	 * <br>
-	 * With:<br>
-	 * is: The Internal Setup Rate in Euro per Man Day<br>
-	 * iw: The Internal Workload in Man Days<br>
-	 * es: The External Setup Rate in Euro per Man Day<br>
-	 * ew: The External Workload in Man Days<br>
-	 * in: The Investment in Euro<br>
-	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years
-	 * <br>
-	 * ma: The MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE
-	 * 0,00 = 0% and 0,1 = 100%) :: if 0 -> use The Default
-	 * MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE 0,00 = 0%
-	 * and 0,1 = 100%)
-	 * 
-	 * @param internalSetup
-	 * 
-	 * @param externalSetup
-	 * 
-	 * @param lifetimeDefault
-	 * 
-	 * @param maintenanceDefault
-	 * 
-	 * @param internalWorkLoad
-	 * 
-	 * @param externalWorkLoad
-	 * 
-	 * @param investment
-	 * 
-	 * @param lifetime
-	 * 
-	 * @param maintenance
-	 * 
-	 * @return The Calculated Cost
-	 */
-	@Deprecated
-	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance,
-			double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
-
-		// ****************************************************************
-		// * variable initialisation
-		// ****************************************************************
-		double cost = 0;
-
-		// internal setup * internal wokload
-		cost = (internalSetup * internalWorkLoad);
-
-		// + external setup * external wokload
-		cost += (externalSetup * externalWorkLoad);
-
-		// + investment
-		cost += investment;
-
-		// check if lifetime is not 0 -> YES: use default lifetime
-		if (lifetime == 0) {
-
-			// check if maintenance is -1 -> YES: use default maintenance
-			if (maintenance == -1) {
-				cost *= ((1. / lifetimeDefault) + (maintenanceDefault / 100.));
-			} else
-
-			// check if maintenance is 0 -> No: use existing maintenance value
-			{
-				cost *= ((1. / lifetimeDefault) + (maintenance / 100.));
-			}
-		} else
-
-		// check if lifetime is 0 -> NO: use existing maintenance
-		{
-			// check if maintenance is -1 -> YES: use default maintenance
-			if (maintenance == -1) {
-				cost *= ((1. / lifetime) + (maintenanceDefault / 100.));
-			} else
-
-			// check if maintenance is 0 -> NO: use existing maintenance value
-			{
-				cost *= ((1. / lifetime) + (maintenance / 100.));
-			}
-		}
 
 		// return calculated cost
 		return cost;
@@ -816,24 +736,8 @@ public class Analysis implements Cloneable {
 	 * @return The Value of the Parameter if it exists, or -1 if the parameter
 	 *         was not found
 	 */
-	public Parameter getParameterObject(String parameter) {
-
-		// initialise result value
-
-		// parse all parameters
-		for (int i = 0; i < this.getParameters().size(); i++) {
-
-			// check if parameter is the one request -> YES
-			if (this.getAParameter(i).getDescription().equals(parameter)) {
-
-				// ****************************************************************
-				// * set value
-				// ****************************************************************
-				return this.getAParameter(i);
-			}
-		}
-
-		return null;
+	public Parameter getParameterObject(String description) {
+		return this.getParameters().stream().filter(parameter -> parameter.getDescription().equals(description)).findAny().orElse(null);
 	}
 
 	/**
@@ -1430,6 +1334,21 @@ public class Analysis implements Cloneable {
 	 */
 	public void setAssessments(List<Assessment> assessments) {
 		this.assessments = assessments;
+	}
+
+	/**
+	 * @return the riskProfiles
+	 */
+	public List<RiskProfile> getRiskProfiles() {
+		return riskProfiles;
+	}
+
+	/**
+	 * @param riskProfiles
+	 *            the riskProfiles to set
+	 */
+	public void setRiskProfiles(List<RiskProfile> riskProfiles) {
+		this.riskProfiles = riskProfiles;
 	}
 
 	/**
@@ -2607,5 +2526,21 @@ public class Analysis implements Cloneable {
 			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 				probabilities.add(parameter);
 		});
+	}
+
+	/**
+	 * @see RiskProfile#getKey
+	 * @return map< RiskProfile::getKey,RiskProfile >
+	 */
+	public Map<String, RiskProfile> mapRiskProfile() {
+		return riskProfiles.stream().collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
+	}
+
+	public RiskProfile findRiskProfileByAssetAndScenario(int idAsset, int idScenario) {
+		return riskProfiles.stream().filter(riskProfile -> riskProfile.is(idAsset, idScenario)).findAny().orElse(null);
+	}
+
+	public RiskRegisterItem findRiskRegisterByAssetAndScenario(int idAsset, int idScenario) {
+		return riskRegisters.stream().filter(riskRegister -> riskRegister.is(idAsset, idScenario)).findAny().orElse(null);
 	}
 }

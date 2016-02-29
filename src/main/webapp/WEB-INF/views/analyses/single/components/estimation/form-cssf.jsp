@@ -8,15 +8,11 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
 <c:set var="strategyForm">
-	<spring:message code="label.risk_register.strategy.accept" var="accept" />
-	<spring:message code="label.risk_register.strategy.reduce" var="reduce" />
-	<spring:message code="label.risk_register.strategy.transfer" var="transfer" />
-	<spring:message code="label.risk_register.strategy.avoid" var="avoid" />
 	<select name="strategy" class="form-control">
-		<option value="accept">${accept}</option>
-		<option value="reduce">${reduce}</option>
-		<option value="transfer">${transfer}</option>
-		<option value="avoid">${avoid}</option>
+		<c:forEach items="${strategies}" var="strategy">
+			<option value="${strategy}" ${riskProfile.riskStrategy==strategy?"selected='selected'":""}><spring:message
+					code="label.risk_register.strategy.${strategy.getNameToLower() }" text="${strategy}" /></option>
+		</c:forEach>
 	</select>
 </c:set>
 <table class='table alert-warning'>
@@ -24,8 +20,9 @@
 		<tr>
 			<th width="11.11%" rowspan="2" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
 			<th width="44.44%" colspan="4" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-			<th width="11.11" rowspan="2" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.computed.importance" text="Computed importance"/></th>
-			<th width="33.33%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.modelling.raw_eval" text="Modelling Raw Evaluation"/></th>
+			<th width="11.11" rowspan="2" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.computed.importance" text="Computed importance" /></th>
+			<th width="33.33%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.modelling.raw_eval"
+					text="Modelling Raw Evaluation" /></th>
 		</tr>
 		<tr>
 			<th title='<spring:message code="label.title.assessment.impact_rep" />' style="text-align: center;"><spring:message code="label.impact_rep" text="Reputation" /></th>
@@ -34,61 +31,108 @@
 			<th title='<spring:message code="label.title.assessment.impact_fin" />' style="text-align: center;"><spring:message code="label.impact_fin" text="Financial" /></th>
 			<th style="border-left: 2px solid window; text-align: center;"><spring:message code="label.risk_register.probability" /></th>
 			<th style="text-align: center;"><spring:message code="label.risk_register.impact" /></th>
-			<th style="text-align: center;"><spring:message code="label.risk_register.importance" text='Importance'/></th>
+			<th style="text-align: center;"><spring:message code="label.risk_register.importance" text='Importance' /></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
-					<span class="input-group-addon">${probaUnit}</span> <select class="form-control">
-						<c:forEach items="${probabilities}" var="parameter">
-							<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" /> ${probaUnit}"><spring:message text="${parameter.acronym}" /></option>
-						</c:forEach>
+					<span class="input-group-addon">${probaUnit}</span> <select class="form-control" name="rawProbaImpact.probabitity">
+						<c:choose>
+							<c:when test="${empty riskProfile.rawProbaImpact.probabitity }">
+								<c:forEach items="${probabilities}" var="parameter">
+									<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" /> ${probaUnit}"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:when>
+							<c:otherwise>
+								<option value="${parameter.id}" ${riskProfile.rawProbaImpact.probabitity==parameter?"selected='selected'" }
+									title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" /> ${probaUnit}"><spring:message text="${parameter.acronym}" /></option>
+							</c:otherwise>
+						</c:choose>
 					</select>
 				</div>
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><select class="form-control">
-						<c:forEach items="${impacts}" var="parameter">
-							<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
-						</c:forEach>
+					<span class="input-group-addon">k&euro;</span><select class="form-control" name="rawProbaImpact.impactRep">
+						<c:choose>
+							<c:when test="${empty riskProfile.rawProbaImpact.impactRep}">
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:when>
+							<c:otherwise>
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" ${riskProfile.rawProbaImpact.impactRep==parameter?"selected='selected'" }
+										title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:otherwise>
+						</c:choose>
 					</select>
 				</div>
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><select class="form-control">
-						<c:forEach items="${impacts}" var="parameter">
-							<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
-						</c:forEach>
+					<span class="input-group-addon">k&euro;</span><select class="form-control" name="rawProbaImpact.impactOp">
+						<c:choose>
+							<c:when test="${empty riskProfile.rawProbaImpact.impactOp}">
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:when>
+							<c:otherwise>
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" ${riskProfile.rawProbaImpact.impactOp==parameter?"selected='selected'" }
+										title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:otherwise>
+						</c:choose>
 					</select>
 				</div>
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><select class="form-control">
-						<c:forEach items="${impacts}" var="parameter">
-							<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
-						</c:forEach>
+					<span class="input-group-addon">k&euro;</span><select class="form-control" name="rawProbaImpact.impactLeg">
+						<c:choose>
+							<c:when test="${empty riskProfile.rawProbaImpact.impactLeg}">
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:when>
+							<c:otherwise>
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" ${riskProfile.rawProbaImpact.impactLeg==parameter?"selected='selected'" }
+										title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:otherwise>
+						</c:choose>
 					</select>
 				</div>
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><select class="form-control">
-						<c:forEach items="${impacts}" var="parameter">
-							<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
-						</c:forEach>
+					<span class="input-group-addon">k&euro;</span><select class="form-control" name="rawProbaImpact.impactFin">
+						<c:choose>
+							<c:when test="${empty riskProfile.rawProbaImpact.impactFin}">
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:when>
+							<c:otherwise>
+								<c:forEach items="${impacts}" var="parameter">
+									<option value="${parameter.id}" ${riskProfile.rawProbaImpact.impactFin==parameter?"selected='selected'" }
+										title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								</c:forEach>
+							</c:otherwise>
+						</c:choose>
 					</select>
 				</div>
 			</td>
-			<td style="border-left: 2px solid window;" ><input name="rawImportance" disabled="disabled" class="form-control numeric"></td>
+			<td style="border-left: 2px solid window;"><input name="computedRawImportance" disabled="disabled" class="form-control numeric"></td>
 			<td style="border-left: 2px solid window;"><input name="rawProbability" disabled="disabled" class="form-control numeric"></td>
 			<td><input name="rawImpact" disabled="disabled" class="form-control numeric"></td>
 			<td><input name="rawImportance" disabled="disabled" class="form-control numeric"></td>
-
 		</tr>
 	</tbody>
 </table>
@@ -156,8 +200,9 @@
 		<tr>
 			<th width="11.11%" rowspan="2" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
 			<th width="44.44%" colspan="4" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-			<th width="11.11%" rowspan="2" style="text-align: center; border-left: 2px solid window;"><spring:message code="label.title.computed.importance" text="Computed importance"/></th>
-			<th width="33.33%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.modelling.exp_eval" text='Modelling Expected Evaluation'/></th>
+			<th width="11.11%" rowspan="2" style="text-align: center; border-left: 2px solid window;"><spring:message code="label.title.computed.importance" text="Computed importance" /></th>
+			<th width="33.33%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.modelling.exp_eval"
+					text='Modelling Expected Evaluation' /></th>
 		</tr>
 		<tr>
 			<th title='<spring:message code="label.title.assessment.impact_rep" />' style="text-align: center;"><spring:message code="label.impact_rep" text="Reputation" /></th>
@@ -166,7 +211,7 @@
 			<th title='<spring:message code="label.title.assessment.impact_fin" />' style="text-align: center;"><spring:message code="label.impact_fin" text="Financial" /></th>
 			<th style="border-left: 2px solid window; text-align: center;"><spring:message code="label.risk_register.probability" /></th>
 			<th style="text-align: center;"><spring:message code="label.risk_register.impact" /></th>
-			<th style="text-align: center;"><spring:message code="label.risk_register.importance" text='Importance'/></th>
+			<th style="text-align: center;"><spring:message code="label.risk_register.importance" text='Importance' /></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -252,12 +297,13 @@
 	</thead>
 	<tbody>
 		<tr>
+			<spring:message text="${riskProfile.owner}" var="owner" />
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<td style="border-right: 2px solid #ddd;"><input name="uncertainty" class="form-control numeric"
 						value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />'></td>
-					<td> ${strategyForm} </td>
-					<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control"></td>
+					<td>${strategyForm}</td>
+					<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}"></td>
 					<td>
 						<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;">
 							<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
@@ -279,7 +325,7 @@
 				</c:when>
 				<c:otherwise>
 					<td>${strategyForm}</td>
-					<td><input name="owner" class="form-control"></td>
+					<td><input name="owner" class="form-control" value="${owner}" placeholder="owner"></td>
 					<td>
 						<div class="input-group" title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;">
 							<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
@@ -293,7 +339,6 @@
 	</tbody>
 </table>
 
-
 <div class='form-group'>
 	<spring:message code="label.comment_argumentation" text="Comment / Argumentation" var='comment' />
 	<spring:message text="${assessment.comment}" var="commentContent" />
@@ -302,15 +347,17 @@
 </div>
 
 <div class='form-group'>
-	<spring:message code="label.risk_treatment" text="Risk treatment" var='action' />
-	<label class='label-control'>${action}</label>
-	<textarea class="form-control" name="action" title="${action}" style="resize: vertical;"></textarea>
+	<spring:message code="label.risk_treatment" text="Risk treatment" var='riskTreatment' />
+	<spring:message text='${riskProfile.riskTreatment}' var="riskTreatmentContent" />
+	<label class='label-control'>${riskTreatment}</label>
+	<textarea class="form-control" name="riskTreatment" title="${riskTreatment}" placeholder="${riskTreatmentContent}" style="resize: vertical;">${riskTreatmentContent}</textarea>
 </div>
 
 <div class='form-group'>
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
 	<label class='label-control'>${actionPlan}</label>
-	<textarea class="form-control" name="actionPlan" title="${actionPlan}" style="resize: vertical;"></textarea>
+	<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
+	<textarea class="form-control" name="actionPlan" title="${actionPlan}" placeholder="${actionPlanContent}" style="resize: vertical;">${actionPlanContent}</textarea>
 </div>
 
 <div class='form-group'>

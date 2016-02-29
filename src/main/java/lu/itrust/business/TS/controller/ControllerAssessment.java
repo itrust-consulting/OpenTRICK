@@ -39,6 +39,7 @@ import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
@@ -150,6 +151,7 @@ public class ControllerAssessment {
 			model.addAttribute("alep", alep);
 			model.addAttribute("parameters", analysis.mapAcronymToValue());
 			model.addAttribute("assessments", assessments);
+			model.addAttribute("riskProfiles", analysis.mapRiskProfile());
 		} else {
 			Scenario scenario = analysis.findScenario(idScenario);
 			if (scenario == null)
@@ -163,6 +165,8 @@ public class ControllerAssessment {
 			model.addAttribute("scenario", scenario);
 			model.addAttribute("impacts", impacts);
 			model.addAttribute("probabilities", probabilities);
+			model.addAttribute("strategies", RiskStrategy.values());
+			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
 			
 		}
 		model.addAttribute("asset", asset);
@@ -188,6 +192,7 @@ public class ControllerAssessment {
 			model.addAttribute("alep", alep);
 			model.addAttribute("scenario", scenario);
 			model.addAttribute("parameters", analysis.mapAcronymToValue());
+			model.addAttribute("riskProfiles", analysis.mapRiskProfile());
 			model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
@@ -204,9 +209,13 @@ public class ControllerAssessment {
 			List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
 			analysis.groupExtended(probabilities, impacts);
 			model.addAttribute("asset", asset);
-			model.addAttribute("assessment", assessment);
 			model.addAttribute("impacts", impacts);
+			model.addAttribute("assessment", assessment);
 			model.addAttribute("probabilities", probabilities);
+			model.addAttribute("strategies", RiskStrategy.values());
+			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
+			model.addAttribute("riskRegister", analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario));
+			
 		}
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("show_cssf", analysis.isCssf());

@@ -13,8 +13,8 @@
 				<legend>
 					<spring:message text='${asset.name}' />
 				</legend>
-				<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 110px;"
-				><spring:message text="${fn:trim(asset.comment)}" /><hr style="border-color: #ddd;"><spring:message text="${fn:trim(asset.hiddenComment)}" /></div>
+				<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 40px;"
+				><spring:message text="${fn:trim(asset.comment)}" /></div>
 			</fieldset>
 			<table class="table table-hover table-fixed-header-analysis">
 				<thead>
@@ -48,7 +48,9 @@
 				</thead>
 				<tbody>
 					<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
+					
 					<c:forEach items="${sortedAssessments}" var="assessment">
+						<spring:eval expression="T(lu.itrust.business.TS.model.cssf.RiskProfile).key(assessment.asset,assessment.scenario)" var="riskProfileKey" />
 						<tr data-trick-id="${assessment.id}">
 							<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
 							<fmt:setLocale value="fr" scope="session" />
@@ -149,7 +151,7 @@
 								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
 							</c:if>
 							<fmt:setLocale value="${language}" scope="session" />
-							<td>owner</td>
+							<td><spring:message text="${riskProfiles[riskProfileKey].owner}" /></td>
 							<td><pre><spring:message text="${assessment.comment}" /></pre></td>
 							<td><pre><spring:message text="${assessment.hiddenComment}" /></pre></td>
 						</tr>
