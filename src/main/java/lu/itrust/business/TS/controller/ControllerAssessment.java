@@ -39,7 +39,11 @@ import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.EvaluationResult;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
+import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
@@ -159,15 +163,8 @@ public class ControllerAssessment {
 			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
 			if (!assessment.isSelected())
 				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
-			List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
-			analysis.groupExtended(probabilities, impacts);
-			model.addAttribute("assessment", assessment);
 			model.addAttribute("scenario", scenario);
-			model.addAttribute("impacts", impacts);
-			model.addAttribute("probabilities", probabilities);
-			model.addAttribute("strategies", RiskStrategy.values());
-			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
-			
+			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 		}
 		model.addAttribute("asset", asset);
 		model.addAttribute("show_cssf", analysis.isCssf());
@@ -206,16 +203,10 @@ public class ControllerAssessment {
 			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
 			if (!assessment.isSelected())
 				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
-			List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
-			analysis.groupExtended(probabilities, impacts);
+
 			model.addAttribute("asset", asset);
-			model.addAttribute("impacts", impacts);
-			model.addAttribute("assessment", assessment);
-			model.addAttribute("probabilities", probabilities);
-			model.addAttribute("strategies", RiskStrategy.values());
-			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
-			model.addAttribute("riskRegister", analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario));
-			
+			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
+
 		}
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("show_cssf", analysis.isCssf());
@@ -223,6 +214,30 @@ public class ControllerAssessment {
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
 		return "analyses/single/components/estimation/scenario";
 
+	}
+
+	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis, Assessment assessment) {
+		List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
+		analysis.groupExtended(probabilities, impacts);
+		model.addAttribute("impacts", impacts);
+		model.addAttribute("assessment", assessment);
+		model.addAttribute("probabilities", probabilities);
+		model.addAttribute("strategies", RiskStrategy.values());
+		model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
+		RiskRegisterItem registerItem = analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario);
+		if (registerItem != null) {
+			ParameterConvertor converter = new ParameterConvertor(impacts, probabilities);
+			int rawImpact = converter.getImpactLevel(registerItem.getRawEvaluation().getImpact()),
+					rawProbability = converter.getProbabiltyLevel(registerItem.getRawEvaluation().getProbability()),
+					netImpact = converter.getImpactLevel(registerItem.getNetEvaluation().getImpact()),
+					netProbability = converter.getProbabiltyLevel(registerItem.getNetEvaluation().getProbability()),
+					expImpact = converter.getImpactLevel(registerItem.getExpectedEvaluation().getImpact()),
+					expProbability = converter.getProbabiltyLevel(registerItem.getExpectedEvaluation().getProbability());
+			model.addAttribute("rawModelling", new EvaluationResult(rawProbability, rawImpact));
+			model.addAttribute("netModelling", new EvaluationResult(netProbability, netImpact));
+			model.addAttribute("expModelling", new EvaluationResult(expProbability, expImpact));
+			model.addAttribute("riskRegister", registerItem);
+		}
 	}
 
 	/**

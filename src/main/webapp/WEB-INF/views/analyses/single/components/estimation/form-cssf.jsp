@@ -129,10 +129,20 @@
 					</select>
 				</div>
 			</td>
-			<td style="border-left: 2px solid window;"><input name="computedRawImportance" disabled="disabled" class="form-control numeric"></td>
-			<td style="border-left: 2px solid window;"><input name="rawProbability" disabled="disabled" class="form-control numeric"></td>
-			<td><input name="rawImpact" disabled="disabled" class="form-control numeric"></td>
-			<td><input name="rawImportance" disabled="disabled" class="form-control numeric"></td>
+			<td style="border-left: 2px solid window;"><input name="computedRawImportance" disabled="disabled" class="form-control numeric" value="${riskProfile.computedRawImportance}"></td>
+			<c:choose>
+				<c:when test="${empty rawModelling }">
+					<td style="border-left: 2px solid window;"><input name="rawProbability" disabled="disabled" class="form-control numeric"></td>
+					<td><input name="rawImpact" disabled="disabled" class="form-control numeric"></td>
+					<td><input name="rawImportance" disabled="disabled" class="form-control numeric"></td>
+				</c:when>
+				<c:otherwise>
+					<td style="border-left: 2px solid window;"><input name="rawProbability" disabled="disabled" class="form-control numeric"
+						value='<fmt:formatNumber value="${rawModelling.probability}" maxFractionDigits="0"/>'></td>
+					<td><input name="rawImpact" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${rawModelling.impact}" maxFractionDigits="0" />'></td>
+					<td><input name="rawImportance" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${rawModelling.importance}" maxFractionDigits="0" />'></td>
+				</c:otherwise>
+			</c:choose>
 		</tr>
 	</tbody>
 </table>
@@ -167,29 +177,65 @@
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><input name="impactRep" class="form-control numeric">
+					<span class="input-group-addon">k&euro;</span>
+					<c:catch>
+						<fmt:formatNumber value="${fct:round(assessment.impactRep*0.001,2)}" var="impactRep" />
+					</c:catch>
+					<c:if test="${empty impactRep}">
+						<spring:message text="${assessment.impactRep}" var="impactRep"/>
+					</c:if>
+					<input name="impactRep" class="form-control" value="${impactRep}" placeholder="${impactRep}" list="impactList">
 				</div>
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><input name="impactOp" class="form-control numeric">
+					<span class="input-group-addon">k&euro;</span>
+					<c:catch>
+						<fmt:formatNumber value="${fct:round(assessment.impactOp*0.001,2)}" var="impactOp" />
+					</c:catch>
+					<c:if test="${empty impactOp}">
+						<spring:message text="${assessment.impactOp}" var="impactOp"/>
+					</c:if>
+					<input name="impactOp" class="form-control" value="${impactOp}" placeholder="${impactOp}" list="impactList">
 				</div>
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><input name="impactLeg" class="form-control numeric">
+					<span class="input-group-addon">k&euro;</span>
+					<c:catch>
+						<fmt:formatNumber value="${fct:round(assessment.impactLeg*0.001,2)}" var="impactLeg" />
+					</c:catch>
+					<c:if test="${empty impactLeg}">
+						<spring:message text="${assessment.impactLeg}" var="impactLeg" />
+					</c:if>
+					<input name="impactLeg" class="form-control" value="${impactLeg}" placeholder="${impactLeg}" list="impactList">
 				</div>
 			</td>
 			<td>
 				<div class="input-group">
-					<span class="input-group-addon">k&euro;</span><input name="impactFin" class="form-control numeric">
+					<span class="input-group-addon">k&euro;</span>
+					<c:catch>
+						<fmt:formatNumber value="${fct:round(assessment.impactFin*0.001,2)}" var="impactFin" />
+					</c:catch>
+					<c:if test="${empty impactFin}">
+						<spring:message text="${assessment.impactFin}" />
+					</c:if>
+					<input name="impactFin" class="form-control" value="${impactFin}" placeholder="${impactFin}" list="impactList">
 				</div>
 			</td>
-
-			<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"></td>
-			<td><input name="netImpact" disabled="disabled" class="form-control numeric"></td>
-			<td><input name="netImportance" disabled="disabled" class="form-control numeric"></td>
-
+			<c:choose>
+				<c:when test="${empty netModelling }">
+					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"></td>
+					<td><input name="netImpact" disabled="disabled" class="form-control numeric"></td>
+					<td><input name="netImportance" disabled="disabled" class="form-control numeric"></td>
+				</c:when>
+				<c:otherwise>
+					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"
+						value='<fmt:formatNumber value="${netModelling.probability}" maxFractionDigits="0"/>'></td>
+					<td><input name="netImpact" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${netModelling.impact}" maxFractionDigits="0" />'></td>
+					<td><input name="netImportance" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${netModelling.importance}" maxFractionDigits="0" />'></td>
+				</c:otherwise>
+			</c:choose>
 		</tr>
 	</tbody>
 </table>
@@ -261,10 +307,21 @@
 					</select>
 				</div>
 			</td>
-			<td style="border-left: 2px solid window;"><input name="netImportance" disabled="disabled" class="form-control numeric"></td>
-			<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"></td>
-			<td><input name="netImpact" disabled="disabled" class="form-control numeric"></td>
-			<td><input name="netImportance" disabled="disabled" class="form-control numeric"></td>
+			<td style="border-left: 2px solid window;"><input name="exptComputedImportance" disabled="disabled" class="form-control numeric"
+				value="${riskProfile.computedExpImportance}"></td>
+			<c:choose>
+				<c:when test="${empty expModelling }">
+					<td style="border-left: 2px solid window;"><input name="expProbability" disabled="disabled" class="form-control numeric"></td>
+					<td><input name="expImpact" disabled="disabled" class="form-control numeric"></td>
+					<td><input name="expImportance" disabled="disabled" class="form-control numeric"></td>
+				</c:when>
+				<c:otherwise>
+					<td style="border-left: 2px solid window;"><input name="expProbability" disabled="disabled" class="form-control numeric"
+						value='<fmt:formatNumber value="${expModelling.probability}" maxFractionDigits="0"/>'></td>
+					<td><input name="expImpact" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${expModelling.impact}" maxFractionDigits="0" />'></td>
+					<td><input name="expImportance" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${expModelling.importance}" maxFractionDigits="0" />'></td>
+				</c:otherwise>
+			</c:choose>
 		</tr>
 	</tbody>
 </table>
@@ -366,3 +423,10 @@
 	<label class='label-control'>${hiddenComment}</label>
 	<textarea class="form-control" name="comment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
 </div>
+
+<datalist id="impactList">
+	<c:forEach items="${impacts}" var="parameter">
+		<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message
+				text="${parameter.acronym}" /></option>
+	</c:forEach>
+</datalist>

@@ -39,7 +39,18 @@
 			<tr>
 				<td>
 					<div class="input-group">
-						<span class="input-group-addon">k&euro;</span><input name="impactFin" class="form-control numeric">
+						<c:catch>
+							<fmt:formatNumber value="${fct:round(assessment.impactFin*0.001,2)}" var="impactFin" />
+						</c:catch>
+						<c:if test="${empty impactFin}">
+							<spring:message text="${assessment.impactFin}" var="impactFin"/>
+						</c:if>
+						<span class="input-group-addon">k&euro;</span> <input name="impactFin" class="form-control" value="${impactFin}" list="impactList" placeholder="${impactFin}">
+						<datalist id="impactList">
+							<c:forEach items="${impacts}" var="parameter">
+								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+							</c:forEach>
+						</datalist>
 					</div>
 				</td>
 				<td>
@@ -52,11 +63,11 @@
 						</select>
 					</div>
 				</td>
+				<spring:message text="${empty riskProfile? '' : riskProfile.owner}" var="owner" />
 				<c:choose>
 					<c:when test="${show_uncertainty}">
-						<td><input name="uncertainty" class="form-control numeric"
-							value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />'></td>
-						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control"></td>
+						<td><input name="uncertainty" class="form-control numeric" value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />'></td>
+						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}"></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
@@ -77,7 +88,7 @@
 						</td>
 					</c:when>
 					<c:otherwise>
-						<td><input name="owner" class="form-control"></td>
+						<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}"></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
@@ -91,13 +102,13 @@
 	</table>
 </div>
 <div class='form-group'>
-	<fmt:message key="label.comment" var='comment' />
+	<spring:message code="label.comment" var='comment' />
 	<spring:message text="${assessment.comment}" var="commentContent" />
 	<label class='label-control'>${comment}</label>
 	<textarea rows="${rowLength}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 </div>
 <div class='form-group'>
-	<fmt:message key="label.assessment.hidden_comment" var='hiddenComment' />
+	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 	<label class='label-control'>${hiddenComment}</label>
 	<textarea rows="${rowLength}" class="form-control" name="comment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>

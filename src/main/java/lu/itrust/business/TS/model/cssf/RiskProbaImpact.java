@@ -113,4 +113,19 @@ public class RiskProbaImpact {
 		this.impactFin = impactFin;
 	}
 
+	public int getImportance() {
+		return getMaxImpact() * (probabitity == null ? 0 : probabitity.getLevel());
+	}
+
+	private int getMaxImpact() {
+		int max = impactFin == null ? 0 : impactFin.getLevel();
+		if (impactRep != null)
+			max = Math.max(max, impactRep.getLevel());
+		if (impactOp != null)
+			max = Math.max(max, impactOp.getLevel());
+		if (impactLeg != null)
+			max = Math.max(max, impactLeg.getLevel());
+		return max;
+	}
+
 }

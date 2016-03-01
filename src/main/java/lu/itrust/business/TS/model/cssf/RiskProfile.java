@@ -232,4 +232,12 @@ public class RiskProfile {
 		return asset.getId() == idAsset && scenario.getId() == idScenario;
 	}
 
+	public int getComputedRawImportance() {
+		return rawProbaImpact == null ? 0 : rawProbaImpact.getImportance();
+	}
+
+	public int getComputedExpImportance() {
+		return expProbaImpact == null ? 0 : expProbaImpact.getImportance();
+	}
+
 }

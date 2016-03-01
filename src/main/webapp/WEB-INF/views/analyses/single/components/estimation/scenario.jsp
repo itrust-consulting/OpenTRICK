@@ -6,6 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
+<fmt:setLocale value="fr" scope="session" />
 <c:choose>
 	<c:when test="${not empty assessments}">
 		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-id='-1' data-trick-content='asset'>
@@ -18,32 +19,32 @@
 			<table class="table table-hover table-fixed-header-analysis">
 				<thead>
 					<tr>
-						<th style="width: 10%" title='<fmt:message key="label.assessment.asset" />'><fmt:message key="label.assessment.asset" /></th>
-						<th style="width: 2%" title='<fmt:message key="label.assessment.asset.value" />'><fmt:message key="label.assessment.asset.value" /></th>
+						<th style="width: 10%" title='<spring:message code="label.assessment.asset" />'><spring:message code="label.assessment.asset" /></th>
+						<th style="width: 2%" title='<spring:message code="label.assessment.asset.value" />'><spring:message code="label.assessment.asset.value" /></th>
 						<c:if test="${show_cssf}">
-							<th style="width: 2.6%" title='<fmt:message key="label.title.assessment.impact_rep" />'><fmt:message key="label.assessment.impact_rep" /></th>
-							<th style="width: 2.6%" title='<fmt:message key="label.title.assessment.impact_op" />'><fmt:message key="label.assessment.impact_op" /></th>
-							<th style="width: 2.6%" title='<fmt:message key="label.title.assessment.impact_leg" />'><fmt:message key="label.assessment.impact_leg" /></th>
-							<th style="width: 2.6%" title='<fmt:message key="label.title.assessment.impact_fin" />'><fmt:message key="label.assessment.impact_fin" /></th>
+							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_rep" />'><spring:message code="label.assessment.impact_rep" /></th>
+							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_op" />'><spring:message code="label.assessment.impact_op" /></th>
+							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_leg" />'><spring:message code="label.assessment.impact_leg" /></th>
+							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_fin" />'><spring:message code="label.assessment.impact_fin" /></th>
 						</c:if>
 						<c:if test="${!show_cssf}">
-							<th style="width: 2.6%" title='<fmt:message key="label.title.impact" />'><fmt:message key="label.assessment.impact" /></th>
+							<th style="width: 2.6%" title='<spring:message code="label.title.impact" />'><spring:message code="label.assessment.impact" /></th>
 						</c:if>
-						<th style="width: 2.6%" title='<fmt:message key="label.title.likelihood" />'><fmt:message key="label.assessment.likelihood" /></th>
+						<th style="width: 2.6%" title='<spring:message code="label.title.likelihood" />'><spring:message code="label.assessment.likelihood" /></th>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
-								<th style="width: 2.6%" title='<fmt:message key="label.title.uncertainty" />'><fmt:message key="label.assessment.uncertainty" /></th>
-								<th style="width: 2.6%" title='<fmt:message key="label.title.alep" />'><fmt:message key="label.assessment.alep" /></th>
-								<th style="width: 2.6%" title='<fmt:message key="label.title.ale" />'><fmt:message key="label.assessment.ale" /></th>
-								<th style="width: 2.6%" title='<fmt:message key="label.title.aleo" />'><fmt:message key="label.assessment.aleo" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.uncertainty" />'><spring:message code="label.assessment.uncertainty" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.alep" />'><spring:message code="label.assessment.alep" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.ale" />'><spring:message code="label.assessment.ale" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.aleo" />'><spring:message code="label.assessment.aleo" /></th>
 							</c:when>
 							<c:otherwise>
-								<th style="width: 2.6%" title='<fmt:message key="label.title.ale" />'><fmt:message key="label.assessment.ale" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.ale" />'><spring:message code="label.assessment.ale" /></th>
 							</c:otherwise>
 						</c:choose>
 						<th width="2%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-						<th style="width: 30%" title='<fmt:message key="label.assessment.comment" />'><fmt:message key="label.assessment.comment" /></th>
-						<th style="width: 30%" title='<fmt:message key="label.assessment.hidden_comment" />'><fmt:message key="label.assessment.hidden_comment" /></th>
+						<th style="width: 30%" title='<spring:message code="label.assessment.comment" />'><spring:message code="label.assessment.comment" /></th>
+						<th style="width: 30%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -53,7 +54,7 @@
 						<spring:eval expression="T(lu.itrust.business.TS.model.cssf.RiskProfile).key(assessment.asset,assessment.scenario)" var="riskProfileKey" />
 						<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 							<td style="height: 32px;"><spring:message text="${assessment.asset.name}" /></td>
-							<fmt:setLocale value="fr" scope="session" />
+							
 							<td title="<fmt:formatNumber value="${assessment.asset.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.asset.value*0.001,0)}" /></td>
 							<c:if test="${show_cssf}">
 								<c:choose>
@@ -132,7 +133,7 @@
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.likelihood)}">
 									<td
-										title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.likelihood),2)}" maxFractionDigits="2" /><fmt:message key="label.assessment.likelihood.unit" />'><spring:message
+										title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.likelihood),2)}" maxFractionDigits="2" /><spring:message code="label.assessment.likelihood.unit" />'><spring:message
 											text="${assessment.likelihood}" /></td>
 								</c:when>
 								<c:otherwise>
@@ -156,40 +157,35 @@
 							<c:if test="${show_uncertainty}">
 								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
 							</c:if>
-							<fmt:setLocale value="${language}" scope="session" />
 							<td><spring:message text="${riskProfiles[riskProfileKey].owner}" /></td>
 							<td><pre><spring:message text="${assessment.comment}" /></pre></td>
 							<td><pre><spring:message text="${assessment.hiddenComment}" /></pre></td>
 						</tr>
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">
-						<fmt:setLocale value="${language}" scope="session" />
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<c:choose>
 									<c:when test="${show_cssf}">
-										<td colspan="8"><fmt:message key="label.total.ale" /></td>
+										<td colspan="8"><spring:message code="label.total.ale" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="5"><fmt:message key="label.total.ale" /></td>
+										<td colspan="5"><spring:message code="label.total.ale" /></td>
 									</c:otherwise>
 								</c:choose>
-								<fmt:setLocale value="fr" scope="session" />
 								<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,1)}" /></td>
 								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
 								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,1)}" /></td>
-								<fmt:setLocale value="${language}" scope="session" />
 							</c:when>
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${show_cssf}">
-										<td colspan="7"><fmt:message key="label.total.ale" /></td>
+										<td colspan="7"><spring:message code="label.total.ale" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="4"><fmt:message key="label.total.ale" /></td>
+										<td colspan="4"><spring:message code="label.total.ale" /></td>
 									</c:otherwise>
 								</c:choose>
-								<fmt:setLocale value="fr" scope="session" />
 								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
 							</c:otherwise>
 						</c:choose>
