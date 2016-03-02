@@ -9,7 +9,7 @@
 <fmt:setLocale value="fr" scope="session" />
 <c:choose>
 	<c:when test="${not empty assessments}">
-		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-id='-1' data-trick-content='asset'>
+		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-asset-id='-1' data-trick-scenario-id='-1' data-trick-content='scenario'>
 			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${scenario.name}' />
@@ -196,7 +196,7 @@
 		</div>
 	</c:when>
 	<c:when test="${not empty assessment}">
-		<div id="estimation-ui" class='col-lg-10' data-trick-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='asset'>
+		<div id="estimation-ui" class='col-lg-10' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='scenario'>
 			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${asset.name}' />
@@ -216,7 +216,7 @@
 		</div>
 	</c:when>
 	<c:otherwise>
-		<div id="estimation-ui" class='col-lg-10' data-trick-id='-2' data-trick-content='asset'></div>
+		<div id="estimation-ui" class='col-lg-10' ${scenario.id} data-trick-content='scenario'></div>
 	</c:otherwise>
 </c:choose>
 

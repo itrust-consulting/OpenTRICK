@@ -443,6 +443,10 @@ ul#task-manager>li>li {
 	overflow: auto;
 }
 
+datalist {
+    display: none;
+} 
+
 @media ( min-width : 1200px) {
 	.max-height {
 		height: 100%;

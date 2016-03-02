@@ -55,10 +55,11 @@
 				</td>
 				<td>
 					<div class="input-group" align="right">
-						<span class="input-group-addon">${probaUnit}</span> <select class="form-control">
+						<spring:message text="${assessment.likelihood}" var="likelihood"/>
+						<span class="input-group-addon">${probaUnit}</span> <select class="form-control" data-trick-value='${likelihood}' data-trick-type='string'>
 							<option value="0 ${probaUnit}"><spring:message code="label.na" text="NA" /></option>
 							<c:forEach items="${probabilities}" var="parameter">
-								<option value="${parameter.id}" title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" /> ${probaUnit}"><spring:message text="${parameter.acronym}" /></option>
+								<option value="${parameter.acronym}" ${assessment.likelihood == parameter.acronym? "selected='selected'" : ""} title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" /> ${probaUnit}"></option>
 							</c:forEach>
 						</select>
 					</div>
@@ -67,7 +68,7 @@
 				<c:choose>
 					<c:when test="${show_uncertainty}">
 						<td><input name="uncertainty" class="form-control numeric" value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />'></td>
-						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}"></td>
+						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
@@ -83,12 +84,12 @@
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
-									value='<fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" />'>
+									value='<fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" />' >
 							</div>
 						</td>
 					</c:when>
 					<c:otherwise>
-						<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}"></td>
+						<td><input name="riskProfile.owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"

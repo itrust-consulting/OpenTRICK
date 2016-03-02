@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.FieldEditor;
@@ -601,6 +602,38 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
 
+	}
+
+	/**
+	 * assessment: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param session
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Estimation/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and @permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String estimation(@RequestBody FieldEditor fieldEditor, @RequestParam("asset") int idAsset, @RequestParam("scenario") int idScenario, HttpSession session,
+			Locale locale, Principal principal) throws Exception {
+		if(fieldEditor.getFieldName().startsWith("riskProfile."))
+			return updateRiskProfile(fieldEditor, idAsset, idScenario, session, principal ,locale );
+		else return updateAssessment(fieldEditor, idAsset, idScenario, session, principal ,locale );
+		
+	}
+
+	private String updateRiskProfile(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Principal principal, Locale locale) {
+		
+		
+		
+		return null;
+	}
+
+	private String updateAssessment(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Principal principal, Locale locale) {
+		System.out.println("Update Assessment");
+		return null;
 	}
 
 	/**

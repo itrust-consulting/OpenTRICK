@@ -9,7 +9,7 @@
 <fmt:setLocale value="fr" scope="session" />
 <c:choose>
 	<c:when test="${not empty assessments}">
-		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-id='-1' data-trick-content='asset'>
+		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='-1' data-trick-content='asset'>
 			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${asset.name}' />
@@ -188,7 +188,7 @@
 		</div>
 	</c:when>
 	<c:when test="${not empty assessment}">
-		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-id='${scenario.id}' data-trick-content='asset'>
+		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' data-trick-content='asset'>
 			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${scenario.name}' />
@@ -208,6 +208,6 @@
 		</div>
 	</c:when>
 	<c:otherwise>
-		<div id="estimation-ui" class='col-lg-10' data-trick-id='-2' data-trick-content='asset'></div>
+		<div id="estimation-ui" class='col-lg-10' data-trick-asset-id='-2' data-trick-scenario-id='-2' data-trick-content='asset'></div>
 	</c:otherwise>
 </c:choose>

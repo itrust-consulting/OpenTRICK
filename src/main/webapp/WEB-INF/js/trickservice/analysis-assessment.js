@@ -1,4 +1,4 @@
-var activeSelector = undefined;
+var activeSelector = undefined, helper = undefined;
 
 function escape(key, val) {
 	if (typeof (val) != "string")
@@ -25,17 +25,18 @@ function defaultValueByType(value, type) {
 	return escape(undefined, value);
 }
 
-function saveMeasureData(e) {
-	var $target = $(e.currentTarget), value = $target.val(), id = $("#measure-ui").attr('data-trick-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target
-			.hasAttr("placeholder") ? $target.attr("placeholder") : $target.attr("data-trick-value");
+function saveAssessmentData(e) {
+	var $assessmentUI = $("#estimation-ui"), $target = $(e.currentTarget), value = $target.val(), idScenario = $assessmentUI.attr('data-trick-scenario-id'), idAsset = $assessmentUI
+			.attr('data-trick-asset-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target.hasAttr("placeholder") ? $target
+			.attr("placeholder") : $target.attr("data-trick-value");
 	if (value == oldValue)
 		$target.parent().removeClass('has-error');
 	else {
 		$.ajax({
-			url : context + "/Analysis/EditField/Measure/" + id + "/Update",
+			url : context + "/Analysis/EditField/Estimation/Update?asset=" + idAsset + "&scenario=" + idScenario,
 			async : false,
 			type : "post",
-			data : '{"id":' + id + ', "fieldName":"' + name + '", "value":"' + defaultValueByType(value, type) + '", "type": "' + type + '"}',
+			data : '{"id":' + idAsset + ', "fieldName":"' + name + '", "value":"' + defaultValueByType(value, type) + '", "type": "' + type + '"}',
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response.message == undefined)
@@ -99,16 +100,9 @@ function loadAssessmentData(id) {
 			if ($assessmentUI.length) {
 				// backupDescriptionHeight();
 				$currentUI.replaceWith($assessmentUI);
-
 				// restoreDescriptionHeight();
-				/*
-				 * $("select", $assessmentUI).on("change", saveMeasureData);
-				 * $("input[name!='cost'],textarea", $assessmentUI).on("blur",
-				 * saveMeasureData); $("input[type='number']",
-				 * $assessmentUI).on("change", function(e) { var $target =
-				 * $(e.currentTarget); if (!$target.is(":focus"))
-				 * $target.focus(); return this; });
-				 */
+				$("select", $assessmentUI).on("change", saveAssessmentData);
+				$("textarea,input:not([disable])", $assessmentUI).on("blur", saveAssessmentData);
 			} else
 				unknowError();
 		},
@@ -283,7 +277,9 @@ $(function() {
 		scrollStartFixMulti : 1.02
 	};
 
-	var helper = new AssessmentHelder(), $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
+	helper = new AssessmentHelder();
+
+	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
 	$previousSelector.on("click", function() {
 		$("select[name='" + activeSelector + "']>option:selected").prev("[value!='-1']:last").prop('selected', true).parent().change();
 		return false;
@@ -320,10 +316,10 @@ $(function() {
 	};
 
 	$("div.list-group>.list-group-item").on("click", changeAssessment);
-	
+
 	for ( var i in helper.names)
 		helper.getCurrent(helper.names[i]).on('change', updateSelector)
-	
+
 	updateNavigation();
 	updateAssessmentUI();
 });

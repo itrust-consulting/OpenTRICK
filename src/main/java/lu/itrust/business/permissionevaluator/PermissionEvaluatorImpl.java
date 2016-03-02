@@ -102,7 +102,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
 		try {
-
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
@@ -140,7 +139,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				break;
 			}
 			case "Asset": {
-
 				if (!serviceAsset.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
@@ -228,7 +226,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
-
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
@@ -249,14 +246,12 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Override
 	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal, AnalysisRight right) {
-		Integer analysisId = isAuthorised(session, principal, right);
-		return analysisId != null && userIsAuthorized(analysisId, elementId, className, principal, right);
+		return userIsAuthorized(isAuthorised(session, principal, right), elementId, className, principal, right);
 	}
 
 	@Override
 	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
-		Integer analysisId = isAuthorised(session, principal, right);
-		return analysisId != null && userIsAuthorized(analysisId, principal, right);
+		return userIsAuthorized(isAuthorised(session, principal, right), principal, right);
 	}
 
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
@@ -264,7 +259,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		if (analysisId == null || principal == null || right == null)
 			return null;
-		if (open == OpenMode.READ && right != AnalysisRight.READ)
+		if (OpenMode.isReadOnly(open) && right != AnalysisRight.READ)
 			return null;
 		return analysisId;
 	}
