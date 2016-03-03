@@ -60,7 +60,7 @@ public class RiskProfile {
 	private String actionPlan;
 
 	@Embedded
-	@AssociationOverrides({ @AssociationOverride(name = "probabitity", joinColumns = @JoinColumn(name = "fiRawProbabitity") ),
+	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability") ),
 			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiRawImpactRep") ),
 			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiRawImpactOp") ),
 			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiRawImpactLeg") ),
@@ -68,7 +68,7 @@ public class RiskProfile {
 	private RiskProbaImpact rawProbaImpact;
 
 	@Embedded
-	@AssociationOverrides({ @AssociationOverride(name = "probabitity", joinColumns = @JoinColumn(name = "fiExpProbabitity") ),
+	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability") ),
 			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiExpImpactRep") ),
 			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiExpImpactOp") ),
 			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiExpImpactLeg") ),

@@ -1,4 +1,4 @@
-var activeSelector = undefined, helper = undefined;
+var activeSelector = undefined, helper = undefined, $probaScale, $impactScale;
 
 function escape(key, val) {
 	if (typeof (val) != "string")
@@ -51,30 +51,27 @@ function saveAssessmentData(e) {
 						$parent.removeAttr("title");
 						$parent.removeClass("has-error");
 						$parent.addClass("has-success");
-						if (response.empty) {
-							$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", value);
-						} else {
-							for (var i = 0; i < response.fields.length; i++) {
-								var field = response.fields[i], $element = name == field.name ? $target : $("#measure-ui [name='" + field.name + "'].form-control");
-								for ( var fieldName in field) {
-									switch (fieldName) {
-									case "value":
-										$element.attr("placeholder", field[fieldName]);
-										$element.val(field[fieldName]);
-										break;
-									case "title":
-										$element.attr(fieldName, field[fieldName]);
-										break;
-									}
+						var updated = false;
+						for (var i = 0; i < response.fields.length; i++) {
+							var field = response.fields[i], $element = $target;
+							if (name != field.name)
+								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
+							else
+								updated = true;
+							for ( var fieldName in field) {
+								switch (fieldName) {
+								case "value":
+									$element.attr("placeholder", field[fieldName]);
+									$element.val(field[fieldName]);
+									break;
+								case "title":
+									$element.attr(fieldName, field[fieldName]);
+									break;
 								}
 							}
 						}
-						var status = name == 'status' ? value : $("#measure-ui select[name='status']").val(), $cost = $("#measure-ui input[name='cost']"), cost = $cost
-								.attr("title");
-						if (status != "NA" && cost == "0€")
-							$cost.parent().addClass("has-error");
-						else
-							$cost.parent().removeClass("has-error");
+						if (!updated)
+							$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", value);
 					}
 				}
 			},
@@ -85,24 +82,41 @@ function saveAssessmentData(e) {
 }
 
 function loadAssessmentData(id) {
-	var $currentUI = $("#estimation-ui"), idCurrent = $("select[name='" + activeSelector + "']").val();
-	/*
-	 * if ($currentUI.attr("data-trick-id") == id &&
-	 * $currentUI.attr("data-trick-content") == activeSelector) return false;
-	 */
-	var url = (activeSelector == "asset" ? context + "/Analysis/Assessment/Asset/" + idCurrent + "/Load?idScenario=" : context + "/Analysis/Assessment/Scenario/" + idCurrent
-			+ "/Load?idAsset=");
+	var $currentUI = $("#estimation-ui"), idAsset = -3, idScenario = -3, url = context + "/Analysis/Assessment/";
+	if (activeSelector == "asset") {
+		idAsset = $("select[name='asset']").val();
+		url += "Asset/" + idAsset + "/Load?idScenario=" + (idScenario = id);
+	} else {
+		idScenario = $("select[name='scenario']").val();
+		url += "Scenario/" + idScenario + "/Load?idAsset=" + (idAsset = id);
+	}
+
+	if ($currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario && $currentUI.attr("data-trick-content") == activeSelector)
+		return false;
+
 	$.ajax({
-		url : url + id,
+		url : url,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var $assessmentUI = $("div#estimation-ui", new DOMParser().parseFromString(response, "text/html"));
 			if ($assessmentUI.length) {
-				// backupDescriptionHeight();
+				backupDescriptionHeight();
 				$currentUI.replaceWith($assessmentUI);
-				// restoreDescriptionHeight();
+				restoreDescriptionHeight();
 				$("select", $assessmentUI).on("change", saveAssessmentData);
 				$("textarea,input:not([disable])", $assessmentUI).on("blur", saveAssessmentData);
+				$("button[name='probaScale']", $assessmentUI).click(function() {
+					if ($probaScale == undefined)
+						$probaScale = $("#probaScale");
+					$probaScale.modal("show");
+				});
+
+				$("button[name='impactScale']", $assessmentUI).click(function() {
+					if ($impactScale == undefined)
+						$impactScale = $("#impactScale");
+					$impactScale.modal("show");
+				});
+
 			} else
 				unknowError();
 		},
@@ -116,13 +130,13 @@ function loadAssessmentData(id) {
 function backupDescriptionHeight() {
 	var $description = $("#description");
 	if ($description.length) {
-		var height = $description.outerHeight(), defaultHeight = application["measure-description-default-size"];
+		var height = $description.outerHeight(), defaultHeight = application["estimation-description-default-size"];
 		if (defaultHeight != undefined && Math.abs(height - defaultHeight) > 8) {
-			application["measure-description-size-prev"] = application["measure-description-size"];
-			application["measure-description-size"] = $description.outerHeight();
-		} else if (application["measure-description-size"] && application["measure-description-size"] != height && application["measure-description-size-prev"] != height) {
-			delete application["measure-description-size"];
-			delete application["measure-description-size-prev"]
+			application["estimation-description-size-prev"] = application["estimation-description-size"];
+			application["estimation-description-size"] = $description.outerHeight();
+		} else if (application["estimation-description-size"] && application["estimation-description-size"] != height && application["estimation-description-size-prev"] != height) {
+			delete application["estimation-description-size"];
+			delete application["estimation-description-size-prev"]
 		}
 	}
 	return false;
@@ -131,8 +145,8 @@ function backupDescriptionHeight() {
 function restoreDescriptionHeight() {
 	var $description = $("#description");
 	if ($description.length) {
-		application["measure-description-default-size"] = $description.outerHeight();
-		var height = application["measure-description-size"];
+		application["estimation-description-default-size"] = $description.outerHeight();
+		var height = application["estimation-description-size"];
 		if (height != undefined) {
 			$("#description").css({
 				"height" : height
@@ -145,7 +159,7 @@ function restoreDescriptionHeight() {
 function updateScroll(element) {
 	var currentActive = document.activeElement;
 	if (element != currentActive) {
-		element.focus();// update scroll
+		element.focus();// / / update scroll
 		currentActive.focus();
 	}
 	return false;

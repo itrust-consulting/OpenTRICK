@@ -298,4 +298,12 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 						"From Assessment  where scenario = :scenario and asset = :asset")
 				.setParameter("asset", asset).setParameter("scenario", scenario).uniqueResult();
 	}
+
+	@Override
+	public Assessment getByAssetAndScenario(int idAsset, int idScenario) {
+		return (Assessment) getSession()
+		.createQuery(
+				"From Assessment  where scenario.id = :idScenario and asset.id = :idAsset")
+		.setInteger("idAsset", idAsset).setInteger("idScenario", idScenario).uniqueResult();
+	}
 }

@@ -93,6 +93,7 @@ import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -252,6 +253,10 @@ public class ControllerAnalysis {
 			case READ_ESTIMATION:
 				model.addAttribute("assets", analysis.findSelectedAssets());
 				model.addAttribute("scenarios", analysis.findSelectedScenarios());
+				List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
+				analysis.groupExtended(probabilities, impacts);
+				model.addAttribute("impacts", impacts);
+				model.addAttribute("probabilities", probabilities);
 				break;
 			}
 			model.addAttribute("analysis", analysis);

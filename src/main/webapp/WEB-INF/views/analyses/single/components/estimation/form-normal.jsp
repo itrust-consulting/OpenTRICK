@@ -43,23 +43,27 @@
 							<fmt:formatNumber value="${fct:round(assessment.impactFin*0.001,2)}" var="impactFin" />
 						</c:catch>
 						<c:if test="${empty impactFin}">
-							<spring:message text="${assessment.impactFin}" var="impactFin"/>
+							<spring:message text="${assessment.impactFin}" var="impactFin" />
 						</c:if>
-						<span class="input-group-addon">k&euro;</span> <input name="impactFin" class="form-control" value="${impactFin}" list="impactList" placeholder="${impactFin}">
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name="impactScale">k&euro;</button></span> <input name="impactFin"
+							class="form-control" value="${impactFin}" list="impactList" placeholder="${impactFin}" data-trick-type='string'>
 						<datalist id="impactList">
 							<c:forEach items="${impacts}" var="parameter">
-								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message text="${parameter.acronym}" /></option>
+								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message
+										text="${parameter.acronym}" /></option>
 							</c:forEach>
 						</datalist>
 					</div>
 				</td>
 				<td>
 					<div class="input-group" align="right">
-						<spring:message text="${assessment.likelihood}" var="likelihood"/>
-						<span class="input-group-addon">${probaUnit}</span> <select class="form-control" data-trick-value='${likelihood}' data-trick-type='string'>
-							<option value="0 ${probaUnit}"><spring:message code="label.na" text="NA" /></option>
+						<spring:message text="${assessment.likelihood}" var="likelihood" />
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name="probaScale">${probaUnit}</button></span>
+						<select class="form-control" name="likelihood" data-trick-type='string' data-trick-value='${likelihood}'>
+							<option value="NA" title='0 ${probaUnit}'><spring:message code="label.na" text="NA" /></option>
 							<c:forEach items="${probabilities}" var="parameter">
-								<option value="${parameter.acronym}" ${assessment.likelihood == parameter.acronym? "selected='selected'" : ""} title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" /> ${probaUnit}"></option>
+								<option value="${parameter.acronym}" ${likelihood == parameter.acronym? "selected='selected'" : ""}
+									title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" />${probaUnit}">${parameter.acronym}</option>
 							</c:forEach>
 						</select>
 					</div>
@@ -67,8 +71,9 @@
 				<spring:message text="${empty riskProfile? '' : riskProfile.owner}" var="owner" />
 				<c:choose>
 					<c:when test="${show_uncertainty}">
-						<td><input name="uncertainty" class="form-control numeric" value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />'></td>
-						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
+						<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty"/>
+						<td><input name="uncertainty" class="form-control numeric" data-trick-type='double' value='${uncertainty}' placeholder="${uncertainty}"></td>
+						<td style="border-right: 2px solid #ddd;"><input name="riskProfile.owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
@@ -84,7 +89,7 @@
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
-									value='<fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" />' >
+									value='<fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" />'>
 							</div>
 						</td>
 					</c:when>
@@ -112,5 +117,5 @@
 	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 	<label class='label-control'>${hiddenComment}</label>
-	<textarea rows="${rowLength}" class="form-control" name="comment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
+	<textarea rows="${rowLength}" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
 </div>

@@ -58,4 +58,6 @@ public interface ServiceAssessment {
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis);
 
 	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario);
+
+	public Assessment getByAssetAndScenario(int idAsset, int idScenario);
 }

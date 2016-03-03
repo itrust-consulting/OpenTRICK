@@ -20,7 +20,7 @@ public class RiskProbaImpact {
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private ExtendedParameter probabitity;
+	private ExtendedParameter probability;
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
@@ -39,18 +39,18 @@ public class RiskProbaImpact {
 	private ExtendedParameter impactFin;
 
 	/**
-	 * @return the probabitity
+	 * @return the probability
 	 */
-	public ExtendedParameter getProbabitity() {
-		return probabitity;
+	public ExtendedParameter getProbability() {
+		return probability;
 	}
 
 	/**
-	 * @param probabitity
-	 *            the probabitity to set
+	 * @param probability
+	 *            the probability to set
 	 */
-	public void setProbabitity(ExtendedParameter probabitity) {
-		this.probabitity = probabitity;
+	public void setProbability(ExtendedParameter probabitity) {
+		this.probability = probabitity;
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class RiskProbaImpact {
 	}
 
 	public int getImportance() {
-		return getMaxImpact() * (probabitity == null ? 0 : probabitity.getLevel());
+		return getMaxImpact() * (probability == null ? 0 : probability.getLevel());
 	}
 
 	private int getMaxImpact() {

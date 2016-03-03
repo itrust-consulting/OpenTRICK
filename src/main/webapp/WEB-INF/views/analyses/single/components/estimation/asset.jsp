@@ -208,6 +208,6 @@
 		</div>
 	</c:when>
 	<c:otherwise>
-		<div id="estimation-ui" class='col-lg-10' data-trick-asset-id='-2' data-trick-scenario-id='-2' data-trick-content='asset'></div>
+		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-asset-id='-2' data-trick-scenario-id='-2' data-trick-content='asset'></div>
 	</c:otherwise>
 </c:choose>

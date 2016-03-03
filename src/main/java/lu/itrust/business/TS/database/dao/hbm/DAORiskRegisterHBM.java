@@ -113,14 +113,10 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 		getSession().delete(riskRegisterItem);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
-		String query = "SELECT riskregisters FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregisters WHERE analysis.id= :analysisID";
-		List<RiskRegisterItem> riskregister = (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
-		for(RiskRegisterItem riskItem : riskregister)
+		for(RiskRegisterItem riskItem : getAllFromAnalysis(analysisID))
 			getSession().delete(riskItem);
-		
 	}
 
 	@Override

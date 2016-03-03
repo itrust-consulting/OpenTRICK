@@ -340,4 +340,9 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario) {
 		return daoAssessment.getByAssetAndScenario(asset, scenario);
 	}
+
+	@Override
+	public Assessment getByAssetAndScenario(int idAsset, int idScenario) {
+		return daoAssessment.getByAssetAndScenario(idAsset, idScenario);
+	}
 }

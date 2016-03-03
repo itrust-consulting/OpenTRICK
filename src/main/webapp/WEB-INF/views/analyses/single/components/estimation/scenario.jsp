@@ -196,7 +196,7 @@
 		</div>
 	</c:when>
 	<c:when test="${not empty assessment}">
-		<div id="estimation-ui" class='col-lg-10' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='scenario'>
+		<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='${scenario.id}' style="padding-bottom: ${show_cssf? '28': '18'}px;" data-trick-content='scenario'>
 			<fieldset style="display: block; width: 100%; clear: left;">
 				<legend>
 					<spring:message text='${asset.name}' />
@@ -216,7 +216,7 @@
 		</div>
 	</c:when>
 	<c:otherwise>
-		<div id="estimation-ui" class='col-lg-10' ${scenario.id} data-trick-content='scenario'></div>
+		<div id="estimation-ui" class='col-lg-10 trick-ui' ${scenario.id} data-trick-content='scenario'></div>
 	</c:otherwise>
 </c:choose>
 
