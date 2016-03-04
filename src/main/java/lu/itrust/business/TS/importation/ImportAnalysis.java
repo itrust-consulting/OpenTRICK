@@ -43,7 +43,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
@@ -52,6 +51,7 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.history.helper.ComparatorHistoryVersion;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
@@ -306,7 +306,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", null, 90));
 
-			AssessmentManager asm = new AssessmentManager();
+			AssessmentAndRiskProfileManager asm = new AssessmentAndRiskProfileManager();
 
 			System.out.println("Saving Analysis Data...");
 

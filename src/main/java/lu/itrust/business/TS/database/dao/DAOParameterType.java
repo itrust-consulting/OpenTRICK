@@ -13,15 +13,15 @@ import lu.itrust.business.TS.model.parameter.ParameterType;
  * @since 16 janv. 2013
  */
 public interface DAOParameterType {
-	public ParameterType get(Integer id) throws Exception;
+	public ParameterType get(Integer id) ;
 
-	public ParameterType getByName(String parameterTypeName) throws Exception;
+	public ParameterType getByName(String parameterTypeName) ;
 
-	public List<ParameterType> getAll() throws Exception;
+	public List<ParameterType> getAll() ;
 
-	public void save(ParameterType parameterType) throws Exception;
+	public void save(ParameterType parameterType) ;
 
-	public void saveOrUpdate(ParameterType parameterType) throws Exception;
+	public void saveOrUpdate(ParameterType parameterType) ;
 
-	public void delete(ParameterType parameterType) throws Exception;
+	public void delete(ParameterType parameterType) ;
 }

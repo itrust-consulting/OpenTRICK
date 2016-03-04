@@ -42,7 +42,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#get(int)
 	 */
 	@Override
-	public Phase get(Integer id) throws Exception {
+	public Phase get(Integer id)  {
 		return (Phase) getSession().get(Phase.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#getPhaseFromAnalysisByPhaseNumber(int, int)
 	 */
 	@Override
-	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception {
+	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number)  {
 		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.number = :phaseNumber";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", IdAnalysis).setParameter("phaseNumber", number).uniqueResult();
 	}
@@ -65,7 +65,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#getPhaseFromAnalysisIdByPhaseId(int, java.lang.Integer)
 	 */
 	@Override
-	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception {
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase)  {
 		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.id = :idPhase";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idPhase", idPhase).uniqueResult();
 	}
@@ -77,7 +77,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#canBeDeleted(int)
 	 */
 	@Override
-	public boolean canBeDeleted(Integer idPhase) throws Exception {
+	public boolean canBeDeleted(Integer idPhase)  {
 		String query = "Select count(measure) from Measure as measure where measure.phase.id = :idPhase";
 		return ((Long) getSession().createQuery(query).setParameter("idPhase", idPhase).uniqueResult()).intValue() == 0;
 	}
@@ -89,7 +89,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#belongsToAnalysis(java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId)  {
 		String query = "Select count(phase) From Analysis as analysis inner join analysis.phases as phase where analysis.id = :analysisid and phase.id = :phaseId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("phaseId", phaseId).uniqueResult()).intValue() > 0;
 	}
@@ -102,7 +102,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAll() throws Exception {
+	public List<Phase> getAll()  {
 		return getSession().createQuery("from Phase phase order by phase.number asc, phase.beginDate asc").list();
 	}
 
@@ -114,7 +114,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Phase> getAllFromAnalysis(Integer idAnalysis)  {
 		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis order by phase.number asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
@@ -127,7 +127,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception {
+	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate)  {
 		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.beginDate = :beginDate order by phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("beginDate", beginDate).list();
 	}
@@ -140,7 +140,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date endDate) throws Exception {
+	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date endDate)  {
 		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.endDate = :endDate order by phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("endDate", endDate).list();
 	}
@@ -151,11 +151,11 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllFromAnalysisActionPlan(Integer idAnalysis) throws Exception {
+	public List<Phase> getAllFromAnalysisActionPlan(Integer idAnalysis)  {
 		String query =
 			"Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.number in (Select DISTINCT actionplan.measure.phase.number From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis)  order by phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
@@ -168,7 +168,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#save(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Override
-	public void save(Phase phase) throws Exception {
+	public void save(Phase phase)  {
 		getSession().save(phase);
 	}
 
@@ -179,7 +179,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#saveOrUpdate(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Override
-	public void saveOrUpdate(Phase phase) throws Exception {
+	public void saveOrUpdate(Phase phase)  {
 		getSession().saveOrUpdate(phase);
 	}
 
@@ -190,7 +190,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.TS.database.dao.DAOPhase#delete(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Override
-	public void delete(Phase phase) throws Exception {
+	public void delete(Phase phase)  {
 		getSession().delete(phase);
 	}
 }

@@ -2512,6 +2512,11 @@ public class Analysis implements Cloneable {
 		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
 				.collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
 	}
+	
+	public Map<String, ExtendedParameter> mapExtendedParameterByAcronym() {
+		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
+				.collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
+	}
 
 	/**
 	 * Retrieve extended parameters: Impact and Probabilities
@@ -2543,4 +2548,35 @@ public class Analysis implements Cloneable {
 	public RiskRegisterItem findRiskRegisterByAssetAndScenario(int idAsset, int idScenario) {
 		return riskRegisters.stream().filter(riskRegister -> riskRegister.is(idAsset, idScenario)).findAny().orElse(null);
 	}
+
+	public List<RiskProfile> removeRiskProfile(Asset asset) {
+		List<RiskProfile> profiles = new LinkedList<RiskProfile>();
+		riskProfiles.removeIf(riskProfile -> riskProfile.getAsset().equals(asset) && profiles.add(riskProfile));
+		return profiles;
+	}
+
+	public List<RiskProfile> removeRiskProfile(Scenario scenario) {
+		List<RiskProfile> profiles = new LinkedList<RiskProfile>();
+		riskProfiles.removeIf(riskProfile -> riskProfile.getScenario().equals(scenario) && profiles.add(riskProfile));
+		return profiles;
+	}
+
+	public List<RiskProfile> findRiskProfileByAsset(Asset asset) {
+		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().equals(asset)).collect(Collectors.toList());
+	}
+
+	public boolean hasRiskProfile(Asset asset) {
+		return riskProfiles.stream().anyMatch(riskRegister -> riskRegister.getAsset().equals(asset));
+	}
+
+	public boolean hasRiskProfile(Scenario scenario) {
+		return riskProfiles.stream().anyMatch(riskRegister -> riskRegister.getScenario().equals(scenario));
+	}
+
+	public Map<Integer, RiskProfile> findRiskProfileByAssetId(int idAsset) {
+		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().getId() == idAsset)
+				.collect(Collectors.toMap(riskRegister -> riskRegister.getScenario().getId(), Function.identity()));
+	}
+
+	
 }

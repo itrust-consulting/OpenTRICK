@@ -13,13 +13,13 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
  * @since Jan 16, 2013
  */
 public interface ServiceMeasureAssetValue {
-	public MeasureAssetValue get(Integer id) throws Exception;
+	public MeasureAssetValue get(Integer id) ;
 
-	public void save(MeasureAssetValue measureAssetValue) throws Exception;
+	public void save(MeasureAssetValue measureAssetValue) ;
 
-	public void saveOrUpdate(MeasureAssetValue measureAssetValue) throws Exception;
+	public void saveOrUpdate(MeasureAssetValue measureAssetValue) ;
 
-	public void delete(MeasureAssetValue measureAssetValue) throws Exception;
+	public void delete(MeasureAssetValue measureAssetValue) ;
 
 	public List<MeasureAssetValue> getByAssetId(int idAsset);
 

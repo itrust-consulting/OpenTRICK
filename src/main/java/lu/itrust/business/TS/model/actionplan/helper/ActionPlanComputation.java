@@ -33,9 +33,9 @@ import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryStandardHelp
 import lu.itrust.business.TS.model.actionplan.summary.helper.SummaryValues;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -257,7 +257,7 @@ public class ActionPlanComputation {
 
 		try {
 
-			AssessmentManager asm = new AssessmentManager();
+			AssessmentAndRiskProfileManager asm = new AssessmentAndRiskProfileManager();
 
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 

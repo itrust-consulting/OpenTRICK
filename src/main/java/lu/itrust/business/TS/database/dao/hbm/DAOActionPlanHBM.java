@@ -46,7 +46,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#get(int)
 	 */
 	@Override
-	public ActionPlanEntry get(Integer id) throws Exception {
+	public ActionPlanEntry get(Integer id)  {
 		return (ActionPlanEntry) getSession().get(ActionPlanEntry.class, id);
 	}
 
@@ -57,10 +57,10 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @param idAnalysis
 	 * @param idActionPlanEntry
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@Override
-	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer idActionPlanEntry) throws Exception {
+	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer idActionPlanEntry){
 		String query = "Select actionplanentry From Analysis as analysis inner join analysis.actionPlans as actionplanentry where analysis.id = :idAnalysis and actionplanentry.id = :idActionPlanEntry";
 		return (ActionPlanEntry) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idActionPlanEntry", idActionPlanEntry).uniqueResult();
 	}
@@ -72,7 +72,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId,Integer actionPlanEntryId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId,Integer actionPlanEntryId) {
 		String query = "Select count(actionPlanEntry) From Analysis as analysis inner join analysis.actionPlans as actionPlanEntry where analysis.id = :analysisId and actionPlanEntry.id = :actionPlanEntryId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanEntryId", actionPlanEntryId).uniqueResult()).intValue() > 0;
 	}
@@ -85,7 +85,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> getAll() throws Exception {
+	public List<ActionPlanEntry> getAll() {
 		return (List<ActionPlanEntry>) getSession().createQuery("From actionplans").list();
 	}
 
@@ -97,7 +97,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) throws Exception {
+	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) {
 		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.actionPlanType.name ASC, actionplan.position ASC, actionplan.totalALE DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", id).list();
 	}
@@ -111,7 +111,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) throws Exception {
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode)  {
 		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplan where analysis.id = :analysisID and actionplan.actionPlanType.name = :mode ORDER BY actionplan.position ASC, actionplan.totalALE DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("mode", mode).setParameter("analysisID", analysisID).list();
 	}
@@ -124,7 +124,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception {
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode){
 		return analysis.getActionPlan(mode);
 	}
 
@@ -138,7 +138,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> getAllFromAsset(Asset asset) throws Exception {
+	public List<ActionPlanEntry> getAllFromAsset(Asset asset) {
 		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans INNER JOIN actionplans.actionPlanAssets As actionPlanAssets where actionPlanAssets.asset = :asset";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("asset", asset).list();
 	}
@@ -152,7 +152,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer id, ActionPlanMode apm) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer id, ActionPlanMode apm)  {
 		String query = "Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm";
 		return (List<Measure>) getSession().createQuery(query).setParameter("analysisID", id).setParameter("apm", apm).list();
 	}
@@ -166,7 +166,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm) {
 		String query = "Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm and actionplan.ROI <= 0.0";
 		return (List<Measure>) getSession().createQuery(query).setParameter("analysisID", id).setParameter("apm", apm).list();
 	}
@@ -179,7 +179,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID) throws Exception {
+	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID) {
 		String query = "SELECT DISTINCT apa.asset FROM Analysis a INNER JOIN ActionPlanAsset apa WHERE a.id= :analysisID";
 		return (List<Asset>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
 	}
@@ -191,7 +191,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#save(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Override
-	public void save(ActionPlanEntry actionPlanEntry) throws Exception {
+	public void save(ActionPlanEntry actionPlanEntry) {
 		getSession().save(actionPlanEntry);
 	}
 
@@ -202,7 +202,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#saveOrUpdate(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Override
-	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) throws Exception {
+	public void saveOrUpdate(ActionPlanEntry actionPlanEntry)  {
 		getSession().saveOrUpdate(actionPlanEntry);
 	}
 
@@ -213,7 +213,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#delete(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Override
-	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
+	public void delete(ActionPlanEntry actionPlanEntry) {
 		getSession().delete(actionPlanEntry);
 	}
 
@@ -227,7 +227,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+	public void deleteAllFromAnalysis(Integer analysisID) {
 		String query = "Select actionplans FROM Analysis analysis INNER JOIN analysis.actionPlans actionplans WHERE analysis.id= :analysisID";
 		 
 		List<ActionPlanEntry> actionplans = (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();

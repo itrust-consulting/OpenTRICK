@@ -13,31 +13,31 @@ import lu.itrust.business.TS.model.general.Language;
  * @since 16 janv. 2013
  */
 public interface DAOLanguage {
-	public Language get(Integer id) throws Exception;
+	public Language get(Integer id) ;
 
-	public boolean existsByAlpha3(String alpha3) throws Exception;
+	public boolean existsByAlpha3(String alpha3) ;
 
-	public boolean existsByName(String name) throws Exception;
+	public boolean existsByName(String name) ;
 
-	public boolean existsByAltName(String altName) throws Exception;
+	public boolean existsByAltName(String altName) ;
 
-	public Language getFromAnalysis(Integer idAnalysis) throws Exception;
+	public Language getFromAnalysis(Integer idAnalysis) ;
 
-	public Language getByAlpha3(String alpha3) throws Exception;
+	public Language getByAlpha3(String alpha3) ;
 
-	public Language getByName(String name) throws Exception;
+	public Language getByName(String name) ;
 
-	public Language getByAltName(String alternativeName) throws Exception;
+	public Language getByAltName(String alternativeName) ;
 
-	public List<Language> getAll() throws Exception;
+	public List<Language> getAll() ;
 
-	public void save(Language language) throws Exception;
+	public void save(Language language) ;
 
-	public void saveOrUpdate(Language language) throws Exception;
+	public void saveOrUpdate(Language language) ;
 
-	public void delete(Integer languageID) throws Exception;
+	public void delete(Integer languageID) ;
 
-	public void delete(Language language) throws Exception;
+	public void delete(Language language) ;
 
 	public boolean isInUse(Language language);
 

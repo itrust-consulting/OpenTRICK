@@ -16,35 +16,35 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 1, 2013
  */
 public interface ServiceUser {
-	public User get(Integer id) throws Exception;
+	public User get(Integer id) ;
 
-	public User get(String login) throws Exception;
+	public User get(String login) ;
 
-	public User get(String login, String password) throws Exception;
+	public User get(String login, String password) ;
 
-	public boolean noUsers() throws Exception;
+	public boolean noUsers() ;
 
-	public List<User> getAll() throws Exception;
+	public List<User> getAll() ;
 
-	public List<User> getAllByFirstName(String name) throws Exception;
+	public List<User> getAllByFirstName(String name) ;
 
-	public List<User> getAllByCountry(String name) throws Exception;
+	public List<User> getAllByCountry(String name) ;
 
-	public List<User> getAllFromCustomer(Integer customer) throws Exception;
+	public List<User> getAllFromCustomer(Integer customer) ;
 
-	public List<User> getAllFromCustomer(Customer customer) throws Exception;
+	public List<User> getAllFromCustomer(Customer customer) ;
 
-	public List<User> getAllAdministrators() throws Exception;
+	public List<User> getAllAdministrators() ;
 	
-	public boolean hasRole(User user, Role role) throws Exception;
+	public boolean hasRole(User user, Role role) ;
 
-	public void save(User user) throws Exception;
+	public void save(User user) ;
 
-	public void saveOrUpdate(User user) throws Exception;
+	public void saveOrUpdate(User user) ;
 
-	public void delete(Integer id) throws Exception;
+	public void delete(Integer id) ;
 
-	public void delete(User user) throws Exception;
+	public void delete(User user) ;
 
 	public User getByEmail(String email);
 

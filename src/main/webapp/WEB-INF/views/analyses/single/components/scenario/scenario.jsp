@@ -98,7 +98,7 @@
 			<c:if test="${!analysis.isProfile() }">
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
-						<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
+						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(scenarioALE)" var="ale" />
 						<td colspan="4"><fmt:message key="label.total.ale" /></td>
 						<fmt:setLocale value="fr" scope="session" />
 						<c:choose>

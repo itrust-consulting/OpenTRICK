@@ -32,12 +32,12 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#get(long)
 	 */
 	@Override
-	public Role get(Integer id) throws Exception {
+	public Role get(Integer id)  {
 		return daoRole.get(id);
 	}
 
@@ -47,12 +47,12 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * 
 	 * @param name
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#getRoleByName(java.lang.String)
 	 */
 	@Override
-	public Role getByName(String name) throws Exception {
+	public Role getByName(String name)  {
 		return this.daoRole.getByName(name);
 	}
 
@@ -62,7 +62,7 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * @see lu.itrust.business.service.ServiceRole#loadAll()
 	 */
 	@Override
-	public List<Role> getAll() throws Exception {
+	public List<Role> getAll()  {
 		return daoRole.getAll();
 	}
 
@@ -72,12 +72,12 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * 
 	 * @param login
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#getFromUser(java.lang.String)
 	 */
 	@Override
-	public List<Role> getAllFromUser(String login) throws Exception {
+	public List<Role> getAllFromUser(String login)  {
 		return daoRole.getAllFromUser(login);
 	}
 
@@ -87,12 +87,12 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * 
 	 * @param user
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#getFromUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public List<Role> getAllFromUser(User user) throws Exception {
+	public List<Role> getAllFromUser(User user)  {
 		return daoRole.getAllFromUser(user);
 	}
 
@@ -101,13 +101,13 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * Description
 	 * 
 	 * @param role
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#save(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Transactional
 	@Override
-	public void save(Role role) throws Exception {
+	public void save(Role role)  {
 		daoRole.save(role);
 	}
 
@@ -116,13 +116,13 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * Description
 	 * 
 	 * @param role
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#saveOrUpdate(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Role role) throws Exception {
+	public void saveOrUpdate(Role role)  {
 		daoRole.saveOrUpdate(role);
 	}
 
@@ -131,13 +131,13 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * Description
 	 * 
 	 * @param id
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#delete(long)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		daoRole.delete(id);
 	}
 
@@ -146,13 +146,13 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * Description
 	 * 
 	 * @param login
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#delete(java.lang.String)
 	 */
 	@Transactional
 	@Override
-	public void delete(String login) throws Exception {
+	public void delete(String login)  {
 		daoRole.delete(login);
 	}
 
@@ -161,13 +161,13 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * Description
 	 * 
 	 * @param role
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#delete(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Transactional
 	@Override
-	public void delete(Role role) throws Exception {
+	public void delete(Role role)  {
 		daoRole.delete(role);
 	}
 
@@ -176,13 +176,13 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * Description
 	 * 
 	 * @param user
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRole#delete(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
-	public void delete(User user) throws Exception {
+	public void delete(User user)  {
 		daoRole.delete(user);
 	}
 }

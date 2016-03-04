@@ -47,10 +47,10 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
@@ -801,7 +801,7 @@ public class ExportAnalysisReport {
 			Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
 			Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
 
-			AssessmentManager.SplitAssessment(assessments, alesmap, assessementsmap);
+			AssessmentAndRiskProfileManager.SplitAssessment(assessments, alesmap, assessementsmap);
 
 			List<ALE> ales = new ArrayList<ALE>(alesmap.size());
 

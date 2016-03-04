@@ -48,7 +48,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#get(int)
 	 */
 	@Override
-	public User get(Integer id) throws Exception {
+	public User get(Integer id)  {
 		return (User) getSession().get(User.class, id);
 	}
 
@@ -59,7 +59,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#get(java.lang.String)
 	 */
 	@Override
-	public User get(String login) throws Exception {
+	public User get(String login)  {
 		return (User) getSession().createQuery("From User where login = :login").setString("login", login).uniqueResult();
 	}
 
@@ -70,7 +70,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#get(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public User get(String login, String password) throws Exception {
+	public User get(String login, String password)  {
 		return (User) getSession().createQuery("From User where login = :login and password = :password").setString("login", login).setString("password", password).uniqueResult();
 	}
 
@@ -81,7 +81,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#noUsers()
 	 */
 	@Override
-	public boolean noUsers() throws Exception {
+	public boolean noUsers()  {
 		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() == 0;
 	}
 
@@ -93,7 +93,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAll() throws Exception {
+	public List<User> getAll()  {
 		return getSession().createQuery("From User order by firstName").list();
 	}
 
@@ -105,7 +105,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllByFirstName(String name) throws Exception {
+	public List<User> getAllByFirstName(String name)  {
 		return getSession().createQuery("From User where firstName = :name").setString("name", name).list();
 	}
 
@@ -117,7 +117,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllByCountry(String name) throws Exception {
+	public List<User> getAllByCountry(String name)  {
 		return getSession().createQuery("From User where country = :country").setString("country", name).list();
 	}
 
@@ -129,7 +129,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllFromCustomer(Integer customer) throws Exception {
+	public List<User> getAllFromCustomer(Integer customer)  {
 		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer.id = :customer").setInteger("customer", customer).list();
 	}
 
@@ -141,7 +141,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllFromCustomer(Customer customer) throws Exception {
+	public List<User> getAllFromCustomer(Customer customer)  {
 		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).list();
 	}
 
@@ -155,7 +155,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllAdministrators() throws Exception {
+	public List<User> getAllAdministrators()  {
 		return getSession().createQuery("SELECT user From User as user join user.roles as role where role.type = :role").setParameter("role", RoleType.ROLE_ADMIN).list();
 	}
 	
@@ -167,7 +167,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 *      lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Override
-	public boolean hasRole(User user, Role role) throws Exception {
+	public boolean hasRole(User user, Role role)  {
 		return !(user==null || role==null) && user.hasRole(role.getType());
 	}
 
@@ -178,7 +178,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#save(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public void save(User user) throws Exception {
+	public void save(User user)  {
 		getSession().save(user);
 	}
 
@@ -189,7 +189,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public void saveOrUpdate(User user) throws Exception {
+	public void saveOrUpdate(User user)  {
 		getSession().saveOrUpdate(user);
 	}
 
@@ -200,7 +200,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#delete(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public void delete(User user) throws Exception {
+	public void delete(User user)  {
 		getSession().delete(user);
 	}
 
@@ -211,7 +211,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.TS.database.dao.DAOUser#delete(long)
 	 */
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		delete(get(id));
 	}
 

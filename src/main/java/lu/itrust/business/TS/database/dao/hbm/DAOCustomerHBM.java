@@ -41,7 +41,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#get(int)
 	 */
 	@Override
-	public Customer get(Integer id) throws Exception {
+	public Customer get(Integer id)  {
 		return (Customer) getSession().get(Customer.class, id);
 	}
 
@@ -52,7 +52,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getProfileCustomer()
 	 */
 	@Override
-	public Customer getProfile() throws Exception {
+	public Customer getProfile()  {
 		return (Customer) getSession().createQuery("From Customer where canBeUsed = false").uniqueResult();
 	}
 
@@ -63,7 +63,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getCustomerFromContactPerson(java.lang.String)
 	 */
 	@Override
-	public Customer getFromContactPerson(String contactPerson) throws Exception {
+	public Customer getFromContactPerson(String contactPerson)  {
 		return (Customer) getSession().createQuery("From Customer where contactPerson = :contactPerson").setParameter("contactPerson", contactPerson).uniqueResult();
 	}
 
@@ -74,7 +74,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#isProfileCustomer(int)
 	 */
 	@Override
-	public boolean isProfile(Integer idCustomer) throws Exception {
+	public boolean isProfile(Integer idCustomer)  {
 		Boolean result = (Boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer")
 				.setParameter("idCustomer", idCustomer).uniqueResult();
 		return result == null ? false : !result;
@@ -87,7 +87,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerProfileExists()
 	 */
 	@Override
-	public boolean profileExists() throws Exception {
+	public boolean profileExists()  {
 		return ((Long) getSession().createQuery("Select count(customer) From Customer as customer where customer.canBeUsed = false").uniqueResult()).intValue() == 1;
 	}
 
@@ -98,7 +98,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerHasUsers(int)
 	 */
 	@Override
-	public boolean hasUsers(Integer idCustomer) throws Exception {
+	public boolean hasUsers(Integer idCustomer)  {
 		String query = "Select count(customer) From User as user inner join user.customers as customer where customer.id = :idCustomer";
 		return ((Long) getSession().createQuery(query).setParameter("idCustomer", idCustomer).uniqueResult()).intValue() != 0;
 	}
@@ -110,7 +110,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerExistsByOrganisation(java.lang.String)
 	 */
 	@Override
-	public boolean existsByOrganisation(String organisation) throws Exception {
+	public boolean existsByOrganisation(String organisation)  {
 		return (Boolean) getSession().createQuery("Select count(customer)>0 From Customer as customer where customer.organisation = :organisation")
 				.setParameter("organisation", organisation).uniqueResult();
 	}
@@ -123,7 +123,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAll() throws Exception {
+	public List<Customer> getAll()  {
 		return (List<Customer>) getSession().createQuery("From Customer").list();
 	}
 
@@ -135,7 +135,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAllAndProfileOfUser(String username) throws Exception {
+	public List<Customer> getAllAndProfileOfUser(String username)  {
 		String query = "Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1";
 		query += " where user.login = :username)  order by customer.canBeUsed asc, customer.organisation asc, customer.contactPerson asc";
 		return getSession().createQuery(query).setParameter("username", username).list();
@@ -149,7 +149,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAllNotProfileOfUser(String username) throws Exception {
+	public List<Customer> getAllNotProfileOfUser(String username)  {
 		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.canBeUsed = true order by customer.organisation ";
 		query += "asc, customer.contactPerson asc";
 		return getSession().createQuery(query).setParameter("username", username).list();
@@ -163,7 +163,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAllNotProfiles() throws Exception {
+	public List<Customer> getAllNotProfiles()  {
 		return (List<Customer>) getSession().createQuery("From Customer WHERE canBeUsed=true").list();
 	}
 
@@ -174,7 +174,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#save(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Override
-	public void save(Customer customer) throws Exception {
+	public void save(Customer customer)  {
 		getSession().save(customer);
 	}
 
@@ -185,7 +185,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#saveOrUpdate(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Override
-	public void saveOrUpdate(Customer customer) throws Exception {
+	public void saveOrUpdate(Customer customer)  {
 		getSession().saveOrUpdate(customer);
 	}
 
@@ -196,7 +196,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#delete(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Override
-	public void delete(Customer customer) throws Exception {
+	public void delete(Customer customer)  {
 		getSession().delete(customer);
 	}
 
@@ -207,7 +207,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#delete(java.lang.Integer)
 	 */
 	@Override
-	public void delete(Integer customerId) throws Exception {
+	public void delete(Integer customerId)  {
 		getSession().createQuery("delete from Analysis where customer.id = :customerId").setParameter("customerId", customerId).executeUpdate();
 		getSession().createQuery("delete from Customer where id = :customerId").setParameter("customerId", customerId).executeUpdate();
 	}

@@ -32,6 +32,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.history.History;
@@ -62,8 +63,6 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  */
 @Component
 public class Duplicator {
-
-	public static final String KEY_PARAMETER_FORMAT = "%s-#-_##_-#-%s";
 
 	@Autowired
 	private DAOAnalysisStandard daoAnalysisStandard;
@@ -97,13 +96,9 @@ public class Duplicator {
 	 * 
 	 * @param analysis
 	 * @param serviceTaskFeedback
-	 *            TODO
 	 * @param idTask
-	 *            TODO
 	 * @param minProgress
-	 *            TODO
 	 * @param maxProgress
-	 *            TODO
 	 * @param copy
 	 * @return
 	 * @throws Exception
@@ -155,7 +150,7 @@ public class Duplicator {
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
 				Parameter parameter2 = parameter.duplicate();
-				parameters.put(String.format(KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter2);
+				parameters.put(parameter2.getKey(), parameter2);
 				copy.getParameters().add(parameter2);
 			}
 
@@ -181,7 +176,7 @@ public class Duplicator {
 				copy.getAssets().add(assets.get(asset.getId()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy estimations", language, (int) (minProgress + bound * 40)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy estimations", language, (int) (minProgress + bound * 35)));
 
 			copy.setAssessments(new ArrayList<Assessment>(analysis.getAssessments().size()));
 
@@ -191,6 +186,13 @@ public class Duplicator {
 				clone.setAsset(assets.get(assessment.getAsset().getId()));
 				copy.getAssessments().add(clone);
 			}
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile", "Copy risk profiles", language, (int) (minProgress + bound * 42.5)));
+
+			copy.setRiskProfiles(new ArrayList<>(analysis.getRiskProfiles().size()));
+
+			for (RiskProfile riskProfile : analysis.getRiskProfiles())
+				copy.getRiskProfiles().add(riskProfile.duplicate(assets, scenarios, parameters));
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", language, (int) (minProgress + bound * 50)));
 
@@ -334,7 +336,7 @@ public class Duplicator {
 		}
 		if (copy instanceof MaturityMeasure) {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
-			Parameter parameter = parameters.get(String.format(KEY_PARAMETER_FORMAT, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME,
+			Parameter parameter = parameters.get(Parameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME,
 					anonymize ? Constant.IS_NOT_ACHIEVED : ((MaturityMeasure) measure).getImplementationRate().getDescription()));
 			if (parameter == null) {
 				for (Parameter param : parameters.values()) {
@@ -451,6 +453,10 @@ public class Duplicator {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.assessment", "empty assessments", null, 10));
 			copy.setAssessments(null);
 
+			// assessments
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.risk_profile", "empty risk profile", null, 15));
+			copy.setRiskProfiles(null);
+
 			// item information
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.itemInformation", "Clear item information", null, 20));
 			copy.setItemInformations(null);
@@ -475,7 +481,7 @@ public class Duplicator {
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
 				Parameter parameter2 = parameter.duplicate();
-				parameters.put(String.format(KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter2);
+				parameters.put(parameter2.getKey(), parameter2);
 				copy.getParameters().add(parameter2);
 			}
 

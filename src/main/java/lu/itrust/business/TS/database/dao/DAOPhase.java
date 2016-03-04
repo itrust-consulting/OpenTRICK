@@ -14,30 +14,30 @@ import lu.itrust.business.TS.model.general.Phase;
  * @since 16 janv. 2013
  */
 public interface DAOPhase {
-	public Phase get(Integer id) throws Exception;
+	public Phase get(Integer id) ;
 
-	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception;
+	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) ;
 
-	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception;
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) ;
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) ;
 
-	public boolean canBeDeleted(Integer idPhase) throws Exception;
+	public boolean canBeDeleted(Integer idPhase) ;
 
-	public List<Phase> getAll() throws Exception;
+	public List<Phase> getAll() ;
 
-	public List<Phase> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<Phase> getAllFromAnalysis(Integer idAnalysis) ;
 
-	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception;
+	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) ;
 
-	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date beginDate) throws Exception;
+	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date beginDate) ;
 	
-	public List<Phase> getAllFromAnalysisActionPlan(Integer idAnalysis) throws Exception;
+	public List<Phase> getAllFromAnalysisActionPlan(Integer idAnalysis) ;
 	
-	public void save(Phase phase) throws Exception;
+	public void save(Phase phase) ;
 
-	public void saveOrUpdate(Phase phase) throws Exception;
+	public void saveOrUpdate(Phase phase) ;
 
-	public void delete(Phase phase) throws Exception;
+	public void delete(Phase phase) ;
 	
 }

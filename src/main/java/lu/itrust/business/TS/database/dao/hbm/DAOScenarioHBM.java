@@ -42,7 +42,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * @see lu.itrust.business.TS.database.dao.DAOScenario#get(int)
 	 */
 	@Override
-	public Scenario get(Integer id) throws Exception {
+	public Scenario get(Integer id)  {
 		return (Scenario) getSession().get(Scenario.class, id);
 	}
 
@@ -54,7 +54,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 *      int)
 	 */
 	@Override
-	public Scenario getFromAnalysisById(Integer idAnalysis, Integer scenarioId) throws Exception {
+	public Scenario getFromAnalysisById(Integer idAnalysis, Integer scenarioId)  {
 		String query = "Select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.id = :idScenario";
 		return (Scenario) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idScenario", scenarioId).uniqueResult();
 	}
@@ -67,7 +67,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId)  {
 		String query = "Select count(scenario) From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId and scenario.id = :scenarioId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("scenarioId", scenarioId).uniqueResult()).intValue() > 0;
 	}
@@ -80,7 +80,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> getAll() throws Exception {
+	public List<Scenario> getAll()  {
 		return getSession().createQuery("From Scenario").list();
 	}
 
@@ -92,7 +92,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Scenario> getAllFromAnalysis(Integer idAnalysis)  {
 		String query = "Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId order by scenario.selected DESC, scenario.type.name asc, ";
 		query += "scenario.name asc";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
@@ -106,7 +106,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis)  {
 		String query = "select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.selected = true order by ";
 		query += "scenario.type.name asc, scenario.name";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
@@ -121,7 +121,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception {
+	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType)  {
 		String query = "Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysis and scenario.type = :scenariotype order by scenario.type.name ASC, scenario.name";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("scenariotype", scenarioType).list();
 	}
@@ -137,7 +137,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> getAllSelectedFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception {
+	public List<Scenario> getAllSelectedFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType)  {
 		String query = "Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysis and scenario.type = :scenariotype and scenario.selected=true order by scenario.type.name ASC, scenario.name";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("scenariotype", scenarioType).list();
 	}
@@ -151,7 +151,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception {
+	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios)  {
 		String query = "Select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.id in :idScenarios order by ";
 		query += "scenario.type.name asc, scenario.name asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameterList("idScenarios", scenarios).list();
@@ -164,7 +164,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * @see lu.itrust.business.TS.database.dao.DAOScenario#save(lu.itrust.business.TS.model.scenario.Scenario)
 	 */
 	@Override
-	public void save(Scenario scenario) throws Exception {
+	public void save(Scenario scenario)  {
 		getSession().save(scenario);
 	}
 
@@ -175,7 +175,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * @see lu.itrust.business.TS.database.dao.DAOScenario#saveOrUpdate(lu.itrust.business.TS.model.scenario.Scenario)
 	 */
 	@Override
-	public void saveOrUpdate(Scenario scenario) throws Exception {
+	public void saveOrUpdate(Scenario scenario)  {
 		getSession().saveOrUpdate(scenario);
 	}
 
@@ -186,7 +186,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * @see lu.itrust.business.TS.database.dao.DAOScenario#merge(lu.itrust.business.TS.model.scenario.Scenario)
 	 */
 	@Override
-	public Scenario merge(Scenario scenario) throws Exception {
+	public Scenario merge(Scenario scenario)  {
 		return (Scenario) getSession().merge(scenario);
 	}
 
@@ -197,7 +197,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * @see lu.itrust.business.TS.database.dao.DAOScenario#delete(lu.itrust.business.TS.model.scenario.Scenario)
 	 */
 	@Override
-	public void delete(Scenario scenario) throws Exception {
+	public void delete(Scenario scenario)  {
 		getSession().delete(scenario);
 	}
 
@@ -210,7 +210,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * @see lu.itrust.business.TS.database.dao.DAOScenario#getAnalysisIdFromScenario(java.lang.Integer)
 	 */
 	@Override
-	public Integer getAnalysisIdFromScenario(Integer scenarioId) throws Exception {
+	public Integer getAnalysisIdFromScenario(Integer scenarioId)  {
 		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.scenarios scenario where scenario.id = :scenarioId")
 				.setParameter("scenarioId", scenarioId).uniqueResult();
 	}
@@ -225,7 +225,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 *      java.lang.String)
 	 */
 	@Override
-	public boolean exist(Integer idAnalysis, String name) throws Exception {
+	public boolean exist(Integer idAnalysis, String name)  {
 		String query = "Select count(scenario) From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId and scenario.name = :scenario";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("scenario", name).uniqueResult()).intValue() > 0;
 	}

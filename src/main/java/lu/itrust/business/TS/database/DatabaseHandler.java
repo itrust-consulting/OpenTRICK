@@ -48,10 +48,12 @@ public class DatabaseHandler {
 	 * 
 	 * @param database
 	 *            The Database Name OR the Sqlite Filename
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 *            
-	 * @throws Exception
+	 * @
 	 */
-	public DatabaseHandler(String database) throws Exception {
+	public DatabaseHandler(String database) throws ClassNotFoundException, SQLException  {
 
 		// ****************************************************************
 		// * use JDBC driver
@@ -83,11 +85,15 @@ public class DatabaseHandler {
 	 *            The Server Hostname
 	 * @param port
 	 *            The Server Port
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws SQLException 
 	 * 
-	 * @throws Exception
+	 * @
 	 */
-	public DatabaseHandler(String database, String user, String password, String hostname, int port)
-																				  throws Exception {
+	public DatabaseHandler(String database, String user, String password, String hostname, int port) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException
+																				   {
 		
 		// ****************************************************************
 		// * use JDBC driver

@@ -46,7 +46,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#get(int)
 	 */
 	@Override
-	public SummaryStage get(Integer idSummaryStage) throws Exception {
+	public SummaryStage get(Integer idSummaryStage) {
 		return (SummaryStage) getSession().get(SummaryStage.class, idSummaryStage);
 	}
 
@@ -58,7 +58,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage) throws Exception {
+	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.id = :idSummaryStage";
 		return (SummaryStage) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idSummaryStage", idSummaryStage).uniqueResult();
 	}
@@ -70,7 +70,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId)  {
 		String query = "Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = :actionPlanSummaryId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanSummaryId", actionPlanSummaryId).uniqueResult()).intValue() > 0;
 	}
@@ -83,7 +83,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> getAll() throws Exception {
+	public List<SummaryStage> getAll()  {
 		return getSession().createQuery("From SummaryStage").list();
 	}
 
@@ -95,7 +95,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis order by summary.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
@@ -107,7 +107,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<SummaryStage> getAllFromAnalysis(Analysis analysis)  {
 		return analysis.getSummaries();
 	}
 
@@ -120,7 +120,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType ";
 		query += "order by summary.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).list();
@@ -134,7 +134,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 *      lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Override
-	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType)  {
 		List<SummaryStage> sumStages = new ArrayList<SummaryStage>();
 		for (SummaryStage stage : sumStages) {
 			if (stage.getActionPlanType().equals(actionPlanType))
@@ -150,7 +150,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#save(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Override
-	public void save(SummaryStage summaryStage) throws Exception {
+	public void save(SummaryStage summaryStage)  {
 		getSession().save(summaryStage);
 	}
 
@@ -161,7 +161,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#saveOrUpdate(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Override
-	public void saveOrUpdate(SummaryStage summaryStage) throws Exception {
+	public void saveOrUpdate(SummaryStage summaryStage)  {
 		getSession().saveOrUpdate(summaryStage);
 	}
 
@@ -172,7 +172,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#delete(lu.itrust.business.TS.model.actionplan.summary.SummaryStage)
 	 */
 	@Override
-	public void delete(SummaryStage summaryStage) throws Exception {
+	public void delete(SummaryStage summaryStage)  {
 		getSession().delete(summaryStage);
 	}
 
@@ -186,7 +186,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+	public void deleteAllFromAnalysis(Integer analysisID)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis";
 		List<SummaryStage> summaries = (List<SummaryStage>) getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
 		for(SummaryStage summary : summaries){

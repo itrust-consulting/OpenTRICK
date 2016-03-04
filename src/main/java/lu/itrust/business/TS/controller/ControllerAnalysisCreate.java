@@ -300,7 +300,7 @@ public class ControllerAnalysisCreate {
 			for (Parameter parameter : parameters) {
 				Parameter parameter2 = parameter.duplicate();
 				analysis.addAParameter(parameter2);
-				mappingParameters.put(String.format(Duplicator.KEY_PARAMETER_FORMAT, parameter2.getType().getLabel(), parameter2.getDescription()), parameter2);
+				mappingParameters.put(parameter.getKey(), parameter2);
 			}
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(customAnalysisForm.getAsset());

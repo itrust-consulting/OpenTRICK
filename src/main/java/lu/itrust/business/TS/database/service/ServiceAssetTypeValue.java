@@ -13,17 +13,17 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
  * @since Jan 16, 2013
  */
 public interface ServiceAssetTypeValue {
-	public AssetTypeValue get(Integer id) throws Exception;
+	public AssetTypeValue get(Integer id) ;
 
-	public AssetTypeValue save(AssetTypeValue assetTypeValue) throws Exception;
+	public AssetTypeValue save(AssetTypeValue assetTypeValue) ;
 
-	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue) throws Exception;
+	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue) ;
 
-	public AssetTypeValue merge(AssetTypeValue assetTypeValue) throws Exception;
+	public AssetTypeValue merge(AssetTypeValue assetTypeValue) ;
 
-	public void delete(Integer id) throws Exception;
+	public void delete(Integer id) ;
 
-	public void delete(AssetTypeValue assetTypeValue) throws Exception;
+	public void delete(AssetTypeValue assetTypeValue) ;
 
-	public void delete(List<AssetTypeValue> assetTypeValues) throws Exception;
+	public void delete(List<AssetTypeValue> assetTypeValues) ;
 }

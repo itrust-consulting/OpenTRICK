@@ -32,6 +32,7 @@ import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOResetPassword;
+import lu.itrust.business.TS.database.dao.DAORiskProfile;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOStandard;
@@ -46,6 +47,7 @@ import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -126,6 +128,9 @@ public class CustomDelete {
 	@Autowired
 	private DAOUserSqLite daoUserSqLite;
 
+	@Autowired
+	private DAORiskProfile daoRiskProfile;
+
 	@Transactional
 	public void deleteAsset(int idAsset, int idAnalysis) throws Exception {
 		Asset asset = daoAsset.getFromAnalysisById(idAnalysis, idAsset);
@@ -135,7 +140,7 @@ public class CustomDelete {
 		else if (asset == null)
 			throw new TrickException("error.asset.not_found", "Asset cannot be found");
 
-		deleteActionPlanRiskRegisterAssessment(analysis, analysis.removeAssessment(asset));
+		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(asset), analysis.removeRiskProfile(asset));
 
 		daoAsset.delete(asset);
 	}
@@ -150,24 +155,24 @@ public class CustomDelete {
 		else if (scenario == null)
 			throw new TrickException("error.scenario.not_found", "Scenario cannot be found");
 
-		deleteActionPlanRiskRegisterAssessment(analysis, analysis.removeAssessment(scenario));
-
+		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(scenario), analysis.removeRiskProfile(scenario));
 		daoScenario.delete(scenario);
 	}
 
-	private void deleteActionPlanRiskRegisterAssessment(Analysis analysis, List<Assessment> assessments) throws Exception {
+	private void deleteActionPlanAndScenarioOrAssetDependencies(Analysis analysis, List<Assessment> assessments, List<RiskProfile> riskProfiles) throws Exception {
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(0));
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
-		deleteRiskRegisterAssessment(analysis, assessments);
+		deleteAssetOrScenarioDependencies(analysis, assessments, riskProfiles);
 	}
 
-	private void deleteRiskRegisterAssessment(Analysis analysis, List<Assessment> assessments) throws Exception {
+	private void deleteAssetOrScenarioDependencies(Analysis analysis, List<Assessment> assessments, List<RiskProfile> riskProfiles) throws Exception {
 		while (!analysis.getRiskRegisters().isEmpty())
 			daoRiskRegister.delete(analysis.getRiskRegisters().remove(0));
 		for (Assessment assessment : assessments)
 			daoAssessment.delete(assessment);
+		riskProfiles.forEach(riskProfile -> daoRiskProfile.delete(riskProfile));
 	}
 
 	@Transactional
@@ -224,11 +229,11 @@ public class CustomDelete {
 		if (user == null)
 			return false;
 		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
-		
+
 		if (!(user.containsCustomer(customer) && user.getCustomers().remove(customer)))
 			return false;
 
-		for (Analysis analysis : analyses){
+		for (Analysis analysis : analyses) {
 			analysis.removeRights(user);
 			daoAnalysis.saveOrUpdate(analysis);
 		}
@@ -270,13 +275,11 @@ public class CustomDelete {
 						/**
 						 * Log
 						 */
-						TrickLogManager.Persist(
-								LogLevel.WARNING,
-								LogType.ANALYSIS,
-								"log.delete.measure",
+						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.measure",
 								String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(), analysis.getVersion(),
-										measureDescription.getReference(), measureDescription.getStandard().getLabel()), principal.getName(), LogAction.DELETE,
-								analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(), measureDescription.getStandard().getLabel());
+										measureDescription.getReference(), measureDescription.getStandard().getLabel()),
+								principal.getName(), LogAction.DELETE, analysis.getIdentifier(), analysis.getVersion(), measureDescription.getReference(),
+								measureDescription.getStandard().getLabel());
 						break;
 					}
 				}

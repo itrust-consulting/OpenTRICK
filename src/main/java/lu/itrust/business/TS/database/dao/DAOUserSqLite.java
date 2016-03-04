@@ -15,27 +15,27 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2013
  */
 public interface DAOUserSqLite {
-	public UserSQLite get(Integer id) throws Exception;
+	public UserSQLite get(Integer id) ;
 
-	public UserSQLite getByFilename(String filename) throws Exception;
+	public UserSQLite getByFilename(String filename) ;
 
-	public UserSQLite getByIdAndUser(Integer idFile, String username) throws Exception;
+	public UserSQLite getByIdAndUser(Integer idFile, String username) ;
 
-	public List<UserSQLite> getAllFromUser(String username) throws Exception;
+	public List<UserSQLite> getAllFromUser(String username) ;
 
-	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) throws Exception;
+	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) ;
 
-	public UserSQLite save(UserSQLite userSqLite) throws Exception;
+	public UserSQLite save(UserSQLite userSqLite) ;
 
-	public void saveOrUpdate(UserSQLite userSqLite) throws Exception;
+	public void saveOrUpdate(UserSQLite userSqLite) ;
 
-	public UserSQLite merge(UserSQLite userSqLite) throws Exception;
+	public UserSQLite merge(UserSQLite userSqLite) ;
 
-	public void delete(Integer idUserSqLite) throws Exception;
+	public void delete(Integer idUserSqLite) ;
 
-	public void delete(String filename) throws Exception;
+	public void delete(String filename) ;
 
-	public void delete(UserSQLite userSqLite) throws Exception;
+	public void delete(UserSQLite userSqLite) ;
 
 	public List<String> getDistinctIdentifierByUser(User user);
 

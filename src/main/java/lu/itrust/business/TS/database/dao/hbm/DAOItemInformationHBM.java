@@ -41,7 +41,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#get(int)
 	 */
 	@Override
-	public ItemInformation get(Integer id) throws Exception {
+	public ItemInformation get(Integer id)  {
 		return (ItemInformation) getSession().get(ItemInformation.class, id);
 	}
 
@@ -52,13 +52,13 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @param idAnalysis
 	 * @param idIteminformation
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#getFromAnalysisById(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation) throws Exception {
+	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation)  {
 		String query =
 			"Select iteminformation From Analysis as analysis inner join analysis.itemInformations as iteminformation where analysis.id = :idAnalysis and iteminformation.id = :idIteminformation";
 		return (ItemInformation) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idIteminformation", idIteminformation).uniqueResult();
@@ -72,7 +72,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 *      java.lang.String)
 	 */
 	@Override
-	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description) throws Exception {
+	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description)  {
 		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id and ";
 		query += "iteminformation.description = :iteminformation";
 		return (ItemInformation) getSession().createQuery(query).setParameter("id", analysisId).setParameter("description", description).uniqueResult();
@@ -86,7 +86,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer iteminformationId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer iteminformationId)  {
 		String query = "Select count(itemInformation) From Analysis as analysis inner join analysis.itemInformations as itemInformation where analysis.id = :analysisid and ";
 		query += "itemInformation.id = :itemInformationId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("itemInformationId", iteminformationId).uniqueResult()).intValue() > 0;
@@ -100,7 +100,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ItemInformation> getAll() throws Exception {
+	public List<ItemInformation> getAll()  {
 		return getSession().createQuery("From ItemInformation").list();
 	}
 
@@ -112,7 +112,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ItemInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
+	public List<ItemInformation> getAllFromAnalysis(Integer analysisID)  {
 		String casepart  = "";
 		casepart += "when 'type_organism' then -25 ";
 		casepart += "when 'type_profit_organism' then -24 ";
@@ -154,7 +154,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#save(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Override
-	public void save(ItemInformation itemInformation) throws Exception {
+	public void save(ItemInformation itemInformation)  {
 		getSession().save(itemInformation);
 	}
 
@@ -165,7 +165,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#saveOrUpdate(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Override
-	public void saveOrUpdate(ItemInformation itemInformation) throws Exception {
+	public void saveOrUpdate(ItemInformation itemInformation)  {
 		getSession().saveOrUpdate(itemInformation);
 	}
 
@@ -176,7 +176,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#delete(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Override
-	public void delete(ItemInformation itemInformation) throws Exception {
+	public void delete(ItemInformation itemInformation)  {
 		getSession().delete(itemInformation);
 	}
 }

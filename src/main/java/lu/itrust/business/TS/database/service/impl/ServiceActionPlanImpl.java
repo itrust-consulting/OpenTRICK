@@ -34,12 +34,12 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#get(int)
 	 */
 	@Override
-	public ActionPlanEntry get(Integer id) throws Exception {
+	public ActionPlanEntry get(Integer id)  {
 		return daoActionPlan.get(id);
 	}
 
@@ -51,7 +51,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 *
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisById(java.lang.Integer, java.lang.Integer)
 	 */
-	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
+	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer id)  {
 		return daoActionPlan.getFromAnalysisById(idAnalysis, id);	
 	}
 
@@ -63,12 +63,12 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param actionPlanEntryId
 	 * @param analysisId
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanEntryId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanEntryId)  {
 		return daoActionPlan.belongsToAnalysis(analysisId, actionPlanEntryId);
 	}
 
@@ -77,12 +77,12 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getAll()
 	 */
 	@Override
-	public List<ActionPlanEntry> getAll() throws Exception {
+	public List<ActionPlanEntry> getAll()  {
 		return daoActionPlan.getAll();
 	}
 
@@ -92,12 +92,12 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getAllFromAnalysis(int)
 	 */
 	@Override
-	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) throws Exception {
+	public List<ActionPlanEntry> getAllFromAnalysis(Integer id)  {
 		return this.daoActionPlan.getAllFromAnalysis(id);
 	}
 
@@ -108,13 +108,13 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param analysisID
 	 * @param mode
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisAndActionPlanType(int,
 	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) throws Exception {
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode)  {
 		return this.daoActionPlan.getFromAnalysisAndActionPlanType(analysisID, mode);
 	}
 
@@ -125,13 +125,13 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param analysis
 	 * @param mode
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.model.analysis.Analysis,
 	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception {
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode)  {
 		return this.daoActionPlan.getFromAnalysisAndActionPlanType(analysis, mode);
 	}
 
@@ -142,13 +142,13 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param analysisID
 	 * @param mode
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getMeasuresFromActionPlanAndAnalysis(int,
 	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
-	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer analysisID, ActionPlanMode mode) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer analysisID, ActionPlanMode mode)  {
 		return daoActionPlan.getMeasuresFromActionPlanAndAnalysis(analysisID, mode);
 	}
 
@@ -159,13 +159,13 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @param id
 	 * @param apm
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int,
 	 *      lu.itrust.business.TS.model.actionplan.ActionPlanMode)
 	 */
 	@Override
-	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm)  {
 		return daoActionPlan.getMeasuresFromActionPlanAndAnalysisAndNotToImplement(id, apm);
 	}
 
@@ -175,12 +175,12 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * 
 	 * @param analysisID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(int)
 	 */
 	@Override
-	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID) throws Exception {
+	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID)  {
 		return daoActionPlan.getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(analysisID);
 	}
 
@@ -189,13 +189,13 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * Description
 	 * 
 	 * @param actionPlanEntry
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#save(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Transactional
 	@Override
-	public void save(ActionPlanEntry actionPlanEntry) throws Exception {
+	public void save(ActionPlanEntry actionPlanEntry)  {
 		daoActionPlan.save(actionPlanEntry);
 	}
 
@@ -204,13 +204,13 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * Description
 	 * 
 	 * @param actionPlanEntry
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#saveOrUpdate(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) throws Exception {
+	public void saveOrUpdate(ActionPlanEntry actionPlanEntry)  {
 		daoActionPlan.saveOrUpdate(actionPlanEntry);
 	}
 
@@ -219,13 +219,13 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * Description
 	 * 
 	 * @param actionPlanEntry
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#delete(lu.itrust.business.TS.model.actionplan.ActionPlanEntry)
 	 */
 	@Transactional
 	@Override
-	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
+	public void delete(ActionPlanEntry actionPlanEntry)  {
 		daoActionPlan.delete(actionPlanEntry);
 	}
 
@@ -239,7 +239,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 */
 	@Transactional
 	@Override
-	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+	public void deleteAllFromAnalysis(Integer analysisID)  {
 		daoActionPlan.deleteAllFromAnalysis(analysisID);
 	}
 }

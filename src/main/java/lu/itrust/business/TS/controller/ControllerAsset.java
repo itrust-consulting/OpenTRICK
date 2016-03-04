@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +47,10 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.validator.AssetValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -77,7 +76,7 @@ public class ControllerAsset {
 	private ServiceAsset serviceAsset;
 
 	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private CustomDelete customDelete;
@@ -126,24 +125,13 @@ public class ControllerAsset {
 
 			// set asset selected or unselected (toggle)
 			if (asset.isSelected())
-				assessmentManager.unSelectAsset(asset);
+				assessmentAndRiskProfileManager.unSelectAsset(asset);
 			else
-				assessmentManager.selectAsset(asset);
+				assessmentAndRiskProfileManager.selectAsset(asset);
 
 			// return success message
 			return JsonMessage
 					.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", customLocale != null ? customLocale : locale));
-		} catch (InvalidAttributesException e) {
-			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = null;
-
-			if (integer != null)
-				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			// return error message
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
-
 		} catch (Exception e) {
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -186,7 +174,7 @@ public class ControllerAsset {
 				return errors;
 			}
 		}
-
+		
 		// parse each sent id's
 		for (Integer id : ids) {
 			try {
@@ -273,7 +261,7 @@ public class ControllerAsset {
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 
 		// load all assets of analysis to model
-		model.addAttribute("assetALE", AssessmentManager.ComputeAssetALE(assets, assessments));
+		model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
 		model.addAttribute("isEditable", open != READ && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
@@ -363,13 +351,15 @@ public class ControllerAsset {
 
 			// update selected status
 			if (asset.isSelected())
-				assessmentManager.selectAsset(asset);
+				assessmentAndRiskProfileManager.selectAsset(asset);
 			else
-				assessmentManager.unSelectAsset(asset);
+				assessmentAndRiskProfileManager.unSelectAsset(asset);
 
 			// create assessments for the new asset and save asset and
 			// Assessments into analysis
-			assessmentManager.build(asset, idAnalysis);
+			assessmentAndRiskProfileManager.build(asset, idAnalysis);
+			
+			
 
 		} catch (TrickException e) {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);

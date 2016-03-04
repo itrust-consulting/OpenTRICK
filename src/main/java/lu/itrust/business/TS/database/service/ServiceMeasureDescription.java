@@ -14,29 +14,29 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  * @since Feb 07, 2013
  */
 public interface ServiceMeasureDescription {
-	public MeasureDescription get(Integer id) throws Exception;
+	public MeasureDescription get(Integer id) ;
 
-	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception;
+	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) ;
 
-	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) throws Exception;
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) ;
 
-	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception;
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) ;
 
-	public List<MeasureDescription> getAll() throws Exception;
+	public List<MeasureDescription> getAll() ;
 
-	public List<MeasureDescription> getAllByStandard(Integer idStandard) throws Exception;
+	public List<MeasureDescription> getAllByStandard(Integer idStandard) ;
 
-	public List<MeasureDescription> getAllByStandard(String standard) throws Exception;
+	public List<MeasureDescription> getAllByStandard(String standard) ;
 
-	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception;
+	public List<MeasureDescription> getAllByStandard(Standard standard) ;
 
-	public void save(MeasureDescription measureDescription) throws Exception;
+	public void save(MeasureDescription measureDescription) ;
 
-	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception;
+	public void saveOrUpdate(MeasureDescription measureDescription) ;
 
-	public void delete(MeasureDescription measureDescription) throws Exception;
+	public void delete(MeasureDescription measureDescription) ;
 
-	public void delete(int id) throws Exception;
+	public void delete(int id) ;
 
 	public boolean existsForMeasureByReferenceAndAnalysisStandardId(String reference, int idAnalysisStandard);
 

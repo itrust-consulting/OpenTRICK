@@ -31,12 +31,12 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#get(int)
 	 */
 	@Override
-	public RiskInformation get(Integer id) throws Exception {
+	public RiskInformation get(Integer id)  {
 		return daoRiskInformation.get(id);
 	}
 
@@ -47,12 +47,12 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * @param id
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getFromAnalysisById(int, int)
 	 */
 	@Override
-	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
+	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id)  {
 		return daoRiskInformation.getFromAnalysisById(idAnalysis, id);
 	}
 
@@ -63,13 +63,13 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * @param riskinformationId
 	 * @param analysisId
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId)  {
 		return daoRiskInformation.belongsToAnalysis(analysisId, riskinformationId);
 	}
 
@@ -78,12 +78,12 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getAllRiskInformation()
 	 */
 	@Override
-	public List<RiskInformation> getAll() throws Exception {
+	public List<RiskInformation> getAll()  {
 		return daoRiskInformation.getAll();
 	}
 
@@ -93,12 +93,12 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * 
 	 * @param chapter
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getAllByChapter(java.lang.String)
 	 */
 	@Override
-	public List<RiskInformation> getAllByChapter(String chapter) throws Exception {
+	public List<RiskInformation> getAllByChapter(String chapter)  {
 		return daoRiskInformation.getAllByChapter(chapter);
 	}
 
@@ -108,12 +108,12 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * 
 	 * @param category
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getAllByCategory(java.lang.String)
 	 */
 	@Override
-	public List<RiskInformation> getAllByCategory(String category) throws Exception {
+	public List<RiskInformation> getAllByCategory(String category)  {
 		return daoRiskInformation.getAllByCategory(category);
 	}
 
@@ -123,12 +123,12 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * 
 	 * @param analysisID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getAllFromAnalysisId(int)
 	 */
 	@Override
-	public List<RiskInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
+	public List<RiskInformation> getAllFromAnalysis(Integer analysisID)  {
 		return daoRiskInformation.getAllFromAnalysis(analysisID);
 	}
 
@@ -138,12 +138,12 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * 
 	 * @param analysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<RiskInformation> getAllFromAnalysis(Analysis analysis)  {
 		return daoRiskInformation.getAllFromAnalysis(analysis);
 	}
 
@@ -152,13 +152,13 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * Description
 	 * 
 	 * @param riskInformation
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#save(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Transactional
 	@Override
-	public void save(RiskInformation riskInformation) throws Exception {
+	public void save(RiskInformation riskInformation)  {
 		daoRiskInformation.save(riskInformation);
 	}
 
@@ -167,13 +167,13 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * Description
 	 * 
 	 * @param riskInformation
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#saveOrUpdate(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(RiskInformation riskInformation) throws Exception {
+	public void saveOrUpdate(RiskInformation riskInformation)  {
 		daoRiskInformation.saveOrUpdate(riskInformation);
 	}
 
@@ -182,13 +182,13 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * Description
 	 * 
 	 * @param riskInformation
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#delete(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Transactional
 	@Override
-	public void delete(RiskInformation riskInformation) throws Exception {
+	public void delete(RiskInformation riskInformation)  {
 		daoRiskInformation.delete(riskInformation);
 	}
 }

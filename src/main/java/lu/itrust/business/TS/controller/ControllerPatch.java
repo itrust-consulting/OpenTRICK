@@ -28,13 +28,13 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -65,7 +65,7 @@ public class ControllerPatch {
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
@@ -124,7 +124,7 @@ public class ControllerPatch {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-			assessmentManager.UpdateAssessment();
+			assessmentAndRiskProfileManager.UpdateAssessment();
 			errors.put("success", messageSource.getMessage("success.assessments.update.all", null, "All assessments were successfully updated", locale));
 			return errors;
 		} catch (Exception e) {

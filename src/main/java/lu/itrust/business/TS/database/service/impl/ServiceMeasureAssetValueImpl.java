@@ -30,12 +30,12 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#get(int)
 	 */
 	@Override
-	public MeasureAssetValue get(Integer id) throws Exception {
+	public MeasureAssetValue get(Integer id)  {
 		return daoMeasureAssetValue.get(id);
 	}
 
@@ -45,13 +45,13 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * 
 	 * @param assetTypeValue
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public void save(MeasureAssetValue measureAssetValue) throws Exception {
+	public void save(MeasureAssetValue measureAssetValue)  {
 		daoMeasureAssetValue.save(measureAssetValue);
 	}
 
@@ -61,13 +61,13 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * 
 	 * @param assetTypeValue
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(MeasureAssetValue measureAssetValue) throws Exception {
+	public void saveOrUpdate(MeasureAssetValue measureAssetValue)  {
 		daoMeasureAssetValue.saveOrUpdate(measureAssetValue);
 	}
 
@@ -76,13 +76,13 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * Description
 	 * 
 	 * @param assetTypeValue
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public void delete(MeasureAssetValue measureAssetValue) throws Exception {
+	public void delete(MeasureAssetValue measureAssetValue)  {
 		daoMeasureAssetValue.delete(measureAssetValue);
 	}
 

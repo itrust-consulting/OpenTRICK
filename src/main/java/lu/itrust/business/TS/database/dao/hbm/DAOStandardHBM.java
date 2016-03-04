@@ -46,7 +46,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#get(int)
 	 */
 	@Override
-	public Standard get(Integer id) throws Exception {
+	public Standard get(Integer id)  {
 		return (Standard) getSession().get(Standard.class, id);
 	}
 
@@ -59,7 +59,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getStandardByName(java.lang.String)
 	 */
 	@Override
-	public Standard getStandardByName(String label) throws Exception {
+	public Standard getStandardByName(String label)  {
 		return (Standard) getSession().createQuery("from Standard where label = :label").setParameter("label", label).uniqueResult();
 	}
 
@@ -72,7 +72,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getStandardNotCustomByName(java.lang.String)
 	 */
 	@Override
-	public Standard getStandardNotCustomByName(String label) throws Exception {
+	public Standard getStandardNotCustomByName(String label)  {
 		return (Standard) getSession().createQuery("from Standard where label = :label and label != :custom").setParameter("label", label)
 				.setParameter("custom", Constant.STANDARD_CUSTOM).uniqueResult();
 	}
@@ -87,7 +87,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public Standard getStandardByNameAndVersion(String label, Integer version) throws Exception {
+	public Standard getStandardByNameAndVersion(String label, Integer version)  {
 		return (Standard) getSession().createQuery("from Standard where label = :label and version = :version").setParameter("label", label).setParameter("version", version)
 				.uniqueResult();
 	}
@@ -100,7 +100,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *      int)
 	 */
 	@Override
-	public boolean existsByNameAndVersion(String label, Integer version) throws Exception {
+	public boolean existsByNameAndVersion(String label, Integer version)  {
 		return ((Long) getSession().createQuery("select count(*) from Standard where label = :label and version = :version").setParameter("label", label)
 				.setParameter("version", version).uniqueResult()).intValue() != 0;
 	}
@@ -115,7 +115,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Standard> getAll() throws Exception {
+	public List<Standard> getAll()  {
 		return (List<Standard>) getSession().createQuery("From Standard").list();
 	}
 
@@ -127,7 +127,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Standard> getAllFromAnalysis(Integer analysisId) throws Exception {
+	public List<Standard> getAllFromAnalysis(Integer analysisId)  {
 		return getSession().createQuery("Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId")
 				.setParameter("analysisId", analysisId).list();
 	}
@@ -139,7 +139,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<Standard> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<Standard> getAllFromAnalysis(Analysis analysis)  {
 		List<Standard> standards = new ArrayList<Standard>();
 		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
 			standards.add(analysisStandard.getStandard());
@@ -156,7 +156,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
+	public List<Standard> getAllNotInAnalysis(Integer idAnalysis)  {
 		String query = "Select standard From Standard standard where standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId)";
 
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
@@ -171,7 +171,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#save(lu.itrust.business.TS.model.standard.Standard)
 	 */
 	@Override
-	public void save(Standard standard) throws Exception {
+	public void save(Standard standard)  {
 		getSession().save(standard);
 	}
 
@@ -184,7 +184,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#saveOrUpdate(lu.itrust.business.TS.model.standard.Standard)
 	 */
 	@Override
-	public void saveOrUpdate(Standard standard) throws Exception {
+	public void saveOrUpdate(Standard standard)  {
 		getSession().saveOrUpdate(standard);
 	}
 
@@ -197,7 +197,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * @see lu.itrust.business.TS.database.dao.DAOStandard#delete(lu.itrust.business.TS.model.standard.Standard)
 	 */
 	@Override
-	public void delete(Standard standard) throws Exception {
+	public void delete(Standard standard)  {
 		getSession().delete(standard);
 	}
 
@@ -211,7 +211,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
+	public List<Standard> getAllNotBoundToAnalysis()  {
 
 		List<Standard> standards = getSession().createQuery("SELECT standard From Standard standard where standard.analysisOnly=false").list();
 
@@ -220,7 +220,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception {
+	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID)  {
 		return (List<Standard>) getSession()
 				.createQuery(
 						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true")
@@ -229,7 +229,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception {
+	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId)  {
 		return getSession()
 				.createQuery(
 						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysisOnly=false and analysis.id = :analysisId")
@@ -237,14 +237,14 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	}
 
 	@Override
-	public Integer getNextVersionByNameAndType(String label, StandardType standardType) throws Exception {
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType)  {
 		Integer version =  (Integer) getSession().createQuery("select max(standard.version)+1 from Standard standard where standard.label = :label and standard.type = :type")
 				.setParameter("label", label).setParameter("type", standardType).uniqueResult();
 		return version == null? 1 : version;
 	}
 
 	@Override
-	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception {
+	public boolean existsByNameVersionType(String label, Integer version, StandardType type)  {
 		return (boolean) getSession().createQuery("select count(*)>0 from Standard where label = :label and version = :version and type = :type").setParameter("label", label)
 				.setParameter("version", version).setParameter("type", type).uniqueResult();
 	}

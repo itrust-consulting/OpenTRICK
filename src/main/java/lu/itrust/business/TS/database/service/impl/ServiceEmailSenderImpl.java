@@ -4,12 +4,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Properties;
 
+import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.VelocityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -59,7 +62,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	 *      java.lang.String)
 	 */
 	@Override
-	public void sendRegistrationMail(final List<User> recipients, final User user) throws Exception {
+	public void sendRegistrationMail(final List<User> recipients, final User user)  {
 		MimeMessagePreparator preparator;
 
 		JavaMailSenderImpl sender = new JavaMailSenderImpl();
@@ -71,7 +74,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 		try {
 			preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws Exception {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException  {
 					Locale locale = user.getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
@@ -93,7 +96,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			for (final User admin : recipients) {
 				try {
 					preparator = new MimeMessagePreparator() {
-						public void prepare(MimeMessage mimeMessage) throws Exception {
+						public void prepare(MimeMessage mimeMessage) throws VelocityException, MissingResourceException, MessagingException  {
 							Locale locale = admin.getLocaleObject();
 							MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 							message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
@@ -127,7 +130,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws Exception {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException  {
 					Locale locale = password.getUser().getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));

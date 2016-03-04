@@ -254,9 +254,10 @@ public class Scenario extends SecurityCriteria {
 	 * @return
 	 */
 	public boolean hasInfluenceOnAsset(String assettype) {
-		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			if (assettype.equalsIgnoreCase(assetTypeValue.getAssetType().getType()))
-				return assetTypeValue.getValue() > 0;
+		for (int i = 0; i < assetTypeValues.size(); i++) {
+			if (assettype.equalsIgnoreCase(assetTypeValues.get(i).getAssetType().getType()))
+				return assetTypeValues.get(i).getValue() > 0;
+		}
 		return false;
 	}
 

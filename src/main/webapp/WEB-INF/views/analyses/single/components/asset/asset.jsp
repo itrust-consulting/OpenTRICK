@@ -102,7 +102,7 @@
 			</tbody>
 			<tfoot>
 				<tr class="panel-footer" style="font-weight: bold;">
-					<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
+					<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(assetALE)" var="ale" />
 					<td colspan="4"><fmt:message key="label.total.ale" /></td>
 					<fmt:setLocale value="fr" scope="session" />
 					<td title='<fmt:formatNumber value="${fct:round(totalAssetValue,0)}" /> &euro;'><fmt:formatNumber value="${fct:round(totalAssetValue*0.001,0)}" /></td>

@@ -441,14 +441,14 @@
 	</thead>
 	<tbody>
 		<tr>
-			<spring:message text="${riskProfile.owner}" var="owner" />
+			<spring:message text="${assessment.owner}" var="owner" />
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
 					<td style="border-right: 2px solid #ddd;"><input name="uncertainty" class="form-control numeric" value='${uncertainty}' placeholder="${uncertainty}"
 						data-trick-type='double'></td>
 					<td>${strategyForm}</td>
-					<td style="border-right: 2px solid #ddd;"><input name="riskProfile.owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
+					<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 					<td>
 						<div class="input-group" title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;">
 							<span class="input-group-addon">k&euro;</span><input name="ALE" class="form-control numeric" disabled="disabled"
@@ -470,7 +470,7 @@
 				</c:when>
 				<c:otherwise>
 					<td>${strategyForm}</td>
-					<td><input name="riskProfile.owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
+					<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 					<td>
 						<div class="input-group" title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;">
 							<span class="input-group-addon">k&euro;</span><input name="ALE" class="form-control numeric" disabled="disabled"

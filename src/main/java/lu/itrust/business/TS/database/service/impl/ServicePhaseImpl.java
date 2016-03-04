@@ -31,12 +31,12 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#get(int)
 	 */
 	@Override
-	public Phase get(Integer id) throws Exception {
+	public Phase get(Integer id)  {
 		return daoPhase.get(id);
 	}
 
@@ -47,12 +47,12 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param number
 	 * @param analysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#getPhaseFromAnalysisByPhaseNumber(int, int)
 	 */
 	@Override
-	public Phase getFromAnalysisByPhaseNumber(Integer analysis, Integer number) throws Exception {
+	public Phase getFromAnalysisByPhaseNumber(Integer analysis, Integer number)  {
 		return daoPhase.getFromAnalysisByPhaseNumber(analysis, number);
 	}
 
@@ -63,13 +63,13 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param idPhase
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#getPhaseFromAnalysisIdByPhaseId(int,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception {
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase)  {
 		return daoPhase.getFromAnalysisById(idAnalysis, idPhase);
 	}
 
@@ -80,13 +80,13 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param phaseId
 	 * @param analysisId
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId)  {
 		return daoPhase.belongsToAnalysis(analysisId, phaseId);
 	}
 
@@ -96,12 +96,12 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * 
 	 * @param idPhase
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#canBeDeleted(int)
 	 */
 	@Override
-	public boolean canBeDeleted(Integer idPhase) throws Exception {
+	public boolean canBeDeleted(Integer idPhase)  {
 		return daoPhase.canBeDeleted(idPhase);
 	}
 
@@ -110,12 +110,12 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#getAllPhases()
 	 */
 	@Override
-	public List<Phase> getAll() throws Exception {
+	public List<Phase> getAll()  {
 		return daoPhase.getAll();
 	}
 
@@ -125,12 +125,12 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * 
 	 * @param analysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#getAllFromAnalysis(int)
 	 */
 	@Override
-	public List<Phase> getAllFromAnalysis(Integer analysis) throws Exception {
+	public List<Phase> getAllFromAnalysis(Integer analysis)  {
 		return daoPhase.getAllFromAnalysis(analysis);
 	}
 
@@ -141,13 +141,13 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param analysis
 	 * @param beginDate
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#getAllPhasesFromAnalysisByBeginDate(int,
 	 *      java.sql.Date)
 	 */
 	@Override
-	public List<Phase> getAllFromAnalysisByBeginDate(Integer analysis, Date beginDate) throws Exception {
+	public List<Phase> getAllFromAnalysisByBeginDate(Integer analysis, Date beginDate)  {
 		return daoPhase.getAllFromAnalysisByBeginDate(analysis, beginDate);
 	}
 
@@ -158,13 +158,13 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param analysis
 	 * @param endDate
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#getAllPhasesFromAnalysisByEndDate(int,
 	 *      java.sql.Date)
 	 */
 	@Override
-	public List<Phase> getAllFromAnalysisByEndDate(Integer analysis, Date endDate) throws Exception {
+	public List<Phase> getAllFromAnalysisByEndDate(Integer analysis, Date endDate)  {
 		return daoPhase.getAllFromAnalysisByEndDate(analysis, endDate);
 	}
 
@@ -173,13 +173,13 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * Description
 	 * 
 	 * @param phase
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#save(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Transactional
 	@Override
-	public void save(Phase phase) throws Exception {
+	public void save(Phase phase)  {
 		daoPhase.save(phase);
 	}
 
@@ -188,13 +188,13 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * Description
 	 * 
 	 * @param phase
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#saveOrUpdate(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Phase phase) throws Exception {
+	public void saveOrUpdate(Phase phase)  {
 		daoPhase.saveOrUpdate(phase);
 	}
 
@@ -203,13 +203,13 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * Description
 	 * 
 	 * @param phase
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServicePhase#delete(lu.itrust.business.TS.model.general.Phase)
 	 */
 	@Transactional
 	@Override
-	public void delete(Phase phase) throws Exception {
+	public void delete(Phase phase)  {
 		daoPhase.delete(phase);
 	}
 }

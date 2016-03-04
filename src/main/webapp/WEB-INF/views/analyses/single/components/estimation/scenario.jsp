@@ -49,9 +49,8 @@
 				</thead>
 				<tbody>
 					<c:set var="prevAsset" value="null" />
-					<spring:eval expression="T(lu.itrust.business.TS.model.assessment.helper.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
+					<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).Sort(assessments)" var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
-						<spring:eval expression="T(lu.itrust.business.TS.model.cssf.RiskProfile).key(assessment.asset,assessment.scenario)" var="riskProfileKey" />
 						<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
 							<td style="height: 32px;"><spring:message text="${assessment.asset.name}" /></td>
 							
@@ -157,7 +156,7 @@
 							<c:if test="${show_uncertainty}">
 								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
 							</c:if>
-							<td><spring:message text="${riskProfiles[riskProfileKey].owner}" /></td>
+							<td><spring:message text="${assessment.owner}" /></td>
 							<td><pre><spring:message text="${assessment.comment}" /></pre></td>
 							<td><pre><spring:message text="${assessment.hiddenComment}" /></pre></td>
 						</tr>

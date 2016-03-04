@@ -30,12 +30,12 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#get(int)
 	 */
 	@Override
-	public AssetTypeValue get(Integer id) throws Exception {
+	public AssetTypeValue get(Integer id)  {
 		return daoAssetTypeValue.get(id);
 	}
 
@@ -45,13 +45,13 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * 
 	 * @param assetTypeValue
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public AssetTypeValue save(AssetTypeValue assetTypeValue) throws Exception {
+	public AssetTypeValue save(AssetTypeValue assetTypeValue)  {
 		return daoAssetTypeValue.save(assetTypeValue);
 	}
 
@@ -61,13 +61,13 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * 
 	 * @param assetTypeValue
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue) throws Exception {
+	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue)  {
 		return daoAssetTypeValue.saveOrUpdate(assetTypeValue);
 	}
 
@@ -77,13 +77,13 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * 
 	 * @param assetTypeValue
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#merge(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public AssetTypeValue merge(AssetTypeValue assetTypeValue) throws Exception {
+	public AssetTypeValue merge(AssetTypeValue assetTypeValue)  {
 		return daoAssetTypeValue.merge(assetTypeValue);
 	}
 
@@ -92,13 +92,13 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * Description
 	 * 
 	 * @param id
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(int)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		daoAssetTypeValue.delete(id);
 	}
 
@@ -107,13 +107,13 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * Description
 	 * 
 	 * @param assetTypeValue
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public void delete(AssetTypeValue assetTypeValue) throws Exception {
+	public void delete(AssetTypeValue assetTypeValue)  {
 		daoAssetTypeValue.delete(assetTypeValue);
 	}
 
@@ -122,13 +122,13 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * Description
 	 * 
 	 * @param assetTypeValues
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(java.util.List)
 	 */
 	@Transactional
 	@Override
-	public void delete(List<AssetTypeValue> assetTypeValues) throws Exception {
+	public void delete(List<AssetTypeValue> assetTypeValues)  {
 		daoAssetTypeValue.delete(assetTypeValues);
 	}
 }

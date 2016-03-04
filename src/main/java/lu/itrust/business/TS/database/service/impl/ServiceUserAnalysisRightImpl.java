@@ -32,12 +32,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#get(long)
 	 */
 	@Override
-	public UserAnalysisRight get(Integer id) throws Exception {
+	public UserAnalysisRight get(Integer id)  {
 		return daoUserAnalysisRight.get(id);
 	}
 
@@ -48,13 +48,13 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param analysis
 	 * @param user
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getUserAnalysisRight(lu.itrust.business.TS.model.analysis.Analysis,
 	 *      lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) throws Exception {
+	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user)  {
 		return daoUserAnalysisRight.getFromAnalysisAndUser(analysis, user);
 	}
 
@@ -66,13 +66,13 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param userId
 	 * @param right
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(java.lang.Integer,
 	 *      java.lang.Integer, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception {
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right)  {
 		return daoUserAnalysisRight.isUserAuthorized(analysisId, userId, right);
 	}
 
@@ -84,13 +84,13 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param username
 	 * @param right
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(java.lang.Integer,
 	 *      java.lang.String, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) throws Exception {
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right)  {
 		return this.daoUserAnalysisRight.isUserAuthorized(idAnalysis, username, right);
 	}
 
@@ -102,13 +102,13 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param user
 	 * @param right
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.model.analysis.Analysis,
 	 *      lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
 	@Override
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right)  {
 		return daoUserAnalysisRight.isUserAuthorized(analysis, user, right);
 	}
 
@@ -119,13 +119,13 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @param analysis
 	 * @param user
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAnalysisRightOfUser(lu.itrust.business.TS.model.analysis.Analysis,
 	 *      lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception {
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user)  {
 		return daoUserAnalysisRight.getAnalysisRightOfUser(analysis, user);
 	}
 
@@ -135,12 +135,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * 
 	 * @param analysisid
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromAnalysisId(int)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) throws Exception {
+	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid)  {
 		return daoUserAnalysisRight.getAllFromAnalysis(analysisid);
 	}
 
@@ -150,12 +150,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * 
 	 * @param analysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis)  {
 		return daoUserAnalysisRight.getAllFromAnalysis(analysis);
 	}
 
@@ -165,12 +165,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * 
 	 * @param login
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromUserLogin(java.lang.String)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromUser(String login) throws Exception {
+	public List<UserAnalysisRight> getAllFromUser(String login)  {
 		return daoUserAnalysisRight.getAllFromUser(login);
 	}
 
@@ -180,12 +180,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * 
 	 * @param user
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public List<UserAnalysisRight> getAllFromUser(User user) throws Exception {
+	public List<UserAnalysisRight> getAllFromUser(User user)  {
 		return daoUserAnalysisRight.getAllFromUser(user);
 	}
 
@@ -194,12 +194,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * Description
 	 * 
 	 * @param userAnalysisRight
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#save(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
-	public void save(UserAnalysisRight userAnalysisRight) throws Exception {
+	public void save(UserAnalysisRight userAnalysisRight)  {
 		this.daoUserAnalysisRight.save(userAnalysisRight);
 	}
 
@@ -208,12 +208,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * Description
 	 * 
 	 * @param userAnalysisRight
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#saveOrUpdate(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
-	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception {
+	public void saveOrUpdate(UserAnalysisRight userAnalysisRight)  {
 		this.daoUserAnalysisRight.saveOrUpdate(userAnalysisRight);
 	}
 
@@ -222,12 +222,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * Description
 	 * 
 	 * @param userAnalysisRight
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#delete(lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
-	public void delete(UserAnalysisRight userAnalysisRight) throws Exception {
+	public void delete(UserAnalysisRight userAnalysisRight)  {
 		this.daoUserAnalysisRight.delete(userAnalysisRight);
 	}
 
@@ -236,12 +236,12 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * Description
 	 * 
 	 * @param id
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserAnalysisRight#delete(long)
 	 */
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		this.daoUserAnalysisRight.delete(get(id));
 	}
 

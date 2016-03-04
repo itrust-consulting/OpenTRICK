@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.model.cssf;
 
+import java.util.Map;
+
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
 import javax.persistence.Column;
@@ -21,6 +23,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -29,7 +32,7 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }) )
-public class RiskProfile {
+public class RiskProfile implements Cloneable {
 
 	@Id
 	@GeneratedValue
@@ -45,9 +48,6 @@ public class RiskProfile {
 	@JoinColumn(name = "fiScenario")
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Scenario scenario;
-
-	@Column(name = "dtOwner")
-	private String owner;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtStrategy")
@@ -74,6 +74,20 @@ public class RiskProfile {
 			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiExpImpactLeg") ),
 			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiExpImpactFin") ) })
 	private RiskProbaImpact expProbaImpact;
+	
+	
+
+	/**
+	 * 
+	 */
+	public RiskProfile() {
+	}
+
+	public RiskProfile(Asset asset, Scenario scenario) {
+		setAsset(asset);
+		setScenario(scenario);
+		setRiskStrategy(RiskStrategy.REDUCE);
+	}
 
 	/**
 	 * @return the id
@@ -118,21 +132,6 @@ public class RiskProfile {
 	 */
 	public void setScenario(Scenario scenario) {
 		this.scenario = scenario;
-	}
-
-	/**
-	 * @return the owner
-	 */
-	public String getOwner() {
-		return owner;
-	}
-
-	/**
-	 * @param owner
-	 *            the owner to set
-	 */
-	public void setOwner(String owner) {
-		this.owner = owner;
 	}
 
 	/**
@@ -222,10 +221,10 @@ public class RiskProfile {
 	 * 
 	 * @param asset
 	 * @param scenario
-	 * @return asset.id+"-_-"+scenario.id
+	 * @return asset.id+"^-'RISK_PROFILE'-^"+scenario.id
 	 */
 	public static String key(Asset asset, Scenario scenario) {
-		return asset.getId() + "-_-" + scenario.getId();
+		return asset.getId() + "^-'RISK_PROFILE'-^" + scenario.getId();
 	}
 
 	public Boolean is(int idAsset, int idScenario) {
@@ -238,6 +237,45 @@ public class RiskProfile {
 
 	public int getComputedExpImportance() {
 		return expProbaImpact == null ? 0 : expProbaImpact.getImportance();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public RiskProfile clone() throws CloneNotSupportedException {
+		RiskProfile riskProfile = (RiskProfile) super.clone();
+		riskProfile.asset = asset.clone();
+		riskProfile.scenario.clone();
+		if (rawProbaImpact != null)
+			riskProfile.rawProbaImpact = rawProbaImpact.clone();
+		if (expProbaImpact != null)
+			riskProfile.expProbaImpact = expProbaImpact.clone();
+		return riskProfile;
+	}
+
+	public RiskProfile duplicate() throws CloneNotSupportedException {
+		RiskProfile riskProfile = (RiskProfile) super.clone();
+		riskProfile.id = 0;
+		return riskProfile;
+	}
+	
+	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
+		RiskProfile riskProfile = (RiskProfile) super.clone();
+		riskProfile.updateData(assets, scenarios, parameters);
+		riskProfile.id = 0;
+		return riskProfile;
+	}	
+	
+	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
+		if (rawProbaImpact != null)
+			rawProbaImpact = rawProbaImpact.duplicate(parameters);
+		if (expProbaImpact != null)
+			expProbaImpact = expProbaImpact.duplicate(parameters);
+		this.asset = assets.get(this.asset.getId());
+		this.scenario = scenarios.get(scenario.getId());
 	}
 
 }

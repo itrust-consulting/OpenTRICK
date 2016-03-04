@@ -10,6 +10,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -25,6 +26,9 @@ import org.hibernate.annotations.CascadeType;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Parameter implements Cloneable {
+
+	@Transient
+	protected static final String KEY_PARAMETER_FORMAT = "%s-#-_##_-#-%s";
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -188,6 +192,14 @@ public class Parameter implements Cloneable {
 	public Boolean isMatch(String typeName, String description) {
 		return this.type == null ? (typeName == null ? (this.description == null ? description == null : this.description.equals(description)) : false)
 				: this.type.getLabel().equals(typeName) && (this.description == null ? description == null : this.description.equals(description));
+	}
+
+	public String getKey() {
+		return key(type.getLabel(), description);
+	}
+
+	public static String key(String type, String description) {
+		return String.format(Parameter.KEY_PARAMETER_FORMAT, type, description);
 	}
 
 }

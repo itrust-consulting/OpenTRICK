@@ -37,12 +37,12 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.EvaluationResult;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
@@ -68,7 +68,7 @@ public class ControllerAssessment {
 	private ServiceAsset serviceAsset;
 
 	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServiceParameter serviceParameter;
@@ -110,8 +110,8 @@ public class ControllerAssessment {
 				return new String("{\"error\":\""
 						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
-			assessmentManager.WipeAssessment(analysis);
-			assessmentManager.UpdateAssessment(analysis);
+			assessmentAndRiskProfileManager.WipeAssessment(analysis);
+			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -147,14 +147,13 @@ public class ControllerAssessment {
 			ALE aleo = new ALE(asset.getName(), 0);
 			ALE alep = new ALE(asset.getName(), 0);
 			List<Assessment> assessments = analysis.findSelectedAssessmentByAsset(idAsset);
-			AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 			Collections.sort(assessments, new AssessmentComparator());
 			model.addAttribute("ale", ale);
 			model.addAttribute("aleo", aleo);
 			model.addAttribute("alep", alep);
 			model.addAttribute("parameters", analysis.mapAcronymToValue());
 			model.addAttribute("assessments", assessments);
-			model.addAttribute("riskProfiles", analysis.mapRiskProfile());
 		} else {
 			Scenario scenario = analysis.findScenario(idScenario);
 			if (scenario == null)
@@ -188,11 +187,10 @@ public class ControllerAssessment {
 			model.addAttribute("alep", alep);
 			model.addAttribute("scenario", scenario);
 			model.addAttribute("parameters", analysis.mapAcronymToValue());
-			model.addAttribute("riskProfiles", analysis.mapRiskProfile());
 			model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
-			AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 			Collections.sort(assessments, new AssessmentComparator());
 			model.addAttribute("assessments", assessments);
 		} else {
@@ -202,7 +200,6 @@ public class ControllerAssessment {
 			Assessment assessment = analysis.findAssessmentByAssetAndScenario(idAsset, idScenario);
 			if (!assessment.isSelected())
 				throw new ResourceNotFoundException(messageSource.getMessage("error.assessment.not_found", null, "Estimation cannot be found!", locale));
-
 			model.addAttribute("asset", asset);
 			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 
@@ -221,21 +218,23 @@ public class ControllerAssessment {
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("assessment", assessment);
 		model.addAttribute("probabilities", probabilities);
-		model.addAttribute("strategies", RiskStrategy.values());
-		model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
-		RiskRegisterItem registerItem = analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario);
-		if (registerItem != null) {
-			ParameterConvertor converter = new ParameterConvertor(impacts, probabilities);
-			int rawImpact = converter.getImpactLevel(registerItem.getRawEvaluation().getImpact()),
-					rawProbability = converter.getProbabiltyLevel(registerItem.getRawEvaluation().getProbability()),
-					netImpact = converter.getImpactLevel(registerItem.getNetEvaluation().getImpact()),
-					netProbability = converter.getProbabiltyLevel(registerItem.getNetEvaluation().getProbability()),
-					expImpact = converter.getImpactLevel(registerItem.getExpectedEvaluation().getImpact()),
-					expProbability = converter.getProbabiltyLevel(registerItem.getExpectedEvaluation().getProbability());
-			model.addAttribute("rawModelling", new EvaluationResult(rawProbability, rawImpact));
-			model.addAttribute("netModelling", new EvaluationResult(netProbability, netImpact));
-			model.addAttribute("expModelling", new EvaluationResult(expProbability, expImpact));
-			model.addAttribute("riskRegister", registerItem);
+		if (analysis.isCssf()) {
+			model.addAttribute("strategies", RiskStrategy.values());
+			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
+			RiskRegisterItem registerItem = analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario);
+			if (registerItem != null) {
+				ParameterConvertor converter = new ParameterConvertor(impacts, probabilities);
+				int rawImpact = converter.getImpactLevel(registerItem.getRawEvaluation().getImpact()),
+						rawProbability = converter.getProbabiltyLevel(registerItem.getRawEvaluation().getProbability()),
+						netImpact = converter.getImpactLevel(registerItem.getNetEvaluation().getImpact()),
+						netProbability = converter.getProbabiltyLevel(registerItem.getNetEvaluation().getProbability()),
+						expImpact = converter.getImpactLevel(registerItem.getExpectedEvaluation().getImpact()),
+						expProbability = converter.getProbabiltyLevel(registerItem.getExpectedEvaluation().getProbability());
+				model.addAttribute("rawModelling", new EvaluationResult(rawProbability, rawImpact));
+				model.addAttribute("netModelling", new EvaluationResult(netProbability, netImpact));
+				model.addAttribute("expModelling", new EvaluationResult(expProbability, expImpact));
+				model.addAttribute("riskRegister", registerItem);
+			}
 		}
 	}
 
@@ -269,7 +268,7 @@ public class ControllerAssessment {
 				return new String("{\"error\":\""
 						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
-			assessmentManager.UpdateAssessment(analysis);
+			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -314,7 +313,7 @@ public class ControllerAssessment {
 				return new String("{\"error\":\""
 						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
-			assessmentManager.UpdateAssetALE(analysis);
+			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -417,7 +416,7 @@ public class ControllerAssessment {
 			}
 
 			// compute ALE
-			AssessmentManager.ComputeAlE(assessments, parameters);
+			AssessmentAndRiskProfileManager.ComputeAlE(assessments, parameters);
 
 			// update assessments
 			serviceAssessment.saveOrUpdate(assessments);
@@ -516,7 +515,7 @@ public class ControllerAssessment {
 			}
 
 			// compute ALE
-			AssessmentManager.ComputeAlE(assessments, parameters);
+			AssessmentAndRiskProfileManager.ComputeAlE(assessments, parameters);
 
 			// update assessments
 			serviceAssessment.saveOrUpdate(assessments);
@@ -565,7 +564,7 @@ public class ControllerAssessment {
 		model.addAttribute("alep", alep);
 		model.addAttribute("asset", asset);
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
-		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
@@ -601,7 +600,7 @@ public class ControllerAssessment {
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
 		model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);

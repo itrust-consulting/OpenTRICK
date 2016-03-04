@@ -55,7 +55,6 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
@@ -63,6 +62,7 @@ import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
@@ -133,7 +133,7 @@ public class ControllerEditField {
 	private ServiceRiskInformation serviceRiskInformation;
 
 	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServicePhase servicePhase;
@@ -411,7 +411,7 @@ public class ControllerEditField {
 
 				if (field.getName().equals("acronym")) {
 					try {
-						assessmentManager.UpdateAcronym(id, parameter, acronym);
+						assessmentAndRiskProfileManager.UpdateAcronym(id, parameter, acronym);
 					} catch (Exception e) {
 						TrickLogManager.Persist(e);
 						return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, parameter.getAcronym() },
@@ -597,7 +597,7 @@ public class ControllerEditField {
 				parameters.put(parameter.getAcronym(), parameter);
 
 			// compute new ALE
-			AssessmentManager.ComputeAlE(assessment, parameters);
+			AssessmentAndRiskProfileManager.ComputeAlE(assessment, parameters);
 
 			// update assessment
 			serviceAssessment.saveOrUpdate(assessment);
@@ -732,7 +732,7 @@ public class ControllerEditField {
 
 			// compute new ALE
 			if (parameters != null) {
-				AssessmentManager.ComputeAlE(assessment, parameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity())));
+				AssessmentAndRiskProfileManager.ComputeAlE(assessment, parameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity())));
 				NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 				result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
 				result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));

@@ -84,13 +84,13 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
@@ -134,7 +134,7 @@ public class ControllerAnalysis {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -436,7 +436,7 @@ public class ControllerAnalysis {
 
 			if (analysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", customLocale != null ? customLocale : locale));
-			assessmentManager.UpdateAssetALE(analysis);
+			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", customLocale != null ? customLocale : locale));
 		} catch (TrickException e) {
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
@@ -793,9 +793,6 @@ public class ControllerAnalysis {
 			} else
 				errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 
-		} catch (CloneNotSupportedException e) {
-			TrickLogManager.Persist(e);
-			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicated!", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));

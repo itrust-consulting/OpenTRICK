@@ -31,12 +31,12 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#get(int)
 	 */
 	@Override
-	public ParameterType get(Integer id) throws Exception {
+	public ParameterType get(Integer id)  {
 		return daoParameterType.get(id);
 	}
 
@@ -46,12 +46,12 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * 
 	 * @param parameterTypeName
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#getByName(java.lang.String)
 	 */
 	@Override
-	public ParameterType getByName(String parameterTypeName) throws Exception {
+	public ParameterType getByName(String parameterTypeName)  {
 		return daoParameterType.getByName(parameterTypeName);
 	}
 
@@ -60,12 +60,12 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#getAllParameterTypes()
 	 */
 	@Override
-	public List<ParameterType> getAll() throws Exception {
+	public List<ParameterType> getAll()  {
 		return daoParameterType.getAll();
 	}
 
@@ -74,13 +74,13 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * Description
 	 * 
 	 * @param parameterType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#save(lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Transactional
 	@Override
-	public void save(ParameterType parameterType) throws Exception {
+	public void save(ParameterType parameterType)  {
 		daoParameterType.save(parameterType);
 
 	}
@@ -90,13 +90,13 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * Description
 	 * 
 	 * @param parameterType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#saveOrUpdate(lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(ParameterType parameterType) throws Exception {
+	public void saveOrUpdate(ParameterType parameterType)  {
 		daoParameterType.saveOrUpdate(parameterType);
 
 	}
@@ -106,13 +106,13 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * Description
 	 * 
 	 * @param parameterType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#delete(lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Transactional
 	@Override
-	public void delete(ParameterType parameterType) throws Exception {
+	public void delete(ParameterType parameterType)  {
 		daoParameterType.delete(parameterType);
 	}
 }

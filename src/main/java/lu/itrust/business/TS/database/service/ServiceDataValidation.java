@@ -17,25 +17,25 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
  * @since May 13, 2013
  */
 public interface ServiceDataValidation {
-	public boolean register(ValidatorField validator) throws Exception;
+	public boolean register(ValidatorField validator) ;
 
-	public boolean unregister(Class<?> clazz) throws Exception;
+	public boolean unregister(Class<?> clazz) ;
 
-	public boolean isRegistred(Class<?> clazz) throws Exception;
+	public boolean isRegistred(Class<?> clazz) ;
 
-	public boolean isRegistred(ValidatorField validator) throws Exception;
+	public boolean isRegistred(ValidatorField validator) ;
 
-	public ValidatorField findByClass(Class<?> clazz) throws Exception;
+	public ValidatorField findByClass(Class<?> clazz) ;
 
-	public String validate(Object object, String fieldName, Object data) throws Exception;
+	public String validate(Object object, String fieldName, Object data) ;
 
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws Exception;
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) ;
 
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws Exception;
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) ;
 
-	public String ParseError(String message, MessageSource messageSource, Locale locale) throws Exception;
+	public String ParseError(String message, MessageSource messageSource, Locale locale) ;
 
-	public Map<String, String> validate(Object object) throws Exception;
+	public Map<String, String> validate(Object object) ;
 
-	public Map<String, String> validate(Object o, Map<Object, Object> choose) throws Exception;
+	public Map<String, String> validate(Object o, Map<Object, Object> choose) ;
 }

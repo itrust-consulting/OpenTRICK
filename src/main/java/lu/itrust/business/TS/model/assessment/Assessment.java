@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.exception.TrickException;
@@ -56,6 +57,10 @@ public class Assessment implements Cloneable {
 	/** hidden assessment comment */
 	@Column(name = "dtHiddenComment", columnDefinition = "LONGTEXT", nullable = false)
 	private String hiddenComment = "";
+	
+	/** hidden assessment comment */
+	@Column(name = "dtOwner", nullable = false)
+	private String owner = "";
 
 	/** The impactFin value of this assessment */
 	@Column(name = "dtImpactRep", nullable = false)
@@ -200,6 +205,20 @@ public class Assessment implements Cloneable {
 	 */
 	public void setHiddenComment(String hiddenComment) {
 		this.hiddenComment = hiddenComment;
+	}
+
+	/**
+	 * @return the owner
+	 */
+	public String getOwner() {
+		return owner;
+	}
+
+	/**
+	 * @param owner the owner to set
+	 */
+	protected void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 	/**
@@ -636,4 +655,15 @@ public class Assessment implements Cloneable {
 	public boolean is(int idAsset, int idScenario) {
 		return asset.getId() == idAsset && scenario.getId() == idScenario;
 	}
+
+	@Transient
+	public String getKey() {
+		return key(asset, scenario);
+	}
+
+	@Transient
+	public static String key(Asset asset, Scenario scenario) {
+		return asset.getId() + "^-'ASSESSMENT'-^" + scenario.getId();
+	}
+
 }

@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.model.cssf;
 
+import java.util.Map;
+
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
 
@@ -10,13 +12,14 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.Parameter;
 
 /**
  * @author eomar
  *
  */
 @Embeddable
-public class RiskProbaImpact {
+public class RiskProbaImpact implements Cloneable {
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
@@ -126,6 +129,60 @@ public class RiskProbaImpact {
 		if (impactLeg != null)
 			max = Math.max(max, impactLeg.getLevel());
 		return max;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public RiskProbaImpact clone() throws CloneNotSupportedException {
+		RiskProbaImpact probaImpact = (RiskProbaImpact) super.clone();
+		if (probability != null)
+			probaImpact.probability = probability.clone();
+		if (impactFin != null)
+			probaImpact.impactFin = impactFin.clone();
+		if (impactRep != null)
+			probaImpact.impactRep = impactRep.clone();
+		if (impactOp != null)
+			probaImpact.impactOp = impactOp.clone();
+		if (impactLeg != null)
+			probaImpact.impactLeg = impactLeg.clone();
+		return probaImpact;
+	}
+
+	public RiskProbaImpact duplicate() throws CloneNotSupportedException {
+		RiskProbaImpact probaImpact = (RiskProbaImpact) super.clone();
+		return probaImpact;
+	}
+
+	/**
+	 * @param parameters Map< Acronym, Parameter >
+	 * @return copy
+	 * @throws CloneNotSupportedException
+	 */
+	public RiskProbaImpact duplicate(Map<String, Parameter> parameters) throws CloneNotSupportedException {
+		RiskProbaImpact probaImpact = (RiskProbaImpact) super.clone();
+		probaImpact.updateData(parameters);
+		return probaImpact;
+	}
+
+	/**
+	 * Replace parameters
+	 * @param parameters Map< Acronym, Parameter >
+	 */
+	public void updateData(Map<String, Parameter> parameters) {
+		if (probability != null)
+			probability = (ExtendedParameter) parameters.get(probability.getKey());
+		if (impactFin != null)
+			impactFin = (ExtendedParameter) parameters.get(impactFin.getKey());
+		if (impactRep != null)
+			impactRep = (ExtendedParameter) parameters.get(impactRep.getKey());
+		if (impactOp != null)
+			impactOp = (ExtendedParameter) parameters.get(impactOp.getKey());
+		if (impactLeg != null)
+			impactLeg = (ExtendedParameter) parameters.get(impactLeg.getKey());
 	}
 
 }

@@ -42,11 +42,11 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.validator.ScenarioValidator;
@@ -87,7 +87,7 @@ public class ControllerScenario {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -125,9 +125,9 @@ public class ControllerScenario {
 
 			// select or unselect scenario
 			if (scenario.isSelected())
-				assessmentManager.unSelectScenario(scenario);
+				assessmentAndRiskProfileManager.unSelectScenario(scenario);
 			else
-				assessmentManager.selectScenario(scenario);
+				assessmentAndRiskProfileManager.selectScenario(scenario);
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.successfully", null, "Scenario was updated successfully",
@@ -259,7 +259,7 @@ public class ControllerScenario {
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
-		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
+		model.addAttribute("scenarioALE", AssessmentAndRiskProfileManager.ComputeScenarioALE(scenarios, assessments));
 		model.addAttribute("isEditable", open!=READ && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
@@ -403,11 +403,11 @@ public class ControllerScenario {
 			}
 
 			if (scenario.isSelected())
-				assessmentManager.selectScenario(scenario);
+				assessmentAndRiskProfileManager.selectScenario(scenario);
 			else
-				assessmentManager.unSelectScenario(scenario);
+				assessmentAndRiskProfileManager.unSelectScenario(scenario);
 
-			assessmentManager.build(scenario, idAnalysis);
+			assessmentAndRiskProfileManager.build(scenario, idAnalysis);
 
 			return errors;
 

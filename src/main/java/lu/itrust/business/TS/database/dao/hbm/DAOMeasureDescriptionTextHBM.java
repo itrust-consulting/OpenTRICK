@@ -41,7 +41,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#get(int)
 	 */
 	@Override
-	public MeasureDescriptionText get(Integer id) throws Exception {
+	public MeasureDescriptionText get(Integer id)  {
 		return (MeasureDescriptionText) getSession().get(MeasureDescription.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 *      int)
 	 */
 	@Override
-	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage)  {
 		String query = "from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
 		return (MeasureDescriptionText) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult();
 	}
@@ -66,7 +66,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 *      int)
 	 */
 	@Override
-	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage)  {
 		String query = "Select count(*) from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
 		return (Long) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult() >= 1;
 	}
@@ -79,7 +79,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID) throws Exception {
+	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID)  {
 		String query = "from MeasureDescriptionText where measureDescription.id = :measureDescriptionid";
 		return (List<MeasureDescriptionText>) getSession().createQuery(query).setParameter("measureDescriptionid", measureDescriptionID).list();
 	}
@@ -91,7 +91,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#save(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Override
-	public void save(MeasureDescriptionText measureDescriptiontext) throws Exception {
+	public void save(MeasureDescriptionText measureDescriptiontext)  {
 		getSession().save(measureDescriptiontext);
 	}
 
@@ -102,7 +102,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Override
-	public void saveOrUpdate(MeasureDescriptionText measureDescriptiontext) throws Exception {
+	public void saveOrUpdate(MeasureDescriptionText measureDescriptiontext)  {
 		getSession().saveOrUpdate(measureDescriptiontext);
 	}
 
@@ -113,7 +113,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#delete(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Override
-	public void delete(MeasureDescriptionText measureDescriptiontext) throws Exception {
+	public void delete(MeasureDescriptionText measureDescriptiontext)  {
 		getSession().delete(measureDescriptiontext);
 	}
 }

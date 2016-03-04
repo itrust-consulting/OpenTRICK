@@ -17,33 +17,33 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public interface ServiceUserAnalysisRight {
 	
-	public UserAnalysisRight get(Integer id) throws Exception;
+	public UserAnalysisRight get(Integer id) ;
 
-	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) throws Exception;
+	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) ;
 
-	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) ;
 
-	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception;
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) ;
 
-	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) throws Exception;
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) ;
 
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) ;
 
-	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) throws Exception;
+	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) ;
 
-	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) throws Exception;
+	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) ;
 
-	public List<UserAnalysisRight> getAllFromUser(String login) throws Exception;
+	public List<UserAnalysisRight> getAllFromUser(String login) ;
 
-	public List<UserAnalysisRight> getAllFromUser(User user) throws Exception;
+	public List<UserAnalysisRight> getAllFromUser(User user) ;
 
-	public void save(UserAnalysisRight userAnalysisRight) throws Exception;
+	public void save(UserAnalysisRight userAnalysisRight) ;
 
-	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception;
+	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) ;
 
-	public void delete(Integer id) throws Exception;
+	public void delete(Integer id) ;
 
-	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
+	public void delete(UserAnalysisRight userAnalysisRight) ;
 
 	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int AnalysisId);
 

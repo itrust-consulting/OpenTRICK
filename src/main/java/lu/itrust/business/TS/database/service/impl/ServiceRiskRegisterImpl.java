@@ -31,12 +31,12 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#get(int)
 	 */
 	@Override
-	public RiskRegisterItem get(Integer id) throws Exception {
+	public RiskRegisterItem get(Integer id)  {
 		return daoRiskRegister.get(id);
 	}
 
@@ -47,13 +47,13 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * @param riskregisterItemId
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId)  {
 		return daoRiskRegister.belongsToAnalysis(analysisId,riskregisterItemId);
 	}
 
@@ -63,12 +63,12 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * 
 	 * @param analysisID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#getAllFromAnalysisId(java.lang.Integer)
 	 */
 	@Override
-	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisID) throws Exception {
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisID)  {
 		return daoRiskRegister.getAllFromAnalysis(analysisID);
 	}
 
@@ -77,13 +77,13 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * Description
 	 * 
 	 * @param riskRegisterItem
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#save(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
-	public void save(RiskRegisterItem riskRegisterItem) throws Exception {
+	public void save(RiskRegisterItem riskRegisterItem)  {
 		daoRiskRegister.save(riskRegisterItem);
 	}
 
@@ -92,13 +92,13 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * Description
 	 * 
 	 * @param riskRegisterItem
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#saveOrUpdate(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception {
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem)  {
 		daoRiskRegister.saveOrUpdate(riskRegisterItem);
 	}
 
@@ -107,19 +107,19 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	 * Description
 	 * 
 	 * @param riskRegisterItem
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceRiskRegister#delete(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
-	public void delete(RiskRegisterItem riskRegisterItem) throws Exception {
+	public void delete(RiskRegisterItem riskRegisterItem)  {
 		daoRiskRegister.delete(riskRegisterItem);
 	}
 
 	@Transactional
 	@Override
-	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+	public void deleteAllFromAnalysis(Integer analysisID)  {
 		daoRiskRegister.deleteAllFromAnalysis(analysisID);
 
 	}
