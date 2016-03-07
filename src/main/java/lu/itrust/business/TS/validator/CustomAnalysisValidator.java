@@ -7,7 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.analysis.helper.CustomAnalysisForm;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisForm;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**
@@ -74,7 +74,7 @@ public class CustomAnalysisValidator extends ValidatorFieldImpl {
 
 	@Override
 	public Class<?> supported() {
-		return CustomAnalysisForm.class;
+		return AnalysisForm.class;
 	}
 
 }

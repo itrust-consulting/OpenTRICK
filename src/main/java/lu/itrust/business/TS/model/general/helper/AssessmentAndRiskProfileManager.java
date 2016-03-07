@@ -233,6 +233,47 @@ public class AssessmentAndRiskProfileManager {
 		}
 		UpdateAssetALE(analysis);
 	}
+	
+	public void UpdateRiskDendencies(Analysis analysis, Map<String, ExtendedParameter> parametersMapped) throws Exception {
+		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
+		if (analysis.isCssf() || !analysis.getRiskProfiles().isEmpty()) {
+			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
+			for (Asset asset : analysis.getAssets()) {
+				for (Scenario scenario : analysis.getScenarios()) {
+					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
+					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
+					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+						if (assessment == null)
+							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), parametersMapped));
+						if (riskProfile == null)
+							analysis.getRiskProfiles().add(riskProfile);
+					} else {
+						if (assessment != null)
+							analysis.getAssessments().remove(assessment);
+						if (riskProfile != null) 
+							analysis.getRiskProfiles().remove(riskProfile);
+				
+					}
+				}
+			}
+		} else {
+			for (Asset asset : analysis.getAssets()) {
+				for (Scenario scenario : analysis.getScenarios()) {
+					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
+					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+						if (assessment == null)
+							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), parametersMapped));
+					} else {
+						if (assessment != null)
+							analysis.getAssessments().remove(assessment);
+					}
+
+				}
+			}
+		}
+		UpdateAssetALE(analysis);
+	}
+
 
 	/**
 	 * UpdateAssetALE: <br>

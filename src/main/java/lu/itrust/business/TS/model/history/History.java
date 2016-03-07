@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.model.history;
 
+import java.beans.Transient;
+import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -15,15 +17,16 @@ import lu.itrust.business.TS.exception.TrickException;
  * History: <br>
  * This class represents an History and all its data.
  * 
- * This class is used to store History. Each analysis has only one single history. Each analysis in
- * the knowledgebase can be the same, but has different histories (versions).
+ * This class is used to store History. Each analysis has only one single
+ * history. Each analysis in the knowledgebase can be the same, but has
+ * different histories (versions).
  * 
  * @author itrust consulting s.à r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtVersion" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtVersion" }) )
 public class History implements Cloneable {
 
 	/***********************************************************************************************
@@ -44,7 +47,10 @@ public class History implements Cloneable {
 	@Column(name = "dtDateComment", nullable = false)
 	private Date date = null;
 
-	/** The Name of the Author that created the History Entry (The Analysis at this Version) */
+	/**
+	 * The Name of the Author that created the History Entry (The Analysis at
+	 * this Version)
+	 */
 	@Column(name = "dtAuthor", nullable = false)
 	private String author = "";
 
@@ -224,5 +230,10 @@ public class History implements Cloneable {
 		History history = (History) super.clone();
 		history.id = -1;
 		return history;
+	}
+
+	@Transient
+	public Date generateDate() {
+		return date = new Timestamp(System.currentTimeMillis());
 	}
 }

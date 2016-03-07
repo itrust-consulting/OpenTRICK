@@ -13,14 +13,16 @@ import lu.itrust.business.TS.model.history.History;
  * @author eomar
  *
  */
-public class CustomAnalysisForm {
+public class AnalysisForm {
 
 	private boolean assessment;
+
+	private boolean riskProfile;
 
 	private int asset;
 
 	private String author;
-	
+
 	private String name;
 
 	private String comment;
@@ -44,23 +46,38 @@ public class CustomAnalysisForm {
 	private List<AnalysisStandardBaseInfo> standards;
 
 	private String version;
-	
+
 	private boolean uncertainty;
-	
+
 	private boolean cssf;
 
 	/**
 	 * 
 	 */
-	public CustomAnalysisForm() {
+	public AnalysisForm() {
 	}
 
 	public boolean isAssessment() {
-		return assessment;
+		return assessment && asset > 0 && asset == scenario;
 	}
 
 	public void setAssessment(boolean assessment) {
 		this.assessment = assessment;
+	}
+
+	/**
+	 * @return the riskProfile
+	 */
+	public boolean isRiskProfile() {
+		return riskProfile && cssf && asset > 0 && asset == scenario;
+	}
+
+	/**
+	 * @param riskProfile
+	 *            the riskProfile to set
+	 */
+	public void setRiskProfile(boolean riskProfile) {
+		this.riskProfile = riskProfile;
 	}
 
 	public int getAsset() {
@@ -153,9 +170,9 @@ public class CustomAnalysisForm {
 
 	@Override
 	public String toString() {
-		return "CustomAnalysisForm [assessment=" + assessment + ", asset=" + asset + ", author=" + author + ", comment=" + comment + ", customer=" + customer + ", language="
-				+ language + ", parameter=" + parameter + ", phase=" + phase + ", riskInformation=" + riskInformation + ", scenario=" + scenario + ", scope=" + scope
-				+ ", standards=" + this.standards + ", version=" + version + "]";
+		return "AnalysisForm [assessment=" + assessment + ", asset=" + asset + ", author=" + author + ", comment=" + comment + ", customer=" + customer + ", language=" + language
+				+ ", parameter=" + parameter + ", phase=" + phase + ", riskInformation=" + riskInformation + ", scenario=" + scenario + ", scope=" + scope + ", standards="
+				+ this.standards + ", version=" + version + "]";
 	}
 
 	public History generateHistory() {
@@ -171,13 +188,12 @@ public class CustomAnalysisForm {
 			riskInformation = defaultProfileId;
 		if (parameter < 1)
 			parameter = defaultProfileId;
-		if (standards == null || standards.isEmpty()){
-			if(standards == null)
+		if (standards == null || standards.isEmpty()) {
+			if (standards == null)
 				standards = new LinkedList<AnalysisStandardBaseInfo>();
 			standards.add(new AnalysisStandardBaseInfo(defaultProfileId));
 		}
-			
-			
+
 		if (scenario < 1)
 			scenario = defaultProfileId;
 	}
@@ -190,7 +206,8 @@ public class CustomAnalysisForm {
 		this.profile = profile;
 	}
 
-	/** isUncertainty: <br>
+	/**
+	 * isUncertainty: <br>
 	 * Returns the uncertainty field value.
 	 * 
 	 * @return The value of the uncertainty field
@@ -199,17 +216,19 @@ public class CustomAnalysisForm {
 		return uncertainty;
 	}
 
-	/** setUncertainty: <br>
+	/**
+	 * setUncertainty: <br>
 	 * Sets the Field "uncertainty" with a value.
 	 * 
-	 * @param uncertainty 
-	 * 			The Value to set the uncertainty field
+	 * @param uncertainty
+	 *            The Value to set the uncertainty field
 	 */
 	public void setUncertainty(boolean uncertainty) {
 		this.uncertainty = uncertainty;
 	}
 
-	/** isCssf: <br>
+	/**
+	 * isCssf: <br>
 	 * Returns the cssf field value.
 	 * 
 	 * @return The value of the cssf field
@@ -218,11 +237,12 @@ public class CustomAnalysisForm {
 		return cssf;
 	}
 
-	/** setCssf: <br>
+	/**
+	 * setCssf: <br>
 	 * Sets the Field "cssf" with a value.
 	 * 
-	 * @param cssf 
-	 * 			The Value to set the cssf field
+	 * @param cssf
+	 *            The Value to set the cssf field
 	 */
 	public void setCssf(boolean cssf) {
 		this.cssf = cssf;
@@ -244,10 +264,10 @@ public class CustomAnalysisForm {
 	}
 
 	/**
-	 * @param standrads the standrads to set
+	 * @param standrads
+	 *            the standrads to set
 	 */
 	public void setStandards(List<AnalysisStandardBaseInfo> standards) {
 		this.standards = standards;
 	}
-
 }

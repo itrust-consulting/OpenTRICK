@@ -86,7 +86,7 @@
 							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 							</label>
 							<div class="col-sm-10">
-								<textarea name="comment" class="form-control resize_vectical_only" rows="5" required="required"></textarea>
+								<textarea name="comment" class="form-control resize_vectical_only" rows="6" style="height: 157.4px;" required="required"></textarea>
 							</div>
 						</div>
 						<div class="form-group">
@@ -100,7 +100,7 @@
 							<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" />
 							</label>
 							<div class="col-sm-10" align="center">
-								<input type="checkbox" name="cssf" class="checkbox">
+								<input id="cssf" type="checkbox" name="cssf" class="checkbox">
 							</div>
 						</div>
 					</div>
@@ -186,7 +186,14 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
+								<label for="riskProfile" class="col-sm-3 control-label"> <spring:message code="label.analysis.risk_profile" text="Risk profile" />
+								</label>
+								<div class="col-sm-9" align="center">
+									<input type="checkbox" class="checkbox" name="riskProfile" disabled="disabled" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="standards" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
 									<div class="well well-sm" style="height: 131px;overflow-y:auto">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
@@ -194,7 +201,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.phases" text="Phase" />
+								<label for="phase" class="col-sm-3 control-label"> <spring:message code="label.analysis.phases" text="Phase" />
 								</label>
 								<div class="col-sm-9" align="center">
 									<input type="checkbox" class="checkbox" name="phase" disabled="disabled" />

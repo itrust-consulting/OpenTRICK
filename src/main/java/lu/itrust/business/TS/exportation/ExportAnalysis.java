@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.exportation;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +23,8 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
@@ -162,6 +165,10 @@ public class ExportAnalysis {
 			// ****************************************************************
 			exportAssessments();
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_profile", "Export risk profile", null, 65));
+
+			exportRiskProfile();
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.measures", "Export measures", null, 70));
 
 			// ****************************************************************
@@ -221,6 +228,81 @@ public class ExportAnalysis {
 			TrickLogManager.Persist(e);
 			return new MessageHandler(e);
 			// set return value exception
+		}
+	}
+
+	private void exportRiskProfile() throws SQLException {
+
+		System.out.println("Export Risk profile");
+
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		List<Object> params = new ArrayList<Object>();
+		String query = "", unionQuery = " UNION Select ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO risk_profile SELECT ? as id_threat,? as id_asset,? as actionPlan,? as treatment,? as strategy,? as exp_impact_fin,"
+						+ "? as exp_impact_leg,? as exp_impact_op,? as exp_impact_rep,? as exp_probability,? as raw_impact_fin,? as raw_impact_leg,? as raw_impact_op,"
+						+ "? as raw_impact_rep,? as raw_probability";
+
+		// ****************************************************************
+		// * Export the Risk Register Item by Item
+		// ****************************************************************
+
+		ExtendedParameter defaultImpact = analysis.findExtendedByTypeAndLevel(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, 0),
+				defaultProbability = analysis.findExtendedByTypeAndLevel(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, 0);
+
+		// parse all Risk Register Entries
+		for (RiskProfile riskProfile : analysis.getRiskProfiles()) {
+			// add parameters for the current Risk Register Item
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 15 > 999) {
+				sqlite.query(query, params);
+				params.clear();
+				query = baseQuery;
+			} else
+				query += unionQuery;
+			addRiskProfile(params, defaultImpact, defaultProbability, riskProfile);
+		}
+
+		if (!params.isEmpty()) {
+			sqlite.query(query, params);
+			params.clear();
+		}
+	}
+
+	private void addRiskProfile(List<Object> params, ExtendedParameter defaultImpact, ExtendedParameter defaultProbability, RiskProfile riskProfile) {
+		RiskStrategy riskStrategy;
+		params.add(riskProfile.getScenario().getId());
+		params.add(riskProfile.getAsset().getId());
+		params.add(riskProfile.getActionPlan());
+		params.add(riskProfile.getRiskTreatment());
+		riskStrategy = riskProfile.getRiskStrategy();
+		if (riskStrategy == null)
+			riskStrategy = RiskStrategy.REDUCE;
+		params.add(riskStrategy);
+		if (riskProfile.getExpProbaImpact() == null) {
+			for (int i = 0; i < 4; i++)
+				params.add(defaultImpact.getAcronym());
+			params.add(defaultProbability.getAcronym());
+		} else {
+			params.add(riskProfile.getExpProbaImpact().getImpactFin(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getImpactLeg(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getImpactOp(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getImpactRep(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getProbability(defaultProbability).getAcronym());
+		}
+
+		if (riskProfile.getRawProbaImpact() == null) {
+			for (int i = 0; i < 4; i++)
+				params.add(defaultImpact.getAcronym());
+			params.add(defaultProbability.getAcronym());
+		} else {
+			params.add(riskProfile.getRawProbaImpact().getImpactFin(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getImpactLeg(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getImpactOp(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getImpactRep(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getProbability(defaultProbability).getAcronym());
 		}
 	}
 
@@ -1363,7 +1445,8 @@ public class ExportAnalysis {
 		List<Object> measureparams = new ArrayList<Object>(), specparams = new ArrayList<Object>(), defaultspecparams = new ArrayList<Object>();
 		MaturityStandard maturityStandard = null;
 		MaturityMeasure maturity = null;
-		String measurequery = "" , specdefaultquery = "";;
+		String measurequery = "", specdefaultquery = "";
+		;
 		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
 
 		// ****************************************************************
@@ -1517,7 +1600,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
 					measureparams.add(measureIndex++);
-					//measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
+					// measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
 
 					// ****************************************************************
 					// * export asset type values

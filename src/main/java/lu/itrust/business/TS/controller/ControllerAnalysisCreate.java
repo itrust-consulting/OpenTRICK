@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -37,22 +38,26 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
+import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisForm;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisStandardBaseInfo;
-import lu.itrust.business.TS.model.analysis.helper.CustomAnalysisForm;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -113,10 +118,16 @@ public class ControllerAnalysisCreate {
 	private ServiceAssessment serviceAssessment;
 
 	@Autowired
+	private ServiceRiskProfile serviceRiskProfile;
+
+	@Autowired
 	private ServicePhase servicePhase;
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
+
+	@Autowired
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private Duplicator duplicator;
@@ -140,83 +151,80 @@ public class ControllerAnalysisCreate {
 
 	}
 
-	@RequestMapping(value = "/Save", method = RequestMethod.POST,consumes="application/x-www-form-urlencoded;charset=UTF-8")
-	public @ResponseBody Object buildCustomSave(@ModelAttribute CustomAnalysisForm customAnalysisForm, Principal principal, Locale locale) throws Exception {
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded;charset=UTF-8")
+	public @ResponseBody Object buildCustomSave(@ModelAttribute AnalysisForm analysisForm, Principal principal, Locale locale) throws Exception {
 		try {
-			if (!serviceDataValidation.isRegistred(CustomAnalysisForm.class))
+			if (!serviceDataValidation.isRegistred(AnalysisForm.class))
 				serviceDataValidation.register(new CustomAnalysisValidator());
-			Map<String, String> errors = serviceDataValidation.validate(customAnalysisForm);
+			Map<String, String> errors = serviceDataValidation.validate(analysisForm);
 			for (String error : errors.keySet())
 				errors.put(error, serviceDataValidation.ParseError(errors.get(error), messageSource, locale));
 
-			int defaultProfileId = customAnalysisForm.getProfile() < 1 ? serviceAnalysis.getDefaultProfileId() : customAnalysisForm.getProfile();
+			int defaultProfileId = analysisForm.getProfile() < 1 ? serviceAnalysis.getDefaultProfileId() : analysisForm.getProfile();
 
-			customAnalysisForm.setDefaultProfile(defaultProfileId);
+			analysisForm.setDefaultProfile(defaultProfileId);
 
-			if (customAnalysisForm.getAsset() > 0 && !serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getAsset(), principal.getName(), AnalysisRight.MODIFY))
+			if (analysisForm.getAsset() > 0 && !serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getAsset(), principal.getName(), AnalysisRight.MODIFY))
 				errors.put("asset", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (customAnalysisForm.getScenario() > 0
-					&& !(customAnalysisForm.getScenario() == defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getScenario(), principal.getName(),
-							AnalysisRight.MODIFY)))
+			if (analysisForm.getScenario() > 0 && !(analysisForm.getScenario() == defaultProfileId
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScenario(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("scenario", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			validateStandards(customAnalysisForm.getStandards(), errors, principal, defaultProfileId, locale);
+			validateStandards(analysisForm.getStandards(), errors, principal, defaultProfileId, locale);
 
-			if (customAnalysisForm.isAssessment() && (customAnalysisForm.getScenario() < 1 || customAnalysisForm.getScenario() != customAnalysisForm.getAsset()))
+			if (analysisForm.isAssessment() && (analysisForm.getScenario() < 1 || analysisForm.getScenario() != analysisForm.getAsset()))
 				errors.put("assessment", messageSource.getMessage("error.analysis_custom.assessment.invalid", null, "Risk estimation cannot be selected", locale));
 
-			if (customAnalysisForm.getScope() < 1) {
+			if (analysisForm.getScope() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("scope", messageSource.getMessage("error.analysis_custom.scope.empty", null, "No default profile, scope cannot be empty", locale));
-			} else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getScope(), principal.getName(),
-					AnalysisRight.MODIFY)))
+			} else if (!(analysisForm.getScope() == defaultProfileId
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScope(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (customAnalysisForm.getParameter() < 1) {
+			if (analysisForm.getParameter() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("parameter", messageSource.getMessage("error.analysis_custom.parameter.empty", null, "No default profile, parameter cannot be empty", locale));
-			} else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getParameter(), principal.getName(),
-					AnalysisRight.MODIFY)))
+			} else if (!(analysisForm.getParameter() == defaultProfileId
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getParameter(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("parameter", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (customAnalysisForm.getRiskInformation() < 1) {
+			if (analysisForm.getRiskInformation() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("riskInformation",
 						messageSource.getMessage("error.analysis_custom.risk_information.empty", null, "No default profile, risk information cannot be empty", locale));
-			} else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.hasRightOrOwner(customAnalysisForm.getRiskInformation(),
-					principal.getName(), AnalysisRight.MODIFY)))
+			} else if (!(analysisForm.getRiskInformation() == defaultProfileId
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getRiskInformation(), principal.getName(), AnalysisRight.MODIFY)))
 				errors.put("riskInformation", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			Customer customer = null;
 			Language language = null;
 
-			if (customAnalysisForm.getLanguage() > 0) {
-				language = serviceLanguage.get(customAnalysisForm.getLanguage());
+			if (analysisForm.getLanguage() > 0) {
+				language = serviceLanguage.get(analysisForm.getLanguage());
 				if (language == null)
 					errors.put("language", messageSource.getMessage("error.language.not_found", null, "Language cannot be found", locale));
 			}
 
-			if (customAnalysisForm.getCustomer() > 0) {
-				customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customAnalysisForm.getCustomer());
+			if (analysisForm.getCustomer() > 0) {
+				customer = serviceCustomer.getFromUsernameAndId(principal.getName(), analysisForm.getCustomer());
 				if (customer == null)
 					errors.put("customer", messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
 				else if (!customer.isCanBeUsed())
 					errors.put("customer", messageSource.getMessage("error.customer.invalid", null, "Customer cannot be used", locale));
-				else if (serviceAnalysis.existsByNameAndCustomerId(customAnalysisForm.getName(), customAnalysisForm.getCustomer()))
-					errors.put(
-							"name",
-							messageSource.getMessage("error.analysis.name.in_used.for.customer", new Object[] { customer.getOrganisation() },
-									String.format("Name cannot be used for %s", customer.getOrganisation()), locale));
+				else if (serviceAnalysis.existsByNameAndCustomerId(analysisForm.getName(), analysisForm.getCustomer()))
+					errors.put("name", messageSource.getMessage("error.analysis.name.in_used.for.customer", new Object[] { customer.getOrganisation() },
+							String.format("Name cannot be used for %s", customer.getOrganisation()), locale));
 			}
 
 			if (!errors.isEmpty())
 				return errors;
 
-			History history = customAnalysisForm.generateHistory();
+			History history = analysisForm.generateHistory();
 			String identifier = language.getAlpha3() + "_" + new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(history.getDate());
 			Analysis analysis = new Analysis();
 			analysis.setIdentifier(identifier);
@@ -224,78 +232,75 @@ public class ControllerAnalysisCreate {
 			analysis.setLanguage(language);
 			analysis.addAHistory(history);
 			analysis.setData(true);
-			analysis.setLabel(customAnalysisForm.getName());
+			analysis.setLabel(analysisForm.getName());
 			analysis.setCreationDate((Timestamp) history.getDate());
-			analysis.setVersion(customAnalysisForm.getVersion());
-			analysis.setUncertainty(customAnalysisForm.isUncertainty());
-			analysis.setCssf(customAnalysisForm.isCssf());
+			analysis.setVersion(analysisForm.getVersion());
+			analysis.setUncertainty(analysisForm.isUncertainty());
+			analysis.setCssf(analysisForm.isCssf());
 			analysis.setOwner(serviceUser.get(principal.getName()));
 			analysis.addUserRight(analysis.getOwner(), AnalysisRight.ALL);
 			String baseAnalysis = "";
 
 			Locale analysisLocale = language.getAlpha3().equalsIgnoreCase("fra") ? Locale.FRANCE : Locale.ENGLISH;
 
-			if (customAnalysisForm.getAsset() > 0) {
-				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getAsset());
-				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getAsset());
-				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getAsset());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.assets", new String[] { label, company, version },
-								String.format("Assets based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+			if (analysisForm.getAsset() > 0) {
+				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getAsset());
+				String label = serviceAnalysis.getLabelFromId(analysisForm.getAsset());
+				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getAsset());
+				baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.assets", new String[] { label, company, version },
+						String.format("Assets based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (customAnalysisForm.getScenario() > 1 && customAnalysisForm.getScenario() != defaultProfileId) {
-				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getScenario());
-				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getScenario());
-				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getScenario());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.scenarios", new String[] { label, company, version },
-								String.format("Scenarios based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
-				if (customAnalysisForm.isAssessment())
-					baseAnalysis += "\n"
-							+ messageSource.getMessage("label.analysis_custom.origin.estimation", new String[] { label, company, version },
-									String.format("Risk estimation based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+			if (analysisForm.getScenario() > 1 && analysisForm.getScenario() != defaultProfileId) {
+				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getScenario());
+				String label = serviceAnalysis.getLabelFromId(analysisForm.getScenario());
+				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getScenario());
+				baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.scenarios", new String[] { label, company, version },
+						String.format("Scenarios based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				if (analysisForm.isAssessment())
+					baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.estimation", new String[] { label, company, version },
+							String.format("Risk estimation based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				if (analysisForm.isRiskProfile())
+					baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.risk_profile", new String[] { label, company, version },
+							String.format("Risk profile based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (customAnalysisForm.getParameter() > 1 && customAnalysisForm.getParameter() != defaultProfileId) {
-				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getParameter());
-				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getParameter());
-				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getParameter());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.parameters", new String[] { label, company, version },
-								String.format("Parameters based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+			if (analysisForm.getParameter() > 1 && analysisForm.getParameter() != defaultProfileId) {
+				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getParameter());
+				String label = serviceAnalysis.getLabelFromId(analysisForm.getParameter());
+				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getParameter());
+				baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.parameters", new String[] { label, company, version },
+						String.format("Parameters based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (customAnalysisForm.getRiskInformation() > 1 && customAnalysisForm.getRiskInformation() != defaultProfileId) {
-				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getRiskInformation());
-				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getRiskInformation());
-				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getRiskInformation());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.risk_information", new String[] { label, company, version },
-								String.format("Risk information based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+			if (analysisForm.getRiskInformation() > 1 && analysisForm.getRiskInformation() != defaultProfileId) {
+				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getRiskInformation());
+				String label = serviceAnalysis.getLabelFromId(analysisForm.getRiskInformation());
+				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getRiskInformation());
+				baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.risk_information", new String[] { label, company, version },
+						String.format("Risk information based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (customAnalysisForm.getScope() > 1 && customAnalysisForm.getScope() != defaultProfileId) {
-				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getScope());
-				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getScope());
-				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getScope());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.scope", new String[] { label, company, version },
-								String.format("Scope based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+			if (analysisForm.getScope() > 1 && analysisForm.getScope() != defaultProfileId) {
+				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getScope());
+				String label = serviceAnalysis.getLabelFromId(analysisForm.getScope());
+				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getScope());
+				baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.scope", new String[] { label, company, version },
+						String.format("Scope based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			baseAnalysis = generateStandardLog(baseAnalysis, customAnalysisForm, defaultProfileId, analysisLocale);
+			baseAnalysis = generateStandardLog(baseAnalysis, analysisForm, defaultProfileId, analysisLocale);
 
 			history.setComment(history.getComment() + baseAnalysis);
-			List<ItemInformation> itemInformations = serviceItemInformation.getAllFromAnalysis(customAnalysisForm.getScope());
+			List<ItemInformation> itemInformations = serviceItemInformation.getAllFromAnalysis(analysisForm.getScope());
 			for (ItemInformation itemInformation : itemInformations)
 				analysis.addAnItemInformation(itemInformation.duplicate());
 
-			List<RiskInformation> riskInformations = serviceRiskInformation.getAllFromAnalysis(customAnalysisForm.getRiskInformation());
+			List<RiskInformation> riskInformations = serviceRiskInformation.getAllFromAnalysis(analysisForm.getRiskInformation());
 			for (RiskInformation riskInformation : riskInformations)
 				analysis.addARiskInformation(riskInformation.duplicate());
 
-			List<Parameter> parameters = serviceParameter.getAllFromAnalysis(customAnalysisForm.getParameter());
+			List<Parameter> parameters = serviceParameter.getAllFromAnalysis(analysisForm.getParameter());
 			Map<String, Parameter> mappingParameters = new LinkedHashMap<String, Parameter>(parameters.size());
 			for (Parameter parameter : parameters) {
 				Parameter parameter2 = parameter.duplicate();
@@ -303,19 +308,19 @@ public class ControllerAnalysisCreate {
 				mappingParameters.put(parameter.getKey(), parameter2);
 			}
 
-			List<Asset> assets = serviceAsset.getAllFromAnalysis(customAnalysisForm.getAsset());
-
-			Map<Integer, Asset> mappingAssets = customAnalysisForm.isAssessment() ? new LinkedHashMap<Integer, Asset>(assets.size()) : null;
+			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
+			
+			Map<Integer, Asset> mappingAssets = assets.isEmpty() ? null : new LinkedHashMap<Integer, Asset>(assets.size());
 
 			for (Asset asset : assets) {
 				Asset duplication = asset.duplicate();
 				analysis.addAnAsset(duplication);
-				if (mappingAssets != null)
-					mappingAssets.put(asset.getId(), duplication);
+				mappingAssets.put(asset.getId(), duplication);
 			}
 
-			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(customAnalysisForm.getScenario());
-			Map<Integer, Scenario> mappingScenarios = customAnalysisForm.isAssessment() ? new LinkedHashMap<Integer, Scenario>(scenarios.size()) : null;
+			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisForm.getScenario());
+			
+			Map<Integer, Scenario> mappingScenarios = scenarios.isEmpty() || assets.isEmpty() ? null : new LinkedHashMap<Integer, Scenario>(scenarios.size());
 			for (Scenario scenario : scenarios) {
 				Scenario duplication = scenario.duplicate();
 				analysis.addAScenario(duplication);
@@ -323,19 +328,31 @@ public class ControllerAnalysisCreate {
 					mappingScenarios.put(scenario.getId(), duplication);
 			}
 
-			if (customAnalysisForm.isAssessment()) {
-				List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(customAnalysisForm.getScenario());
-				for (Assessment assessment : assessments) {
-					Assessment duplication = assessment.duplicate();
-					duplication.setScenario(mappingScenarios.get(assessment.getScenario().getId()));
-					duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
-					analysis.addAnAssessment(duplication);
+			if (!(mappingScenarios == null || mappingAssets == null)) {
+
+				if (analysisForm.isAssessment()) {
+					List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(analysisForm.getScenario());
+					for (Assessment assessment : assessments) {
+						Assessment duplication = assessment.duplicate();
+						duplication.setScenario(mappingScenarios.get(assessment.getScenario().getId()));
+						duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
+						analysis.addAnAssessment(duplication);
+					}
 				}
+
+				if (analysisForm.isRiskProfile()) {
+					List<RiskProfile> riskProfiles = serviceRiskProfile.getAllFromAnalysis(analysisForm.getScenario());
+					for (RiskProfile riskProfile : riskProfiles)
+						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters));
+				}
+				
+				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, mappingParameters.entrySet().stream().filter(entry -> entry.getValue() instanceof ExtendedParameter)
+						.collect(Collectors.toMap(entry -> ((ExtendedParameter) entry.getValue()).getAcronym(), entry -> (ExtendedParameter) entry.getValue())));
 			}
 
 			Map<Integer, Phase> mappingPhases;
-			if (customAnalysisForm.isPhase()) {
-				List<Phase> phases = servicePhase.getAllFromAnalysis(customAnalysisForm.getStandards().get(0).getIdAnalysis());
+			if (analysisForm.isPhase()) {
+				List<Phase> phases = servicePhase.getAllFromAnalysis(analysisForm.getStandards().get(0).getIdAnalysis());
 				mappingPhases = new LinkedHashMap<Integer, Phase>(phases.size());
 				for (Phase phase : phases) {
 					Phase phase1 = phase.duplicate(analysis);
@@ -354,59 +371,54 @@ public class ControllerAnalysisCreate {
 				analysis.addPhase(phase);
 			}
 
-			serviceAnalysis.save(analysis);
-
-			while (serviceAnalysis.countByIdentifier(analysis.getIdentifier()) > 1) {
-				analysis.setIdentifier(language.getAlpha3() + "_" + new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(history.getDate()));
-				serviceAnalysis.save(analysis);
-			}
-
-			if (customAnalysisForm.getStandards().size() == 1) {
-				AnalysisStandardBaseInfo standardBaseInfo = customAnalysisForm.getStandards().get(0);
+			if (analysisForm.getStandards().size() == 1) {
+				AnalysisStandardBaseInfo standardBaseInfo = analysisForm.getStandards().get(0);
 				if (standardBaseInfo.getIdAnalysis() == defaultProfileId && standardBaseInfo.getIdAnalysisStandard() < 1) {
 					for (AnalysisStandard analysisStandard : serviceAnalysisStandard.getAllFromAnalysis(standardBaseInfo.getIdAnalysis()))
 						analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, mappingAssets, false));
 				} else
 					analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
 							mappingParameters, mappingAssets, false));
-
 			} else {
-				for (AnalysisStandardBaseInfo standardBaseInfo : customAnalysisForm.getStandards())
+				for (AnalysisStandardBaseInfo standardBaseInfo : analysisForm.getStandards())
 					analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
 							mappingParameters, mappingAssets, false));
 			}
+
+			while (serviceAnalysis.countByIdentifier(analysis.getIdentifier()) > 1)
+				analysis.setIdentifier(language.getAlpha3() + "_" + new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(history.generateDate()));
+
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			return JsonMessage.Success(messageSource.getMessage("success.analysis_custom.create", null, "Your analysis has been successfully created", locale));
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		}catch (Exception e) {
+		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.create.analysis", null, "An unknown error occurred while saving analysis", locale));
 		}
 	}
 
-	private String generateStandardLog(String baseAnalysis, CustomAnalysisForm customAnalysisForm, int defaultProfileId, Locale analysisLocale) throws Exception {
-		if (customAnalysisForm.getStandards().size() == 1 && customAnalysisForm.getStandards().get(0).getIdAnalysis() == defaultProfileId)
+	private String generateStandardLog(String baseAnalysis, AnalysisForm analysisForm, int defaultProfileId, Locale analysisLocale) throws Exception {
+		if (analysisForm.getStandards().size() == 1 && analysisForm.getStandards().get(0).getIdAnalysis() == defaultProfileId)
 			return baseAnalysis;
 		boolean isFirst = true;
-		for (AnalysisStandardBaseInfo standardBaseInfo : customAnalysisForm.getStandards()) {
-			String company = serviceAnalysis.getCustomerNameFromId(standardBaseInfo.getIdAnalysis()), label = serviceAnalysis.getLabelFromId(standardBaseInfo.getIdAnalysis()), version = serviceAnalysis
-					.getVersionOfAnalysis(standardBaseInfo.getIdAnalysis()), StandardName = serviceAnalysisStandard.getStandardNameById(standardBaseInfo.getIdAnalysisStandard());
+		for (AnalysisStandardBaseInfo standardBaseInfo : analysisForm.getStandards()) {
+			String company = serviceAnalysis.getCustomerNameFromId(standardBaseInfo.getIdAnalysis()), label = serviceAnalysis.getLabelFromId(standardBaseInfo.getIdAnalysis()),
+					version = serviceAnalysis.getVersionOfAnalysis(standardBaseInfo.getIdAnalysis()),
+					StandardName = serviceAnalysisStandard.getStandardNameById(standardBaseInfo.getIdAnalysisStandard());
 
 			if (isFirst) {
-				if (customAnalysisForm.isPhase()) {
-					baseAnalysis += "\n"
-							+ messageSource.getMessage("label.analysis_custom.origin.phase", new String[] { label, company, version },
-									String.format("Phase based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				if (analysisForm.isPhase()) {
+					baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.phase", new String[] { label, company, version },
+							String.format("Phase based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 				}
 				isFirst = false;
 			}
 
-			baseAnalysis += "\n"
-					+ messageSource.getMessage("label.analysis_custom.origin.standard", new Object[] { StandardName, label, company, version },
-							String.format("Standard (%s) based on: %s, customer: %s, version: %s", StandardName, label, company, version), analysisLocale);
+			baseAnalysis += "\n" + messageSource.getMessage("label.analysis_custom.origin.standard", new Object[] { StandardName, label, company, version },
+					String.format("Standard (%s) based on: %s, customer: %s, version: %s", StandardName, label, company, version), analysisLocale);
 
 		}
 		return baseAnalysis;

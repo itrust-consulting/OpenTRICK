@@ -57,7 +57,7 @@ public class Assessment implements Cloneable {
 	/** hidden assessment comment */
 	@Column(name = "dtHiddenComment", columnDefinition = "LONGTEXT", nullable = false)
 	private String hiddenComment = "";
-	
+
 	/** hidden assessment comment */
 	@Column(name = "dtOwner", nullable = false)
 	private String owner = "";
@@ -215,7 +215,8 @@ public class Assessment implements Cloneable {
 	}
 
 	/**
-	 * @param owner the owner to set
+	 * @param owner
+	 *            the owner to set
 	 */
 	protected void setOwner(String owner) {
 		this.owner = owner;
@@ -662,8 +663,17 @@ public class Assessment implements Cloneable {
 	}
 
 	@Transient
+	public String getKeyName() {
+		return keyName(asset, scenario);
+	}
+
+	@Transient
 	public static String key(Asset asset, Scenario scenario) {
 		return asset.getId() + "^-'ASSESSMENT'-^" + scenario.getId();
+	}
+
+	public static String keyName(Asset asset, Scenario scenario) {
+		return asset.getName() + "^NAME-'ASSESSMENT'-NAME^" + scenario.getName();
 	}
 
 }

@@ -366,6 +366,8 @@ function customAnalysis(element) {
 							identifiers : {},
 							customers : {},
 							cloneWidth : undefined,
+							assessmentDisable : true,
+							cssfChecked : false,
 							saveVersions : function(identifier, data) {
 								for (var i = 0; i < data.length; i++)
 									this.versions[data[i].id] = data[i];
@@ -491,11 +493,14 @@ function customAnalysis(element) {
 								}
 								return this;
 							},
-							checkEstimation : function() {
-								var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id");
-								var trick_id_scenario = $("#analysis-build-scenarios .well").attr("data-trick-id");
-								$modalBody.find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
-								$modalBody.find("input[name='assessment']").prop("checked", false);
+							checkRiskDependancies : function() {
+								var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well").attr(
+										"data-trick-id"), estimation = trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
+								$modalBody.find("input[name='assessment']").prop("disabled", this.assessmentDisable = estimation).prop("checked", false);
+								return this.checkProfile();
+							},
+							checkProfile : function() {
+								$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled", this.assessmentDisable || !this.cssfChecked);
 								return this;
 							},
 							checkAssetStandard : function() {
@@ -537,7 +542,7 @@ function customAnalysis(element) {
 						};
 
 						var $locker = $("<a href='#' style='margin-right:3px;' class='pull-right' title='" + $lockText
-								+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>");
+								+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $cssf = $("#cssf");
 
 						// Event user select a customer
 						$("#selector-customer").on("change", function(e) {
@@ -557,8 +562,14 @@ function customAnalysis(element) {
 								analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
 						});
 
-						$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkEstimation()");
-						$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkEstimation().checkAssetStandard()");
+						$cssf.on("change", function(e) {
+							analysesCaching.cssfChecked = $cssf.is(":checked");
+							analysesCaching.checkProfile();
+						});
+						
+						
+						$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
+						$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkRiskDependancies().checkAssetStandard()");
 						$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
 
 						$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
@@ -684,7 +695,7 @@ function customAnalysis(element) {
 								url : context + "/Analysis/Build/Save",
 								type : "post",
 								data : $("form", $modalBody).serialize(),
-								contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+								contentType : "application/x-www-form-urlencoded;charset=UTF-8",
 								async : false,
 								success : function(data, textStatus, jqXHR) {
 									var response = parseJson(data);
@@ -827,9 +838,9 @@ function selectAnalysis(analysisId, mode) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var open  = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
+	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
 	if (userCan(analysisId, right))
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open="+open.value+"");
+		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value + "");
 }
 
 function calculateActionPlan(analysisId) {

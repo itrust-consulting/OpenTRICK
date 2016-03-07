@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +36,10 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -79,6 +82,9 @@ public class Duplicator {
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
+	@Autowired
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
+
 	public Duplicator() {
 	}
 
@@ -88,6 +94,8 @@ public class Duplicator {
 		this.daoStandard = new DAOStandardHBM(session);
 		this.daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
 		this.daoMeasureDescriptionText = new DAOMeasureDescriptionTextHBM(session);
+		this.assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
+
 	}
 
 	/**
@@ -187,12 +195,17 @@ public class Duplicator {
 				copy.getAssessments().add(clone);
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile", "Copy risk profiles", language, (int) (minProgress + bound * 42.5)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile", "Copy risk profiles", language, (int) (minProgress + bound * 40)));
 
 			copy.setRiskProfiles(new ArrayList<>(analysis.getRiskProfiles().size()));
 
 			for (RiskProfile riskProfile : analysis.getRiskProfiles())
 				copy.getRiskProfiles().add(riskProfile.duplicate(assets, scenarios, parameters));
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", language, (int) (minProgress + bound * 45)));
+			
+			assessmentAndRiskProfileManager.UpdateRiskDendencies(copy, parameters.entrySet().stream().filter(entry -> entry.getValue() instanceof ExtendedParameter)
+					.collect(Collectors.toMap(entry -> ((ExtendedParameter) entry.getValue()).getAcronym(), entry -> (ExtendedParameter) entry.getValue())));
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", language, (int) (minProgress + bound * 50)));
 

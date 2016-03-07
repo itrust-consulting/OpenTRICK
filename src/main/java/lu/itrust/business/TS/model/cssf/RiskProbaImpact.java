@@ -158,7 +158,8 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	/**
-	 * @param parameters Map< Acronym, Parameter >
+	 * @param parameters
+	 *            Map< Acronym, Parameter >
 	 * @return copy
 	 * @throws CloneNotSupportedException
 	 */
@@ -170,7 +171,9 @@ public class RiskProbaImpact implements Cloneable {
 
 	/**
 	 * Replace parameters
-	 * @param parameters Map< Acronym, Parameter >
+	 * 
+	 * @param parameters
+	 *            Map< Acronym, Parameter >
 	 */
 	public void updateData(Map<String, Parameter> parameters) {
 		if (probability != null)
@@ -183,6 +186,30 @@ public class RiskProbaImpact implements Cloneable {
 			impactOp = (ExtendedParameter) parameters.get(impactOp.getKey());
 		if (impactLeg != null)
 			impactLeg = (ExtendedParameter) parameters.get(impactLeg.getKey());
+	}
+
+	protected ExtendedParameter getValueOrDefault(ExtendedParameter value, ExtendedParameter defaultValue) {
+		return value == null ? defaultValue : value;
+	}
+
+	public ExtendedParameter getImpactFin(ExtendedParameter defaultImpact) {
+		return getValueOrDefault(impactFin, defaultImpact);
+	}
+
+	public ExtendedParameter getImpactOp(ExtendedParameter defaultImpact) {
+		return getValueOrDefault(impactOp, defaultImpact);
+	}
+
+	public ExtendedParameter getImpactLeg(ExtendedParameter defaultImpact) {
+		return getValueOrDefault(impactLeg, defaultImpact);
+	}
+
+	public ExtendedParameter getImpactRep(ExtendedParameter defaultImpact) {
+		return getValueOrDefault(impactRep, defaultImpact);
+	}
+
+	public ExtendedParameter getProbability(ExtendedParameter defaultValue) {
+		return getValueOrDefault(probability, defaultValue);
 	}
 
 }

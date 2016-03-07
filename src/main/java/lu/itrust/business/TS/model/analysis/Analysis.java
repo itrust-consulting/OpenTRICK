@@ -2512,7 +2512,7 @@ public class Analysis implements Cloneable {
 		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
 				.collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
 	}
-	
+
 	public Map<String, ExtendedParameter> mapExtendedParameterByAcronym() {
 		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
 				.collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
@@ -2578,5 +2578,10 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getScenario().getId(), Function.identity()));
 	}
 
-	
+	public ExtendedParameter findExtendedByTypeAndLevel(String type, int level) {
+		return (ExtendedParameter) parameters.stream()
+				.filter(parameter -> parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(type) && ((ExtendedParameter) parameter).getLevel() == level)
+				.findAny().orElse(null);
+	}
+
 }

@@ -216,15 +216,34 @@ public class RiskProfile implements Cloneable {
 	public String getKey() {
 		return key(asset, scenario);
 	}
+	
+	/**
+	 * @return key
+	 * @see #keyName
+	 */
+	public String getKeyName() {
+		return keyName(asset, scenario);
+	}
 
 	/**
 	 * 
 	 * @param asset
 	 * @param scenario
-	 * @return asset.id+"^-'RISK_PROFILE'-^"+scenario.id
+	 * @return asset.id+"^ID-'RISK_PROFILE'-ID^"+scenario.id
 	 */
 	public static String key(Asset asset, Scenario scenario) {
-		return asset.getId() + "^-'RISK_PROFILE'-^" + scenario.getId();
+		return asset.getId() + "^ID-'RISK_PROFILE'-ID^" + scenario.getId();
+	}
+	
+
+	/**
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @return asset.getName()+"^NAME-'RISK_PROFILE'-NAME^"+scenario.getName()
+	 */
+	public static String keyName(Asset asset, Scenario scenario) {
+		return asset.getName() + "^NAME-'RISK_PROFILE'-NAME^" + scenario.getName();
 	}
 
 	public Boolean is(int idAsset, int idScenario) {
@@ -277,5 +296,7 @@ public class RiskProfile implements Cloneable {
 		this.asset = assets.get(this.asset.getId());
 		this.scenario = scenarios.get(scenario.getId());
 	}
+
+	
 
 }
