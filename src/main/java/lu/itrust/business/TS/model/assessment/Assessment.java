@@ -5,25 +5,28 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Assessment: <br>
  * This class represents an assessments and all its data.
  * 
- * This class is used to store assessments data for assets, scenarios, and their ALE (normal,
- * optimistic, pessimistic)
+ * This class is used to store assessments data for assets, scenarios, and their
+ * ALE (normal, optimistic, pessimistic)
  * 
  * This class is used for the action plan calculation.
  * 
@@ -32,7 +35,7 @@ import org.hibernate.annotations.CascadeType;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }) )
 public class Assessment implements Cloneable {
 
 	/***********************************************************************************************
@@ -41,7 +44,7 @@ public class Assessment implements Cloneable {
 
 	/** identifier from the database */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idAssessment")
 	private int id = -1;
 
@@ -56,6 +59,10 @@ public class Assessment implements Cloneable {
 	/** hidden assessment comment */
 	@Column(name = "dtHiddenComment", columnDefinition = "LONGTEXT", nullable = false)
 	private String hiddenComment = "";
+
+	/** hidden assessment comment */
+	@Column(name = "dtOwner", nullable = false)
+	private String owner = "";
 
 	/** The impactFin value of this assessment */
 	@Column(name = "dtImpactRep", nullable = false)
@@ -134,8 +141,9 @@ public class Assessment implements Cloneable {
 	}
 
 	public boolean isCSSF() {
-		return !((impactLeg == null || impactLeg.trim().equals("0") || impactLeg.trim().equals("0.0")) && (impactOp == null || impactOp.trim().equals("0") || impactOp.trim().equals("0.0")) && (impactRep == null
-			|| impactRep.trim().equals("0") || impactRep.trim().equals("0.0")));
+		return !((impactLeg == null || impactLeg.trim().equals("0") || impactLeg.trim().equals("0.0"))
+				&& (impactOp == null || impactOp.trim().equals("0") || impactOp.trim().equals("0.0"))
+				&& (impactRep == null || impactRep.trim().equals("0") || impactRep.trim().equals("0.0")));
 	}
 
 	/**
@@ -202,6 +210,21 @@ public class Assessment implements Cloneable {
 	 */
 	public void setHiddenComment(String hiddenComment) {
 		this.hiddenComment = hiddenComment;
+	}
+
+	/**
+	 * @return the owner
+	 */
+	public String getOwner() {
+		return owner;
+	}
+
+	/**
+	 * @param owner
+	 *            the owner to set
+	 */
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 	/**
@@ -279,10 +302,12 @@ public class Assessment implements Cloneable {
 
 	protected String checkImpact(String impact) {
 		/*
-		 * if (impact == null) throw new IllegalArgumentException("Impact value is null"); else if
-		 * (impact.trim().isEmpty()) impact = "0"; else if
-		 * (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw new IllegalArgumentException(
-		 * "Impact does not meet the regular expression: " + Constant.REGEXP_VALID_IMPACT);
+		 * if (impact == null) throw new IllegalArgumentException(
+		 * "Impact value is null"); else if (impact.trim().isEmpty()) impact =
+		 * "0"; else if (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw
+		 * new IllegalArgumentException(
+		 * "Impact does not meet the regular expression: " +
+		 * Constant.REGEXP_VALID_IMPACT);
 		 */
 		return impact.toLowerCase();
 	}
@@ -328,10 +353,11 @@ public class Assessment implements Cloneable {
 	 */
 	public void setLikelihood(String likelihood) {
 		/*
-		 * if ((likelihood == null) || (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) {
-		 * throw new IllegalArgumentException(
-		 * "Likelihood value is null or it does not meet the regular expression: " +
-		 * Constant.REGEXP_VALID_LIKELIHOOD); }
+		 * if ((likelihood == null) ||
+		 * (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) { throw new
+		 * IllegalArgumentException(
+		 * "Likelihood value is null or it does not meet the regular expression: "
+		 * + Constant.REGEXP_VALID_LIKELIHOOD); }
 		 */
 		this.likelihood = likelihood;
 	}
@@ -510,13 +536,15 @@ public class Assessment implements Cloneable {
 
 	/**
 	 * isUsable: <br>
-	 * Checks if the Asset and the Scenario are Selected and ALE is not 0. Checks if this Assessment
-	 * can be used for Action Plan calculation.
+	 * Checks if the Asset and the Scenario are Selected and ALE is not 0.
+	 * Checks if this Assessment can be used for Action Plan calculation.
 	 * 
-	 * @return True: if the Assessment is usable; False: if Assessment is not usable
+	 * @return True: if the Assessment is usable; False: if Assessment is not
+	 *         usable
 	 */
 	public boolean isUsable() {
-		return (this.getAsset() == null) || (this.getScenario() == null) ? false : (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this.getALE() > 0);
+		return (this.getAsset() == null) || (this.getScenario() == null) ? false
+				: (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this.getALE() > 0);
 	}
 
 	/**
@@ -541,8 +569,8 @@ public class Assessment implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Checks this Assessment to other to find out if they are equal or not. Equal means: ID, Asset
-	 * and Scenario are equal.<br>
+	 * Checks this Assessment to other to find out if they are equal or not.
+	 * Equal means: ID, Asset and Scenario are equal.<br>
 	 * <br>
 	 * 
 	 * <b>NOTE:</b>This Method is auto generated
@@ -563,10 +591,10 @@ public class Assessment implements Cloneable {
 			return false;
 		}
 		Assessment other = (Assessment) obj;
-		
-		if(id>0 && other.id>0)
+
+		if (id > 0 && other.id > 0)
 			return Double.doubleToLongBits(id) == Double.doubleToLongBits(other.id);
-		
+
 		if (asset == null) {
 			if (other.asset != null) {
 				return false;
@@ -574,7 +602,7 @@ public class Assessment implements Cloneable {
 		} else if (!asset.equals(other.asset)) {
 			return false;
 		}
-		
+
 		if (scenario == null) {
 			if (other.scenario != null) {
 				return false;
@@ -633,4 +661,28 @@ public class Assessment implements Cloneable {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
+
+	public boolean is(int idAsset, int idScenario) {
+		return asset.getId() == idAsset && scenario.getId() == idScenario;
+	}
+
+	@Transient
+	public String getKey() {
+		return key(asset, scenario);
+	}
+
+	@Transient
+	public String getKeyName() {
+		return keyName(asset, scenario);
+	}
+
+	@Transient
+	public static String key(Asset asset, Scenario scenario) {
+		return asset.getId() + "^-'ASSESSMENT'-^" + scenario.getId();
+	}
+
+	public static String keyName(Asset asset, Scenario scenario) {
+		return asset.getName() + "^NAME-'ASSESSMENT'-NAME^" + scenario.getName();
+	}
+
 }

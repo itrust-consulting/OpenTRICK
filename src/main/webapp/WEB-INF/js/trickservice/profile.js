@@ -1,4 +1,8 @@
 $(function() {
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".nav-tab"),
+		marginTop : application.fixedOffset
+	};
 	$(window).scroll(function(e) {
 		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
 			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
@@ -12,7 +16,7 @@ function deleteSqlite(id) {
 	var currentSize = $("#section_sqlite>table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val());
 	$.ajax({
 		url : context + "/Profile/Sqlite/" + id + "/Delete",
-		type : "get",
+		type : "POST",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
@@ -33,7 +37,7 @@ function deleteReport(id) {
 	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val());
 	$.ajax({
 		url : context + "/Profile/Report/" + id + "/Delete",
-		type : "get",
+		type : "POST",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
@@ -165,13 +169,8 @@ function loadUserSqlite(update) {
 						$(this).appendTo($("#section_sqlite>table>tbody"));
 				});
 			} else {
-				$("#section_sqlite").replaceWith($(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite"));
-				setTimeout(function() {
-					$("#section_sqlite>table").stickyTableHeaders({
-						cssTopOffset : ".nav-tab",
-						fixedOffset : application.fixedOffset
-					});
-				}, 500);
+				$("#section_sqlite").replaceWith($("#section_sqlite", new DOMParser().parseFromString(response, "text/html")));
+				fixTableHeader("#section_sqlite table");
 			}
 			return false;
 		},
@@ -197,13 +196,8 @@ function loadUserReport(update) {
 						$(this).appendTo($("#section_sqlite>table>tbody"));
 				});
 			} else {
-				$("#section_report").replaceWith($(new DOMParser().parseFromString(response, "text/html")).find("#section_report"));
-				setTimeout(function() {
-					$("#section_report table").stickyTableHeaders({
-						cssTopOffset : ".nav-tab",
-						fixedOffset : application.fixedOffset
-					});
-				}, 500);
+				$("#section_report").replaceWith($("#section_report", new DOMParser().parseFromString(response, "text/html")));
+				fixTableHeader("#section_report table");
 			}
 			return false;
 		},
@@ -220,7 +214,7 @@ function updateProfile(form) {
 			.ajax({
 				url : context + "/Profile/Update",
 				type : "post",
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				data : serializeForm(form),
 				success : function(response, textStatus, jqXHR) {
 					$("#profileInfo").attr("hidden", "hidden");
@@ -294,7 +288,7 @@ function updateProfile(form) {
 					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
 					$(errElement).appendTo($("#profileInfo"));
 					$("#profileInfo").removeAttr("hidden");
-				},
+				}
 			});
 
 	return false;

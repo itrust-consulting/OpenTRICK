@@ -2,15 +2,15 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceStandardImpl.java: <br>
@@ -32,12 +32,12 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * 
 	 * @param idStandard
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#get(int)
 	 */
 	@Override
-	public Standard get(Integer idStandard) throws Exception {
+	public Standard get(Integer idStandard)  {
 		return daoStandard.get(idStandard);
 	}
 
@@ -50,7 +50,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardByName(java.lang.String)
 	 */
 	@Override
-	public Standard getStandardByName(String standard) throws Exception {
+	public Standard getStandardByName(String standard)  {
 		return daoStandard.getStandardByName(standard);
 	}
 
@@ -63,7 +63,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getStandardNotCustomByName(java.lang.String)
 	 */
 	@Override
-	public Standard getStandardNotCustomByName(String standard) throws Exception {
+	public Standard getStandardNotCustomByName(String standard)  {
 		return daoStandard.getStandardNotCustomByName(standard);
 	}
 
@@ -77,7 +77,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *      int)
 	 */
 	@Override
-	public Standard getStandardByNameAndVersion(String label, int version) throws Exception {
+	public Standard getStandardByNameAndVersion(String label, int version)  {
 		return daoStandard.getStandardByNameAndVersion(label, version);
 	}
 
@@ -90,7 +90,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#existsByNameAndVersion(java.lang.String, int)
 	 */
 	@Override
-	public boolean existsByNameAndVersion(String label, int version) throws Exception {
+	public boolean existsByNameAndVersion(String label, int version)  {
 		return daoStandard.existsByNameAndVersion(label, version);
 	}
 
@@ -103,7 +103,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAll()
 	 */
 	@Override
-	public List<Standard> getAll() throws Exception {
+	public List<Standard> getAll()  {
 		return daoStandard.getAll();
 	}
 
@@ -116,7 +116,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllFromAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<Standard> getAllFromAnalysis(Integer analysisId) throws Exception {
+	public List<Standard> getAllFromAnalysis(Integer analysisId)  {
 		return daoStandard.getAllFromAnalysis(analysisId);
 	}
 
@@ -129,7 +129,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<Standard> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<Standard> getAllFromAnalysis(Analysis analysis)  {
 		return daoStandard.getAllFromAnalysis(analysis);
 	}
 
@@ -142,7 +142,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllNotInAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
+	public List<Standard> getAllNotInAnalysis(Integer idAnalysis)  {
 		return daoStandard.getAllNotInAnalysis(idAnalysis);
 	}
 
@@ -156,7 +156,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 */
 	@Transactional
 	@Override
-	public void save(Standard standard) throws Exception {
+	public void save(Standard standard)  {
 		daoStandard.save(standard);
 	}
 
@@ -170,7 +170,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Standard standard) throws Exception {
+	public void saveOrUpdate(Standard standard)  {
 		daoStandard.saveOrUpdate(standard);
 	}
 
@@ -184,38 +184,43 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 */
 	@Transactional
 	@Override
-	public void delete(Standard standard) throws Exception {
+	public void delete(Standard standard)  {
 		daoStandard.delete(standard);
 	}
 
 	@Override
-	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
+	public List<Standard> getAllNotBoundToAnalysis()  {
 		return daoStandard.getAllNotBoundToAnalysis();
 	}
 
 	@Override
-	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception {
+	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID)  {
 		return daoStandard.getAllAnalysisOnlyStandardsFromAnalysis(analsisID);
 	}
 
 	@Override
-	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception {
+	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId)  {
 		return daoStandard.getAllFromAnalysisNotBound(analysisId);
 	}
 
 	@Override
-	public Integer getNextVersionByNameAndType(String label, StandardType standardType) throws Exception {
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType)  {
 		return daoStandard.getNextVersionByNameAndType(label, standardType);
 	}
 
 	@Override
-	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception {
+	public boolean existsByNameVersionType(String label, Integer version, StandardType type)  {
 		return daoStandard.existsByNameVersionType(label, version, type);
 	}
 
 	@Override
 	public boolean belongToAnalysis(Integer idStandard, int idAnalysis) {
 		return daoStandard.belongToAnalysis(idStandard,idAnalysis );
+	}
+
+	@Override
+	public boolean isUsed(Standard standard) {
+		return daoStandard.isUsed(standard);
 	}
 
 }

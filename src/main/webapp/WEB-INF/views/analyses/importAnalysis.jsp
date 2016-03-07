@@ -4,11 +4,15 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<html>
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+</c:if>
+<!DOCTYPE html>
+<html lang="${locale.language}">
 <c:set scope="request" var="title" value="label.title.analysis.import" />
 <jsp:include page="../template/header.jsp" />
 <body>
-	<div id="wrap">
+	<div id="wrap" class="wrap">
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<div class="page-header">
@@ -55,7 +59,7 @@
 										</h4>
 										<div class="col-lg-7">
 											<div class="input-group-btn">
-												<input id="file" onchange="checkFile(true)" type="file" name="file" style="display: none;" disabled /> <input id="upload-file-info" class="form-control"
+												<input id="file" onchange="checkFile(true)" type="file" name="file" accept=".sqlite" style="display: none;" disabled /> <input id="upload-file-info" class="form-control"
 													readonly="readonly" />
 												<button class="btn btn-default" type="button" id="browse-button" onclick="$('input[id=file]').click();" disabled><spring:message code="label.action.browse" text="Browse"/></button>
 											</div>

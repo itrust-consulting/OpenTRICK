@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -32,6 +33,8 @@ public abstract class SecurityCriteria implements Cloneable {
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
+
+	protected static Pattern CATEGOTY_PATTERN = Pattern.compile(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
 
 	/** The Scenario Identifier */
 	private int id = -1;
@@ -65,8 +68,6 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/** The Map of Scenario Categories */
 	private Map<String, Integer> categories = new LinkedHashMap<String, Integer>(25);
-	
-	private final static Pattern RegexValidScenarioCategory = Pattern.compile(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
 
 	/***********************************************************************************************
 	 * Constructor
@@ -89,7 +90,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Scenario ID
 	 */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idSecurityCriteria")
 	public int getId() {
 		return id;
@@ -1002,7 +1003,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return True if Key is valid; False if Key is not valid
 	 */
 	public static boolean isCategoryKey(String category) {
-		return category != null && RegexValidScenarioCategory.matcher(category).find();
+		return category != null && CATEGOTY_PATTERN.matcher(category).find();
 	}
 
 	/**

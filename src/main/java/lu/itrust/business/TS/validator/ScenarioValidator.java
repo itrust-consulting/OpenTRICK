@@ -2,15 +2,14 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.constants.Constant;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
-
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 
 public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 
@@ -58,11 +57,9 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 
 	@Override
 	public void validate(Object arg0, Errors arg1) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.scneario.name.empty", "Name cannot be empty");
-
 		Scenario scenario = (Scenario) arg0;
-		if (!arg1.hasFieldErrors("name") && !scenario.getName().matches(Constant.REGEXP_VALID_NAME))
-			arg1.rejectValue("name", "error.scenario.name.rejected", "Name is not valid");
+		
+		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.scneario.name.empty", "Name cannot be empty");
 
 		if (!arg1.hasFieldErrors("scnearioType") && !(scenario.getType() instanceof ScenarioType))
 			arg1.rejectValue("scnearioType", "error.scenario.scneario_type.rejected", "Scenario Type is not valid");

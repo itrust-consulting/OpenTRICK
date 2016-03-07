@@ -4,7 +4,7 @@ function saveLanguage(form) {
 		url : context + "/KnowledgeBase/Language/Save",
 		type : "post",
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response,textStatus,jqXHR) {
 			$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 			var alert = $("#addLanguageModel .label-danger");
@@ -48,7 +48,7 @@ function saveLanguage(form) {
 			errorElement.setAttribute("class", "label label-danger");
 			$(errorElement).text(MessageResolver("error.unknown.save.language", "An unknown error occurred during saving language"));
 			$(errorElement).appendTo($("#addLanguageModel .modal-body"));
-		},
+		}
 	});
 	return false;
 }
@@ -63,13 +63,12 @@ function deleteLanguage(languageId, name) {
 
 	}
 	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language <strong>" + name + "</strong>?", name));
-	$("#deletelanguagebuttonYes").click(function() {
-		$("#deletelanguagebuttonYes").unbind();
-		$("#deleteLanguageModel").modal('hide');
+	$("#deletelanguagebuttonYes").unbind().click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Language/Delete/" + languageId,
 			type : "POST",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
+			async : true,
 			success : function(response,textStatus,jqXHR) {
 				if(response["success"]!=undefined)
 					reloadSection("section_language");
@@ -79,6 +78,8 @@ function deleteLanguage(languageId, name) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$("#deleteLanguageModel").modal('hide');
 		});
 		return false;
 	});
@@ -89,16 +90,14 @@ function deleteLanguage(languageId, name) {
 function newLanguage() {
 	if (findSelectItemIdBySection("section_language").length)
 		return false;
-	var alert = $("#addLanguageModel .label-danger");
-	if (alert.length)
-		alert.remove();
+	$("#addLanguageModel .label-danger").remove();
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 	$("#language_id").prop("value", "-1");
 	$("#language_alpha3").prop("value", "");
 	$("#language_name").prop("value", "");
 	$("#language_altName").prop("value", "");
 	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.language.add", "Add a new Language"));
-	$("#addlanguagebutton").text(MessageResolver("label.action.add", "Add"));
+	$("#addlanguagebutton").text(MessageResolver("label.action.save", "Save"));
 	$("#language_form").prop("action", "Language/Save");
 	$("#addLanguageModel").modal('toggle');
 	return false;
@@ -111,9 +110,7 @@ function editSingleLanguage(languageId) {
 			return false;
 		languageId = selectedScenario[0];
 	}
-	var alert = $("#addLanguageModel .label-danger");
-	if (alert.length)
-		alert.remove();
+	$("#addLanguageModel .label-danger").remove();
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 	var rows = $("#section_language").find("tr[data-trick-id='" + languageId + "'] td:not(:first-child)");
 	$("#language_id").prop("value", languageId);
@@ -121,7 +118,7 @@ function editSingleLanguage(languageId) {
 	$("#language_name").prop("value", $(rows[1]).text());
 	$("#language_altName").prop("value", $(rows[2]).text());
 	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.language.update", "Update a Language"));
-	$("#addlanguagebutton").text(MessageResolver("label.action.edit", "Edit"));
+	$("#addlanguagebutton").text(MessageResolver("label.action.save", "Save"));
 	$("#language_form").prop("action", "Language/Edit/" + languageId);
 	$("#addLanguageModel").modal('toggle');
 	return false;

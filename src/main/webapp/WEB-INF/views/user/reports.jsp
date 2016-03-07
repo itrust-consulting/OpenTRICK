@@ -2,13 +2,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="col-md-9" id="section_report">
-	<table class="table">
+	<table class="table table-hover table-condensed">
 		<thead>
 			<tr>
 				<th><spring:message code="label.analysis.identifier" text="TRICK name"/></th>
+				<th><spring:message code="label.type" text="Type"/></th>
 				<th><spring:message code="label.analysis.label" text="Name"/></th>
 				<th><spring:message code="label.analysis.version" text="Version"/></th>
 				<th><spring:message code="label.date.created" text="Created date"/></th>
@@ -19,7 +19,9 @@
 		<tbody>
 			<c:forEach items="${reports}" var="report">
 				<tr data-trick-id="${report.id}">
+					
 					<td><spring:message text="${report.identifier}"/></td>
+					<td><spring:message code='label.word_report.type.${fn:toLowerCase(report.type)}' text="${report.type}"/></td>
 					<td><spring:message text="${report.label}"/></td>
 					<td><spring:message text="${report.version}"/></td>
 					<td><fmt:formatDate value="${report.created}"/></td>

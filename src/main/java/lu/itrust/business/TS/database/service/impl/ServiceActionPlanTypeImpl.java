@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOActionPlanType;
-import lu.itrust.business.TS.database.service.ServiceActionPlanType;
-import lu.itrust.business.TS.model.actionplan.ActionPlanType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOActionPlanType;
+import lu.itrust.business.TS.database.service.ServiceActionPlanType;
+import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 
 /**
  * ServiceActionPlanTypeImpl.java: <br>
@@ -30,12 +30,12 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#get(int)
 	 */
 	@Override
-	public ActionPlanType get(Integer id) throws Exception {
+	public ActionPlanType get(Integer id)  {
 		return daoActionPlanType.get(id);
 	}
 
@@ -45,12 +45,12 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * 
 	 * @param name
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#getByName(java.lang.String)
 	 */
 	@Override
-	public ActionPlanType getByName(String name) throws Exception {
+	public ActionPlanType getByName(String name)  {
 		return daoActionPlanType.getByName(name);
 	}
 
@@ -59,12 +59,12 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#getAll()
 	 */
 	@Override
-	public List<ActionPlanType> getAll() throws Exception {
+	public List<ActionPlanType> getAll()  {
 		return daoActionPlanType.getAll();
 	}
 
@@ -73,13 +73,13 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * Description
 	 * 
 	 * @param actionPlanType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#save(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
-	public void save(ActionPlanType actionPlanType) throws Exception {
+	public void save(ActionPlanType actionPlanType)  {
 		daoActionPlanType.save(actionPlanType);
 	}
 
@@ -88,13 +88,13 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * Description
 	 * 
 	 * @param actionPlanType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#saveOrUpdate(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(ActionPlanType actionPlanType) throws Exception {
+	public void saveOrUpdate(ActionPlanType actionPlanType)  {
 		daoActionPlanType.saveOrUpdate(actionPlanType);
 	}
 
@@ -103,13 +103,13 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * Description
 	 * 
 	 * @param actionPlanType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#merge(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
-	public void merge(ActionPlanType actionPlanType) throws Exception {
+	public void merge(ActionPlanType actionPlanType)  {
 		this.daoActionPlanType.merge(actionPlanType);
 	}
 
@@ -118,13 +118,13 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	 * Description
 	 * 
 	 * @param actionPlanType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceActionPlanType#delete(lu.itrust.business.TS.model.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
-	public void delete(ActionPlanType actionPlanType) throws Exception {
+	public void delete(ActionPlanType actionPlanType)  {
 		daoActionPlanType.delete(actionPlanType);
 	}
 }

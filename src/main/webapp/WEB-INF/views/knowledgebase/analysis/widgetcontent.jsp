@@ -24,7 +24,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="editAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
-					<spring:message code="label.action.edit" text="Edit" />
+					<spring:message code="label.action.save" text="Save" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />

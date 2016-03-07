@@ -7,15 +7,18 @@ import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import lu.itrust.business.TS.usermanagement.User;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -25,9 +28,13 @@ import org.hibernate.annotations.CascadeType;
 public class WordReport {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idWordReport")
 	private long id;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "dtType", columnDefinition = "varchar(255) default 'STA'")
+	ReportType type;
 
 	@ManyToOne
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.PERSIST })
@@ -61,7 +68,7 @@ public class WordReport {
 	public WordReport() {
 	}
 
-	public WordReport(String identifier, String label, String version, User user, String name, long length, byte[] file) {
+	protected WordReport(String identifier, ReportType type, String label, String version, User user, String name, long length, byte[] file) {
 		this.setIdentifier(identifier);
 		this.setLabel(label);
 		this.setVersion(version);
@@ -70,6 +77,7 @@ public class WordReport {
 		this.setUser(user);
 		this.setFile(file);
 		this.setCreated(new Timestamp(System.currentTimeMillis()));
+		this.type = type;
 	}
 
 	public long getId() {
@@ -78,6 +86,22 @@ public class WordReport {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+	
+	
+
+	/**
+	 * @return the type
+	 */
+	public ReportType getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(ReportType type) {
+		this.type = type;
 	}
 
 	public User getUser() {
@@ -142,5 +166,17 @@ public class WordReport {
 
 	public void setCreated(Timestamp created) {
 		this.created = created;
+	}
+
+	public static WordReport BuildReport(String identifier, String label, String version, User user, String name, long length, byte[] file) {
+		return new WordReport(identifier, ReportType.STA, label, version, user, name, length, file);
+	}
+
+	public static WordReport BuildRiskSheet(String identifier, String label, String version, User user, String name, long length, byte[] file) {
+		return new WordReport(identifier, ReportType.RISK_SHEET, label, version, user, name, length, file);
+	}
+
+	public static WordReport BuildRiskRegister(String identifier, String label, String version, User user, String name, long length, byte[] file) {
+		return new WordReport(identifier, ReportType.RISK_REGISTER, label, version, user, name, length, file);
 	}
 }

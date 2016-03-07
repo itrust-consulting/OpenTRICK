@@ -4,6 +4,11 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.sql.Timestamp;
+import java.util.Date;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -19,10 +24,6 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.history.History;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-
 /**
  * @author eomar
  *
@@ -30,6 +31,10 @@ import org.hibernate.SessionFactory;
 public class WorkerCreateAnalysisVersion implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -70,12 +75,42 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
+	 */
+	@Override
+	public boolean isMatch(String express, Object... values) {
+		try {
+			String[] expressions = express.split("\\+");
+			boolean match = values.length == expressions.length && values.length == 2;
+			for (int i = 0; i < expressions.length && match; i++) {
+				switch (expressions[i]) {
+				case "analysis.id":
+					match &= values[i].equals(idAnalysis);
+					break;
+				case "class":
+					match &= values[i].equals(getClass());
+					break;
+				default:
+					match = false;
+					break;
+				}
+			}
+			return match;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
 	public void run() {
 		Session session = null;
-		String language = null;
 		try {
 
 			synchronized (this) {
@@ -85,6 +120,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 
 			session = sessionFactory.openSession();
@@ -96,14 +132,12 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			Analysis analysis = duplicator.getDaoAnalysis().get(idAnalysis);
 
 			if (analysis == null)
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", language, 0));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", 0));
 			else {
-
-				language = analysis.getLanguage().getAlpha2();
-
+				
 				Analysis copy = duplicator.duplicateAnalysis(analysis, null, serviceTaskFeedback, id, 5, 95);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.update.setting", "Update analysis settings", language, 95));
+				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.update.setting", "Update analysis settings", 95));
 
 				copy.setBasedOnAnalysis(analysis);
 
@@ -125,15 +159,15 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				userAnalysisRight.setRight(AnalysisRight.ALL);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.saving.analysis", "Saving analysis", language, 96));
+				serviceTaskFeedback.send(id, new MessageHandler("info.saving.analysis", "Saving analysis", 96));
 
 				duplicator.getDaoAnalysis().saveOrUpdate(copy);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", language, 98));
+				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", 98));
 
 				session.getTransaction().commit();
 
-				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", language, 100));
+				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", 100));
 
 				/**
 				 * Log
@@ -144,34 +178,40 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			}
 
 		} catch (InterruptedException e) {
-			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", language, 0));
+			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", 0));
+			rollback(session);
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
 			rollback(session);
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			rollback(session);
-			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", language, 0));
+			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", 0));
+			TrickLogManager.Persist(e);
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
 	}
 
 	protected void rollback(Session session) {
 		try {
-			if (session != null && session.getTransaction().isInitiator())
+			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 	}
 
@@ -256,22 +296,36 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						canceled = true;
+						Thread.currentThread().interrupt();
+					}
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

@@ -28,12 +28,12 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#get(int)
 	 */
 	@Override
-	public TrickService get(Integer id) throws Exception {
+	public TrickService get(Integer id)  {
 		return daoTrickService.get(id);
 	}
 
@@ -42,12 +42,12 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#getStatus()
 	 */
 	@Override
-	public TrickService getStatus() throws Exception {
+	public TrickService getStatus()  {
 		return daoTrickService.getStatus();
 	}
 
@@ -56,13 +56,13 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * Description
 	 * 
 	 * @param trickservice
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#save(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Transactional
 	@Override
-	public void save(TrickService trickservice) throws Exception {
+	public void save(TrickService trickservice)  {
 		daoTrickService.save(trickservice);
 	}
 
@@ -71,13 +71,13 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * Description
 	 * 
 	 * @param trickservice
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#saveOrUpdate(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(TrickService trickservice) throws Exception {
+	public void saveOrUpdate(TrickService trickservice)  {
 		daoTrickService.saveOrUpdate(trickservice);
 	}
 
@@ -86,13 +86,13 @@ public class ServiceTrickServiceImpl implements ServiceTrickService {
 	 * Description
 	 * 
 	 * @param trickservice
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceTrickService#delete(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Transactional
 	@Override
-	public void delete(TrickService trickservice) throws Exception {
+	public void delete(TrickService trickservice)  {
 		daoTrickService.delete(trickservice);
 	}
 }

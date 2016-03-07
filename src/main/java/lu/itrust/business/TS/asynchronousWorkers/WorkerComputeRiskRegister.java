@@ -1,8 +1,15 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -12,12 +19,8 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 
 /**
  * WorkerComputeRiskRegister.java: <br>
@@ -30,6 +33,10 @@ import org.hibernate.SessionFactory;
 public class WorkerComputeRiskRegister implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -81,7 +88,8 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * @param idAnalysis
 	 * @param reloadSection
 	 */
-	public WorkerComputeRiskRegister(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, Boolean reloadSection) {
+	public WorkerComputeRiskRegister(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis,
+			Boolean reloadSection) {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 		this.serviceTaskFeedback = serviceTaskFeedback;
@@ -116,31 +124,32 @@ public class WorkerComputeRiskRegister implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 			session = sessionFactory.openSession();
 			initialiseDAO(session);
 			System.out.println("Loading Analysis...");
 			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
-			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", lang, 1));
+			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", 1));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", lang, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
 				return;
 			}
 			session.beginTransaction();
 			System.out.println("Saving user changes...");
 			backup(analysis, session, lang);
-			RiskRegisterComputation computation = new RiskRegisterComputation(analysis);
-			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.compute", "Computing Risk Register", lang, 20));
+			RiskSheetComputation computation = new RiskSheetComputation(analysis);
+			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.compute", "Computing Risk Register", 20));
 			if (computation.computeRiskRegister() == null) {
 				restoreOwner(analysis, lang);
-				serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.saving", "Saving Risk Register to database", lang, 72));
+				serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.saving", "Saving Risk Register to database", 72));
 				daoAnalysis.saveOrUpdate(analysis);
-				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", lang, 80));
+				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", 80));
 				session.getTransaction().commit();
-				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!", lang, 100);
+				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!", 100);
 				if (reloadSection)
-					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_riskregister\")", null));
+					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_riskregister"));
 				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Risk Register Complete!");
 			} else
@@ -148,65 +157,96 @@ public class WorkerComputeRiskRegister implements Worker {
 		} catch (InterruptedException e) {
 			try {
 				canceled = true;
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} catch (TrickException e) {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-				e.printStackTrace();
-				if (session != null && session.getTransaction().isInitiator())
+				TrickLogManager.Persist(e);
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} catch (Exception e) {
 			try {
 
 				try {
-					String lang;
-					lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2();
-					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), lang, e));
+					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), e));
 				} catch (Exception e1) {
-					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), null, e));
+					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), e));
 				}
-				e.printStackTrace();
-				if (session != null && session.getTransaction().isInitiator())
+				TrickLogManager.Persist(e);
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
-			} catch (Exception ex) {
-				ex.printStackTrace();
+				TrickLogManager.Persist(e);
+			} catch (Exception e) {
+				TrickLogManager.Persist(e);
 			}
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
+	 */
+	@Override
+	public boolean isMatch(String express, Object... values) {
+		try {
+			String[] expressions = express.split("\\+");
+			boolean match = values.length == expressions.length && values.length == 2;
+			for (int i = 0; i < expressions.length && match; i++) {
+				switch (expressions[i]) {
+				case "analysis.id":
+					match &= values[i].equals(idAnalysis);
+					break;
+				case "class":
+					match &= values[i].equals(getClass());
+					break;
+				default:
+					match = false;
+					break;
+				}
+			}
+			return match;
+		} catch (Exception e) {
+			return false;
 		}
 	}
 
 	private void restoreOwner(Analysis analysis, String lang) throws Exception {
 		if (ownerBackup == null)
 			return;
-		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.restore", "Restoring user's changes", lang, 70));
+		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.restore", "Restoring user's changes", 70));
 		for (int i = 0; i < analysis.getRiskRegisters().size(); i++) {
 			RiskRegisterItem riskRegister = analysis.getRiskRegisters().get(i);
 			RiskRegisterItem riskRegisterItem = ownerBackup.remove(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()));
 			if (riskRegisterItem != null)
 				analysis.getRiskRegisters().set(i, riskRegisterItem.merge(riskRegister));
 		}
-		
-		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.delete", "Deleting previous Risk Register", lang, 70));
+		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.delete", "Deleting previous Risk Register", 70));
 		for (RiskRegisterItem riskRegisterItem : ownerBackup.values())
 			daoRiskRegister.delete(riskRegisterItem);
 	}
@@ -220,10 +260,10 @@ public class WorkerComputeRiskRegister implements Worker {
 	 */
 	private void backup(Analysis analysis, Session session, String lang) throws Exception {
 		if (!analysis.getRiskRegisters().isEmpty()) {
-			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.backup", "Backup of user changes", lang, 10));
+			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.backup", "Backup of user changes", 10));
 			ownerBackup = new LinkedHashMap<String, RiskRegisterItem>(analysis.getRiskRegisters().size());
-			analysis.getRiskRegisters().forEach(
-					riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()), riskRegister));
+			analysis.getRiskRegisters()
+					.forEach(riskRegister -> ownerBackup.put(String.format("%d_%d", riskRegister.getAsset().getId(), riskRegister.getScenario().getId()), riskRegister));
 		}
 		analysis.getRiskRegisters().clear();
 	}
@@ -308,22 +348,36 @@ public class WorkerComputeRiskRegister implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

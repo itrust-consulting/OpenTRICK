@@ -7,22 +7,22 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:choose>
 	<c:when test="${empty selectedScenario}">
-		<label data-trick-controller-name='scenario' class="label label-danger"><fmt:message key="error.rrf.no_scenrario" /> </label>
+		<label data-trick-controller-name='scenario' class="label label-danger"><spring:message code="error.rrf.no_scenrario" /> </label>
 	</c:when>
 	<c:otherwise>
 		<spring:message text="${typeValue?'success':'danger'}" var="cssclass" />
-		<table data-trick-controller-name='scenario' class="table" style="margin-bottom: 0;">
+		<table data-trick-controller-name='scenario' class="table table-condensed" style="margin-bottom: 0;">
 			<thead>
 				<tr>
-					<th class="${cssclass} pdlc" data-trick-type="type"><fmt:message key="label.rrf.scenario.preventive" /></th>
-					<th class="${cssclass} pdlc" data-trick-type="type"><fmt:message key="label.rrf.scenario.detective" /></th>
-					<th class="${cssclass} pdlc" data-trick-type="type"><fmt:message key="label.rrf.scenario.limitative" /></th>
-					<th class="${cssclass} pdlc" data-trick-type="type"><fmt:message key="label.rrf.scenario.corrective" /></th>
-					<th class="warning" data-trick-type="source"><fmt:message key="label.rrf.scenario.intentional" /></th>
-					<th class="warning" data-trick-type="source"><fmt:message key="label.rrf.scenario.accidental" /></th>
-					<th class="warning" data-trick-type="source"><fmt:message key="label.rrf.scenario.environmental" /></th>
-					<th class="warning" data-trick-type="source"><fmt:message key="label.rrf.scenario.internalThreat" /></th>
-					<th class="warning" data-trick-type="source"><fmt:message key="label.rrf.scenario.externalThreat" /></th>
+					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.preventive" /></th>
+					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.detective" /></th>
+					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.limitative" /></th>
+					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.corrective" /></th>
+					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.intentional" /></th>
+					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.accidental" /></th>
+					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
+					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
+					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
 					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
 						<th class=""><spring:message text='${assetType.assetType.type}' /></th>
 					</c:forEach>

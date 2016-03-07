@@ -13,17 +13,17 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanType;
  * @since Feb 7, 2013
  */
 public interface ServiceActionPlanType {
-	public ActionPlanType get(Integer id) throws Exception;
+	public ActionPlanType get(Integer id) ;
 
-	public ActionPlanType getByName(String name) throws Exception;
+	public ActionPlanType getByName(String name) ;
 
-	public List<ActionPlanType> getAll() throws Exception;
+	public List<ActionPlanType> getAll() ;
 
-	public void save(ActionPlanType actionPlanType) throws Exception;
+	public void save(ActionPlanType actionPlanType) ;
 
-	public void merge(ActionPlanType actionPlanType) throws Exception;
+	public void merge(ActionPlanType actionPlanType) ;
 
-	public void saveOrUpdate(ActionPlanType actionPlanType) throws Exception;
+	public void saveOrUpdate(ActionPlanType actionPlanType) ;
 
-	public void delete(ActionPlanType actionPlanType) throws Exception;
+	public void delete(ActionPlanType actionPlanType) ;
 }

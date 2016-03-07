@@ -4,6 +4,14 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -20,11 +28,6 @@ import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.usermanagement.User;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.util.FileCopyUtils;
-
 /**
  * @author eomar
  *
@@ -32,6 +35,10 @@ import org.springframework.util.FileCopyUtils;
 public class WorkerExportWordReport implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private int idAnalysis;
 
@@ -57,7 +64,8 @@ public class WorkerExportWordReport implements Worker {
 	 * @param exportAnalysisReport
 	 * @param workersPoolManager
 	 */
-	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportAnalysisReport exportAnalysisReport, WorkersPoolManager workersPoolManager) {
+	public WorkerExportWordReport(int idAnalysis, String username, SessionFactory sessionFactory, ExportAnalysisReport exportAnalysisReport,
+			WorkersPoolManager workersPoolManager) {
 		this.idAnalysis = idAnalysis;
 		this.username = username;
 		this.sessionFactory = sessionFactory;
@@ -76,6 +84,7 @@ public class WorkerExportWordReport implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -88,28 +97,48 @@ public class WorkerExportWordReport implements Worker {
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
 			exportAnalysisReport.setMaxProgress(98);
 			exportAnalysisReport.setIdTask(id);
-			exportAnalysisReport.exportToWordDocument(analysis, true);
+			exportAnalysisReport.exportToWordDocument(analysis);
 			saveWordDocument(session);
 		} catch (TrickException e) {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-			e.printStackTrace();
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", (String) null, e));
-			e.printStackTrace();
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
+			TrickLogManager.Persist(e);
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
+			} finally {
+				cleanUp();
 			}
-			if (exportAnalysisReport.getWorkFile() != null && exportAnalysisReport.getWorkFile().exists())
-				exportAnalysisReport.getWorkFile().delete();
+		}
+	}
+
+	private void cleanUp() {
+		if (isWorking()) {
 			synchronized (this) {
-				working = false;
+				if (isWorking()) {
+					working = false;
+					finished = new Timestamp(System.currentTimeMillis());
+				}
 			}
-			if (workersPoolManager != null)
-				workersPoolManager.remove(getId());
+		}
+
+		if (exportAnalysisReport.getDocument() != null) {
+			try {
+				exportAnalysisReport.getDocument().close();
+			} catch (IOException e) {
+			}
+		}
+
+		File workFile = exportAnalysisReport.getWorkFile();
+
+		if (workFile != null && workFile.exists()) {
+			if (!workFile.delete())
+				workFile.deleteOnExit();
 		}
 	}
 
@@ -117,28 +146,28 @@ public class WorkerExportWordReport implements Worker {
 		File file = exportAnalysisReport.getWorkFile();
 		User user = new DAOUserHBM(session).get(username);
 		Analysis analysis = exportAnalysisReport.getAnalysis();
-		WordReport report = new WordReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
+		WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
 				FileCopyUtils.copyToByteArray(file));
 		try {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", null, 99));
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", 99));
 			session.getTransaction().begin();
 			new DAOWordReportHBM(session).saveOrUpdate(report);
 			session.getTransaction().commit();
-			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", null, 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport(\"" + report.getId() + "\")", null));
+			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", 100);
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport", report.getId()));
 			exportAnalysisReport.getServiceTaskFeedback().send(id, messageHandler);
-			String username = exportAnalysisReport.getServiceTaskFeedback().findUsernameById(this.getId());
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word", String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(), analysis.getVersion()),
-					username, LogAction.EXPORT, analysis.getIdentifier(), analysis.getVersion());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word",
+					String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT, analysis.getIdentifier(),
+					analysis.getVersion());
 		} catch (Exception e) {
 			try {
-				if (session.getTransaction().isInitiator())
+				if (session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 			throw e;
 		}
@@ -182,24 +211,49 @@ public class WorkerExportWordReport implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
-			synchronized (this) {
-				working = false;
-				File file = exportAnalysisReport.getWorkFile();
-				if (file != null && file.exists())
-					file.delete();
+			cleanUp();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
+	 */
+	@Override
+	public boolean isMatch(String express, Object... values) {
+		try {
+			String[] expressions = express.split("\\+");
+			boolean match = values.length == expressions.length && values.length == 2;
+			for (int i = 0; i < expressions.length && match; i++) {
+				switch (expressions[i]) {
+				case "analysis.id":
+					match &= values[i].equals(idAnalysis);
+					break;
+				case "class":
+					match &= values[i].equals(getClass());
+					break;
+				default:
+					match = false;
+					break;
+				}
 			}
-			if (workersPoolManager != null)
-				workersPoolManager.remove(getId());
+			return match;
+		} catch (Exception e) {
+			return false;
 		}
 	}
 
@@ -217,6 +271,16 @@ public class WorkerExportWordReport implements Worker {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

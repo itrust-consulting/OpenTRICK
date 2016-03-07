@@ -3,6 +3,7 @@ package lu.itrust.business.TS.model.riskinformation;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -30,7 +31,7 @@ public class RiskInformation implements Cloneable {
 
 	/** Risk Information id */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idRiskInformation")
 	private int id = -1;
 
@@ -65,11 +66,28 @@ public class RiskInformation implements Cloneable {
 	/** The Risk Information Acronym */
 	@Column(name = "dtAcronym", nullable = false, length = 15)
 	private String acronym;
+	
+	@Column(name = "dtOwner")
+	private String owner;
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
 
+	/**
+	 * @return the owner
+	 */
+	public String getOwner() {
+		return owner;
+	}
+
+	/**
+	 * @param owner the owner to set
+	 */
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	
 	/**
 	 * getAcronym: <br>
 	 * Returns the "acronym" field value
@@ -287,5 +305,7 @@ public class RiskInformation implements Cloneable {
 	public void setEditable(boolean editable) {
 		this.editable = editable;
 	}
+
+	
 
 }

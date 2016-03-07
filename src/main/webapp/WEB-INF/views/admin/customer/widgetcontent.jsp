@@ -138,7 +138,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteCustomerModel-title">
-					<spring:message code="title.action.delete.customer" text="Delete customer" />
+					<spring:message code="title.action.delete" text="Delete" />
 				</h4>
 			</div>
 			<div id="deleteCustomerBody" class="modal-body">Your question here...</div>

@@ -51,8 +51,8 @@
 			<div class="form-group">
 				<label for="hasData" class="col-sm-2 control-label"> <spring:message code="label.analysis.has_data" text="Has Data" />
 				</label>
-				<div class="col-sm-10">
-					<input name="hasData" id="analysis_hasData" class="form-control" type="checkbox" ${analysis.hasData()?"checked='checked'":""} disabled="disabled" />
+				<div class="col-sm-10" align="center">
+					<input name="hasData" id="analysis_hasData" class="checkbox" type="checkbox" ${analysis.hasData()?"checked='checked'":""} disabled="disabled" />
 				</div>
 			</div>
 		</c:if>
@@ -91,14 +91,14 @@
 			<div class="form-group">
 				<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
 				</label>
-				<div class="col-sm-10">
-					<input type="checkbox" name="uncertainty" class="form-control" ${analysis.uncertainty?"checked='checked'":''}>
+				<div class="col-sm-10" align="center">
+					<input type="checkbox" name="uncertainty" class="checkbox" ${analysis.uncertainty?"checked='checked'":''}>
 				</div>
 			</div>
 			<div class="form-group">
 				<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" /></label>
-				<div class="col-sm-10">
-					<input type="checkbox" name="cssf" class="form-control" ${analysis.cssf?"checked='checked'":''}>
+				<div class="col-sm-10" align="center">
+					<input type="checkbox" name="cssf" class="checkbox" ${analysis.cssf?"checked='checked'":''}>
 				</div>
 			</div>
 		</c:if>

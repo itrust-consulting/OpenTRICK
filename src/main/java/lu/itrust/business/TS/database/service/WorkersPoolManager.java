@@ -12,15 +12,17 @@ import lu.itrust.business.TS.asynchronousWorkers.Worker;
  */
 public interface WorkersPoolManager {
 
-	public Worker get(String id);
+	 Worker get(String id);
 
-	public boolean exist(String id);
+	 boolean exist(String id);
 
-	public int poolSize();
+	 int poolSize();
 
-	public boolean add(Worker worker);
+	 boolean add(Worker worker);
 
-	public Worker remove(String id);
+	 Worker remove(String id);
 
-	public Worker remove(Worker worker);
+	 Worker remove(Worker worker);
+	 
+	 void cleaning();
 }

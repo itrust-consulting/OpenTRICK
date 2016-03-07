@@ -22,13 +22,13 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Scenario: <br>
@@ -40,7 +40,7 @@ import org.hibernate.annotations.CascadeType;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idScenario")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }) )
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -254,9 +254,10 @@ public class Scenario extends SecurityCriteria {
 	 * @return
 	 */
 	public boolean hasInfluenceOnAsset(String assettype) {
-		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			if (assettype.equalsIgnoreCase(assetTypeValue.getAssetType().getType()))
-				return assetTypeValue.getValue() > 0;
+		for (int i = 0; i < assetTypeValues.size(); i++) {
+			if (assettype.equalsIgnoreCase(assetTypeValues.get(i).getAssetType().getType()))
+				return assetTypeValues.get(i).getValue() > 0;
+		}
 		return false;
 	}
 
@@ -482,7 +483,8 @@ public class Scenario extends SecurityCriteria {
 	 * @return The List of AssetTypeValues
 	 */
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
+	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
+			@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }) )
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
@@ -498,6 +500,16 @@ public class Scenario extends SecurityCriteria {
 	 */
 	public void setAssetTypeValues(List<AssetTypeValue> assetTypeValues) {
 		this.assetTypeValues = assetTypeValues;
+	}
+
+	public String assetTypeString() {
+		String value = "";
+		for (AssetTypeValue assetTypeValue : assetTypeValues) {
+			if (assetTypeValue.getValue() > 0)
+				value += (value.isEmpty() ? "" : ";") + assetTypeValue.getAssetType().getType();
+		}
+		return value;
+
 	}
 
 	/**
@@ -540,7 +552,7 @@ public class Scenario extends SecurityCriteria {
 			return false;
 		}
 		Scenario other = (Scenario) obj;
-		
+
 		if (getId() > 0 && other.getId() > 0)
 			return getId() == other.getId();
 
@@ -600,4 +612,15 @@ public class Scenario extends SecurityCriteria {
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
 		return value == 0 ? 0 : 4;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Scenario [name=" + name + ", type=" + type + ", selected=" + selected + ", description=" + description + ", assetTypeValues=" + assetTypeValues + "]";
+	}
+
 }

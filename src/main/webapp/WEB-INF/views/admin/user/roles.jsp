@@ -17,7 +17,7 @@
 		<tbody>
 			<tr>
 				<c:forEach items="${roles}" var="role">
-					<td><input id="${role}" name="${role}" class="form-control" type="checkbox" ${!empty userRoles && userRoles.contains(role)?"checked":""} /></td>
+					<td align="center"><input id="${role}" name="${role}" class="checkbox" type="checkbox" ${!empty userRoles && userRoles.contains(role)?"checked":""} /></td>
 				</c:forEach>
 			</tr>
 		</tbody>

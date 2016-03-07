@@ -37,20 +37,21 @@
 							<input name="description" id="standard_description" class="form-control" type="text" />
 						</div>
 					</div>
-					<div class="panel panel-primary">
-						<div class="panel-body">
-							<label class="col-sm-12 text-center"><spring:message code="label.norm.standard_type" text="Standard Type" /></label> 
-							<label class="radio-inline col-sm-offset-3 col-sm-4" > <input type="radio" name="type" value="NORMAL"><spring:message code="label.norm.standard_type.normal" text="Normal" /></label>
-							<label class="radio-inline col-sm-4"> <input type="radio" name="type" value="MATURITY"><spring:message code="label.norm.standard_type.maturity" text="Maturity" /></label>
-						</div>
-					</div>
 					<div class="form-group">
 						<label for="computable" class="col-sm-2 control-label"> <spring:message code="label.norm.computable" text="Computable" />
 						</label>
-						<div class="col-sm-10">
-							<input name="computable" id="standard_computable" class="form-control" type="checkbox" />
+						<div class="col-sm-10" align="center">
+							<input name="computable" id="standard_computable" class="checkbox" type="checkbox" />
 						</div>
 					</div>
+					<div class="panel panel-primary">
+						<div class="panel-body" align="center">
+							<label class="col-sm-12"><spring:message code="label.norm.standard_type" text="Standard Type" /></label> 
+							<label class="radio-inline col-sm-offset-2 col-sm-4" > <input type="radio" name="type" value="NORMAL"><spring:message code="label.norm.standard_type.normal" text="Normal" /></label>
+							<label class="radio-inline col-sm-4"> <input type="radio" name="type" value="MATURITY"><spring:message code="label.norm.standard_type.maturity" text="Maturity" /></label>
+						</div>
+					</div>
+					
 				</form>
 			</div>
 			<div class="modal-footer">

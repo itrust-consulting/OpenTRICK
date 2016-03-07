@@ -2,10 +2,10 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
-
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOAssetTypeValueHBM.java: <br>
@@ -19,22 +19,22 @@ import org.springframework.stereotype.Repository;
 public class DAOMeasureAssetValueHBM extends DAOHibernate implements DAOMeasureAssetValue {
 
 	@Override
-	public MeasureAssetValue get(Integer id) throws Exception {
+	public MeasureAssetValue get(Integer id)  {
 		return (MeasureAssetValue) getSession().get(MeasureAssetValue.class, id);
 	}
 
 	@Override
-	public void save(MeasureAssetValue measureAssetValue) throws Exception {
+	public void save(MeasureAssetValue measureAssetValue)  {
 		getSession().save(measureAssetValue);
 	}
 
 	@Override
-	public void saveOrUpdate(MeasureAssetValue measureAssetValue) throws Exception {
+	public void saveOrUpdate(MeasureAssetValue measureAssetValue)  {
 		getSession().saveOrUpdate(measureAssetValue);
 	}
 
 	@Override
-	public void delete(MeasureAssetValue measureAssetValue) throws Exception {
+	public void delete(MeasureAssetValue measureAssetValue)  {
 		getSession().delete(measureAssetValue);
 	}
 

@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -29,7 +30,7 @@ import org.hibernate.annotations.CascadeType;
 public class TrickLog {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idTrickLog")
 	private long id;
 
@@ -44,7 +45,7 @@ public class TrickLog {
 	@Column(name = "dtCode")
 	private String code;
 
-	@Column(name = "dtMessage")
+	@Column(name = "dtMessage",length=2048)
 	private String message;
 
 	@Column(name = "dtAuthor")
@@ -59,7 +60,7 @@ public class TrickLog {
 
 	@ElementCollection
 	@JoinTable(name = "TrickLogParameters", joinColumns = @JoinColumn(name = "fiTrickLog"))
-	@Column(name = "parameter")
+	@Column(name = "dtParameter",length=1024)
 	@Cascade(CascadeType.ALL)
 	private List<String> parameters;
 

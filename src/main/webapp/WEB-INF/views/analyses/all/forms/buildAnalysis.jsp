@@ -64,7 +64,7 @@
 						<div class="form-group">
 							<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
 							</label>
-							<div class="col-sm-10">
+							<div class="col-sm-10" >
 								<input type="text" class="form-control" name="author" value="${author}" required="required" />
 							</div>
 						</div>
@@ -86,21 +86,21 @@
 							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 							</label>
 							<div class="col-sm-10">
-								<textarea name="comment" class="form-control resize_vectical_only" rows="5" required="required"></textarea>
+								<textarea name="comment" class="form-control resize_vectical_only" rows="6" style="height: 157.4px;" required="required"></textarea>
 							</div>
 						</div>
 						<div class="form-group">
 							<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
 							</label>
-							<div class="col-sm-10">
-								<input type="checkbox" name="uncertainty" class="form-control">
+							<div class="col-sm-10" align="center">
+								<input type="checkbox" name="uncertainty" class="checkbox">
 							</div>
 						</div>
 						<div class="form-group">
 							<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" />
 							</label>
-							<div class="col-sm-10">
-								<input type="checkbox" name="cssf" class="form-control">
+							<div class="col-sm-10" align="center">
+								<input id="cssf" type="checkbox" name="cssf" class="checkbox">
 							</div>
 						</div>
 					</div>
@@ -181,12 +181,19 @@
 							<div class="form-group">
 								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.risk_estimation" text="Risk estimation" />
 								</label>
-								<div class="col-sm-9">
-									<input type="checkbox" class="form-control" name="assessment" disabled="disabled" />
+								<div class="col-sm-9" align="center">
+									<input type="checkbox" class="checkbox" name="assessment" disabled="disabled" />
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
+								<label for="riskProfile" class="col-sm-3 control-label"> <spring:message code="label.analysis.risk_profile" text="Risk profile" />
+								</label>
+								<div class="col-sm-9" align="center">
+									<input type="checkbox" class="checkbox" name="riskProfile" disabled="disabled" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="standards" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
 									<div class="well well-sm" style="height: 131px;overflow-y:auto">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
@@ -194,13 +201,14 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.phases" text="Phase" />
+								<label for="phase" class="col-sm-3 control-label"> <spring:message code="label.analysis.phases" text="Phase" />
 								</label>
-								<div class="col-sm-9">
-									<input type="checkbox" class="form-control" name="phase" disabled="disabled" />
+								<div class="col-sm-9" align="center">
+									<input type="checkbox" class="checkbox" name="phase" disabled="disabled" />
 								</div>
 							</div>
 						</div>
+						<div class='clearfix'></div>
 					</div>
 				</form>
 				<span style="display: block; clear: both; margin: 0; padding: 0"></span>

@@ -3,15 +3,15 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
 /**
  * DAOAnalysisStandardHBM.java: <br>
@@ -46,7 +46,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#get(int)
 	 */
 	@Override
-	public AnalysisStandard get(Integer id) throws Exception {
+	public AnalysisStandard get(Integer id)  {
 		return (AnalysisStandard) getSession().get(AnalysisStandard.class, id);
 	}
 
@@ -58,7 +58,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisStandard> getAll() throws Exception {
+	public List<AnalysisStandard> getAll()  {
 		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard").list();
 	}
 
@@ -70,7 +70,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) throws Exception {
+	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID)  {
 		return (List<AnalysisStandard>) getSession()
 				.createQuery(
 						"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label  ASC")
@@ -85,7 +85,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisID) throws Exception {
+	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisID)  {
 		return (List<AnalysisStandard>) getSession()
 				.createQuery(
 						"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = true ORDER BY analysisStandard.standard.label ASC")
@@ -100,7 +100,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis)  {
 		return (List<AnalysisStandard>) getSession()
 				.createQuery("SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis = :analysis")
 				.setParameter("analysis", analysis).list();
@@ -116,7 +116,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisStandard> getAllFromStandard(Standard standard) throws Exception {
+	public List<AnalysisStandard> getAllFromStandard(Standard standard)  {
 		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where standard = :standard").setParameter("standard", standard).list();
 	}
 
@@ -129,7 +129,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#save(lu.itrust.business.TS.model.standard.AnalysisStandard)
 	 */
 	@Override
-	public void save(AnalysisStandard analysisStandard) throws Exception {
+	public void save(AnalysisStandard analysisStandard)  {
 		getSession().save(analysisStandard);
 	}
 
@@ -142,7 +142,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#saveOrUpdate(lu.itrust.business.TS.model.standard.AnalysisStandard)
 	 */
 	@Override
-	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception {
+	public void saveOrUpdate(AnalysisStandard analysisStandard)  {
 		getSession().saveOrUpdate(analysisStandard);
 	}
 
@@ -155,7 +155,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#delete(lu.itrust.business.TS.model.standard.AnalysisStandard)
 	 */
 	@Override
-	public void delete(AnalysisStandard analysisStandard) throws Exception {
+	public void delete(AnalysisStandard analysisStandard)  {
 		getSession().delete(analysisStandard);
 	}
 
@@ -178,7 +178,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllFromAnalysis(Integer analysisId) throws Exception {
+	public void deleteAllFromAnalysis(Integer analysisId)  {
 		Analysis analysis = (Analysis) getSession().createQuery("select analysis from Analysis analysis where analysis.id = :analysis").setParameter("analysis", analysisId)
 				.uniqueResult();
 
@@ -215,7 +215,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	}
 
 	@Override
-	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) throws Exception {
+	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard)  {
 		return (Integer) getSession()
 				.createQuery("SELECT analysis.id From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
 				.setParameter("analysisstandard", analysisStandard).uniqueResult();

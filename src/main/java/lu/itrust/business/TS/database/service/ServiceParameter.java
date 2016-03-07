@@ -17,55 +17,55 @@ import lu.itrust.business.TS.model.parameter.ParameterType;
  * @since Jan 16, 2013
  */
 public interface ServiceParameter {
-	public Parameter get(Integer id) throws Exception;
+	public Parameter get(Integer id) ;
 
-	public Parameter getFromAnalysisById(Integer idAnalysis, Integer idParameter) throws Exception;
+	public Parameter getFromAnalysisById(Integer idAnalysis, Integer idParameter) ;
 
-	public Parameter getFromAnalysisByTypeAndDescription(Integer idAnalysis, String parameterType, String description) throws Exception;
+	public Parameter getFromAnalysisByTypeAndDescription(Integer idAnalysis, String parameterType, String description) ;
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer parameterId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer parameterId) ;
 
-	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis) ;
 
-	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, String type) throws Exception;
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, String type) ;
 
-	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception;
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, ParameterType type) ;
 
-	public List<Parameter> getAll() throws Exception;
+	public List<Parameter> getAll() ;
 
-	public List<Parameter> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<Parameter> getAllFromAnalysis(Integer idAnalysis) ;
 
-	public List<Parameter> getAllFromAnalysisByPageAndSizeIndex(Integer idAnalysis, Integer pageIndex, Integer pageSize) throws Exception;
+	public List<Parameter> getAllFromAnalysisByPageAndSizeIndex(Integer idAnalysis, Integer pageIndex, Integer pageSize) ;
 
-	public List<Parameter> getAllByPageAndSizeIndex(Integer pageIndex, Integer pageSize) throws Exception;
+	public List<Parameter> getAllByPageAndSizeIndex(Integer pageIndex, Integer pageSize) ;
 
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, Integer idType) throws Exception;
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, Integer idType) ;
 
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type) throws Exception;
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type) ;
 
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception;
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type) ;
 
-	public List<Parameter> getAllInitialisedFromAnalysisByType(Integer idAnalysis, String type) throws Exception;
+	public List<Parameter> getAllInitialisedFromAnalysisByType(Integer idAnalysis, String type) ;
 
-	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) ;
 
-	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type) throws Exception;
+	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type) ;
 
-	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis) ;
 
-	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis) ;
 	
-	public Parameter save(Parameter parameter) throws Exception;
+	public Parameter save(Parameter parameter) ;
 
-	public void saveOrUpdate(Parameter parameter) throws Exception;
+	public void saveOrUpdate(Parameter parameter) ;
 
-	public void saveOrUpdate(List<? extends Parameter> parameters) throws Exception;
+	public void saveOrUpdate(List<? extends Parameter> parameters) ;
 
-	public Parameter merge(Parameter parameter) throws Exception;
+	public Parameter merge(Parameter parameter) ;
 
-	public void delete(Integer id) throws Exception;
+	public void delete(Integer id) ;
 
-	public void delete(Parameter parameter) throws Exception;
+	public void delete(Parameter parameter) ;
 
 	public Parameter getByAnalysisIdAndDescription(Integer idAnalysis, String description);
 

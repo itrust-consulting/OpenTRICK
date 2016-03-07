@@ -37,7 +37,7 @@ function loadRRF() {
 
 								initialiseStandardFilter();
 
-								if (!application.isReadOnly) {
+								if (application.openMode!==OPEN_MODE.READ) {
 
 									var $controlApplySubChapter = $("#measure-control-apply-sub-chapter", $rrfUI), $selectetiveControlApplySubChapter = $(
 											"#measure-control-apply-selective-sub-chapter", $rrfUI), applyMeasureCharacteristics = function(data, idMeasure) {
@@ -53,7 +53,7 @@ function loadRRF() {
 												},
 												error : function() {
 													rrfError();
-												},
+												}
 
 											});
 										}
@@ -127,7 +127,7 @@ function initialiseMeasureSliders() {
 		$("[id^='measure-control-apply']").hide();
 
 	$("#rrfEditor #control_rrf_measure .slider").slider().each(function() {
-		if (application.isReadOnly === true) {
+		if (application.openMode === OPEN_MODE.READ) {
 			$(this).prop("disabled", true);
 			$(this).addClass("disabled");
 		} else {
@@ -172,7 +172,7 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 
 function initialiseScenarioSliders() {
 	$("#rrfEditor #control_rrf_scenario .slider").slider().each(function() {
-		if (application.isReadOnly === true) {
+		if (application.openMode === OPEN_MODE.READ) {
 			$(this).prop("disabled", true);
 			$(this).addClass("disabled");
 		} else {
@@ -277,8 +277,7 @@ function initialiseMeasuresClick() {
 		$("#rrfEditor #selectable_rrf_measures_chapter_controls a.active").removeClass("active");
 
 		// get current element data
-		var $this = $(this), classname = $this.attr("data-trick-class");
-		var trickid = $this.attr("data-trick-id");
+		var $this = $(this), classname = $this.attr("data-trick-class"),trickid = $this.attr("data-trick-id");
 
 		// select current
 		$this.addClass("active");
@@ -345,8 +344,8 @@ function loadMeasureChart() {
 		url : context + "/Analysis/RRF/Measure/" + idMeasure + "/Chart",
 		type : "POST",
 		data : JSON.stringify({
-			"scenariotype" : idScenarioType,
-			"scenario" : idScenario
+			"idScenarioType" : idScenarioType,
+			"idScenario" : idScenario
 		}),
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -417,7 +416,7 @@ function loadScenarioChart() {
 		data : JSON.stringify({
 			"idStandard" : idStandard,
 			"chapter" : chapter,
-			"idMeasure" : idMeasure,
+			"idMeasure" : idMeasure
 		}),
 		async : true,
 		contentType : "application/json;charset=UTF-8",

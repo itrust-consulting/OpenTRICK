@@ -1,42 +1,12 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerRestoreAnalyisRight;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceActionPlan;
-import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
-import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceTrickService;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
-import lu.itrust.business.TS.model.asset.AssetType;
-import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.model.general.AssetTypeValue;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.TS.model.standard.NormalStandard;
-import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +17,36 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerRestoreAnalyisRight;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServiceParameterType;
+import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.model.general.AssetTypeValue;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
+import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.riskinformation.RiskInformation;
+import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.standard.NormalStandard;
+import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
 /**
  * ControllerPatch.java: <br>
@@ -62,40 +62,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ControllerPatch {
 
 	@Autowired
-	private ServiceTrickService serviceTrickService;
-
-	@Autowired
 	private ServiceScenario serviceScenario;
 
 	@Autowired
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
-	private ServiceActionPlanSummary serviceActionPlanSummary;
-
-	@Autowired
-	private ServiceMeasure serviceMeasure;
-
-	@Autowired
-	private AssessmentManager assessmentManager;
-
-	@Autowired
-	private MeasureManager measureManager;
-
-	@Autowired
-	private ServiceActionPlan serviceActionPlan;
-
-	@Autowired
-	private ServiceAnalysisStandard serviceAnalysisStandard;
-
-	@Autowired
-	private ServiceUser serviceUser;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
@@ -107,12 +83,18 @@ public class ControllerPatch {
 	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
+	private ServiceParameterType serviceParameterType;
+
+	@Autowired
+	private ServiceParameter serviceParameter;
+
+	@Autowired
 	private TaskExecutor executor;
 
 	@Autowired
 	private SessionFactory sessionFactory;
 
-	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateAllScenario(Principal principal, Locale locale) {
 		try {
 
@@ -137,7 +119,7 @@ public class ControllerPatch {
 
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null, "Scenarios were successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
@@ -148,18 +130,18 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> updateAssessments(Principal principal, Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-			assessmentManager.UpdateAssessment();
+			assessmentAndRiskProfileManager.UpdateAssessment();
 			errors.put("success", messageSource.getMessage("success.assessments.update.all", null, "All assessments were successfully updated", locale));
 			return errors;
 		} catch (Exception e) {
 			errors.put("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return errors;
 		} finally {
 			/**
@@ -170,7 +152,7 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Restore/Analysis/Right", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Restore/Analysis/Right", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String RestoreAnalysisRights(Principal principal, Locale locale) {
 		try {
 			Worker worker = new WorkerRestoreAnalyisRight(principal.getName(), workersPoolManager, sessionFactory, serviceTaskFeedback);
@@ -182,7 +164,7 @@ public class ControllerPatch {
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.restore.analysis.right", null, "Restoring analysis rights", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
@@ -193,7 +175,49 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Update/Analyses/Scopes", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Update/Analyses/Risk-item-information", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
+	public @ResponseBody String updateRiskInformationAndRiskItem(Principal principal, Locale locale) {
+		try {
+			Analysis profile = serviceAnalysis.getDefaultProfile();
+			if (profile == null)
+				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			List<Analysis> analyses = serviceAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(1, 30);
+			while (!analyses.isEmpty()) {
+				Analysis analysis = analyses.remove(0);
+				if (analysis.getRiskInformations().isEmpty()) {
+					for (RiskInformation riskInformation : profile.getRiskInformations())
+						analysis.addARiskInformation(riskInformation.duplicate());
+				}
+
+				if (analysis.getItemInformations().isEmpty()) {
+					for (ItemInformation itemInformation : profile.getItemInformations())
+						analysis.addAnItemInformation(itemInformation.duplicate());
+				}
+
+				serviceAnalysis.saveOrUpdate(analysis);
+
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.copy.risk_item.information",
+						String.format("Analysis: %s, version: %s; Copy risk and item information from default profile", analysis.getIdentifier(), analysis.getVersion()),
+						principal.getName(), LogAction.UPDATE, analysis.getIdentifier(), analysis.getVersion());
+				if (analyses.isEmpty())
+					analyses = serviceAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(1, 30);
+			}
+			return JsonMessage
+					.Success(messageSource.getMessage("success.update.risk_item.information", null, "Risk and item information were imported from the default profile", locale));
+		} catch (CloneNotSupportedException e) {
+			return JsonMessage.Error(messageSource.getMessage("error.clone.object", null, "An error occurred while copy data", locale));
+		} catch (TrickException e) {
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		} finally {
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Copy-risk-item-information-from-default-profile"),
+					principal.getName(), LogAction.APPLY, "Copy-risk-item-information-from-default-profile");
+		}
+	}
+
+	@RequestMapping(value = "/Update/Analyses/Scopes", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateScope(Principal principal, Locale locale) {
 		try {
 			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
@@ -207,7 +231,6 @@ public class ControllerPatch {
 						if (!analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName))) {
 							analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 							saveRequired = true;
-							System.out.println("Here");
 						}
 					}
 					if (saveRequired) {
@@ -223,7 +246,7 @@ public class ControllerPatch {
 			}
 			return JsonMessage.Success(messageSource.getMessage("success.update.analyses.scopes", null, "Scopes of analyses were successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-scopes-of-analyses"), principal.getName(),
@@ -232,7 +255,7 @@ public class ControllerPatch {
 	}
 
 	// public
-	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Update/Measure/MeasureAssetTypeValues", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	public @ResponseBody String updateMeasureAssetTypes(Principal principal, Locale locale) {
 
 		try {
@@ -279,7 +302,7 @@ public class ControllerPatch {
 
 			return JsonMessage.Success(messageSource.getMessage("success.matv.update", null, "MeasureAssetTypeValues successfully updated", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
@@ -287,6 +310,44 @@ public class ControllerPatch {
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-measure-asset-types"), principal.getName(),
 					LogAction.APPLY, "Update-measure-asset-types");
+		}
+	}
+
+	@RequestMapping(value = "/Add-CSSF-Parameters", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
+	public @ResponseBody String AddCSSFParameters(Principal principal, Locale locale) {
+		try {
+			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
+			ParameterType parameterType = serviceParameterType.get(Constant.PARAMETERTYPE_TYPE_CSSF);
+			if (parameterType == null)
+				serviceParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF, Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
+			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
+				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
+					if (!analysis.hasParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME)) {
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+					}
+					Parameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD);
+					if (parameter != null && analysis.getParameters().remove(parameter))
+						serviceParameter.delete(parameter);
+					serviceAnalysis.saveOrUpdate(analysis);
+				}
+			}
+			return JsonMessage.Success(messageSource.getMessage("success.add.css_parameter", null, "CSSF parameters were successfully added", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Success(messageSource.getMessage(e.getMessage(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		} finally {
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Add-CSSF-parameters"), principal.getName(),
+					LogAction.APPLY, "Add-CSSF-parameters");
 		}
 	}
 

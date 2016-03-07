@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOAssetType;
-import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.model.asset.AssetType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOAssetType;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.model.asset.AssetType;
 
 /**
  * ServiceAssetTypeImpl.java: <br>
@@ -30,12 +30,12 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#get(int)
 	 */
 	@Override
-	public AssetType get(Integer id) throws Exception {
+	public AssetType get(Integer id)  {
 		return daoAssetType.get(id);
 	}
 
@@ -45,12 +45,12 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * 
 	 * @param assetTypeName
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#getByName(java.lang.String)
 	 */
 	@Override
-	public AssetType getByName(String assetTypeName) throws Exception {
+	public AssetType getByName(String assetTypeName)  {
 		return daoAssetType.getByName(assetTypeName);
 	}
 
@@ -59,12 +59,12 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#getAll()
 	 */
 	@Override
-	public List<AssetType> getAll() throws Exception {
+	public List<AssetType> getAll()  {
 		return daoAssetType.getAll();
 	}
 
@@ -74,12 +74,12 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#getAllFromAnalysis(int)
 	 */
 	@Override
-	public List<AssetType> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<AssetType> getAllFromAnalysis(Integer idAnalysis)  {
 		return this.daoAssetType.getAllFromAnalysis(idAnalysis);
 	}
 
@@ -88,13 +88,13 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * Description
 	 * 
 	 * @param assetType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#save(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Transactional
 	@Override
-	public void save(AssetType assetType) throws Exception {
+	public void save(AssetType assetType)  {
 		daoAssetType.save(assetType);
 	}
 
@@ -103,13 +103,13 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * Description
 	 * 
 	 * @param assetType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#saveOrUpdate(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(AssetType assetType) throws Exception {
+	public void saveOrUpdate(AssetType assetType)  {
 		daoAssetType.saveOrUpdate(assetType);
 	}
 
@@ -118,13 +118,13 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 	 * Description
 	 * 
 	 * @param assetType
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetType#delete(lu.itrust.business.TS.model.asset.AssetType)
 	 */
 	@Transactional
 	@Override
-	public void delete(AssetType assetType) throws Exception {
+	public void delete(AssetType assetType)  {
 		daoAssetType.delete(assetType);
 	}
 }

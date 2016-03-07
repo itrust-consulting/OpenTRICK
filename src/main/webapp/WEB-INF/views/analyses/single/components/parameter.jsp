@@ -8,27 +8,27 @@
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitParameters(parameters)" var="parametersSplited" />
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
-<spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
+<%-- <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitMaturityParameters(parametersSplited[2])" var="maturityParameters" /> --%>
+<fmt:setLocale value="fr" scope="session" />
 <div class="row tab-pane" id="tabParameterImpactProba">
 	<div class="col-md-6">
 		<div class="panel panel-default" id="Scale_Impact">
 			<div class="panel-heading">
-				<fmt:message key="label.title.parameter.extended.impact" />
+				<spring:message code="label.title.parameter.extended.impact" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
-							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.acronym" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.qualification" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.value" /> k&euro;</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.range.min" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.range.max" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
 						</tr>
 					</thead>
 					<tbody>
-						<fmt:setLocale value="fr" scope="session" />
 						<c:forEach items="${extendedParameters[0]}" var="parameter" varStatus="status">
 							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
@@ -51,28 +51,26 @@
 									</c:choose></td>
 							</tr>
 						</c:forEach>
-						<fmt:setLocale value="${language}" scope="session" />
 					</tbody>
 				</table>
 			</div>
 		</div>
 	</div>
 	<div class="col-md-6">
-		<span id="anchorParameter_Probability" class="anchor"></span>
 		<div class="panel panel-default" id="Scale_Probability">
 			<div class="panel-heading">
-				<fmt:message key="label.parameter.extended.probability" />
+				<spring:message code="label.parameter.extended.probability" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
-							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.acronym" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.qualification" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.value" /> <fmt:message key="label.assessment.likelihood.unit" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.range.min" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.range.max" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -80,7 +78,6 @@
 							<td data-trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
 							<td data-trick-field="value" colspan="3">0</td>
 						</tr>
-						<fmt:setLocale value="fr" scope="session" />
 						<c:forEach items="${extendedParameters[1]}" var="parameter" varStatus="status">
 							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
@@ -106,7 +103,6 @@
 									</c:choose></td>
 							</tr>
 						</c:forEach>
-						<fmt:setLocale value="${language}" scope="session" />
 					</tbody>
 				</table>
 			</div>
@@ -144,32 +140,31 @@
 </div>
 <div class="row tab-pane" id="tabParameterOther">
 	<div class="col-md-6">
-		<span id="anchorParameter_ILPS" class="anchor"></span>
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<fmt:message key="label.title.parameter.maturity_ilps" />
+				<spring:message code="label.title.parameter.maturity_ilps" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover table-fixed-header-analysis" id="tableMaturityIlps">
+				<table class="table table-hover table-fixed-header-analysis table-condensed" id="tableMaturityIlps">
 					<thead>
 						<tr>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.category" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.task" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.sml0" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.sml1" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.sml2" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.sml3" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.sml4" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.maturity.sml5" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.category" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.task" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml0" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml1" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml2" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml3" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml4" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml5" /> (%)</th>
 						</tr>
 					</thead>
 					<tfoot></tfoot>
 					<tbody>
-						<c:forEach items="${maturityParameters}" var="parameter">
+						<c:forEach items="${parametersSplited[2]}" var="parameter">
 							<tr data-trick-class="MaturityParameter" data-trick-id="${parameter.id}">
-								<td class="textaligncenter"><fmt:message key="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" /></td>
-								<td class="textaligncenter"><fmt:message key="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" /></td>
-								<fmt:setLocale value="fr" scope="session" />
+								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" /></td>
+								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" /></td>
+
 								<td class="success textaligncenter" data-trick-field="SMLLevel0" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel0*100}" maxFractionDigits="0" /></td>
 								<td class="success textaligncenter" data-trick-field="SMLLevel1" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
@@ -182,7 +177,6 @@
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel4*100}" maxFractionDigits="0" /></td>
 								<td class="success textaligncenter" data-trick-field="SMLLevel5" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel5*100}" maxFractionDigits="0" /></td>
-								<fmt:setLocale value="${language}" scope="session" />
 							</tr>
 						</c:forEach>
 					</tbody>
@@ -191,26 +185,23 @@
 		</div>
 	</div>
 	<div class="col-md-6">
-		<span id="anchorParameter_Various" class="anchor"></span>
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<fmt:message key="label.title.parameter.simple.various" />
+				<spring:message code="label.title.parameter.simple.various" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.internal_setup" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.external_setup" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.default_life_time" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.max_rrf" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.soa" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.mandatory_phase" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.importance_threshold" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.internal_setup" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.external_setup" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.default_life_time" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.max_rrf" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.soa" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.mandatory_phase" /></th>
 						</tr>
 					</thead>
 					<tbody>
-						<fmt:setLocale value="fr" scope="session" />
 						<tr>
 							<c:forEach items="${simpleParameters[0]}" var="parameter">
 								<c:choose>
@@ -224,8 +215,9 @@
 											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description=='mandatoryPhase'}">
-										<td data-trick-class="Parameter" data-trick-callback-pre="extractPhase(this,true)" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value"
-											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+										<td data-trick-class="Parameter" data-trick-callback-pre="extractPhase(this,true)" data-trick-id="${parameter.id}" class="success textaligncenter"
+											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
+												pattern="#" /></td>
 									</c:when>
 									<c:otherwise>
 										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double"
@@ -235,38 +227,90 @@
 
 							</c:forEach>
 						</tr>
-						<fmt:setLocale value="${language}" scope="session" />
 					</tbody>
 				</table>
 			</div>
 		</div>
 	</div>
+
+	<spring:message code='label.nil' var="nil"/>
+	<spring:message code='label.all' var="all"/>
+	<spring:message code='label.compliant' var="compliant"/>
 	<div class="col-md-6">
-		<span id="anchorParameter_MaxEfficiency" class="anchor"></span>
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<fmt:message key="label.title.parameter.simple.maturity_level" />
+				<spring:message code="label.title.parameter.simple.cssf" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.sml0" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.sml1" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.sml2" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.sml3" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.sml4" /> (%)</th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.simple.sml5" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.impact_threshold" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.probability_threshold" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.direct_size" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.indirect_size" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.cia_size" /></th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach items="${simpleParameters[1]}" var="parameter">
+								<c:choose>
+									<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1' class="success textaligncenter"
+											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
+												pattern="#" /></td>
+									</c:when>
+									<c:when test="${parameter.description== 'cssfCIASize' or parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
+										<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfSize" />
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all},${compliant}' data-trick-min-value='-2' data-trick-step-value='1'
+											data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);">
+											<c:choose>
+												<c:when test="${parameter.value <= -2 }">
+													${nil}
+													</c:when>
+													<c:when test="${parameter.value == -1}">
+													${all}
+													</c:when>
+												<c:when test="${parameter.value == 0}">
+													${compliant}
+													</c:when>
+												<c:otherwise>${cssfSize}</c:otherwise>
+											</c:choose>
+										</td>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<spring:message code="label.title.parameter.simple.maturity_level" />
+			</div>
+			<div class="panel-body">
+				<table class="table table-hover table-condensed">
+					<thead>
+						<tr>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.sml0" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.sml1" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.sml2" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.sml3" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.sml4" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.sml5" /> (%)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<c:forEach items="${simpleParameters[2]}" var="parameter">
 								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
 									data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
-							<fmt:setLocale value="${language}" scope="session" />
 						</tr>
 					</tbody>
 				</table>
@@ -274,27 +318,24 @@
 		</div>
 	</div>
 	<div class="col-md-6">
-		<span id="anchorParameter_ImplementationRate" class="anchor"></span>
 		<div class="panel panel-default" id="Maturity_implementation_rate">
 			<div class="panel-heading">
-				<fmt:message key="label.title.parameter.simple.smt" />
+				<spring:message code="label.title.parameter.simple.smt" />
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-condensed">
 					<thead>
 						<tr>
-							<th class="textaligncenter"><fmt:message key="label.parameter.level" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.implementation" /> (%)</th>
+							<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.implementation" /> (%)</th>
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach items="${simpleParameters[2]}" var="parameter">
+						<c:forEach items="${simpleParameters[3]}" var="parameter">
 							<tr data-trick-class="Parameter" data-trick-id="${parameter.id}">
-								<td class="textaligncenter"><fmt:message key="label.parameter.simple.smt.level_${parameter.description}" /></td>
-								<fmt:setLocale value="fr" scope="session" />
+								<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}"/></td>
 								<td data-trick-field="value" data-trick-field-type="double" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
-								<fmt:setLocale value="${language}" scope="session" />
 							</tr>
 						</c:forEach>
 					</tbody>

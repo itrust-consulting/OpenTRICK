@@ -32,12 +32,12 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#get(long)
 	 */
 	@Override
-	public UserSQLite get(Integer id) throws Exception {
+	public UserSQLite get(Integer id)  {
 		return daoUserSqLite.get(id);
 	}
 
@@ -47,12 +47,12 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * 
 	 * @param filename
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByFilename(java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByFilename(String filename) throws Exception {
+	public UserSQLite getByFilename(String filename)  {
 		return daoUserSqLite.getByFilename(filename);
 	}
 
@@ -63,13 +63,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param idFile
 	 * @param username
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByUserSQLiteIdAndUserLogin(long,
 	 *      java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByIdAndUser(Integer idFile, String username) throws Exception {
+	public UserSQLite getByIdAndUser(Integer idFile, String username)  {
 		return daoUserSqLite.getByIdAndUser(idFile, username);
 	}
 
@@ -79,12 +79,12 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * 
 	 * @param username
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getAllFromUser(java.lang.String)
 	 */
 	@Override
-	public List<UserSQLite> getAllFromUser(String username) throws Exception {
+	public List<UserSQLite> getAllFromUser(String username)  {
 		return daoUserSqLite.getAllFromUser(username);
 	}
 
@@ -96,13 +96,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param pageIndex
 	 * @param pageSize
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getAllFromUserLoginByPageAndSizeIndex(java.lang.String,
 	 *      int, int)
 	 */
 	@Override
-	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) throws Exception {
+	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize)  {
 		return daoUserSqLite.getAllFromUserByPageAndSizeIndex(username, pageIndex, pageSize);
 	}
 
@@ -112,13 +112,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * 
 	 * @param userSqLite
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#save(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Transactional
 	@Override
-	public UserSQLite save(UserSQLite userSqLite) throws Exception {
+	public UserSQLite save(UserSQLite userSqLite)  {
 		return daoUserSqLite.save(userSqLite);
 	}
 
@@ -127,13 +127,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * Description
 	 * 
 	 * @param userSqLite
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(UserSQLite userSqLite) throws Exception {
+	public void saveOrUpdate(UserSQLite userSqLite)  {
 		daoUserSqLite.saveOrUpdate(userSqLite);
 	}
 
@@ -143,13 +143,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * 
 	 * @param userSqLite
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#merge(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Transactional
 	@Override
-	public UserSQLite merge(UserSQLite userSqLite) throws Exception {
+	public UserSQLite merge(UserSQLite userSqLite)  {
 		return daoUserSqLite.merge(userSqLite);
 	}
 
@@ -158,13 +158,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * Description
 	 * 
 	 * @param idUserSqLite
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(long)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer idUserSqLite) throws Exception {
+	public void delete(Integer idUserSqLite)  {
 		daoUserSqLite.delete(idUserSqLite);
 	}
 
@@ -173,13 +173,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * Description
 	 * 
 	 * @param filename
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(java.lang.String)
 	 */
 	@Transactional
 	@Override
-	public void delete(String filename) throws Exception {
+	public void delete(String filename)  {
 		daoUserSqLite.delete(filename);
 	}
 
@@ -188,13 +188,13 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * Description
 	 * 
 	 * @param userSqLite
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Transactional
 	@Override
-	public void delete(UserSQLite userSqLite) throws Exception {
+	public void delete(UserSQLite userSqLite)  {
 		daoUserSqLite.delete(userSqLite);
 	}
 

@@ -68,7 +68,10 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	 */
 	@Override
 	public ValidatorField findByClass(Class<?> clazz) {
-		return validators.get(clazz);
+		ValidatorField validatorField = validators.get(clazz);
+		if (validatorField == null && !clazz.equals(Object.class))
+			return findByClass(clazz.getSuperclass());
+		return validatorField;
 	}
 
 	/**
@@ -77,7 +80,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	 * 
 	 * @param object
 	 * @return
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceDataValidation#validate(java.lang.Object)
 	 */
@@ -97,7 +100,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	 * @param fieldName
 	 * @param data
 	 * @return
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceDataValidation#validate(java.lang.Object,
 	 *      java.lang.String, java.lang.Object)
@@ -172,7 +175,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	 * @param candidate
 	 * @param choose
 	 * @return
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceDataValidation#validate(java.lang.Object,
 	 *      java.lang.String, java.lang.Object, java.lang.Object[])
@@ -194,7 +197,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	 * @param candidate
 	 * @param choose
 	 * @return
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceDataValidation#validate(java.lang.Object,
 	 *      java.lang.String, java.lang.Object, java.util.List)
@@ -214,7 +217,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	 * @param o
 	 * @param choose
 	 * @return
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceDataValidation#validate(java.lang.Object,
 	 *      java.util.Map)

@@ -11,7 +11,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.asset" />
+						<spring:message code="label.title.chart.asset" />
 					</h3>
 				</div>
 			</div>
@@ -27,7 +27,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.scenario" />
+						<spring:message code="label.title.chart.scenario" />
 					</h3>
 				</div>
 			</div>
@@ -43,7 +43,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.compliance" />
+						<spring:message code="label.title.chart.compliance" />
 					</h3>
 				</div>
 			</div>
@@ -57,7 +57,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.evolution.profitability.compliance" />
+						<spring:message code="label.title.chart.evolution.profitability.compliance" />
 					</h3>
 				</div>
 			</div>
@@ -78,7 +78,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.budget" />
+						<spring:message code="label.title.chart.budget" />
 					</h3>
 				</div>
 			</div>

@@ -15,27 +15,27 @@ import lu.itrust.business.TS.model.analysis.Analysis;
  * @since 16 janv. 2013
  */
 public interface ServiceActionPlanSummary {
-	public SummaryStage get(Integer idSummaryStage) throws Exception;
+	public SummaryStage get(Integer idSummaryStage) ;
 
-	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage) throws Exception;
+	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage) ;
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId) ;
 
-	public List<SummaryStage> getAll() throws Exception;
+	public List<SummaryStage> getAll() ;
 
-	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis) ;
 
-	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception;
+	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) ;
 
-	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception;
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) ;
 
-	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception;
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) ;
 
-	public void save(SummaryStage summaryStage) throws Exception;
+	public void save(SummaryStage summaryStage) ;
 
-	public void saveOrUpdate(SummaryStage summaryStage) throws Exception;
+	public void saveOrUpdate(SummaryStage summaryStage) ;
 
-	public void delete(SummaryStage summaryStage) throws Exception;
+	public void delete(SummaryStage summaryStage) ;
 	
-	public void deleteAllFromAnalysis(Integer analysisID) throws Exception;
+	public void deleteAllFromAnalysis(Integer analysisID) ;
 }

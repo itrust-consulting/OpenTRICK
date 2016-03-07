@@ -13,10 +13,10 @@
 				<h4 class="modal-title">
 					<c:choose>
 						<c:when test="${measureForm.id<1}">
-							<fmt:message key="label.tile.add.measure" />
+							<spring:message code="label.tile.add.measure" />
 						</c:when>
 						<c:otherwise>
-							<fmt:message key="label.tile.edit.measure" />
+							<spring:message code="label.tile.edit.measure" />
 						</c:otherwise>
 					</c:choose>
 
@@ -42,37 +42,37 @@
 						<div id="tab_general" class="tab-pane active" style="padding-top: 17px;">
 
 							<div class="form-group">
-								<label for="reference" class="col-sm-3 control-label"> <fmt:message key="label.reference" /></label>
+								<label for="reference" class="col-sm-3 control-label"> <spring:message code="label.reference" /></label>
 								<div class="col-sm-9">
 									<input name="reference" id="reference" value='<spring:message text="${measureForm.reference}"/>' class="form-control" />
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="level" class="col-sm-3 control-label"> <fmt:message key="label.measure.level" /></label>
+								<label for="level" class="col-sm-3 control-label"> <spring:message code="label.measure.level" /></label>
 								<div class="col-sm-9">
 									<input name="level" id="level" value="${measureForm.level}" class="form-control" type="number" min="1" />
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="computable" class="col-sm-3 control-label"> <fmt:message key="label.measure.computable" /></label>
-								<div class="col-sm-9">
-									<input name="computable" id="computable" ${measureForm.computable?'checked':''} class="form-control" type="checkbox" />
+								<label for="computable" class="col-sm-3 control-label"> <spring:message code="label.measure.computable" /></label>
+								<div class="col-sm-9" align="center">
+									<input name="computable" id="computable" ${measureForm.computable?'checked':''} class="checkbox" type="checkbox" />
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="domain" class="col-sm-3 control-label"> <fmt:message key="label.measure.domain" /></label>
+								<label for="domain" class="col-sm-3 control-label"> <spring:message code="label.measure.domain" /></label>
 								<div class="col-sm-9">
 									<textarea name="domain" id="domain" rows="4" class="form-control resize_vectical_only"><spring:message text="${measureForm.domain}" /></textarea>
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="description" class="col-sm-3 control-label"><fmt:message key="label.measure.description" /></label>
+								<label for="description" class="col-sm-3 control-label"><spring:message code="label.measure.description" /></label>
 								<div class="col-sm-9">
-									<textarea name="description" id="description" rows="10" class="form-control resize_vectical_only"><spring:message text="${measureForm.description}" /></textarea>
+									<textarea name="description" id="description" rows="9" class="form-control resize_vectical_only"><spring:message text="${measureForm.description}" /></textarea>
 								</div>
 							</div>
 						</div>
@@ -81,15 +81,15 @@
 								<div class="row">
 									<div class="col-sm-12">
 										<h3>
-											<fmt:message key="label.assetmeasure.assets.title" />
+											<spring:message code="label.assetmeasure.assets.title" />
 										</h3>
-										<p>
-											<fmt:message key="label.assetmeasure.assets.description" />
+										<p class="bordered-bottom" style="padding-bottom: 10px;">
+											<spring:message code="label.assetmeasure.assets.description" />
 										</p>
+										
 									</div>
-									<hr class="center-block" style="width: 96%">
 									<div class="form-group" style="width: 47%; margin: 5px 15px;">
-										<label class="col-xs-3" style="padding: 5px;"><fmt:message key="label.asset_type" /></label>
+										<label class="col-xs-3" style="padding: 5px;"><spring:message code="label.asset_type" /></label>
 										<div class="col-xs-9">
 											<select class="form-control" name="assettypes" id="assettypes">
 												<option value="ALL"><spring:message code="label.all" text="All" /></option>
@@ -103,10 +103,10 @@
 								<div class="row">
 									<div class="col-sm-6">
 										<h3>
-											<fmt:message key="label.assetmeasure.assetlist" />
+											<spring:message code="label.assetmeasure.assetlist" />
 										</h3>
 										<p>
-											<fmt:message key="label.assetmeasure.assets.clickforselect" />
+											<spring:message code="label.assetmeasure.assets.clickforselect" />
 										</p>
 
 										<ul class="asset-measure" data-trick-type="available">
@@ -118,10 +118,10 @@
 									</div>
 									<div class="col-sm-6">
 										<h3>
-											<fmt:message key="label.assetmeasure.selected" />
+											<spring:message code="label.assetmeasure.selected" />
 										</h3>
 										<p>
-											<fmt:message key="label.assetmeasure.assets.clickfordeselect" />
+											<spring:message code="label.assetmeasure.assets.clickfordeselect" />
 										</p>
 										<ul class="asset-measure" data-trick-type="measure">
 											<c:forEach items="${measureForm.assetValues}" var="assetValue">
@@ -134,27 +134,27 @@
 							</div>
 						</c:if>
 					</c:if>
-					<c:if test="${isComputable or not isAnalysisOnly}">
+					<c:if test="${isComputable or measureForm.type == 'ASSET' or not isAnalysisOnly}">
 						<div id="tab_properties" class="tab-pane ${empty(isAnalysisOnly) or not isAnalysisOnly ?'active':''}" style="padding-top: 17px;">
 							<div style="overflow: auto;">
 								<table class="table">
 									<thead>
 										<tr id="slidersTitle">
-											<th class="warning"><fmt:message key="label.rrf.measure.strength_measure" /></th>
-											<th class="warning"><fmt:message key="label.rrf.measure.strength_sectoral" /></th>
+											<th class="warning"><spring:message code="label.rrf.measure.strength_measure" /></th>
+											<th class="warning"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
 												<th class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
 														key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 											</c:forEach>
-											<th class="success"><fmt:message key="label.rrf.measure.preventive" /></th>
-											<th class="success"><fmt:message key="label.rrf.measure.detective" /></th>
-											<th class="success"><fmt:message key="label.rrf.measure.limitative" /></th>
-											<th class="success"><fmt:message key="label.rrf.measure.corrective" /></th>
-											<th class="warning"><fmt:message key="label.rrf.measure.intentional" /></th>
-											<th class="warning"><fmt:message key="label.rrf.measure.accidental" /></th>
-											<th class="warning"><fmt:message key="label.rrf.measure.environmental" /></th>
-											<th class="warning"><fmt:message key="label.rrf.measure.internal_threat" /></th>
-											<th class="warning"><fmt:message key="label.rrf.measure.external_threat" /></th>
+											<th class="success"><spring:message code="label.rrf.measure.preventive" /></th>
+											<th class="success"><spring:message code="label.rrf.measure.detective" /></th>
+											<th class="success"><spring:message code="label.rrf.measure.limitative" /></th>
+											<th class="success"><spring:message code="label.rrf.measure.corrective" /></th>
+											<th class="warning"><spring:message code="label.rrf.measure.intentional" /></th>
+											<th class="warning"><spring:message code="label.rrf.measure.accidental" /></th>
+											<th class="warning"><spring:message code="label.rrf.measure.environmental" /></th>
+											<th class="warning"><spring:message code="label.rrf.measure.internal_threat" /></th>
+											<th class="warning"><spring:message code="label.rrf.measure.external_threat" /></th>
 											<c:choose>
 												<c:when test="${measureForm.type == 'ASSET' }">
 													<c:forEach items="${measureForm.assetValues}" var="assetValue">

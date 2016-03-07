@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOCustomer;
-import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.model.general.Customer;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOCustomer;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.model.general.Customer;
 
 /**
  * ServiceCustomerImpl.java: <br>
@@ -30,12 +30,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#get(int)
 	 */
 	@Override
-	public Customer get(Integer id) throws Exception {
+	public Customer get(Integer id)  {
 		return daoCustomer.get(id);
 	}
 
@@ -44,12 +44,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#getProfileCustomer()
 	 */
 	@Override
-	public Customer getProfile() throws Exception {
+	public Customer getProfile()  {
 		return daoCustomer.getProfile();
 	}
 
@@ -59,12 +59,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * 
 	 * @param contactPerson
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#getCustomerFromContactPerson(java.lang.String)
 	 */
 	@Override
-	public Customer getFromContactPerson(String contactPerson) throws Exception {
+	public Customer getFromContactPerson(String contactPerson)  {
 		return daoCustomer.getFromContactPerson(contactPerson);
 	}
 
@@ -74,12 +74,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#isProfileCustomer(int)
 	 */
 	@Override
-	public boolean isProfile(Integer id) throws Exception {
+	public boolean isProfile(Integer id)  {
 		return daoCustomer.isProfile(id);
 	}
 
@@ -88,12 +88,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#customerProfileExists()
 	 */
 	@Override
-	public boolean profileExists() throws Exception {
+	public boolean profileExists()  {
 		return daoCustomer.profileExists();
 	}
 
@@ -103,12 +103,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * 
 	 * @param idCustomer
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#customerHasUsers(int)
 	 */
 	@Override
-	public boolean hasUsers(Integer idCustomer) throws Exception {
+	public boolean hasUsers(Integer idCustomer)  {
 		return daoCustomer.hasUsers(idCustomer);
 	}
 
@@ -118,12 +118,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * 
 	 * @param organisation
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#customerExistsByOrganisation(java.lang.String)
 	 */
 	@Override
-	public boolean existsByOrganisation(String organisation) throws Exception {
+	public boolean existsByOrganisation(String organisation)  {
 		return daoCustomer.existsByOrganisation(organisation);
 	}
 
@@ -132,12 +132,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#getAllCustomers()
 	 */
 	@Override
-	public List<Customer> getAll() throws Exception {
+	public List<Customer> getAll()  {
 		return daoCustomer.getAll();
 	}
 
@@ -147,12 +147,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * 
 	 * @param username
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#getAllCustomersAndProfileOfUser(java.lang.String)
 	 */
 	@Override
-	public List<Customer> getAllAndProfileOfUser(String username) throws Exception {
+	public List<Customer> getAllAndProfileOfUser(String username)  {
 		return daoCustomer.getAllAndProfileOfUser(username);
 	}
 
@@ -162,12 +162,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * 
 	 * @param username
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#getAllCustomersNoProfilesOfUser(java.lang.String)
 	 */
 	@Override
-	public List<Customer> getAllNotProfileOfUser(String username) throws Exception {
+	public List<Customer> getAllNotProfileOfUser(String username)  {
 		return daoCustomer.getAllNotProfileOfUser(username);
 	}
 
@@ -176,12 +176,12 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#getAllCustomersNoProfiles()
 	 */
 	@Override
-	public List<Customer> getAllNotProfiles() throws Exception {
+	public List<Customer> getAllNotProfiles()  {
 		return daoCustomer.getAllNotProfiles();
 	}
 
@@ -190,13 +190,13 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @param customer
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#save(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Transactional
 	@Override
-	public void save(Customer customer) throws Exception {
+	public void save(Customer customer)  {
 		daoCustomer.save(customer);
 	}
 
@@ -205,13 +205,13 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @param customer
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#saveOrUpdate(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Override
 	@Transactional
-	public void saveOrUpdate(Customer customer) throws Exception {
+	public void saveOrUpdate(Customer customer)  {
 		daoCustomer.saveOrUpdate(customer);
 	}
 
@@ -220,13 +220,13 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @param customerId
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#delete(java.lang.Integer)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer customerId) throws Exception {
+	public void delete(Integer customerId)  {
 		daoCustomer.delete(customerId);
 	}
 
@@ -235,13 +235,13 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * Description
 	 * 
 	 * @param customer
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#delete(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Transactional
 	@Override
-	public void delete(Customer customer) throws Exception {
+	public void delete(Customer customer)  {
 		daoCustomer.delete(customer);
 	}
 
@@ -257,7 +257,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 
 	@Override
 	public boolean exists(int idCustomer) {
-
 		return daoCustomer.exists(idCustomer);
+	}
+
+	@Override
+	public boolean existsByIdAndOrganisation(int id, String organisation) {
+		return daoCustomer.existsByIdAndOrganisation(id, organisation);
 	}
 }

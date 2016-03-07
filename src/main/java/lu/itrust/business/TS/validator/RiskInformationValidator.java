@@ -65,9 +65,15 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 			else if(!(candidate instanceof String))
 				return "error.risk_information.unsupported.acronym::Acronym value is not supported";
 			break;
+		case "owner":
+			if(candidate == null)
+				return "error.risk_information.owner.null::Owner cannot be empty";
+			else if(!(candidate instanceof String))
+				return "error.risk_information.unsupported.owner::Owner value is not supported";
+			break;
 		case "comment":
 			if(candidate == null)
-				return "error.risk_information.comment.null::Label cannot be empty";
+				return "error.risk_information.comment.null::Comment cannot be empty";
 			else if(!(candidate instanceof String))
 				return "error.risk_information.unsupported.comment::Comment value is not supported";
 			break;

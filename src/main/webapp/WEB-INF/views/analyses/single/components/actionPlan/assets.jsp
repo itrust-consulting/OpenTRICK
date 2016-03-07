@@ -7,14 +7,15 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<fmt:setLocale value="fr" scope="session" />
 <div class="modal fade" id="actionPlanAssets" tabindex="-1" role="dialog" data-aria-labelledby="actionPlanAssets" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog" style="width: 100%;">
+	<div class="modal-dialog" style="width: 98%;">
 		<div class="modal-content" style="padding:0 5px 20px 5px">
 			<div class="modal-header" style="padding-bottom: 2px">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4>
-						<fmt:message key="label.title.actionplan.assets" />
+						<spring:message code="label.title.actionplan.assets" />
 					</h4>
 					<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 					<ul class="nav nav-pills" id="menu_asset_actionplan">
@@ -33,10 +34,10 @@
 						<table class="table table-hover table-condensed table-fixed-header-analysis" id="actionplantable_${apt}">
 							<thead>
 								<tr>
-									<th style="width: 1%;"><fmt:message key="label.table.index" /></th>
-									<th style="width: 4%;"><fmt:message key="label.measure.norm" /></th>
-									<th style="width: 3%;"><fmt:message key="label.reference" /></th>
-									<th style="width: 4%;"><fmt:message key="label.action_plan.total_ale" /></th>
+									<th style="width: 1%;"><spring:message code="label.table.index" /></th>
+									<th style="width: 4%;"><spring:message code="label.measure.norm" /></th>
+									<th style="width: 3%;"><spring:message code="label.reference" /></th>
+									<th style="width: 4%;"><spring:message code="label.action_plan.total_ale" /></th>
 									<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 									<c:forEach items="${actionplanassets}" var="asset">
 										<th><spring:message text="${asset.name}" /></th>
@@ -46,8 +47,8 @@
 							<tbody>
 								<c:if test="${actionplansplitted.get(apt).size()>0}">
 									<tr>
-										<td colspan="3"><fmt:message key="label.action_plan.current_ale" /></td>
-										<fmt:setLocale value="fr" scope="session" />
+										<td colspan="3"><spring:message code="label.action_plan.current_ale" /></td>
+										
 										<c:set var="totalALE">
 											${fct:round(actionplansplitted.get(apt).get(0).totalALE,2) + fct:round(actionplansplitted.get(apt).get(0).deltaALE,2)}
 										</c:set>
@@ -85,7 +86,6 @@
 										</c:forEach>
 									</tr>
 								</c:forEach>
-								<fmt:setLocale value="${language}" scope="session" />
 							</tbody>
 							<tfoot></tfoot>
 						</table>

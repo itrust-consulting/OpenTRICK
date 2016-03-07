@@ -6,6 +6,12 @@ import java.security.Principal;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -18,16 +24,13 @@ import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
+import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
+import lu.itrust.business.TS.model.general.OpenMode;
 
 /**
  * PermissionEvaluatorImpl.java: <br>
@@ -77,25 +80,23 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	private ServiceScenario serviceScenario;
 
 	@Autowired
-	private ServiceUser serviceUser;
-
-	@Autowired
 	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private ServiceRiskProfile serviceRiskProfile;
+
 	public PermissionEvaluatorImpl() {
 	}
 
 	public PermissionEvaluatorImpl(ServiceUser serviceUser, ServiceAnalysis serviceAnalysis, ServiceUserAnalysisRight serviceUserAnalysisRight) {
-		this.serviceUser = serviceUser;
 		this.serviceAnalysis = serviceAnalysis;
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
 
 	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
 	}
 
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
@@ -105,7 +106,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
 		try {
-
+			
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
@@ -122,75 +123,69 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 			if (right == null)
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
-
+			
 			switch (className) {
-			case "ActionPlanEntry": {
 
-				if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "ActionPlanSummary": {
-
-				if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "Assessment": {
-
-				if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
+			case "Scenario": {
+				if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
 			case "Asset": {
-
 				if (!serviceAsset.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
-			case "History": {
-
-				if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "ItemInformation": {
-
-				if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
+			case "Assessment": {
+				if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
 			case "Measure": {
-
 				if (!serviceMeasure.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
-			case "Parameter": {
-
-				if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
+			case "ItemInformation": {
+				if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
 			case "Phase": {
-
 				if (!servicePhase.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
 			case "RiskInformation": {
-
 				if (!serviceRiskInformation.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
-			case "Scenario": {
-
-				if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
+			case "RiskProfile": {
+				if (!serviceRiskProfile.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
-
+			case "Parameter": {
+				if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "ActionPlanEntry": {
+				if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "ActionPlanSummary": {
+				if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "History": {
+				if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
 			case "RiskRegister": {
 				if (!serviceRiskRegister.belongsToAnalysis(analysisId, elementId))
 					return false;
@@ -199,9 +194,10 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			default:
 				return false;
 			}
+			
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -209,21 +205,11 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
-
-			if (analysisId == null || analysisId <= 0)
-				throw new InvalidParameterException("Invalid analysis id!");
-			else if (!serviceAnalysis.exists(analysisId))
-				throw new NotFoundException("Analysis does not exist!");
-
-			if (principal == null)
+			if (analysisId == null || principal == null || right == null || !(analysisId > 0 || serviceAnalysis.exists(analysisId)))
 				return false;
-
-			if (right == null)
-				throw new InvalidParameterException("AnalysisRight cannot be null!");
-
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -241,7 +227,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
-
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
@@ -255,29 +240,27 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right) || serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
 
 	@Override
-	public boolean userIsAuthorized(HttpSession session,Integer elementId, String className, Principal principal, AnalysisRight right) {
-		Integer analysisId = isAuthorised(session, principal, right);
-		return analysisId!=null && userIsAuthorized(analysisId,elementId, className, principal, right);
+	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal, AnalysisRight right) {
+		return userIsAuthorized(isAuthorised(session, principal, right), elementId, className, principal, right);
 	}
 
 	@Override
 	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
-		Integer analysisId = isAuthorised(session, principal, right);
-		return analysisId!=null && userIsAuthorized(analysisId, principal, right);
+		return userIsAuthorized(isAuthorised(session, principal, right), principal, right);
 	}
-	
+
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		if (analysisId == null || principal == null || right == null)
 			return null;
-		if (isReadOnly != null && isReadOnly && right != AnalysisRight.READ)
+		if (OpenMode.isReadOnly(open) && right != AnalysisRight.READ)
 			return null;
 		return analysisId;
 	}

@@ -9,18 +9,20 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
-import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.standard.Standard;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.standard.Standard;
 
 /**
  * MeasureDescription: <br>
@@ -29,8 +31,7 @@ import org.hibernate.annotations.CascadeType;
  * <li>The Standard Object</li>
  * <li>The Level of Measure (1-3)</li>
  * <li>The Measure Reference inside the Standard</li>
- * <li>
- * Measure Description Texts which represents the Domain and Description f a
+ * <li>Measure Description Texts which represents the Domain and Description f a
  * Measure in one to more languages</li>
  * </ul>
  * 
@@ -48,7 +49,7 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Description id */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idMeasureDescription")
 	private int id = -1;
 
@@ -79,6 +80,9 @@ public class MeasureDescription implements Cloneable {
 	 */
 	@Column(name = "dtComputable", nullable = false)
 	private boolean computable = true;
+
+	@Transient
+	private Object[] sortIndex;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -120,8 +124,7 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescriptionText findByLanguage(Language language) {
 		return findByAlph3(language.getAlpha3());
 	}
-	
-	
+
 	/**
 	 * findByAlph3: <br>
 	 * Description
@@ -158,7 +161,6 @@ public class MeasureDescription implements Cloneable {
 		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
 				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
 	}
-
 
 	/**
 	 * findByAlph3: <br>
@@ -408,4 +410,57 @@ public class MeasureDescription implements Cloneable {
 	public void setComputable(boolean computable) {
 		this.computable = computable;
 	}
+
+	private void generateSortId() {
+		String[] splited = this.reference.replace(" ", ".").split("\\.");
+		this.sortIndex = new Object[splited.length];
+		for (int i = 0; i < splited.length; i++)
+			this.sortIndex[i] = tryToParse(splited[i]);
+	}
+
+	private static Object tryToParse(String version) {
+		try {
+			if (!version.isEmpty())
+				return Integer.parseInt(version);
+		} catch (NumberFormatException e) {
+		}
+		return version;
+	}
+
+	public int compareTo(MeasureDescription o2) {
+		if (sortIndex == null)
+			generateSortId();
+		if (o2.sortIndex == null)
+			o2.generateSortId();
+		Object[] sort = o2.sortIndex;
+		if (sort.length > sortIndex.length) {
+			for (int i = 0; i < sortIndex.length; i++) {
+				int compare = compare(sortIndex[i], sort[i]);
+				if (compare == 0)
+					continue;
+				return compare;
+			}
+			return sort.length == sortIndex.length ? 0 : -1;
+		} else {
+			for (int i = 0; i < sort.length; i++) {
+				int compare = compare(sortIndex[i], sort[i]);
+				if (compare == 0)
+					continue;
+				return compare;
+			}
+			return sort.length == sortIndex.length ? 0 : 1;
+		}
+	}
+
+	private int compare(Object object, Object object2) {
+		if (object instanceof Integer) {
+			if (object2 instanceof Integer)
+				return Integer.compare((Integer) object, (Integer) object2);
+			return -1;
+		} else if (object2 instanceof Integer)
+			return 1;
+		else
+			return object.toString().compareTo(object2.toString());
+	}
+
 }

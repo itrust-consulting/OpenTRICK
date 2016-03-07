@@ -1,5 +1,8 @@
 package lu.itrust.business.TS.controller;
 
+
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,6 +11,21 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -25,21 +43,6 @@ import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.CustomerValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerCustomer.java: <br>
@@ -73,7 +76,7 @@ public class ControllerCustomer {
 	 * 
 	 * Display all customers
 	 * 
-	 * */
+	 */
 	@RequestMapping
 	public String loadAllCustomers(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
@@ -113,7 +116,7 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale,
 			RedirectAttributes redirectAttributes) throws Exception {
 		// create errors list
@@ -125,7 +128,8 @@ public class ControllerCustomer {
 			List<User> users = serviceUser.getAll();
 			List<User> customerusers = serviceUser.getAllFromCustomer(customerID);
 			for (User user : users) {
-				boolean userhasaccess = jsonNode.get("user_" + user.getId()).asBoolean();
+				JsonNode userNode = jsonNode.get("user_" + user.getId());
+				boolean userhasaccess = userNode != null && userNode.asBoolean();
 				if (userhasaccess) {
 					if (!user.containsCustomer(customer)) {
 						user.addCustomer(customer);
@@ -150,8 +154,8 @@ public class ControllerCustomer {
 			return loadCustomerUsers(customerID, model, principal);
 		} catch (Exception e) {
 			// return errors
-			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return loadCustomerUsers(customerID, model, principal);
 		}
 	}
@@ -166,25 +170,26 @@ public class ControllerCustomer {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
 		String referer = request.getHeader("Referer");
 		User user = serviceUser.get(principal.getName());
 		if (referer != null && referer.contains("/Admin")) {
-			model.addAttribute("adminView", true);
-			if (user.isAutorised(RoleType.ROLE_ADMIN))
+			if (user.isAutorised(RoleType.ROLE_ADMIN)) {
 				model.addAttribute("customers", serviceCustomer.getAll());
+				return "admin/customer/customers";
+			}
 		}
-		if (!model.containsAttribute("customers"))
-			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		return "knowledgebase/customer/customers";
+
 	}
 
 	/**
 	 * 
 	 * Display single customer
 	 * 
-	 * */
+	 */
 	@RequestMapping("/{customerId}")
 	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
 			Locale locale) throws Exception {
@@ -208,7 +213,7 @@ public class ControllerCustomer {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
@@ -218,18 +223,15 @@ public class ControllerCustomer {
 			User user = serviceUser.get(principal.getName());
 
 			if (customer.getId() < 1) {
-				if (serviceCustomer.existsByOrganisation(customer.getOrganisation())) {
-					errors.put("organisation", messageSource.getMessage("error.customer.duplicate.organisation", null, "Name is not available", locale));
-					return errors;
-				} else if (customer.isCanBeUsed()) {
+				if (customer.isCanBeUsed()) {
 					user.addCustomer(customer);
 					serviceUser.saveOrUpdate(user);
 				} else if (!serviceCustomer.profileExists())
 					serviceCustomer.save(customer);
 				else
 					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
-			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed() || !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed())
-					&& (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
+			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed()
+					|| !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed()) && (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
 				errors.put("canBeUsed",
@@ -241,8 +243,8 @@ public class ControllerCustomer {
 				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("customer",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -251,14 +253,13 @@ public class ControllerCustomer {
 	 * 
 	 * Delete single customer
 	 * 
-	 * */
-	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	 */
+	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 		try {
 			customDelete.deleteCustomer(customerId, principal.getName());
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
@@ -279,7 +280,7 @@ public class ControllerCustomer {
 			JsonNode jsonNode = mapper.readTree(source);
 			int id = jsonNode.get("id").asInt();
 			if (id > 0)
-				customer.setId(jsonNode.get("id").asInt());
+				customer.setId(id);
 
 			ValidatorField validator = serviceDataValidation.findByClass(Customer.class);
 			if (validator == null)
@@ -298,6 +299,9 @@ public class ControllerCustomer {
 			error = validator.validate(customer, "organisation", organisation);
 			if (error != null)
 				errors.put("organisation", serviceDataValidation.ParseError(error, messageSource, locale));
+			else if (id > 0 && serviceCustomer.existsByIdAndOrganisation(id, organisation) || id < 1 && serviceCustomer.existsByOrganisation(organisation))
+				errors.put("organisation", messageSource.getMessage("error.customer.name.already.exists", new String[] { organisation },
+						String.format("A customer with this name '%s' already exists", organisation), locale));
 			else
 				customer.setOrganisation(organisation);
 
@@ -345,8 +349,8 @@ public class ControllerCustomer {
 
 			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("customer",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 		}
 
 		return errors.isEmpty();

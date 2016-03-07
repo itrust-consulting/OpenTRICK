@@ -1,10 +1,12 @@
-var taskManager = undefined;
+var taskManager = undefined, analysesCaching = undefined;
 
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
-	$("#section_analysis table").stickyTableHeaders({
-		cssTopOffset : ".navbar-fixed-top"
-	});
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".navbar-fixed-top"),
+		scrollStartFixMulti : 1.02
+	};
+	fixTableHeader("#section_analysis table");
 });
 
 function manageAnalysisAccess(analysisId, section_analysis) {
@@ -174,7 +176,7 @@ function deleteAnalysis(analysisId) {
 			$("#deleteAnalysisModel .btn").prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
-				type : "GET",
+				type : "POST",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					$("#deleteprogressbar").hide();
@@ -357,12 +359,16 @@ function customAnalysis(element) {
 						var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
 						var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
 						var $removeText = MessageResolver("label.action.delete", "Delete");
+						var $lockText = MessageResolver("label.action.lock", "Lock");
 						// load data from database and manage caching
-						var analysesCaching = {
+						
+						analysesCaching = {
 							versions : {},
 							identifiers : {},
 							customers : {},
 							cloneWidth : undefined,
+							assessmentDisable : true,
+							cssfChecked : false,
 							saveVersions : function(identifier, data) {
 								for (var i = 0; i < data.length; i++)
 									this.versions[data[i].id] = data[i];
@@ -436,12 +442,12 @@ function customAnalysis(element) {
 									helper : "clone",
 									cancel : "span.glyphicon-remove-sign",
 									revert : "invalid",
-									containment : "#buildAnalysisModal #group_2",
+									containment : "#group_2",
 									accept : "*[dropzone='true']",
 									cursor : "move",
 									start : function(e, ui) {
 										$(ui.helper).css({
-											'z-index' : '1085',
+											'z-index' : '1385',
 											'min-width' : instance.cloneWidth,
 											'border-radius' : "5px"
 										});
@@ -488,11 +494,14 @@ function customAnalysis(element) {
 								}
 								return this;
 							},
-							checkEstimation : function() {
-								var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id");
-								var trick_id_scenario = $("#analysis-build-scenarios .well").attr("data-trick-id");
-								$modalBody.find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
-								$modalBody.find("input[name='assessment']").prop("checked", false);
+							checkRiskDependancies : function() {
+								var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well").attr(
+										"data-trick-id"), estimation = trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
+								$modalBody.find("input[name='assessment']").prop("disabled", this.assessmentDisable = estimation).prop("checked", false);
+								return this.checkProfile();
+							},
+							checkProfile : function() {
+								$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled", this.assessmentDisable || !this.cssfChecked);
 								return this;
 							},
 							checkAssetStandard : function() {
@@ -533,6 +542,9 @@ function customAnalysis(element) {
 							}
 						};
 
+						var $locker = $("<a href='#' style='margin-right:3px;' class='pull-right' title='" + $lockText
+								+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $cssf = $("#cssf");
+
 						// Event user select a customer
 						$("#selector-customer").on("change", function(e) {
 							$("#selector-analysis option[value!=-1]").remove();
@@ -551,8 +563,14 @@ function customAnalysis(element) {
 								analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
 						});
 
-						$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkEstimation()");
-						$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkEstimation().checkAssetStandard()");
+						$cssf.on("change", function(e) {
+							analysesCaching.cssfChecked = $cssf.is(":checked");
+							analysesCaching.checkProfile();
+						});
+						
+						
+						$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
+						$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkRiskDependancies().checkAssetStandard()");
 						$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
 
 						$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
@@ -565,7 +583,7 @@ function customAnalysis(element) {
 										$this.attr("title", ui.draggable.attr("title"));
 										$this.text(ui.draggable.attr("title"));
 										$this.addClass("success");
-										$parent.find('input').attr("value", ui.draggable.attr("data-trick-id"));
+										$parent.find('input[name]').attr("value", ui.draggable.attr("data-trick-id"));
 										var callback = $parent.attr("data-trick-callback");
 										$(
 												"<a href='#' class='pull-right text-danger' title='" + $removeText
@@ -575,10 +593,11 @@ function customAnalysis(element) {
 											$newParent.removeAttr("title");
 											$newParent.removeClass("success");
 											$newParent.text($emptyText);
-											$newParent.parent().find('input').attr("value", '-1');
+											$newParent.parent().find('input[name]').attr("value", '-1');
 											analysesCaching.applyCallback(callback);
 											return false;
 										});
+
 										analysesCaching.applyCallback(callback);
 									}
 								});
@@ -590,7 +609,7 @@ function customAnalysis(element) {
 											activeClass : "warning",
 											drop : function(event, ui) {
 												var $this = $(this), $parent = $this.parent();
-												var isEmpty = $("input", $parent).length;
+												var isEmpty = $("input[data-trick-field]", $parent).length;
 												var callback = $parent.attr("data-trick-callback");
 												if (!isEmpty) {
 													$this.empty();
@@ -599,9 +618,14 @@ function customAnalysis(element) {
 												$(analysesCaching.findAnalysisById(ui.draggable.attr("data-trick-id")).analysisStandardBaseInfo)
 														.each(
 																function() {
-																	if ($("label[data-trick-id='" + this.idAnalysis + "'][data-trick-owner-id='" + this.idAnalysisStandard + "']",
-																			$this).length)
+
+																	var $selector = $("label[data-trick-id='" + this.idAnalysis + "'][data-trick-owner-id='"
+																			+ this.idAnalysisStandard + "']", $this), $locked = $("label[data-trick-name='" + this.name
+																			+ "'] input:checked", $this);
+
+																	if ($selector.length || $locked.length)
 																		return this;
+
 																	var data = this, $current = $("label[data-trick-name='" + data.name + "']", $this), $content = $("<label style='width:100%'></label>"), $inputs = $("<input data-trick-field='idAnalysis' hidden>"
 																			+ "<input data-trick-field='idAnalysisStandard' hidden>"
 																			+ "<input data-trick-field='name' hidden>"
@@ -627,7 +651,7 @@ function customAnalysis(element) {
 																						$(
 																								"[data-trick-id='" + data.idAnalysis + "'][data-trick-owner-id='"
 																										+ data.idAnalysisStandard + "']", $parent).remove();
-																						if (!$("input", $parent).length) {
+																						if (!$("input:hidden", $parent).length) {
 																							$this.text($emptyText)
 																							$this.removeClass("success");
 																						}
@@ -636,6 +660,20 @@ function customAnalysis(element) {
 
 																						return false;
 																					});
+																	$locker.clone().appendTo($content).on("click", function(e) {
+																		var $this = $(e.currentTarget), $input = $("input", $this), $flag = $(".fa", $this);
+																		if ($input.is(":checked")) {
+																			$flag.removeClass('fa-lock');
+																			$flag.addClass("fa-unlock");
+																			$input.prop("checked", false);
+																		} else {
+																			$flag.removeClass('fa-unlock');
+																			$flag.addClass("fa-lock");
+																			$input.prop("checked", true);
+																		}
+																		return false;
+																	});
+
 																});
 												analysesCaching.applyCallback(callback).nameAnalysisStandard();
 											}
@@ -658,10 +696,11 @@ function customAnalysis(element) {
 								url : context + "/Analysis/Build/Save",
 								type : "post",
 								data : $("form", $modalBody).serialize(),
+								contentType : "application/x-www-form-urlencoded;charset=UTF-8",
 								async : false,
-								success : function(response, textStatus, jqXHR) {
+								success : function(data, textStatus, jqXHR) {
+									var response = parseJson(data);
 									if (typeof response == 'object') {
-
 										if (response.error != undefined)
 											$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
 												'margin-bottom' : '0',
@@ -781,7 +820,7 @@ function editSingleAnalysis(analysisId) {
 				} else {
 					$("#analysis_form").html($(form).html());
 					$("#editAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
-					$("#editAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
+					$("#editAnalysisButton").text(MessageResolver("label.action.save", "Save"));
 					$("#analysis_form").prop("action", "/Save");
 					$("#editAnalysisModel").modal('toggle');
 				}
@@ -793,16 +832,16 @@ function editSingleAnalysis(analysisId) {
 	return false;
 }
 
-function selectAnalysis(analysisId, selectionOnly, isReadOnly) {
+function selectAnalysis(analysisId, mode) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	var right = isReadOnly === true ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
+	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
 	if (userCan(analysisId, right))
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select" + ((isReadOnly === true) ? "?readOnly=true" : ""));
+		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value + "");
 }
 
 function calculateActionPlan(analysisId) {

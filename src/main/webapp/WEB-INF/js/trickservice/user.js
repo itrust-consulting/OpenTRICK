@@ -12,7 +12,7 @@ function saveUser(form) {
 		url : context + (!isIDSUser ? "/Admin/User/Save" : "/Admin/User/SaveIDS"),
 		type : "post",
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();
@@ -81,7 +81,7 @@ function saveUser(form) {
 							+ MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
 			$(errorElement).appendTo($("#addUserModel .modal-body #success"));
 			$("#user_password").prop("value", "");
-		},
+		}
 	});
 
 	return false;
@@ -221,7 +221,7 @@ function newUser(isIDSUser) {
 		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
 			$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
-			$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
+			$("#addUserbutton").text(MessageResolver("label.action.save", "save"));
 			$("#user_form").prop("action", "/Save");
 			$("#addUserModel").modal('toggle');
 		},
@@ -274,7 +274,7 @@ function editSingleUser(userId) {
 		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
 			$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
-			$("#addUserbutton").text(MessageResolver("label.action.edit", "Edit"));
+			$("#addUserbutton").text(MessageResolver("label.action.save", "Save"));
 			$("#user_form").prop("action", "/Save");
 			$("#addUserModel").modal('toggle');
 		},

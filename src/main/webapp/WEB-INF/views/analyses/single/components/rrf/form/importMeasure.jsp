@@ -12,13 +12,13 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
-					<fmt:message key="label.title.rrf.import.measure_characteristics" />
+					<spring:message code="label.title.rrf.import.measure_characteristics" />
 				</h4>
 			</div>
 			<div class="modal-body">
 				<form action="${pageContext.request.contextPath}/Analysis/RRF/Import/Save" class="form">
 					<div class="form-group">
-						<label> <fmt:message key="label.customers" />
+						<label> <spring:message code="label.customers" />
 						</label> <select class="form-control" name="customer">
 							<c:forEach items="${customers}" var="customer">
 								<option value="${customer.id}">
@@ -28,7 +28,7 @@
 						</select>
 					</div>
 					<div class="form-group">
-						<label><fmt:message key="label.analyses" /></label> <select class="form-control" name="analysis">
+						<label><spring:message code="label.analyses" /></label> <select class="form-control" name="analysis">
 							<c:forEach items="${analyses}" var="analysis">
 								<c:choose>
 									<c:when test="${analysis.profile}">
@@ -48,7 +48,7 @@
 
 					</div>
 					<div class="form-group">
-						<label><fmt:message key="label.standards" /></label> <select class="form-control" name="standards" multiple="multiple">
+						<label><spring:message code="label.standards" /></label> <select class="form-control" name="standards" multiple="multiple">
 							<c:forEach items="${analyses}" var="analysis">
 								<c:forEach items="${analysis.analysisStandards}" var="analysisStandard">
 									<c:if test="${standards.contains(analysisStandard.standard)}">
@@ -65,14 +65,11 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-danger pull-left" name="show_rrf">
-					<fmt:message key="label.action.switch.rrf" />
+				<button type="button" class="btn btn-default" name="cancel">
+					<spring:message code="label.action.cancel" />
 				</button>
 				<button type="button" class="btn btn-primary" name="import">
-					<fmt:message key="label.action.import" />
-				</button>
-				<button type="button" class="btn btn-default" name="cancel">
-					<fmt:message key="label.action.cancel" />
+					<spring:message code="label.action.import" />
 				</button>
 			</div>
 		</div>

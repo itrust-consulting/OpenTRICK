@@ -42,7 +42,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#get(int)
 	 */
 	@Override
-	public RiskInformation get(Integer id) throws Exception {
+	public RiskInformation get(Integer id)  {
 		return (RiskInformation) getSession().get(RiskInformation.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getFromAnalysisById(int, int)
 	 */
 	@Override
-	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
+	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id)  {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.id = :id";
 		return (RiskInformation) getSession().createQuery(query).setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResult();
 	}
@@ -65,7 +65,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
-	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId)  {
 		String query = "Select count(riskinformation) From Analysis as analysis inner join analysis.riskInformations as riskinformation where analysis.id = :analysisid and riskinformation.id = ";
 		query += ":riskinformationId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskinformationId", riskinformationId).uniqueResult()).intValue() > 0;
@@ -79,7 +79,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAll() throws Exception {
+	public List<RiskInformation> getAll()  {
 		return getSession().createQuery("From RiskInformation").list();
 	}
 
@@ -91,7 +91,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllByChapter(String chapter) throws Exception {
+	public List<RiskInformation> getAllByChapter(String chapter)  {
 		return getSession().createQuery("From RiskInformation where chapter = :chapter").setString("chapter", chapter).list();
 	}
 
@@ -103,7 +103,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllByCategory(String category) throws Exception {
+	public List<RiskInformation> getAllByCategory(String category)  {
 		return getSession().createQuery("From RiskInformation where category = :category").setString("category", category).list();
 	}
 
@@ -115,7 +115,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
+	public List<RiskInformation> getAllFromAnalysis(Integer analysisID)  {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis";
 		return getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
 	}
@@ -127,7 +127,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Override
-	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<RiskInformation> getAllFromAnalysis(Analysis analysis)  {
 		return analysis.getRiskInformations();
 	}
 
@@ -138,7 +138,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#save(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
-	public void save(RiskInformation riskInformation) throws Exception {
+	public void save(RiskInformation riskInformation)  {
 		getSession().save(riskInformation);
 	}
 
@@ -149,7 +149,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#saveOrUpdate(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
-	public void saveOrUpdate(RiskInformation riskInformation) throws Exception {
+	public void saveOrUpdate(RiskInformation riskInformation)  {
 		getSession().saveOrUpdate(riskInformation);
 	}
 
@@ -160,7 +160,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#delete(lu.itrust.business.TS.model.riskinformation.RiskInformation)
 	 */
 	@Override
-	public void delete(RiskInformation riskInformation) throws Exception {
+	public void delete(RiskInformation riskInformation)  {
 		getSession().delete(riskInformation);
 	}
 }

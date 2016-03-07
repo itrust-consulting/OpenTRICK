@@ -4,18 +4,20 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<!-- ################################################################ Set Page Title ################################################################ -->
-<c:set scope="request" var="title">label.title.signin</c:set>
 <!-- ###################################################################### HTML #################################################################### -->
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+</c:if>
 <!DOCTYPE html>
-<html>
+<html lang="${locale.language}">
 <!-- Include Header -->
+<c:set scope="request" var="title">label.title.signin</c:set>
 <jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
 	<div id="wrap">
 		<div class="container">
-			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px;">
+			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" /> style="height: 200px;">
 			<div class="form-signin" id="login" style="margin: 0 auto; max-width: 330px;">
 				<h2 class="form-signin-heading">
 					<spring:message code="label.title.login" text="Sign in" />
@@ -35,7 +37,7 @@
 				<jsp:include page="../template/successErrors.jsp" />
 				<form id="login_form" method="post" action="${pageContext.request.contextPath}/signin">
 					<div class="form-group">
-						<input id="username" name="username" value="${(!empty (username))? username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
+						<input id="username" name="username" autofocus="autofocus" value="${(!empty (username))? username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
 							required="required" class="form-control" pattern="^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}" />
 					</div>
 					<div class="form-group">
@@ -74,7 +76,6 @@
 				$('#login_reload_button').show();
 				$("#login_signin_button").hide();
 			}, 899400);
-			$("input[name='j_username']").focus();
 			-->
 		</script>
 	</div>

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
@@ -23,7 +24,8 @@ import javax.persistence.Transient;
 	@Transient
 	private static final long serialVersionUID = 1L;
 
-	@Id @GeneratedValue 
+	@Id 
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="idRole")
 	private int id = - 1;
  

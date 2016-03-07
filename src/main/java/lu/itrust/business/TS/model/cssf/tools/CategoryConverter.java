@@ -382,14 +382,7 @@ public class CategoryConverter {
 	 * @return generic scenario type name
 	 */
 	public static String getTypeFromScenario(Scenario scenario) {
-
-		// check if array is not yet initialised -> NO -> initialise
-		if (scenarioTypeToType == null) {
-			initialiseScenarioTypeToType();
-		}
-
-		// returns the type of the scneario if it is CSSF null when not
-		return  scenarioTypeToType.get(scenario.getType().getName());
+		return getTypeFromScenarioType(scenario.getType().getName());
 	}
 	
 	/**

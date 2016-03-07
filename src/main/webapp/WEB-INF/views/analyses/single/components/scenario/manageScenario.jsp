@@ -11,41 +11,41 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addScenarioModel-title">
-					<fmt:message key="label.title.scenario.${empty(scenario)? 'add':'edit'}" />
+					<spring:message code="label.title.scenario.${empty(scenario)? 'add':'edit'}" />
 				</h4>
 			</div>
 			<div class="modal-body">
 				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="scenario_form">
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
 					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label"> <fmt:message key="label.scenario.name" />
+						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scenario.name" />
 						</label>
 						<div class="col-sm-10">
 							<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="scenarioType.id" class="col-sm-2 control-label"> <fmt:message key="label.scenario.type" />
+						<label for="scenarioType.id" class="col-sm-2 control-label"> <spring:message code="label.scenario.type" />
 						</label>
 						<div class="col-sm-10">
 							<select name="scenarioType" class="form-control" id="scenario_scenariotype_id">
 								<c:choose>
 									<c:when test="${!empty(scenariotypes)}">
-										<option value='-1'><fmt:message key="label.scenario.type.select" /></option>
+										<option value='-1'><spring:message code="label.scenario.type.select" /></option>
 										<c:forEach items="${scenariotypes}" var="scenariotype">
-											<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><fmt:message
-													key="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
+											<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><spring:message
+													code="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>
-										<option value='-1'><fmt:message key="label.scenario.type.loading" /></option>
+										<option value='-1'><spring:message code="label.scenario.type.loading" /></option>
 									</c:otherwise>
 								</c:choose>
 							</select>
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="comment" class="col-sm-2 control-label"> <fmt:message key="label.scenario.description" />
+						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.scenario.description" />
 						</label>
 						<div class="col-sm-10">
 							<textarea name="description" class="form-control resize_vectical_only" id="scenario_description"><spring:message
@@ -53,29 +53,29 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="selected" class="col-sm-2 control-label"> <fmt:message key="label.scenario.selected" />
+						<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.scenario.selected" />
 						</label>
-						<div class="col-sm-10">
-							<input name="selected" id="scenario_selected" class="form-control checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
+						<div class="col-sm-10" align="center">
+							<input name="selected" id="scenario_selected" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
 						</div>
 					</div>
 					<div class="panel panel-primary">
 						<div class="panel-body">
-							<label class="col-sm-12 text-center"> <fmt:message key="label.scenario.application.asset.types" /></label>
+							<label class="col-sm-12 text-center"> <spring:message code="label.scenario.application.asset.types" /></label>
 							<table class="table">
 								<c:choose>
 									<c:when test="${!empty(scenario)}">
 										<thead>
 											<tr>
 												<c:forEach items="${scenario.assetTypeValues}" var="assettypevalue" varStatus="status">
-													<td><fmt:message key="label.asset_type.${fn:toLowerCase(assettypevalue.assetType.type)}" /></td>
+													<td><spring:message code="label.asset_type.${fn:toLowerCase(assettypevalue.assetType.type)}" /></td>
 												</c:forEach>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<c:forEach items="${scenario.assetTypeValues}" var="assetTypeValue" varStatus="status">
-													<td><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1" name="<spring:message text="${assetTypeValue.assetType.type}" />" /></td>
+													<td align="center"><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1" name="<spring:message text="${assetTypeValue.assetType.type}" />" /></td>
 												</c:forEach>
 											</tr>
 										</tbody>
@@ -84,14 +84,14 @@
 										<thead>
 											<tr>
 												<c:forEach items="${assetTypes}" var="assetType">
-													<td><fmt:message key="label.asset_type.${fn:toLowerCase(assetType.type)}" /></td>
+													<td align="center"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.type)}" /></td>
 												</c:forEach>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
 												<c:forEach items="${assetTypes}" var="assetType" varStatus="status">
-													<td><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
+													<td align="center"><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
 												</c:forEach>
 											</tr>
 										</tbody>
@@ -104,7 +104,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" onclick="saveScenario('scenario_form')">
-					<fmt:message key="label.action.save" />
+					<spring:message code="label.action.save" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />

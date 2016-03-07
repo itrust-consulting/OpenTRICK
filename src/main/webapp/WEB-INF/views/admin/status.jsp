@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane active" id="tab_status">
 	<div class="section" id="section_status">
-		<table class="table">
+		<table class="table table-condensed">
 			<thead>
 				<tr>
 					<th style="text-align: center;"><spring:message code="label.installation.status.version" text="Version" /></th>

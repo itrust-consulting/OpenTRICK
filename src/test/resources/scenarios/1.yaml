@@ -1,0 +1,8 @@
+name: controllers
+tests:
+  - name: All Components
+    includedGroups: [ ALL ]
+    metaGroups: { KNOWLEDGE_BASE_ADMINISTRATION: [ KnowledgeBase,Administration ] , ALL: [ INITIALISE,ANALYSIS,PROFILE_ANALYSIS,KNOWLEDGE_BASE_ADMINISTRATION,FAILURE_TEST_SUITE ] , INITIALISE: [ setup,firstAccount,Installation ] , PROFILE_ANALYSIS: [ ImportExport,Profile ] , ANALYSIS: [ CreateAnalysis,Computation ] , FAILURE_TEST_SUITE: [ EditFieldFailure ]  }
+    xmlPackages:
+      - name: lu.itrust.TS.controller
+

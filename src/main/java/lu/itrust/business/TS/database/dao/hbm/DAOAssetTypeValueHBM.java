@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
-import lu.itrust.business.TS.model.general.AssetTypeValue;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
+import lu.itrust.business.TS.model.general.AssetTypeValue;
 
 /**
  * DAOAssetTypeValueHBM.java: <br>
@@ -41,7 +41,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#get(int)
 	 */
 	@Override
-	public AssetTypeValue get(Integer id) throws Exception {
+	public AssetTypeValue get(Integer id)  {
 		return (AssetTypeValue) getSession().get(AssetTypeValue.class, id);
 	}
 
@@ -52,7 +52,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#save(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Override
-	public AssetTypeValue save(AssetTypeValue assetTypeValue) throws Exception {
+	public AssetTypeValue save(AssetTypeValue assetTypeValue)  {
 		return (AssetTypeValue) getSession().save(assetTypeValue);
 	}
 
@@ -63,7 +63,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Override
-	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue) throws Exception {
+	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue)  {
 		getSession().saveOrUpdate(assetTypeValue);
 		return assetTypeValue;
 	}
@@ -75,7 +75,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#merge(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Override
-	public AssetTypeValue merge(AssetTypeValue assetTypeValue) throws Exception {
+	public AssetTypeValue merge(AssetTypeValue assetTypeValue)  {
 		return (AssetTypeValue) getSession().merge(assetTypeValue);
 	}
 
@@ -86,7 +86,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#delete(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Override
-	public void delete(AssetTypeValue assetTypeValue) throws Exception {
+	public void delete(AssetTypeValue assetTypeValue)  {
 		getSession().delete(assetTypeValue);
 	}
 
@@ -97,7 +97,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#delete(int)
 	 */
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		delete(get(id));
 	}
 
@@ -108,7 +108,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#delete(java.util.List)
 	 */
 	@Override
-	public void delete(List<AssetTypeValue> assetTypeValues) throws Exception {
+	public void delete(List<AssetTypeValue> assetTypeValues)  {
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			delete(assetTypeValue);
 	}

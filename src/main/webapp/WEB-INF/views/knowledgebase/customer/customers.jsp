@@ -16,7 +16,7 @@
 		</ul>
 		<c:choose>
 			<c:when test="${!empty customers}">
-				<table class="table">
+				<table class="table table-hover">
 					<thead>
 						<tr>
 							<th width="1%"></th>

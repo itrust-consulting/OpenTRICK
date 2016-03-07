@@ -15,25 +15,25 @@ import lu.itrust.business.TS.model.standard.Standard;
  * @since Jan 24, 2013
  */
 public interface ServiceAnalysisStandard {
-	public AnalysisStandard get(Integer id) throws Exception;
+	public AnalysisStandard get(Integer id) ;
 
-	public List<AnalysisStandard> getAll() throws Exception;
+	public List<AnalysisStandard> getAll() ;
 
-	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId) throws Exception;
+	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId) ;
 
-	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId) throws Exception;
+	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId) ;
 	
-	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception;
+	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) ;
 
-	public List<AnalysisStandard> getAllFromStandard(Standard standard) throws Exception;
+	public List<AnalysisStandard> getAllFromStandard(Standard standard) ;
 
-	public void deleteAllFromAnalysis(Integer analysisId) throws Exception;
+	public void deleteAllFromAnalysis(Integer analysisId) ;
 	
-	public void save(AnalysisStandard analysisStandard) throws Exception;
+	public void save(AnalysisStandard analysisStandard) ;
 
-	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception;
+	public void saveOrUpdate(AnalysisStandard analysisStandard) ;
 
-	public void delete(AnalysisStandard analysisStandard) throws Exception;
+	public void delete(AnalysisStandard analysisStandard) ;
 
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer analysisId, int standardId);
 

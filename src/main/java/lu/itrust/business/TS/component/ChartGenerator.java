@@ -15,12 +15,16 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
-import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOParameter;
@@ -56,11 +60,6 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import net.minidev.json.JSONObject;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-
 /**
  * ChartGenerator.java: <br>
  * Detailed description...
@@ -71,9 +70,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ChartGenerator {
-
-	@Autowired
-	private DAOAsset daoAsset;
 
 	@Autowired
 	private DAOActionPlan daoActionPlan;
@@ -160,11 +156,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -206,11 +199,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -253,11 +243,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -300,11 +287,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -554,15 +538,15 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public String evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) throws Exception {
+	public String evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale)
+			throws Exception {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
 
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
-		String title = "\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null,
-						"Evolution of profitability and ISO compliance for " + actionPlanType, locale) + "\"}";
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null,
+				"Evolution of profitability and ISO compliance for " + actionPlanType, locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -670,9 +654,11 @@ public class ChartGenerator {
 		series += "{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale) + "\", \"data\":" + ale
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale) + "\", \"data\":" + riskReduction
-				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale)
-				+ "\", \"data\":" + costOfMeasures + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale)
-				+ "\", \"data\":" + rosi + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale)
+				+ "\", \"data\":" + costOfMeasures + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
@@ -822,8 +808,7 @@ public class ChartGenerator {
 		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
 		if (scenario == null)
 			return null;
-		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		return rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
+		return rrfByScenario(scenario, idAnalysis, measures, locale);
 	}
 
 	public String rrfByScenario(Scenario scenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
@@ -903,9 +888,10 @@ public class ChartGenerator {
 
 			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return null;
 	}
@@ -922,9 +908,8 @@ public class ChartGenerator {
 
 		try {
 
-			String title = "\"title\": {\"text\":\""
-					+ messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() }, "RRF by measure ("
-							+ measure.getMeasureDescription().getReference() + ")", locale) + "\"}";
+			String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() },
+					"RRF by measure (" + measure.getMeasureDescription().getReference() + ")", locale) + "\"}";
 
 			String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -989,7 +974,7 @@ public class ChartGenerator {
 		catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return null;
 	}
@@ -1152,22 +1137,22 @@ public class ChartGenerator {
 
 					List<MeasureAssetValue> mavs = assetMeasure.getMeasureAssetValueByAssetType(atv.getAssetType());
 
-					if (mavs.size() == 0)
-						throw new TrickException("error.rrf.assetmeasure.no_assets", "Measure '" + assetMeasure.getMeasureDescription().getReference()
-								+ "' does not have any assets of this asset type!", assetMeasure.getMeasureDescription().getReference());
+					if (!mavs.isEmpty()) {
 
-					for (MeasureAssetValue mav : mavs) {
+						for (MeasureAssetValue mav : mavs) {
 
-						double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
+							double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
 
-						NumberFormat nf = new DecimalFormat();
-						nf.setMaximumFractionDigits(2);
+							NumberFormat nf = new DecimalFormat();
+							nf.setMaximumFractionDigits(2);
 
-						val = Double.valueOf(nf.format(val));
+							val = Double.valueOf(nf.format(val));
 
-						rrfMeasure.setValue(rrfMeasure.getValue() + val);
-					}
-					rrfAssetType.getRrfMeasures().add(rrfMeasure);
+							rrfMeasure.setValue(rrfMeasure.getValue() + val);
+						}
+						rrfAssetType.getRrfMeasures().add(rrfMeasure);
+					} else
+						rrfs.remove(atv.getAssetType().getType());
 				}
 			}
 		}

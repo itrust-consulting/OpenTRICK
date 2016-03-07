@@ -11,18 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceTSSetting;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserSqLite;
-import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.model.general.TSSetting;
-import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.permissionevaluator.PermissionEvaluator;
-
 import org.hibernate.exception.GenericJDBCException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -34,8 +22,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author oensuifudine
@@ -51,17 +48,8 @@ public class ControllerHome {
 	private ServiceTaskFeedback serviceTaskFeedback;
 	
 	@Autowired
-	private PermissionEvaluator permissionEvaluator;
-
-	@Autowired
 	private MessageSource messageSource;
 
-	@Autowired
-	private ServiceUserSqLite serviceUserSqLite;
-
-	@Autowired
-	private LocaleResolver localeResolver;
-	
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
 
@@ -73,10 +61,8 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
-		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().length() == 2 ? message.getLanguage() : message.getLanguage().substring(0, 2))
-				: null;
 		return String.format("{\"message\":\"%s\"}",
-				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
+				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
 	}
 	
 	@PreAuthorize(Constant.ROLE_MIN_USER)

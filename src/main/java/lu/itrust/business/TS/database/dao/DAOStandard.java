@@ -15,41 +15,43 @@ import lu.itrust.business.TS.model.standard.StandardType;
  * @since 16 janv. 2013
  */
 public interface DAOStandard {
-	public Standard get(Integer id) throws Exception;
+	public Standard get(Integer id) ;
 
-	public Standard getStandardByName(String standard) throws Exception;
+	public Standard getStandardByName(String standard) ;
 
-	public Standard getStandardNotCustomByName(String standard) throws Exception;
+	public Standard getStandardNotCustomByName(String standard) ;
 
-	public Standard getStandardByNameAndVersion(String label, Integer version) throws Exception;
+	public Standard getStandardByNameAndVersion(String label, Integer version) ;
 
-	public boolean existsByNameAndVersion(String label, Integer version) throws Exception;
+	public boolean existsByNameAndVersion(String label, Integer version) ;
 
-	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception;
+	public boolean existsByNameVersionType(String label, Integer version, StandardType type) ;
 	
-	public List<Standard> getAll() throws Exception;
+	public List<Standard> getAll() ;
 
-	public List<Standard> getAllNotBoundToAnalysis() throws Exception;
+	public List<Standard> getAllNotBoundToAnalysis() ;
 	
-	public List<Standard> getAllFromAnalysis(Integer analysisId) throws Exception;
+	public List<Standard> getAllFromAnalysis(Integer analysisId) ;
 	
-	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception;
+	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) ;
 
-	public List<Standard> getAllFromAnalysis(Analysis analysis) throws Exception;
+	public List<Standard> getAllFromAnalysis(Analysis analysis) ;
 
-	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception;
+	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) ;
 
-	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception;
+	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) ;
 	
-	public Integer getNextVersionByNameAndType(String label, StandardType standardType) throws Exception;
+	public Integer getNextVersionByNameAndType(String label, StandardType standardType) ;
 	
-	public void save(Standard standard) throws Exception;
+	public void save(Standard standard) ;
 
-	public void saveOrUpdate(Standard standard) throws Exception;
+	public void saveOrUpdate(Standard standard) ;
 
-	public void delete(Standard standard) throws Exception;
+	public void delete(Standard standard) ;
 
 	public boolean belongToAnalysis(Integer idStandard, int idAnalysis);
 
 	public int getNextVersion(String label);
+
+	public boolean isUsed(Standard standard);
 }

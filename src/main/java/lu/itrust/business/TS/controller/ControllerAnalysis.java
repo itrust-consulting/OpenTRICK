@@ -1,5 +1,18 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.ANALYSIS_TASK_ID;
+import static lu.itrust.business.TS.constants.Constant.CURRENT_CUSTOMER;
+import static lu.itrust.business.TS.constants.Constant.FILTER_ANALYSIS_NAME;
+import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_ANALYSIS_NAME;
+import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID;
+import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
+import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
+import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
+import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
+import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAGE;
+import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
@@ -7,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -15,71 +29,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
-import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.CustomerManager;
-import lu.itrust.business.TS.component.Duplicator;
-import lu.itrust.business.TS.component.DynamicParameterComputer;
-import lu.itrust.business.TS.component.GeneralComperator;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceActionPlan;
-import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
-import lu.itrust.business.TS.database.service.ServiceActionPlanType;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAssessment;
-import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceHistory;
-import lu.itrust.business.TS.database.service.ServiceItemInformation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.database.service.ServiceRole;
-import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.database.service.ServiceStandard;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.ServiceUserSqLite;
-import lu.itrust.business.TS.database.service.ServiceWordReport;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.ResourceNotFoundException;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.exportation.ExportAnalysisReport;
-import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
-import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.history.History;
-import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-import lu.itrust.business.TS.usermanagement.RoleType;
-import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.validator.HistoryValidator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -108,6 +57,55 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
+import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.CustomerManager;
+import lu.itrust.business.TS.component.GeneralComperator;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.exportation.ExportAnalysisReport;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
+import lu.itrust.business.TS.model.history.History;
+import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.validator.HistoryValidator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
+
 /**
  * ControllerAnalysis.java: <br>
  * Detailed description...
@@ -116,26 +114,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @version
  * @since Oct 22, 2013
  */
-@PreAuthorize(Constant.ROLE_MIN_USER)
+@PreAuthorize(ROLE_MIN_USER)
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
-	private static final String FILTER_ANALYSIS_NAME = "filter_analysis_name";
-
-	private static final String LAST_SELECTED_ANALYSIS_NAME = "last-selected-analysis-name";
-
-	private static final String ANALYSIS_TASK_ID = "analysis_task_id";
-
-	private static final String CURRENT_CUSTOMER = "currentCustomer";
-
-	private static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
-
 	@Autowired
 	private ServiceUser serviceUser;
-
-	@Autowired
-	private ServiceActionPlanType serviceActionPlanType;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -144,31 +129,13 @@ public class ControllerAnalysis {
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
-	private ServiceAssetType serviceAssetType;
-
-	@Autowired
 	private ServiceCustomer serviceCustomer;
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private ServiceActionPlan serviceActionPlan;
-
-	@Autowired
-	private ServiceActionPlanSummary serviceActionPlanSummary;
-
-	@Autowired
-	private AssessmentManager assessmentManager;
-
-	@Autowired
-	private ServiceStandard serviceStandard;
-
-	@Autowired
-	private ServiceUserSqLite serviceUserSqLite;
-
-	@Autowired
-	private ServiceWordReport serviceWordReport;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -186,47 +153,11 @@ public class ControllerAnalysis {
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceHistory serviceHistory;
-
-	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-
-	@Autowired
-	private ServiceItemInformation serviceItemInformation;
-
-	@Autowired
-	private ServiceAsset serviceAsset;
-
-	@Autowired
-	private ServiceScenario serviceScenario;
-
-	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
-	private ServiceMeasure serviceMeasure;
-
-	@Autowired
-	private ServicePhase servicePhase;
 
 	@Autowired
 	private ServiceRole serviceRole;
 	
-	@Autowired
-	private DynamicParameterComputer dynamicParameterComputer;
-
-	@Autowired
-	private MeasureManager measureManager;
-
-	@Autowired
-	private ServiceAssessment serviceAssessment;
-
-	@Autowired
-	private Duplicator duplicator;
-
-	@Autowired
-	private ManageAnalysisRight manageAnalysisRight;
-
 	@Autowired
 	private CustomerManager customerManager;
 
@@ -252,20 +183,22 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String home(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
+	public String home(Principal principal, Model model, HttpSession session, Locale locale, HttpServletRequest request) throws Exception {
 		// retrieve analysisId if an analysis was already selected
-		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
+		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
+		OpenMode openMode = OpenMode.parseOrDefault(session.getAttribute(OPEN_MODE));
 		// check if an analysis is selected
 		if (selected != null)
-			return isReadOnly == null || !isReadOnly ? String.format("redirect:/Analysis/%d/Select", selected) : String.format("redirect:/Analysis/%d/Select?readOnly=true",
-					selected);
+			return String.format("redirect:/Analysis/%d/Select?open=%s", selected, openMode.getValue());
 		else
 			return "redirect:/Analysis/All";
 	}
 
 	@RequestMapping("/All")
 	public String AllAnalysis(Model model, Principal principal, HttpSession session) throws Exception {
+		session.removeAttribute(OPEN_MODE);
+		session.removeAttribute(SELECTED_ANALYSIS);
+		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
 		return LoadUserAnalyses(session, principal, model);
 	}
 
@@ -284,38 +217,63 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/{analysisId}/Select")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId,
-			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
+	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "edit") String open,
+			HttpSession session, Locale locale) throws Exception {
 		// select the analysis
-		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
+		OpenMode mode = OpenMode.parseOrDefault(open);
+		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(OPEN_MODE, mode);
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
-		boolean hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : readOnly ? true : permissionEvaluator
-				.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
+		Boolean readOnly = OpenMode.isReadOnly(mode);
+		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
+				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
 			// initialise analysis
-			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-			Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-			Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findFirst();
-			model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
-			model.addAttribute("login", user.getLogin());
+			switch (mode) {
+			case READ:
+			case EDIT:
+				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
+				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
+				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
+				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
+				model.addAttribute("soa", measures.get("27002"));
+				model.addAttribute("measures", measures);
+				model.addAttribute("show_uncertainty", analysis.isUncertainty());
+				model.addAttribute("show_cssf", analysis.isCssf());
+				model.addAttribute("standards", analysis.getStandards());
+				if (analysis.isCssf()) {
+					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
+					model.addAttribute("estimationMapping", analysis.mapAssessment());
+				}
+				break;
+			case EDIT_MEASURE:
+				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));
+				model.addAttribute("standards", analysis.getStandards());
+				break;
+			case EDIT_ESTIMATION:
+			case READ_ESTIMATION:
+				model.addAttribute("assets", analysis.findSelectedAssets());
+				model.addAttribute("scenarios", analysis.findSelectedScenarios());
+				List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
+				analysis.groupExtended(probabilities, impacts);
+				model.addAttribute("impacts", impacts);
+				model.addAttribute("probabilities", probabilities);
+				break;
+			}
 			model.addAttribute("analysis", analysis);
-			model.addAttribute("standards", analysis.getStandards());
-			model.addAttribute("measures", measures);
-			model.addAttribute("soa", measures.get("27002"));
-			model.addAttribute("show_uncertainty", analysis.isUncertainty());
-			model.addAttribute("show_cssf", analysis.isCssf());
-			model.addAttribute("isReadOnly", readOnly);
 			model.addAttribute("language", analysis.getLanguage().getAlpha2());
-			session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
+			session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
+			model.addAttribute("login", user.getLogin());
+			model.addAttribute("open", mode);
+
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, readOnly ? "log.open.analysis" : "log.edit.analysis",
+			TrickLogManager.Persist(LogType.ANALYSIS, readOnly ? "log.open.analysis" : mode == OpenMode.EDIT ? "log.edit.analysis" : "log.edit.analysis.measure",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), readOnly ? LogAction.OPEN : LogAction.EDIT,
 					analysis.getIdentifier(), analysis.getVersion());
 		} else {
@@ -324,7 +282,27 @@ public class ControllerAnalysis {
 					analysis.getVersion());
 			throw new AccessDeniedException(messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return "analyses/single/home";
+		return mode == OpenMode.EDIT_MEASURE ? "analyses/single/components/standards/form"
+				: mode == OpenMode.EDIT_ESTIMATION || mode == OpenMode.READ_ESTIMATION ? "analyses/single/components/estimation/home" : "analyses/single/home";
+	}
+
+	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(List<AnalysisStandard> analysisStandards) {
+		Comparator<Measure> comparator = new MeasureComparator();
+		Map<String, Map<String, List<Measure>>> mapper = new LinkedHashMap<>();
+		analysisStandards.forEach(analysisStandard -> {
+			Map<String, List<Measure>> chapters = new LinkedHashMap<>();
+			Collections.sort(analysisStandard.getMeasures(), comparator);
+			analysisStandard.getMeasures().forEach(measure -> {
+				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
+				List<Measure> measures = chapters.get(chapter);
+				if (measures == null)
+					chapters.put(chapter, measures = new LinkedList<Measure>());
+				measures.add(measure);
+			});
+
+			mapper.put(analysisStandard.getStandard().getLabel(), chapters);
+		});
+		return mapper;
 	}
 
 	/**
@@ -335,20 +313,12 @@ public class ControllerAnalysis {
 	 * @return
 	 */
 	private Map<String, List<Measure>> mapMeasures(List<AnalysisStandard> standards) {
-
+		Comparator<Measure> comparator = new MeasureComparator();
 		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
-
 		for (AnalysisStandard standard : standards) {
-			List<Measure> measures = standard.getMeasures();
-			Comparator<Measure> cmp = new Comparator<Measure>() {
-				public int compare(Measure o1, Measure o2) {
-					return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
-				}
-			};
-			Collections.sort(measures, cmp);
-			measuresmap.put(standard.getStandard().getLabel(), measures);
+			Collections.sort(standard.getMeasures(), comparator);
+			measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
 		}
-
 		return measuresmap;
 	}
 
@@ -420,7 +390,7 @@ public class ControllerAnalysis {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/DisplayByCustomer/{idCustomer}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/DisplayByCustomer/{idCustomer}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(@PathVariable("idCustomer") Integer idCustomer, @RequestBody String name, HttpSession session, Principal principal, Model model) throws Exception {
 		if (StringUtils.isEmpty(name))
 			name = "ALL";
@@ -458,28 +428,21 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update/ALE", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Integer idAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
-			if (analysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", customLocale != null ? customLocale : locale));
-			assessmentManager.UpdateAssetALE(analysis);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", customLocale != null ? customLocale : locale));
+			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
 		} catch (TrickException e) {
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", customLocale != null ? customLocale : locale));
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", locale));
 		}
 	}
 
@@ -496,16 +459,14 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
-			@RequestParam(value = "readOnly", defaultValue = "false") boolean readOnly, HttpSession session, Locale locale) throws Exception {
+			@RequestParam(value = "open", defaultValue = "read-only") String open, HttpSession session) throws Exception {
 		// select the analysis
-		Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
-		session.setAttribute(Constant.SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE, language == null ? locale.getISO3Country() : language.getAlpha2());
-		session.setAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY, readOnly);
-		return session.getAttribute(Constant.SELECTED_ANALYSIS) == analysisId;
+		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		session.setAttribute(OPEN_MODE, OpenMode.parseOrDefault(open));
+		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
 
 	/**
@@ -524,10 +485,10 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
-		session.removeAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		session.removeAttribute(OPEN_MODE);
+		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (integer != null) {
-			session.removeAttribute(Constant.SELECTED_ANALYSIS);
+			session.removeAttribute(SELECTED_ANALYSIS);
 			if (serviceAnalysis.isProfile(integer))
 				return "redirect:/KnowledgeBase";
 			else
@@ -596,7 +557,7 @@ public class ControllerAnalysis {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
@@ -620,9 +581,11 @@ public class ControllerAnalysis {
 			} else
 				// throw error
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		} catch (TrickException e) {
+			errors.put("owner", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			errors.put("owner", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -631,8 +594,8 @@ public class ControllerAnalysis {
 	// * set default profile
 	// *****************************************************************
 
-	@RequestMapping("/SetDefaultProfile/{analysisId}")
-	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
+	@RequestMapping(value = "/SetDefaultProfile/{analysisId}", method = RequestMethod.POST)
+	@PreAuthorize(ROLE_MIN_CONSULTANT)
 	public @ResponseBody boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
@@ -646,16 +609,12 @@ public class ControllerAnalysis {
 
 		analysis.setDefaultProfile(true);
 		serviceAnalysis.saveOrUpdate(analysis);
-
 		if (currentProfileanalysis != null) {
-
 			if (currentProfileanalysis.getId() != analysisId) {
-
 				currentProfileanalysis.setDefaultProfile(false);
 				serviceAnalysis.saveOrUpdate(currentProfileanalysis);
 			}
 		}
-
 		return true;
 	}
 
@@ -672,7 +631,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
 			throws Exception {
@@ -685,16 +644,16 @@ public class ControllerAnalysis {
 
 			customDelete.deleteAnalysis(analysisId, principal.getName());
 
-			Integer selectedAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
-				session.removeAttribute(Constant.SELECTED_ANALYSIS);
+				session.removeAttribute(SELECTED_ANALYSIS);
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
 		}
 	}
@@ -713,7 +672,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
 
@@ -744,7 +703,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
+	@RequestMapping(value = "/Duplicate/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale)
 			throws Exception {
@@ -761,12 +720,14 @@ public class ControllerAnalysis {
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
 			List<String> versions = serviceAnalysis.getAllNotEmptyVersion(analysis.getIdentifier());
+
 			Comparator<String> comparator = new Comparator<String>() {
 				@Override
 				public int compare(String o1, String o2) {
 					return GeneralComperator.VersionComparator(o1, o2);
 				}
 			};
+
 			Collections.sort(versions, Collections.reverseOrder(comparator));
 
 			String lastVersion = versions.get(0);
@@ -799,10 +760,8 @@ public class ControllerAnalysis {
 				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				if (GeneralComperator.VersionComparator(lastVersion, version) >= 0)
-					errors.put(
-							"version",
-							messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
-									String.format("Version has to be bigger than last %s", lastVersion), locale));
+					errors.put("version", messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
+							String.format("Version has to be bigger than last %s", lastVersion), locale));
 				else
 					history.setVersion(version);
 			}
@@ -829,14 +788,11 @@ public class ControllerAnalysis {
 			} else
 				errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicated!", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during duplication!", locale));
 		}
 
@@ -877,7 +833,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Import/Execute")
+	@RequestMapping(value = "/Import/Execute", method = RequestMethod.POST)
 	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
 			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
@@ -908,14 +864,13 @@ public class ControllerAnalysis {
 		}
 
 		// the file to import
-		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
+		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
 
 		// transfer form file to java file
 		file.transferTo(importFile);
 
 		// create worker
-		Worker worker = new WorkerAnalysisImport(sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
-		worker.setPoolManager(workersPoolManager);
+		Worker worker = new WorkerAnalysisImport(workersPoolManager,sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
 
 		// register worker to tasklist
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
@@ -944,7 +899,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		// create worker
@@ -973,7 +928,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/Report/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/Report/{analysisId}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody String exportReport(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
@@ -993,15 +948,15 @@ public class ControllerAnalysis {
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
 
-	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/Raw-Action-plan/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletResponse response) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -1027,24 +982,25 @@ public class ControllerAnalysis {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, actionPlanEntry,expressionParameters,locale);
+				writeActionPLanData(row, actionPlanEntry, expressionParameters,locale);
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");
-			
+
 			workbook.write(response.getOutputStream());
-			
-			//Log
+
+			// Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
 					String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.EXPORT,
 					analysis.getIdentifier(), analysis.getVersion());
-			
+
 		} finally {
 			try {
 				if (workbook != null)
 					workbook.close();
 			} catch (IOException e) {
+				TrickLogManager.Persist(e);
 				System.err.println("Close document: " + e.getMessage());
 			}
 		}
@@ -1184,19 +1140,22 @@ public class ControllerAnalysis {
 
 			if (!errors.isEmpty())
 				return false;
-
+			boolean update = analysis.getId() > 0 && !analysis.isProfile() && cssf != analysis.isCssf();
 			analysis.setLabel(comment);
 			analysis.setLanguage(language);
 			analysis.setUncertainty(uncertainty);
 			analysis.setCssf(cssf);
-
+			if (update)
+				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());
 			serviceAnalysis.saveOrUpdate(analysis);
-
 			return true;
+		} catch (TrickException e) {
+			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("analysis", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
-			return false;
+			errors.put("analysis", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 		}
+		return false;
 	}
 }

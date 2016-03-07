@@ -20,11 +20,11 @@
 					id="uploadStandard_form" enctype="multipart/form-data">
 					<div class="row">
 						<label class="col-lg-12" for="name"> <spring:message code="label.norm.import.choose_file" text="Choose the file containing new standard to import" /></label>
-						<div class="col-lg-10">
+						<div class="col-lg-12">
 							<div class="input-group-btn">
-								<input id="file" type="file"
+								<input id="file" type="file" accept=".xls,.xlsx"
 									onchange='{$("#upload-file-info").prop("value",$(this).prop("value")); checkExtention($("#upload-file-info").val(),"xls,xlsx","#btnImportStandard");}'
-									name="file" style="display: none;" /> <input id="upload-file-info" class="form-control" readonly="readonly" required="required" />
+									name="file" style="display: none;" /> <input id="upload-file-info" class="form-control" readonly="readonly" required="required" style="width: 88%;"/>
 								<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file]').click();" style="margin-left: -5px;">
 									<spring:message code="label.action.browse" text="Browse" />
 								</button>

@@ -15,7 +15,7 @@ public class MeasureComparator implements Comparator<Measure> {
 
 	@Override
 	public int compare(Measure o1, Measure o2) {
-		return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
+		return o1.getMeasureDescription().compareTo(o2.getMeasureDescription());
 	}
 
 }

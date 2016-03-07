@@ -14,25 +14,25 @@ import lu.itrust.business.TS.model.riskinformation.RiskInformation;
  * @since Jan 16, 2013
  */
 public interface ServiceRiskInformation {
-	public RiskInformation get(Integer id) throws Exception;
+	public RiskInformation get(Integer id) ;
 
-	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception;
+	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id) ;
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId) ;
 
-	public List<RiskInformation> getAll() throws Exception;
+	public List<RiskInformation> getAll() ;
 
-	public List<RiskInformation> getAllByChapter(String chapter) throws Exception;
+	public List<RiskInformation> getAllByChapter(String chapter) ;
 
-	public List<RiskInformation> getAllByCategory(String category) throws Exception;
+	public List<RiskInformation> getAllByCategory(String category) ;
 
-	public List<RiskInformation> getAllFromAnalysis(Integer analysisId) throws Exception;
+	public List<RiskInformation> getAllFromAnalysis(Integer analysisId) ;
 
-	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) throws Exception;
+	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) ;
 
-	public void save(RiskInformation riskInformation) throws Exception;
+	public void save(RiskInformation riskInformation) ;
 
-	public void saveOrUpdate(RiskInformation riskInformation) throws Exception;
+	public void saveOrUpdate(RiskInformation riskInformation) ;
 
-	public void delete(RiskInformation riskInformation) throws Exception;
+	public void delete(RiskInformation riskInformation) ;
 }

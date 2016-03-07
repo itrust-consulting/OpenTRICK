@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -16,9 +18,32 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.RFFMeasureFilter;
+import lu.itrust.business.TS.component.RRFScenarioFilter;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
@@ -59,29 +84,6 @@ import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.Chapter;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerRRF.java: <br>
@@ -133,7 +135,7 @@ public class ControllerRRF {
 	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
 
 	private static final String TS_INFO_FOR_IMPORT = "^!TS-InfO_fOr-ImpOrt!^";
-	
+
 	private static final String RAW_SCENARIOS = "Scenarios";
 
 	private static final String RAW_PREVENTIVE = "Preventive";
@@ -195,12 +197,12 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Measure> measures = serviceMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
-		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
+		List<Scenario> scenarios = serviceScenario.getAllSelectedFromAnalysis(idAnalysis);
 		Map<Chapter, List<Measure>> splittedmeasures = MeasureManager.SplitByChapter(measures);
 		if (!splittedmeasures.isEmpty() && splittedmeasures.entrySet().iterator().next().getValue().get(0) != null) {
 
@@ -293,7 +295,7 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadRRFScenario(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -319,48 +321,36 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID,'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFScenarioChart(@RequestBody String requestBody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
-			Locale locale) throws Exception {
+	public @ResponseBody String loadRRFScenarioChart(@RequestBody RFFMeasureFilter measureFilter, @PathVariable int elementID, Model model, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = mapper.readTree(requestBody);
-
-		// retrieve analysis id to compute
-		Integer standardid = jsonNode.get("idStandard") == null ? null : jsonNode.get("idStandard").asInt();
-		if (standardid == null)
+		if (measureFilter.getIdStandard() < 1 || StringUtils.isEmpty(measureFilter.getChapter()))
 			return null;
-
-		String chapter = jsonNode.get("chapter") == null ? null : jsonNode.get("chapter").asText();
-		if (chapter == null)
-			return null;
-
-		Integer measureid = jsonNode.get("idMeasure") == null ? null : jsonNode.get("idMeasure").asInt();
 
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 		List<Measure> measures = new ArrayList<Measure>();
-		for (AnalysisStandard standard : standards)
-			if (standard.getStandard().getId() == standardid && standard.getStandard().getType() != StandardType.MATURITY) {
-				if (measureid == null && standard.getStandard().getType() == StandardType.ASSET)
+		for (AnalysisStandard standard : standards){
+			if (standard.getStandard().getId() == measureFilter.getIdStandard() && standard.getStandard().getType() != StandardType.MATURITY) {
+				if (measureFilter.getIdMeasure() < 1 && standard.getStandard().getType() == StandardType.ASSET)
 					return JsonMessage.Error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
 							"This standard type permits only to see RRF by single measure (Select a single measure of this standard)", locale));
 
 				for (Measure measure : standard.getMeasures())
-					if (measureid != null) {
-						if (measure.getId() == measureid) {
+					if (measureFilter.getIdMeasure() > 0) {
+						if (measure.getId() == measureFilter.getIdMeasure()) {
 							measures.add(measure);
 							break;
 						}
-					} else {
-						if (measure.getMeasureDescription().getReference().startsWith(chapter + ".") && measure.getMeasureDescription().isComputable())
-							measures.add(measure);
-					}
+					} else if (measure.getMeasureDescription().getReference().startsWith(measureFilter.getChapter() + ".") && measure.getMeasureDescription().isComputable())
+						measures.add(measure);
+
 			}
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
+		}
+		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, locale);
 	}
 
 	/***************
@@ -379,7 +369,7 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Standard/{standardID}/Measure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Standard/{standardID}/Measure/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadRRFMeasure(@PathVariable int standardID, @PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
@@ -466,29 +456,22 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFStandardChart(@RequestBody String requestbody, @PathVariable int elementID, Model model, HttpSession session, Principal principal,
-			Locale locale) throws Exception {
+	public @ResponseBody String loadRRFStandardChart(@RequestBody RRFScenarioFilter scenarioFilter, @PathVariable int elementID, Model model, HttpSession session,
+			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = mapper.readTree(requestbody);
 
 		// retrieve analysis id to compute
-		Integer scenariotypeid = jsonNode.get("scenariotype").asInt();
-		if (scenariotypeid == null)
+		if (scenarioFilter.getIdScenarioType() < 1)
 			return null;
-		ScenarioType scenariotype = ScenarioType.valueOf(scenariotypeid);
 
-		Integer scenarioid = null;
-
-		if (jsonNode.get("scenario") != null)
-			scenarioid = jsonNode.get("scenario").asInt();
+		ScenarioType scenariotype = ScenarioType.valueOf(scenarioFilter.getIdScenarioType());
 
 		List<Scenario> scenarios = null;
 
-		if (scenarioid != null) {
+		if (scenarioFilter.getIdScenario() > 0) {
 			scenarios = new ArrayList<Scenario>();
-			scenarios.add(serviceScenario.getFromAnalysisById(idAnalysis, scenarioid));
+			scenarios.add(serviceScenario.getFromAnalysisById(idAnalysis, scenarioFilter.getIdScenario()));
 		} else
 			scenarios = serviceScenario.getAllSelectedFromAnalysisByType(idAnalysis, scenariotype);
 
@@ -496,14 +479,12 @@ public class ControllerRRF {
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 
-	@RequestMapping(value = "/Measure/{idMeasure}/Update-child", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Measure/{idMeasure}/Update-child", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateChildRRF(@PathVariable int idMeasure, @RequestBody LinkedList<Integer> idMeasureChilds, HttpSession session, Principal principal,
 			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		String language = (String) session.getAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE);
-		if (language != null)
-			locale = new Locale(language);
+
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 		List<Measure> measures = new ArrayList<Measure>(idMeasureChilds.size());
 		for (Integer idChild : idMeasureChilds) {
@@ -556,7 +537,7 @@ public class ControllerRRF {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
@@ -575,38 +556,40 @@ public class ControllerRRF {
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	@RequestMapping(value = "/Import/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Import/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
 		try {
 			if (rrfForm.getAnalysis() < 1)
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_analysis", null, "No analysis selected", locale));
 			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
-			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis()) || serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(),
-					AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
+			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis())
+					|| serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 			else if (!rrfForm.getStandards().stream().allMatch(idStandard -> serviceStandard.belongToAnalysis(idStandard, rrfForm.getAnalysis())))
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 			measureManager.importStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
 			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 
 	}
 
-	@RequestMapping(value = "/Export/Raw/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Export/Raw/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportRawRFF(@PathVariable int idAnalysis, Model model, HttpServletResponse response, Principal principal) throws Exception {
-		exportRawRRF(serviceAnalysis.get(idAnalysis), response, principal.getName());
+	public void exportRawRFF(@PathVariable int idAnalysis, Model model, HttpServletResponse response, Principal principal, Locale locale) throws Exception {
+		exportRawRRF(serviceAnalysis.get(idAnalysis), response, principal.getName(),locale);
 	}
 
-	private void exportRawRRF(Analysis analysis, HttpServletResponse response, String username) throws Exception {
+	private void exportRawRRF(Analysis analysis, HttpServletResponse response, String username, Locale locale) throws Exception {
 		XSSFWorkbook workbook = null;
 		try {
 			workbook = new XSSFWorkbook();
-			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 			writeAnalysisIdentifier(analysis, workbook);
 			writeScenario(analysis.getScenarios(), assetTypes, workbook, locale);
@@ -635,8 +618,8 @@ public class ControllerRRF {
 	private void writeAssetMeasure(boolean cssf, AnalysisStandard analysisStandard, XSSFWorkbook workbook, Locale locale) {
 		XSSFSheet sheet = workbook.createSheet(analysisStandard.getStandard().getLabel());
 		List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
-		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream())
-				.map(assetValue -> assetValue.getAsset()).distinct().collect(Collectors.toList());
+		List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues()).flatMap(assetValues -> assetValues.stream()).map(assetValue -> assetValue.getAsset())
+				.distinct().collect(Collectors.toList());
 		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
 		String[] categories = cssf ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS;
 		int totalCol = MEASURE_RRF_DEFAULT_FIELD_COUNT + assets.size() + categories.length, rowIndex = 0;
@@ -671,9 +654,8 @@ public class ControllerRRF {
 		int colIndex = generateMeasureHeader(row, mappedValue, categories, totalCol);
 		for (AssetType assetType : assetTypes)
 			row.getCell(++colIndex).setCellValue(assetType.getType());
-		measures.stream().forEach(
-				measure -> measure.getAssetTypeValues().forEach(
-						assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+		measures.stream().forEach(measure -> measure.getAssetTypeValues()
+				.forEach(assetypeValue -> mappedValue.put(measure.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
 		for (NormalMeasure measure : measures) {
 			row = sheet.getRow(++rowIndex);
 			if (row == null)
@@ -772,9 +754,8 @@ public class ControllerRRF {
 		for (AssetType assetType : assetTypes)
 			row.getCell(++colIndex).setCellValue(assetType.getType());
 		Map<String, Integer> mappedValue = new LinkedHashMap<String, Integer>();
-		scenarios.stream().forEach(
-				scenario -> scenario.getAssetTypeValues().forEach(
-						assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
+		scenarios.stream().forEach(scenario -> scenario.getAssetTypeValues()
+				.forEach(assetypeValue -> mappedValue.put(scenario.getId() + "_" + assetypeValue.getAssetType().getType(), assetypeValue.getValue())));
 		for (Scenario scenario : scenarios) {
 			row = scenarioSheet.getRow(++rowIndex);
 			if (row == null)
@@ -820,14 +801,14 @@ public class ControllerRRF {
 		workbook.setSheetHidden(workbook.getSheetIndex(TS_INFO_FOR_IMPORT), XSSFWorkbook.SHEET_STATE_VERY_HIDDEN);
 	}
 
-	@RequestMapping(value = "/Form/Import/Raw/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Form/Import/Raw/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String formImportRRF(@PathVariable int idAnalysis, Model model, Principal principal) {
 		model.addAttribute("idAnalysis", idAnalysis);
 		return "analyses/single/components/rrf/form/importRaw";
 	}
 
-	@RequestMapping(value = "/Import/Raw/{idAnalysis}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Import/Raw/{idAnalysis}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Object importRRF(@PathVariable int idAnalysis, @RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request,
 			Locale locale) throws Exception {
@@ -837,7 +818,6 @@ public class ControllerRRF {
 	private Object importRawRRF(String tempPath, int idAnalysis, MultipartFile file, String username, Locale locale) throws Exception {
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			locale = new Locale(analysis.getLanguage().getAlpha2());
 			XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
 			loadAnalysisInfo(analysis, workbook);
 			loadScenarios(analysis.getScenarios(), workbook);
@@ -847,7 +827,7 @@ public class ControllerRRF {
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
 					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(), analysis.getVersion()), username, LogAction.IMPORT,
 					analysis.getIdentifier(), analysis.getVersion());
-			
+
 			return JsonMessage.Success(messageSource.getMessage("success.import.raw.rrf", null, "RRF was been successfully update from raw data", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));

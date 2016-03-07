@@ -11,8 +11,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.servlet.ServletContext;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.DatabaseHandler;
@@ -33,12 +41,6 @@ import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.usermanagement.User;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.springframework.util.FileCopyUtils;
-
 /**
  * WorkerExportAnalysis.java: <br>
  * Detailed description...
@@ -50,6 +52,10 @@ import org.springframework.util.FileCopyUtils;
 public class WorkerExportAnalysis implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -102,21 +108,22 @@ public class WorkerExportAnalysis implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
-			serviceTaskFeedback.send(id, new MessageHandler("info.export.load.analysis", "Load analysis to export", null, 0));
+			serviceTaskFeedback.send(id, new MessageHandler("info.export.load.analysis", "Load analysis to export", 0));
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis == null)
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
 			else if (!analysis.hasData())
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null));
 			else {
 				sqlite = new File(servletContext.getRealPath("/WEB-INF/tmp/" + id + "_" + principal.getName()));
 				if (!sqlite.exists())
 					sqlite.createNewFile();
 				DatabaseHandler databaseHandler = new DatabaseHandler(sqlite.getCanonicalPath());
-				serviceTaskFeedback.send(id, new MessageHandler("info.export.build.structure", "Build sqLite structure", null, 2));
+				serviceTaskFeedback.send(id, new MessageHandler("info.export.build.structure", "Build sqLite structure", 2));
 				buildSQLiteStructure(servletContext, databaseHandler);
 				ExportAnalysis exportAnalysis = new ExportAnalysis(serviceTaskFeedback, session, databaseHandler, analysis, id);
 				MessageHandler messageHandler = exportAnalysis.exportAnAnalysis();
@@ -126,33 +133,69 @@ public class WorkerExportAnalysis implements Worker {
 					saveSqLite(session, analysis);
 			}
 		} catch (HibernateException e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, e));
-			e.printStackTrace();
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", this.error = e));
+			TrickLogManager.Persist(e);
 		} catch (TrickException e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-			e.printStackTrace();
+			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, e));
-			e.printStackTrace();
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", this.error = e));
+			TrickLogManager.Persist(e);
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
-			if (sqlite != null && sqlite.exists())
-				sqlite.delete();
-			synchronized (this) {
-				working = false;
+
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+
+			if (sqlite != null && sqlite.exists()) {
+				if (!sqlite.delete())
+					sqlite.deleteOnExit();
+			}
+
 		}
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
+	 */
+	@Override
+	public boolean isMatch(String express, Object... values) {
+		try {
+			String[] expressions = express.split("\\+");
+			boolean match = values.length == expressions.length && values.length == 2;
+			for (int i = 0; i < expressions.length && match; i++) {
+				switch (expressions[i]) {
+				case "analysis.id":
+					match &= values[i].equals(idAnalysis);
+					break;
+				case "class":
+					match &= values[i].equals(getClass());
+					break;
+				default:
+					match = false;
+					break;
+				}
+			}
+			return match;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	private void saveSqLite(Session session, Analysis analysis) {
@@ -162,11 +205,11 @@ public class WorkerExportAnalysis implements Worker {
 		try {
 			User user = daoUser.get(principal.getName());
 			if (user == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.export.user.not_found", "User cannot be found", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.export.user.not_found", "User cannot be found", null));
 				return;
 			}
 			if (error != null || sqlite == null || !sqlite.exists()) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null));
 				return;
 			}
 			UserSQLite userSqLite = new UserSQLite(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), sqlite.getName(), user,
@@ -174,21 +217,22 @@ public class WorkerExportAnalysis implements Worker {
 			transaction = session.beginTransaction();
 			daoUserSqLite.saveOrUpdate(userSqLite);
 			transaction.commit();
-			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", null, 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqLite(\"" + userSqLite.getId() + "\")", null));
+			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqLite", userSqLite.getId()));
 			serviceTaskFeedback.send(id, messageHandler);
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export", String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(), analysis.getVersion()),
-					user.getLogin(), LogAction.EXPORT, analysis.getIdentifier(), analysis.getVersion());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export",
+					String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.EXPORT,
+					analysis.getIdentifier(), analysis.getVersion());
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			try {
 				if (transaction != null)
 					transaction.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		}
 	}
@@ -210,52 +254,71 @@ public class WorkerExportAnalysis implements Worker {
 		// ****************************************************************
 		// * Initialise variables
 		// ****************************************************************
-		String filename;
-		InputStream inp;
-		InputStreamReader isr;
-		BufferedReader reader;
+
+		InputStream inp = null;
+		InputStreamReader isr = null;
+		BufferedReader reader = null;
 		String text = "";
 
-		// build path to structure from context
-		filename = context.getRealPath("/WEB-INF/data/sqlitestructure.sql");
+		try {
+			// build path to structure from context
 
-		File file = new File(filename);
+			File file = new File(context.getRealPath("/WEB-INF/data/sqlitestructure.sql"));
 
-		// retrieve file from context
-		// inp = context.getResourceAsStream(filename);
+			// retrieve file from context
+			// inp = context.getResourceAsStream(filename);
 
-		// check if file is not null
-		if (file.exists()) {
+			// check if file is not null
+			if (file.exists()) {
 
-			// read line by line from file
+				// read line by line from file
 
-			inp = new FileInputStream(file);
+				inp = new FileInputStream(file);
 
-			isr = new InputStreamReader(inp);
-			reader = new BufferedReader(isr);
-			text = "";
+				isr = new InputStreamReader(inp);
+				reader = new BufferedReader(isr);
+				text = "";
 
-			// parse each line
-			while ((text = reader.readLine()) != null) {
+				// parse each line
+				while ((text = reader.readLine()) != null) {
 
-				// remove white spaces
-				text = text.trim();
-				// check if line is a SQL command (not empty and not starting
-				// with "-")
-				if (!text.isEmpty() && !text.startsWith("-")) {
+					// remove white spaces
+					text = text.trim();
+					// check if line is a SQL command (not empty and not
+					// starting
+					// with "-")
+					if (!text.isEmpty() && !text.startsWith("-")) {
 
-					// execute SQL query
-					sqlite.query(text, null);
+						// execute SQL query
+						sqlite.query(text, null);
+					}
+				}
+
+			}
+		} finally {
+			// close stream
+			if (isr != null) {
+				try {
+					isr.close();
+				} catch (Exception e) {
+					TrickLogManager.Persist(e);
 				}
 			}
-
-			// close stream
-			isr.close();
-			reader.close();
-
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (Exception e) {
+					TrickLogManager.Persist(e);
+				}
+			}
 			// close file
-			inp.close();
-
+			if (inp != null) {
+				try {
+					inp.close();
+				} catch (Exception e) {
+					TrickLogManager.Persist(e);
+				}
+			}
 		}
 	}
 
@@ -299,22 +362,36 @@ public class WorkerExportAnalysis implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

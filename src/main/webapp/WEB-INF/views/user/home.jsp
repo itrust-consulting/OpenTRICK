@@ -10,7 +10,7 @@
 <html>
 <jsp:include page="../template/header.jsp" />
 <body>
-	<div id="wrap">
+	<div id="wrap" class="wrap">
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">

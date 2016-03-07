@@ -43,12 +43,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#get(int)
 	 */
 	@Override
-	public Parameter get(Integer id) throws Exception {
+	public Parameter get(Integer id)  {
 		return daoParameter.get(id);
 	}
 
@@ -59,13 +59,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idParameter
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getFromAnalysisIdById(int,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public Parameter getFromAnalysisById(Integer idAnalysis, Integer idParameter) throws Exception {
+	public Parameter getFromAnalysisById(Integer idAnalysis, Integer idParameter)  {
 		return daoParameter.getFromAnalysisById(idAnalysis, idParameter);
 	}
 
@@ -77,13 +77,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param parameterType
 	 * @param description
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getParameterFromAnalysisByParameterTypeAndDescription(int,
 	 *      java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Parameter getFromAnalysisByTypeAndDescription(Integer idAnalysis, String parameterType, String description) throws Exception {
+	public Parameter getFromAnalysisByTypeAndDescription(Integer idAnalysis, String parameterType, String description)  {
 		return daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, parameterType, description);
 	}
 
@@ -94,13 +94,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param parameterId
 	 * @param analysisId
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer parameterId, Integer analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer parameterId, Integer analysisId)  {
 		return daoParameter.belongsToAnalysis(parameterId, analysisId);
 	}
 
@@ -110,12 +110,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getExtendedParameterAcronymsFromAnalysisId(int)
 	 */
 	@Override
-	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis)  {
 		return daoParameter.getExtendedParameterAcronymsFromAnalysis(idAnalysis);
 	}
 
@@ -126,13 +126,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idAnalysis
 	 * @param type
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getExtendedParameterAcronymsFromAnalysisByParameterTypeName(int,
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, String type) throws Exception {
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, String type)  {
 		return daoParameter.getExtendedParameterAcronymsFromAnalysisByType(idAnalysis, type);
 	}
 
@@ -143,13 +143,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idAnalysis
 	 * @param type
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getExtendedParameterAcronymsFromAnalysisByParameterType(int,
 	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Override
-	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception {
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, ParameterType type)  {
 		return daoParameter.getExtendedParameterAcronymsFromAnalysisByType(idAnalysis, type);
 	}
 
@@ -158,12 +158,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllParameters()
 	 */
 	@Override
-	public List<Parameter> getAll() throws Exception {
+	public List<Parameter> getAll()  {
 		return daoParameter.getAll();
 	}
 
@@ -173,12 +173,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllParametersFromAnalysis(int)
 	 */
 	@Override
-	public List<Parameter> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Parameter> getAllFromAnalysis(Integer idAnalysis)  {
 		return daoParameter.getAllFromAnalysis(idAnalysis);
 	}
 
@@ -190,13 +190,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param pageIndex
 	 * @param pageSize
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllParametersFromAnalysisByPageAndSizeIndex(int,
 	 *      int, int)
 	 */
 	@Override
-	public List<Parameter> getAllFromAnalysisByPageAndSizeIndex(Integer idAnalysis, Integer pageIndex, Integer pageSize) throws Exception {
+	public List<Parameter> getAllFromAnalysisByPageAndSizeIndex(Integer idAnalysis, Integer pageIndex, Integer pageSize)  {
 		return daoParameter.getAllFromAnalysisByPageAndSizeIndex(idAnalysis, pageIndex, pageSize);
 	}
 
@@ -207,12 +207,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param pageIndex
 	 * @param pageSize
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllParametersByPageAndSizeIndex(int, int)
 	 */
 	@Override
-	public List<Parameter> getAllByPageAndSizeIndex(Integer pageIndex, Integer pageSize) throws Exception {
+	public List<Parameter> getAllByPageAndSizeIndex(Integer pageIndex, Integer pageSize)  {
 		return daoParameter.getAllByPageAndSizeIndex(pageIndex, pageSize);
 	}
 
@@ -223,13 +223,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idAnalysis
 	 * @param idType
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getParametersFromAnalysisIdByParameterTypeId(int,
 	 *      int)
 	 */
 	@Override
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, Integer idType) throws Exception {
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, Integer idType)  {
 		return daoParameter.getAllFromAnalysisByType(idAnalysis, idType);
 	}
 
@@ -240,13 +240,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idAnalysis
 	 * @param type
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getParametersFromAnalysisIdByParameterTypeName(int,
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type) throws Exception {
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type)  {
 		return daoParameter.getAllFromAnalysisByType(idAnalysis, type);
 	}
 
@@ -257,13 +257,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idAnalysis
 	 * @param type
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getParametersFromAnalysisIdByParameterType(int,
 	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Override
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception {
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type)  {
 		return daoParameter.getAllFromAnalysisByType(idAnalysis, type);
 	}
 
@@ -274,13 +274,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idAnalysis
 	 * @param type
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getInitialisedParametersFromAnalysisIdByParameterTypeName(int,
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<Parameter> getAllInitialisedFromAnalysisByType(Integer idAnalysis, String type) throws Exception {
+	public List<Parameter> getAllInitialisedFromAnalysisByType(Integer idAnalysis, String type)  {
 		return daoParameter.getAllInitialisedFromAnalysisByType(idAnalysis, type);
 	}
 
@@ -290,12 +290,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllExtendedParametersFromAnalysisId(int)
 	 */
 	@Override
-	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis)  {
 		return daoParameter.getAllExtendedFromAnalysis(idAnalysis);
 	}
 
@@ -306,13 +306,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @param idAnalysis
 	 * @param type
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllExtendedParametersFromAnalysisIdAndParameterType(int,
 	 *      lu.itrust.business.TS.model.parameter.ParameterType)
 	 */
 	@Override
-	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type) throws Exception {
+	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type)  {
 		return daoParameter.getAllExtendedFromAnalysisAndType(idAnalysis, type);
 	}
 
@@ -322,12 +322,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getImpactParameterByAnalysisId(int)
 	 */
 	@Override
-	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis)  {
 		return daoParameter.getAllImpactFromAnalysis(idAnalysis);
 	}
 
@@ -337,12 +337,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getProbaParameterByAnalysisId(int)
 	 */
 	@Override
-	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis)  {
 		return daoParameter.getAllProbabilityFromAnalysis(idAnalysis);
 	}
 
@@ -352,13 +352,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param parameter
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#save(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override
-	public Parameter save(Parameter parameter) throws Exception {
+	public Parameter save(Parameter parameter)  {
 		return daoParameter.save(parameter);
 	}
 
@@ -367,13 +367,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * Description
 	 * 
 	 * @param parameter
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#saveOrUpdate(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Parameter parameter) throws Exception {
+	public void saveOrUpdate(Parameter parameter)  {
 		daoParameter.saveOrUpdate(parameter);
 
 	}
@@ -384,13 +384,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * 
 	 * @param parameter
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#merge(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override
-	public Parameter merge(Parameter parameter) throws Exception {
+	public Parameter merge(Parameter parameter)  {
 		return daoParameter.merge(parameter);
 	}
 
@@ -399,13 +399,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * Description
 	 * 
 	 * @param parameter
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#delete(lu.itrust.business.TS.model.parameter.Parameter)
 	 */
 	@Transactional
 	@Override
-	public void delete(Parameter parameter) throws Exception {
+	public void delete(Parameter parameter)  {
 		daoParameter.delete(parameter);
 	}
 
@@ -414,13 +414,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * Description
 	 * 
 	 * @param id
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#delete(int)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		daoParameter.delete(id);
 	}
 
@@ -429,13 +429,13 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * Description
 	 * 
 	 * @param parameters
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#saveOrUpdate(java.util.List)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(List<? extends Parameter> parameters) throws Exception {
+	public void saveOrUpdate(List<? extends Parameter> parameters)  {
 		daoParameter.saveOrUpdate(parameters);
 	}
 

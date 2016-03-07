@@ -22,8 +22,6 @@ import lu.itrust.business.TS.model.general.Phase;
  */
 public class ActionPlanSummaryManager {
 
-	
-	
 	public static final String LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST = "label.resource.planning.total.phase.cost";
 	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_COST = "label.resource.planning.total.recurrent.cost";
 	public static final String LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST = "label.resource.planning.total.implement.phase.cost";
@@ -155,7 +153,7 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_PROFITABILITY_RISK_REDUCTION);
 			summary.add(index, Math.floor(summaryStage.getDeltaALE() * 0.001) + "");
-			
+
 			summary = summaries.get(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
 			summary.add(index, Math.floor(summaryStage.getCostOfMeasures() * 0.001) + "");
 
@@ -182,15 +180,120 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
 			summary.add(index, Math.floor(summaryStage.getRecurrentInvestment() * 0.001) + "");
-			
+
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
 			summary.add(index, Math.floor(summaryStage.getImplementCostOfPhase() * 0.001) + "");
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 			summary.add(index, Math.floor(summaryStage.getRecurrentCost() * 0.001) + "");
-			
+
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
 			summary.add(index, Math.floor(summaryStage.getTotalCostofStage() * 0.001) + "");
+		}
+		return summaries;
+	}
+
+	public static Map<String, List<Object>> buildRawData(List<SummaryStage> summaryStages, List<Phase> phases) {
+		if (summaryStages.isEmpty())
+			return null;
+		List<String> firstRows = generateHeader(summaryStages.get(0).getConformances());
+
+		Map<String, List<Object>> summaries = new LinkedHashMap<String, List<Object>>(firstRows.size());
+
+		List<String> rowHeaders = extractPhaseRow(summaryStages);
+
+		Map<String, Phase> phaseStages = buildPhase(phases, rowHeaders);
+
+		for (String string : firstRows) {
+			List<Object> rows = summaries.get(string);
+			if (rows == null) {
+				if (!(string.equals(LABEL_PROFITABILITY) || string.equals(LABEL_RESOURCE_PLANNING)))
+					summaries.put(string, rows = new ArrayList<Object>(rowHeaders.size()));
+				else
+					summaries.put(string, rows = new ArrayList<Object>());
+			}
+			if (rows.isEmpty() && LABEL_CHARACTERISTIC.equals(string))
+				rows.addAll(rowHeaders);
+
+		}
+
+		List<Object> summary = null;
+
+		for (SummaryStage summaryStage : summaryStages) {
+			int index = rowHeaders.indexOf(summaryStage.getStage());
+			if (index == -1)
+				throw new IllegalArgumentException("Bad index....");
+
+			Phase phase = phaseStages.get(summaryStage.getStage());
+
+			if (phase != null) {
+				if (phase.getNumber() == 0) {
+					summary = summaries.get(LABEL_PHASE_BEGIN_DATE);
+					summary.add(index, null);
+
+					summary = summaries.get(LABEL_PHASE_END_DATE);
+					summary.add(index, null);
+				} else {
+					summary = summaries.get(LABEL_PHASE_BEGIN_DATE);
+					summary.add(index, phase.getBeginDate());
+
+					summary = summaries.get(LABEL_PHASE_END_DATE);
+					summary.add(index, phase.getEndDate());
+				}
+			}
+
+			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
+				summary.add(index, (int) (conformance.getConformance() * 100));
+			}
+
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
+			summary.add(index, summaryStage.getMeasureCount());
+
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
+			summary.add(index, summaryStage.getImplementedMeasuresCount());
+
+			summary = summaries.get(LABEL_PROFITABILITY_ALE_UNTIL_END);
+			summary.add(index, summaryStage.getTotalALE());
+
+			summary = summaries.get(LABEL_PROFITABILITY_RISK_REDUCTION);
+			summary.add(index, summaryStage.getDeltaALE());
+
+			summary = summaries.get(LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
+			summary.add(index, summaryStage.getCostOfMeasures());
+
+			summary = summaries.get(LABEL_PROFITABILITY_ROSI);
+			summary.add(index, summaryStage.getROSI());
+
+			summary = summaries.get(LABEL_PROFITABILITY_ROSI_RELATIF);
+			summary.add(index, summaryStage.getRelativeROSI());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
+			summary.add(index, summaryStage.getInternalWorkload());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
+			summary.add(index, summaryStage.getExternalWorkload());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_INVESTMENT);
+			summary.add(index, summaryStage.getInvestment());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
+			summary.add(index, summaryStage.getInternalMaintenance());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
+			summary.add(index, summaryStage.getExternalMaintenance());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
+			summary.add(index, summaryStage.getRecurrentInvestment());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST);
+			summary.add(index, summaryStage.getImplementCostOfPhase());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
+			summary.add(index, summaryStage.getRecurrentCost());
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
+			summary.add(index, summaryStage.getTotalCostofStage());
 		}
 		return summaries;
 	}
@@ -219,26 +322,26 @@ public class ActionPlanSummaryManager {
 		List<String> datas = generateHeader(stage.getConformances());
 
 		int colnumber = 0;
-		
+
 		for (String data : datas)
 			setValue(data, rowdata, stage, null, colnumber);
 
 		colnumber++;
-		
+
 		for (Phase phase : phases) {
-			
+
 			stage = getStageFromPhase(phase.getNumber(), summaryStages);
-			
-			for (String data : datas){
-				
-				if(stage != null)
+
+			for (String data : datas) {
+
+				if (stage != null)
 					setValue(data, rowdata, stage, phase, colnumber);
 			}
-			
+
 			colnumber++;
 
 		}
-		
+
 		return rowdata;
 	}
 
@@ -294,54 +397,88 @@ public class ActionPlanSummaryManager {
 		else
 			value = values.get(data);
 
-		if(data.startsWith(LABEL_CHARACTERISTIC_COMPLIANCE)) {
+		if (data.startsWith(LABEL_CHARACTERISTIC_COMPLIANCE)) {
 
 			for (SummaryStandardConformance conformance : stage.getConformances())
-				if(data.equals(LABEL_CHARACTERISTIC_COMPLIANCE+conformance.getAnalysisStandard().getStandard().getLabel()))
+				if (data.equals(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel()))
 					value.put(colnumber, conformance.getConformance());
 			return;
 		}
-		
-		switch (data) {
-			case LABEL_CHARACTERISTIC:
-				value.put(colnumber, stage.getStage());
-				break;
-			case LABEL_PHASE_BEGIN_DATE: {
-				if (phase == null)
-					value.put(colnumber, null);
-				else
-					value.put(colnumber, phase.getBeginDate());
-				break;
-			}
-			case LABEL_PHASE_END_DATE: {
-				if (phase == null)
-					value.put(colnumber, null);
-				else
-					value.put(colnumber, phase.getEndDate());
-				break;
-			}
 
-			case LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE:value.put(colnumber, stage.getMeasureCount());break;
-			case LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED:value.put(colnumber, stage.getImplementedMeasuresCount());break;
-			case LABEL_PROFITABILITY:value.put(colnumber, null);break;
-			case LABEL_PROFITABILITY_ALE_UNTIL_END:value.put(colnumber, stage.getTotalALE());break;
-			case LABEL_PROFITABILITY_RISK_REDUCTION:value.put(colnumber, stage.getDeltaALE());break;
-			case LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE:value.put(colnumber, stage.getCostOfMeasures());break;
-			case LABEL_PROFITABILITY_ROSI:value.put(colnumber, stage.getROSI());break;
-			case LABEL_PROFITABILITY_ROSI_RELATIF:value.put(colnumber, stage.getRelativeROSI());break;
-			case LABEL_RESOURCE_PLANNING:value.put(colnumber, null);break;
-			case LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD:value.put(colnumber, stage.getInternalWorkload());break;
-			case LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD:value.put(colnumber, stage.getExternalWorkload());break;
-			case LABEL_RESOURCE_PLANNING_INVESTMENT:value.put(colnumber, stage.getInvestment());break;
-			case LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE:value.put(colnumber, stage.getInternalMaintenance());break;
-			case LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE:value.put(colnumber, stage.getExternalMaintenance());break;
-			case LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT:value.put(colnumber, stage.getRecurrentInvestment());break;
-			case LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST:value.put(colnumber, stage.getImplementCostOfPhase());break;
-			case LABEL_RESOURCE_PLANNING_RECURRENT_COST:value.put(colnumber, stage.getRecurrentCost());break;
-			case LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST:value.put(colnumber, stage.getTotalCostofStage());break;
+		switch (data) {
+		case LABEL_CHARACTERISTIC:
+			value.put(colnumber, stage.getStage());
+			break;
+		case LABEL_PHASE_BEGIN_DATE: {
+			if (phase == null)
+				value.put(colnumber, null);
+			else
+				value.put(colnumber, phase.getBeginDate());
+			break;
+		}
+		case LABEL_PHASE_END_DATE: {
+			if (phase == null)
+				value.put(colnumber, null);
+			else
+				value.put(colnumber, phase.getEndDate());
+			break;
 		}
 
-		
+		case LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE:
+			value.put(colnumber, stage.getMeasureCount());
+			break;
+		case LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED:
+			value.put(colnumber, stage.getImplementedMeasuresCount());
+			break;
+		case LABEL_PROFITABILITY:
+			value.put(colnumber, null);
+			break;
+		case LABEL_PROFITABILITY_ALE_UNTIL_END:
+			value.put(colnumber, stage.getTotalALE());
+			break;
+		case LABEL_PROFITABILITY_RISK_REDUCTION:
+			value.put(colnumber, stage.getDeltaALE());
+			break;
+		case LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE:
+			value.put(colnumber, stage.getCostOfMeasures());
+			break;
+		case LABEL_PROFITABILITY_ROSI:
+			value.put(colnumber, stage.getROSI());
+			break;
+		case LABEL_PROFITABILITY_ROSI_RELATIF:
+			value.put(colnumber, stage.getRelativeROSI());
+			break;
+		case LABEL_RESOURCE_PLANNING:
+			value.put(colnumber, null);
+			break;
+		case LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD:
+			value.put(colnumber, stage.getInternalWorkload());
+			break;
+		case LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD:
+			value.put(colnumber, stage.getExternalWorkload());
+			break;
+		case LABEL_RESOURCE_PLANNING_INVESTMENT:
+			value.put(colnumber, stage.getInvestment());
+			break;
+		case LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE:
+			value.put(colnumber, stage.getInternalMaintenance());
+			break;
+		case LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE:
+			value.put(colnumber, stage.getExternalMaintenance());
+			break;
+		case LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT:
+			value.put(colnumber, stage.getRecurrentInvestment());
+			break;
+		case LABEL_RESOURCE_PLANNING_IMPLEMENT_PHASE_COST:
+			value.put(colnumber, stage.getImplementCostOfPhase());
+			break;
+		case LABEL_RESOURCE_PLANNING_RECURRENT_COST:
+			value.put(colnumber, stage.getRecurrentCost());
+			break;
+		case LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST:
+			value.put(colnumber, stage.getTotalCostofStage());
+			break;
+		}
 
 	}
 

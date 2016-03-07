@@ -1,10 +1,29 @@
 /**
  * Main.js
  */
+if (!String.prototype.capitalize) {
+	String.prototype.capitalize = function() {
+		return this.charAt(0).toUpperCase() + this.slice(1);
+	}
+}
 
-String.prototype.endsWith = function(suffix) {
-	return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function(searchString, position) {
+		position = position || 0;
+		return this.substr(position, searchString.length) === searchString;
+	};
+}
+if (!String.prototype.endsWith) {
+	String.prototype.endsWith = function(searchString, position) {
+		var subjectString = this.toString();
+		if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+			position = subjectString.length;
+		}
+		position -= searchString.length;
+		var lastIndex = subjectString.indexOf(searchString, position);
+		return lastIndex !== -1 && lastIndex === position;
+	};
+}
 
 var application = new Application();
 
@@ -13,20 +32,20 @@ function Application() {
 	this.data = {};
 	this.rights = {}
 	this.localesMessages = {};
-	this.fixedOffset = 5
+	this.fixedOffset = 0
 }
 
-function checkExtention(value,extention,button){
+function checkExtention(value, extention, button) {
 	var extentions = extention.split(","), match = false;
-	for (var i = 0; i < extentions.length; i++) 
+	for (var i = 0; i < extentions.length; i++)
 		match |= value.endsWith(extentions[i]);
 	$(button).prop("disabled", !match);
 	return match;
 }
 
 function showDialog(dialog, message) {
-	$(dialog).find(".modal-body").text(message);
-	return $(dialog).modal("show");
+	var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
+	return $dialog.modal("show");
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
@@ -46,111 +65,28 @@ function downloadExportedSqLite(id) {
 	return false;
 }
 
-$(function() {
+function switchTab(tabName) {
+	var $tab = $(tabName ? "a[href='#" + tabName + "']" : "a[data-toggle='tab']:first", ".nav-tab,.nav-analysis");
+	if ($tab.parent().css("display") != "none")
+		$tab.tab("show");
+	return false;
+}
 
-	var token = $("meta[name='_csrf']").attr("content");
-	var header = $("meta[name='_csrf_header']").attr("content");
-	$(document).ajaxSend(function(e, xhr, options) {
-		xhr.setRequestHeader(header, token);
-	});
-
-	// prevent unknown error modal display
-	$(window).bind("beforeunload", function() {
-		application["isReloading"] = true;
-	});
-
-	if ($("#tab-container").length || $("#nav-container").length) {
-		var tabMenu = $(".nav-tab").length ? $(".nav-tab") : $(".nav-analysis");
-		var tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container");
-		var $option = tabMenu.find("#tabOption")
-		$(window).on("resize.window", function() {
-			tabContainer.css({
-				"margin-top" : tabMenu.height() + 12
-			// default margin-top is 50px and default tabMenu size is 38px
-			});
-		});
-
-		if ($option.length) {
-			var updateOption = function() {
-				var optionMenu = tabContainer.find(".tab-pane.active ul.nav.nav-pills");
-				var tableFloatingHeader = tabContainer.find(".tab-pane.active table .tableFloatingHeader");
-				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-					$option.fadeOut(function() {
-						$option.hide();
-					});
-				else {
-					if (!$option.find("#" + optionMenu.prop("id")).length) {
-						$option.find("ul").remove();
-						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
-						$("li[data-role='title']", cloneOption).remove()
-						cloneOption.removeAttr("style");
-						if ($subMenu.length) {
-							$subMenu.each(function() {
-								var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
-								$this.removeClass();
-								if ($this.closest("li").length)
-									$this.before("<li class='divider'></li>");
-								$lis.appendTo(cloneOption);
-								$this.text(text);
-								$this.addClass("dropdown-header");
-							});
-						} else {
-							$("li.dropdown-header", cloneOption).each(function() {
-								var $this = $(this), $closestli = $this.closest("li");
-								if ($closestli.length && !$closestli.hasClass("divider"))
-									$this.before("<li class='divider'></li>");
-								$this.show();
-							});
-						}
-						$("li.divider", cloneOption).show();
-						cloneOption.appendTo($option);
-						cloneOption.removeClass();
-						cloneOption.find("li").removeClass("pull-right")
-						cloneOption.addClass("dropdown-menu")
-					}
-
-					if (!$option.is(":visible")) {
-						$option.fadeIn(function() {
-							$option.show();
-						});
-					}
-				}
-			}
-			tabMenu.find('a[data-toggle="tab"]').on('shown.bs.tab', function() {
-				$(window).scroll();
-			});
-			$(window).on("scroll.window", function() {
-				setTimeout(updateOption, 100);
-			});
-		}
+function togglePopever(e) {
+	var target = e.target, current = application["settings-open-popover"];
+	if (current != undefined) {
+		if (target === current)
+			return e;
+		else if (current.hasAttribute("aria-describedby"))
+			$(current).click();
 	}
+	application["settings-open-popover"] = target;
+	return e;
+}
 
-	if ($(".popover-element").length)
-		$(".popover-element").popover('hide');
-
-	if ($('#confirm-dialog').length) {
-		$('#confirm-dialog').on('hidden.bs.modal', function() {
-			$("#confirm-dialog .btn-danger").unbind("click");
-		});
-	}
-
-	if ($('#alert-dialog').length) {
-		$('#alert-dialog').on('hidden.bs.modal', function() {
-			$("#alert-dialog .btn-danger").unbind("click");
-		});
-	}
-
-	if (!$("ul.nav-analysis").length) {
-		$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-			var target = $(e.target).attr("href");
-			if ($(target).attr("data-update-required") == "true") {
-				window[$(target).attr("data-trigger")].apply();
-				$(target).attr("data-update-required", "false");
-			}
-		});
-	}
-
-});
+$.fn.hasAttr = function(name) {
+	return this[0].hasAttribute(name);
+};
 
 $.fn.removeAttributes = function(only, except) {
 	if (only) {
@@ -252,8 +188,43 @@ var ANALYSIS_RIGHT = {
 	}
 };
 
+/**
+ * Open mode
+ */
+var OPEN_MODE = {
+	READ : {
+		value : "read-only",
+		name : "READ"
+	},
+	READ_ESTIMATION : {
+		value : "read-only-estimation",
+		name : "READ_ESTIMATION"
+	},
+	EDIT : {
+		value : "edit",
+		name : "EDIT"
+	},
+	EDIT_ESTIMATION : {
+		value : "edit-estimation",
+		name : "EDIT_ESTIMATION"
+	},
+	EDIT_MEASURE : {
+		value : "edit-measure",
+		name : "EDIT_MEASURE"
+	},
+	isReadOnly : function() {
+		return application.openMode && application.openMode.value.startsWith("read-only");
+	},
+	valueOf : function(value) {
+		for ( var key in OPEN_MODE)
+			if (OPEN_MODE[key] == value || OPEN_MODE[key].value == value || OPEN_MODE[key].name == value)
+				return OPEN_MODE[key];
+		return undefined;
+	}
+}
+
 function permissionError() {
-	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!", null, $("#nav-container").attr("data-trick-language")));
+	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
 	return false;
 }
 
@@ -273,7 +244,7 @@ function findRight(idAnalysis) {
 function userCan(idAnalysis, action) {
 	var right = findRight(idAnalysis);
 	if (right != undefined && action.value != undefined) {
-		if (application.isReadOnly === true)
+		if (application.openMode === OPEN_MODE.READ)
 			return action == ANALYSIS_RIGHT.READ
 		else
 			return right.value <= action.value;
@@ -307,15 +278,9 @@ function canManageAccess() {
  * @param params
  * @returns
  */
-function MessageResolver(code, defaulttext, params, language) {
+function MessageResolver(code, defaulttext, params) {
 
-	if (language == undefined || language == null) {
-		language = $("[data-trick-language]").attr("data-trick-language");
-		if (language == undefined)
-			language = $("html").attr("lang");
-	}
-
-	var uniqueCode = "|^|" + code + "__uPu_*-" + language + "-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	var uniqueCode = "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
 	else
@@ -324,7 +289,6 @@ function MessageResolver(code, defaulttext, params, language) {
 	var data = {
 		code : code,
 		message : defaulttext,
-		language : language,
 		parameters : []
 	}
 	if ($.isArray(params))
@@ -345,15 +309,8 @@ function MessageResolver(code, defaulttext, params, language) {
 	return data.message;
 }
 
-function fixedTableHeader(table) {
-	if (table == undefined || $(table).length == 0)
-		return false;
-	$(table).floatThead({
-		scrollContainer : function($table) {
-			return $table.closest('.panel-body');
-		},
-	});
-	return true;
+function fixTableHeader(items) {
+	return $(items).stickyTableHeaders(application["settings-fixed-header"]);
 }
 
 /**
@@ -367,9 +324,8 @@ function showError(parent, text) {
 	close.setAttribute("class", "close");
 	close.setAttribute("href", "#");
 	close.setAttribute("data-dismiss", "alert");
-	error.setAttribute("class", "alert alert-error");
+	error.setAttribute("class", "alert alert-danger");
 	error.setAttribute("aria-hidden", "true");
-	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1;color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	content.setAttribute("style", "text-align: left");
@@ -409,85 +365,92 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
 			"tbody tr td:first-child input");
 	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(
-			application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0;
+			application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0, $checkbox = $(checkbox);
 	if (!multiSelectAllowed) {
-		$(checkbox).prop("disabled", true);
-		$(checkbox).prop("checked", false);
+		$(checkbox).prop("disabled", true).prop("checked", false);
 		return false;
 	}
+	var isChecked = $checkbox.is(":checked");
 	for (var i = 0; i < items.length; i++) {
-		$(items[i]).prop("checked", $(checkbox).is(":checked"));
-		if ($(checkbox).is(":checked"))
-			$(items[i]).parent().parent().addClass("info")
+		var $item = $(items[i]);
+		$item.prop("checked", isChecked);
+		if (isChecked)
+			$item.parent().parent().addClass("info");
 		else
-			$(items[i]).parent().parent().removeClass("info")
+			$item.parent().parent().removeClass("info");
 	}
 	updateMenu(undefined, "#section_" + sectionName, "#menu_" + sectionName, appModalVar);
 	return false;
 }
 
-function updateMenu(sender, idsection, idMenu, appModalVar) {
+function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	if (sender) {
-		if ($(sender).is(":checked")) {
-			$(sender).parent().parent().addClass("info")
+		var $sender = $(sender);
+		if ($sender.is(":checked")) {
+			$sender.parent().parent().addClass("info")
 			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $("li[data-trick-selectable='multi']", idMenu) : $(idMenu
 					+ " li[data-trick-selectable='multi']", application[appModalVar].modal)).length == 0;
 			if (multiSelectNotAllowed) {
 				var items = $("tbody :checked", ((appModalVar == undefined || appModalVar == null) ? idsection : application[appModalVar].modal));
 				for (var i = 0; i < items.length; i++) {
-					if (sender == $(items[i])[0])
+					var $item = $(items[i]);
+					if (sender == $item[0])
 						continue;
-					$(items[i]).prop("checked", false);
-					$(items[i]).parent().parent().removeClass("info")
+					$item.prop("checked", false);
+					$item.parent().parent().removeClass("info");
 				}
 			}
 		} else
-			$(sender).parent().parent().removeClass("info")
+			$sender.parent().parent().removeClass("info")
 	}
 
 	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length;
 	if (checkedCount > 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			if ($($lis[i]).attr("data-trick-selectable") === "multi")
-				$($lis[i]).removeClass("disabled");
+			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+			if ($liSelected.attr("data-trick-selectable") === "multi")
+				$liSelected.removeClass("disabled");
 			else
-				$($lis[i]).addClass("disabled");
-
-			var checker = $($lis[i]).attr("data-trick-check");
-
-			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$($lis[i]).addClass("disabled");
+				$liSelected.addClass("disabled");
+			if (!$liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
+				$liSelected.addClass("disabled");
 		}
 	} else if (checkedCount == 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			var checker = $($lis[i]).attr("data-trick-check");
-			if ($($lis[i]).attr("data-trick-selectable") != undefined)
-				$($lis[i]).removeClass("disabled");
+			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+			if ($liSelected.attr("data-trick-selectable") != undefined)
+				$liSelected.removeClass("disabled");
 			else
-				$($lis[i]).addClass("disabled");
-
-			var checker = $($lis[i]).attr("data-trick-check");
-
-			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$($lis[i]).addClass("disabled");
+				$liSelected.addClass("disabled");
+			if (!$liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
+				$liSelected.addClass("disabled");
 		}
 	} else {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			if ($($lis[i]).attr("data-trick-selectable") != undefined)
-				$($lis[i]).addClass("disabled");
+			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+			if ($liSelected.attr("data-trick-selectable") != undefined)
+				$liSelected.addClass("disabled");
 			else
-				$($lis[i]).removeClass("disabled");
+				$liSelected.removeClass("disabled");
 
-			var checker = $($lis[i]).attr("data-trick-check");
-
-			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$($lis[i]).addClass("disabled");
+			if ($liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
+				$liSelected.addClass("disabled");
 		}
 	}
 
+	if (callback != undefined) {
+		try {
+			if ($.isFunction(callback))
+				callback();
+			else
+				eval(callback);
+		} catch (e) {
+			console.log(e);
+		}
+	}
 	return false;
 }
 
@@ -548,8 +511,7 @@ function serializeForm(form) {
 	var $form = $(form);
 	if (!$form.length)
 		$form = $("#" + form);
-	var data = $form.serializeJSON();
-	return JSON.stringify(data);
+	return JSON.stringify($form.serializeJSON());
 }
 
 function parseJson(data) {
@@ -641,3 +603,183 @@ function oldversionComparator(version1, version2) {
 	} else
 		return value1 > value2 ? 1 : -1;
 }
+
+function closePopover() {
+	if (application["settings-open-popover"]) {
+		if (application["settings-open-popover"].hasAttribute("aria-describedby"))
+			$(application["settings-open-popover"]).click();
+		delete application["settings-open-popover"];
+	}
+}
+
+$(document).ready(function() {
+	var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
+	$(document).ajaxSend(function(e, xhr, options) {
+		xhr.setRequestHeader(header, token);
+	});
+
+	// prevent perform click while a menu is disabled
+	$("ul.nav li>a").on("click", function(e) {
+		if ($(e.currentTarget).parent().hasClass("disabled"))
+			e.preventDefault();
+	});
+
+	// prevent perform click while a menu is disabled
+	$("ul.nav li").on("click", function(e) {
+		if ($(e.currentTarget).hasClass("disabled"))
+			e.stopPropagation();
+	});
+
+	// prevent unknown error modal display
+	$window.bind("beforeunload", function() {
+		application["isReloading"] = true;
+	});
+
+	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
+		var $target = $(e.currentTarget);
+		if ($target.find("li.active").length && !$target.hasClass("active"))
+			$target.addClass("active");
+	});
+
+	$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+		var $parent = $(e.target).closest("li.dropdown-submenu");
+		if (!$parent.hasClass("active"))
+			$parent.addClass("active");
+	});
+
+	$("a[data-toggle='taskmanager']").on("click", function(e) { // task
+		// manager
+		var taksmanager = application['taskManager'];
+		if (taksmanager.isEmpty())
+			return false;
+		var $target = $(e.currentTarget), $parent = $target.parent();
+		if ($parent.hasClass("open"))
+			taksmanager.Hide();
+		else
+			taksmanager.Show();
+	});
+
+	$('#confirm-dialog').on('hidden.bs.modal', function() {
+		$("#confirm-dialog .btn-danger").unbind("click");
+	});
+
+	$('#alert-dialog').on('hidden.bs.modal', function() {
+		$("#alert-dialog .btn-danger").unbind("click");
+	});
+
+	if ($tabNav.length) {
+
+		var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabNav.find("#tabOption");
+		$window.on("resize.window", function() {
+			$tabContainer.css({
+				"margin-top" : $tabNav.height() + 12
+			// default margin-top is 50px and default $tabNav
+			// size is 38px
+			});
+		});
+
+		if ($option.length) {
+			var updateOption = function() {
+				var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills");
+				var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
+				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
+					$option.fadeOut(function() {
+						$option.hide();
+					});
+				else {
+					if (!$option.find("#" + optionMenu.prop("id")).length) {
+						$option.find("ul").remove();
+						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
+						$("li[data-role='title']", cloneOption).remove()
+						cloneOption.removeAttr("style");
+						if ($subMenu.length) {
+							$subMenu.each(function() {
+								var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
+								$this.removeClass();
+								if ($this.closest("li").length)
+									$this.before("<li class='divider'></li>");
+								$lis.appendTo(cloneOption);
+								$this.text(text);
+								$this.addClass("dropdown-header");
+							});
+						} else {
+							$("li.dropdown-header", cloneOption).each(function() {
+								var $this = $(this), $closestli = $this.closest("li");
+								if ($closestli.length && !$closestli.hasClass("divider"))
+									$this.before("<li class='divider'></li>");
+								$this.show();
+							});
+						}
+						$("li.divider", cloneOption).show();
+						cloneOption.appendTo($option);
+						cloneOption.removeClass();
+						cloneOption.find("li").removeClass("pull-right")
+						cloneOption.addClass("dropdown-menu")
+					}
+
+					if (!$option.is(":visible")) {
+						$option.fadeIn(function() {
+							$option.show();
+						});
+					}
+				}
+			}
+			
+			$window.on("scroll.window", function() {
+				setTimeout(updateOption, 100);
+			});
+		}
+
+		$window.on('hashchange', function() {
+			var hash = window.location.hash;
+			application["no-update-hash"] = true;
+			switchTab(hash ? hash.split('#')[1] : hash);
+			application["no-update-hash"] = false;
+		});
+
+		if (window.location.hash) {
+			$window.trigger("hashchange");
+			$bodyHtml.animate({
+				scrollTop : 0
+			}, 20);
+		}
+
+		$('a[data-toggle="tab"]', $tabNav).on('show.bs.tab', closePopover).on('shown.bs.tab', function(e) {
+			
+			$bodyHtml.animate({
+				scrollTop : 0
+			}, 20);
+			
+			var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
+			if (window[callback] != undefined) {
+				var data = $target.attr("data-callback-data");
+				if (data == undefined)
+					window[callback].apply();
+				else
+					window[callback].apply(null, data.split(","));
+			}
+			if ($target.attr("data-update-required") == "true") {
+				var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
+				if (parameters == undefined)
+					window[trigger].apply();
+				else
+					window[trigger].apply(null, parameters.split(","));
+				$target.attr("data-update-required", "false");
+			}
+
+			if (!application["no-update-hash"])
+				window.location.hash = $target.attr("id");
+		});
+	}
+
+	$('[data-toggle="tooltip"]').tooltip();
+
+	$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
+
+	if ($popevers.length) {
+		$window.keydown(function(e) {
+			if (e.keyCode == 27)
+				closePopover();
+		});
+	}
+});

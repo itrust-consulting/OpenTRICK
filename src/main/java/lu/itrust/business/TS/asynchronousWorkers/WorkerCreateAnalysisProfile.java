@@ -3,7 +3,14 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -22,11 +29,6 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-
 /**
  * @author eomar
  * 
@@ -34,6 +36,10 @@ import org.hibernate.Transaction;
 public class WorkerCreateAnalysisProfile implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -72,6 +78,37 @@ public class WorkerCreateAnalysisProfile implements Worker {
 		this.standards = standards;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
+	 */
+	@Override
+	public boolean isMatch(String express, Object... values) {
+		try {
+			String[] expressions = express.split("\\+");
+			boolean match = values.length == expressions.length && values.length == 2;
+			for (int i = 0; i < expressions.length && match; i++) {
+				switch (expressions[i]) {
+				case "analysis.id":
+					match &= values[i].equals(analysisId);
+					break;
+				case "class":
+					match &= values[i].equals(getClass());
+					break;
+				default:
+					match = false;
+					break;
+				}
+			}
+			return match;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	@Override
 	public void run() {
 		Session session = null;
@@ -84,6 +121,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
@@ -91,19 +129,19 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			User owner = new DAOUserHBM(session).get(username);
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a profile customer before creating an analysis profile", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a profile customer before creating an analysis profile", null));
 				return;
 			}
-			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis", null, 1));
+			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis", 1));
 			Analysis analysis = daoAnalysis.get(analysisId);
 			Analysis copy = new Duplicator(session).createProfile(analysis, name, standards, serviceTaskFeedback, id);
 			copy.setCustomer(customer);
 			copy.setOwner(owner);
-			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile", null, 96));
+			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile", 96));
 			transaction = session.beginTransaction();
 			daoAnalysis.saveOrUpdate(copy);
 			transaction.commit();
-			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", null, 100));
+			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", 100));
 			/**
 			 * Log
 			 */
@@ -115,37 +153,39 @@ public class WorkerCreateAnalysisProfile implements Worker {
 					copy.getLabel(), copy.getVersion());
 		} catch (TrickException e) {
 			try {
-				this.error = e;
-				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-				e.printStackTrace();
+				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+				TrickLogManager.Persist(e);
 				if (transaction != null)
 					transaction.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 		} catch (Exception e) {
 			try {
 				this.error = e;
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", null, e));
-				e.printStackTrace();
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", e));
+				TrickLogManager.Persist(e);
 				if (transaction != null)
 					transaction.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				TrickLogManager.Persist(e1);
 			}
 
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
 
 	}
@@ -190,22 +230,36 @@ public class WorkerCreateAnalysisProfile implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }
