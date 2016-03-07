@@ -666,7 +666,7 @@ AssessmentProbaFieldEditor.prototype = new FieldEditor();
 function AssessmentProbaFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
-
+/*
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
 		var $probAcronyms = $("#Scale_Probability td[data-trick-field='acronym']"), $probaAcronymsValues = $("#Scale_Probability td[data-trick-field='value']");
 		for (var i = 0; i < $probAcronyms.length; i++) {
@@ -719,6 +719,7 @@ function AssessmentProbaFieldEditor(element) {
 			return '0';
 		return value;
 	};
+*/
 }
 
 /*
