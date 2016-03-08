@@ -1,10 +1,29 @@
 /**
  * Main.js
  */
+if (!String.prototype.capitalize) {
+	String.prototype.capitalize = function() {
+		return this.charAt(0).toUpperCase() + this.slice(1);
+	}
+}
 
-String.prototype.endsWith = function(suffix) {
-	return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function(searchString, position) {
+		position = position || 0;
+		return this.substr(position, searchString.length) === searchString;
+	};
+}
+if (!String.prototype.endsWith) {
+	String.prototype.endsWith = function(searchString, position) {
+		var subjectString = this.toString();
+		if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+			position = subjectString.length;
+		}
+		position -= searchString.length;
+		var lastIndex = subjectString.indexOf(searchString, position);
+		return lastIndex !== -1 && lastIndex === position;
+	};
+}
 
 var application = new Application();
 
@@ -177,13 +196,24 @@ var OPEN_MODE = {
 		value : "read-only",
 		name : "READ"
 	},
+	READ_ESTIMATION : {
+		value : "read-only-estimation",
+		name : "READ_ESTIMATION"
+	},
 	EDIT : {
 		value : "edit",
 		name : "EDIT"
 	},
+	EDIT_ESTIMATION : {
+		value : "edit-estimation",
+		name : "EDIT_ESTIMATION"
+	},
 	EDIT_MEASURE : {
 		value : "edit-measure",
 		name : "EDIT_MEASURE"
+	},
+	isReadOnly : function() {
+		return application.openMode && application.openMode.value.startsWith("read-only");
 	},
 	valueOf : function(value) {
 		for ( var key in OPEN_MODE)
@@ -722,7 +752,7 @@ $(document)
 							switchTab(hash ? hash.split('#')[1] : hash);
 							application["no-update-hash"] = false;
 						});
-						
+
 						if (window.location.hash)
 							$window.trigger("hashchange");
 

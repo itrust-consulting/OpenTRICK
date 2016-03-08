@@ -75,14 +75,14 @@
 							</div>
 						</div>
 
-
+						<spring:url value="?open=${open.readOnly?'read-only' : 'edit'}"  var="returnUrl"/>
 						<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-estimation'>
-							<li><a href='<spring:url value="?open=edit" />' title='<spring:message code="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
-							<li><a href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
-							<li><a href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
-							<li><a href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
-							<li><a href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
-							<li><a href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
+							<li><a  accesskey="A" href='${returnUrl}' data-base-ul='${returnUrl}' title='<spring:message code="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
+							<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
+							<li><a accesskey="F" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
+							<li><a accesskey="H" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
+							<li><a accesskey="G" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
+							<li><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
 						</ul>
 					</div>
 				</div>

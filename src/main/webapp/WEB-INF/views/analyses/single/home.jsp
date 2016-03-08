@@ -35,7 +35,7 @@
 				<c:if test="${!analysis.isProfile() }">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
-					<jsp:include page="./components/assessment/home.jsp" />
+					<%-- <jsp:include page="./components/assessment/home.jsp" /> --%>
 					<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeALE(analysis)" var="ales" />
 					<c:set var="assetALE" value="${ales[0]}" scope="request" />
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
@@ -75,7 +75,7 @@
 	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisStandard.js" />"></script>
 	<c:if test="${!analysis.isProfile()}">
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/actionplan.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/assessment.js" />"></script>
+		<%-- <script type="text/javascript" src="<spring:url value="/js/trickservice/assessment.js" />"></script> --%>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>

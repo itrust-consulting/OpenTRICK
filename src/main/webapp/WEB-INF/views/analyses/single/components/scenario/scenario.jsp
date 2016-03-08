@@ -17,38 +17,42 @@
 				</div>
 			</div>
 		</div>
-		<ul class="nav nav-pills bordered-bottom" id="menu_scenario">
-			<c:if test="${isEditable}">
+		<c:if test="${isEditable}">
+			<ul class="nav nav-pills bordered-bottom" id="menu_scenario">
+				
 				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /> </a></li>
+				
+				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
+							key="label.action.edit" /> </a></li>
+				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <fmt:message
+							key="label.action.select" /> </a></li>
+				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <fmt:message
+							key="label.action.unselect" /> </a></li>
+				
+				<%-- <c:if test="${!analysis.isProfile() }">
+					<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return showEstimation('scenario')"><span
+							class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.assessment" /> </a></li>
+				</c:if> --%>
 			
-			<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
-						key="label.action.edit" /> </a></li>
-			<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <fmt:message
-						key="label.action.select" /> </a></li>
-			<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <fmt:message
-						key="label.action.unselect" /> </a></li>
-			</c:if>
-			<c:if test="${!analysis.isProfile() }">
-				<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return showEstimation('scenario')"><span
-						class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.assessment" /> </a></li>
-			</c:if>
-			<c:if test="${isEditable}">
 				<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
 				<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span
 						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /> </a></li>
-			</c:if>
-		</ul>
+			</ul>
+		</c:if>
 		<table id="scenariotable" class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
-					<c:choose>
+					<%-- <c:choose>
 						<c:when test="${isEditable}">
 							<th style="width: 2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
 						</c:when>
 						<c:otherwise>
 							<th style="width: 2%"></th>
 						</c:otherwise>
-					</c:choose>
+					</c:choose> --%>
+					<c:if test="${isEditable}">
+						<th style="width: 2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
+					</c:if>
 					<th style="width:3%"><fmt:message key="label.row.index" /></th>
 					<th style="width:25%"><fmt:message key="label.scenario.name" /></th>
 					<th style="width:5%"><fmt:message key="label.scenario.type" /></th>
@@ -71,7 +75,9 @@
 					<tr data-trick-id="${scenario.id}" data-trick-selected="${scenario.selected}" ${scenario.selected? 'class="success"' : ''} data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
 						<c:set var="ale" value="${scenarioALE[scenario.id]}" />
 						<c:set var="selectClass" value="${scenario.selected?'selected':'unselected'}" />
-						<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario', null,'showTabEstimation(\'scenario\')');"></td>
+						<c:if test="${isEditable}">
+							<td class="${selectClass}"><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario', null,'showTabEstimation(\'scenario\')');"></td>
+						</c:if>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${scenario.name}" /></td>
 						<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>

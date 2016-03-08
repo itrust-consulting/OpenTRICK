@@ -18,6 +18,10 @@ public enum OpenMode {
 	private OpenMode(String value) {
 		this.value = value;
 	}
+	
+	public boolean isReadOnly() {
+		return value.startsWith("read-only");
+	}
 
 	public static OpenMode defaultValue() {
 		return EDIT;
@@ -65,7 +69,7 @@ public enum OpenMode {
 	}
 
 	public static Boolean isReadOnly(OpenMode mode) {
-		return mode == null || mode.value.startsWith("read-only");
+		return mode == null || mode.isReadOnly();
 	}
 
 }

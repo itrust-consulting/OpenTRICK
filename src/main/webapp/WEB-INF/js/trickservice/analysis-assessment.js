@@ -103,8 +103,14 @@ function loadAssessmentData(id) {
 				backupDescriptionHeight();
 				$currentUI.replaceWith($assessmentUI);
 				restoreDescriptionHeight();
-				$("select", $assessmentUI).on("change", saveAssessmentData);
-				$("textarea,input:not([disable])", $assessmentUI).on("blur", saveAssessmentData);
+				if (OPEN_MODE.isReadOnly()) {
+					$("select:not([disabled])", $assessmentUI).prop("disabled", true);
+					$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
+				} else {
+					$("select", $assessmentUI).on("change", saveAssessmentData);
+					$("textarea,input:not([disabled])", $assessmentUI).on("blur", saveAssessmentData);
+				}
+
 				$("button[name='probaScale']", $assessmentUI).click(function() {
 					if ($probaScale == undefined)
 						$probaScale = $("#probaScale");
@@ -293,7 +299,7 @@ $(function() {
 
 	helper = new AssessmentHelder();
 
-	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
+	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-estimation']").on("trick.update.nav", updateNavigation), $openAnalysis = $("a[data-base-ul]", $nav), $previousSelector = $("[data-trick-nav='previous-selector']"), $nextSelector = $("[data-trick-nav='next-selector']"), $previousAssessment = $("[data-trick-nav='previous-assessment']"), $nextAssessment = $("[data-trick-nav='next-assessment']"), val;
 	$previousSelector.on("click", function() {
 		$("select[name='" + activeSelector + "']>option:selected").prev("[value!='-1']:last").prop('selected', true).parent().change();
 		return false;
@@ -333,6 +339,10 @@ $(function() {
 
 	for ( var i in helper.names)
 		helper.getCurrent(helper.names[i]).on('change', updateSelector)
+
+	$openAnalysis.on("click", function() {
+		$openAnalysis.attr("href", $openAnalysis.attr("data-base-ul") + "#tab" + activeSelector.capitalize());
+	});
 
 	updateNavigation();
 	updateAssessmentUI();

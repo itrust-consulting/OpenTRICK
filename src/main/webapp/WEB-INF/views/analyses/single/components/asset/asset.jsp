@@ -17,36 +17,38 @@
 				</div>
 			</div>
 		</div>
-		<ul class="nav nav-pills bordered-bottom" id="menu_asset">
-			<c:if test="${isEditable}">
-				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add.asset" /></a></li>
-
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span
-						class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit.asset" /> </a></li>
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span
-						class="glyphicon glyphicon-plus-sign"></span> <fmt:message key="label.action.select.asset" /> </a></li>
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span
-						class="glyphicon glyphicon-minus-sign "></span> <fmt:message key="label.action.unselect.asset" /> </a></li>
-			</c:if>
-			<li  class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return showEstimation('asset')"><span
-					class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.show.asset.assessment" /> </a></li>
-			<c:if test="${isEditable}">
-				<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
-				<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
-						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete.asset" /> </a></li>
-			</c:if>
-		</ul>
+		<c:if test="${isEditable}">
+			<ul class="nav nav-pills bordered-bottom" id="menu_asset">
+					<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add.asset" /></a></li>
+					<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span
+							class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit.asset" /> </a></li>
+					<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span
+							class="glyphicon glyphicon-plus-sign"></span> <fmt:message key="label.action.select.asset" /> </a></li>
+					<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span
+							class="glyphicon glyphicon-minus-sign "></span> <fmt:message key="label.action.unselect.asset" /> </a></li>
+				
+				<%-- <li  class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return showEstimation('asset')"><span
+						class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.show.asset.assessment" /> </a></li> --%>
+					<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+					<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
+							class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete.asset" /> </a></li>
+				
+			</ul>
+		</c:if>
 		<table class="table table-hover table-fixed-header-analysis table-condensed" id="assetTable">
 			<thead>
 				<tr>
-					<c:choose>
+					<%-- <c:choose>
 						<c:when test="${isEditable}">
-						<th style="width:2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>
+							<th style="width:2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>
 						</c:when>
 						<c:otherwise>
 							<th style="width:2%"></th>
 						</c:otherwise>
-					</c:choose>
+					</c:choose> --%>
+					<c:if test="${isEditable}">
+						<th style="width:2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>
+					</c:if>
 					<th style="width:3%"><fmt:message key="label.row.index" /></th>
 					<th style="width:25%"><fmt:message key="label.asset.name" /></th>
 					<th style="width:5%"><fmt:message key="label.asset.type" /></th>
@@ -73,7 +75,9 @@
 						<c:set var="ale" value="${assetALE[asset.id]}" />
 						<c:set var="totalAssetValue" value="${totalAssetValue + asset.value}" />
 						<c:set var="selectClass" value="${asset.selected?'selected':'unselected'}" />
-						<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset', null, 'showTabEstimation(\'asset\')');"></td>
+						<c:if test="${isEditable}">
+							<td class='${selectClass}'><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset', null, 'showTabEstimation(\'asset\')');"></td>
+						</c:if>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${asset.name}" /></td>
 						<td><spring:message text="${asset.assetType.type}" /></td>
