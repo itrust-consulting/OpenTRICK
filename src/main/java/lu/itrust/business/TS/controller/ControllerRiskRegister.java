@@ -22,9 +22,11 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.model.analysis.Analysis;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -50,7 +52,7 @@ public class ControllerRiskRegister {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	@Autowired
 	private ServiceLanguage serviceLanguage;
 
@@ -62,6 +64,9 @@ public class ControllerRiskRegister {
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
+
+	@Autowired
+	private ServiceRiskProfile serviceRiskProfile;
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
@@ -81,16 +86,14 @@ public class ControllerRiskRegister {
 	public String showRiskRegister(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
 
 		// retrieve analysis ID
-		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
+		Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		// load all actionplans from the selected analysis
-
 		// prepare model
-		model.put("riskregister", serviceRiskRegister.getAllFromAnalysis(selected));
-		
-		model.put("parameters", serviceParameter.getAllExtendedFromAnalysis(selected));
-		
-		model.put("language", serviceLanguage.getFromAnalysis(selected).getAlpha2());
+		model.put("riskregister", analysis.getRiskRegisters());
+
+		model.put("parameters", analysis.findExtendedByAnalysis());
+
+		model.put("language", analysis.getLanguage().getAlpha2());
 
 		// return view
 		return "analyses/single/components/riskregister";
@@ -132,9 +135,9 @@ public class ControllerRiskRegister {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String computeRiskRegister(HttpSession session, Principal principal) throws Exception {
-		
+
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		
+
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 		WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, true);
@@ -146,6 +149,5 @@ public class ControllerRiskRegister {
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", analysisLocale));
 
-		
 	}
 }

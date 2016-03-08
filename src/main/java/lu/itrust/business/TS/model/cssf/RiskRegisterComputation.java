@@ -163,7 +163,7 @@ public class RiskRegisterComputation {
 			printRiskRegisterItem(registerItem.getRawEvaluation());
 			printRiskRegisterItem(registerItem.getNetEvaluation());
 			printRiskRegisterItem(registerItem.getExpectedEvaluation());
-			System.out.print(" | " + registerItem.getStrategy() + "\n");
+			System.out.println();
 		}
 	}
 

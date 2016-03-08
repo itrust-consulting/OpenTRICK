@@ -12,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.exception.TrickException;
@@ -39,14 +38,6 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 @Entity
 @Table(name = "RiskRegister", uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiAsset", "fiScenario" }))
 public class RiskRegisterItem {
-
-	private static final String REDUCE_VALUE = "reduce";
-
-	private static final String SHRINK_OLD_REDUCE_VALUE = "Shrink";
-
-	/** Regular Expression for Strategy */
-	@Transient
-	public static final String REGEX_STRATEGY = "accept|reduce|transfer|avoid";
 
 	/***********************************************************************************************
 	 * Fields
@@ -97,12 +88,6 @@ public class RiskRegisterItem {
 	@Access(AccessType.FIELD)
 	private EvaluationResult expectedEvaluation = null;
 
-	/** Strategy */
-	@Column(name = "dtResponseStrategy", nullable = false)
-	private String strategy = REDUCE_VALUE;
-
-	@Column(name = "dtOwner", nullable = false)
-	private String owner = "";
 
 	/***********************************************************************************************
 	 * Constructors
@@ -270,38 +255,7 @@ public class RiskRegisterItem {
 		this.expectedEvaluation = expectedEvaluation;
 	}
 
-	/**
-	 * getStrategy: <br>
-	 * Returns the "strategy" field Value.
-	 * 
-	 * @return The Strategy
-	 */
-	public String getStrategy() {
-		return strategy;
-	}
 
-	/**
-	 * setStrategy: <br>
-	 * Sets the field "strategy" with a value.
-	 * 
-	 * @param strategy
-	 *            The Strategy to set
-	 * @throws TrickException
-	 */
-	public void setStrategy(String strategy) throws TrickException {
-
-		if (SHRINK_OLD_REDUCE_VALUE.equalsIgnoreCase(strategy))
-			strategy = REDUCE_VALUE;
-		else if (strategy == null || !strategy.matches(REGEX_STRATEGY)) // check
-																		// if
-																		// strategy
-																		// is
-																		// Shrink
-																		// or
-																		// Accepted
-			throw new TrickException("error.risk_register.strategy.empty", "Strategy is not valid");
-		this.strategy = strategy;
-	}
 
 	public Asset getAsset() {
 		return asset;
@@ -309,14 +263,6 @@ public class RiskRegisterItem {
 
 	public void setAsset(Asset asset) {
 		this.asset = asset;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
-
-	public void setOwner(String owner) {
-		this.owner = owner;
 	}
 
 	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {

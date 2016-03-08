@@ -2294,7 +2294,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = DatabaseHandler.generateInsertQuery("risk_register", 14);
+		query = DatabaseHandler.generateInsertQuery("risk_register", 12);
 
 		// parse all Risk Register Entries
 		for (int i = 0; i < this.analysis.getRiskRegisters().size(); i++) {
@@ -2313,8 +2313,6 @@ public class ExportAnalysis {
 			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getProbability());
 			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getImpact());
 			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getImportance());
-			params.add(this.analysis.getARiskRegisterEntry(i).getStrategy());
-			params.add(this.analysis.getARiskRegisterEntry(i).getOwner());
 
 			// execute query
 			sqlite.query(query, params);

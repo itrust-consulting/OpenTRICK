@@ -248,7 +248,6 @@ public class WorkerComputeRiskRegister implements Worker {
 			if (riskRegisterItem != null)
 				analysis.getRiskRegisters().set(i, riskRegisterItem.merge(riskRegister));
 		}
-
 		serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.delete", "Deleting previous Risk Register", lang, 70));
 		for (RiskRegisterItem riskRegisterItem : ownerBackup.values())
 			daoRiskRegister.delete(riskRegisterItem);
