@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 
@@ -45,6 +47,9 @@ import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
@@ -79,7 +84,6 @@ import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureDescription;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -146,6 +150,8 @@ public class ImportAnalysis {
 
 	/** Map of Measures */
 	private Map<String, Measure> measures = null;
+
+	private Map<String, ExtendedParameter> extendedParameters = null;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -266,15 +272,18 @@ public class ImportAnalysis {
 			// * import scenarios
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", null, 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", null, 35));
 			importScenarios();
 
 			// ****************************************************************
 			// * import assessments
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", null, 50));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", null, 40));
 			importAssessments();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", null, 40));
+			importRiskProfile();
 
 			// ****************************************************************
 			// * import phases
@@ -294,6 +303,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", null, 70));
 			importAssetTypeValues();
+
 			importAssetValues();
 			// ****************************************************************
 			// * import maturity measures
@@ -306,26 +316,12 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", null, 90));
 
-			AssessmentAndRiskProfileManager asm = new AssessmentAndRiskProfileManager();
-
 			System.out.println("Saving Analysis Data...");
 
-			// save or update analysis
-			daoAnalysis.save(this.analysis);
-
 			// update ALE of asset objects
-			asm.UpdateAssessment(this.analysis);
+			new AssessmentAndRiskProfileManager().UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());
 
 			daoAnalysis.saveOrUpdate(this.analysis);
-
-			List<String> versions = daoAnalysis.getAllNotEmptyVersion(analysis.getIdentifier());
-
-			Collections.sort(versions, new Comparator<String>() {
-				@Override
-				public int compare(String o1, String o2) {
-					return ComparatorMeasureDescription.Compare(o2, o1);
-				}
-			});
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.commit.transcation", "Commit transaction", null, 95));
 			if (session != null) {
@@ -349,6 +345,41 @@ public class ImportAnalysis {
 			// clear maps
 			clearData();
 		}
+	}
+
+	private void importRiskProfile() throws SQLException {
+		ResultSet resultSet = sqlite.query("Select * From risk_profile", null);
+		if (resultSet == null)
+			return;
+		List<RiskProfile> riskProfiles = new ArrayList<>(analysis.getAssessments().size());
+		while (resultSet.next()) {
+			RiskProfile riskProfile = new RiskProfile(assets.get(resultSet.getInt("id_asset")), scenarios.get(resultSet.getInt("id_threat")));
+
+			riskProfile.setActionPlan(resultSet.getString("actionPlan"));
+			riskProfile.setRiskTreatment(resultSet.getString("treatment"));
+			riskProfile.setRiskStrategy(RiskStrategy.valueOf(resultSet.getString("strategy")));
+
+			riskProfile.setExpProbaImpact(new RiskProbaImpact());
+			riskProfile.setRawProbaImpact(new RiskProbaImpact());
+
+			riskProfile.getExpProbaImpact().setImpactFin(extendedParameters.get(resultSet.getString("exp_impact_fin")));
+			riskProfile.getExpProbaImpact().setImpactLeg(extendedParameters.get(resultSet.getString("exp_impact_leg")));
+			riskProfile.getExpProbaImpact().setImpactOp(extendedParameters.get(resultSet.getString("exp_impact_op")));
+			riskProfile.getExpProbaImpact().setImpactRep(extendedParameters.get(resultSet.getString("exp_impact_rep")));
+			riskProfile.getExpProbaImpact().setProbability(extendedParameters.get(resultSet.getString("exp_probability")));
+
+			riskProfile.getRawProbaImpact().setImpactFin(extendedParameters.get(resultSet.getString("raw_impact_fin")));
+			riskProfile.getRawProbaImpact().setImpactLeg(extendedParameters.get(resultSet.getString("raw_impact_leg")));
+			riskProfile.getRawProbaImpact().setImpactOp(extendedParameters.get(resultSet.getString("raw_impact_op")));
+			riskProfile.getRawProbaImpact().setImpactRep(extendedParameters.get(resultSet.getString("raw_impact_rep")));
+			riskProfile.getRawProbaImpact().setProbability(extendedParameters.get(resultSet.getString("raw_probability")));
+
+			riskProfiles.add(riskProfile);
+
+		}
+
+		analysis.setRiskProfiles(riskProfiles);
+
 	}
 
 	/**
@@ -400,7 +431,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = "SELECT id_analysis,label from identifier LIMIT 1";
+		query = "SELECT * from identifier LIMIT 1";
 
 		// execute query
 		rs = sqlite.query(query, null);
@@ -419,6 +450,10 @@ public class ImportAnalysis {
 			// ****************************************************************
 			if (analysis.getLabel() == null)
 				this.analysis.setLabel(rs.getString(Constant.IDENTIFIER_LABEL));
+
+			analysis.setCssf(getBoolean(rs, "cssf"));
+
+			analysis.setUncertainty(getBoolean(rs, "uncertainty"));
 		}
 
 		// close result
@@ -1047,14 +1082,8 @@ public class ImportAnalysis {
 
 			parameterName = rs.getString(Constant.ASSESSMENT_POTENTIALITY);
 
-			for (int i = 0; i < this.analysis.getParameters().size(); i++) {
-				if (this.analysis.getAParameter(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
-					if (((ExtendedParameter) this.analysis.getAParameter(i)).getAcronym().equals(parameterName)) {
-						likelihoodValue = this.analysis.getAParameter(i).getValue();
-						break;
-					}
-				}
-			}
+			if (extendedParameters.containsKey(parameterName))
+				likelihoodValue = extendedParameters.get(parameterName).getValue();
 
 			// ****************************************************************
 			// * Retrieve Impact values
@@ -1114,6 +1143,7 @@ public class ImportAnalysis {
 			tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
 			tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
 			tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
+			tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
 			tmpAssessment.setALEO(ALEO);
 			tmpAssessment.setALE(ALE);
 			tmpAssessment.setALEP(ALEP);
@@ -1522,6 +1552,8 @@ public class ImportAnalysis {
 		ParameterManager.ComputeImpactValue(extendedParameters);
 
 		this.analysis.getParameters().addAll(extendedParameters);
+		
+		this.extendedParameters = extendedParameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
 
 		extendedParameters.clear();
 
@@ -1584,6 +1616,8 @@ public class ImportAnalysis {
 		ParameterManager.ComputeImpactValue(extendedParameters);
 
 		this.analysis.getParameters().addAll(extendedParameters);
+
+		extendedParameters.forEach(parameter -> this.extendedParameters.put(parameter.getAcronym(), parameter));
 
 		extendedParameters.clear();
 
@@ -2067,7 +2101,7 @@ public class ImportAnalysis {
 
 			measure.setToDo(rs.getString(Constant.MEASURE_TODO));
 
-			measure.setResponsible(getStringOrEmpty(rs,Constant.MEASURE_RESPONSIBLE));
+			measure.setResponsible(getStringOrEmpty(rs, Constant.MEASURE_RESPONSIBLE));
 
 			measure.getMeasureDescription().setComputable(measurecomputable);
 
@@ -2690,7 +2724,7 @@ public class ImportAnalysis {
 			maturityMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 			maturityMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS).replace("'", "''"));
 			maturityMeasure.setToDo(rs.getString(Constant.MEASURE_TODO).replace("'", "''"));
-			maturityMeasure.setResponsible(getStringOrEmpty(rs,Constant.MEASURE_RESPONSIBLE));
+			maturityMeasure.setResponsible(getStringOrEmpty(rs, Constant.MEASURE_RESPONSIBLE));
 			maturityMeasure.setReachedLevel(rs.getInt(Constant.MATURITY_REACHED));
 			maturityMeasure.setSML1Cost(rs.getInt(Constant.MATURITY_SML1));
 			maturityMeasure.setSML2Cost(rs.getInt(Constant.MATURITY_SML2));
@@ -2857,35 +2891,6 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * checkIfStringToDoublePossible: <br>
-	 * Checks if given String can be Transformed into a valid Double Value
-	 * 
-	 * @param value
-	 *            The String Value to Convert to Double
-	 * @retrun Retruns true or false if Transformation is Possible or not
-	 */
-	private boolean checkIfStringToDoublePossible(String value) {
-		try {
-
-			// ****************************************************************
-			// * check if value can be cast to double type
-			// ****************************************************************
-			Double.valueOf(value);
-
-			// ****************************************************************
-			// * return result
-			// ****************************************************************
-			return true;
-		} catch (NumberFormatException ex) {
-
-			// ****************************************************************
-			// * in case of an error return result
-			// ****************************************************************
-			return false;
-		}
-	}
-
-	/**
 	 * convertImpactToDouble: <br>
 	 * Takes a string value (value from SQLite file) and converts it into a
 	 * valid double value.
@@ -2895,68 +2900,19 @@ public class ImportAnalysis {
 	 * @return A valid Double value
 	 */
 	private double convertImpactToDouble(String impact) {
-
 		// ****************************************************************
 		// * Initialise variables
 		// ****************************************************************
-		double result = 0;
-		String pattern = "c([0-9]|10)";
-
 		// ****************************************************************
 		// * pattern matches a acronym -> YES
 		// ****************************************************************
-		if (impact.matches(pattern)) {
-
-			// ****************************************************************
-			// * retrieve double value for impact inside extened parameters
-			// ****************************************************************
-
-			// ****************************************************************
-			// retrieve impact value from parameters
-			// ****************************************************************
-
-			for (int i = 0; i < this.analysis.getParameters().size(); i++) {
-				if (this.analysis.getAParameter(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
-					if (((ExtendedParameter) this.analysis.getAParameter(i)).getAcronym().equals(String.valueOf(impact))) {
-						result = this.analysis.getAParameter(i).getValue();
-						break;
-					}
-				}
-			}
+		try {
+			if (extendedParameters.containsKey(impact))
+				return extendedParameters.get(impact).getValue();
+			return Double.parseDouble(impact);
+		} catch (NumberFormatException | NullPointerException e) {
+			return 0;
 		}
-
-		// ****************************************************************
-		// * check if pattern matches a acronym -> NO
-		// ****************************************************************
-		else {
-
-			// ****************************************************************
-			// * check if impact value can be used as double value
-			// ****************************************************************
-
-			// ****************************************************************
-			// * set impact value
-			// ****************************************************************
-
-			// check if value can be transformed into double
-			if (checkIfStringToDoublePossible(impact)) {
-
-				// transform string value into double
-				result = Double.valueOf(impact);
-
-				// transform to kilo euro (*1000)
-				// result *= 1000.;
-			} else {
-
-				// no value found so 0
-				result = 0.;
-			}
-		}
-
-		// ****************************************************************
-		// * Return result
-		// ****************************************************************
-		return result;
 	}
 
 	public void setAnalysis(Analysis analysis2) {
@@ -2993,24 +2949,22 @@ public class ImportAnalysis {
 		setDaoParameterType(new DAOParameterTypeHBM(session));
 		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
 	}
-	
+
 	public static String getString(ResultSet rs, String name) {
 		return getString(rs, name, null);
 	}
-	
+
 	public static String getStringOrEmpty(ResultSet rs, String name) {
 		return getString(rs, name, "");
 	}
-	
-	public static String getString(ResultSet rs, String name,String defaultValue) {
+
+	public static String getString(ResultSet rs, String name, String defaultValue) {
 		try {
 			return rs.getString(name);
 		} catch (SQLException e) {
 			return defaultValue;
 		}
 	}
-
-	
 
 	public static double getDouble(ResultSet rs, String name) {
 		try {

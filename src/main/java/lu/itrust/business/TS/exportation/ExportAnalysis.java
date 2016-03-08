@@ -258,8 +258,8 @@ public class ExportAnalysis {
 				query = baseQuery;
 			else if (params.size() + 15 > 999) {
 				sqlite.query(query, params);
-				params.clear();
 				query = baseQuery;
+				params.clear();
 			} else
 				query += unionQuery;
 			addRiskProfile(params, defaultImpact, defaultProbability, riskProfile);
@@ -749,13 +749,12 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = DatabaseHandler.generateInsertQuery("identifier", 2);
-
+		query = DatabaseHandler.generateInsertQuery("identifier", 4);
 		// add parameters
-		params.clear();
 		params.add(this.analysis.getIdentifier());
 		params.add(this.analysis.getLabel());
-
+		params.add(this.analysis.isCssf());
+		params.add(this.analysis.isUncertainty());
 		// execute the query
 		sqlite.query(query, params);
 	}
@@ -796,16 +795,14 @@ public class ExportAnalysis {
 
 			// build query
 			query = DatabaseHandler.generateInsertQuery("history", 4);
-
 			// add parameters
-			params.clear();
 			params.add(history.getVersion());
 			params.add(dateFormat.format(history.getDate()));
 			params.add(history.getAuthor());
 			params.add(history.getComment());
-
 			// execute the query
 			sqlite.query(query, params);
+			params.clear();
 		}
 	}
 
@@ -1331,7 +1328,10 @@ public class ExportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
-		String query = "";
+		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational,"
+						+ " ? as impact_legal, ? as impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2, ? as owner,"
+						+ "? as total_ALE,? as uncertainty";
 
 		Map<Integer, Double> totalALEs = new HashMap<Integer, Double>();
 
@@ -1346,8 +1346,6 @@ public class ExportAnalysis {
 			totalALEs.put(key, totalALE);
 		}
 
-		int counter = 0;
-
 		// ****************************************************************
 		// * export assessment
 		// ****************************************************************
@@ -1355,53 +1353,14 @@ public class ExportAnalysis {
 		// parse assessment
 		for (int index = 0; index < this.analysis.getAssessments().size(); index++) {
 
-			// ****************************************************************
-			// * export assessment
-			// ****************************************************************
-
-			// check if first part of query -> YES
-			if (query.equals(Constant.EMPTY_STRING)) {
-
-				// build query
-				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
-						+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as "
-						+ "uncertainty UNION";
-
-				// set ? limit
-				counter = 14;
-			} else {
-
-				// check if first part of query -> NO
-
-				// limit reached ? -> YES
-				if (counter + 14 >= 999) {
-
-					// execute query
-					query = query.substring(0, query.length() - 6);
-					sqlite.query(query, params);
-
-					// clean parameters
-					params.clear();
-
-					// reset query
-					// build query
-					query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? "
-							+ "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as "
-							+ "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
-
-					// set ? limit
-					counter = 14;
-				} else {
-
-					// limit reached ? -> NO
-
-					// add data to query
-					query += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
-
-					// increment limit
-					counter += 14;
-				}
-			}
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 15 > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
 
 			Integer key = this.analysis.getAnAssessment(index).getAsset().getId();
 			// add parameters
@@ -1417,15 +1376,12 @@ public class ExportAnalysis {
 			params.add(this.analysis.getAnAssessment(index).getLikelihoodReal());
 			params.add(this.analysis.getAnAssessment(index).getComment());
 			params.add(this.analysis.getAnAssessment(index).getHiddenComment());
+			params.add(this.analysis.getAnAssessment(index).getOwner());
 			params.add(totalALEs.get(key));
 			params.add(this.analysis.getAnAssessment(index).getUncertainty());
 		}
-
-		if (query.endsWith("UNION"))
-			query = query.substring(0, query.length() - 6);
-
+		// execute the query
 		if (!query.isEmpty())
-			// execute the query
 			sqlite.query(query, params);
 	}
 

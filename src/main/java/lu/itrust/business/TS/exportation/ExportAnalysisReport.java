@@ -853,7 +853,7 @@ public class ExportAnalysisReport {
 
 				row = table.getRow(0);
 
-				while (row.getTableCells().size() < 5)
+				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
 
 				row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
@@ -863,19 +863,24 @@ public class ExportAnalysisReport {
 				row.getCell(2).setColor("c6d9f1");
 				row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
 				row.getCell(3).setColor("c6d9f1");
-				row.getCell(4).setText(getMessage("report.assessment.comment", null, "Comment", locale));
+				row.getCell(4).setText(getMessage("report.assessment.owner", null, "Owner", locale));
 				row.getCell(4).setColor("c6d9f1");
+				row.getCell(5).setText(getMessage("report.assessment.comment", null, "Comment", locale));
+				row.getCell(5).setColor("c6d9f1");
+				
+
 
 				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
 				for (Assessment assessment : assessmentsofasset) {
 					row = table.createRow();
-					while (row.getTableCells().size() < 5)
+					while (row.getTableCells().size() < 6)
 						row.addNewTableCell();
 					row.getCell(0).setText(assessment.getScenario().getName());
 					addCellNumber(row.getCell(1), formatedImpact(assessment.getImpactFin()));
 					addCellNumber(row.getCell(2), formatLikelihood(assessment.getLikelihood()));
 					addCellNumber(row.getCell(3), kEuroFormat.format(assessment.getALE() * 0.001));
-					addCellParagraph(row.getCell(4), assessment.getComment());
+					addCellParagraph(row.getCell(4), assessment.getOwner());
+					addCellParagraph(row.getCell(5), assessment.getComment());
 				}
 			}
 			assessementsmap.clear();

@@ -218,7 +218,7 @@ public class Assessment implements Cloneable {
 	 * @param owner
 	 *            the owner to set
 	 */
-	protected void setOwner(String owner) {
+	public void setOwner(String owner) {
 		this.owner = owner;
 	}
 
