@@ -17,7 +17,7 @@
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../../../template/menu.jsp" />
 		<spring:message code="label.all" var="allText" />
-		<spring:message code='label.title.asset' var="assetText" />
+		<spring:message code='label.title.assets' var="assetText" />
 		<spring:message code="label.title.scenario" var="scenarioText" />
 		<div class="container trick-container max-height ">
 			<div class="max-height" style="padding-top: 15px;">

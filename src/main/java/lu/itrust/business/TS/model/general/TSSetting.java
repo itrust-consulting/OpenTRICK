@@ -5,6 +5,8 @@ package lu.itrust.business.TS.model.general;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -20,6 +22,7 @@ public class TSSetting {
 	
 	@Id
 	@Column(name = "idTSSetting")
+	@Enumerated(EnumType.STRING)
 	private TSSettingName name;
 
 	@Column(name = "dtValue")

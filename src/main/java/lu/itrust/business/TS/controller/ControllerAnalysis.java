@@ -244,6 +244,10 @@ public class ControllerAnalysis {
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("standards", analysis.getStandards());
+				if (analysis.isCssf()) {
+					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
+					model.addAttribute("estimationMapping", analysis.mapAssessment());
+				}
 				break;
 			case EDIT_MEASURE:
 				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));
@@ -463,7 +467,7 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "edit") String open,
+	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "read-only") String open,
 			HttpSession session, Locale locale) throws Exception {
 		// select the analysis
 		Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);

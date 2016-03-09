@@ -11,7 +11,7 @@
 	<select name="riskProfile.riskStrategy" class="form-control">
 		<c:forEach items="${strategies}" var="strategy">
 			<option value="${strategy}" ${riskProfile.riskStrategy==strategy?"selected='selected'":""}><spring:message
-					code="label.risk_register.strategy.${strategy.getNameToLower() }" text="${strategy}" /></option>
+					code="label.risk_register.strategy.${strategy.nameToLower}" text="${strategy}" /></option>
 		</c:forEach>
 	</select>
 </c:set>

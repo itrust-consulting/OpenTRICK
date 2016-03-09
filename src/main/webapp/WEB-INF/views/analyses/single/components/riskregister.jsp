@@ -25,7 +25,7 @@
 							key="label.risk_register.display.level" /></a></li>
 			</c:if>
 			<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
-			<li class="pull-right"><a  href="#" onclick="return calculateRiskRegister();"><i class="glyphicon glyphicon-expand"></i> <fmt:message key="label.action.compute" /></a></li>
+			<li class="pull-right"><a href="#" onclick="return calculateRiskRegister();"><i class="glyphicon glyphicon-expand"></i> <fmt:message key="label.action.compute" /></a></li>
 		</ul>
 		<c:choose>
 			<c:when test="${!empty(riskregister)}">
@@ -36,15 +36,15 @@
 				<table class="table table-hover table-condensed table-fixed-header-analysis">
 					<thead>
 						<tr>
-							<th style="width: 1%" rowspan="2" title='<fmt:message key="label.title.id" />' ><fmt:message key="label.risk_register.id" /></th>
-							<th style="width: 5%" rowspan="2" title='<fmt:message key="label.risk_register.category" />' ><fmt:message key="label.risk_register.category" /></th>
-							<th rowspan="2" title='<fmt:message key="label.risk_register.risk_title" />' ><fmt:message key="label.risk_register.risk_title" /></th>
+							<th style="width: 1%" rowspan="2" title='<fmt:message key="label.title.id" />'><fmt:message key="label.risk_register.id" /></th>
+							<th style="width: 5%" rowspan="2" title='<fmt:message key="label.risk_register.category" />'><fmt:message key="label.risk_register.category" /></th>
+							<th rowspan="2" title='<fmt:message key="label.risk_register.risk_title" />'><fmt:message key="label.risk_register.risk_title" /></th>
 							<th style="width: 15%" rowspan="2" title='<fmt:message key="label.risk_register.asset" />'><fmt:message key="label.risk_register.asset" /></th>
-							<th colspan="3"  class="text-center" title='<fmt:message key="label.title.risk_register.raw_eval" />' ><fmt:message key="label.risk_register.raw_eval" /></th>
-							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.net_eval" />' ><fmt:message key="label.risk_register.net_eval" /></th>
-							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.exp_eval" />' ><fmt:message key="label.risk_register.exp_eval" /></th>
-							<%-- <th rowspan="2" style="width: 5%" title='<fmt:message key="label.risk_register.strategy" />' ><fmt:message key="label.risk_register.strategy" /></th>
-							<th style="width: 4%" rowspan="2" title='<fmt:message key="label.risk_register.owner" />' ><fmt:message key="label.risk_register.owner" /></th> --%>
+							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.raw_eval" />'><fmt:message key="label.risk_register.raw_eval" /></th>
+							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.net_eval" />'><fmt:message key="label.risk_register.net_eval" /></th>
+							<th colspan="3" class="text-center" title='<fmt:message key="label.title.risk_register.exp_eval" />'><fmt:message key="label.risk_register.exp_eval" /></th>
+							<th rowspan="2" style="width: 5%" title='<fmt:message key="label.risk_register.strategy" />' ><fmt:message key="label.risk_register.strategy" /></th>
+							<th style="width: 4%" rowspan="2" title='<fmt:message key="label.risk_register.owner" />' ><fmt:message key="label.risk_register.owner" /></th>
 						</tr>
 						<tr>
 							<th class="text-center" title='<fmt:message key="label.risk_register.probability" />'><fmt:message key="label.risk_register.acro.probability" /></th>
@@ -61,7 +61,11 @@
 					<tbody>
 						<spring:eval expression="T(lu.itrust.business.TS.model.cssf.helper.RiskRegisterMapper).Generate(riskregister,parameters)" var="mappingRegisterHelpers" />
 						<c:forEach items="${riskregister}" var="item" varStatus="status">
-							<tr>
+							<spring:eval expression="T(lu.itrust.business.TS.model.cssf.RiskProfile).key(item.asset,item.scenario)" var="strategyKey" />
+							<spring:eval expression="T(lu.itrust.business.TS.model.assessment.Assessment).key(item.asset,item.scenario)" var="ownerKey" />
+							<c:set var="riskProfile" value="${riskProfileMapping[strategyKey]}" />
+							<c:set var="riskAssessment" value="${estimationMapping[ownerKey]}" />
+							<tr ${empty riskProfile or empty riskAssessment? 'class="warning"':''} data-trick-id='${riskProfile.id}'>
 								<td><spring:message text="${item.position}" /></td>
 								<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(item.scenario.type.name,'-','_'))}" /></td>
 								<td><spring:message text="${item.scenario.name}" /></td>
@@ -105,15 +109,27 @@
 
 								<fmt:setLocale value="${language}" scope="session" />
 								
-							<%-- 	<c:set value="${fn:toLowerCase(item.strategy)}" var="strategy" />
-								<c:if test="${strategy=='shrink' }">
-									<c:set value="reduce" var="strategy" />
-								</c:if>
-								<td class="success" data-trick-id="${item.id}" data-trick-field="strategy" onclick="return editField(this);" data-trick-class="RiskRegister"
-									data-trick-choose="accept,reduce,transfer,avoid" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><fmt:message
-										key="label.risk_register.strategy.${strategy}" /></td>
-								<td class="success" data-trick-id="${item.id}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="RiskRegister" data-trick-field-type="string"><spring:message
-										text="${item.owner}" /></td> --%>
+								<c:choose>
+									<c:when test="${empty riskProfile}">
+										<td></td>
+									</c:when>
+									<c:otherwise>
+										<td class="success" data-trick-id="${riskProfile.id}" data-trick-field=".riskStrategy" onclick="return editField(this);" data-trick-class="RiskProfile"
+											data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><fmt:message
+												key="label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}" /></td>
+									</c:otherwise>
+								</c:choose>
+								<c:choose>
+									<c:when test="${empty riskAssessment}">
+										<td></td>
+									</c:when>
+									<c:otherwise>
+										<td class="success" data-trick-id="${riskAssessment.id}" data-trick-field="owner" onclick="return editField(this);" data-trick-class="Assessment"
+											data-trick-field-type="string"><spring:message text="${riskAssessment.owner}" /></td>
+									</c:otherwise>
+								</c:choose>
+
+
 							</tr>
 						</c:forEach>
 					</tbody>

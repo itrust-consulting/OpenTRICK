@@ -14,12 +14,7 @@
 		<c:set var="copyRight">
 			<spring:message code="label.copy_right.text" text="2015-${year} itrust consulting - All Rights Reserved" />
 		</c:set>
-		<c:set var="persiteParameter">
-			?
-			<c:if test="${isReadOnly}">
-				readOnly=true&
-			</c:if>
-		</c:set>
+		<c:set var="persiteParameter" value="?${not empty open? 'open='.concat(open.value.concat('&')):'' }" />
 		<div class="pull-left" style="width: 25%;">
 			<c:choose>
 				<c:when test="${locale.language=='en'}">
@@ -36,8 +31,7 @@
 		</div>
 		<div style="color: white; text-align: center; width: 50%; margin: 0 auto; margin-top: 5px; float: left;">&copy; ${fn:replace(copyRight,'{0}',year)}</div>
 		<div class="pull-right" style="color: white; float: right; width: 25%; text-align: right; margin-top: 5px;">
-			v
-			<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" />
+			v<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" />
 		</div>
 	</div>
 </div>

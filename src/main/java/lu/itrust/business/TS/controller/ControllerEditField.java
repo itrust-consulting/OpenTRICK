@@ -7,17 +7,14 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,7 +46,6 @@ import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
-import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
@@ -58,7 +54,6 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
@@ -140,9 +135,6 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceScenario serviceScenario;
-
-	@Autowired
-	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
 	private ServiceAsset serviceAsset;
@@ -528,91 +520,28 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Assessment', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
-		try {
+		int idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Result result = updateAssessment(fieldEditor, serviceAssessment.getFromAnalysisById(idAnalysis, elementID), idAnalysis, locale);
+		return result.isError() ? JsonMessage.Error(result.getMessage()) : JsonMessage.Success(result.getMessage());
+	}
 
-			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			locale = loadAnalysisLocale(id, locale);
-
-			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			// retrieve assessment
-			Assessment assessment = serviceAssessment.getFromAnalysisById(id, elementID);
-			if (assessment == null)
-				return JsonMessage.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", locale));
-
-			// set validator
-			if (!serviceDataValidation.isRegistred(assessment.getClass()))
-				serviceDataValidation.register(new AssessmentValidator());
-
-			// retrieve all acronyms of impact and likelihood
-			List<String> chooses = null;
-			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName())) {
-				try {
-					chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
-					if (!chooses.contains(fieldEditor.getValue())) {
-						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
-						if (value < 0)
-							return JsonMessage.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negatif", locale));
-						fieldEditor.setValue(value + "");
-					}
-				} catch (Exception e) {
-					TrickLogManager.Persist(e);
-				}
-			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
-				chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
-				if (fieldEditor.getValue().equals("NA"))
-					fieldEditor.setValue("0");
-			}
-
-			// get value
-			Object value = FieldValue(fieldEditor);
-
-			// validate new value
-			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses != null ? chooses.toArray() : null);
-			if (error != null)
-				// return error message
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
-			// init field
-			Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
-
-			// set data to field
-			if (!SetFieldData(field, assessment, fieldEditor, null))
-
-				// return error message
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-
-			// retrieve parameters
-			Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
-
-			// parse parameters
-			for (ExtendedParameter parameter : serviceParameter.getAllExtendedFromAnalysis(id))
-				// add parameter into map
-				parameters.put(parameter.getAcronym(), parameter);
-
-			// compute new ALE
-			AssessmentAndRiskProfileManager.ComputeAlE(assessment, parameters);
-
-			// update assessment
-			serviceAssessment.saveOrUpdate(assessment);
-
-			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
-		}
-
+	/**
+	 * assessment: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param session
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/RiskProfile/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskProfile', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String riskProfile(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
+			throws Exception {
+		int idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Result result = updateRiskProfile(fieldEditor, serviceRiskProfile.getFromAnalysisById(idAnalysis, elementID), idAnalysis, locale);
+		return result.isError() ? JsonMessage.Error(result.getMessage()) : JsonMessage.Success(result.getMessage());
 	}
 
 	/**
@@ -630,15 +559,17 @@ public class ControllerEditField {
 	public @ResponseBody Result estimation(@RequestBody FieldEditor fieldEditor, @RequestParam("asset") int idAsset, @RequestParam("scenario") int idScenario, HttpSession session,
 			Locale locale, Principal principal) {
 		if (fieldEditor.getFieldName().startsWith("riskProfile."))
-			return updateRiskProfile(fieldEditor, idAsset, idScenario, session, principal, locale);
+			return updateRiskProfile(fieldEditor, idAsset, idScenario, session, locale);
 		else
-			return updateAssessment(fieldEditor, idAsset, idScenario, session, principal, locale);
+			return updateAssessment(fieldEditor, idAsset, idScenario, session, locale);
 	}
 
-	private Result updateRiskProfile(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Principal principal, Locale locale) {
+	private Result updateRiskProfile(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Locale locale) {
+		return updateRiskProfile(fieldEditor, serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario), (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale);
+	}
+
+	private Result updateRiskProfile(FieldEditor fieldEditor, RiskProfile riskProfile, Integer idAnalysis, Locale locale) {
 		try {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
 			if (riskProfileNoFieldPattern.matcher(fieldEditor.getFieldName()).find())
 				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			Result result = Result.Success(messageSource.getMessage("success.risk_profile.updated", null, "Risk profile was successfully updated", locale));
@@ -678,12 +609,12 @@ public class ControllerEditField {
 		}
 	}
 
-	private Result updateAssessment(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Principal principal, Locale locale) {
+	private Result updateAssessment(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Locale locale) {
+		return updateAssessment(fieldEditor, serviceAssessment.getByAssetAndScenario(idAsset, idScenario), (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale);
+	}
+
+	private Result updateAssessment(FieldEditor fieldEditor, Assessment assessment, Integer idAnalysis, Locale locale) {
 		try {
-			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			// retrieve assessment
-			Assessment assessment = serviceAssessment.getByAssetAndScenario(idAsset, idScenario);
 			if (assessment == null)
 				return Result.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", locale));
 			// set validator
@@ -700,7 +631,7 @@ public class ControllerEditField {
 					try {
 						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
 						if (value < 0)
-							return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negatif", locale));
+							return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
 						fieldEditor.setValue(value + "");
 					} catch (ParseException e) {
 						chooses = impacts.toArray();
@@ -1466,7 +1397,7 @@ public class ControllerEditField {
 		}
 	}
 
-	@RequestMapping(value = "/RiskRegister/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	/*@RequestMapping(value = "/RiskRegister/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String riskRegister(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 		try {
@@ -1497,7 +1428,7 @@ public class ControllerEditField {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
-	}
+	}*/
 
 	/**
 	 * setFieldData: <br>

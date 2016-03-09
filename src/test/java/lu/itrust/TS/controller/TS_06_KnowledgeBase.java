@@ -57,6 +57,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.standard.Standard;
 
 /**
@@ -267,7 +268,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 						post("/Analysis/Asset/Save")
 								.with(csrf())
 								.with(httpBasic(USERNAME, PASSWORD))
-								.accept(APPLICATION_JSON_CHARSET_UTF_8)
+								.accept(APPLICATION_JSON_CHARSET_UTF_8).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 								.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_PROFILE_ID))
 								.content(
 										String.format(
@@ -387,7 +388,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	public void test_08_CreateAnalysisUseStandard() throws Exception {
 		this.mockMvc
 				.perform(
-						post("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD_ID)).sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf())
+						post("/Analysis/Standard/Add/" + getInteger(TEST_STANDARD_ID)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(SELECTED_ANALYSIS, getInteger(TEST_ANALYSIS_FROM_TEST_PROFILE)).with(csrf())
 								.with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

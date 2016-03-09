@@ -290,7 +290,9 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.HasChanged = function() {
-		if (this.realValue == null || this.realValue == undefined)
+		if (this.choose.length && this.chooseTranslate.length)
+			return this.choose.indexOf(this.GetValue()) != this.chooseTranslate.indexOf(this.defaultValue);
+		else if (this.realValue == null || this.realValue == undefined)
 			return this.GetValue() != this.defaultValue;
 		else
 			return this.GetValue() != this.realValue;

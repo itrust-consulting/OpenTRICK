@@ -63,13 +63,14 @@
 							</c:forEach>
 						</div>
 					</c:forEach>
+					<spring:url value="?open=edit" var="baseUrl"/>
 					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-measure'>
-						<li><a href='<spring:url value="?open=edit" />' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next.measure" />' data-trick-nav='next-measure'><i class="fa fa-angle-right"></i> </a></li>
-						<li><a href="#" title='<fmt:message key="label.action.next.chapter" />' data-trick-nav='next-chapter'><i class="fa fa-angle-double-right"></i> </a></li>
-						<li><a href='<spring:url value="/Analysis/All"/>' title='<fmt:message key="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
+						<li><a accesskey="A" href='${baseUrl}' data-base-url='${baseUrl}' title='<fmt:message key="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
+						<li><a accesskey="T" href="#" title='<fmt:message key="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i> </a></li>
+						<li><a accesskey="F" href="#" title='<fmt:message key="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>
+						<li><a accesskey="H" href="#" title='<fmt:message key="label.action.next.measure" />' data-trick-nav='next-measure'><i class="fa fa-angle-right"></i> </a></li>
+						<li><a accesskey="G" href="#" title='<fmt:message key="label.action.next.chapter" />' data-trick-nav='next-chapter'><i class="fa fa-angle-double-right"></i> </a></li>
+						<li><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<fmt:message key="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
 					</ul>
 				</div>
 				<jsp:include page="measure.jsp" />

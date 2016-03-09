@@ -20,10 +20,6 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.ServiceRiskProfile;
-import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -45,16 +41,7 @@ public class ControllerRiskRegister {
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceRiskRegister serviceRiskRegister;
-
-	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceLanguage serviceLanguage;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -64,9 +51,6 @@ public class ControllerRiskRegister {
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
-
-	@Autowired
-	private ServiceRiskProfile serviceRiskProfile;
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
@@ -94,6 +78,10 @@ public class ControllerRiskRegister {
 		model.put("parameters", analysis.findExtendedByAnalysis());
 
 		model.put("language", analysis.getLanguage().getAlpha2());
+		
+		model.put("riskProfileMapping", analysis.mapRiskProfile());
+		
+		model.put("estimationMapping", analysis.mapAssessment());
 
 		// return view
 		return "analyses/single/components/riskregister";

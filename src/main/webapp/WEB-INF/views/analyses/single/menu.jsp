@@ -51,9 +51,10 @@
 			</c:if>
 			<c:if test="${analysis.isProfile() || isEditable}">
 				<c:if test="${!empty(standards)}">
-					<li title='<fmt:message key="label.menu.view.measures"/>' ><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <fmt:message key="label.action.edit" /></a></li>
+					<li title='<fmt:message key="label.menu.view.measures"/>'><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <fmt:message key="label.action.edit" /></a></li>
 				</c:if>
-				<li title='<fmt:message key="label.menu.manage_standard"/>' ><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <fmt:message key="label.action.manage" /></a></li>
+				<li title='<fmt:message key="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <fmt:message
+							key="label.action.manage" /></a></li>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><fmt:message key="label.menu.analysis.implementation" /></li>
@@ -69,7 +70,9 @@
 					<li><a href="#tabSOA" data-toggle="tab"> <fmt:message key="label.menu.analysis.soa" /></a></li>
 				</c:if>
 				<li><a href="#tabSummary" data-toggle="tab"> <fmt:message key="label.menu.analysis.summary" /></a></li>
-				<li><a href="#tabRiskRegister" data-toggle="tab"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
+				<c:if test="${show_cssf}">
+					<li><a href="#tabRiskRegister" data-toggle="tab"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
+				</c:if>
 				<li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.menu.analysis.chart" /></li>
 				<li><a href="#tabChartAsset" data-toggle="tab"> <fmt:message key="label.chart.asset" /></a></li>
@@ -91,7 +94,9 @@
 				<li class="dropdown-header"><fmt:message key="label.title.computation" /></li>
 				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.menu.analysis.action_plan" />
 				</a></li>
-				<li><a href="#" onclick="return calculateRiskRegister();"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
+				<c:if test="${show_cssf}">
+					<li><a href="#" onclick="return calculateRiskRegister();"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
+				</c:if>
 				<li class="divider"></li>
 				<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
 					<li class="dropdown-header"><fmt:message key="label.action.export" /></li>

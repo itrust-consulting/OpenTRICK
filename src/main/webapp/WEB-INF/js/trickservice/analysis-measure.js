@@ -196,7 +196,7 @@ function changeMeasure(e) {
 
 $(function() {
 
-	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateNavigation), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']");
+	var $nav = $("ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateNavigation), $returnAnalysis = $("a[data-base-url]", $nav), $standardSelector = $("select[name='standard']"), $previousChatper = $("[data-trick-nav='previous-chapter']"), $nextChapter = $("[data-trick-nav='next-chapter']"), $previousMeasure = $("[data-trick-nav='previous-measure']"), $nextMeasure = $("[data-trick-nav='next-measure']");
 
 	$previousChatper.on("click", function() {
 		$("select[name='chapter']:visible>option:selected").prev(":last").prop('selected', true).parent().change();
@@ -218,8 +218,8 @@ $(function() {
 		return false;
 	});
 
-	$("select[name='standard']").on('change', function(e) {
-		var $target = $(e.currentTarget), value = $target.val();
+	$standardSelector.on('change', function(e) {
+		var value = $standardSelector.val();
 		$("div[data-trick-standard-name][data-trick-id!='" + value + "']:visible").hide();
 		$("div[data-trick-standard-name][data-trick-id='" + value + "']:hidden").show();
 		updateMeasureUI();
@@ -241,6 +241,10 @@ $(function() {
 					});
 
 	$("div.list-group[data-trick-chapter-name]>.list-group-item").on("click", changeMeasure);
+
+	$returnAnalysis.on("click", function() {
+		$returnAnalysis.attr("href", $returnAnalysis.attr("data-base-url") + "#tabStandard_" + $standardSelector.val());
+	});
 
 	updateNavigation();
 	updateMeasureUI();

@@ -33,4 +33,6 @@ public interface DAORiskProfile {
 
 	RiskProfile getByAssetAndScanrio(int idAsset, int idScenario);
 
+	RiskProfile getFromAnalysisById(int idAnalysis, int idRiskProfile);
+
 }

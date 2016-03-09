@@ -24,6 +24,7 @@ import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
+import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -84,6 +85,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private ServiceRiskProfile serviceRiskProfile;
+
 	public PermissionEvaluatorImpl() {
 	}
 
@@ -102,6 +106,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
 		try {
+			
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
@@ -118,23 +123,11 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 			if (right == null)
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
-
+			
 			switch (className) {
-			case "ActionPlanEntry": {
 
-				if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "ActionPlanSummary": {
-
-				if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "Assessment": {
-
-				if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
+			case "Scenario": {
+				if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
@@ -143,49 +136,56 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
-			case "History": {
-
-				if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
-					return false;
-				break;
-			}
-			case "ItemInformation": {
-
-				if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
+			case "Assessment": {
+				if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
 			case "Measure": {
-
 				if (!serviceMeasure.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
-			case "Parameter": {
-
-				if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
+			case "ItemInformation": {
+				if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
 			case "Phase": {
-
 				if (!servicePhase.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
 			case "RiskInformation": {
-
 				if (!serviceRiskInformation.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
-			case "Scenario": {
-
-				if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
+			case "RiskProfile": {
+				if (!serviceRiskProfile.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
-
+			case "Parameter": {
+				if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "ActionPlanEntry": {
+				if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "ActionPlanSummary": {
+				if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "History": {
+				if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
 			case "RiskRegister": {
 				if (!serviceRiskRegister.belongsToAnalysis(analysisId, elementId))
 					return false;
@@ -194,6 +194,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			default:
 				return false;
 			}
+			
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);

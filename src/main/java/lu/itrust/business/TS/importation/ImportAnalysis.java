@@ -348,7 +348,7 @@ public class ImportAnalysis {
 	}
 
 	private void importRiskProfile() throws SQLException {
-		ResultSet resultSet = sqlite.query("Select * From risk_profile", null);
+		ResultSet resultSet = sqlite.query("Select * From risk_profile");
 		if (resultSet == null)
 			return;
 		List<RiskProfile> riskProfiles = new ArrayList<>(analysis.getAssessments().size());

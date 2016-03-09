@@ -79,4 +79,9 @@ public class ServiceProfileImpl implements ServiceRiskProfile {
 		return daoRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
 	}
 
+	@Override
+	public RiskProfile getFromAnalysisById(int idAnalysis, int idRiskProfile) {
+		return daoRiskProfile.getFromAnalysisById(idAnalysis,idRiskProfile);
+	}
+
 }

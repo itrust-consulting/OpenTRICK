@@ -53,8 +53,10 @@
 					<jsp:include page="./components/actionPlan/section.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
-					<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
-					<jsp:include page="./components/riskregister.jsp" />
+					<c:if test="${show_cssf}">
+						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
+						<jsp:include page="./components/riskregister.jsp" />
+					</c:if>
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
 			</div>
@@ -78,7 +80,9 @@
 		<%-- <script type="text/javascript" src="<spring:url value="/js/trickservice/assessment.js" />"></script> --%>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/asset.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="/js/bootstrap/typeahead.bundle.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>
+		<c:if test="${show_cssf}">
+			<script type="text/javascript" src="<spring:url value="/js/trickservice/riskregister.js" />"></script>
+		</c:if>
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/analysisExport.js" />"></script>
 	</c:if>
 	<script type="text/javascript">

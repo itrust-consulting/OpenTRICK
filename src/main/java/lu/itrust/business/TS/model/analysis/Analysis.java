@@ -2541,6 +2541,10 @@ public class Analysis implements Cloneable {
 		return riskProfiles.stream().collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 	}
 
+	public Map<String, Assessment> mapAssessment() {
+		return assessments.stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+	}
+
 	public RiskProfile findRiskProfileByAssetAndScenario(int idAsset, int idScenario) {
 		return riskProfiles.stream().filter(riskProfile -> riskProfile.is(idAsset, idScenario)).findAny().orElse(null);
 	}
