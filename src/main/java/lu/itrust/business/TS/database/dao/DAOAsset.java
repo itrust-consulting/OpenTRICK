@@ -48,4 +48,6 @@ public interface DAOAsset {
 	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset);
 
 	public Asset getByNameAndAnlysisId(String name, int idAnalysis);
+
+	public boolean belongsToAnalysis(Integer idAnalysis, List<Integer> assetIds);
 }

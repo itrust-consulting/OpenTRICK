@@ -24,12 +24,17 @@ import lu.itrust.business.TS.database.dao.hbm.DAOActionPlanHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOActionPlanSummaryHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOActionPlanTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOAssessmentHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOAssetHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAORiskProfileHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
@@ -62,6 +67,8 @@ public class WorkerComputeActionPlan implements Worker {
 	private DAOActionPlan daoActionPlan;
 
 	private DAOAnalysis daoAnalysis;
+
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -105,6 +112,13 @@ public class WorkerComputeActionPlan implements Worker {
 		daoActionPlanSummary = new DAOActionPlanSummaryHBM(session);
 		daoActionPlanType = new DAOActionPlanTypeHBM(session);
 		daoAnalysis = new DAOAnalysisHBM(session);
+		assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
+		assessmentAndRiskProfileManager.setDaoAnalysis(daoAnalysis);
+		assessmentAndRiskProfileManager.setDaoAsset(new DAOAssetHBM(session));
+		assessmentAndRiskProfileManager.setDaoScenario(new DAOScenarioHBM(session));
+		assessmentAndRiskProfileManager.setDaoAssessment(new DAOAssessmentHBM(session));
+		assessmentAndRiskProfileManager.setDaoRiskProfile(new DAORiskProfileHBM(session));
+
 	}
 
 	/**
@@ -154,13 +168,10 @@ public class WorkerComputeActionPlan implements Worker {
 
 			System.out.println("Loading Analysis...");
 
-			String language = null;
-			language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
-
-			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", language, null));
+			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", language, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
 				return;
 			}
 			session.beginTransaction();
@@ -172,11 +183,14 @@ public class WorkerComputeActionPlan implements Worker {
 			System.out.println("Delete previous action plan and summary...");
 
 			deleteActionPlan(analysis);
+
+			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
+
 			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, analysisStandards, this.uncertainty,
 					this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
-				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", language, 100);
+				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
 				if (reloadSection)
 					messageHandler.setAsyncCallback(new AsyncCallback("actionPlanComplete();"));
 				serviceTaskFeedback.send(id, messageHandler);
@@ -202,9 +216,7 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 		} catch (Exception e) {
 			try {
-				String language = null;
-				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha2();
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", language, e));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
 				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
@@ -299,19 +311,17 @@ public class WorkerComputeActionPlan implements Worker {
 	 */
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
-		String lang = analysis.getLanguage().getAlpha2();
-
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", lang, null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 
 		analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
 				.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));

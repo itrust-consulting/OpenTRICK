@@ -6,12 +6,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
-<fmt:message key="label.measure.status.m" var="statusM" />
-<fmt:message key="label.measure.status.ap" var="statusAP" />
-<fmt:message key="label.measure.status.na" var="statusNA" />
-<fmt:message key="label.title.measure.status.m" var="titleStatusM" />
-<fmt:message key="label.title.measure.status.ap" var="titleStatusAP" />
-<fmt:message key="label.title.measure.status.na" var="titleStatusNA" />
+<fmt:setLocale value="fr" scope="session" />
+<spring:message code="label.measure.status.m" var="statusM" />
+<spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.na" var="statusNA" />
+<spring:message code="label.title.measure.status.m" var="titleStatusM" />
+<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <c:forEach items="${measures.keySet()}" var="standard">
 	<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
 	<c:set var="standardType" value="${selectedStandard.type}" scope="page"/>
@@ -31,12 +32,12 @@
 			</div>
 			<c:if test="${analysisOnly and isEditable}">
 				<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
-					<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+					<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
 					<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
-							class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /></a></li>
-					<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+							class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
+					<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 					<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
-						href="#"><span class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
+						href="#"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete" /></a></li>
 				</ul>
 			</c:if>
 			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
@@ -45,36 +46,36 @@
 						<c:choose>
 							<c:when test="${analysisOnly and isEditable}">
 								<th width="1%"></th>
-								<th width="2%" title='<fmt:message key="label.reference" />'><fmt:message key="label.measure.ref" /></th>
-								<th width="10%" title='<fmt:message key="label.measure.domain" />'><fmt:message key="label.measure.domain" /></th>
-								<th width="2%" title='<fmt:message key="label.title.measure.status" />'><fmt:message key="label.measure.status" /></th>
+								<th width="2%" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+								<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+								<th width="2%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
 							</c:when>
 							<c:otherwise>
-								<th width="2.5%" title='<fmt:message key="label.reference" />'><fmt:message key="label.measure.ref" /></th>
-								<th width="10%" title='<fmt:message key="label.measure.domain" />'><fmt:message key="label.measure.domain" /></th>
-								<th width="2.5%" title='<fmt:message key="label.title.measure.status" />'><fmt:message key="label.measure.status" /></th>
+								<th width="2.5%" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+								<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+								<th width="2.5%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
 							</c:otherwise>
 						</c:choose>
-						<th width="2%" title='<fmt:message key="label.title.measure.ir" />' ><fmt:message key="label.measure.ir" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.iw" />' ><fmt:message key="label.measure.iw" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.ew" />' ><fmt:message key="label.measure.ew" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.inv" />' ><fmt:message key="label.measure.inv" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.lt" />' ><fmt:message key="label.measure.lt" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.im" />' ><fmt:message key="label.measure.im" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.em" />' ><fmt:message key="label.measure.em" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.ri" />' ><fmt:message key="label.measure.ri" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.cost" />' ><fmt:message key="label.measure.cost" /></th>
-						<th width="2%" title='<fmt:message key="label.title.measure.phase" />' ><fmt:message key="label.measure.phase" /></th>
-						<th width="3%" title='<fmt:message key="label.title.measure.responsible" />' ><fmt:message key="label.measure.responsible" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.ir" />' ><spring:message code="label.measure.ir" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.iw" />' ><spring:message code="label.measure.iw" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.ew" />' ><spring:message code="label.measure.ew" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.inv" />' ><spring:message code="label.measure.inv" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.lt" />' ><spring:message code="label.measure.lt" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.im" />' ><spring:message code="label.measure.im" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.em" />' ><spring:message code="label.measure.em" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.ri" />' ><spring:message code="label.measure.ri" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.cost" />' ><spring:message code="label.measure.cost" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.phase" />' ><spring:message code="label.measure.phase" /></th>
+						<th width="3%" title='<spring:message code="label.title.measure.responsible" />' ><spring:message code="label.measure.responsible" /></th>
 						<c:choose>
 							<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-								<th width="14%" title='<fmt:message key="label.measure.tocheck" />' ><fmt:message key="label.measure.tocheck" /></th>
-								<th width="25%"  title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
-								<th width="25%" title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
+								<th width="14%" title='<spring:message code="label.measure.tocheck" />' ><spring:message code="label.measure.tocheck" /></th>
+								<th width="25%"  title='<spring:message code="label.comment" />' ><spring:message code="label.comment" /></th>
+								<th width="25%" title='<spring:message code="label.measure.todo" />' ><spring:message code="label.measure.todo" /></th>
 							</c:when>
 							<c:otherwise>
-								<th width="32%"  title='<fmt:message key="label.comment" />' ><fmt:message key="label.comment" /></th>
-								<th width="32%" title='<fmt:message key="label.measure.todo" />' ><fmt:message key="label.measure.todo" /></th>
+								<th width="32%"  title='<spring:message code="label.comment" />' ><spring:message code="label.comment" /></th>
+								<th width="32%" title='<spring:message code="label.measure.todo" />' ><spring:message code="label.measure.todo" /></th>
 							</c:otherwise>
 						</c:choose>
 					</tr>
@@ -82,7 +83,7 @@
 				<tfoot>
 				</tfoot>
 				<tbody>
-					<fmt:setLocale value="fr" scope="session" />
+					
 					<c:forEach items="${measures.get(standard)}" var="measure">
 						<c:set var="css">
 							<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
@@ -118,8 +119,8 @@
 									<c:if test="${analysisOnly and isEditable}">
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-									<td ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
-									<td ${popoverDescription} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+									<td lang="${language}" ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
+									<td lang="${language}" ${popoverDescription} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									<c:choose>
 										<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 											<td class="warning" onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
@@ -139,8 +140,8 @@
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
 									
-									<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
-									<td ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+									<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
+									<td lang="${language}" ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate="${statusM},${statusAP},${statusNA}"
 										data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"><c:choose>
 											<c:when test="${measure.status=='NA'}">
@@ -211,7 +212,6 @@
 					</c:forEach>
 				</tbody>
 			</table>
-			<fmt:setLocale value="${language}" scope="session" />
 		</div>
 	</div>
 </c:forEach>

@@ -6,6 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
+<fmt:setLocale value="fr" scope="session" />
 <div id="measure-ui" class='col-lg-10 trick-ui' data-trick-id='${selectedMeasure.id}'>
 	<c:if test="${not empty selectedMeasure }">
 		<c:set var="rowSize" value="${isMaturity? 10 : 5}" />
@@ -18,7 +19,6 @@
 		</fieldset>
 		<fieldset>
 			<c:if test="${measureDescription.computable}">
-				<fmt:setLocale value="fr" scope="session" />
 				<fmt:formatNumber value="${selectedMeasure.internalWL}" maxFractionDigits="2" var="internalWL" />
 				<fmt:formatNumber value="${selectedMeasure.externalWL}" maxFractionDigits="2" var="externalWL" />
 				<fmt:formatNumber value="${fct:round(selectedMeasure.investment,0)}" maxFractionDigits="0" var="investment" />
@@ -49,40 +49,39 @@
 						</c:otherwise>
 					</c:choose>
 				</c:set>
-				<fmt:setLocale value="${language}" scope="session" />
 			</c:if>
-			<fmt:message key="label.measure.status.m" var="statusM" />
-			<fmt:message key="label.measure.status.ap" var="statusAP" />
-			<fmt:message key="label.measure.status.na" var="statusNA" />
-			<fmt:message key="label.title.measure.status.m" var="titleStatusM" />
-			<fmt:message key="label.title.measure.status.ap" var="titleStatusAP" />
-			<fmt:message key="label.title.measure.status.na" var="titleStatusNA" />
-			<fmt:message key="label.metric.year" var="metricYear" />
-			<fmt:message key="label.metric.euro" var="metricEuro" />
-			<fmt:message key="label.metric.keuro" var="metricKEuro" />
-			<fmt:message key="label.metric.man_day" var="metricMd" />
+			<spring:message code="label.measure.status.m" var="statusM" />
+			<spring:message code="label.measure.status.ap" var="statusAP" />
+			<spring:message code="label.measure.status.na" var="statusNA" />
+			<spring:message code="label.title.measure.status.m" var="titleStatusM" />
+			<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+			<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
+			<spring:message code="label.metric.year" var="metricYear" />
+			<spring:message code="label.metric.euro" var="metricEuro" />
+			<spring:message code="label.metric.keuro" var="metricKEuro" />
+			<spring:message code="label.metric.man_day" var="metricMd" />
 			<div class='form-group'>
 				<table class="table table-condensed">
 					<thead>
 						<tr>
-							<th colspan="2" style="text-align: center;"><fmt:message key="label.actual.status" /></th>
-							<th colspan="4" style="text-align: center;"><fmt:message key="label.initial.setup" /></th>
-							<th colspan="3" style="text-align: center;"><fmt:message key="label.maintenance" /></th>
-							<th colspan="3" style="text-align: center;"><fmt:message key="label.planning" /></th>
+							<th colspan="2" style="text-align: center;"><spring:message code="label.actual.status" /></th>
+							<th colspan="4" style="text-align: center;"><spring:message code="label.initial.setup" /></th>
+							<th colspan="3" style="text-align: center;"><spring:message code="label.maintenance" /></th>
+							<th colspan="3" style="text-align: center;"><spring:message code="label.planning" /></th>
 						</tr>
 						<tr>
-							<th title='<fmt:message key="label.title.measure.status" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.status" /></th>
-							<th title='<fmt:message key="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 2px solid #ddd"><fmt:message key="label.implement" /></th>
-							<th title='<fmt:message key="label.title.measure.iw" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.iw" /></th>
-							<th title='<fmt:message key="label.title.measure.ew" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.ew" /></th>
-							<th title='<fmt:message key="label.title.measure.inv" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.inv" /></th>
-							<th title='<fmt:message key="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><fmt:message key="label.title.measure.lt" /></th>
-							<th title='<fmt:message key="label.title.measure.im" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.internal" /></th>
-							<th title='<fmt:message key="label.title.measure.em" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.external" /></th>
-							<th title='<fmt:message key="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><fmt:message key="label.recurrent" /></th>
-							<th title='<fmt:message key="label.title.measure.cost" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.cost" /></th>
-							<th title='<fmt:message key="label.title.measure.phase" />' style="width: 1%; min-width: 60px;"><fmt:message key="label.title.measure.phase" /></th>
-							<th title='<fmt:message key="label.title.measure.responsible" />' style="width: 2%"><fmt:message key="label.title.measure.responsible" /></th>
+							<th title='<spring:message code="label.title.measure.status" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.status" /></th>
+							<th title='<spring:message code="label.title.measure.ir" />' style="width: 1%; min-width: 50px; border-right: 2px solid #ddd"><spring:message code="label.implement" /></th>
+							<th title='<spring:message code="label.title.measure.iw" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.iw" /></th>
+							<th title='<spring:message code="label.title.measure.ew" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.ew" /></th>
+							<th title='<spring:message code="label.title.measure.inv" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.inv" /></th>
+							<th title='<spring:message code="label.title.measure.lt" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><spring:message code="label.title.measure.lt" /></th>
+							<th title='<spring:message code="label.title.measure.im" />' style="width: 1%; min-width: 60px;"><spring:message code="label.internal" /></th>
+							<th title='<spring:message code="label.title.measure.em" />' style="width: 1%; min-width: 60px;"><spring:message code="label.external" /></th>
+							<th title='<spring:message code="label.title.measure.ri" />' style="width: 1%; min-width: 60px; border-right: 2px solid #ddd"><spring:message code="label.recurrent" /></th>
+							<th title='<spring:message code="label.title.measure.cost" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.cost" /></th>
+							<th title='<spring:message code="label.title.measure.phase" />' style="width: 1%; min-width: 60px;"><spring:message code="label.title.measure.phase" /></th>
+							<th title='<spring:message code="label.title.measure.responsible" />' style="width: 2%"><spring:message code="label.title.measure.responsible" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -175,25 +174,22 @@
 					</tbody>
 				</table>
 			</div>
-
 			<c:if test="${not isMaturity}">
 				<div class='form-group'>
-					<fmt:message key="label.measure.tocheck" var='tocheck' />
+					<spring:message code="label.measure.tocheck" var='tocheck' />
 					<spring:message text="${selectedMeasure.toCheck}" var="toCheckContent" />
 					<label class='label-control'>${tocheck}</label>
 					<textarea rows="${rowSize}" class="form-control" name="toCheck" title="${tocheck}" style="resize: vertical;" placeholder="${toCheckContent}" data-trick-type='string'>${toCheckContent}</textarea>
 				</div>
 			</c:if>
-
 			<div class='form-group'>
-				<fmt:message key="label.comment" var='comment' />
+				<spring:message code="label.comment" var='comment' />
 				<spring:message text="${selectedMeasure.comment}" var="commentContent" />
 				<label class='label-control'>${comment}</label>
 				<textarea rows="${rowSize}" class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 			</div>
-			
 			<div class='form-group'>
-				<fmt:message key="label.measure.todo" var='todo' />
+				<spring:message code="label.measure.todo" var='todo' />
 				<label class='label-control'>${todo}</label>
 				<spring:message text="${selectedMeasure.toDo}" var="todoContent" />
 				<c:choose>
@@ -201,8 +197,6 @@
 					<c:otherwise><textarea rows="${rowSize}" class="form-control" name="toDo" style="resize: vertical;" disabled="disabled" ></textarea></c:otherwise>
 				</c:choose>
 			</div>
-
-			
 		</fieldset>
 	</c:if>
 </div>

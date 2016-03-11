@@ -214,7 +214,10 @@ public class TrickLogManager {
 				return false;
 			if (e instanceof TrickException)
 				return Persist((TrickException) e);
-			e.printStackTrace(printStream = new PrintStream(outStream = new ByteArrayOutputStream()));
+			printStream = new PrintStream(outStream = new ByteArrayOutputStream());
+			if(e.getCause()!=null)
+				e.getCause().printStackTrace(printStream);
+			e.printStackTrace(printStream);
 			String stackTrace = outStream.toString();
 			return Persist(LogLevel.ERROR, LogType.SYSTEM, "error.system.exception", String.format("Stack trace: %s", stackTrace), "TS logger", LogAction.RISE_EXCEPTION, stackTrace);
 		} finally {

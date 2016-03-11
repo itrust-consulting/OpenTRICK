@@ -18,13 +18,13 @@
 					<h3>
 						<c:choose>
 							<c:when test="${categoryRiskInformation == 'Threat'}">
-								<fmt:message key="label.title.risk_information.threat" />
+								<spring:message code="label.title.risk_information.threat" />
 							</c:when>
 							<c:when test="${categoryRiskInformation == 'Vul'}">
-								<fmt:message key="label.title.risk_information.vulnerabilities" />
+								<spring:message code="label.title.risk_information.vulnerabilities" />
 							</c:when>
 							<c:otherwise>
-								<fmt:message key="label.title.risk_information.risks" />
+								<spring:message code="label.title.risk_information.risks" />
 							</c:otherwise>
 						</c:choose>
 					</h3>
@@ -34,23 +34,23 @@
 		<table id="${categoryRiskInformation}table" class="table table-condensed table-hover table-fixed-header-analysis">
 			<thead>
 				<tr>
-					<th width="5%" title='<fmt:message key="label.title.id" />'><fmt:message key="label.risk_information.id" /></th>
+					<th width="5%" title='<spring:message code="label.title.id" />'><spring:message code="label.risk_information.id" /></th>
 					<c:choose>
 						<c:when test="${categoryRiskInformation == 'Threat'}">
-							<th width="15%" title='<fmt:message key="label.name" />'><fmt:message key="label.name" /></th>
-							<th width="5%" title='<fmt:message key="label.risk_information.acronym" />'><fmt:message key="label.risk_information.acro" /></th>
+							<th width="15%" title='<spring:message code="label.name" />'><spring:message code="label.name" /></th>
+							<th width="5%" title='<spring:message code="label.risk_information.acronym" />'><spring:message code="label.risk_information.acro" /></th>
 						</c:when>
 						<c:when test="${categoryRiskInformation == 'Vul'}">
-							<th width="25%" title='<fmt:message key="label.name" />'><fmt:message key="label.name" /></th>
+							<th width="25%" title='<spring:message code="label.name" />'><spring:message code="label.name" /></th>
 						</c:when>
 						<c:otherwise>
-							<th width="15%" title='<fmt:message key="label.name" />'><fmt:message key="label.name" /></th>
+							<th width="15%" title='<spring:message code="label.name" />'><spring:message code="label.name" /></th>
 						</c:otherwise>
 					</c:choose>
-					<th width="5%" title='<fmt:message key="label.risk_information.exposed" />'><fmt:message key="label.risk_information.expo" /></th>
-					<th width="5%" title='<fmt:message key="label.title.risk_information.owner" />'><fmt:message key="label.risk_information.owner" /></th>
-					<th title='<fmt:message key="label.risk_information.comment" />'><fmt:message key="label.risk_information.comment" /></th>
-					<th title='<fmt:message key="label.risk_information.comment_hidden" />'><fmt:message key="label.risk_information.comment_hidden" /></th>
+					<th width="5%" title='<spring:message code="label.risk_information.exposed" />'><spring:message code="label.risk_information.expo" /></th>
+					<th width="5%" title='<spring:message code="label.title.risk_information.owner" />'><spring:message code="label.risk_information.owner" /></th>
+					<th title='<spring:message code="label.risk_information.comment" />'><spring:message code="label.risk_information.comment" /></th>
+					<th title='<spring:message code="label.risk_information.comment_hidden" />'><spring:message code="label.risk_information.comment_hidden" /></th>
 				</tr>
 			</thead>
 			<tfoot></tfoot>
@@ -89,38 +89,36 @@
 								<c:choose>
 									<c:when test="${categoryRiskInformation == 'Threat' || categoryRiskInformation == 'Risk' }">
 										<td style="height: 32px;"><strong><spring:message text="${risk_information.chapter}" /></strong></td>
-										<td colspan="12"><strong><fmt:message key="${codeLabel}" /></strong></td>
+										<td colspan="12"><strong><spring:message code="${codeLabel}" /></strong></td>
 									</c:when>
 									<c:otherwise>
 										<td style="height: 32px;"><strong><spring:message text="${risk_information.chapter}" /></strong></td>
-										<td><strong><fmt:message key="${codeLabel}" /></strong></td>
+										<td><strong><spring:message code="${codeLabel}" /></strong></td>
 										<td class="success" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 												text="${risk_information.exposed}" /></td>
-										<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string">
-												<spring:message text="${risk_information.comment}" />
-											</pre></td>
+										<td class="success" onclick="return editField(this.firstElementChild);"><pre 
+										data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${risk_information.comment}" /></pre></td>
 										<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-content="text"
 												data-trick-field-type="string">
-												<spring:message text="${risk_information.hiddenComment}" />
-											</pre></td>
+												<spring:message text="${risk_information.hiddenComment}" /></pre></td>
 									</c:otherwise>
 								</c:choose>
 							</c:when>
 							<c:otherwise>
 								<td style="height: 32px;"><spring:message text="${risk_information.chapter}" /></td>
-								<td><fmt:message key="${codeLabel}" /></td>
+								<td><spring:message code="${codeLabel}" /></td>
 								<c:if test="${categoryRiskInformation == 'Threat'}">
 									<td><spring:message text="${risk_information.acronym}" /></td>
 								</c:if>
 								<td class="success" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 										text="${risk_information.exposed}" /></td>
 								<td class="success" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string" ><spring:message text="${risk_information.owner}" /></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string">
-										<spring:message text="${risk_information.comment}" />
-									</pre></td>
-								<td class="success" onclick="return editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string">
-										<spring:message text="${risk_information.hiddenComment}" />
-									</pre></td>
+								<td class="success" onclick="return editField(this.firstElementChild);"><pre 
+								data-trick-field="comment" data-trick-content="text" data-trick-field-type="string" 
+								><spring:message text="${risk_information.comment}" /></pre></td>
+								<td class="success" onclick="return editField(this.firstElementChild);"><pre 
+								data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"
+								><spring:message text="${risk_information.hiddenComment}" /></pre></td>
 							</c:otherwise>
 						</c:choose>
 					</tr>

@@ -46,4 +46,6 @@ public interface ServiceAsset {
 	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset);
 
 	public Asset getByNameAndAnlysisId(String name, int idAnalysis);
+
+	public boolean belongsToAnalysis(Integer integer, List<Integer> assetIds);
 }

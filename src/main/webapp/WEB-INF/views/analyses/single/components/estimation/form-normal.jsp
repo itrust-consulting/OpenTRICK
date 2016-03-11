@@ -13,16 +13,13 @@
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<tr>
-						<th width="14.28%" rowspan="2" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-						<th width="14.28%" rowspan="2" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
-						<th width="14.28%" rowspan="2" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
-						<th width="14.28%" rowspan="2" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-						<th width="42.86%" colspan="3" style="text-align: center;"><spring:message code="label.title.ale" /></th>
-					</tr>
-					<tr>
-						<th style="text-align: center;" title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
-						<th style="text-align: center;" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal" text='Normal' /></th>
-						<th style="text-align: center;" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
+						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
+						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
+						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
+						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+						<th width="14.28%" style="text-align: center;" title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+						<th width="14.28%" style="text-align: center;" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
+						<th width="14.28%" style="text-align: center;" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
 					</tr>
 				</c:when>
 				<c:otherwise>

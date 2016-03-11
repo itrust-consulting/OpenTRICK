@@ -55,6 +55,7 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
+import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
@@ -162,29 +163,14 @@ public class ControllerEditField {
 		try {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			locale = loadAnalysisLocale(id, locale);
-
-			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
 			// get item information object from id
 			ItemInformation itemInformation = serviceItemInformation.getFromAnalysisById(id, elementID);
-			if (itemInformation == null)
-				return JsonMessage.Error(messageSource.getMessage("error.item_information.not_found", null, "Item information cannot be found", locale));
-
 			// initialise field
 			Field field = itemInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
-
 			// set field with new data
 			if (SetFieldData(field, itemInformation, fieldEditor)) {
 				// update iteminformation
 				serviceItemInformation.saveOrUpdate(itemInformation);
-
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.item_information.updated", null, "Item information was successfully updated", locale));
 			} else
@@ -200,28 +186,14 @@ public class ControllerEditField {
 		}
 	}
 
-	private Locale loadAnalysisLocale(Integer id, Locale locale) throws Exception {
-		Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha2());
-		return cutomLocale == null ? locale : cutomLocale;
-	}
-
 	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String asset(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
-
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
-
 			// retrieve measure
 			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, elementID);
-			if (asset == null)
-				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale));
-			// set field
 
 			ValidatorField validator = serviceDataValidation.findByClass(Asset.class);
 			if (validator == null)
@@ -272,29 +244,14 @@ public class ControllerEditField {
 		try {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			locale = loadAnalysisLocale(id, locale);
-
-			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
 			// get parameter object
 			Parameter parameter = serviceParameter.getFromAnalysisById(id, elementID);
-			if (parameter == null)
-				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
-
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
 			if (validator == null)
 				serviceDataValidation.register(new ParameterValidator());
-
 			// retireve value
 			Object value = FieldValue(fieldEditor);
-
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			if (error != null)
@@ -320,7 +277,6 @@ public class ControllerEditField {
 			}
 			// create field
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
-
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor)) {
 				// update field
@@ -358,23 +314,10 @@ public class ControllerEditField {
 
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			locale = loadAnalysisLocale(id, locale);
-
-			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
 			// retrieve parameter
 			ExtendedParameter parameter = (ExtendedParameter) serviceParameter.getFromAnalysisById(id, elementID);
-			if (parameter == null)
-				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
 			String acronym = parameter.getAcronym();
-
 			// set validator and validate parameter
 			if (!serviceDataValidation.isRegistred(parameter.getClass()))
 				serviceDataValidation.register(new ExtendedParameterValidator());
@@ -444,32 +387,16 @@ public class ControllerEditField {
 			throws Exception {
 
 		try {
-
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			locale = loadAnalysisLocale(id, locale);
-
-			if (!serviceAnalysis.exists(id))
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
 			// get parameter object
 			MaturityParameter parameter = (MaturityParameter) serviceParameter.getFromAnalysisById(id, elementID);
-			if (parameter == null)
-				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
-
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
 			if (validator == null)
 				serviceDataValidation.register(new MaturityParameterValidator());
-
 			// retireve value
 			Object value = FieldValue(fieldEditor);
-
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			if (error != null)
@@ -521,7 +448,7 @@ public class ControllerEditField {
 	public @ResponseBody String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		int idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Result result = updateAssessment(fieldEditor, serviceAssessment.getFromAnalysisById(idAnalysis, elementID), idAnalysis, locale);
+		Result result = updateAssessment(fieldEditor, serviceAssessment.getFromAnalysisById(idAnalysis, elementID), idAnalysis, locale, false);
 		return result.isError() ? JsonMessage.Error(result.getMessage()) : JsonMessage.Success(result.getMessage());
 	}
 
@@ -610,15 +537,16 @@ public class ControllerEditField {
 	}
 
 	private Result updateAssessment(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session, Locale locale) {
-		return updateAssessment(fieldEditor, serviceAssessment.getByAssetAndScenario(idAsset, idScenario), (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale);
+		return updateAssessment(fieldEditor, serviceAssessment.getByAssetAndScenario(idAsset, idScenario), (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), locale,
+				true);
 	}
 
-	private Result updateAssessment(FieldEditor fieldEditor, Assessment assessment, Integer idAnalysis, Locale locale) {
+	private Result updateAssessment(FieldEditor fieldEditor, Assessment assessment, Integer idAnalysis, Locale locale, boolean netImportance) {
 		try {
 			if (assessment == null)
 				return Result.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", locale));
 			// set validator
-			if (!serviceDataValidation.isRegistred(assessment.getClass()))
+			if (!serviceDataValidation.isRegistred(Assessment.class))
 				serviceDataValidation.register(new AssessmentValidator());
 			List<ExtendedParameter> parameters = null;
 			// retrieve all acronyms of impact and likelihood
@@ -664,6 +592,11 @@ public class ControllerEditField {
 			// compute new ALE
 			if (parameters != null) {
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment, parameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity())));
+				if (netImportance) {
+					ParameterConvertor converter = new ParameterConvertor(parameters);
+					result.add(new FieldValue("computedNextImportance",
+							converter.getImpactLevel(assessment.getImpactReal()) * converter.getProbabiltyLevel(assessment.getLikelihoodReal())));
+				}
 				NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 				result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
 				result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
@@ -698,30 +631,17 @@ public class ControllerEditField {
 			throws Exception {
 
 		try {
-
 			// retrieve analysis
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			if (id == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			locale = loadAnalysisLocale(id, locale);
-
 			// retireve history object
 			History history = serviceHistory.getFromAnalysisById(id, elementID);
-			if (history == null)
-				return JsonMessage.Error(messageSource.getMessage("error.history.not_found", null, "History cannot be found", locale));
-
 			// get validator
 			if (!serviceDataValidation.isRegistred(history.getClass()))
 				serviceDataValidation.register(new HistoryValidator());
-
 			// get new value
 			Object value = FieldValue(fieldEditor);
-
 			// validate
 			String error = serviceDataValidation.validate(history, fieldEditor.getFieldName(), value);
-
 			// return errors on validation fail
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
@@ -771,15 +691,8 @@ public class ControllerEditField {
 
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
-
 			// retrieve measure
 			Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
-			if (scenario == null)
-				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
 
 			ValidatorField validator = serviceDataValidation.findByClass(Scenario.class);
 
@@ -848,18 +761,11 @@ public class ControllerEditField {
 
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// retrieve measure
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-			if (measure == null)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
 			// set field
-
 			Field field = FindField(Measure.class, fieldEditor.getFieldName());
 
 			// means that field belongs to the Measure class
@@ -1052,22 +958,10 @@ public class ControllerEditField {
 	public @ResponseBody String soa(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		try {
-
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
 			// retrieve measure
 			NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-
-			if (measure == null)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
-
-			// set field
-
-			// System.out.println("Fildname: " + fieldEditor.getFieldName());
 
 			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
 			Field field = mesprep.getClass().getDeclaredField(fieldEditor.getFieldName());
@@ -1113,15 +1007,8 @@ public class ControllerEditField {
 
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
 			// retrieve measure
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-			if (measure == null)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
-
 			// check if field is implementationrate
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 
@@ -1177,9 +1064,6 @@ public class ControllerEditField {
 		try {
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return Result.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-			locale = loadAnalysisLocale(idAnalysis, locale);
 			if (fieldEditor.getFieldName().equalsIgnoreCase("cost"))
 				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Measure measure = serviceMeasure.get(id);
@@ -1271,17 +1155,8 @@ public class ControllerEditField {
 
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
-
 			// get acion plan entry
 			ActionPlanEntry ape = serviceActionPlan.getFromAnalysisById(idAnalysis, elementID);
-			if (ape == null)
-				return JsonMessage.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", locale));
-
 			// retrieve phase
 			Integer number = (Integer) FieldValue(fieldEditor);
 			if (number == null)
@@ -1326,13 +1201,8 @@ public class ControllerEditField {
 		try {
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-			locale = loadAnalysisLocale(idAnalysis, locale);
 			// retireve phase
 			Phase phase = servicePhase.getFromAnalysisById(idAnalysis, elementID);
-			if (phase == null)
-				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 			// set field
 			Field field = phase.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
@@ -1360,20 +1230,9 @@ public class ControllerEditField {
 			throws Exception {
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			// check if analysis exist
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
-
 			RiskInformation riskInformation = serviceRiskInformation.getFromAnalysisById(idAnalysis, elementID);
-			if (riskInformation == null)
-				return JsonMessage.Error(messageSource.getMessage("error.risk_information.not_found", null, "Risk information cannot be found", locale));
-
 			// set field
 			Field field = riskInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
-
 			ValidatorField validatorField = serviceDataValidation.findByClass(RiskInformation.class);
 			if (validatorField == null)
 				serviceDataValidation.register(validatorField = new RiskInformationValidator());
@@ -1397,38 +1256,39 @@ public class ControllerEditField {
 		}
 	}
 
-	/*@RequestMapping(value = "/RiskRegister/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String riskRegister(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
-		try {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			locale = loadAnalysisLocale(idAnalysis, locale);
-			if (fieldEditor.getFieldName().matches("strategy|owner")) {
-				RiskRegisterItem registerItem = serviceRiskRegister.get(elementID);
-				if (registerItem == null)
-					return JsonMessage.Error(messageSource.getMessage("error.risk_register.not_found", null, "Risk register cannot be found", locale));
-				try {
-					PropertyAccessorFactory.forBeanPropertyAccess(registerItem).setPropertyValue(fieldEditor.getFieldName(), fieldEditor.getValue());
-					serviceRiskRegister.saveOrUpdate(registerItem);
-					return JsonMessage.Success(messageSource.getMessage("success.risk_register.updated", null, "Risk register was successfully updated", locale));
-				} catch (TrickException e) {
-					TrickLogManager.Persist(e);
-					return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-				} catch (Exception e) {
-					TrickLogManager.Persist(e);
-					return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
-				}
-			} else
-				return JsonMessage.Error(messageSource.getMessage("error.edit.field.unsupported", null, "Field cannot be edited", locale));
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			// return error
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
-		}
-	}*/
+	/*
+	 * @RequestMapping(value = "/RiskRegister/{elementID}", method =
+	 * RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	 * 
+	 * @PreAuthorize(
+	 * "@permissionEvaluator.userIsAuthorized(#session, #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)"
+	 * ) public @ResponseBody String riskRegister(@PathVariable int
+	 * elementID, @RequestBody FieldEditor fieldEditor, HttpSession session,
+	 * Locale locale, Principal principal) { try { Integer idAnalysis =
+	 * (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS); if
+	 * (fieldEditor.getFieldName().matches("strategy|owner")) { RiskRegisterItem
+	 * registerItem = serviceRiskRegister.get(elementID); try {
+	 * PropertyAccessorFactory.forBeanPropertyAccess(registerItem).
+	 * setPropertyValue(fieldEditor.getFieldName(), fieldEditor.getValue());
+	 * serviceRiskRegister.saveOrUpdate(registerItem); return
+	 * JsonMessage.Success(messageSource.getMessage(
+	 * "success.risk_register.updated", null,
+	 * "Risk register was successfully updated", locale)); } catch
+	 * (TrickException e) { TrickLogManager.Persist(e); return
+	 * JsonMessage.Error(messageSource.getMessage(e.getCode(),
+	 * e.getParameters(), e.getMessage(), locale)); } catch (Exception e) {
+	 * TrickLogManager.Persist(e); return
+	 * JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null,
+	 * "Data cannot be saved", locale)); } } else return
+	 * JsonMessage.Error(messageSource.getMessage(
+	 * "error.edit.field.unsupported", null, "Field cannot be edited", locale));
+	 * } catch (TrickException e) { TrickLogManager.Persist(e); return
+	 * JsonMessage.Error(messageSource.getMessage(e.getCode(),
+	 * e.getParameters(), e.getMessage(), locale)); } catch (Exception e) { //
+	 * return error TrickLogManager.Persist(e); return
+	 * JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field",
+	 * null, "An unknown error occurred while updating field", locale)); } }
+	 */
 
 	/**
 	 * setFieldData: <br>

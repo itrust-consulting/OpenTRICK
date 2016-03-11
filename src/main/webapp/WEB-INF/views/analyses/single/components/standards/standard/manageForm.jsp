@@ -8,10 +8,10 @@
 <div class="panel panel-default" id="section_manage_standards">
 	<div class="panel-heading" style="min-height: 60px">
 		<ul id="menu_manage_standards" class="nav nav-pills">
-			<li><a onclick="return createStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<fmt:message key="label.action.create" /></a></li>
-			<li><a onclick="return addStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<fmt:message key="label.action.add" /></a></li>
+			<li><a onclick="return createStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.action.create" /></a></li>
+			<li><a onclick="return addStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.action.add" /></a></li>
 			<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a onclick="return editStandard();" href="#"><span
-					class="glyphicon glyphicon-edit primary"></span>&nbsp;<fmt:message key="label.action.edit" /></a></li>
+					class="glyphicon glyphicon-edit primary"></span>&nbsp;<spring:message code="label.action.edit" /></a></li>
 			<li data-trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<fmt:message
 						key="label.action.remove" /></a></li>
 		</ul>
@@ -22,12 +22,12 @@
 				<thead>
 					<tr>
 						<th>&nbsp;</th>
-						<th><fmt:message key="label.norm.label" /></th>
-						<th><fmt:message key="label.norm.version" /></th>
-						<th colspan="3"><fmt:message key="label.norm.description" /></th>
-						<th><fmt:message key="label.norm.computable" /></th>
-						<th><fmt:message key="label.norm.type" /></th>
-						<th><fmt:message key="label.norm.analysisOnly" /></th>
+						<th><spring:message code="label.norm.label" /></th>
+						<th><spring:message code="label.norm.version" /></th>
+						<th colspan="3"><spring:message code="label.norm.description" /></th>
+						<th><spring:message code="label.norm.computable" /></th>
+						<th><spring:message code="label.norm.type" /></th>
+						<th><spring:message code="label.norm.analysisOnly" /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -37,21 +37,21 @@
 							<td><spring:message text="${standard.label}" /></td>
 							<td><spring:message text="${standard.version}" /></td>
 							<td colspan="3"><spring:message text="${standard.description}" /></td>
-							<td style="text-align: center"><fmt:message key="label.${standard.computable?'yes':'no'}" /></td>
-							<td style="text-align: center"><fmt:message key="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
-							<td style="text-align: center"><fmt:message key="label.${standard.analysisOnly?'yes':'no'}" /></td>
+							<td style="text-align: center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
+							<td style="text-align: center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
+							<td style="text-align: center"><spring:message code="label.${standard.analysisOnly?'yes':'no'}" /></td>
 						</tr>
 					</c:forEach>
 					<c:if test="${currentStandards!=null?currentStandards.size()==0:true}">
 						<tr>
-							<td colspan="6"><fmt:message key="label.no_standards" /></td>
+							<td colspan="6"><spring:message code="label.no_standards" /></td>
 						</tr>
 					</c:if>
 				</tbody>
 			</table>
 		</c:if>
 		<c:if test="${empty(currentStandards)}">
-			<fmt:message key="label.no_standards" />
+			<spring:message code="label.no_standards" />
 		</c:if>
 	</div>
 </div>

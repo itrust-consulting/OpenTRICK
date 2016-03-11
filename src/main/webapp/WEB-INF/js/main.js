@@ -224,7 +224,7 @@ var OPEN_MODE = {
 }
 
 function permissionError() {
-	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!", null, findAnalysisLocale()));
+	showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
 	return false;
 }
 
@@ -278,15 +278,9 @@ function canManageAccess() {
  * @param params
  * @returns
  */
-function MessageResolver(code, defaulttext, params, language) {
+function MessageResolver(code, defaulttext, params) {
 
-	if (language == undefined || language == null) {
-		language = $("[data-trick-language]").attr("data-trick-language");
-		if (language == undefined)
-			language = $("html").attr("lang");
-	}
-
-	var uniqueCode = "|^|" + code + "__uPu_*-" + language + "-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	var uniqueCode = "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
 	else
@@ -295,7 +289,6 @@ function MessageResolver(code, defaulttext, params, language) {
 	var data = {
 		code : code,
 		message : defaulttext,
-		language : language,
 		parameters : []
 	}
 	if ($.isArray(params))

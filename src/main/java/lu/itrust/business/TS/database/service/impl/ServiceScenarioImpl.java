@@ -246,4 +246,9 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	public Scenario getByNameAndAnalysisId(String name, int analysisId) {
 		return daoScenario.getByNameAndAnalysisId(name,analysisId);
 	}
+
+	@Override
+	public boolean belongsToAnalysis(Integer analysisId, List<Integer> scenarioIds) {
+		return daoScenario.belongsToAnalysis(analysisId, scenarioIds);
+	}
 }

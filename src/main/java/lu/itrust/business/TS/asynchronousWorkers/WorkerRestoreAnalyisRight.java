@@ -93,7 +93,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 				started = new Timestamp(System.currentTimeMillis());
 			}
 
-			MessageHandler messageHandler = new MessageHandler("info.initiliase.dao", "Intialise database connectors", null, 0);
+			MessageHandler messageHandler = new MessageHandler("info.initiliase.dao", "Intialise database connectors", 0);
 			serviceTaskFeedback.send(getId(), messageHandler);
 			initialiseDAO(session = sessionFactory.openSession());
 			session.beginTransaction();
@@ -109,7 +109,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 			session.getTransaction().commit();
 			messageHandler.update("sucess.restore.analysis.right", "Analysis rights", 100);
 		} catch (Exception e) {
-			serviceTaskFeedback.send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", null, this.error = e));
+			serviceTaskFeedback.send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
 			TrickLogManager.Persist(e);
 			if (session != null && session.getTransaction().isInitiator())
 				session.getTransaction().rollback();

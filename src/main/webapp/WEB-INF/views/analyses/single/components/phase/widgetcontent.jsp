@@ -11,9 +11,9 @@
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4  id="phaseNewModal-title" class="col-md-6">
-						<fmt:message key="label.title.phase.add" />
+						<spring:message code="label.title.phase.add" />
 					</h4>
-					<label class="col-md-5" id="phase-Modal-title-info" style="margin-top: 8px" data-lang-text='<fmt:message key="label.close_x_sec" />'></label>
+					<label class="col-md-5" id="phase-Modal-title-info" style="margin-top: 8px" data-lang-text='<spring:message code="label.close_x_sec" />'></label>
 					<div class="clearfix"></div>
 				</div>
 			</div>
@@ -28,7 +28,7 @@
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
-						<label for="date" class="col-sm-3 control-label"> <fmt:message key="label.phase_period" />
+						<label for="date" class="col-sm-3 control-label"> <spring:message code="label.phase_period" />
 						</label>
 						<div class="col-sm-9">
 							<div id="datepicker_container" class="input-daterange"></div>
@@ -39,10 +39,10 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" style="display: none;">
-					<fmt:message key="label.action.cancel_close" />
+					<spring:message code="label.action.cancel_close" />
 				</button>
 				<button id="addphasemodelbutton" type="button" class="btn btn-primary" onclick="savePhase('phase_form')">
-					<fmt:message key="label.action.save" />
+					<spring:message code="label.action.save" />
 				</button>
 			</div>
 		</div>
@@ -52,8 +52,8 @@
 </div>
 <div id="datepicker_prototype" style="display: none;">
 	<input name="beginDate" type="text" class="form-control" style="width: auto; display: inline; background-color: white; cursor: inherit;"
-		value="${empty(phase)? '':phase.beginDate}" placeholder='<fmt:message key="label.phase.date.pattern"/>' readonly /> <span class="add-on" style="height: 31px;">to</span> <input
+		value="${empty(phase)? '':phase.beginDate}" placeholder='<spring:message code="label.phase.date.pattern"/>' readonly /> <span class="add-on" style="height: 31px;">to</span> <input
 		name="endDate" type="text" class="form-control" style="width: auto; display: inline; background-color: white; cursor: inherit;" value="${empty(phase)? '':phase.beginDate}"
-		placeholder='<fmt:message key="label.phase.date.pattern"/>' readonly />
+		placeholder='<spring:message code="label.phase.date.pattern"/>' readonly />
 </div>
 <!-- /.modal -->

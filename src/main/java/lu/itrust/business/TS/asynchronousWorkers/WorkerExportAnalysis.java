@@ -112,18 +112,18 @@ public class WorkerExportAnalysis implements Worker {
 			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
-			serviceTaskFeedback.send(id, new MessageHandler("info.export.load.analysis", "Load analysis to export", null, 0));
+			serviceTaskFeedback.send(id, new MessageHandler("info.export.load.analysis", "Load analysis to export", 0));
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis == null)
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
 			else if (!analysis.hasData())
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null));
 			else {
 				sqlite = new File(servletContext.getRealPath("/WEB-INF/tmp/" + id + "_" + principal.getName()));
 				if (!sqlite.exists())
 					sqlite.createNewFile();
 				DatabaseHandler databaseHandler = new DatabaseHandler(sqlite.getCanonicalPath());
-				serviceTaskFeedback.send(id, new MessageHandler("info.export.build.structure", "Build sqLite structure", null, 2));
+				serviceTaskFeedback.send(id, new MessageHandler("info.export.build.structure", "Build sqLite structure", 2));
 				buildSQLiteStructure(servletContext, databaseHandler);
 				ExportAnalysis exportAnalysis = new ExportAnalysis(serviceTaskFeedback, session, databaseHandler, analysis, id);
 				MessageHandler messageHandler = exportAnalysis.exportAnAnalysis();
@@ -133,13 +133,13 @@ public class WorkerExportAnalysis implements Worker {
 					saveSqLite(session, analysis);
 			}
 		} catch (HibernateException e) {
-			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, this.error = e));
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", this.error = e));
 			TrickLogManager.Persist(e);
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", null, this.error = e));
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", this.error = e));
 			TrickLogManager.Persist(e);
 		} finally {
 			try {
@@ -205,11 +205,11 @@ public class WorkerExportAnalysis implements Worker {
 		try {
 			User user = daoUser.get(principal.getName());
 			if (user == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.export.user.not_found", "User cannot be found", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.export.user.not_found", "User cannot be found", null));
 				return;
 			}
 			if (error != null || sqlite == null || !sqlite.exists()) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null));
 				return;
 			}
 			UserSQLite userSqLite = new UserSQLite(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), sqlite.getName(), user,
@@ -217,7 +217,7 @@ public class WorkerExportAnalysis implements Worker {
 			transaction = session.beginTransaction();
 			daoUserSqLite.saveOrUpdate(userSqLite);
 			transaction.commit();
-			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", null, 100);
+			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqLite", userSqLite.getId()));
 			serviceTaskFeedback.send(id, messageHandler);
 			/**

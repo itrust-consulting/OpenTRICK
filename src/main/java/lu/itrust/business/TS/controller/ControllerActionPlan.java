@@ -176,16 +176,11 @@ public class ControllerActionPlan {
 	@RequestMapping(value = "/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model) throws Exception {
-
 		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 		model.put("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(analysisID));
 		model.put("show_cssf", serviceAnalysis.isAnalysisCssf(analysisID));
-
 		model.put("id", analysisID);
-
 		model.put("standards", serviceAnalysisStandard.getAllFromAnalysis(analysisID));
-
 		return "analyses/single/components/actionPlan/form";
 	}
 
@@ -210,7 +205,6 @@ public class ControllerActionPlan {
 		// retrieve analysis id to compute
 		int analysisId = jsonNode.get("id").asInt();
 
-		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
@@ -233,12 +227,12 @@ public class ControllerActionPlan {
 			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
 			worker.setPoolManager(workersPoolManager);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			// execute task
 			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", analysisLocale));
+			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 		} else {
-			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", analysisLocale));
+			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		}
 	}
 }

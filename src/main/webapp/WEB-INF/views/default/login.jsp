@@ -4,12 +4,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<!-- ################################################################ Set Page Title ################################################################ -->
-<c:set scope="request" var="title">label.title.signin</c:set>
 <!-- ###################################################################### HTML #################################################################### -->
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+</c:if>
 <!DOCTYPE html>
-<html>
+<html lang="${locale.language}">
 <!-- Include Header -->
+<c:set scope="request" var="title">label.title.signin</c:set>
 <jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>

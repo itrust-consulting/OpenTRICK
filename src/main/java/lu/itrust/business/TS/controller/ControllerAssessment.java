@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -28,7 +29,6 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
@@ -76,9 +76,6 @@ public class ControllerAssessment {
 	@Autowired
 	private MessageSource messageSource;
 
-	@Autowired
-	private ServiceLanguage serviceLanguage;
-
 	/**
 	 * updateAssessment: <br>
 	 * Description
@@ -95,43 +92,30 @@ public class ControllerAssessment {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-
 			// check if analysis is not null
 			if (integer == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
 
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 
 			// check if analysis object is not null
 			if (analysis == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
 			// update assessments of analysis
 			assessmentAndRiskProfileManager.WipeAssessment(analysis);
 			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
-			return new String("{\"success\":\""
-					+ messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", customLocale != null ? customLocale : locale)
-					+ "\"}");
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", locale) + "\"}");
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
-			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation",
-					customLocale != null ? customLocale : locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
 	}
 
@@ -221,15 +205,17 @@ public class ControllerAssessment {
 		if (analysis.isCssf()) {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
+			ParameterConvertor converter = new ParameterConvertor(impacts, probabilities);
 			RiskRegisterItem registerItem = analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario);
+			int netProba = converter.getProbabiltyLevel(assessment.getLikelihoodReal()), netImpact = converter.getImpactLevel(assessment.getImpactReal());
+			model.addAttribute("computeNextImportance", netProba * netImpact);
 			if (registerItem != null) {
-				ParameterConvertor converter = new ParameterConvertor(impacts, probabilities);
 				int rawImpact = converter.getImpactLevel(registerItem.getRawEvaluation().getImpact()),
 						rawProbability = converter.getProbabiltyLevel(registerItem.getRawEvaluation().getProbability()),
-						netImpact = converter.getImpactLevel(registerItem.getNetEvaluation().getImpact()),
 						netProbability = converter.getProbabiltyLevel(registerItem.getNetEvaluation().getProbability()),
 						expImpact = converter.getImpactLevel(registerItem.getExpectedEvaluation().getImpact()),
 						expProbability = converter.getProbabiltyLevel(registerItem.getExpectedEvaluation().getProbability());
+				netImpact = converter.getImpactLevel(registerItem.getNetEvaluation().getImpact());
 				model.addAttribute("rawModelling", new EvaluationResult(rawProbability, rawImpact));
 				model.addAttribute("netModelling", new EvaluationResult(netProbability, netImpact));
 				model.addAttribute("expModelling", new EvaluationResult(expProbability, expImpact));
@@ -253,41 +239,21 @@ public class ControllerAssessment {
 		try {
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			// check if analysis is not null
-			if (integer == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
-
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
-
-			// check if analysis object is not null
-			if (analysis == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
 			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
-			return new String("{\"success\":\""
-					+ messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", customLocale != null ? customLocale : locale) + "\"}");
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
-			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.Persist(e);
-			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation",
-					customLocale != null ? customLocale : locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
 	}
 
@@ -295,40 +261,24 @@ public class ControllerAssessment {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateAle(HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
-
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
 			// check if analysis is not null
-			if (integer == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", customLocale != null ? customLocale : locale) + "\" }");
-
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
-
-			// check if analysis object is not null
-			if (analysis == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) + "\" }");
 			// update assessments of analysis
 			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
-			return new String("{\"success\":\""
-					+ messageSource.getMessage("success.assessment.ale.update", null, "Assessments ale were successfully updated", customLocale != null ? customLocale : locale)
-					+ "\"}");
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.ale.update", null, "Assessments ale were successfully updated", locale) + "\"}");
+		} catch (TrickException e) {
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-
 			// return error
 			TrickLogManager.Persist(e);
-			Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha2());
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred",
-					customLocale != null ? customLocale : locale) + "\"}");
+			return new String(
+					"{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale) + "\"}");
 		}
 	}
 
@@ -346,22 +296,11 @@ public class ControllerAssessment {
 	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadAssessmentsOfAsset(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
-
 		// get analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (idAnalysis == null)
-			return null;
-
-		// load analysis object
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		if (analysis == null)
-			return null;
-
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-
 		// retrieve asset
 		Asset asset = serviceAsset.get(elementID);
-
 		// load assessments by asset into model
 		return assessmentByAsset(model, asset, serviceAssessment.getAllSelectedFromAsset(asset), idAnalysis, true);
 	}
@@ -378,29 +317,18 @@ public class ControllerAssessment {
 	 */
 	@RequestMapping(value = "/Asset/{elementID}/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String updateAsset(@PathVariable int elementID, Model model, HttpSession session, Locale locale, Principal principal) {
+	public String updateAsset(@PathVariable int elementID, Model model, RedirectAttributes attributes, HttpSession session, Locale locale, Principal principal) {
 
 		try {
-
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
 			// retrieve asset by id
 			Asset asset = serviceAsset.get(elementID);
-			if (asset == null)
-				return null;
-
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-
 			// retrieve extended paramters of analysis
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
-
 			// retrieve assessments of analysis
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
-
 			// parse assessments and initialise impact values to 0 if empty
 			for (Assessment assessment : assessments) {
 				if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
@@ -414,22 +342,22 @@ public class ControllerAssessment {
 				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
 			}
-
 			// compute ALE
 			AssessmentAndRiskProfileManager.ComputeAlE(assessments, parameters);
-
 			// update assessments
 			serviceAssessment.saveOrUpdate(assessments);
-
 			// add assessments of asset to model
 			return assessmentByAsset(model, asset, assessments, idAnalysis, false);
-
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-
 			// return null
 			TrickLogManager.Persist(e);
-			return null;
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
 		}
+		return "redirect:/Error";
 	}
 
 	/**
@@ -446,24 +374,12 @@ public class ControllerAssessment {
 	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadByScenario(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
-
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (idAnalysis == null)
-			return null;
-
-		// retrieve analysis object
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		if (analysis == null)
-			return null;
-
-		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-
 		// retrieve scenario from given id
 		Scenario scenario = serviceScenario.get(elementID);
-
 		// load all assessments by scenario to model
-		return assessmentByScenario(model, scenario, serviceAssessment.getAllSelectedFromScenario(scenario), idAnalysis, true);
+		return assessmentByScenario(model, scenario, serviceAssessment.getAllFromScenario(scenario), idAnalysis, true);
 	}
 
 	/**
@@ -478,15 +394,11 @@ public class ControllerAssessment {
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String updateByScenario(@PathVariable int elementID, Model model, HttpSession session, Locale locale, Principal principal) {
+	public String updateByScenario(@PathVariable int elementID, Model model, RedirectAttributes attributes, HttpSession session, Locale locale, Principal principal) {
 
 		try {
-
 			// load analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
 			// load scenario
 			Scenario scenario = serviceScenario.get(elementID);
 			if (scenario == null)
@@ -513,22 +425,22 @@ public class ControllerAssessment {
 				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
 			}
-
 			// compute ALE
 			AssessmentAndRiskProfileManager.ComputeAlE(assessments, parameters);
-
 			// update assessments
 			serviceAssessment.saveOrUpdate(assessments);
-
 			// load assessments of scenario to model
 			return assessmentByScenario(model, scenario, assessments, idAnalysis, false);
-
-		} catch (Exception e) {
-
-			// return null on error
+		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
-			return null;
+			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			// return null
+			TrickLogManager.Persist(e);
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
 		}
+		return "redirect:/Error";
 
 	}
 
@@ -574,7 +486,6 @@ public class ControllerAssessment {
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
 		serviceAsset.saveOrUpdate(asset);
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 		return "analyses/single/components/assessment/assets";
 	}
 
@@ -604,7 +515,6 @@ public class ControllerAssessment {
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 		return "analyses/single/components/assessment/scenarios";
 	}
 }

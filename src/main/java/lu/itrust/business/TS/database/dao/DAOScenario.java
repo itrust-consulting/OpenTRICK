@@ -45,5 +45,7 @@ public interface DAOScenario {
 	public void delete(Scenario scenario) ;
 
 	public Scenario getByNameAndAnalysisId(String name, int analysisId);
+
+	public boolean belongsToAnalysis(Integer analysisId, List<Integer> scenarioIds);
 	
 }

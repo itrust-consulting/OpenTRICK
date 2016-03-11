@@ -15,14 +15,15 @@
 		</c:forEach>
 	</select>
 </c:set>
-<table class='table alert-warning'>
+<table class='table alert-success'>
 	<thead>
 		<tr>
-			<th width="11.11%" rowspan="2" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
+			<th width="1%" rowspan="2"></th>
+			<th width="10.11%" rowspan="2" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
 			<th width="44.44%" colspan="4" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 			<th width="11.11" rowspan="2" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.computed.importance" text="Computed importance" /></th>
-			<th width="33.33%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.modelling.raw_eval"
-					text="Modelling Raw Evaluation" /></th>
+			<th width="33.33%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.evaluation"
+					text="Evaluation" /></th>
 		</tr>
 		<tr>
 			<th title='<spring:message code="label.title.assessment.impact_rep" />' style="text-align: center;"><spring:message code="label.impact_rep" text="Reputation" /></th>
@@ -35,7 +36,9 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr>
+		<tr class="alert-warning">
+			<!-- RAW -->
+			<td style="transform: rotate(270deg);"><spring:message code="label.raw"  text='RAW' /></td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name='probaScale'>${probaUnit}</button></span>
@@ -161,28 +164,9 @@
 				</c:otherwise>
 			</c:choose>
 		</tr>
-	</tbody>
-</table>
-
-<table class='table alert-success'>
-	<thead>
+		<!-- NET -->
 		<tr>
-			<th width="12.5%" rowspan="2" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
-			<th width="50%" colspan="4" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-			<th width="37.5%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.risk_register.net_eval" /></th>
-		</tr>
-		<tr>
-			<th title='<spring:message code="label.title.assessment.impact_rep" />' style="text-align: center;"><spring:message code="label.impact_rep" text="Reputation" /></th>
-			<th title='<spring:message code="label.title.assessment.impact_op" />' style="text-align: center;"><spring:message code="label.impact_op" text="Operation" /></th>
-			<th title='<spring:message code="label.title.assessment.impact_leg" />' style="text-align: center;"><spring:message code="label.impact_leg" text="Legal" /></th>
-			<th title='<spring:message code="label.title.assessment.impact_fin" />' style="text-align: center;"><spring:message code="label.impact_fin" text="Financial" /></th>
-			<th style="border-left: 2px solid window; text-align: center;"><spring:message code="label.risk_register.probability" /></th>
-			<th style="text-align: center;"><spring:message code="label.risk_register.impact" /></th>
-			<th style="text-align: center;"><spring:message code="label.risk_register.importance" /></th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
+			<td style="transform: rotate(270deg);"><spring:message code="label.net"  text='NET' /></td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
 					<spring:message text="${assessment.likelihood}" var="likelihood" />
@@ -246,43 +230,24 @@
 			</td>
 			<c:choose>
 				<c:when test="${empty netModelling }">
+					<td style="border-left: 2px solid window;" ${computeNextImportance==0?'':'class="has-error"'} ><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"></td>
 					<td><input name="netImpact" disabled="disabled" class="form-control numeric"></td>
 					<td><input name="netImportance" disabled="disabled" class="form-control numeric"></td>
 				</c:when>
 				<c:otherwise>
+					<fmt:formatNumber value="${netModelling.importance}" maxFractionDigits="0" var='netImportance'/>
+					<td style="border-left: 2px solid window;" ${computeNextImportance==netModelling.importance?'':'class="has-error"'} ><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"
 						value='<fmt:formatNumber value="${netModelling.probability}" maxFractionDigits="0"/>'></td>
 					<td><input name="netImpact" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${netModelling.impact}" maxFractionDigits="0" />'></td>
-					<td><input name="netImportance" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${netModelling.importance}" maxFractionDigits="0" />'></td>
+					<td><input name="netImportance" disabled="disabled" class="form-control numeric" value='${netImportance}'></td>
 				</c:otherwise>
 			</c:choose>
 		</tr>
-	</tbody>
-</table>
-
-
-<table class='table alert-info'>
-	<thead>
-		<tr>
-			<th width="11.11%" rowspan="2" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
-			<th width="44.44%" colspan="4" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-			<th width="11.11%" rowspan="2" style="text-align: center; border-left: 2px solid window;"><spring:message code="label.title.computed.importance" text="Computed importance" /></th>
-			<th width="33.33%" colspan="3" style="border-left: 2px solid window; text-align: center;"><spring:message code="label.title.modelling.exp_eval"
-					text='Modelling Expected Evaluation' /></th>
-		</tr>
-		<tr>
-			<th title='<spring:message code="label.title.assessment.impact_rep" />' style="text-align: center;"><spring:message code="label.impact_rep" text="Reputation" /></th>
-			<th title='<spring:message code="label.title.assessment.impact_op" />' style="text-align: center;"><spring:message code="label.impact_op" text="Operation" /></th>
-			<th title='<spring:message code="label.title.assessment.impact_leg" />' style="text-align: center;"><spring:message code="label.impact_leg" text="Legal" /></th>
-			<th title='<spring:message code="label.title.assessment.impact_fin" />' style="text-align: center;"><spring:message code="label.impact_fin" text="Financial" /></th>
-			<th style="border-left: 2px solid window; text-align: center;"><spring:message code="label.risk_register.probability" /></th>
-			<th style="text-align: center;"><spring:message code="label.risk_register.impact" /></th>
-			<th style="text-align: center;"><spring:message code="label.risk_register.importance" text='Importance' /></th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
+		<!-- EXP -->
+		<tr class="alert-info">
+			<td style="transform: rotate(270deg);"><spring:message code="label.exp"  text='EXP' /></td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name="probaScale">${probaUnit}</button></span>
@@ -410,6 +375,7 @@
 				</c:otherwise>
 			</c:choose>
 		</tr>
+		
 	</tbody>
 </table>
 
@@ -419,15 +385,12 @@
 		<c:choose>
 			<c:when test="${show_uncertainty}">
 				<tr>
-					<th width="16.66%" rowspan="2" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
-					<th width="16.66%" rowspan="2" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
-					<th width="16.66%" rowspan="2" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-					<th width="50%" colspan="3" style="text-align: center;"><spring:message code="label.title.ale" /></th>
-				</tr>
-				<tr>
-					<th title='<spring:message code="label.title.alep" />' style="text-align: center;"><spring:message code="label.pessimistic" text='Pessimistic' /></th>
-					<th title='<spring:message code="label.title.ale" />' style="text-align: center;"><spring:message code="label.normal" text='Normal' /></th>
-					<th title='<spring:message code="label.title.aleo" />' style="text-align: center;"><spring:message code="label.optimistic" text='Optimistic' /></th>
+					<th width="16.66%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
+					<th width="16.66%" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
+					<th width="16.66%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+					<th width="16.66%" title='<spring:message code="label.title.alep" />' style="text-align: center;"><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+					<th width="16.66%" title='<spring:message code="label.title.ale" />' style="text-align: center;"><spring:message code="label.ale.normal" text='ALE Normal' /></th>
+					<th width="16.66%" title='<spring:message code="label.title.aleo" />' style="text-align: center;"><spring:message code="label.optimistic" text='Optimistic' /></th>
 				</tr>
 			</c:when>
 			<c:otherwise>

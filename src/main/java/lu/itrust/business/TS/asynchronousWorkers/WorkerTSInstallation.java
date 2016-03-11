@@ -38,7 +38,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 	@Override
 	public void run() {
 		setAsyncCallback(new AsyncCallback("window.location.assign(context+'/Admin')"));
-		setMessageHandler(new MessageHandler("success.ts.install", "Installation successfull", null, 99));
+		setMessageHandler(new MessageHandler("success.ts.install", "Installation successfull", 99));
 		super.run();
 	}
 
@@ -54,7 +54,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		Session session = null;
 		try {
 			super.OnStarted();
-			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profile", null, 1));
+			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profile", 1));
 			session = getSessionFactory().openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			Analysis analysis = daoAnalysis.getDefaultProfile();
@@ -123,7 +123,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 				trickService.setVersion(currentVersion);
 			daoTrickService.saveOrUpdate(trickService);
 			session.getTransaction().commit();
-			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.install.update.version", "Update install version", null, 98));
+			getImportAnalysis().getServiceTaskFeedback().send(getId(), new MessageHandler("info.install.update.version", "Update install version", 98));
 			String username = getImportAnalysis().getServiceTaskFeedback().findUsernameById(this.getId());
 			/**
 			 * Log

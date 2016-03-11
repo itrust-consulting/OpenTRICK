@@ -129,19 +129,19 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			User owner = new DAOUserHBM(session).get(username);
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a profile customer before creating an analysis profile", null, null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a profile customer before creating an analysis profile", null));
 				return;
 			}
-			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis", null, 1));
+			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis", 1));
 			Analysis analysis = daoAnalysis.get(analysisId);
 			Analysis copy = new Duplicator(session).createProfile(analysis, name, standards, serviceTaskFeedback, id);
 			copy.setCustomer(customer);
 			copy.setOwner(owner);
-			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile", null, 96));
+			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile", 96));
 			transaction = session.beginTransaction();
 			daoAnalysis.saveOrUpdate(copy);
 			transaction.commit();
-			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", null, 100));
+			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", 100));
 			/**
 			 * Log
 			 */
@@ -163,7 +163,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 		} catch (Exception e) {
 			try {
 				this.error = e;
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", null, e));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", e));
 				TrickLogManager.Persist(e);
 				if (transaction != null)
 					transaction.rollback();

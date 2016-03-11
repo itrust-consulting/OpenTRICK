@@ -242,7 +242,7 @@ public class WorkerAnalysisImport implements Worker {
 
 	protected void OnSuccess() {
 		if (getMessageHandler() == null)
-			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", null, 100));
+			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", 100));
 		if (getAsyncCallback() == null)
 			setAsyncCallback(new AsyncCallback("window.location.assign", "context+'/Analysis'"));
 		getMessageHandler().setAsyncCallback(getAsyncCallback());
@@ -300,7 +300,7 @@ public class WorkerAnalysisImport implements Worker {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} finally {
-				importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", null, error = e));
+				importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", error = e));
 			}
 		} finally {
 			try {

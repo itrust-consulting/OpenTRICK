@@ -241,8 +241,8 @@ public class ControllerAnalysisCreate {
 			analysis.addUserRight(analysis.getOwner(), AnalysisRight.ALL);
 			String baseAnalysis = "";
 
-			Locale analysisLocale = language.getAlpha3().equalsIgnoreCase("fra") ? Locale.FRANCE : Locale.ENGLISH;
-
+			Locale analysisLocale = new Locale(language.getAlpha2());
+			
 			if (analysisForm.getAsset() > 0) {
 				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getAsset());
 				String label = serviceAnalysis.getLabelFromId(analysisForm.getAsset());

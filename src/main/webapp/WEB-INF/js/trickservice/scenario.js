@@ -98,9 +98,8 @@ function deleteScenario(scenarioId) {
 			var selectedScenario = findSelectItemIdBySection(("section_scenario"));
 			if (!selectedScenario.length)
 				return false;
-			var lang = findAnalysisLocale();
-			var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver(
-					"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios", null, lang);
+			var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
+					"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios");
 			$("#confirm-dialog .modal-body").text(text);
 			$("#confirm-dialog .btn-danger").click(function() {
 				while (selectedScenario.length) {
@@ -117,7 +116,7 @@ function deleteScenario(scenarioId) {
 								$("#alert-dialog .modal-body").html(response["error"]);
 								$("#alert-dialog").modal("toggle");
 							} else {
-								$("#alert-dialog .modal-body").html(MessageResolver("error.delete.scenario.unkown", "Unknown error occoured while deleting scenario", null, lang));
+								$("#alert-dialog .modal-body").html(MessageResolver("error.delete.scenario.unkown", "Unknown error occoured while deleting scenario"));
 								$("#alert-dialog").modal("toggle");
 							}
 							return false;
@@ -128,7 +127,7 @@ function deleteScenario(scenarioId) {
 
 			});
 		} else {
-			$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang));
+			$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
 			$("#confirm-dialog .btn-danger").click(function() {
 				$.ajax({
 					url : context + "/Analysis/Scenario/Delete/" + scenarioId,
@@ -160,7 +159,7 @@ function serializeScenarioForm(formId) {
 
 function clearScenarioFormData() {
 	var lang = findAnalysisLocale();
-	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario", null, lang));
+	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 

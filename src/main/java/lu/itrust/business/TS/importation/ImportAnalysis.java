@@ -217,7 +217,7 @@ public class ImportAnalysis {
 
 			System.out.println("Importing...");
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", null, 0));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", 0));
 
 			// ****************************************************************
 			// * create analysis id, analysis label, analysis language and
@@ -225,28 +225,28 @@ public class ImportAnalysis {
 			// ****************************************************************
 			importAnalyses();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", null, 1));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", 1));
 
 			// ****************************************************************
 			// * import risk information
 			// ****************************************************************
 			importRiskInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", null, 5));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", 5));
 
 			// ****************************************************************
 			// * import item information
 			// ****************************************************************
 			importItemInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", null, 10));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", 10));
 
 			// ****************************************************************
 			// * import simple parameters
 			// ****************************************************************
 			importSimpleParameters();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", null, 15));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 15));
 
 			// ****************************************************************
 			// * import extended parameters
@@ -257,7 +257,7 @@ public class ImportAnalysis {
 			// * import maturity parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", null, 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", 20));
 
 			importMaturityParameters();
 
@@ -265,43 +265,43 @@ public class ImportAnalysis {
 			// * import assets
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset.importing", "Import assets", null, 25));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset.importing", "Import assets", 25));
 			importAssets();
 
 			// ****************************************************************
 			// * import scenarios
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", null, 35));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", 35));
 			importScenarios();
 
 			// ****************************************************************
 			// * import assessments
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", null, 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", 40));
 			importAssessments();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", null, 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", 40));
 			importRiskProfile();
 
 			// ****************************************************************
 			// * import phases
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.phase.importing", "Import phases", null, 55));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.phase.importing", "Import phases", 55));
 			importPhases();
 
 			// ****************************************************************
 			// * import AnalysisStandard measures
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.norm_measures.importing", "Analysis normal measures", null, 60));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.norm_measures.importing", "Analysis normal measures", 60));
 			importNormalMeasures();
 
 			// ****************************************************************
 			// * import asset type values
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", null, 70));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", 70));
 			importAssetTypeValues();
 
 			importAssetValues();
@@ -309,12 +309,12 @@ public class ImportAnalysis {
 			// * import maturity measures
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_measure.importing", "Import maturity measures", null, 80));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_measure.importing", "Import maturity measures", 80));
 			importMaturityMeasures();
 
 			// System.out.println("Saving Data to Database...");
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", null, 90));
+			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", 90));
 
 			System.out.println("Saving Analysis Data...");
 
@@ -323,17 +323,17 @@ public class ImportAnalysis {
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.commit.transcation", "Commit transaction", null, 95));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.commit.transcation", "Commit transaction", 95));
 			if (session != null) {
 				session.getTransaction().commit();
-				serviceTaskFeedback.send(idTask, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", null, 100));
+				serviceTaskFeedback.send(idTask, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", 100));
 			}
 			System.out.println("Import Done!");
 
 			return true;
 		} catch (Exception e) {
 			try {
-				serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), null, e));
+				serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
 				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();

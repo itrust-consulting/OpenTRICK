@@ -324,7 +324,6 @@ public class ControllerRRF {
 	public @ResponseBody String loadRRFScenarioChart(@RequestBody RFFMeasureFilter measureFilter, @PathVariable int elementID, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		System.out.println(measureFilter.getIdStandard() + " "+measureFilter.getChapter());
 
 		if (measureFilter.getIdStandard() < 1 || StringUtils.isEmpty(measureFilter.getChapter()))
 			return null;
@@ -483,9 +482,7 @@ public class ControllerRRF {
 	public @ResponseBody String updateChildRRF(@PathVariable int idMeasure, @RequestBody LinkedList<Integer> idMeasureChilds, HttpSession session, Principal principal,
 			Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		String language = (String) session.getAttribute(Constant.SELECTED_ANALYSIS_LANGUAGE);
-		if (language != null)
-			locale = new Locale(language);
+
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 		List<Measure> measures = new ArrayList<Measure>(idMeasureChilds.size());
 		for (Integer idChild : idMeasureChilds) {
@@ -571,6 +568,9 @@ public class ControllerRRF {
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 			measureManager.importStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
 			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
@@ -580,15 +580,14 @@ public class ControllerRRF {
 
 	@RequestMapping(value = "/Export/Raw/{idAnalysis}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportRawRFF(@PathVariable int idAnalysis, Model model, HttpServletResponse response, Principal principal) throws Exception {
-		exportRawRRF(serviceAnalysis.get(idAnalysis), response, principal.getName());
+	public void exportRawRFF(@PathVariable int idAnalysis, Model model, HttpServletResponse response, Principal principal, Locale locale) throws Exception {
+		exportRawRRF(serviceAnalysis.get(idAnalysis), response, principal.getName(),locale);
 	}
 
-	private void exportRawRRF(Analysis analysis, HttpServletResponse response, String username) throws Exception {
+	private void exportRawRRF(Analysis analysis, HttpServletResponse response, String username, Locale locale) throws Exception {
 		XSSFWorkbook workbook = null;
 		try {
 			workbook = new XSSFWorkbook();
-			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 			writeAnalysisIdentifier(analysis, workbook);
 			writeScenario(analysis.getScenarios(), assetTypes, workbook, locale);
@@ -817,7 +816,6 @@ public class ControllerRRF {
 	private Object importRawRRF(String tempPath, int idAnalysis, MultipartFile file, String username, Locale locale) throws Exception {
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			locale = new Locale(analysis.getLanguage().getAlpha2());
 			XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
 			loadAnalysisInfo(analysis, workbook);
 			loadScenarios(analysis.getScenarios(), workbook);

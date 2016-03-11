@@ -28,7 +28,7 @@ public class ParameterConvertor {
 		setProbabilityParameters(probabilities);
 	}
 
-	public ParameterConvertor(List<Parameter> parameters) {
+	public ParameterConvertor(List<? extends Parameter> parameters) {
 		setImpactsParameters(new ArrayList<ExtendedParameter>());
 		setProbabilityParameters(new ArrayList<ExtendedParameter>());
 		for (Parameter parameter : parameters) {

@@ -29,7 +29,7 @@ function manageStandard() {
 				else {
 					var forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
 					if (!forms.length)
-						showError($(".modal-footer", $modal)[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data", null, locale));
+						showError($(".modal-footer", $modal)[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 					else
 						$("#section_manage_standards").replaceWith(forms);
 				}
@@ -65,8 +65,8 @@ function createStandard() {
 		$("#createStandardModal #standard_form input[name='type']").prop("disabled", false);
 		$("#createStandardModal #standard_form input[name='type'][value='NORMAL']").prop("checked", "checked");
 		$("#createStandardModal #standard_computable").prop("checked", "checked");
-		$("#createStandardModal #createstandardtitle").text(MessageResolver("label.title.analysis.manage_standard.create", "Create new standard", null, locale));
-		$("#createstandardbutton").text(MessageResolver("label.action.create", "Create", null, locale));
+		$("#createStandardModal #createstandardtitle").text(MessageResolver("label.title.analysis.manage_standard.create", "Create new standard"));
+		$("#createstandardbutton").text(MessageResolver("label.action.create", "Create"));
 		$("#createstandardbutton").attr("onclick", "doCreateStandard('standard_form')");
 		$("#createStandardModal").modal('show');
 
@@ -172,8 +172,8 @@ function editStandard(standardrowobject) {
 				$("#standard_computable", $model).prop("checked", true);
 			else
 				$("#standard_computable", $model).removeProp("checked");
-			$("#createstandardtitle", $model).text(MessageResolver("label.title.analysis.manage_standard.edit", "Edit standard", null, locale));
-			$("#createstandardbutton").text(MessageResolver("label.action.edit", "Edit", null, locale));
+			$("#createstandardtitle", $model).text(MessageResolver("label.title.analysis.manage_standard.edit", "Edit standard"));
+			$("#createstandardbutton").text(MessageResolver("label.action.edit", "Edit"));
 			$("#createstandardbutton").attr("onclick", "doEditStandard('standard_form')");
 			$("#createStandardModal").modal('show');
 
@@ -257,7 +257,7 @@ function addStandard() {
 	var alert = $("#addStandardModal .alert");
 	if (alert.length)
 		alert.remove();
-	if (userCan( findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#add_standard_progressbar").css("display", "none");
 		$.ajax({
 			url : context + "/Analysis/Standard/Available",
@@ -279,22 +279,14 @@ function addStandard() {
 							text += '<option value="' + standard + '">' + response[standard] + '</option>';
 
 						}
-
-						var lang = findAnalysisLocale();
-
-						text += '</select></div><div class="col-sm-2">';
-						text += '<button type="button" class="btn btn-primary" onclick="return doAddStandard(\'addStandardModal\');">'
-								+ MessageResolver("label.action.add", "add", null, lang) + '</button></div>';
-
+						text += '</select></div><div class="col-sm-2"><button type="button" class="btn btn-primary" onclick="return doAddStandard(\'addStandardModal\');">'
+								+ MessageResolver("label.action.add", "add") + '</button></div>';
 						$("#addStandardModal .modal-body").html(text);
 
 					} else {
-
-						var lang = findAnalysisLocale();
-						var text = '<div class="col-sm-12"><b>' + MessageResolver("label.no_standards_available", "No standards available", null, lang) + '</b></div>';
+						var text = '<div class="col-sm-12"><b>' + MessageResolver("label.no_standards_available", "No standards available") + '</b></div>';
 						$("#addStandardModal .modal-body").html(text);
 					}
-
 					$("#addStandardModal").modal("show");
 				}
 			},
@@ -306,9 +298,7 @@ function addStandard() {
 }
 
 function doAddStandard(form) {
-	var alert = $("#standardModal .alert");
-	if (alert.length)
-		alert.remove();
+	$("#standardModal .alert").remove();
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#add_standard_progressbar").css("display", "inline-block");
 		var idStandard = $("#" + form + " select").val();
@@ -352,7 +342,7 @@ function doAddStandard(form) {
 
 function removeStandard() {
 
-	var lang = findAnalysisLocale(), selectedStandard = $("#section_manage_standards :checked");
+	var selectedStandard = $("#section_manage_standards :checked");
 	if (selectedStandard.length != 1)
 		return false;
 	selectedStandard = findTrickID(selectedStandard[0]);
@@ -360,12 +350,10 @@ function removeStandard() {
 	var deleteModal = new Modal();
 	deleteModal.FromContent($("#deleteStandardModal").clone());
 
-	deleteModal.setBody(MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?", null, lang));
+	deleteModal.setBody(MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
 
 	$(deleteModal.modal_footer).find("#deletestandardbuttonYes").click(function() {
-		var alert = $("#standardModal .alert");
-		if (alert.length)
-			alert.remove();
+		$("#standardModal .alert").remove();
 		$(deleteModal.modal_footer).find("#delete_standard_progressbar").css("display", "inline-block");
 		$.ajax({
 			url : context + "/Analysis/Standard/Delete/" + selectedStandard,
@@ -596,8 +584,6 @@ function deleteMeasure(measureId, standardid) {
 			return false;
 	}
 
-	var lang = findAnalysisLocale();
-
 	var standard = $("#section_standard_" + standardid + " #menu_standard_" + standardid + " li:first-child").text();
 
 	if (selectedMeasures.length == 1) {
@@ -608,11 +594,11 @@ function deleteMeasure(measureId, standardid) {
 		$("#confirm-dialog .modal-body").html(
 				MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
 						+ "</strong> from the standard <strong>" + standard
-						+ " </strong>?<b>ATTENTION:</b> This will delete complete <b>Action Plans</b> that depend on these measures!", [ reference, standard ], lang));
+						+ " </strong>?<b>ATTENTION:</b> This will delete complete <b>Action Plans</b> that depend on these measures!", [ reference, standard ]));
 	} else {
 		$("#confirm-dialog .modal-body").html(
 				MessageResolver("label.measure.question.selected.delete", "Are you sure, you want to delete the selected measures from the standard <b>" + standard
-						+ "</b>?<br/><b>ATTENTION:</b> This will delete complete <b>Action Plans</b> that depend on these measures!", standard, lang));
+						+ "</b>?<br/><b>ATTENTION:</b> This will delete complete <b>Action Plans</b> that depend on these measures!", standard));
 	}
 
 	$("#confirm-dialog .btn-danger").click(function() {
@@ -637,7 +623,7 @@ function deleteMeasure(measureId, standardid) {
 						if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 						} else {
-							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure", null, lang));
+							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
 						}
 						$("#alert-dialog").modal("show");
 					}

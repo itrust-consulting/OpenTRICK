@@ -109,102 +109,102 @@ public class ExportAnalysis {
 
 		try {
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.identifier", "Export identifier", null, 10));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.identifier", "Export identifier", 10));
 
 			// ****************************************************************
 			// * export Identifier
 			// ****************************************************************
 			exportIdentifier();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.history", "Export histories", null, 15));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.history", "Export histories", 15));
 
 			// ****************************************************************
 			// * export History
 			// ****************************************************************
 			exportHistory();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_information", "Export risk information", null, 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_information", "Export risk information", 20));
 
 			// ****************************************************************
 			// * export risk information
 			// ****************************************************************
 			exportRiskInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.item_information", "Export item information", null, 25));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.item_information", "Export item information", 25));
 
 			// ****************************************************************
 			// * export item information
 			// ****************************************************************
 			exportItemInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.parameters", "Export Parameters", null, 30));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.parameters", "Export Parameters", 30));
 
 			// ****************************************************************
 			// * export simple parameters
 			// ****************************************************************
 			exportParameters();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assets", "Export assets", null, 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assets", "Export assets", 40));
 
 			// ****************************************************************
 			// * export assets
 			// ****************************************************************
 			exportAssets();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.scenarios", "Export scenarios", null, 50));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.scenarios", "Export scenarios", 50));
 
 			// ****************************************************************
 			// * export scenarios
 			// ****************************************************************
 			exportScenarios();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assessments", "Export assessments", null, 60));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assessments", "Export assessments", 60));
 
 			// ****************************************************************
 			// * export assessments
 			// ****************************************************************
 			exportAssessments();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_profile", "Export risk profile", null, 65));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_profile", "Export risk profile", 65));
 
 			exportRiskProfile();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.measures", "Export measures", null, 70));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.measures", "Export measures", 70));
 
 			// ****************************************************************
 			// * export all measures
 			// ****************************************************************
 			exportMeasuresAndMaturity();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.phases", "Export phases", null, 75));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.phases", "Export phases", 75));
 
 			// ****************************************************************
 			// * export phase
 			// ****************************************************************
 			exportPhase();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.action_plan", "Export action plans", null, 80));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.action_plan", "Export action plans", 80));
 
 			// ****************************************************************
 			// * export action plans
 			// ****************************************************************
 			exportActionPlans();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.summaries", "Export summaries", null, 85));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.summaries", "Export summaries", 85));
 
 			// ****************************************************************
 			// * export summary
 			// ****************************************************************
 			exportActionPlanSummaries(this.analysis.getSummaries());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_register", "Export risk registers", null, 90));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_register", "Export risk registers", 90));
 
 			// ****************************************************************
 			// * export Risk Register
 			// ****************************************************************
 			exportRiskRegister();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("success.export.analysis", "Export done successfully", null, 95));
+			serviceTaskFeedback.send(idTask, new MessageHandler("success.export.analysis", "Export done successfully", 95));
 
 			System.out.println("Export Done!");
 
@@ -223,7 +223,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 			// * Display error message
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.unknown", "An unknown error occurred while exporting", null, e));
+			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.unknown", "An unknown error occurred while exporting", e));
 			System.out.println("Error while exporting!");
 			TrickLogManager.Persist(e);
 			return new MessageHandler(e);

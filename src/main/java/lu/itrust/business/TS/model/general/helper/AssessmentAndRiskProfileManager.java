@@ -38,19 +38,14 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 @Component
 public class AssessmentAndRiskProfileManager {
 
-	@Autowired
 	private DAOAnalysis daoAnalysis;
 
-	@Autowired
 	private DAOAssessment daoAssessment;
 
-	@Autowired
 	private DAOAsset daoAsset;
 
-	@Autowired
 	private DAORiskProfile daoRiskProfile;
 
-	@Autowired
 	private DAOScenario daoScenario;
 
 	@Transactional
@@ -233,7 +228,7 @@ public class AssessmentAndRiskProfileManager {
 		}
 		UpdateAssetALE(analysis);
 	}
-	
+
 	public void UpdateRiskDendencies(Analysis analysis, Map<String, ExtendedParameter> parametersMapped) throws Exception {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
 		if (analysis.isCssf() || !analysis.getRiskProfiles().isEmpty()) {
@@ -250,9 +245,9 @@ public class AssessmentAndRiskProfileManager {
 					} else {
 						if (assessment != null)
 							analysis.getAssessments().remove(assessment);
-						if (riskProfile != null) 
+						if (riskProfile != null)
 							analysis.getRiskProfiles().remove(riskProfile);
-				
+
 					}
 				}
 			}
@@ -273,7 +268,6 @@ public class AssessmentAndRiskProfileManager {
 		}
 		UpdateAssetALE(analysis);
 	}
-
 
 	/**
 	 * UpdateAssetALE: <br>
@@ -586,5 +580,77 @@ public class AssessmentAndRiskProfileManager {
 			return 0;
 		}
 	}
+
+	@Transactional
+	public void toggledAsset(int idAsset) {
+		Asset asset = daoAsset.get(idAsset);
+		if (asset.isSelected())
+			unSelectAsset(asset);
+		else
+			selectAsset(asset);
+	}
+
+	@Transactional
+	public void toggledAssets(List<Integer> ids) {
+		ids.forEach(idAsset -> toggledAsset(idAsset));
+	}
+	
+	@Transactional
+	public void toggledScenario(int idScenario) {
+		Scenario scenario = daoScenario.get(idScenario);
+		if (scenario.isSelected())
+			unSelectScenario(scenario);
+		else
+			selectScenario(scenario);
+	}
+
+	@Transactional
+	public void toggledScenarios(List<Integer> ids) {
+		ids.forEach(idScenario -> toggledScenario(idScenario));
+	}
+
+	/**
+	 * @param daoAnalysis the daoAnalysis to set
+	 */
+	@Autowired
+	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
+		this.daoAnalysis = daoAnalysis;
+	}
+
+	/**
+	 * @param daoAssessment the daoAssessment to set
+	 */
+	@Autowired
+	public void setDaoAssessment(DAOAssessment daoAssessment) {
+		this.daoAssessment = daoAssessment;
+	}
+
+	/**
+	 * @param daoAsset the daoAsset to set
+	 */
+	@Autowired
+	public void setDaoAsset(DAOAsset daoAsset) {
+		this.daoAsset = daoAsset;
+	}
+
+	/**
+	 * @param daoRiskProfile the daoRiskProfile to set
+	 */
+	@Autowired
+	public void setDaoRiskProfile(DAORiskProfile daoRiskProfile) {
+		this.daoRiskProfile = daoRiskProfile;
+	}
+
+	/**
+	 * @param daoScenario the daoScenario to set
+	 */
+	@Autowired
+	public void setDaoScenario(DAOScenario daoScenario) {
+		this.daoScenario = daoScenario;
+	}
+	
+	
+	
+	
 
 }

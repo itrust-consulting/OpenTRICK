@@ -10,15 +10,15 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<fmt:message key="label.title.compute.action_plan" />
+					<spring:message code="label.title.compute.action_plan" />
 				</h4>
 			</div>
 			<div class="modal-body">
 				<p>
-					<fmt:message key="label.title.options.select_norm" />
+					<spring:message code="label.title.options.select_norm" />
 				</p>
 				<p>
-					<fmt:message key="label.title.options.select_norm.info" />
+					<spring:message code="label.title.options.select_norm.info" />
 				</p>
 				<form action="${pageContext.request.contextPath}/ActionPlan/Compute?${_csrf.parameterName}=${_csrf.token}" method="post" class="form-horizontal" id="actionplancomputationoptionsform">
 					<c:if test="${!empty(id)}">
@@ -48,10 +48,10 @@
 			</div>
 			<div class="modal-footer">
 				<button id="computeActionPlanButton" type="button" class="btn btn-default" data-dismiss="modal" onclick="return calculateActionPlanWithOptions('actionplancomputationoptionsform')">
-					<fmt:message key="label.action.compute" />
+					<spring:message code="label.action.compute" />
 				</button>
 				<button id="cancelcomputeActionPlanButton" type="button" class="btn btn-default" data-dismiss="modal">
-					<fmt:message key="label.action.cancel" />
+					<spring:message code="label.action.cancel" />
 				</button>
 			</div>
 		</div>

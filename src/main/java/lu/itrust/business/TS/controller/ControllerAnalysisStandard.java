@@ -1,8 +1,5 @@
 package lu.itrust.business.TS.controller;
 
-import static lu.itrust.business.TS.model.general.OpenMode.READ;
-import static lu.itrust.business.TS.model.general.OpenMode.defaultValue;
-
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -170,8 +167,7 @@ public class ControllerAnalysisStandard {
 			return null;
 
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		if (mode == null)
-			mode = defaultValue();
+	
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
 		List<Standard> standards = new ArrayList<Standard>();
@@ -185,7 +181,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("measures", measures);
 
-		model.addAttribute("isEditable", mode != READ && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
@@ -213,8 +209,6 @@ public class ControllerAnalysisStandard {
 			return null;
 
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		if (mode == null)
-			mode = defaultValue();
 
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
@@ -246,7 +240,7 @@ public class ControllerAnalysisStandard {
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
-		model.addAttribute("isEditable", mode != READ && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		return "analyses/single/components/standards/standard/standards";
 	}
@@ -308,14 +302,12 @@ public class ControllerAnalysisStandard {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		if (mode == null)
-			mode = defaultValue();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
-		model.addAttribute("isEditable", mode != READ && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable",!OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
@@ -342,7 +334,7 @@ public class ControllerAnalysisStandard {
 
 		try {
 
-			locale = loadAnalysisLocale(idAnalysis, locale);
+			
 
 			List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 			for (AnalysisStandard standard : standards)
@@ -377,8 +369,6 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		try {
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
@@ -484,11 +474,8 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		try {
-
 			// retrieve analysis id
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			// create new standard object
 			Standard standard = buildStandard(errors, value, locale, analysis);
@@ -572,8 +559,6 @@ public class ControllerAnalysisStandard {
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-			locale = loadAnalysisLocale(idAnalysis, locale);
-
 			// create new standard object
 			Standard standard = buildStandard(errors, value, locale, analysis);
 
@@ -619,7 +604,6 @@ public class ControllerAnalysisStandard {
 			for (Standard standard : standards)
 				availableStandards.put(standard.getId(), standard.getLabel() + " - " + standard.getVersion());
 			return availableStandards;
-
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			availableStandards.clear();
@@ -645,8 +629,6 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-
-			locale = loadAnalysisLocale(idAnalysis, locale);
 
 			Standard standard = serviceStandard.get(idStandard);
 			if (standard == null)
@@ -709,11 +691,6 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
-	private Locale loadAnalysisLocale(Integer idAnalysis, Locale locale) throws Exception {
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		return customLocale == null ? locale : customLocale;
-	}
-
 	/**
 	 * removeStandard: <br>
 	 * Description
@@ -730,7 +707,7 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			locale = loadAnalysisLocale(idAnalysis, locale);
+			
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
@@ -935,8 +912,6 @@ public class ControllerAnalysisStandard {
 		try {
 
 			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
-
-			locale = new Locale(language.getAlpha2());
 
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
 

@@ -12,7 +12,7 @@
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4 class="col-lg-2">
-						<fmt:message key="label.title.editor.rrf" />
+						<spring:message code="label.title.editor.rrf" />
 					</h4>
 					<div class="col-lg-9" id="rrf-error" style="padding: 5px; font-size: 14px"></div>
 					<div class="clearfix"></div>
@@ -46,7 +46,7 @@
 										</div>
 									</div>
 									<div class="panel-footer">
-										<fmt:message key="label.rrf.scenario" />
+										<spring:message code="label.rrf.scenario" />
 									</div>
 								</div>
 								<div class="panel panel-primary">
@@ -80,7 +80,7 @@
 										</div>
 									</div>
 									<div class="panel-footer">
-										<fmt:message key="label.rrf.standard" />
+										<spring:message code="label.rrf.standard" />
 									</div>
 								</div>
 							</div>
@@ -96,11 +96,11 @@
 									<div class="panel panel-primary" id="control_rrf_scenario" style="display: none;">
 										<div class="panel-body">
 											<div style="overflow-x: auto;">
-												<label data-trick-controller-name='scenario' class="label label-danger"><fmt:message key="error.rrf.no_scenrario" /> </label>
+												<label data-trick-controller-name='scenario' class="label label-danger"><spring:message code="error.rrf.no_scenrario" /> </label>
 											</div>
 										</div>
 										<div class="panel-footer">
-											<fmt:message key="label.rrf.control.scenario" />
+											<spring:message code="label.rrf.control.scenario" />
 										</div>
 									</div>
 									<div class="panel panel-primary" id="control_rrf_measure">
@@ -111,9 +111,9 @@
 										</div>
 										<div class="panel-footer" style="padding: 0px">
 											<ul class="nav nav-pills">
-												<li class="disabled text"><a style="cursor: default; color: inherit;"><fmt:message key="label.rrf.control.measure" /></a></li>
-												<li id='measure-control-apply-sub-chapter' class="pull-right text-danger"><a href="#"><fmt:message key="label.rrf.control.measure.apply.sub.chapter" /></a></li>
-												<li id='measure-control-apply-selective-sub-chapter' class="pull-right text-danger"><a href="#"><fmt:message key="label.rrf.control.measure.apply.selective.sub.chapter" /></a></li>
+												<li class="disabled text"><a style="cursor: default; color: inherit;"><spring:message code="label.rrf.control.measure" /></a></li>
+												<li id='measure-control-apply-sub-chapter' class="pull-right text-danger"><a href="#"><spring:message code="label.rrf.control.measure.apply.sub.chapter" /></a></li>
+												<li id='measure-control-apply-selective-sub-chapter' class="pull-right text-danger"><a href="#"><spring:message code="label.rrf.control.measure.apply.selective.sub.chapter" /></a></li>
 												
 											
 											</ul>
@@ -125,7 +125,7 @@
 					</div>
 				</c:if>
 				<c:if test="${notenoughdata}">
-					<fmt:message key="error.label.rrf.not_enough_data" />
+					<spring:message code="error.label.rrf.not_enough_data" />
 				</c:if>
 			</div>
 		</div>

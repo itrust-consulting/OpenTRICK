@@ -236,4 +236,14 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 				.createQuery("Select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId and scenario.name = :scenario")
 				.setParameter("analysisId", analysisId).setParameter("scenario", name).uniqueResult();
 	}
+
+	@Override
+	public boolean belongsToAnalysis(Integer analysisId, List<Integer> scenarioIds) {
+		if(scenarioIds.isEmpty())
+			return true;
+		Long count = (Long) getSession()
+				.createQuery("Select count(scenario) From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisid and scenario.id in (:scenarioIds)")
+				.setInteger("analysisid", analysisId).setParameterList("scenarioIds", scenarioIds).uniqueResult();
+		return count == scenarioIds.size();
+	}
 }

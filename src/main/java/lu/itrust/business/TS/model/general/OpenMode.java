@@ -24,7 +24,7 @@ public enum OpenMode {
 	}
 
 	public static OpenMode defaultValue() {
-		return EDIT;
+		return READ;
 	}
 
 	/**

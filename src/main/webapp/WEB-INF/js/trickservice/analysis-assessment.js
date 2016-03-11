@@ -54,15 +54,22 @@ function saveAssessmentData(e) {
 						var updated = false;
 						for (var i = 0; i < response.fields.length; i++) {
 							var field = response.fields[i], $element = $target;
-							if (name != field.name)
+							if (name != field.name){
 								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
+								if(field.name == "computedNextImportance"){
+									$element.attr("placeholder", field.value).val(field.value);
+									var $nextImportance = $("[name='netImportance'].form-control", $assessmentUI), value = $nextImportance.val() | 0;
+									if(field.value!=value)
+										$element.parent().addClass("has-error");
+									else $element.parent().removeClass("has-error");
+								}
+							}
 							else
 								updated = true;
 							for ( var fieldName in field) {
 								switch (fieldName) {
 								case "value":
-									$element.attr("placeholder", field[fieldName]);
-									$element.val(field[fieldName]);
+									$element.attr("placeholder", field[fieldName]).val(field[fieldName]);
 									break;
 								case "title":
 									$element.attr(fieldName, field[fieldName]);

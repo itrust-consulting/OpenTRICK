@@ -102,7 +102,7 @@ public class WorkerExportWordReport implements Worker {
 			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", (String) null, this.error = e));
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
 			TrickLogManager.Persist(e);
 		} finally {
 			try {
@@ -137,11 +137,11 @@ public class WorkerExportWordReport implements Worker {
 		WordReport report = new WordReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
 				FileCopyUtils.copyToByteArray(file));
 		try {
-			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", null, 99));
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", 99));
 			session.getTransaction().begin();
 			new DAOWordReportHBM(session).saveOrUpdate(report);
 			session.getTransaction().commit();
-			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", null, 100);
+			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport", report.getId()));
 			exportAnalysisReport.getServiceTaskFeedback().send(id, messageHandler);
 			/**

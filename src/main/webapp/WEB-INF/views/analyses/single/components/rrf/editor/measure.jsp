@@ -8,8 +8,8 @@
 <table data-trick-controller-name='measure' class="table table-condensed" style="margin-bottom: 0;">
 	<thead>
 		<tr>
-			<th class="warning"><fmt:message key="label.rrf.measure.strength_measure" /></th>
-			<th class="warning"><fmt:message key="label.rrf.measure.strength_sectoral" /></th>
+			<th class="warning"><spring:message code="label.rrf.measure.strength_measure" /></th>
+			<th class="warning"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
 			<c:if test="${!empty(categories)}">
 				<c:forEach items="${categories.keySet()}" var="category">
 					<th class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
@@ -17,18 +17,18 @@
 				</c:forEach>
 			</c:if>
 
-			<th class="success"><fmt:message key="label.rrf.measure.preventive" /></th>
-			<th class="success"><fmt:message key="label.rrf.measure.detective" /></th>
-			<th class="success"><fmt:message key="label.rrf.measure.limitative" /></th>
-			<th class="success"><fmt:message key="label.rrf.measure.corrective" /></th>
-			<th class="warning"><fmt:message key="label.rrf.measure.intentional" /></th>
-			<th class="warning"><fmt:message key="label.rrf.measure.accidental" /></th>
-			<th class="warning"><fmt:message key="label.rrf.measure.environmental" /></th>
-			<th class="warning"><fmt:message key="label.rrf.measure.internal_threat" /></th>
-			<th class="warning"><fmt:message key="label.rrf.measure.external_threat" /></th>
+			<th class="success"><spring:message code="label.rrf.measure.preventive" /></th>
+			<th class="success"><spring:message code="label.rrf.measure.detective" /></th>
+			<th class="success"><spring:message code="label.rrf.measure.limitative" /></th>
+			<th class="success"><spring:message code="label.rrf.measure.corrective" /></th>
+			<th class="warning"><spring:message code="label.rrf.measure.intentional" /></th>
+			<th class="warning"><spring:message code="label.rrf.measure.accidental" /></th>
+			<th class="warning"><spring:message code="label.rrf.measure.environmental" /></th>
+			<th class="warning"><spring:message code="label.rrf.measure.internal_threat" /></th>
+			<th class="warning"><spring:message code="label.rrf.measure.external_threat" /></th>
 			<c:if test="${!empty(assetTypes)}">
 				<c:forEach items="${assetTypes}" var="assetType">
-					<th><fmt:message key='label.asset_type.${fn:toLowerCase(assetType.assetType.type)}' /></th>
+					<th><spring:message code='label.asset_type.${fn:toLowerCase(assetType.assetType.type)}' /></th>
 				</c:forEach>
 			</c:if>
 			<c:if test="${!empty(assets)}">

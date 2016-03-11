@@ -446,8 +446,8 @@ public class ControllerAdministration {
 	}
 
 	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Customer/{idCustomer}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String switchCUstomerForm(@PathVariable("idAnalysis") int idAnalysis, @PathVariable("idCustomer") int idCustomer, Principal principal, Model model,
-			RedirectAttributes attributes, Locale locale) throws Exception {
+	public @ResponseBody String switchCUstomerForm(@PathVariable("idAnalysis") int idAnalysis, @PathVariable("idCustomer") int idCustomer, Principal principal, Locale locale)
+			throws Exception {
 		String identifier = serviceAnalysis.getIdentifierByIdAnalysis(idAnalysis);
 		if (identifier == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
@@ -487,9 +487,7 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
-
 		model.put("roles", RoleType.values());
-
 		return "admin/user/roles";
 
 	}
@@ -506,15 +504,10 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
-
 		List<Role> userRoles = serviceRole.getAllFromUser(serviceUser.get(userId));
-
 		List<RoleType> roleTypes = new ArrayList<RoleType>();
-
-		for (Role role : userRoles) {
+		for (Role role : userRoles)
 			roleTypes.add(role.getType());
-		}
-
 		model.put("userRoles", roleTypes);
 		model.put("roles", RoleType.values());
 		return "admin/user/roles";
@@ -571,14 +564,14 @@ public class ControllerAdministration {
 								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
 								user.getLogin(), role.getType().name()));
 			}
-			return errors;
-
+		} catch (TrickException e) {
+			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			TrickLogManager.Persist(e);
-			return errors;
 		}
-
+		return errors;
 	}
 
 	/**

@@ -11,14 +11,14 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="title_raw_rrf">
-					<fmt:message key="label.title.import.raw.rrf" />
+					<spring:message code="label.title.import.raw.rrf" />
 				</h4>
 			</div>
 			<div class="modal-body">
 				<form name="importRawRRF" method="post" action="${pageContext.request.contextPath}/Analysis/RRF/Import/Raw/${idAnalysis}" class="form-inline" id="raw_rrf_form"
 					enctype="multipart/form-data">
 					<div class="row">
-						<label class="col-lg-12" for="name"> <fmt:message key="label.raw.rrf.choose.import.file" /></label>
+						<label class="col-lg-12" for="name"> <spring:message code="label.raw.rrf.choose.import.file" /></label>
 						<div class="col-lg-12">
 							<div class="input-group-btn">
 								<input id="file" type="file" accept=".xls,.xlsx" onchange='{$("#upload-file-info").prop("value", $(this).prop("value")); checkExtention($("#upload-file-info").val(),"xls,xlsx","#raw_rrf_import_button");}' name="file" style="display: none;" /> <input id="upload-file-info" class="form-control" readonly="readonly" required="required" style="width: 88%;" />

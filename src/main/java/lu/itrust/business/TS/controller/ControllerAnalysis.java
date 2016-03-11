@@ -182,7 +182,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String home(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
+	public String home(Principal principal, Model model, HttpSession session, Locale locale, HttpServletRequest request) throws Exception {
 		// retrieve analysisId if an analysis was already selected
 		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		OpenMode openMode = OpenMode.parseOrDefault(session.getAttribute(OPEN_MODE));
@@ -435,20 +435,13 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
-			if (analysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", customLocale != null ? customLocale : locale));
 			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
 		} catch (TrickException e) {
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", locale));
 		}
 	}
 
@@ -467,12 +460,10 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "read-only") String open,
-			HttpSession session, Locale locale) throws Exception {
+	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId,
+			@RequestParam(value = "open", defaultValue = "read-only") String open, HttpSession session) throws Exception {
 		// select the analysis
-		Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
 		session.setAttribute(SELECTED_ANALYSIS, analysisId);
-		session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, language == null ? locale.getISO3Country() : language.getAlpha2());
 		session.setAttribute(OPEN_MODE, OpenMode.parseOrDefault(open));
 		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
@@ -494,7 +485,6 @@ public class ControllerAnalysis {
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
 		session.removeAttribute(OPEN_MODE);
-		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
 		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (integer != null) {
 			session.removeAttribute(SELECTED_ANALYSIS);
@@ -590,6 +580,8 @@ public class ControllerAnalysis {
 			} else
 				// throw error
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		} catch (TrickException e) {
+			errors.put("owner", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			errors.put("owner", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
 			TrickLogManager.Persist(e);
@@ -616,16 +608,12 @@ public class ControllerAnalysis {
 
 		analysis.setDefaultProfile(true);
 		serviceAnalysis.saveOrUpdate(analysis);
-
 		if (currentProfileanalysis != null) {
-
 			if (currentProfileanalysis.getId() != analysisId) {
-
 				currentProfileanalysis.setDefaultProfile(false);
 				serviceAnalysis.saveOrUpdate(currentProfileanalysis);
 			}
 		}
-
 		return true;
 	}
 
@@ -731,12 +719,14 @@ public class ControllerAnalysis {
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
 			List<String> versions = serviceAnalysis.getAllNotEmptyVersion(analysis.getIdentifier());
+
 			Comparator<String> comparator = new Comparator<String>() {
 				@Override
 				public int compare(String o1, String o2) {
 					return GeneralComperator.VersionComparator(o1, o2);
 				}
 			};
+
 			Collections.sort(versions, Collections.reverseOrder(comparator));
 
 			String lastVersion = versions.get(0);
@@ -1009,6 +999,7 @@ public class ControllerAnalysis {
 				if (workbook != null)
 					workbook.close();
 			} catch (IOException e) {
+				TrickLogManager.Persist(e);
 				System.err.println("Close document: " + e.getMessage());
 			}
 		}
@@ -1148,19 +1139,20 @@ public class ControllerAnalysis {
 
 			if (!errors.isEmpty())
 				return false;
-
+			
 			analysis.setLabel(comment);
 			analysis.setLanguage(language);
 			analysis.setUncertainty(uncertainty);
 			analysis.setCssf(cssf);
-
 			serviceAnalysis.saveOrUpdate(analysis);
-
 			return true;
+		} catch (TrickException e) {
+			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			errors.put("analysis", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			TrickLogManager.Persist(e);
-			return false;
 		}
+		return false;
 	}
 }

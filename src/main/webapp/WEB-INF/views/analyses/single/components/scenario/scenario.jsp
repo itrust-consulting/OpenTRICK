@@ -6,67 +6,63 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<fmt:setLocale value="fr" scope="session" />
 <div class="tab-pane" id="tabScenario" data-callback="showTabEstimation" data-callback-data='scenario'>
 	<div class="section" id="section_scenario">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.scenario" />
+						<spring:message code="label.title.scenario" />
 					</h3>
 				</div>
 			</div>
 		</div>
-		<c:if test="${isEditable}">
-			<ul class="nav nav-pills bordered-bottom" id="menu_scenario">
-				
-				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /> </a></li>
-				
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
-							key="label.action.edit" /> </a></li>
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <fmt:message
-							key="label.action.select" /> </a></li>
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <fmt:message
-							key="label.action.unselect" /> </a></li>
-				
-				<%-- <c:if test="${!analysis.isProfile() }">
-					<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return showEstimation('scenario')"><span
-							class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.assessment" /> </a></li>
-				</c:if> --%>
-			
-				<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+		
+		<ul class="nav nav-pills bordered-bottom" id="menu_scenario">
+			<c:if test="${isEditable}">
+				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /> </a></li>
+
+				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#" onclick="return editScenario();"><span
+						class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /> </a></li>
+				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span
+						class="glyphicon glyphicon-plus-sign"></span> <fmt:message key="label.action.select" /> </a></li>
+				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span
+						class="glyphicon glyphicon-minus-sign "></span> <fmt:message key="label.action.unselect" /> </a></li>
+			</c:if>
+			<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return showEstimation('scenario')"><span
+					class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.assessment" /> </a></li>
+			<c:if test="${isEditable}">
+				<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 				<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span
-						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /> </a></li>
-			</ul>
-		</c:if>
+						class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete" /> </a></li>
+			</c:if>
+		</ul>
 		<table id="scenariotable" class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
-					<%-- <c:choose>
+					<c:choose>
 						<c:when test="${isEditable}">
 							<th style="width: 2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
 						</c:when>
 						<c:otherwise>
 							<th style="width: 2%"></th>
 						</c:otherwise>
-					</c:choose> --%>
-					<c:if test="${isEditable}">
-						<th style="width: 2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
-					</c:if>
-					<th style="width:3%"><fmt:message key="label.row.index" /></th>
-					<th style="width:25%"><fmt:message key="label.scenario.name" /></th>
-					<th style="width:5%"><fmt:message key="label.scenario.type" /></th>
+					</c:choose>
+					<th style="width:3%"><spring:message code="label.row.index" /></th>
+					<th style="width:25%"><spring:message code="label.scenario.name" /></th>
+					<th style="width:5%"><spring:message code="label.scenario.type" /></th>
 					<c:choose>
 						<c:when test="${show_uncertainty}">
-							<th style="width:5%"><fmt:message key="label.scenario.aleo" /></th>
-							<th style="width:5%"><fmt:message key="label.scenario.ale" /></th>
-							<th style="width:5%"><fmt:message key="label.scenario.alep" /></th>
+							<th style="width:5%"><spring:message code="label.scenario.aleo" /></th>
+							<th style="width:5%"><spring:message code="label.scenario.ale" /></th>
+							<th style="width:5%"><spring:message code="label.scenario.alep" /></th>
 						</c:when>
 						<c:otherwise>
-							<th style="width:5%"><fmt:message key="label.scenario.ale" /></th>
+							<th style="width:5%"><spring:message code="label.scenario.ale" /></th>
 						</c:otherwise>
 					</c:choose>
-					<th><fmt:message key="label.scenario.description" /></th>
+					<th><spring:message code="label.scenario.description" /></th>
 				</tr>
 			</thead>
 			<tfoot></tfoot>
@@ -80,8 +76,7 @@
 						</c:if>
 						<td>${status.index+1}</td>
 						<td><spring:message text="${scenario.name}" /></td>
-						<td><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
-						<fmt:setLocale value="fr" scope="session" />
+						<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber
@@ -96,7 +91,7 @@
 										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
 							</c:otherwise>
 						</c:choose>
-						<fmt:setLocale value="${language}" scope="session" />
+						
 						<td onclick="editField(this.firstElementChild);"><pre  data-trick-field="description" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.description}" /></pre></td>
 					</tr>
 				</c:forEach>
@@ -105,8 +100,7 @@
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(scenarioALE)" var="ale" />
-						<td colspan="4"><fmt:message key="label.total.ale" /></td>
-						<fmt:setLocale value="fr" scope="session" />
+						<td colspan="4"><spring:message code="label.total.ale" /></td>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber
@@ -121,7 +115,6 @@
 										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
 							</c:otherwise>
 						</c:choose>
-						<fmt:setLocale value="${language}" scope="session" />
 						<td colspan="2"></td>
 					</tr>
 				</tfoot>

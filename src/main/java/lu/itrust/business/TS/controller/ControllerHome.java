@@ -63,10 +63,8 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
-		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().length() == 2 ? message.getLanguage() : message.getLanguage().substring(0, 2))
-				: null;
 		return String.format("{\"message\":\"%s\"}",
-				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
+				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
 	}
 	
 	@PreAuthorize(Constant.ROLE_MIN_USER)

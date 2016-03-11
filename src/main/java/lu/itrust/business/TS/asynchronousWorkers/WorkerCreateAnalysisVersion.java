@@ -111,7 +111,6 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	@Override
 	public void run() {
 		Session session = null;
-		String language = null;
 		try {
 
 			synchronized (this) {
@@ -133,14 +132,12 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			Analysis analysis = duplicator.getDaoAnalysis().get(idAnalysis);
 
 			if (analysis == null)
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", language, 0));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", 0));
 			else {
-
-				language = analysis.getLanguage().getAlpha2();
-
+				
 				Analysis copy = duplicator.duplicateAnalysis(analysis, null, serviceTaskFeedback, id, 5, 95);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.update.setting", "Update analysis settings", language, 95));
+				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.update.setting", "Update analysis settings", 95));
 
 				copy.setBasedOnAnalysis(analysis);
 
@@ -162,15 +159,15 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				userAnalysisRight.setRight(AnalysisRight.ALL);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.saving.analysis", "Saving analysis", language, 96));
+				serviceTaskFeedback.send(id, new MessageHandler("info.saving.analysis", "Saving analysis", 96));
 
 				duplicator.getDaoAnalysis().saveOrUpdate(copy);
 
-				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", language, 98));
+				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", 98));
 
 				session.getTransaction().commit();
 
-				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", language, 100));
+				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", 100));
 
 				/**
 				 * Log
@@ -181,7 +178,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			}
 
 		} catch (InterruptedException e) {
-			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", language, 0));
+			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", 0));
 			rollback(session);
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
@@ -189,7 +186,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			rollback(session);
-			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", language, 0));
+			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", 0));
 			TrickLogManager.Persist(e);
 		} finally {
 			try {

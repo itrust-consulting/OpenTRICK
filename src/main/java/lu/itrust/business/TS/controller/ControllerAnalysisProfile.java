@@ -41,7 +41,11 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
@@ -100,6 +104,7 @@ public class ControllerAnalysisProfile {
 	public @ResponseBody Map<String, String> saveProfile(@RequestBody String value, Principal principal, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
+		int analysisId = -1;
 		try {
 
 			PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
@@ -108,10 +113,10 @@ public class ControllerAnalysisProfile {
 			JsonNode jsonNode = mapper.readTree(value);
 
 			// retrieve analysis id to compute
-			int analysisId = jsonNode.get("id").asInt();
-			
+			analysisId = jsonNode.get("id").asInt();
+
 			if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)
-				|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
+					|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
 
 				String name = jsonNode.get("description").asText();
 
@@ -127,8 +132,9 @@ public class ControllerAnalysisProfile {
 				if (StringUtils.isEmpty(name)) {
 					errors.put("description", messageSource.getMessage("error.analysis_profile.empty_description", null, "Description cannot be empty", locale));
 					return errors;
-				}else if(serviceAnalysis.isProfileNameInUsed(name)){
-					errors.put("description", messageSource.getMessage("error.analysis_profile.name_in_used", null, "Another analysis profile with the same description already exists", locale));
+				} else if (serviceAnalysis.isProfileNameInUsed(name)) {
+					errors.put("description",
+							messageSource.getMessage("error.analysis_profile.name_in_used", null, "Another analysis profile with the same description already exists", locale));
 					return errors;
 				}
 
@@ -141,11 +147,17 @@ public class ControllerAnalysisProfile {
 				return errors;
 			} else
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			errors.put("analysisprofile", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (AccessDeniedException e) {
+			TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis_profile.access_deny", String.format("Analysis: %d", analysisId), principal.getName(),
+					LogAction.DENY_ACCESS, analysisId + "");
+			errors.put("analysisprofile", e.getMessage());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			errors.put("analysisprofile", e.getMessage());
 		}
-
 		return errors;
 
 	}

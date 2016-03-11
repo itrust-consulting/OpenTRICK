@@ -40,7 +40,7 @@ function calculateActionPlanWithOptions(form) {
 		contentType : "application/json",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
-				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan", null, findAnalysisLocale()))
+				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan"))
 						.Start();
 			else if (response["error"]) {
 				$("#alert-dialog .modal-body").html(response["error"]);
