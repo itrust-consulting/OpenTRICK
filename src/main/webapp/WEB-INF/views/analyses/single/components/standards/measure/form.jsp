@@ -30,7 +30,7 @@
 							<li><a href="#tab_asset" data-toggle="tab"><spring:message code="label.menu.assetmeasure.assets" text="Assets" /></a></li>
 						</c:if>
 					</c:if>
-					<c:if test="${isComputable or measureForm.type == 'ASSET' or not isAnalysisOnly}">
+					<c:if test="${isComputable or not isAnalysisOnly}">
 						<li ${empty(isAnalysisOnly) or not isAnalysisOnly ?'class="active"':''}><a href="#tab_properties" data-toggle="tab"><spring:message
 									code="label.menu.assetmeasure.properties" text="Properties" /></a></li>
 					</c:if>

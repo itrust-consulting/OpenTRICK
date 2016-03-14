@@ -1,6 +1,5 @@
  
  -- TABLES
- 
 CREATE TABLE `identifier` ( `id_analysis` VARCHAR(23) NOT NULL  UNIQUE ,`label` VARCHAR(255) NOT NULL UNIQUE, `cssf` BOOL DEFAULT FALSE, `uncertainty` BOOL DEFAULT false, PRIMARY KEY (`id_analysis`, `label`))
 CREATE TABLE assessment (id_asset INTEGER NOT NULL, id_threat INTEGER NOT NULL, selected TEXT DEFAULT '',  impact_reputation TEXT NOT NULL DEFAULT 0, impact_operational TEXT NOT NULL DEFAULT 0, impact_legal TEXT NOT NULL DEFAULT 0, impact_financial TEXT NOT NULL DEFAULT 0, impact_hidden DOUBLE NOT NULL DEFAULT 0, potentiality TEXT NOT NULL DEFAULT 'i', potentiality_hidden DOUBLE NOT NULL DEFAULT 0, comment TEXT DEFAULT '', comment_2 TEXT DEFAULT '', owner TEXT DEFAULT '', total_ALE DOUBLE NOT NULL DEFAULT 0 , `uncertainty` DOUBLE DEFAULT 2);
 CREATE TABLE asset_types (id_type_asset INTEGER PRIMARY KEY NOT NULL, name_type_asset TEXT NOT NULL DEFAULT '');

@@ -614,7 +614,7 @@ function closePopover() {
 }
 
 $(document).ready(function() {
-	var token = $("meta[name='_csrf']").attr("content"), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
+	var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
 	$(document).ajaxSend(function(e, xhr, options) {
 		xhr.setRequestHeader(header, token);
 	});
@@ -734,14 +734,18 @@ $(document).ready(function() {
 			application["no-update-hash"] = false;
 		});
 
-		if (window.location.hash)
+		if (window.location.hash) {
 			$window.trigger("hashchange");
+			$bodyHtml.animate({
+				scrollTop : 0
+			}, 20);
+		}
 
 		$('a[data-toggle="tab"]', $tabNav).on('show.bs.tab', closePopover).on('shown.bs.tab', function(e) {
 			
-			$('body,html').animate({
+			$bodyHtml.animate({
 				scrollTop : 0
-			}, 100);
+			}, 20);
 			
 			var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
 			if (window[callback] != undefined) {

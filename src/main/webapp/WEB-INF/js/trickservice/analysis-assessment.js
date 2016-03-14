@@ -54,18 +54,20 @@ function saveAssessmentData(e) {
 						var updated = false;
 						for (var i = 0; i < response.fields.length; i++) {
 							var field = response.fields[i], $element = $target;
-							if (name != field.name){
+							if (name == field.name)
+								updated = true;
+							else {
 								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
-								if(field.name == "computedNextImportance"){
+								if (field.name == "computedNextImportance") {
 									$element.attr("placeholder", field.value).val(field.value);
 									var $nextImportance = $("[name='netImportance'].form-control", $assessmentUI), value = $nextImportance.val() | 0;
-									if(field.value!=value)
+									if (field.value != value)
 										$element.parent().addClass("has-error");
-									else $element.parent().removeClass("has-error");
+									else
+										$element.parent().removeClass("has-error");
+									continue;
 								}
 							}
-							else
-								updated = true;
 							for ( var fieldName in field) {
 								switch (fieldName) {
 								case "value":
@@ -78,7 +80,7 @@ function saveAssessmentData(e) {
 							}
 						}
 						if (!updated)
-							$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", value);
+							$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", $target.val());
 					}
 				}
 			},
