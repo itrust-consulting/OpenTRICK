@@ -38,7 +38,6 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -90,8 +89,6 @@ public class ControllerAsset {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
-	@Autowired
-	private ServiceLanguage serviceLanguage;
 
 	/**
 	 * select: <br>
@@ -201,7 +198,6 @@ public class ControllerAsset {
 		model.addAttribute("assets", assets);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
 		return "analyses/single/components/asset/asset";
 	}
 
@@ -244,6 +240,10 @@ public class ControllerAsset {
 		try {
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			
+			if(serviceAnalysis.isProfile(idAnalysis))
+				throw new TrickException("error.action.not_authorise", "Action does not authorised");
+			
 			// create new asset object
 			Asset asset = new Asset();
 			// build asset

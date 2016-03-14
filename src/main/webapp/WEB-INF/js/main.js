@@ -719,7 +719,10 @@ $(document)
 									}
 								}
 							}
-							tabMenu.find('a[data-toggle="tab"]').on('shown.bs.tab', function() {
+							
+							tabMenu.find('a[data-toggle="tab"]').on("show.bs.tab",function(){
+								window.scrollTo(0,0);
+							}).on('shown.bs.tab', function() {
 								closePopover();
 								$window.scroll();
 							});
@@ -749,7 +752,9 @@ $(document)
 						if (window.location.hash)
 							$window.trigger("hashchange");
 
-						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+						$('a[data-toggle="tab"]', $tabNav).on('show.bs.tab',function(){
+							window.scrollTo(0,0);
+						}).on('shown.bs.tab', function(e) {
 							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
 							if (window[callback] != undefined) {
 								var data = $target.attr("data-callback-data");

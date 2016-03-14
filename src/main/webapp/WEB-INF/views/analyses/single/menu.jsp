@@ -6,12 +6,12 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <ul class="nav nav-tabs affix affix-top nav-analysis col-xs-12">
-	<c:if test="${!analysis.isProfile()}">
+	<c:if test="${!isProfile}">
 		<li class="active"><a href="#tabHistory" data-toggle="tab"><spring:message code="label.menu.analysis.history" /></a></li>
 	</c:if>
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_context" /><span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<c:if test="${!analysis.isProfile()}">
+			<c:if test="${!isProfile}">
 				<li><a href="#tabScope" data-toggle="tab"><spring:message code="label.menu.analysis.item_information" /></a></li>
 				<li class="divider"></li>
 			</c:if>
@@ -22,7 +22,7 @@
 
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_analysis" /> <span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<c:if test="${!analysis.isProfile()}">
+			<c:if test="${!isProfile}">
 				<li class="dropdown-header"><spring:message code="label.menu.analysis.qualitative_analysis" /></li>
 				<li><a href="#tabRiskInformation_Threat" data-toggle="tab"><spring:message code="label.menu.analysis.threat" /></a></li>
 				<li><a href="#tabRiskInformation_Vul" data-toggle="tab"><spring:message code="label.menu.analysis.vulnerability" /></a></li>
@@ -30,18 +30,21 @@
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.quantitative_analysis" /></li>
-			<c:if test="${!analysis.isProfile()}">
+			<c:if test="${!isProfile}">
 				<li><a href="#tabAsset" data-toggle="tab"><spring:message code="label.menu.analysis.asset" /></a></li>
 			</c:if>
 			<li><a href="#tabScenario" data-toggle="tab"><spring:message code="label.menu.analysis.scenario" /></a></li>
-			<li class="divider"></li>
-			<li><a href="?open=${open.readOnly?'read-only' : 'edit'}-estimation"><spring:message code="label.analysis" /></a></li>
-			<li hidden="hidden" data-menu='estimation' data-type='asset'><a href="#tabEstimationAsset" data-toggle="tab"><spring:message code="label.action.assessment" /></a></li>
-			<li hidden="hidden" data-menu='estimation' data-type='scenario'><a href="#tabEstimationScenario" data-toggle="tab"><spring:message code="label.action.assessment" /></a></li>
+			<c:if test="${!isProfile}">
+				<li class="divider"></li>
+				<li class="dropdown-header"><spring:message code="label.action.assessment.by" /></li>
+				<li><a href="?open=${open.readOnly?'read-only' : 'edit'}-estimation"><spring:message code="label.action.risk_sheet" /></a></li>
+				<li hidden="hidden" data-menu='estimation' data-type='asset'><a href="#tabEstimationAsset" data-toggle="tab"><spring:message code="label.action.table_view" /></a></li>
+				<li hidden="hidden" data-menu='estimation' data-type='scenario'><a href="#tabEstimationScenario" data-toggle="tab"><spring:message code="label.action.table_view" /></a></li>
+			</c:if>
 		</ul></li>
 
-	<li class="dropdown-submenu" id="tabStandard"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_treatment_compliance" /><span
-			class="caret"></span></a>
+	<li class="dropdown-submenu" id="tabStandard"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message
+				code="label.menu.analysis.risk_treatment_compliance" /><span class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.standards" /></li>
 			<c:if test="${!empty(standards)}">
@@ -50,9 +53,10 @@
 				</c:forEach>
 				<li class="divider"></li>
 			</c:if>
-			<c:if test="${analysis.isProfile() || isEditable}">
+			<c:if test="${isProfile || isEditable}">
 				<c:if test="${!empty(standards)}">
-					<li title='<spring:message code="label.menu.view.measures"/>'><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <spring:message code="label.action.edit" /></a></li>
+					<li title='<spring:message code="label.menu.view.measures"/>'><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <spring:message
+								code="label.action.edit" /></a></li>
 				</c:if>
 				<li title='<spring:message code="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <fmt:message
 							key="label.action.manage" /></a></li>
@@ -60,12 +64,13 @@
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.implementation" /></li>
 			<li><a href="#tabPhase" data-toggle="tab"> <spring:message code="label.menu.analysis.phase" /></a></li>
-			<c:if test="${!analysis.isProfile()}">
+			<c:if test="${!isProfile}">
 				<li><a href="#tabActionPlan" data-toggle="tab"> <spring:message code="label.menu.analysis.action_plan" /></a></li>
 			</c:if>
 		</ul></li>
-	<c:if test="${!analysis.isProfile()}">
-		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.risk_communication" /><span class="caret"></span></a>
+	<c:if test="${!isProfile}">
+		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.risk_communication" /><span
+				class="caret"></span></a>
 			<ul class="dropdown-menu">
 				<c:if test="${!empty(soa)}">
 					<li><a href="#tabSOA" data-toggle="tab"> <spring:message code="label.menu.analysis.soa" /></a></li>
@@ -91,7 +96,7 @@
 	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle text-muted" data-toggle="dropdown" title='<spring:message code="label.actions" />'
 		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-cog fa-2x"></i></a>
 		<ul class="dropdown-menu" id="actionmenu">
-			<c:if test="${not analysis.profile}">
+			<c:if test="${not isProfile}">
 				<li class="dropdown-header"><spring:message code="label.title.computation" /></li>
 				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" />
 				</a></li>
@@ -108,7 +113,7 @@
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
-			<c:if test="${analysis.profile or isEditable}">
+			<c:if test="${isProfile or isEditable}">
 				<li class="dropdown-header"><spring:message code="label.title.edit_mode" /></li>
 				<li role="enterEditMode"><a href="#" onclick="return enableEditMode()"><spring:message code="label.action.edit_mode.open" /></a></li>
 				<li class="disabled" onclick="return disableEditMode()" role="leaveEditMode"><a href="#"><spring:message code="label.action.edit_mode.close" /></a></li>
@@ -116,14 +121,14 @@
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
 			<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.open" /></a></li>
-			<c:if test="${analysis.profile or isEditable}">
+			<c:if test="${isProfile or isEditable}">
 				<li><a href="#" onclick="return importRRF(${analysis.id});"> <spring:message code="label.action.import" /></a></li>
 				<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
 			</c:if>
 			<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
 				<li><a href="#" onclick="return exportRawRRF(${analysis.id});"> <spring:message code="label.action.export.rrf.raw" /></a></li>
 			</c:if>
-			<c:if test="${not analysis.profile and isEditable}">
+			<c:if test="${not isProfile and isEditable}">
 				<li class="divider"></li>
 				<li class="dropdown-header"><spring:message code="label.title.assessment" /></li>
 				<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>

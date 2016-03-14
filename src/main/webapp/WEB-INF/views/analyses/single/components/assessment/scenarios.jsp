@@ -36,6 +36,7 @@
 						<th style="width: 2%" title='<spring:message code="label.title.ale" />'><spring:message code="label.assessment.ale" /></th>
 					</c:otherwise>
 				</c:choose>
+				<th width="2%"><spring:message code="label.title.owner" text="Owner" /></th>
 				<th style="width: 30%" title='<spring:message code="label.assessment.comment" />'><spring:message code="label.assessment.comment" /></th>
 				<th style="width: 30%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
 			</tr>
@@ -161,6 +162,7 @@
 						<c:if test="${show_uncertainty}">
 							<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></td>
 						</c:if>
+						<td class="success" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
 						<td class="success" onclick="return editField(this.firstChild);"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${assessment.comment}" /></pre></td>
 						<td class="success" onclick="return editField(this.firstChild);"><pre data-trick-field="hiddenComment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${assessment.hiddenComment}" /></pre></td>
 					</tr>
@@ -192,7 +194,7 @@
 							<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
 						</c:otherwise>
 					</c:choose>
-					<td colspan="2" />
+					<td colspan="3" />
 				</tr>
 			</c:if>
 		</tbody>

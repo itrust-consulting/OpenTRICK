@@ -1,8 +1,5 @@
 package lu.itrust.business.TS.controller;
 
-import static lu.itrust.business.TS.model.general.OpenMode.READ;
-import static lu.itrust.business.TS.model.general.OpenMode.defaultValue;
-
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -35,7 +32,6 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
@@ -82,9 +78,6 @@ public class ControllerScenario {
 
 	@Autowired
 	private MessageSource messageSource;
-
-	@Autowired
-	private ServiceLanguage serviceLanguage;
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
@@ -208,23 +201,17 @@ public class ControllerScenario {
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
-
 		// retrieve analysis id
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (integer == null)
-			return null;
 		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		if (open == null)
-			open = defaultValue();
-
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentAndRiskProfileManager.ComputeScenarioALE(scenarios, assessments));
-		model.addAttribute("isEditable", open != READ && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
+		model.addAttribute("isProfile", serviceAnalysis.isProfile(integer));
 		return "analyses/single/components/scenario/scenario";
 	}
 
