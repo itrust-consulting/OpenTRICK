@@ -111,7 +111,7 @@ public class ControllerAsset {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -398,7 +398,7 @@ public class ControllerAsset {
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 			// return error message
-			errors.put("asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("asset",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

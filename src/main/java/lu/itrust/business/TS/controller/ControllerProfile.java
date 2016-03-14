@@ -339,7 +339,7 @@ public class ControllerProfile {
 
 		} catch (Exception e) {
 
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -433,7 +433,7 @@ public class ControllerProfile {
 					user.setLocale(userlocale);
 			}
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

@@ -23,7 +23,7 @@
 			<c:if test="${isEditable}">
 				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /> </a></li>
 				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#" onclick="return editScenario();"><span
-						class="glyphicon glyphicon-edit danger"></span> <fmt:message key="label.action.edit" /> </a></li>
+						class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /> </a></li>
 			</c:if>
 			<c:if test="${!isProfile}">
 				<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('scenario')"><a href="#" onclick="return showEstimation('scenario')"><span
@@ -31,9 +31,9 @@
 			</c:if>
 			<c:if test="${isEditable}">
 				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span
-						class="glyphicon glyphicon-plus-sign"></span> <fmt:message key="label.action.select" /> </a></li>
+						class="glyphicon glyphicon-plus-sign"></span> <spring:message code="label.action.select" /> </a></li>
 				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span
-						class="glyphicon glyphicon-minus-sign "></span> <fmt:message key="label.action.unselect" /> </a></li>
+						class="glyphicon glyphicon-minus-sign "></span> <spring:message code="label.action.unselect" /> </a></li>
 
 
 				<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>

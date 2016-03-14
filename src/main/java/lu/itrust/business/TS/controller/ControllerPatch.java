@@ -209,7 +209,7 @@ public class ControllerPatch {
 	public @ResponseBody String updateScope(Principal principal, Locale locale) {
 		try {
 			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
-			String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria" };
+			String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria"};
 			boolean saveRequired = false;
 			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
 				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {

@@ -151,7 +151,7 @@ public class ControllerCustomer {
 			return loadCustomerUsers(customerID, model, principal);
 		} catch (Exception e) {
 			// return errors
-			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return loadCustomerUsers(customerID, model, principal);
 		}
@@ -240,7 +240,7 @@ public class ControllerCustomer {
 				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer", String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("customer",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -346,7 +346,7 @@ public class ControllerCustomer {
 
 			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
 		} catch (Exception e) {
-			errors.put("customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("customer",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

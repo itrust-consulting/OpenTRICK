@@ -113,7 +113,7 @@ public class ControllerAnalysisManageAccess {
 			return "analyses/all/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors
-			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return "analyses/all/forms/manageUserAnalysisRights";
 		}

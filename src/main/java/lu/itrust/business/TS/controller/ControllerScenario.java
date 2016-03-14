@@ -119,7 +119,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -153,7 +153,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
+			errors.add(JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale)));
 			return errors;
 		}
 	}
@@ -295,10 +295,12 @@ public class ControllerScenario {
 		try {
 			// get analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 
-			Scenario scenario = buildScenario(errors, assetTypes, value, locale, serviceAnalysis.isAnalysisCssf(idAnalysis));
+			Scenario scenario = buildScenario(errors, assetTypes, value, locale, analysis.isCssf());
 
 			if (!errors.isEmpty())
 				return errors;
@@ -309,29 +311,26 @@ public class ControllerScenario {
 					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis", locale));
 					return errors;
 				}
-
+				
 				serviceScenario.saveOrUpdate(scenario);
-
+				
+				if (scenario.isSelected())
+					assessmentAndRiskProfileManager.selectScenario(scenario);
+				else
+					assessmentAndRiskProfileManager.unSelectScenario(scenario);
+				
 			} else {
 				if (serviceScenario.exist(idAnalysis, scenario.getName())) {
-
 					errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
 							String.format("Scenario (%s) already exists", scenario.getName()), locale));
 					return errors;
-				} else {
-					Analysis analysis = serviceAnalysis.get(idAnalysis);
-					analysis.addAScenario(scenario);
-					serviceAnalysis.saveOrUpdate(analysis);
 				}
 			}
 
-			if (scenario.isSelected())
-				assessmentAndRiskProfileManager.selectScenario(scenario);
-			else
-				assessmentAndRiskProfileManager.unSelectScenario(scenario);
-
-			assessmentAndRiskProfileManager.build(scenario, idAnalysis);
-
+			assessmentAndRiskProfileManager.buildOnly(scenario, analysis);
+			
+			serviceAnalysis.saveOrUpdate(analysis);
+	
 			return errors;
 
 		} catch (TrickException e) {
@@ -339,7 +338,7 @@ public class ControllerScenario {
 			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
-			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("scenario", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -477,7 +476,7 @@ public class ControllerScenario {
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 
-			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("scenario",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

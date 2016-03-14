@@ -63,9 +63,15 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void build(Scenario scenario, int idAnalysis) {
+	public void build(int idScenario, int idAnalysis) {
 		Analysis analysis = daoAnalysis.get(idAnalysis);
-		if (analysis == null)
+		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
+		buildOnly(scenario, analysis);
+		daoAnalysis.saveOrUpdate(analysis);
+	}
+
+	public void buildOnly(Scenario scenario, Analysis analysis) {
+		if (analysis == null || scenario == null)
 			return;
 		if (scenario.getId() < 1)
 			analysis.addAScenario(scenario);
@@ -329,7 +335,7 @@ public class AssessmentAndRiskProfileManager {
 
 	private void build(Scenario scenario, Analysis analysis) {
 		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
-		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByAssetId(scenario.getId());
+		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByScenarioId(scenario.getId());
 		analysis.getAssets().forEach(asset -> {
 			Assessment assessment = assetAssessments.get(asset.getId());
 			RiskProfile riskProfile = riskProfiles.get(asset.getId());
@@ -594,7 +600,7 @@ public class AssessmentAndRiskProfileManager {
 	public void toggledAssets(List<Integer> ids) {
 		ids.forEach(idAsset -> toggledAsset(idAsset));
 	}
-	
+
 	@Transactional
 	public void toggledScenario(int idScenario) {
 		Scenario scenario = daoScenario.get(idScenario);
@@ -610,7 +616,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoAnalysis the daoAnalysis to set
+	 * @param daoAnalysis
+	 *            the daoAnalysis to set
 	 */
 	@Autowired
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
@@ -618,7 +625,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoAssessment the daoAssessment to set
+	 * @param daoAssessment
+	 *            the daoAssessment to set
 	 */
 	@Autowired
 	public void setDaoAssessment(DAOAssessment daoAssessment) {
@@ -626,7 +634,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoAsset the daoAsset to set
+	 * @param daoAsset
+	 *            the daoAsset to set
 	 */
 	@Autowired
 	public void setDaoAsset(DAOAsset daoAsset) {
@@ -634,7 +643,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoRiskProfile the daoRiskProfile to set
+	 * @param daoRiskProfile
+	 *            the daoRiskProfile to set
 	 */
 	@Autowired
 	public void setDaoRiskProfile(DAORiskProfile daoRiskProfile) {
@@ -642,15 +652,12 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * @param daoScenario the daoScenario to set
+	 * @param daoScenario
+	 *            the daoScenario to set
 	 */
 	@Autowired
 	public void setDaoScenario(DAOScenario daoScenario) {
 		this.daoScenario = daoScenario;
 	}
-	
-	
-	
-	
 
 }

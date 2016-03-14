@@ -2588,4 +2588,9 @@ public class Analysis implements Cloneable {
 				.findAny().orElse(null);
 	}
 
+	public Map<Integer, RiskProfile> findRiskProfileByScenarioId(int idScenario) {
+		return riskProfiles.stream().filter(riskRegister -> riskRegister.getScenario().getId() == idScenario)
+				.collect(Collectors.toMap(riskRegister -> riskRegister.getAsset().getId(), Function.identity()));
+	}
+
 }

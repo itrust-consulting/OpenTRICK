@@ -12,8 +12,7 @@
 			<li><a onclick="return addStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.action.add" /></a></li>
 			<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a onclick="return editStandard();" href="#"><span
 					class="glyphicon glyphicon-edit primary"></span>&nbsp;<spring:message code="label.action.edit" /></a></li>
-			<li data-trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<fmt:message
-						key="label.action.remove" /></a></li>
+			<li data-trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<spring:message code="label.action.remove" /></a></li>
 		</ul>
 	</div>
 	<div class="panel-body" style="max-height: 700px; overflow: auto;">

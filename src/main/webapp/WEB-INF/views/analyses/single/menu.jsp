@@ -58,8 +58,7 @@
 					<li title='<spring:message code="label.menu.view.measures"/>'><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <spring:message
 								code="label.action.edit" /></a></li>
 				</c:if>
-				<li title='<spring:message code="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <fmt:message
-							key="label.action.manage" /></a></li>
+				<li title='<spring:message code="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <spring:message code="label.action.manage" /></a></li>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.implementation" /></li>

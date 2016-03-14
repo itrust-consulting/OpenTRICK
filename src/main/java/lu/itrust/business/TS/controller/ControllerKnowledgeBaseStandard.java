@@ -254,7 +254,7 @@ public class ControllerKnowledgeBaseStandard {
 			// errors
 		} catch (Exception e) {
 			// return errors
-			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -875,7 +875,7 @@ public class ControllerKnowledgeBaseStandard {
 		catch (Exception e) {
 
 			// return errors
-			errors.put("measuredescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("measuredescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -1048,7 +1048,7 @@ public class ControllerKnowledgeBaseStandard {
 		} catch (Exception e) {
 
 			// return error message
-			errors.put("measureDescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("measureDescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}
@@ -1137,7 +1137,7 @@ public class ControllerKnowledgeBaseStandard {
 
 		} catch (Exception e) {
 			// return error
-			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return false;
 		}

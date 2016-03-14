@@ -274,7 +274,7 @@ public class ControllerRegister {
 
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			attributes.addFlashAttribute("error",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 		return "redirect:/Login";
 	}
@@ -442,7 +442,7 @@ public class ControllerRegister {
 				user.setLocale(userlocale);
 
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

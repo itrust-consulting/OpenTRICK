@@ -573,7 +573,7 @@ public class ControllerRRF {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 
 	}

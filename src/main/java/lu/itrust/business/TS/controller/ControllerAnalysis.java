@@ -1139,18 +1139,20 @@ public class ControllerAnalysis {
 
 			if (!errors.isEmpty())
 				return false;
-			
+			boolean update = analysis.getId() > 0 && !analysis.isProfile() && cssf != analysis.isCssf();
 			analysis.setLabel(comment);
 			analysis.setLanguage(language);
 			analysis.setUncertainty(uncertainty);
 			analysis.setCssf(cssf);
+			if (update)
+				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("analysis", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("analysis", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return false;

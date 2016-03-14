@@ -33,8 +33,8 @@
 									<c:when test="${!empty(scenariotypes)}">
 										<option value='-1'><spring:message code="label.scenario.type.select" /></option>
 										<c:forEach items="${scenariotypes}" var="scenariotype">
-											<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><fmt:message
-													key="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
+											<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><spring:message
+													code="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>

@@ -431,7 +431,7 @@ public class ControllerAdministration {
 			return "analyses/all/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors
-			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return "analyses/all/forms/manageUserAnalysisRights";
 		}
@@ -568,7 +568,7 @@ public class ControllerAdministration {
 			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -732,7 +732,7 @@ public class ControllerAdministration {
 			TrickLogManager.Persist(e);
 			return null;
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return null;
 		}
