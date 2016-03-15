@@ -2,7 +2,7 @@ function displayActionPlanOptions(analysisId) {
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/ComputeOptions",
 		type : "GET",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionplancomputeoptions");
 			if ($content.length)
@@ -37,7 +37,7 @@ function calculateActionPlanWithOptions(form) {
 		url : context + "/Analysis/ActionPlan/Compute",
 		type : "post",
 		data : JSON.stringify(data),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
 				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan"))

@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -47,6 +49,7 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 @RequestMapping("/KnowledgeBase/Language")
 public class ControllerLanguage {
 
+
 	@Autowired
 	private ServiceLanguage serviceLanguage;
 
@@ -75,7 +78,7 @@ public class ControllerLanguage {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model) throws Exception {
 		model.addAttribute("languages", serviceLanguage.getAll());
 		return "knowledgebase/language/languages";
@@ -109,7 +112,7 @@ public class ControllerLanguage {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
@@ -135,14 +138,14 @@ public class ControllerLanguage {
 	 * Delete single language
 	 * 
 	 */
-	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteLanguage(@PathVariable("languageId") Integer languageId, Principal principal, Locale locale) {
 		try {
 			Language language = serviceLanguage.get(languageId);
 			if (language == null)
 				return JsonMessage.Error(messageSource.getMessage("error.language.not_exist", null, "Language does not exist", locale));
 			if (serviceLanguage.isUsed(language))
-				return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language cannot be deleted, it is still used", locale));
 			serviceLanguage.delete(language);
 			/**
 			 * Log

@@ -31,7 +31,7 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  *
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
 public class RiskProfile implements Cloneable {
 
 	@Id
@@ -51,7 +51,7 @@ public class RiskProfile implements Cloneable {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtStrategy")
-	private RiskStrategy riskStrategy;
+	private RiskStrategy riskStrategy = RiskStrategy.REDUCE;
 
 	@Column(name = "dtTreatment", length = 1024)
 	private String riskTreatment;
@@ -60,22 +60,20 @@ public class RiskProfile implements Cloneable {
 	private String actionPlan;
 
 	@Embedded
-	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability") ),
-			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiRawImpactRep") ),
-			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiRawImpactOp") ),
-			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiRawImpactLeg") ),
-			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiRawImpactFin") ) })
+	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
+			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiRawImpactRep")),
+			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiRawImpactOp")),
+			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiRawImpactLeg")),
+			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiRawImpactFin")) })
 	private RiskProbaImpact rawProbaImpact;
 
 	@Embedded
-	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability") ),
-			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiExpImpactRep") ),
-			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiExpImpactOp") ),
-			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiExpImpactLeg") ),
-			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiExpImpactFin") ) })
+	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability")),
+			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiExpImpactRep")),
+			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiExpImpactOp")),
+			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiExpImpactLeg")),
+			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiExpImpactFin")) })
 	private RiskProbaImpact expProbaImpact;
-	
-	
 
 	/**
 	 * 
@@ -86,7 +84,6 @@ public class RiskProfile implements Cloneable {
 	public RiskProfile(Asset asset, Scenario scenario) {
 		setAsset(asset);
 		setScenario(scenario);
-		setRiskStrategy(RiskStrategy.REDUCE);
 	}
 
 	/**
@@ -146,6 +143,8 @@ public class RiskProfile implements Cloneable {
 	 *            the riskStrategy to set
 	 */
 	public void setRiskStrategy(RiskStrategy riskStrategy) {
+		if (riskStrategy == null)
+			riskStrategy = RiskStrategy.REDUCE;
 		this.riskStrategy = riskStrategy;
 	}
 
@@ -216,7 +215,7 @@ public class RiskProfile implements Cloneable {
 	public String getKey() {
 		return key(asset, scenario);
 	}
-	
+
 	/**
 	 * @return key
 	 * @see #keyName
@@ -234,7 +233,6 @@ public class RiskProfile implements Cloneable {
 	public static String key(Asset asset, Scenario scenario) {
 		return asset.getId() + "^ID-'RISK_PROFILE'-ID^" + scenario.getId();
 	}
-	
 
 	/**
 	 * 
@@ -280,14 +278,14 @@ public class RiskProfile implements Cloneable {
 		riskProfile.id = 0;
 		return riskProfile;
 	}
-	
+
 	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
 		RiskProfile riskProfile = (RiskProfile) super.clone();
 		riskProfile.updateData(assets, scenarios, parameters);
 		riskProfile.id = 0;
 		return riskProfile;
-	}	
-	
+	}
+
 	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
 		if (rawProbaImpact != null)
 			rawProbaImpact = rawProbaImpact.duplicate(parameters);
@@ -296,7 +294,5 @@ public class RiskProfile implements Cloneable {
 		this.asset = assets.get(this.asset.getId());
 		this.scenario = scenarios.get(scenario.getId());
 	}
-
-	
 
 }

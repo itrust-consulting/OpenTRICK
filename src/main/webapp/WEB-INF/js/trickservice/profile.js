@@ -214,7 +214,7 @@ function updateProfile(form) {
 			.ajax({
 				url : context + "/Profile/Update",
 				type : "post",
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				data : serializeForm(form),
 				success : function(response, textStatus, jqXHR) {
 					$("#profileInfo").attr("hidden", "hidden");

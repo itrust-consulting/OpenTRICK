@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -152,7 +154,7 @@ public class ControllerTask {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody List<String> processing(Principal principal) {
 
 		List<String> result = serviceTaskFeedback.tasks(principal.getName());

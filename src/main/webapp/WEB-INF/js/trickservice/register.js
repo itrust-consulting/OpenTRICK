@@ -2,7 +2,7 @@ function register(form) {
 	$.ajax({
 		url : context + "/DoRegister",
 		type : "post",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		data : serializeForm(form),
 		success : function(response,textStatus,jqXHR) {
 

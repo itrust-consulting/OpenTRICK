@@ -10,7 +10,7 @@ function saveUser(form) {
 		url : context + "/Admin/User/Save",
 		type : "post",
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();

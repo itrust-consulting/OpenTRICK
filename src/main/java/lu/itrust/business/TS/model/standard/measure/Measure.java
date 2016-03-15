@@ -95,7 +95,7 @@ public abstract class Measure implements Cloneable {
 	/** The Phase object for this measure */
 	private Phase phase = null;
 
-	private int[] sortIndex;
+	
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -627,58 +627,5 @@ public abstract class Measure implements Cloneable {
 		this.responsible = responsible;
 	}
 
-	/**
-	 * @return the sortIndex
-	 */
-	@Transient
-	public int[] getSortIndex() {
-		return sortIndex;
-	}
-
-	/**
-	 * @param sortIndex
-	 *            the sortIndex to set
-	 */
-	public void setSortIndex(int[] sortIndex) {
-		this.sortIndex = sortIndex;
-	}
-
-	public void generateSortId() {
-		String[] splited = this.measureDescription.getReference().replace(" ", ".").split("\\.");
-		this.sortIndex = new int[splited.length];
-		for (int i = 0; i < splited.length; i++)
-			this.sortIndex[i] = toLong(splited[i]);
-	}
-
-	private static int toLong(String version) {
-		try {
-			if (version.isEmpty())
-				return 0;
-			else if (version.equals("M"))
-				return 10;
-			return Integer.parseInt(version);
-		} catch (NumberFormatException e) {
-		}
-		return 0;
-	}
-
-	public int compareTo(Measure o2) {
-		int[] sort = o2.sortIndex;
-		if (sort.length > sortIndex.length) {
-			for (int i = 0; i < sortIndex.length; i++) {
-				if (sort[i] == sortIndex[i])
-					continue;
-				return sort[i] > sortIndex[i] ? -1 : 1;
-			}
-			return sort.length == sortIndex.length ? 0 : -1;
-		} else {
-			for (int i = 0; i < sort.length; i++) {
-				if (sort[i] == sortIndex[i])
-					continue;
-				return sort[i] > sortIndex[i] ? -1 : 1;
-			}
-			return sort.length == sortIndex.length ? 0 : 1;
-		}
-	}
-
+	
 }

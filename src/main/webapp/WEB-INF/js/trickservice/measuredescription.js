@@ -44,7 +44,7 @@ function showMeasures(idStandard, languageId, reloadBody) {
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Language/" + languageId + "/Measures",
 		type : "POST",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $newSection = $("#section_kb_measure", new DOMParser().parseFromString(response, "text/html"));
 			if ($newSection.length) {
@@ -94,7 +94,7 @@ function newMeasure(idStandard) {
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Add",
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $("#measurelanguageselect", new DOMParser().parseFromString(response, "text/html"));
 			if ($content.length) {
@@ -146,7 +146,7 @@ function editSingleMeasure(measureId, idStandard) {
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
 		type : "GET",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
 			if ($(doc).find("#measurelanguageselect").length) {
@@ -178,7 +178,7 @@ function saveMeasure() {
 		url : $form.prop("action"),
 		type : "post",
 		data : serializeForm($form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var alert = $("#addMeasureModel").find(".label-danger");
 			if (alert.length)
@@ -262,7 +262,7 @@ function deleteMeasure(measureId, reference, standard) {
 		$.ajax({
 			url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Delete/" + measureId,
 			type : "POST",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(response, textStatus, jqXHR) {
 				if (response.success) {
@@ -315,7 +315,7 @@ function forceDeleteMeasure(measureId, reference, standard) {
 		$.ajax({
 			url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Force/Delete/" + measureId,
 			type : "POST",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(response, textStatus, jqXHR) {
 				if (response.success != undefined)

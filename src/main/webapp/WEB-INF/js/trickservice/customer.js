@@ -26,7 +26,7 @@ function saveCustomer(form) {
 		url : context + "/KnowledgeBase/Customer/Save",
 		type : "post",
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 			var alert = $("#addCustomerModel .label-danger");
@@ -112,7 +112,7 @@ function deleteCustomer(customerId, organisation) {
 			url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
 			type : "POST",
 			async : false,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] == undefined) {
 					if (response["error"] == undefined)
@@ -194,7 +194,7 @@ function manageUsers(customerID) {
 	$.ajax({
 		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusersform");
 			if ($content.length) {
@@ -229,7 +229,7 @@ function updateManageUsers(customerID, form) {
 		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users/Update",
 		type : "post",
 		data : JSON.stringify(data),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#customerusers");
 			if ($content.length) {

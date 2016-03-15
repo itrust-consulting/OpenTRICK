@@ -59,7 +59,7 @@
 									<spring:message text="${scenario.name}" var="scenarioName" />
 									<spring:message text="${scenario.assetTypeString()}" var="scenarioAssetTypeNames" />
 									<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-type='${scenarioAssetTypeNames}'
-										style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${scenarioAssetTypeNames.contains(currentAssetType)?'':'none'};" class="list-group-item">${scenarioName}</a>
+										style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${not empty currentAssetType and scenarioAssetTypeNames.contains(currentAssetType)?'':'none'};" class="list-group-item">${scenarioName}</a>
 								</c:forEach>
 							</div>
 						</div>

@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -154,7 +156,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model) throws Exception {
 
 		// call default
@@ -200,7 +202,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 
 		// init errors list
@@ -269,7 +271,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, Locale locale) throws Exception {
 
 		try {
@@ -318,7 +320,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String uploadStandard() throws Exception {
 		return "knowledgebase/standards/standard/uploadForm";
 	}
@@ -335,7 +337,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8",method=RequestMethod.POST)
+	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8,method=RequestMethod.POST)
 	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
@@ -361,7 +363,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/{idStandard}", headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Export/{idStandard}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response)
 			throws Exception {
 
@@ -664,22 +666,16 @@ public class ControllerKnowledgeBaseStandard {
 			// parse measuredescriptions and remove texts to add only selected
 			// language text
 			for (MeasureDescription mesDesc : mesDescs) {
-
 				mesDesc.setMeasureDescriptionTexts(new ArrayList<MeasureDescriptionText>());
-
 				// load only from language
 				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
-
 				// check if not null
 				if (mesDescText == null) {
-
 					// create new empty descriptiontext with language
 					mesDescText = new MeasureDescriptionText();
 					mesDescText.setLanguage(lang);
 				}
-
 				mesDesc.addMeasureDescriptionText(mesDescText);
-
 				// System.out.println(mesDescText.getDomain() + "::" +
 				// mesDescText.getDescription());
 
@@ -834,7 +830,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/{idStandard}/Measures/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idStandard}/Measures/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@PathVariable("idStandard") int idStandard, @RequestBody String value, Locale locale) {
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -892,7 +888,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{idStandard}/Measures/Delete/{idMeasure}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idStandard}/Measures/Delete/{idMeasure}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale) {
 		try {
 			// try to delete measure
@@ -920,7 +916,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @throws Exception
 	 */
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String forceDeleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasureDescription") int idMeasureDescription,
 			Principal principal, Locale locale) {
 		try {

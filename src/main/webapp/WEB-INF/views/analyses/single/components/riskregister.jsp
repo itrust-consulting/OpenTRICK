@@ -113,8 +113,7 @@
 									</c:when>
 									<c:otherwise>
 										<td class="success" data-trick-id="${riskProfile.id}" data-trick-field=".riskStrategy" onclick="return editField(this);" data-trick-class="RiskProfile"
-											data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><fmt:message
-												key="label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}" /></td>
+											data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><spring:message code="label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}" text="${accept}"/></td>
 									</c:otherwise>
 								</c:choose>
 								<c:choose>

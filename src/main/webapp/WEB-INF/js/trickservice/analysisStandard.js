@@ -414,7 +414,7 @@ function manageMeasure(url) {
 	$.ajax({
 		url : url,
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
 			if ($content.length) {
@@ -531,7 +531,7 @@ function saveMeasure() {
 		url : context + "/Analysis/Standard/Measure/Save",
 		type : "post",
 		data : JSON.stringify(data),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			for ( var error in response) {
 				var errorElement = document.createElement("label");
@@ -616,7 +616,7 @@ function deleteMeasure(measureId, standardid) {
 				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + rowTrickId,
 				async : false,
 				type : "POST",
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					if (response["success"] == undefined) {
 						errors = true;

@@ -100,7 +100,8 @@ function loadAssessmentData(id) {
 		url += "Scenario/" + idScenario + "/Load?idAsset=" + (idAsset = id);
 	}
 
-	if ($currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario && $currentUI.attr("data-trick-content") == activeSelector)
+	if (idAsset == -1 && idScenario == -1 || $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
+			&& $currentUI.attr("data-trick-content") == activeSelector)
 		return false;
 
 	$.ajax({

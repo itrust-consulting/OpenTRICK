@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.LinkedHashMap;
@@ -67,6 +69,7 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 @Controller
 public class ControllerRegister {
 
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -128,7 +131,7 @@ public class ControllerRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		Map<String, String> errors = new LinkedHashMap<>();

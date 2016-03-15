@@ -3,6 +3,9 @@
  */
 package lu.itrust.business.TS.controller;
 
+
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -100,7 +103,7 @@ public class ControllerAnalysisProfile {
 		return "analyses/all/forms/createProfile";
 	}
 
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> saveProfile(@RequestBody String value, Principal principal, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();

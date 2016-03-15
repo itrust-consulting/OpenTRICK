@@ -24,7 +24,7 @@ function installTrickService() {
 		url : context + "/Install",
 		type : "POST",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["error"] != undefined) {
 				$("#alert-dialog .modal-body").html(response["error"]);
