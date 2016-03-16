@@ -39,11 +39,11 @@ function reloadSection(section, subSection, refreshOnly) {
 	if (refreshOnly == "")
 		refreshOnly = undefined
 	if (Array.isArray(section)) {
-		for (var int = 0; int < section.length; int++) {
-			if (Array.isArray(section[int]))
-				reloadSection(section[int][0], section[int][1], refreshOnly);
+		for (var i = 0; i < section.length; i++) {
+			if (Array.isArray(section[i]))
+				reloadSection(section[i][0], section[i][1], refreshOnly);
 			else
-				reloadSection(section[int], subSection, refreshOnly);
+				reloadSection(section[i], subSection, refreshOnly);
 		}
 	} else if (section == "section_standard")
 		location.reload();

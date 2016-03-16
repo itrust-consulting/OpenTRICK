@@ -79,7 +79,7 @@ function saveUser(form) {
 							+ MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
 			$(errorElement).appendTo($("#addUserModel .modal-body #success"));
 			$("#user_password").prop("value", "");
-		},
+		}
 	});
 
 	return false;

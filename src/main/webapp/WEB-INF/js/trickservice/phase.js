@@ -74,7 +74,7 @@ function newPhase() {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			startDate : $("#addPhaseﬁModel #phase_begin_date").prop("value"),
+			startDate : $("#addPhaseﬁModel #phase_begin_date").prop("value")
 		}).on('changeDate', beginDateChanged);
 
 		$("#addPhaseModel #phase_end_date").datepicker({
@@ -83,7 +83,7 @@ function newPhase() {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			startDate : $("#addPhaseModel #phase_begin_date").prop("value"),
+			startDate : $("#addPhaseModel #phase_begin_date").prop("value")
 		}).on('changeDate', endDateChanged);
 		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.add", "Add new phase"));
 		$("#addPhaseModel #phaseid").prop("value", -1);
@@ -147,7 +147,7 @@ function editPhase(phaseid) {
 			weekStart : 1,
 			todayHighlight : true,
 			/* startDate : phasestartlimit != null ? phasestartlimit : '', */
-			endDate : phaseendlimit != null ? phaseendlimit : '',
+			endDate : phaseendlimit != null ? phaseendlimit : ''
 		}).on('changeDate', beginDateChanged);
 
 		$("#addPhaseModel #phase_end_date").datepicker({
@@ -157,7 +157,7 @@ function editPhase(phaseid) {
 			weekStart : 1,
 			todayHighlight : true,
 			/* startDate : $("#addPhaseModel #phase_begin_date").prop("value"), */
-			endDate : phaseendlimit != null ? phaseendlimit : '',
+			endDate : phaseendlimit != null ? phaseendlimit : ''
 		}).on('changeDate', endDateChanged);
 
 		$("#addPhaseModel #phaseid").prop("value", phaseid);

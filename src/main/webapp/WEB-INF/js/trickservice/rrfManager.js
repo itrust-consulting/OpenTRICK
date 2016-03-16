@@ -53,7 +53,7 @@ function loadRRF() {
 												},
 												error : function() {
 													rrfError();
-												},
+												}
 
 											});
 										}
@@ -277,8 +277,7 @@ function initialiseMeasuresClick() {
 		$("#rrfEditor #selectable_rrf_measures_chapter_controls a.active").removeClass("active");
 
 		// get current element data
-		var $this = $(this), classname = $this.attr("data-trick-class");
-		var trickid = $this.attr("data-trick-id");
+		var $this = $(this), classname = $this.attr("data-trick-class"),trickid = $this.attr("data-trick-id");
 
 		// select current
 		$this.addClass("active");
@@ -417,7 +416,7 @@ function loadScenarioChart() {
 		data : JSON.stringify({
 			"idStandard" : idStandard,
 			"chapter" : chapter,
-			"idMeasure" : idMeasure,
+			"idMeasure" : idMeasure
 		}),
 		async : true,
 		contentType : "application/json;charset=UTF-8",

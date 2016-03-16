@@ -180,7 +180,7 @@ function saveAsset(form) {
 			$(errorElement).text(MessageResolver("error.unknown.add.asset", "An unknown error occurred during adding asset"));
 			$(errorElement).appendTo($("#addAssetModal .modal-body"));
 			return false;
-		},
+		}
 	});
 	return false;
 }

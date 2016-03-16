@@ -1,7 +1,7 @@
 $(function() {
 	application["settings-fixed-header"] = {
 		fixedOffset : $(".nav-tab"),
-		marginTop : application.fixedOffset,
+		marginTop : application.fixedOffset
 	};
 	$(window).scroll(function(e) {
 		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
@@ -288,7 +288,7 @@ function updateProfile(form) {
 					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
 					$(errElement).appendTo($("#profileInfo"));
 					$("#profileInfo").removeAttr("hidden");
-				},
+				}
 			});
 
 	return false;

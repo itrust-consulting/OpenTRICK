@@ -48,7 +48,7 @@ function saveLanguage(form) {
 			errorElement.setAttribute("class", "label label-danger");
 			$(errorElement).text(MessageResolver("error.unknown.save.language", "An unknown error occurred during saving language"));
 			$(errorElement).appendTo($("#addLanguageModel .modal-body"));
-		},
+		}
 	});
 	return false;
 }
@@ -90,9 +90,7 @@ function deleteLanguage(languageId, name) {
 function newLanguage() {
 	if (findSelectItemIdBySection("section_language").length)
 		return false;
-	var alert = $("#addLanguageModel .label-danger");
-	if (alert.length)
-		alert.remove();
+	$("#addLanguageModel .label-danger").remove();
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 	$("#language_id").prop("value", "-1");
 	$("#language_alpha3").prop("value", "");
@@ -112,9 +110,7 @@ function editSingleLanguage(languageId) {
 			return false;
 		languageId = selectedScenario[0];
 	}
-	var alert = $("#addLanguageModel .label-danger");
-	if (alert.length)
-		alert.remove();
+	$("#addLanguageModel .label-danger").remove();
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
 	var rows = $("#section_language").find("tr[data-trick-id='" + languageId + "'] td:not(:first-child)");
 	$("#language_id").prop("value", languageId);

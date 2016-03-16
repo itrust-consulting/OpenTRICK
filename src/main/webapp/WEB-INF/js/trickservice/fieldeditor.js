@@ -337,7 +337,7 @@ function FieldEditor(element, validator) {
 						that.Rollback();
 						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 						$("#alert-dialog").modal("toggle");
-					},
+					}
 				});
 			} else {
 				that.Rollback();
@@ -352,7 +352,7 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Restore = function(rollback) {
-		var $element = $(this.element), $td = $element.is("td") ? $element : $element.closest("td");
+		var taht = this, $element = $(this.element), $td = $element.is("td") ? $element : $element.closest("td");
 		if (this.backupData.orginalStyle)
 			$td.attr("style", this.orginalStyle);
 		else
@@ -389,7 +389,7 @@ function FieldEditor(element, validator) {
 				$next = this.__findNextEditable($td.parent(), isNext);
 			$next.click();
 		}
-		delete this;
+		delete that;
 		return null;
 	};
 
@@ -434,7 +434,7 @@ function ExtendedFieldEditor(element) {
 						that.Rollback();
 						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 						$("#alert-dialog").modal("show");
-					},
+					}
 				});
 			} else {
 				that.Rollback();
@@ -498,7 +498,7 @@ function MaturityMeasureFieldEditor(element) {
 		this.backupData.orginalStyle = $element.attr("style");
 		$element.css({
 			"padding" : 0,
-			"width" : this.backupData.width,
+			"width" : this.backupData.width
 		});
 		$fieldEditor.blur(function() {
 			return that.Save(that);
@@ -592,7 +592,7 @@ function AssessmentExtendedParameterEditor(element) {
 
 		$element.css({
 			"padding" : 0,
-			"width" : this.backupData.width,
+			"width" : this.backupData.width
 		});
 
 		$(this.fieldEditor).blur(function() {
@@ -701,7 +701,7 @@ function AssessmentProbaFieldEditor(element) {
 		this.backupData.orginalStyle = $element.attr("style");
 		$element.css({
 			"padding" : 0,
-			"width" : this.backupData.width,
+			"width" : this.backupData.width
 		});
 		$fieldEditor.blur(function() {
 			return that.Save(that);

@@ -148,8 +148,7 @@ function deleteScenario(scenarioId) {
 }
 
 function serializeScenarioForm(formId) {
-	var form = $("#" + formId);
-	var data = form.serializeJSON();
+	var data = $("#" + formId).serializeJSON();
 	data["scenarioType"] = {
 		"id" : parseInt(data["scenarioType"], 0),
 		"type" : $("#scenario_scenariotype_id option:selected").text()

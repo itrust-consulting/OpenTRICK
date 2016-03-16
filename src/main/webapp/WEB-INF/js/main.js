@@ -725,6 +725,10 @@ $(document).ready(function() {
 					}
 				}
 			}
+			
+			$window.on("scroll.window", function() {
+				setTimeout(updateOption, 100);
+			});
 		}
 
 		$window.on('hashchange', function() {

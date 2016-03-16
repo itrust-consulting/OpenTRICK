@@ -347,10 +347,8 @@ function removeStandard() {
 		return false;
 	selectedStandard = findTrickID(selectedStandard[0]);
 
-	var deleteModal = new Modal();
-	deleteModal.FromContent($("#deleteStandardModal").clone());
-
-	deleteModal.setBody(MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
+	var deleteModal = new Modal().FromContent($("#deleteStandardModal").clone()).setBody(
+			MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
 
 	$(deleteModal.modal_footer).find("#deletestandardbuttonYes").click(function() {
 		$("#standardModal .alert").remove();
@@ -510,7 +508,7 @@ function saveMeasure() {
 	form.find("#tab_properties #values input[id^='property_asset']").each(function() {
 		data.assetValues.push({
 			id : this.name,
-			value : properties[this.name],
+			value : properties[this.name]
 		});
 		delete properties[this.name];
 	});
@@ -571,9 +569,7 @@ function saveMeasure() {
 
 function deleteMeasure(measureId, standardid) {
 
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
+	$("#addMeasureModel .label-danger").remove();
 
 	if (standardid == null || standardid == undefined)
 		return false;

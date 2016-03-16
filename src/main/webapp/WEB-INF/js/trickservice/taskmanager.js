@@ -64,10 +64,10 @@ function TaskManager(title) {
 					return false;
 				}
 				else if (reponse.length) {
-					for (var int = 0; int < reponse.length; int++) {
-						if ($.isNumeric(reponse[int]) && !(reponse[int] in instance.tasks)) {
-							instance.tasks.push(reponse[int]);
-							instance.UpdateStatus(reponse[int]);
+					for (var i = 0; i < reponse.length; i++) {
+						if ($.isNumeric(reponse[i]) && !(reponse[i] in instance.tasks)) {
+							instance.tasks.push(reponse[i]);
+							instance.UpdateStatus(reponse[i]);
 						}
 					}
 					instance.UpdateUI();

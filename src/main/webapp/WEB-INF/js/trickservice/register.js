@@ -83,7 +83,7 @@ function register(form) {
 			$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + errorThrown);
 			$(errElement).appendTo($("#success"));
 			$("#success").removeAttr("hidden");
-		},
+		}
 	});
 
 	return false;

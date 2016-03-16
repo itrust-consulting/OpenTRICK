@@ -9,9 +9,7 @@ function saveStandard(form) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#addStandardModel #addstandardbutton").prop("disabled", false);
-			var alert = $("#addStandardModel .label-danger");
-			if (alert.length)
-				alert.remove();
+			$("#addStandardModel .label-danger").remove();
 			for ( var error in response) {
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
@@ -41,15 +39,13 @@ function saveStandard(form) {
 
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			var alert = $("#addStandardModel .label-danger");
-			if (alert.length)
-				alert.remove();
+			$("#addStandardModel .label-danger").remove();
 			$("#addStandardModel #addstandardbutton").prop("disabled", false);
 			var errorElement = document.createElement("label");
 			errorElement.setAttribute("class", "label label-danger");
 			$(errorElement).text(MessageResolver("error.unknown.save.norm", "An unknown error occurred during saving standard"));
 			$(errorElement).appendTo($("#addStandardModel .modal-body"));
-		},
+		}
 	});
 	return false;
 }
@@ -59,8 +55,7 @@ function deleteStandard(idStandard, name) {
 		var selectedScenario = findSelectItemIdBySection(("section_kb_standard"));
 		if (selectedScenario.length != 1)
 			return false;
-		idStandard = selectedScenario[0];
-		name = $("#section_kb_standard tbody tr[data-trick-id='" + idStandard + "']>td:nth-child(2)").text();
+		name = $("#section_kb_standard tbody tr[data-trick-id='" + (idStandard = selectedScenario[0]) + "']>td:nth-child(2)").text();
 	}
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
 	$("#deletestandardbuttonYes").click(function() {
@@ -179,9 +174,7 @@ function importNewStandard() {
 function newStandard() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
-	var alert = $("#addStandardModel .label-danger");
-	if (alert.length)
-		alert.remove();
+	$("#addStandardModel .label-danger").remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
 	$("#standard_id").prop("value", "-1");
 	$("#standard_label").prop("value", "");
@@ -204,9 +197,7 @@ function editSingleStandard(idStandard) {
 			return false;
 		idStandard = selectedScenario[0];
 	}
-	var alert = $("#addStandardModel .label-danger");
-	if (alert.length)
-		alert.remove();
+	$("#addStandardModel .label-danger").remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
 	var rows = $("#section_kb_standard").find("tr[data-trick-id='" + idStandard + "'] td:not(:first-child)");
 	$("#standard_id").prop("value", idStandard);
