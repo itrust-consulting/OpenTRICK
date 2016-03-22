@@ -284,8 +284,8 @@
 		<dependency>
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
-			<version>2.2</version>
-			<scope>test</scope>
+			<version>2.2.1</version>
+			<!-- <scope>test</scope> -->
 		</dependency>
 
 		<dependency>

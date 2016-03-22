@@ -10,9 +10,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.dao.DAOMeasure;
-import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
@@ -22,9 +23,6 @@ import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.expressions.StringExpressionParser;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Component which allows to compute the current (real-time) risk of assessments.
@@ -38,12 +36,6 @@ public class DynamicRiskComputer {
 	
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
-	
-	@Autowired
-	private DAOUserAnalysisRight daoUserAnalysisRight;
-	
-	@Autowired
-	private DAOMeasure daoMeasure;
 	
 	/**
 	 * Computes the real-time ALE of all given assessments at the given timestamp.

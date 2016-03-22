@@ -5,21 +5,6 @@ import java.text.MessageFormat;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
-import lu.itrust.business.TS.component.DynamicParameterComputer;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceExternalNotification;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.api.ApiExternalNotification;
-import lu.itrust.business.TS.model.api.ApiNotifyRequest;
-import lu.itrust.business.TS.model.api.ApiParameterSetter;
-import lu.itrust.business.TS.model.api.ApiResult;
-import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
-import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,6 +16,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
+import lu.itrust.business.TS.component.DynamicParameterComputer;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceExternalNotification;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.api.ApiExternalNotification;
+import lu.itrust.business.TS.model.api.ApiNotifyRequest;
+import lu.itrust.business.TS.model.api.ApiParameterSetter;
+import lu.itrust.business.TS.model.api.ApiResult;
+import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
+import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 
 /**
  * ControllerApi.java: <br>
@@ -48,12 +46,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class ControllerApi {
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
-
-	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
 
 	@Value("${app.settings.dynamicparameters.computationdelayseconds}")
 	private Integer computationDelayInSeconds;
