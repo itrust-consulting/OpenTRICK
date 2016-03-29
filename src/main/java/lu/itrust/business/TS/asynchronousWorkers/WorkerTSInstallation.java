@@ -14,6 +14,7 @@ import lu.itrust.business.TS.database.dao.DAOTrickService;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOTrickServiceHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -28,12 +29,6 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 
 	private String currentVersion;
 
-	/**
-	 * 
-	 */
-	public WorkerTSInstallation() {
-		setCanDeleteFile(false);
-	}
 
 	@Override
 	public void run() {
@@ -42,9 +37,9 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		super.run();
 	}
 
-	public WorkerTSInstallation(String version, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String filename, int customerId, String ownerUsername)
+	public WorkerTSInstallation(String version, WorkersPoolManager workersPoolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String filename, int customerId, String ownerUsername)
 			throws IOException {
-		super(sessionFactory, serviceTaskFeedback, filename, customerId, ownerUsername);
+		super(workersPoolManager,sessionFactory, serviceTaskFeedback, filename, customerId, ownerUsername);
 		setCurrentVersion(version);
 		setCanDeleteFile(false);
 	}

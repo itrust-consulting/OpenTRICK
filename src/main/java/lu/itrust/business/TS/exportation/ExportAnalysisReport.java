@@ -26,7 +26,6 @@ import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFStyles;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
@@ -157,14 +156,14 @@ public class ExportAnalysisReport {
 	/**
 	 * exportToWordDocument: <br>
 	 * Description
-	 * 
 	 * @param analysisId
 	 * @param context
 	 * @param serviceAnalysis
+	 * 
 	 * @return
 	 * @throws Exception
 	 */
-	public void exportToWordDocument(Analysis analysis, boolean template) throws Exception {
+	public void exportToWordDocument(Analysis analysis) throws Exception {
 		InputStream inputStream = null;
 		try {
 			setAnalysis(analysis);
@@ -187,20 +186,13 @@ public class ExportAnalysisReport {
 				workFile.createNewFile();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.load.word.template", "Loading word template", increase(2)));// 3%
-
-			if (template) {
-				File doctemplate = new File(String.format("%s/WEB-INF/data/%s.dotm", contextPath, reportName));
-				OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
-				pkg.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
-				pkg.save(workFile);
-				document = new XWPFDocument(inputStream = new FileInputStream(workFile));
-			} else {
-				XWPFDocument templateDocx = new XWPFDocument(inputStream = new FileInputStream(new File(String.format("%s/WEB-INF/data/%s.dotm", contextPath, reportName))));
-				document = new XWPFDocument();
-				XWPFStyles xwpfStyles = document.createStyles();
-				xwpfStyles.setStyles(templateDocx.getStyle());
-			}
-
+			
+			File doctemplate = new File(String.format("%s/WEB-INF/data/%s.dotm", contextPath, reportName));
+			OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
+			pkg.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
+			pkg.save(workFile);
+			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
+		
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.data", "Printing data", increase(2)));// 5%
 
 			generatePlaceholders();

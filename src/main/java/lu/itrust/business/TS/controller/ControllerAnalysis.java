@@ -863,14 +863,13 @@ public class ControllerAnalysis {
 		}
 
 		// the file to import
-		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
+		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime());
 
 		// transfer form file to java file
 		file.transferTo(importFile);
 
 		// create worker
-		Worker worker = new WorkerAnalysisImport(sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
-		worker.setPoolManager(workersPoolManager);
+		Worker worker = new WorkerAnalysisImport(workersPoolManager,sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
 
 		// register worker to tasklist
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))

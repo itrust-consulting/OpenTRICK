@@ -6,6 +6,8 @@ import java.security.Principal;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.SessionFactory;
@@ -18,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -140,4 +144,18 @@ public class ControllerRiskRegister {
 		return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", analysisLocale));
 
 	}
+	
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@RequestMapping(value = "/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String export(HttpSession session, HttpServletRequest  request, Principal principal){
+		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
+		Worker worker = new WorkerExportRiskSheet(workersPoolManager, sessionFactory, serviceTaskFeedback,request.getServletContext().getRealPath("/WEB-INF/data/"), analysisId,principal.getName());
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_sheet", null, "Start to export risk sheet", analysisLocale));
+	}
+	
 }

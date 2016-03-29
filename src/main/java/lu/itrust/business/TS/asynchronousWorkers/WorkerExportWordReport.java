@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -96,7 +97,7 @@ public class WorkerExportWordReport implements Worker {
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
 			exportAnalysisReport.setMaxProgress(98);
 			exportAnalysisReport.setIdTask(id);
-			exportAnalysisReport.exportToWordDocument(analysis, true);
+			exportAnalysisReport.exportToWordDocument(analysis);
 			saveWordDocument(session);
 		} catch (TrickException e) {
 			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
@@ -110,23 +111,34 @@ public class WorkerExportWordReport implements Worker {
 					session.close();
 			} catch (HibernateException e) {
 				TrickLogManager.Persist(e);
+			} finally {
+				cleanUp();
 			}
+		}
+	}
 
-			if (isWorking()) {
-				synchronized (this) {
-					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
-					}
+	private void cleanUp() {
+		if (isWorking()) {
+			synchronized (this) {
+				if (isWorking()) {
+					working = false;
+					finished = new Timestamp(System.currentTimeMillis());
 				}
 			}
+		}
 
-			File workFile = exportAnalysisReport.getWorkFile();
-
-			if (workFile != null && workFile.exists()) {
-				if (!workFile.delete())
-					workFile.deleteOnExit();
+		if (exportAnalysisReport.getDocument() != null) {
+			try {
+				exportAnalysisReport.getDocument().close();
+			} catch (IOException e) {
 			}
+		}
+
+		File workFile = exportAnalysisReport.getWorkFile();
+
+		if (workFile != null && workFile.exists()) {
+			if (!workFile.delete())
+				workFile.deleteOnExit();
 		}
 	}
 
@@ -210,21 +222,7 @@ public class WorkerExportWordReport implements Worker {
 		} catch (Exception e) {
 			TrickLogManager.Persist(error = e);
 		} finally {
-			if (isWorking()) {
-				synchronized (this) {
-					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
-					}
-				}
-			}
-
-			File file = exportAnalysisReport.getWorkFile();
-			if (file != null && file.exists()) {
-				if (!file.delete())
-					file.deleteOnExit();
-			}
-
+			cleanUp();
 		}
 	}
 

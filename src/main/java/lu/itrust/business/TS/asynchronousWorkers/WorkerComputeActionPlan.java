@@ -5,7 +5,6 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Hibernate;
@@ -42,23 +41,9 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
  * @author eomar
  * 
  */
-public class WorkerComputeActionPlan implements Worker {
-
-	private String id = String.valueOf(System.nanoTime());
-
-	private Date started = null;
-
-	private Date finished = null;
-
-	private Exception error;
-
-	private boolean working = false;
-
-	private boolean canceled = false;
+public class WorkerComputeActionPlan extends WorkerImpl implements Worker {
 
 	private boolean reloadSection = false;
-
-	private WorkersPoolManager poolManager;
 
 	private DAOActionPlanSummary daoActionPlanSummary;
 
@@ -72,8 +57,6 @@ public class WorkerComputeActionPlan implements Worker {
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
-	private SessionFactory sessionFactory;
-
 	private int idAnalysis;
 
 	private List<Integer> standards = null;
@@ -81,25 +64,6 @@ public class WorkerComputeActionPlan implements Worker {
 	private Boolean uncertainty = false;
 
 	private MessageSource messageSource;
-
-	/**
-	 * @param daoActionPlanSummary
-	 * @param daoActionPlanType
-	 * @param daoActionPlan
-	 * @param daoAnalysis
-	 * @param serviceTaskFeedback
-	 * @param idAnalysis
-	 */
-	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<Integer> standards, Boolean uncertainty,
-			Boolean reloadSection, MessageSource messageSource) {
-		this.sessionFactory = sessionFactory;
-		this.serviceTaskFeedback = serviceTaskFeedback;
-		this.idAnalysis = idAnalysis;
-		this.standards = standards;
-		this.uncertainty = uncertainty;
-		this.reloadSection = reloadSection;
-		this.messageSource = messageSource;
-	}
 
 	/**
 	 * initialiseDAO: <br>
@@ -133,8 +97,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 */
 	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<Integer> standards,
 			Boolean uncertainty, Boolean reloadSection, MessageSource messageSource) {
-		this.sessionFactory = sessionFactory;
-		this.poolManager = poolManager;
+		super(poolManager, sessionFactory);
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
 		this.standards = standards;
@@ -154,24 +117,24 @@ public class WorkerComputeActionPlan implements Worker {
 
 		try {
 			synchronized (this) {
-				if (poolManager != null && !poolManager.exist(getId()))
-					if (!poolManager.add(this))
+				if (getPoolManager() != null && !getPoolManager().exist(getId()))
+					if (!getPoolManager().add(this))
 						return;
-				if (canceled || working)
+				if (isCanceled() || isWorking())
 					return;
-				working = true;
-				started = new Timestamp(System.currentTimeMillis());
+				setWorking(true);
+				setStarted(new Timestamp(System.currentTimeMillis()));
 			}
 
-			session = sessionFactory.openSession();
+			session = getSessionFactory().openSession();
 			initialiseDAO(session);
 
 			System.out.println("Loading Analysis...");
 
-			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", null));
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.load.analysis", "Analysis is loading", null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
+				serviceTaskFeedback.send(getId(), new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
 				return;
 			}
 			session.beginTransaction();
@@ -186,20 +149,20 @@ public class WorkerComputeActionPlan implements Worker {
 
 			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
 
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, analysisStandards, this.uncertainty,
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, getId(), analysis, analysisStandards, this.uncertainty,
 					this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
 				if (reloadSection)
 					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(['section_actionplans','section_summary'])"));
-				serviceTaskFeedback.send(id, messageHandler);
+				serviceTaskFeedback.send(getId(), messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			} else
 				session.getTransaction().rollback();
 		} catch (InterruptedException e) {
 			try {
-				canceled = true;
+				setCanceled(true);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
@@ -207,7 +170,7 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 		} catch (TrickException e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
+				serviceTaskFeedback.send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
 				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
@@ -216,7 +179,7 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 		} catch (Exception e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
+				serviceTaskFeedback.send(getId(), new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
 				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
@@ -233,8 +196,8 @@ public class WorkerComputeActionPlan implements Worker {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
@@ -311,82 +274,20 @@ public class WorkerComputeActionPlan implements Worker {
 	 */
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", null));
+		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
+		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
+		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 
 		analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
 				.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.task.Worker#isWorking()
-	 */
-	@Override
-	public boolean isWorking() {
-		return working;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.task.Worker#isCanceled()
-	 */
-	@Override
-	public boolean isCanceled() {
-		return this.canceled;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.task.Worker#getError()
-	 */
-	@Override
-	public Exception getError() {
-		return error;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.task.Worker#setId(java.lang.Long)
-	 */
-	@Override
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.task.Worker#setPoolManager(lu.itrust.business.service
-	 * .WorkersPoolManager)
-	 */
-	@Override
-	public void setPoolManager(WorkersPoolManager poolManager) {
-		this.poolManager = poolManager;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.task.Worker#getId()
-	 */
-	@Override
-	public String getId() {
-		return id;
 	}
 
 	/*
@@ -411,34 +312,23 @@ public class WorkerComputeActionPlan implements Worker {
 				synchronized (this) {
 					if (isWorking() && !isCanceled()) {
 						Thread.currentThread().interrupt();
-						canceled = true;
+						setCanceled(true);
 					}
 				}
 			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			error = e;
+			setError(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {
 					if (isWorking()) {
-						working = false;
-						finished = new Timestamp(System.currentTimeMillis());
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
 					}
 				}
 			}
 
 		}
 	}
-
-	@Override
-	public Date getStarted() {
-		return started;
-	}
-
-	@Override
-	public Date getFinished() {
-		return finished;
-	}
-
 }

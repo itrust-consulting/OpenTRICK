@@ -160,8 +160,7 @@ public class ControllerIntstallation {
 				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
-			Worker worker = new WorkerTSInstallation(version,sessionFactory,serviceTaskFeedback, fileName, customer.getId(), principal.getName());
-			worker.setPoolManager(workersPoolManager);
+			Worker worker = new WorkerTSInstallation(version,workersPoolManager,sessionFactory,serviceTaskFeedback, fileName, customer.getId(), principal.getName());
 			if(!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
 				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 				return false;
