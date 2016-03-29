@@ -111,7 +111,7 @@ public class WorkerRestoreAnalyisRight implements Worker {
 		} catch (Exception e) {
 			serviceTaskFeedback.send(getId(), new MessageHandler("error.unknown.occurred", "An unknown error occurred", this.error = e));
 			TrickLogManager.Persist(e);
-			if (session != null && session.getTransaction().isInitiator())
+			if (session != null && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {
 			try {

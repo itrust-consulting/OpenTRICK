@@ -3,6 +3,7 @@ package lu.itrust.business.TS.model.general;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lu.itrust.business.TS.constants.Constant;
@@ -27,7 +28,7 @@ public class Customer {
 
 	/** The customer ID */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idCustomer")
 	private int id = -1;
 

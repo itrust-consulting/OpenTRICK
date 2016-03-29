@@ -46,7 +46,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@Override
 	public UserAnalysisRight get(Integer id)  {
-		return (UserAnalysisRight) getSession().get(DAOUserAnalysisRightHBM.class, id);
+		return (UserAnalysisRight) getSession().get(UserAnalysisRight.class, id);
 	}
 
 	/**

@@ -131,12 +131,12 @@ public class WorkerImportStandard implements Worker {
 		} catch (TrickException e) {
 			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
 			TrickLogManager.Persist(e);
-			if (transaction != null && transaction.isInitiator())
+			if (transaction != null && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
 			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), this.error = e));
 			TrickLogManager.Persist(e);
-			if (transaction != null && transaction.isInitiator())
+			if (transaction != null && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {
 			try {

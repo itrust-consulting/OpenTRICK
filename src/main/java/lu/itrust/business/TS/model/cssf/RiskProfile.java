@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -35,9 +36,13 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 public class RiskProfile implements Cloneable {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idRiskProfile")
 	private int id;
+	
+	@Column(name="dtIdentifier")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private long identifier = 0;
 
 	@ManyToOne
 	@JoinColumn(name = "fiAsset")

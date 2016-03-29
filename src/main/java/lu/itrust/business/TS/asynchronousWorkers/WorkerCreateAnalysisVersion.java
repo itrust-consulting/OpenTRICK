@@ -208,7 +208,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 	protected void rollback(Session session) {
 		try {
-			if (session != null && session.isOpen() && session.getTransaction().isInitiator())
+			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);

@@ -285,7 +285,7 @@ public class WorkerAnalysisImport implements Worker {
 		} catch (TrickException e) {
 			try {
 				TrickLogManager.Persist(e);
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -295,7 +295,7 @@ public class WorkerAnalysisImport implements Worker {
 		} catch (Exception e) {
 			try {
 				TrickLogManager.Persist(e);
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();

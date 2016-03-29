@@ -335,7 +335,7 @@ public class ImportAnalysis {
 			try {
 				serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
 				TrickLogManager.Persist(e);
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();

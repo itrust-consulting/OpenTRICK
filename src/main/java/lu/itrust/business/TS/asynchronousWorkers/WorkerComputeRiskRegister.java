@@ -157,7 +157,7 @@ public class WorkerComputeRiskRegister implements Worker {
 		} catch (InterruptedException e) {
 			try {
 				canceled = true;
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
 				TrickLogManager.Persist(e1);
@@ -166,7 +166,7 @@ public class WorkerComputeRiskRegister implements Worker {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 				TrickLogManager.Persist(e);
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
 				TrickLogManager.Persist(e1);
@@ -180,7 +180,7 @@ public class WorkerComputeRiskRegister implements Worker {
 					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: " + e.getMessage(), e));
 				}
 				TrickLogManager.Persist(e);
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
 				TrickLogManager.Persist(e1);

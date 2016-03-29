@@ -69,7 +69,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			analysis.setLabel("SME: Small and Medium Entreprises (Default Profile from installer)");
 			getImportAnalysis().setAnalysis(analysis);
 		} catch (Exception e) {
-			if (session != null && session.getTransaction().isInitiator())
+			if (session != null && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 			throw e;
 		} finally {
@@ -132,7 +132,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 					LogAction.INSTALL, trickService.getVersion());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			if (session != null && session.getTransaction().isInitiator())
+			if (session != null && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {
 			super.OnSuccess();

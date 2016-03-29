@@ -152,7 +152,7 @@ public class WorkerExportWordReport implements Worker {
 					analysis.getVersion());
 		} catch (Exception e) {
 			try {
-				if (session.getTransaction().isInitiator())
+				if (session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				TrickLogManager.Persist(e1);

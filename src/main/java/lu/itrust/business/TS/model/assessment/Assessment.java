@@ -5,6 +5,7 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -12,12 +13,13 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
+import bsh.This;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.scenario.Scenario;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Assessment: <br>
@@ -42,7 +44,7 @@ public class Assessment implements Cloneable {
 
 	/** identifier from the database */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idAssessment")
 	private int id = -1;
 

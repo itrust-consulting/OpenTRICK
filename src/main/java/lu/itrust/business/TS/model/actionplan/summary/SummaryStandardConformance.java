@@ -3,6 +3,7 @@ package lu.itrust.business.TS.model.actionplan.summary;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -23,7 +24,8 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 public class SummaryStandardConformance {
 
 
-	@Id @GeneratedValue 
+	@Id 
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="idActionPlanSummaryStandardConformance")
 	private int id = -1;
 	

@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
@@ -42,7 +41,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 */
 	@Override
 	public MeasureDescriptionText get(Integer id)  {
-		return (MeasureDescriptionText) getSession().get(MeasureDescription.class, id);
+		return getSession().get(MeasureDescriptionText.class, id);
 	}
 
 	/**

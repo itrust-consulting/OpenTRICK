@@ -200,7 +200,7 @@ public class WorkerComputeActionPlan implements Worker {
 		} catch (InterruptedException e) {
 			try {
 				canceled = true;
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
 				TrickLogManager.Persist(e1);
@@ -209,7 +209,7 @@ public class WorkerComputeActionPlan implements Worker {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
 				TrickLogManager.Persist(e);
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				TrickLogManager.Persist(e);
@@ -218,7 +218,7 @@ public class WorkerComputeActionPlan implements Worker {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
 				TrickLogManager.Persist(e);
-				if (session != null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				TrickLogManager.Persist(e);
