@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -165,6 +166,7 @@ public class ExportAnalysisReport {
 	 */
 	public void exportToWordDocument(Analysis analysis) throws Exception {
 		InputStream inputStream = null;
+		OutputStream outputStream = null;
 		try {
 			setAnalysis(analysis);
 			switch (analysis.getLanguage().getAlpha3().toLowerCase()) {
@@ -191,6 +193,7 @@ public class ExportAnalysisReport {
 			OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
 			pkg.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
 			pkg.save(workFile);
+			
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
 		
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.printing.data", "Printing data", increase(2)));// 5%
@@ -243,10 +246,15 @@ public class ExportAnalysisReport {
 
 			updateProperties();
 
-			document.write(new FileOutputStream(workFile));
+			document.write(outputStream = new FileOutputStream(workFile));
+			
+			outputStream.flush();
+			
 		} finally {
 			if (inputStream != null)
 				inputStream.close();
+			if(outputStream!=null)
+				outputStream.close();
 		}
 	}
 

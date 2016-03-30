@@ -3,8 +3,8 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -199,7 +199,7 @@ public class ControllerAssessment {
 	}
 
 	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis, Assessment assessment) {
-		List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
+		List<ExtendedParameter> probabilities = new ArrayList<>(11), impacts = new ArrayList<>(11);
 		analysis.groupExtended(probabilities, impacts);
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("assessment", assessment);

@@ -146,11 +146,11 @@ public class ControllerRiskRegister {
 	}
 	
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	@RequestMapping(value = "/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String export(HttpSession session, HttpServletRequest  request, Principal principal){
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		Worker worker = new WorkerExportRiskSheet(workersPoolManager, sessionFactory, serviceTaskFeedback,request.getServletContext().getRealPath("/WEB-INF/data/"), analysisId,principal.getName());
+		Worker worker = new WorkerExportRiskSheet(workersPoolManager, sessionFactory, serviceTaskFeedback,request.getServletContext().getRealPath("/WEB-INF"), analysisId,principal.getName());
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task

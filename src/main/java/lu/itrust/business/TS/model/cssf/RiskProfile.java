@@ -41,7 +41,6 @@ public class RiskProfile implements Cloneable {
 	private int id;
 	
 	@Column(name="dtIdentifier")
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long identifier = 0;
 
 	@ManyToOne
@@ -104,6 +103,23 @@ public class RiskProfile implements Cloneable {
 	 */
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	
+	
+
+	/**
+	 * @return the identifier
+	 */
+	public long getIdentifier() {
+		return identifier;
+	}
+
+	/**
+	 * @param identifier the identifier to set
+	 */
+	public void setIdentifier(long identifier) {
+		this.identifier = identifier;
 	}
 
 	/**
@@ -298,6 +314,10 @@ public class RiskProfile implements Cloneable {
 			expProbaImpact = expProbaImpact.duplicate(parameters);
 		this.asset = assets.get(this.asset.getId());
 		this.scenario = scenarios.get(scenario.getId());
+	}
+
+	public Boolean isSelected() {
+		return asset.isSelected() && scenario.isSelected();
 	}
 
 }
