@@ -9,6 +9,7 @@
 		<thead>
 			<tr>
 				<th><spring:message code="label.analysis.identifier" text="TRICK name"/></th>
+				<th><spring:message code="label.type" text="Type"/></th>
 				<th><spring:message code="label.analysis.label" text="Name"/></th>
 				<th><spring:message code="label.analysis.version" text="Version"/></th>
 				<th><spring:message code="label.date.created" text="Created date"/></th>
@@ -20,6 +21,7 @@
 			<c:forEach items="${reports}" var="report">
 				<tr data-trick-id="${report.id}">
 					<td><spring:message text="${report.identifier}"/></td>
+					<td><spring:message text="${report.type}"/></td>
 					<td><spring:message text="${report.label}"/></td>
 					<td><spring:message text="${report.version}"/></td>
 					<td><fmt:formatDate value="${report.created}"/></td>

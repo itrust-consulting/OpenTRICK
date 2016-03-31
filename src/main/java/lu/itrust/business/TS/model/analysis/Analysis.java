@@ -713,6 +713,20 @@ public class Analysis implements Cloneable {
 		// ****************************************************************
 		return result;
 	}
+	
+	/**
+	 * getParameter: <br>
+	 * Returns the Parameter value of a given Parameter.
+	 * 
+	 * @param parameter
+	 *            The Label of the Parameter
+	 * @return The Value of the Parameter if it exists, or defaultValue if the parameter
+	 *         was not found
+	 */
+	public double getParameter(String type,String name, double defaultValue) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type, name)).map(parameter -> parameter.getValue()).findAny().orElse(defaultValue);
+	}
+	
 
 	/**
 	 * getParameter: <br>
@@ -724,8 +738,7 @@ public class Analysis implements Cloneable {
 	 *         was not found
 	 */
 	public double getParameter(String name) {
-		Optional<Parameter> optional = parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).findAny();
-		return optional.isPresent() ? optional.get().getValue() : -1;
+		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue()).findAny().orElse(-1.0);
 	}
 
 	/**

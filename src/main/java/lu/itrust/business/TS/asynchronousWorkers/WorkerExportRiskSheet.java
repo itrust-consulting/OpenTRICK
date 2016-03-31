@@ -25,6 +25,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -36,11 +37,13 @@ import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
+import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -91,15 +94,12 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			daoWordReport = new DAOWordReportHBM(session);
 			daoUser = new DAOUserHBM(session);
 			session.beginTransaction();
-			processing();
+			long reportId = processing();
 			session.getTransaction().commit();
-		} /*
-			 * catch (InterruptedException e) { try { setCanceled(true); if
-			 * (session != null &&
-			 * session.getTransaction().getStatus().canRollback())
-			 * session.getTransaction().rollback(); } catch (HibernateException
-			 * e1) { TrickLogManager.Persist(e1); } }
-			 */catch (Exception e) {
+			MessageHandler messageHandler = new MessageHandler("success.save.risk_sheet", "Risk sheet has been successfully saved", 100);
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport", reportId));
+			serviceTaskFeedback.send(getId(), messageHandler);
+		} catch (Exception e) {
 			if (session != null) {
 				try {
 					if (session.beginTransaction().getStatus().canRollback())
@@ -112,14 +112,26 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			}
 			TrickLogManager.Persist(e);
 		} finally {
-			if (session != null)
-				session.close();
+			if (session != null) {
+				try {
+					session.close();
+				} catch (Exception e) {
+				}
+			}
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						setWorking(false);
+						setFinished(new Timestamp(System.currentTimeMillis()));
+					}
+				}
+			}
+			getPoolManager().remove(this);
 		}
-
 	}
 
 	@Override
-	public void start() {
+	public synchronized void start() {
 		run();
 	}
 
@@ -149,7 +161,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		}
 	}
 
-	private void processing() throws InvalidFormatException, IOException {
+	private long processing() throws InvalidFormatException, IOException {
 		User user = daoUser.get(username);
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
@@ -163,11 +175,11 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;
+		File workFile = null;
 		try {
-			File workFile = new File(
+			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, "Risk_sheet_fr"));
-			System.out.println(doctemplate.getAbsoluteFile());
 			OPCPackage opcPackage = OPCPackage.open(doctemplate.getAbsoluteFile());
 			opcPackage.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
 			opcPackage.save(workFile);
@@ -180,12 +192,10 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			List<RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().filter(riskProfile -> riskProfile.isSelected()).collect(Collectors.toList());
 			boolean isFirst = true;
 			for (RiskProfile riskProfile : riskProfiles) {
-
 				isFirst = addRiskSheetHeader(document, riskProfile, isFirst);
-
 				Assessment assessment = assessments.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()));
+				addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner());
 				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"), riskProfile.getScenario().getDescription());
-				addTitle(document, getMessage("report.risk_sheet.risk_description", "Risk description"));
 				RiskProbaImpact netImpact = new RiskProbaImpact();
 				netImpact.setImpactFin(convertor.getImpact(assessment.getImpactFin()));
 				netImpact.setImpactLeg(convertor.getImpact(assessment.getImpactLeg()));
@@ -199,12 +209,15 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"), netImpact, impacts.get(0), probabilities.get(0));
 				String response = riskProfile.getRiskStrategy().getNameToLower();
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
-				addField(document, getMessage("report.risk_sheet.action_plan", "Plan d'action"), riskProfile.getActionPlan());
+				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
 				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), impacts.get(0), probabilities.get(0));
 			}
-
 			document.write(outputStream = new FileOutputStream(workFile));
 			outputStream.flush();
+			WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
+					FileCopyUtils.copyToByteArray(workFile));
+			daoWordReport.saveOrUpdate(report);
+			return report.getId();
 
 		} finally {
 			if (inputStream != null) {
@@ -219,15 +232,19 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				} catch (Exception e) {
 				}
 			}
+
 			if (outputStream != null)
 				outputStream.close();
+
+			if (workFile != null && workFile.exists() && !workFile.delete())
+				workFile.deleteOnExit();
 		}
 	}
 
 	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, ExtendedParameter impact, ExtendedParameter probability) {
 		addTitle(document, title);
 		XWPFTable table = document.createTable(3, 6);
-		table.setStyleID("Tableitrust1");
+		table.setStyleID("TSTABLEEVALUATION");
 		XWPFTableRow row = table.getRow(0);
 		getCell(row, 0).setText(getMessage("report.risk_sheet.probability", "Probability (P)"));
 		getCell(row, 1).setText(getMessage("report.risk_sheet.impact", "Impact (i)"));
@@ -248,9 +265,8 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 
 	private void addTitle(XWPFDocument document, String title) {
 		XWPFParagraph paragraph = document.createParagraph();
-		paragraph.setStyle("Titre2ssNo");
+		paragraph.setStyle("TSTitle");
 		paragraph.createRun().setText(title);
-
 	}
 
 	private void addField(XWPFDocument document, String title, String content) {
@@ -266,13 +282,14 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			table = document.insertNewTbl(document.getParagraphs().get(0).getCTP().newCursor());
 		else {
 			document.createParagraph().setPageBreak(true);
-			table = document.insertNewTbl(document.createParagraph().getCTP().newCursor());
+			table = document.createTable(1, 6);
 		}
-		table.setStyleID("TSRISKTABLE");
+
+		table.setStyleID("TSTABLERISK");
 		XWPFTableRow row = table.getRow(0);
 		getCell(row, 0).setText(getMessage("report.risk_sheet.risk_id", "Risk ID"));
 		getCell(row, 1).setText(riskProfile.getIdentifier() + "");
-		getCell(row, 2).setText(getMessage("report.risk_sheet.risk_type", "Type"));
+		getCell(row, 2).setText(getMessage("report.risk_sheet.risk_category", "Category"));
 		String scenarioType = riskProfile.getScenario().getType().getName();
 		getCell(row, 3).setText(getMessage("label.scenario.type." + scenarioType.replace("-", "_"), scenarioType));
 		getCell(row, 4).setText(getMessage("report.risk_sheet.title", "Title"));

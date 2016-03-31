@@ -146,7 +146,7 @@ public class WorkerExportWordReport implements Worker {
 		File file = exportAnalysisReport.getWorkFile();
 		User user = new DAOUserHBM(session).get(username);
 		Analysis analysis = exportAnalysisReport.getAnalysis();
-		WordReport report = new WordReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
+		WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
 				FileCopyUtils.copyToByteArray(file));
 		try {
 			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", 99));

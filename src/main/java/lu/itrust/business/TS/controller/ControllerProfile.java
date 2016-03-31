@@ -119,8 +119,8 @@ public class ControllerProfile {
 	}
 
 	private TrickFilter buildFromUser(User user, String type) {
-		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)), filter = user
-				.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
+		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)),
+				filter = user.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
 		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
 
 		if (size == null)
@@ -145,12 +145,12 @@ public class ControllerProfile {
 		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
 		session.setAttribute("sqliteControl", filterControl);
 		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
-		
+
 	}
 
 	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
-		
+
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
@@ -159,7 +159,7 @@ public class ControllerProfile {
 		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
 		session.setAttribute("reportControl", filterControl);
 		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
-		
+
 	}
 
 	private void updateFilterControl(User user, FilterControl value, String type) throws Exception {
@@ -288,7 +288,8 @@ public class ControllerProfile {
 		response.setContentType("docm");
 
 		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.docm", wordReport.getLabel(), wordReport.getVersion()) + "\"");
+		response.setHeader("Content-Disposition",
+				"attachment; filename=\"" + String.format("%s_%s_V%s.docm", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion()) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());
@@ -339,7 +340,7 @@ public class ControllerProfile {
 
 		} catch (Exception e) {
 
-			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return errors;
 		}
@@ -433,7 +434,7 @@ public class ControllerProfile {
 					user.setLocale(userlocale);
 			}
 		} catch (Exception e) {
-			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 
