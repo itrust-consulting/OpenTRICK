@@ -16,6 +16,8 @@ import lu.itrust.business.TS.model.actionplan.helper.TMA;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.Phase;
@@ -34,7 +36,9 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
  * @author itrust consulting s.�.rl. : BJA, EOM, SME
  * @version 0.1
  * @since 11 d�c. 2012
+ * @deprecated by {@link RiskSheetComputation}
  */
+@Deprecated
 public class RiskRegisterComputation {
 
 	/***********************************************************************************************
@@ -78,8 +82,12 @@ public class RiskRegisterComputation {
 
 		List<Measure> useMeasures = new ArrayList<Measure>();
 
-		int mandatoryPhase = (int) analysis.getParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE,
-				usePhases.isEmpty() ? 0 : usePhases.get(usePhases.size() - 1).getNumber());
+		int mandatoryPhase = usePhases.isEmpty() ? 0 : usePhases.get(usePhases.size() - 1).getNumber();
+
+		for (Parameter parameter : analysis.getParameters()) {
+			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME) && parameter.getDescription().equals(Constant.MANDATORY_PHASE))
+				mandatoryPhase = new Double(parameter.getValue()).intValue();
+		}
 
 		for (int i = 0; i < usePhases.size(); i++) {
 			if (usePhases.get(i).getNumber() == 0)
@@ -264,8 +272,8 @@ public class RiskRegisterComputation {
 
 		double acceptableImportace = parameters.stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD))
 				.map(Parameter::getValue).findAny().orElse(0.0);
-
-		return CSSFSort.sortAndConcatenateGroup(results, acceptableImportace * 1000);
+		
+		return CSSFSort.sortAndConcatenateGroup(results, new CSSFFilter(20, 5, -1, acceptableImportace));
 	}
 
 	/**
@@ -414,11 +422,11 @@ public class RiskRegisterComputation {
 	 */
 	protected static Map<String, Impact> computeImpactGeneric(final List<Assessment> assessments, final List<Parameter> parameters) {
 
-		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
+		Map<String, ExtendedParameter> mapParameters = new LinkedHashMap<String, ExtendedParameter>();
 
 		for (Parameter parameter : parameters)
 			if ((parameter instanceof ExtendedParameter) && parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
+				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), (ExtendedParameter) parameter);
 
 		// initialise the result (which is an Array where each Entry is defined
 		// by the Scenario ID
@@ -430,33 +438,64 @@ public class RiskRegisterComputation {
 
 			// check if assessment is usable and if Scenario Type is CSSF
 			if (assessment.isUsable()) {
-				
+
+				// System.out.println("Asset:
+				// "+assessment.getAsset().getName());
+
+				// System.out.println("Scenario:
+				// "+assessment.getScenario().getName());
+
+				// System.out.println("ALE: "+assessment.getALE());
+
+				// store scenario
+				Scenario scenario = assessment.getScenario();
+
+				String key = scenario.getId() + "_" + assessment.getAsset().getId();
+
 				// retrieve corresponding Impact Object of this Scenario from
 				// the Array
-				Impact impact = new Impact(0, 0, 0, 0, mapParameters);
+				Impact impact = impacts.get(key);
+
+				// System.out.println("computeNetEvaluation Scenario: " +
+				// scenario.getName());
+
+				// the following check is done once at the beginning when the
+				// Scenario Key was not
+				// found in the impacts array, if this is the case, the Scenario
+				// will be added to
+				// the Array
+				// with an empty Impact Object
+
+				// Check if the Impact Object exists (Key exists inside the
+				// Array) -> NO
+				if (impact == null) {
+
+					// create a new object
+					impact = new Impact(0, 0, 0, 0, mapParameters);
+
+					// add the object to the Array at the correct place
+					impacts.put(key, impact);
+				}
+
+				// summing impacts (update previous value with the one of the
+				// assessment)
 
 				// Reputation
-				impact.setReputation(Impact.convertStringImpactToDouble(assessment.getImpactRep(), mapParameters));
+				impact.setReputation(Impact.convertStringImpactToDouble(assessment.getImpactRep(), mapParameters) + impact.getRealReputation());
 
 				// operational
-				impact.setOperational(Impact.convertStringImpactToDouble(assessment.getImpactOp(), mapParameters));
+				impact.setOperational(Impact.convertStringImpactToDouble(assessment.getImpactOp(), mapParameters) + impact.getRealOperational());
 
 				// legal
-				impact.setLegal(Impact.convertStringImpactToDouble(assessment.getImpactLeg(), mapParameters));
+				impact.setLegal(Impact.convertStringImpactToDouble(assessment.getImpactLeg(), mapParameters) + impact.getRealLegal());
 
 				// financial
-				impact.setFinancial(Impact.convertStringImpactToDouble(assessment.getImpactFin(), mapParameters));
-				
-				impacts.put(getKey(assessment), impact);
+				impact.setFinancial(Impact.convertStringImpactToDouble(assessment.getImpactFin(), mapParameters) + impact.getRealFinancial());
 			}
 		}
 
 		// return result
 		return impacts;
-	}
-
-	private static String getKey(Assessment assessment) {
-		return assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
 	}
 
 	/**
@@ -480,11 +519,11 @@ public class RiskRegisterComputation {
 	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments,
 			final List<Parameter> parameters) throws TrickException {
 
-		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
+		Map<String, ExtendedParameter> mapParameters = new LinkedHashMap<String, ExtendedParameter>();
 
 		for (Parameter parameter : parameters)
 			if ((parameter instanceof ExtendedParameter))
-				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
+				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), (ExtendedParameter) parameter);
 
 		// initialise the risk register with the size of elements inside the
 		// impacts list
@@ -492,14 +531,31 @@ public class RiskRegisterComputation {
 
 		// parse all assessments elements
 		for (Assessment assessment : assessments) {
+
 			// get scenario id of the assessments scenario
-			String key = getKey(assessment);
+			String key = assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
 
 			// check if impacts list has this key (key of impacts= scenario ID)
 			if (impacts.containsKey(key)) {
+
+				// System.out.println(assessment.getScenario().getName() +
+				// ", Impact Max index: "
+				// + index + " Real value " + impacts.get(key));
+
+				// get or initialises the netALE value (numerator =
+				// sum(Pnet*Inet))
+				double netALE = (netALEs.containsKey(key) ? netALEs.get(key) : 0);
+
+				// identify biggest impact and calculate the numerator (ALe
+				// using P*I)
+				netALE += computeALE(impacts, assessment, mapParameters);
+
 				// update ALE numerator
-				netALEs.put(key, computeALE(impacts, assessment, mapParameters));
-				riskRegisters.put(key, new RiskRegisterItem(assessment.getScenario(), assessment.getAsset()));
+				netALEs.put(key, netALE);
+
+				// Initialize risk register items with scenario object
+				if (!riskRegisters.containsKey(key))
+					riskRegisters.put(key, new RiskRegisterItem(assessment.getScenario(), assessment.getAsset()));
 			}
 		}
 
@@ -558,20 +614,41 @@ public class RiskRegisterComputation {
 	 *         {@value #MAX_IMPACT_FINANCIAL} = financial]
 	 */
 	public static int getMaxImpactCode(Impact impact) {
+
 		// retrieve impact categories
 		double rep = impact.getRealReputation();
 		double op = impact.getRealOperational();
 		double leg = impact.getRealLegal();
 		double fin = impact.getRealFinancial();
+
 		// determine biggest impact category
-		if ((rep >= op) && (rep >= leg) && (rep >= fin))
+
+		if ((rep >= op) && (rep >= leg) && (rep >= fin)) {
+
+			// biggest is reputation
 			return MAX_IMPACT_REPUTATION;
-		else if ((op >= leg) && (op >= fin))
+		}
+
+		if ((op >= rep) && (op >= leg) && (op >= fin)) {
+
+			// biggest is operational
 			return MAX_IMPACT_OPERATIONAL;
-		else if ((leg >= fin))
+		}
+
+		if ((leg >= op) && (leg >= rep) && (leg >= fin)) {
+
+			// biggest is legal
 			return MAX_IMPACT_LEGAL;
-		else
+		}
+
+		if ((fin >= op) && (fin >= rep) && (fin >= leg)) {
+
+			// biggest is fincancial
 			return MAX_IMPACT_FINANCIAL;
+		}
+
+		// at this time an error happend and none is maximum
+		return -1;
 	}
 
 	/**
@@ -648,23 +725,40 @@ public class RiskRegisterComputation {
 	 * @param parameters
 	 * @return
 	 */
-	private static double computeALE(Map<String, Impact> impacts, Assessment assessment, Map<String, Parameter> parameters) {
-		String key = getKey(assessment);
+	private static double computeALE(Map<String, Impact> impacts, Assessment assessment, Map<String, ExtendedParameter> parameters) {
+
+		String key = assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
+		int index = getMaxImpactCode(impacts.get(key));
+
+		// System.out.println(assessment.getScenario().getName() +
+		// ", Impact Max index: "
+		// + index + " Real value " + impacts.get(key));
+
 		// get or initialises the netALE value (numerator = sum(Pnet*Inet))
+
+		double ALE = 0;
+
 		// identify biggest impact and calculate the numerator (ALe using P*I)
-		switch (getMaxImpactCode(impacts.get(key))) {
+
+		switch (index) {
+
 		case MAX_IMPACT_REPUTATION:
-			return Impact.convertStringImpactToDouble(assessment.getImpactRep(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			ALE = Impact.convertStringImpactToDouble(assessment.getImpactRep(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			break;
 		case MAX_IMPACT_OPERATIONAL:
-			return Impact.convertStringImpactToDouble(assessment.getImpactOp(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			ALE = Impact.convertStringImpactToDouble(assessment.getImpactOp(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			break;
 		case MAX_IMPACT_LEGAL:
-			return Impact.convertStringImpactToDouble(assessment.getImpactLeg(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			ALE = Impact.convertStringImpactToDouble(assessment.getImpactLeg(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			break;
 		case MAX_IMPACT_FINANCIAL:
-			return Impact.convertStringImpactToDouble(assessment.getImpactFin(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			ALE = Impact.convertStringImpactToDouble(assessment.getImpactFin(), parameters) * likelihoodToNumeric(assessment.getLikelihood(), parameters);
+			break;
 		default:
 			throw new IllegalArgumentException("RiskRegisterComputation#computeProbability: index should be between 0 and 3");
 		}
 
+		return ALE;
 
 	}
 
@@ -700,7 +794,7 @@ public class RiskRegisterComputation {
 	 * 
 	 * @return The likelihood value
 	 */
-	public static double likelihoodToNumeric(String likelihood, Map<String, Parameter> parameters) {
+	public static double likelihoodToNumeric(String likelihood, Map<String, ExtendedParameter> parameters) {
 
 		if (parameters.containsKey(likelihood))
 			return parameters.get(likelihood).getValue();
@@ -755,11 +849,11 @@ public class RiskRegisterComputation {
 			Map<String, Double> rawALEs, Map<String, Double> deltaALEs, final Map<String, Double> netALEs, final List<TMA> tmas, final List<Parameter> parameters)
 			throws TrickException {
 
-		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
+		Map<String, ExtendedParameter> mapParameters = new LinkedHashMap<String, ExtendedParameter>();
 
 		for (Parameter parameter : parameters)
 			if ((parameter instanceof ExtendedParameter))
-				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
+				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), (ExtendedParameter) parameter);
 
 		// parse all TMA entries
 		for (TMA tma : tmas) {

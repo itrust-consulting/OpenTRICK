@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItemGroup;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 
 /**
  * CSSFSort: <br>
@@ -63,6 +64,7 @@ public class CSSFSort {
 	 * 
 	 * @param registers
 	 *            CSSF computation result
+	 * @param cssfFilter
 	 * 
 	 * @return initialised groups with empty RiskkRegisterItem Lists
 	 * @see #findGroup(String)
@@ -146,7 +148,7 @@ public class CSSFSort {
 	 * 
 	 * @return A concatenated list of all direct and indirect items
 	 */
-	public static List<RiskRegisterItem> sortAndConcatenateGroup(Map<String, List<RiskRegisterItemGroup>> groups, double acceptableImportace) {
+	public static List<RiskRegisterItem> sortAndConcatenateGroup(Map<String, List<RiskRegisterItemGroup>> groups, CSSFFilter cssfFilter) {
 
 		// initialise or use existing group direct
 		List<RiskRegisterItemGroup> direct20 = groups.containsKey(DIRECT) ? groups.get(DIRECT) : new ArrayList<RiskRegisterItemGroup>();
@@ -167,16 +169,16 @@ public class CSSFSort {
 		// identify 20 most important direct risks, start at index 1 and add all
 		// those where
 		// impact >= 5 and probability >= 6
-		indexRiskRegisterItem(direct20, 1, 20, acceptableImportace);
+		indexRiskRegisterItem(direct20, 1, cssfFilter.getDirect(direct20.size()), cssfFilter.getImportanceThreshold());
 
 		// identify 5 most important indirect risks, start at last index of the
 		// direct risks + 1 and
 		// add all those where impact >= 5 and probability >= 6
-		indexRiskRegisterItem(indirect5, direct20.size() + 1, 5, acceptableImportace);
+		indexRiskRegisterItem(indirect5, direct20.size() + 1, cssfFilter.getIndirect(indirect5.size()), cssfFilter.getImportanceThreshold());
 
 		direct20.addAll(indirect5);
 
-		indexRiskRegisterItem(cia, direct20.size() + 1, cia.size(), acceptableImportace);
+		indexRiskRegisterItem(cia, direct20.size() + 1, cssfFilter.getCia(cia.size()), cssfFilter.getImportanceThreshold());
 
 		direct20.addAll(cia);
 
@@ -327,4 +329,5 @@ public class CSSFSort {
 		// NetImportanceComparatorDescending check
 		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceComparator()));
 	}
+
 }

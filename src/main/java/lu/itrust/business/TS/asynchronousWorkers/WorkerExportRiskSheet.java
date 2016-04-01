@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
@@ -67,13 +69,19 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 
 	private DAOUser daoUser;
 
+	private MessageSource messageSource;
+
+	private Locale locale;
+
 	public WorkerExportRiskSheet(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String rootPath, Integer analysisId,
-			String username) {
+			String username, MessageSource messageSource) {
 		super(poolManager, sessionFactory);
 		setUsername(username);
 		setIdAnalysis(analysisId);
 		setRootPath(rootPath);
 		setServiceTaskFeedback(serviceTaskFeedback);
+		setMessageSource(messageSource);
+		setLocale(Locale.ENGLISH);
 	}
 
 	@Override
@@ -172,6 +180,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			throw new TrickException("error.analysis.risk_profile.empty", "Please compute risk register and try again");
 		if (analysis.getRiskProfiles().isEmpty())
 			throw new TrickException("error.risk_profile.empty", "No risk sheet");
+		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;
@@ -305,8 +314,8 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		return cell;
 	}
 
-	private String getMessage(String string, String string2) {
-		return string2;
+	private String getMessage(String code, String defaultMeassge) {
+		return messageSource.getMessage(code, null, defaultMeassge, locale);
 	}
 
 	/**
@@ -355,6 +364,21 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 	}
 
 	/**
+	 * @return the messageSource
+	 */
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	/**
+	 * @param messageSource
+	 *            the messageSource to set
+	 */
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	/**
 	 * @return the serviceTaskFeedback
 	 */
 	protected ServiceTaskFeedback getServiceTaskFeedback() {
@@ -367,6 +391,21 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 	 */
 	protected void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
 		this.serviceTaskFeedback = serviceTaskFeedback;
+	}
+
+	/**
+	 * @return the locale
+	 */
+	public Locale getLocale() {
+		return locale;
+	}
+
+	/**
+	 * @param locale
+	 *            the locale to set
+	 */
+	public void setLocale(Locale locale) {
+		this.locale = locale;
 	}
 
 }

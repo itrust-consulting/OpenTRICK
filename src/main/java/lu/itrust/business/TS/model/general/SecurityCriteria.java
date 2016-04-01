@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.general;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,6 +33,8 @@ public abstract class SecurityCriteria implements Cloneable {
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
+
+	protected static Pattern CATEGOTY_PATTERN = Pattern.compile(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
 
 	/** The Scenario Identifier */
 	private int id = -1;
@@ -87,7 +90,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Scenario ID
 	 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idSecurityCriteria")
 	public int getId() {
 		return id;
@@ -1000,7 +1003,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return True if Key is valid; False if Key is not valid
 	 */
 	public static boolean isCategoryKey(String category) {
-		return category != null && category.matches(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
+		return category != null && CATEGOTY_PATTERN.matcher(category).find();
 	}
 
 	/**

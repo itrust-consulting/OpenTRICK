@@ -6,7 +6,6 @@ import java.security.Principal;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -16,6 +15,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,6 +29,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -146,11 +147,11 @@ public class ControllerRiskRegister {
 	}
 	
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	@RequestMapping(value = "/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String export(HttpSession session, HttpServletRequest  request, Principal principal){
+	@RequestMapping(value = "/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String export(@RequestBody CSSFFilter form,HttpSession session, HttpServletRequest  request, Principal principal){
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		Worker worker = new WorkerExportRiskSheet(workersPoolManager, sessionFactory, serviceTaskFeedback,request.getServletContext().getRealPath("/WEB-INF"), analysisId,principal.getName());
+		Worker worker = new WorkerExportRiskSheet(workersPoolManager, sessionFactory, serviceTaskFeedback,request.getServletContext().getRealPath("/WEB-INF"), analysisId,principal.getName(),messageSource );
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task

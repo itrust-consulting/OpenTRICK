@@ -6,6 +6,9 @@ package lu.itrust.business.TS.model.cssf.helper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -22,6 +25,10 @@ public class ParameterConvertor {
 	private List<ExtendedParameter> impactsParameters;
 
 	private List<ExtendedParameter> probabilityParameters;
+
+	private Map<String, ExtendedParameter> mapProbabilities;
+
+	private Map<String, ExtendedParameter> mapImpacts;
 
 	public ParameterConvertor(List<ExtendedParameter> impacts, List<ExtendedParameter> probabilities) {
 		setImpactsParameters(impacts);
@@ -48,6 +55,20 @@ public class ParameterConvertor {
 		return impactsParameters;
 	}
 
+	protected synchronized void initialiseMapProbrabilities() {
+		if (probabilityParameters == null)
+			throw new TrickException("error.data.not_initialise", "Data does not initialise");
+		if (mapProbabilities == null || mapProbabilities.size() != probabilityParameters.size())
+			mapProbabilities = probabilityParameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
+	}
+
+	protected synchronized void initialiseMapImpact() {
+		if (impactsParameters == null)
+			throw new TrickException("error.data.not_initialise", "Data does not initialise");
+		if (mapImpacts == null || mapImpacts.size() != impactsParameters.size())
+			mapImpacts = impactsParameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
+	}
+
 	protected void setImpactsParameters(List<ExtendedParameter> impactsParameters) {
 		this.impactsParameters = impactsParameters;
 	}
@@ -65,7 +86,7 @@ public class ParameterConvertor {
 	}
 
 	public int getImpactLevel(String acronym) throws TrickException {
-		return findByAcronym(acronym, impactsParameters).getLevel();
+		return findByAcronym(acronym, getMapImpacts()).getLevel();
 	}
 
 	public String getImpactAcronym(double value) {
@@ -81,7 +102,7 @@ public class ParameterConvertor {
 	}
 
 	public double getImpactValue(String acronym) throws TrickException {
-		return findByAcronym(acronym, impactsParameters).getValue();
+		return findByAcronym(acronym, getMapImpacts()).getValue();
 	}
 
 	public int getProbabiltyLevel(double value) {
@@ -89,7 +110,7 @@ public class ParameterConvertor {
 	}
 
 	public int getProbabiltyLevel(String acronym) throws TrickException {
-		return findByAcronym(acronym, probabilityParameters).getLevel();
+		return findByAcronym(acronym, getMapProbabilities()).getLevel();
 	}
 
 	public String getProbabiltyAcronym(double value) {
@@ -105,7 +126,7 @@ public class ParameterConvertor {
 	}
 
 	public double getProbabiltyValue(String acronym) throws TrickException {
-		return findByAcronym(acronym, probabilityParameters).getValue();
+		return findByAcronym(acronym, getMapProbabilities()).getValue();
 	}
 
 	private ExtendedParameter findByValue(double value, List<ExtendedParameter> parameters) {
@@ -128,24 +149,24 @@ public class ParameterConvertor {
 			return findByLevel(level, parameters.subList(mid, parameters.size()));
 	}
 
-	private ExtendedParameter findByAcronym(String acronym, List<ExtendedParameter> parameters) throws TrickException {
-		for (ExtendedParameter extendedParameter : parameters)
-			if (extendedParameter.getAcronym().equalsIgnoreCase(acronym))
-				return extendedParameter;
-		throw new TrickException("error.acronym.not_found", String.format("Acronym (%s) cannot be resolve", acronym), acronym);
+	private ExtendedParameter findByAcronym(String acronym, Map<String, ExtendedParameter> parameters) throws TrickException {
+		ExtendedParameter parameter = parameters.get(acronym);
+		if (parameter == null)
+			throw new TrickException("error.acronym.not_found", String.format("Acronym (%s) cannot be resolve", acronym), acronym);
+		return parameter;
 	}
 
 	public ExtendedParameter getImpact(String impact) {
 		try {
 			return findByValue(Double.parseDouble(impact), impactsParameters);
 		} catch (NumberFormatException e) {
-			return findByAcronym(impact, impactsParameters);
+			return findByAcronym(impact, getMapImpacts());
 		}
 	}
 
 	public ExtendedParameter getProbability(String likelihood) {
 		try {
-			return findByAcronym(likelihood, probabilityParameters);
+			return findByAcronym(likelihood, getMapProbabilities());
 		} catch (TrickException e) {
 			try {
 				return findByValue(Double.parseDouble(likelihood), probabilityParameters);
@@ -153,6 +174,60 @@ public class ParameterConvertor {
 				throw e;
 			}
 		}
+	}
+
+	public double findImpact(String impact) {
+		try {
+			return findByValue(Double.parseDouble(impact), impactsParameters).getValue();
+		} catch (NumberFormatException e) {
+			return findByAcronym(impact, getMapImpacts()).getValue();
+		}
+	}
+
+	public double findProbability(String likelihood) {
+		try {
+			return findByAcronym(likelihood, getMapProbabilities()).getValue();
+		} catch (TrickException e) {
+			try {
+				return findByValue(Double.parseDouble(likelihood), probabilityParameters).getValue();
+			} catch (NumberFormatException e1) {
+				throw e;
+			}
+		}
+	}
+
+	/**
+	 * @return the mapProbabilities
+	 */
+	public Map<String, ExtendedParameter> getMapProbabilities() {
+		if (mapProbabilities == null)
+			initialiseMapProbrabilities();
+		return mapProbabilities;
+	}
+
+	/**
+	 * @param mapProbabilities
+	 *            the mapProbabilities to set
+	 */
+	public void setMapProbabilities(Map<String, ExtendedParameter> mapProbabilities) {
+		this.mapProbabilities = mapProbabilities;
+	}
+
+	/**
+	 * @return the mapImpacts
+	 */
+	public Map<String, ExtendedParameter> getMapImpacts() {
+		if (mapImpacts == null)
+			initialiseMapImpact();
+		return mapImpacts;
+	}
+
+	/**
+	 * @param mapImpacts
+	 *            the mapImpacts to set
+	 */
+	public void setMapImpacts(Map<String, ExtendedParameter> mapImpacts) {
+		this.mapImpacts = mapImpacts;
 	}
 
 }

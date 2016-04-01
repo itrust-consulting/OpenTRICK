@@ -21,6 +21,8 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 
 /**
  * WorkerComputeRiskRegister.java: <br>
@@ -139,8 +141,10 @@ public class WorkerComputeRiskRegister implements Worker {
 			session.beginTransaction();
 			System.out.println("Saving user changes...");
 			backup(analysis, session, lang);
-			RiskRegisterComputation computation = new RiskRegisterComputation(analysis);
+			//RiskRegisterComputation computation = new RiskRegisterComputation(analysis);
+			RiskSheetComputation computation = new RiskSheetComputation(analysis, new CSSFFilter());
 			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.compute", "Computing Risk Register", 20));
+			long begin = System.nanoTime();
 			if (computation.computeRiskRegister() == null) {
 				restoreOwner(analysis, lang);
 				serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.saving", "Saving Risk Register to database", 72));
@@ -154,6 +158,7 @@ public class WorkerComputeRiskRegister implements Worker {
 				System.out.println("Computing Risk Register Complete!");
 			} else
 				session.getTransaction().rollback();
+			System.out.println("Time: "+(System.nanoTime()- begin)*Math.exp(-9));
 		} catch (InterruptedException e) {
 			try {
 				canceled = true;
