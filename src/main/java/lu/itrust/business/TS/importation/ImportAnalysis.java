@@ -1197,7 +1197,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
+		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase FROM scope";
 
 		// execute query
 		rs = sqlite.query(query, null);
@@ -1210,17 +1210,9 @@ public class ImportAnalysis {
 		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SINGLE);
 
 		// paramter type does not exist -> NO
-		if (parameterType == null) {
-
-			// create new parameter type single
-
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
-
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_SINGLE);
-
+		if (parameterType == null)
 			// save parameter type into database
-			daoParameterType.save(parameterType);
-		}
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_SINGLE, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME));
 
 		// Retrieve result
 		if (rs.next()) {
@@ -1310,11 +1302,31 @@ public class ImportAnalysis {
 			 * // * add instance to list of parameters //
 			 * ****************************************************************
 			 */
-			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getDouble(Constant.IMPORTANCE_THRESHOLD));
-			this.analysis.addAParameter(parameter);
 		}
 		// close result
 		rs.close();
+
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_CSSF);
+		if (parameterType == null)
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF, Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
+
+		rs = sqlite.query("SELECT cssfImpactThreshold, cssfProbabilityThreshold, cssfDirectSize, cssfIndirectSize, cssfCIASize FROM scope");
+		if (rs == null) {
+			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, 6D));
+			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, 5D));
+			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+		} else {
+			while (rs.next()) {
+				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, rs.getDouble(Constant.CSSF_IMPACT_THRESHOLD)));
+				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, rs.getDouble(Constant.CSSF_PROBABILITY_THRESHOLD)));
+				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, rs.getDouble(Constant.CSSF_DIRECT_SIZE)));
+				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, rs.getDouble(Constant.CSSF_INDIRECT_SIZE)));
+				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, rs.getDouble(Constant.CSSF_CIA_SIZE)));
+			}
+			rs.close();
+		}
 
 		// ****************************************************************
 		// * Import maturity_max_effency
@@ -1327,16 +1339,9 @@ public class ImportAnalysis {
 		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
 
 		// paramter type does not exist -> NO
-		if (parameterType == null) {
-
-			// create new parameter type
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
-
+		if (parameterType == null)
 			// save parameter type into database
-			daoParameterType.save(parameterType);
-		}
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_MAX_EFF, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME));
 
 		// ****************************************************************
 		// * retrieve maturity_max_effency
@@ -1383,14 +1388,8 @@ public class ImportAnalysis {
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
-
-			// create new parameter type
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
-
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE);
-
 			// save parameter type into database
-			daoParameterType.save(parameterType);
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
 		}
 
 		currentSqliteTable = "maturity_IS";
@@ -1449,6 +1448,7 @@ public class ImportAnalysis {
 
 		// close result
 		rs.close();
+
 	}
 
 	/**
@@ -1484,16 +1484,9 @@ public class ImportAnalysis {
 		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPACT);
 
 		// paramter type does not exist -> NO
-		if (parameterType == null) {
-
-			// create new parameter type
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
-
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_IMPACT);
-
+		if (parameterType == null)
 			// save parameter type into database
-			daoParameterType.save(parameterType);
-		}
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPACT, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME));
 
 		// ****************************************************************
 		// * retrieve impact values
@@ -1552,7 +1545,7 @@ public class ImportAnalysis {
 		ParameterManager.ComputeImpactValue(extendedParameters);
 
 		this.analysis.getParameters().addAll(extendedParameters);
-		
+
 		this.extendedParameters = extendedParameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
 
 		extendedParameters.clear();
@@ -1560,16 +1553,8 @@ public class ImportAnalysis {
 		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_PROPABILITY);
 
 		// paramter type does not exist -> NO
-		if (parameterType == null) {
-
-			// create new parameter type
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
-
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_PROPABILITY);
-
-			// save parameter type into database
-			daoParameterType.save(parameterType);
-		}
+		if (parameterType == null)
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_PROPABILITY, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
 
 		// ****************************************************************
 		// * retrieve likelihood values
@@ -1657,16 +1642,9 @@ public class ImportAnalysis {
 		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML);
 
 		// paramter type does not exist -> NO
-		if (parameterType == null) {
-
-			// create new parameter type
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME);
-
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML);
-
-			// save parameter type into database
-			daoParameterType.save(parameterType);
-		}
+		if (parameterType == null)
+			daoParameterType.save(
+					parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME));
 
 		// ****************************************************************
 		// * import maturity parameters
@@ -1975,9 +1953,9 @@ public class ImportAnalysis {
 				// standard
 
 				if (standard.getType().equals(StandardType.NORMAL))
-					analysisStandards.put(standard, analysisStandard = new NormalStandard(standard));
+				analysisStandards.put(standard, analysisStandard = new NormalStandard(standard));
 				else
-					analysisStandards.put(standard, analysisStandard = new AssetStandard(standard));
+				analysisStandards.put(standard, analysisStandard = new AssetStandard(standard));
 
 			// ****************************************************************
 			// * Import measure to database

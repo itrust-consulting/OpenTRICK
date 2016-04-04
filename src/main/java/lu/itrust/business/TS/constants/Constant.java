@@ -169,7 +169,7 @@ public class Constant {
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
 	/** Regular expression for Parameter types */
-	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE";
+	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE|CSSF";
 
 	/** Regular expression for asset types */
 	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl";
@@ -268,6 +268,7 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE = 4;
 	public final static int PARAMETERTYPE_TYPE_MAX_EFF = 5;
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
+	public final static int PARAMETERTYPE_TYPE_CSSF = 7;
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -276,6 +277,7 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_MAX_EFF_NAME = "MAXEFF";
 	public final static String PARAMETERTYPE_TYPE_PROPABILITY_NAME = "PROBA";
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
+	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
@@ -664,12 +666,19 @@ public class Constant {
 	public static final String MANDATORY_PHASE = "mandatoryPhase";
 	public static final String SOA_THRESHOLD = "soaThreshold";
 	public static final String IMPORTANCE_THRESHOLD = "importanceThreshold";
-
+	
 	public static final String PARAMETER_MAINTENANCE_DEFAULT = "maintenance_default";
 	public static final String PARAMETER_LIFETIME_DEFAULT = "lifetime_default";
 	public static final String PARAMETER_EXTERNAL_SETUP_RATE = "external_setup_rate";
 	public static final String PARAMETER_INTERNAL_SETUP_RATE = "internal_setup_rate";
-
+	
+	/** CSSF Parameters **/
+	public static final String CSSF_IMPACT_THRESHOLD = "cssfImpactThreshold";
+	public static final String CSSF_PROBABILITY_THRESHOLD = "cssfProbabilityThreshold";
+	public static final String CSSF_DIRECT_SIZE = "cssfDirectSize";
+	public static final String CSSF_INDIRECT_SIZE = "cssfIndirectSize";
+	public static final String CSSF_CIA_SIZE = "cssfCIASize";
+	
 	/** List of Constants for the Sqlite Table "assessment" */
 	public static final String ASSESSMENT_COMMENT = MEASURE_COMMENT;
 	public static final String ASSESSMENT_HIDE_COMMENT = "comment_2";

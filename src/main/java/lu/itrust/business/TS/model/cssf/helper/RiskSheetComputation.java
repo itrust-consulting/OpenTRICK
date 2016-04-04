@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.security.auth.DestroyFailedException;
-
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -22,7 +20,6 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.cssf.EvaluationResult;
 import lu.itrust.business.TS.model.cssf.Impact;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItemGroup;
 import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.Phase;
@@ -51,8 +48,6 @@ public class RiskSheetComputation {
 	/** Analysis Object */
 	private Analysis analysis = null;
 
-	private CSSFFilter filter = null;
-
 	/** Value to identify reputation impact like max impact */
 	public static final int MAX_IMPACT_REPUTATION = 0;
 
@@ -77,7 +72,7 @@ public class RiskSheetComputation {
 	 *            The Analysis Object
 	 * @param cssfFilter
 	 */
-	public RiskSheetComputation(Analysis analysis, CSSFFilter cssfFilter) {
+	public RiskSheetComputation(Analysis analysis) {
 		this.analysis = analysis;
 	}
 
@@ -119,39 +114,42 @@ public class RiskSheetComputation {
 		try {
 
 			System.out.println("Risk Register calculation...");
-
 			List<ExtendedParameter> extendedParameters = new ArrayList<>(22);
-
-			int mandatoryPhase = 0;
-			double importanceThreshold = 0d;
+			CSSFFilter filter = new CSSFFilter();
+			int mandatoryPhase = 0, impactThreshold = 6, probabilityThreshold = 5;
 			for (Parameter parameter : this.analysis.getParameters()) {
 				if (parameter instanceof ExtendedParameter)
 					extendedParameters.add((ExtendedParameter) parameter);
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD))
-					importanceThreshold = parameter.getValue();
 				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE))
 					mandatoryPhase = (int) parameter.getValue();
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE))
+					filter.setCia((int)parameter.getValue());
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_DIRECT_SIZE))
+					filter.setDirect((int)parameter.getValue());
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_INDIRECT_SIZE))
+					filter.setIndirect((int)parameter.getValue());
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_IMPACT_THRESHOLD))
+					impactThreshold = (int)parameter.getValue();
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_PROBABILITY_THRESHOLD))
+					probabilityThreshold = (int)parameter.getValue();
 			}
-
 			// ****************************************************************
 			// * calculate RiskRegister using CSSFComputation
 			// ****************************************************************
-			helper = new ComputationHelper(extendedParameters, importanceThreshold);
-
+			helper = new ComputationHelper(extendedParameters);
+			filter.setImpact(helper.getParameterConvertor().getImpactValue(impactThreshold));
+			filter.setProbability(helper.getParameterConvertor().getProbabiltyValue(probabilityThreshold));
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
-
 			// print risk register into console
 			// printRegister(this.analysis.getRiskRegisters());
 			return null;
 		} catch (Exception e) {
-
 			// print error message
 			System.out.println("Risk Register calculation and saving failed!");
 			TrickLogManager.Persist(e);
-
 			return new MessageHandler(e);
-		}finally {
-			if(helper!=null){
+		} finally {
+			if (helper != null) {
 				helper.destroy();
 			}
 		}
@@ -181,7 +179,7 @@ public class RiskSheetComputation {
 		// print each risk register item
 		for (RiskRegisterItem registerItem : registers) {
 			System.out.println("--------------------------------------------------------------------" + "----------------------------------------");
-			System.out.print(registerItem.getId() + " | " + registerItem.getPosition() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId()
+			System.out.print(registerItem.getId() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId()
 					+ " | " + registerItem.getScenario().getType().getName() + " | " + registerItem.getScenario().getName());
 			printRiskRegisterItem(registerItem.getRawEvaluation());
 			printRiskRegisterItem(registerItem.getNetEvaluation());
@@ -251,12 +249,8 @@ public class RiskSheetComputation {
 	 */
 	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final ComputationHelper helper, CSSFFilter cssfFilter)
 			throws TrickException {
-
 		if (cssfFilter == null)
-			cssfFilter = new CSSFFilter(20, 5, -1, helper.getImportanceThreshold());
-		else {
-
-		}
+			cssfFilter = new CSSFFilter(helper.getParameterConvertor().getImpactValue(6), helper.getParameterConvertor().getProbabiltyValue(5));
 		// calculate the NET Evaluation
 		// set the impacts of each category (this will parse all assessment and
 		// will make a sum of
@@ -274,16 +268,11 @@ public class RiskSheetComputation {
 		computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(helper, tmas);
 		// compute
 		cssfFinalComputation(helper);
-
-		// set register items into three groups direct, indirect and others
-		Map<String, List<RiskRegisterItemGroup>> results = CSSFSort.sortByGroup(helper.getRiskRegisters());
-
 		// Concatenate direct and indirect using 20 direct and those with
 		// acceptable impact and
 		// probability as well as 5 indirect and those with acceptable impact
 		// and probability
-
-		return CSSFSort.sortAndConcatenateGroup(results, cssfFilter);
+		return CSSFSort.sortAndConcatenate(helper, cssfFilter);
 	}
 
 	/**

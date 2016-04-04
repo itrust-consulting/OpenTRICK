@@ -12,10 +12,15 @@ public class CSSFFilter {
 	private int direct = 20;
 
 	private int indirect = 5;
-
+	
+	/**
+	 * -1: exclude, 0: all
+	 */
 	private int cia = -1;
 
-	private double importanceThreshold = 0D;
+	private double impact;
+
+	private double probability;
 
 	/**
 	 * 
@@ -28,11 +33,17 @@ public class CSSFFilter {
 	 * @param indirect
 	 * @param cia
 	 */
-	public CSSFFilter(int direct, int indirect, int cia, double threshold) {
+	public CSSFFilter(int direct, int indirect, int cia, double impact, double probability) {
 		this.direct = direct;
 		this.indirect = indirect;
 		this.cia = cia;
-		this.importanceThreshold = threshold;
+		this.impact = impact;
+		this.probability = probability;
+	}
+
+	public CSSFFilter(double impactValue, double probabiltyValue) {
+		this.impact = impactValue;
+		this.probability = probabiltyValue;
 	}
 
 	/**
@@ -66,6 +77,8 @@ public class CSSFFilter {
 	}
 
 	/**
+	 * -1 : exclude 0 : all
+	 * 
 	 * @return the cia
 	 */
 	public int getCia() {
@@ -73,26 +86,22 @@ public class CSSFFilter {
 	}
 
 	/**
+	 * -1 : exclude, 0 : all
+	 * 
+	 * @return the cia
+	 */
+	public int getCia(int defaultValue) {
+		return cia <= -1 ? 0 : cia == 0 ? defaultValue : cia;
+	}
+
+	/**
+	 * -1 : exclude, 0 : all
+	 * 
 	 * @param cia
 	 *            the cia to set
 	 */
 	public void setCia(int cia) {
 		this.cia = cia;
-	}
-
-	/**
-	 * @return the importanceThreshold
-	 */
-	public double getImportanceThreshold() {
-		return importanceThreshold;
-	}
-
-	/**
-	 * @param importanceThreshold
-	 *            the importanceThreshold to set
-	 */
-	public void setImportanceThreshold(double importanceThreshold) {
-		this.importanceThreshold = importanceThreshold;
 	}
 
 	public int getDirect(int size) {
@@ -103,8 +112,34 @@ public class CSSFFilter {
 		return indirect < 0 ? size : indirect;
 	}
 
-	public int getCia(int size) {
-		return cia < 0 ? size : cia;
+	/**
+	 * @return the impact
+	 */
+	public double getImpact() {
+		return impact;
+	}
+
+	/**
+	 * @param impact
+	 *            the impact to set
+	 */
+	public void setImpact(double impact) {
+		this.impact = impact;
+	}
+
+	/**
+	 * @return the probability
+	 */
+	public double getProbability() {
+		return probability;
+	}
+
+	/**
+	 * @param probability
+	 *            the probability to set
+	 */
+	public void setProbability(double probability) {
+		this.probability = probability;
 	}
 
 }

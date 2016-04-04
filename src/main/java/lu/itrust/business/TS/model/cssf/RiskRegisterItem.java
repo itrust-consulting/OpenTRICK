@@ -61,9 +61,6 @@ public class RiskRegisterItem {
 	@Access(AccessType.FIELD)
 	private Asset asset = null;
 
-	/** Position in the RiskRegister */
-	@Column(name = "dtOrder", nullable = false)
-	private int position = 0;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
@@ -143,27 +140,6 @@ public class RiskRegisterItem {
 	 */
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	/**
-	 * getPosition: <br>
-	 * Returns the "position" field Value.
-	 * 
-	 * @return The Postion inside the List
-	 */
-	public int getPosition() {
-		return position;
-	}
-
-	/**
-	 * setPosition: <br>
-	 * Sets the field "position" with a value.
-	 * 
-	 * @param position
-	 *            The Value to set the Position
-	 */
-	public void setPosition(int position) {
-		this.position = position;
 	}
 
 	/**
@@ -268,7 +244,6 @@ public class RiskRegisterItem {
 
 	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {
 		if (riskRegister != null) {
-			this.position = riskRegister.position;
 			this.expectedEvaluation = riskRegister.expectedEvaluation;
 			this.netEvaluation = riskRegister.netEvaluation;
 			this.rawEvaluation = riskRegister.rawEvaluation;

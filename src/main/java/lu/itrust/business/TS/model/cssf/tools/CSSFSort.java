@@ -2,14 +2,15 @@ package lu.itrust.business.TS.model.cssf.tools;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItemGroup;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.cssf.helper.ComputationHelper;
 
 /**
  * CSSFSort: <br>
@@ -35,13 +36,21 @@ public class CSSFSort {
 	 * Indirect category regular expression: <br />
 	 * <b>(i|I|InDirect|Indirect|indirect|inDirect)([1-9]|8\\.[1-4]|10)</b>
 	 */
-	public static final Pattern INDIRECT_REGEX = Pattern.compile("(i|I|InDirect|Indirect|indirect|inDirect)([1-9]|8\\.[1-4]|10)");
+	public static final String INDIRECT_REGEX = "(i|I|InDirect|Indirect|indirect|inDirect)([1-9]|8\\.[1-4]|10)";
 
 	/**
 	 * Direct category regular expression: <br />
 	 * <b>(d|D|Direct|direct)([1-7]|6\\.[1-4])</b>
 	 */
-	public static final Pattern DIRECT_REGEX = Pattern.compile("(d|D|Direct|direct)([1-7]|6\\.[1-4])");
+	public static final String DIRECT_REGEX = "(d|D|Direct|direct)([1-7]|6\\.[1-4])";
+
+	/** acceptable net Impact to verify on risk register list item adding */
+	public static final int ACCEPTABLE_NET_IMPACT = 6;
+
+	/**
+	 * acceptable net probability to verify on risk register list item adding
+	 */
+	public static final int ACCEPTABLE_NET_PROBABILITY = 5;
 
 	/** Group name: <b>other</b> */
 	public static final String OTHER = "other";
@@ -64,7 +73,6 @@ public class CSSFSort {
 	 * 
 	 * @param registers
 	 *            CSSF computation result
-	 * @param cssfFilter
 	 * 
 	 * @return initialised groups with empty RiskkRegisterItem Lists
 	 * @see #findGroup(String)
@@ -129,18 +137,18 @@ public class CSSFSort {
 	 * </li>
 	 * <li>5 most important indirect risk(referring to the net importance value)
 	 * </li>
-	 * <li>Risks that have a netImportance >= <b>acceptableImportace</b> (inside
-	 * direct and indirect)</li>
+	 * <li>Risks that have a net impact >=6 and net impact probability >= 5
+	 * (inside direct and indirect)</li>
 	 * </ul>
 	 * Afterwards, the 2 lists will be concatenated<br>
 	 * <ul>
 	 * <li>RiskRegister with id between 1 and 20, are the 20 most important
 	 * direct risk(referring to the net importance value) after 20 come those
-	 * where netImportance >= <b>acceptableImportace</b></li>
-	 * <li>RiskRegister with id after the 20 and x items with netImportance >=
-	 * <b>acceptableImportace</b> come the 5 most important indirect
-	 * risk(referring to the net importance value) after these 5 items come all
-	 * indirect risk that have netImportance >= <b>acceptableImportace</li>
+	 * where impact >= 6 and probability >= 5</li>
+	 * <li>RiskRegister with id after the 20 and x items with impact >= 6 and
+	 * probability >= 5 come the 5 most important indirect risk(referring to the
+	 * net importance value) after these 5 items come all indirect risk that
+	 * have impact >= 6 and probability >= 5</li>
 	 * </ul>
 	 * 
 	 * @param groups
@@ -148,7 +156,8 @@ public class CSSFSort {
 	 * 
 	 * @return A concatenated list of all direct and indirect items
 	 */
-	public static List<RiskRegisterItem> sortAndConcatenateGroup(Map<String, List<RiskRegisterItemGroup>> groups, CSSFFilter cssfFilter) {
+	@Deprecated
+	public static List<RiskRegisterItem> sortAndConcatenateGroup(Map<String, List<RiskRegisterItemGroup>> groups, double acceptableImportace) {
 
 		// initialise or use existing group direct
 		List<RiskRegisterItemGroup> direct20 = groups.containsKey(DIRECT) ? groups.get(DIRECT) : new ArrayList<RiskRegisterItemGroup>();
@@ -169,16 +178,16 @@ public class CSSFSort {
 		// identify 20 most important direct risks, start at index 1 and add all
 		// those where
 		// impact >= 5 and probability >= 6
-		indexRiskRegisterItem(direct20, 1, cssfFilter.getDirect(direct20.size()), cssfFilter.getImportanceThreshold());
+		indexRiskRegisterItem(direct20, 1, 20, acceptableImportace);
 
 		// identify 5 most important indirect risks, start at last index of the
 		// direct risks + 1 and
 		// add all those where impact >= 5 and probability >= 6
-		indexRiskRegisterItem(indirect5, direct20.size() + 1, cssfFilter.getIndirect(indirect5.size()), cssfFilter.getImportanceThreshold());
+		indexRiskRegisterItem(indirect5, direct20.size() + 1, 5, acceptableImportace);
 
 		direct20.addAll(indirect5);
 
-		indexRiskRegisterItem(cia, direct20.size() + 1, cssfFilter.getCia(cia.size()), cssfFilter.getImportanceThreshold());
+		indexRiskRegisterItem(cia, direct20.size() + 1, cia.size(), acceptableImportace);
 
 		direct20.addAll(cia);
 
@@ -198,6 +207,36 @@ public class CSSFSort {
 	}
 
 	/**
+	 * selectedByProbabilityAndImpactAndIndexing: <br>
+	 * Indexing RiskRegisterItem and remove all item with (net impact <
+	 * impactMin or net pro < probaMin).
+	 * 
+	 * @param registerItems
+	 *            The Items List to check
+	 * @param impactMin
+	 *            The minimum Impact value to be valid
+	 * @param probaMin
+	 *            The minimum Probability value to be valid
+	 * @param startIndex
+	 *            The start index inside the List
+	 * 
+	 */
+	public static void removeImproper(List<RiskRegisterItem> registerItems, int limit, double impactMin, double probaMin) {
+		// parse all risk register items given as parameter
+		for (int i = 0; i < registerItems.size();) {
+			// retrieve probability value
+			double pro = registerItems.get(i).getNetEvaluation().getProbability();
+			// retrieve impact value
+			double impact = registerItems.get(i).getNetEvaluation().getImpact();
+			// check if probability and impact are not acceptable
+			if (i < limit || (impact >= impactMin && pro >= probaMin))
+				i++;
+			else
+				registerItems.remove(i);
+		}
+	}
+
+	/**
 	 * indexRiskRegisterItem: <br>
 	 * RiskRegisterItem Indexing, on item out of bounds "limit" check with
 	 * {@link #checkImpactAndProbability(RiskRegisterItem)} to have usable
@@ -211,7 +250,9 @@ public class CSSFSort {
 	 *            the Limit of Items to add (default: 20 for direct; 5 for
 	 *            indirect)
 	 * @param parameters
+	 *
 	 */
+	@Deprecated
 	public static void indexRiskRegisterItem(List<RiskRegisterItemGroup> registerItems, int startIndex, int limit, double acceptableNetImportace) {
 
 		// parse all risk register items
@@ -221,6 +262,7 @@ public class CSSFSort {
 			// and probability are
 			// acceptable
 			if (i < limit || registerItems.get(i).getNetImportance() >= acceptableNetImportace) {
+
 				// index this register item as next index
 				registerItems.get(i).setPosition(i++ + startIndex);
 			} else {
@@ -288,7 +330,7 @@ public class CSSFSort {
 	 * 
 	 */
 	public static boolean isDirect(String name) {
-		return name == null ? false : DIRECT_REGEX.matcher(name).find();
+		return name == null ? false : name.matches(DIRECT_REGEX);
 	}
 
 	/**
@@ -303,7 +345,7 @@ public class CSSFSort {
 	 *         Indirect
 	 */
 	public static boolean isIndirect(String name) {
-		return name == null ? false : INDIRECT_REGEX.matcher(name).find();
+		return name == null ? false : name.matches(INDIRECT_REGEX);
 	}
 
 	public static void sortByNetImportance(List<RiskRegisterItemGroup> registerItems) {
@@ -323,11 +365,48 @@ public class CSSFSort {
 	 * @see NetImportanceComparatorDescending
 	 */
 	public static void sortRiskRegisterItemGroupByNetImportance(List<RiskRegisterItem> registerItems) {
-
 		// Sort the given list of risk register items using the Collections java
 		// class and using the
 		// NetImportanceComparatorDescending check
 		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceComparator()));
 	}
 
+	public static List<RiskRegisterItem> sortAndConcatenate(ComputationHelper helper, CSSFFilter cssfFilter) {
+		List<RiskRegisterItem> directRegisters = new ArrayList<>();
+		List<RiskRegisterItem> indirectRegisters = new ArrayList<>();
+		List<RiskRegisterItem> ciaRegisters = cssfFilter.getCia() > -1 ? new ArrayList<>() : null;
+		Comparator<RiskRegisterItem> comparator = new NetImportanceComparator().reversed();
+		helper.getRiskRegisters().values().stream().forEach(riskRegister -> {
+			switch (findGroup(riskRegister.getScenario().getType().getName())) {
+			case DIRECT:
+				directRegisters.add(riskRegister);
+				break;
+			case INDIRECT:
+				indirectRegisters.add(riskRegister);
+				break;
+			default:
+				if (ciaRegisters != null)
+					ciaRegisters.add(riskRegister);
+				break;
+			}
+		});
+
+		directRegisters.sort(comparator);
+		indirectRegisters.sort(comparator);
+
+		removeImproper(directRegisters, cssfFilter.getDirect(), cssfFilter.getImpact(), cssfFilter.getProbability());
+		removeImproper(indirectRegisters, cssfFilter.getIndirect(), cssfFilter.getImpact(), cssfFilter.getProbability());
+
+		directRegisters.addAll(indirectRegisters);
+
+		if (ciaRegisters != null) {
+			ciaRegisters.sort(comparator);
+			removeImproper(ciaRegisters, cssfFilter.getCia(ciaRegisters.size()), cssfFilter.getImpact(), cssfFilter.getProbability());
+			directRegisters.addAll(ciaRegisters);
+		}
+
+		directRegisters.sort(comparator);
+
+		return directRegisters;
+	}
 }

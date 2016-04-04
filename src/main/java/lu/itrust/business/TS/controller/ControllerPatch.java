@@ -25,6 +25,8 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServiceParameterType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -38,6 +40,8 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
@@ -77,6 +81,12 @@ public class ControllerPatch {
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
+
+	@Autowired
+	private ServiceParameterType serviceParameterType;
+	
+	@Autowired
+	private ServiceParameter serviceParameter;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -211,7 +221,7 @@ public class ControllerPatch {
 	public @ResponseBody String updateScope(Principal principal, Locale locale) {
 		try {
 			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
-			String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria"};
+			String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria", "riskAcceptanceCriteria" };
 			boolean saveRequired = false;
 			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
 				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
@@ -300,6 +310,44 @@ public class ControllerPatch {
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Update-measure-asset-types"), principal.getName(),
 					LogAction.APPLY, "Update-measure-asset-types");
+		}
+	}
+
+	@RequestMapping(value = "/Add-CSSF-Parameters", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
+	public @ResponseBody String AddCSSFParameters(Principal principal, Locale locale) {
+		try {
+			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
+			ParameterType parameterType = serviceParameterType.get(Constant.PARAMETERTYPE_TYPE_CSSF);
+			if (parameterType == null)
+				serviceParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF, Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
+			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
+				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
+					if (!analysis.hasParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME)){
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, 6D));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, 5D));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+					}
+					Parameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,Constant.IMPORTANCE_THRESHOLD);
+					if(parameter!=null && analysis.getParameters().remove(parameter))
+						serviceParameter.delete(parameter);
+					serviceAnalysis.saveOrUpdate(analysis);
+				}
+			}
+			return JsonMessage.Success(messageSource.getMessage("success.add.css_parameter", null, "CSSF parameters were successfully added", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Success(messageSource.getMessage(e.getMessage(), e.getParameters(), e.getMessage(), locale));
+		}catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		} finally {
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply", String.format("Runtime: %s", "Add-CSSF-parameters"), principal.getName(),
+					LogAction.APPLY, "Add-CSSF-parameters");
 		}
 	}
 

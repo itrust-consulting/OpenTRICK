@@ -195,10 +195,7 @@ public class RiskRegisterItemGroup {
 	}
 
 	public void setPosition(int i) {
-		for (RiskRegisterItem registerItem : registers)
-			registerItem.setPosition(i);
 		this.position = i;
-
 	}
 
 	public int getPosition() {

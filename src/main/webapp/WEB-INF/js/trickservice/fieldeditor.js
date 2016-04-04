@@ -88,7 +88,8 @@ function FieldEditor(element, validator) {
 		if (!(stepValue == undefined || maxValue == undefined || minValue == undefined)) {
 			stepValue = parseInt(stepValue), maxValue = parseInt(maxValue), minValue = parseInt(minValue);
 			for (var i = minValue; i <= maxValue; i += stepValue)
-				this.choose.push(i);
+				this.choose.push(i.toString());
+			this.chooseTranslate = this.__findChooseTranslate(this.element);
 		}
 		if (!this.choose.length) {
 			if ($element.is("td"))
@@ -119,7 +120,7 @@ function FieldEditor(element, validator) {
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option"), $option = $(option);
 				option.setAttribute("value", this.choose[i]);
-				if (this.chooseTranslate.length) {
+				if (this.chooseTranslate.length > i) {
 					$option.text(this.chooseTranslate[i]);
 					if (this.chooseTranslate[i] == this.defaultValue)
 						option.setAttribute("selected", true);
@@ -127,11 +128,14 @@ function FieldEditor(element, validator) {
 					$option.text(this.choose[i]);
 					if (this.choose[i] == this.defaultValue)
 						option.setAttribute("selected", true);
+					if (this.chooseTranslate.length)
+						this.chooseTranslate.push(this.choose[i].toString());
 				}
 				if (this.chooseTitle.length)
 					$option.attr("title", this.chooseTitle[i]);
 				$option.appendTo($fieldEditor);
 			}
+
 		}
 
 		this.backupData.width = $td.width();

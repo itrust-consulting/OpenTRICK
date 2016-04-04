@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
 import lu.itrust.business.TS.exception.TrickException;
@@ -39,12 +38,6 @@ public class ComputationHelper implements Destroyable {
 	
 	private ParameterConvertor parameterConvertor;
 	
-	private Double importanceThreshold;
-
-	public ComputationHelper(List<ExtendedParameter> parameters, double importanceThreshold) {
-		setParameterConvertor(new ParameterConvertor(parameters));
-		setImportanceThreshold(importanceThreshold);
-	}
 
 	public ComputationHelper(List<ExtendedParameter> parameters) {
 		setParameterConvertor(new ParameterConvertor(parameters));
@@ -162,24 +155,6 @@ public class ComputationHelper implements Destroyable {
 		if (destroyed)
 			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
 		this.deltaALEs = deltaALEs;
-	}
-
-	/**
-	 * @return the importanceThreshold
-	 */
-	public Double getImportanceThreshold() {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		return importanceThreshold;
-	}
-
-	/**
-	 * @param importanceThreshold the importanceThreshold to set
-	 */
-	public void setImportanceThreshold(Double importanceThreshold) {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		this.importanceThreshold = importanceThreshold;
 	}
 	
 	/**

@@ -8,7 +8,7 @@
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitParameters(parameters)" var="parametersSplited" />
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
 <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
-<spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
+<%-- <spring:eval expression="T(lu.itrust.business.TS.model.analysis.Analysis).SplitMaturityParameters(parametersSplited[2])" var="maturityParameters" /> --%>
 <fmt:setLocale value="fr" scope="session" />
 <div class="row tab-pane" id="tabParameterImpactProba">
 	<div class="col-md-6">
@@ -57,7 +57,6 @@
 		</div>
 	</div>
 	<div class="col-md-6">
-		<span id="anchorParameter_Probability" class="anchor"></span>
 		<div class="panel panel-default" id="Scale_Probability">
 			<div class="panel-heading">
 				<spring:message code="label.parameter.extended.probability" />
@@ -112,7 +111,6 @@
 </div>
 <div class="row tab-pane" id="tabParameterOther">
 	<div class="col-md-6">
-		<span id="anchorParameter_ILPS" class="anchor"></span>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<spring:message code="label.title.parameter.maturity_ilps" />
@@ -133,11 +131,11 @@
 					</thead>
 					<tfoot></tfoot>
 					<tbody>
-						<c:forEach items="${maturityParameters}" var="parameter">
+						<c:forEach items="${parametersSplited[2]}" var="parameter">
 							<tr data-trick-class="MaturityParameter" data-trick-id="${parameter.id}">
 								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" /></td>
 								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" /></td>
-								
+
 								<td class="success textaligncenter" data-trick-field="SMLLevel0" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel0*100}" maxFractionDigits="0" /></td>
 								<td class="success textaligncenter" data-trick-field="SMLLevel1" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
@@ -158,7 +156,6 @@
 		</div>
 	</div>
 	<div class="col-md-6">
-		<span id="anchorParameter_Various" class="anchor"></span>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<spring:message code="label.title.parameter.simple.various" />
@@ -173,7 +170,6 @@
 							<th class="textaligncenter"><spring:message code="label.parameter.simple.max_rrf" /></th>
 							<th class="textaligncenter"><spring:message code="label.parameter.simple.soa" /></th>
 							<th class="textaligncenter"><spring:message code="label.parameter.simple.mandatory_phase" /></th>
-							<th class="textaligncenter"><spring:message code="label.parameter.simple.importance_threshold" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -190,8 +186,9 @@
 											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description=='mandatoryPhase'}">
-										<td data-trick-class="Parameter" data-trick-callback-pre="extractPhase(this,true)" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value"
-											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+										<td data-trick-class="Parameter" data-trick-callback-pre="extractPhase(this,true)" data-trick-id="${parameter.id}" class="success textaligncenter"
+											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
+												pattern="#" /></td>
 									</c:when>
 									<c:otherwise>
 										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double"
@@ -206,8 +203,60 @@
 			</div>
 		</div>
 	</div>
+
+
 	<div class="col-md-6">
-		<span id="anchorParameter_MaxEfficiency" class="anchor"></span>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<spring:message code="label.title.parameter.simple.cssf" />
+			</div>
+			<div class="panel-body">
+				<table class="table table-hover table-condensed">
+					<thead>
+						<tr>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.impact_threshold" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.probability_threshold" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.direct_size" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.indirect_size" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.cia_size" /></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<c:forEach items="${simpleParameters[1]}" var="parameter">
+								<c:choose>
+									<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' class="success textaligncenter"
+											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
+												pattern="#" /></td>
+									</c:when>
+									<c:when test="${parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='-1' class="success textaligncenter" data-trick-field="value"
+											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+									</c:when>
+									<c:when test="${parameter.description== 'cssfCIASize'}">
+										<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfCIA" />
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='NONE,ALL' data-trick-min-value='-1' data-trick-step-value='1'
+											data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><c:choose>
+												<c:when test="${parameter.value <= -1 }">
+													NONE
+													</c:when>
+												<c:when test="${parameter.value == 0}">
+													ALL
+													</c:when>
+												<c:otherwise>${cssfCIA}</c:otherwise>
+											</c:choose></td>
+									</c:when>
+								</c:choose>
+							</c:forEach>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<spring:message code="label.title.parameter.simple.maturity_level" />
@@ -226,7 +275,7 @@
 					</thead>
 					<tbody>
 						<tr>
-							<c:forEach items="${simpleParameters[1]}" var="parameter">
+							<c:forEach items="${simpleParameters[2]}" var="parameter">
 								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
 									data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
@@ -237,7 +286,6 @@
 		</div>
 	</div>
 	<div class="col-md-6">
-		<span id="anchorParameter_ImplementationRate" class="anchor"></span>
 		<div class="panel panel-default" id="Maturity_implementation_rate">
 			<div class="panel-heading">
 				<spring:message code="label.title.parameter.simple.smt" />
@@ -251,9 +299,9 @@
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach items="${simpleParameters[2]}" var="parameter">
+						<c:forEach items="${simpleParameters[3]}" var="parameter">
 							<tr data-trick-class="Parameter" data-trick-id="${parameter.id}">
-								<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" /></td>
+								<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}"/></td>
 								<td data-trick-field="value" data-trick-field-type="double" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 							</tr>

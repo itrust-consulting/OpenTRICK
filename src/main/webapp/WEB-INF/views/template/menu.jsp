@@ -51,6 +51,8 @@
 								</a></li>
 								<li><a href="#" onclick="return fixAllAssessments()"> <spring:message code="label.scenario.fix.assessments" text="Update assessments of all analyses" />
 								</a></li>
+								<li><a href="#" onclick="return addCSSFParameters()"> <spring:message code="label.add.css_parameters" text="Add CSSF Parameters" />
+								</a></li>
 								<li class="divider"></li>
 								<li class="dropdown-header"><spring:message code="label.runtime.dropdown_header.Major" text="Major patches" /></li>
 								<li><a href="#" onclick="return updateAnalysesRiskAndItemInformation()"> <spring:message code="label.update.analyses.risk_item.information" text="Copy missing risk or item information from default profile" />

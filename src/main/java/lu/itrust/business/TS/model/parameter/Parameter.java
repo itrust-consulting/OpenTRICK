@@ -37,7 +37,7 @@ public class Parameter implements Cloneable {
 
 	/** id unsaved value = -1 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idParameter")
 	private int id = -1;
 
@@ -201,6 +201,10 @@ public class Parameter implements Cloneable {
 
 	public static String key(String type, String description) {
 		return String.format(Parameter.KEY_PARAMETER_FORMAT, type, description);
+	}
+
+	public Boolean isMatch(String type) {
+		return this.type == null ? type == null : this.type.getLabel().equals(type);
 	}
 
 }

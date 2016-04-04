@@ -37,6 +37,7 @@
 				<table class="table table-hover table-condensed table-fixed-header-analysis">
 					<thead>
 						<tr>
+							<th style="width: 1%" rowspan="2"><spring:message code="label.row.index" /></th>
 							<th style="width: 1%" rowspan="2" title='<spring:message code="label.title.id" />'><spring:message code="label.risk_register.id" /></th>
 							<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.category" />'><spring:message code="label.risk_register.category" /></th>
 							<th rowspan="2" title='<spring:message code="label.risk_register.risk_title" />'><spring:message code="label.risk_register.risk_title" /></th>
@@ -67,7 +68,8 @@
 							<c:set var="riskProfile" value="${riskProfileMapping[strategyKey]}" />
 							<c:set var="riskAssessment" value="${estimationMapping[ownerKey]}" />
 							<tr ${empty riskProfile or empty riskAssessment? 'class="warning"':''} data-trick-id='${riskProfile.id}'>
-								<td><spring:message text="${item.position}" /></td>
+								<td><spring:message text="${status.index+1}" /></td>
+								<td><spring:message text="${riskProfile.identifier}" /></td>
 								<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(item.scenario.type.name,'-','_'))}" /></td>
 								<td><spring:message text="${item.scenario.name}" /></td>
 								<td><spring:message text="${item.asset.name}" /></td>

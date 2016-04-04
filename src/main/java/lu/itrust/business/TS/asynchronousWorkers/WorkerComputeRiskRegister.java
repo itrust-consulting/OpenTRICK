@@ -19,9 +19,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 
 /**
@@ -141,8 +139,7 @@ public class WorkerComputeRiskRegister implements Worker {
 			session.beginTransaction();
 			System.out.println("Saving user changes...");
 			backup(analysis, session, lang);
-			//RiskRegisterComputation computation = new RiskRegisterComputation(analysis);
-			RiskSheetComputation computation = new RiskSheetComputation(analysis, new CSSFFilter());
+			RiskSheetComputation computation = new RiskSheetComputation(analysis);
 			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.compute", "Computing Risk Register", 20));
 			long begin = System.nanoTime();
 			if (computation.computeRiskRegister() == null) {

@@ -81,7 +81,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }))
 public class Analysis implements Cloneable {
 
 	/***********************************************************************************************
@@ -90,7 +90,7 @@ public class Analysis implements Cloneable {
 
 	/** Analysis id unsaved value = -1 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAnalysis")
 	private int id = -1;
 
@@ -252,7 +252,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy("dtOrder asc, dtNetEvaluationImportance desc, dtExpEvaluationImportance desc, dtRawEvaluationImportance desc")
+	@OrderBy("dtNetEvaluationImportance desc, dtExpEvaluationImportance desc, dtRawEvaluationImportance desc")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************
@@ -713,20 +713,19 @@ public class Analysis implements Cloneable {
 		// ****************************************************************
 		return result;
 	}
-	
+
 	/**
 	 * getParameter: <br>
 	 * Returns the Parameter value of a given Parameter.
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or defaultValue if the parameter
-	 *         was not found
+	 * @return The Value of the Parameter if it exists, or defaultValue if the
+	 *         parameter was not found
 	 */
-	public double getParameter(String type,String name, double defaultValue) {
+	public double getParameter(String type, String name, double defaultValue) {
 		return parameters.stream().filter(parameter -> parameter.isMatch(type, name)).map(parameter -> parameter.getValue()).findAny().orElse(defaultValue);
 	}
-	
 
 	/**
 	 * getParameter: <br>
@@ -1696,7 +1695,6 @@ public class Analysis implements Cloneable {
 	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
-
 		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
 		for (int i = 0; i < this.actionPlans.size(); i++) {
 			if (this.actionPlans.get(i).getActionPlanType().getActionPlanMode() == mode) {
@@ -1706,12 +1704,16 @@ public class Analysis implements Cloneable {
 		return ape;
 	}
 
+	/**
+	 * [0] : Simple, [1] : Extended, [2] : Maturity 
+	 * @param parameters
+	 * @return 
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[3];
-		splits[0] = new ArrayList<Parameter>();
-		splits[1] = new ArrayList<ExtendedParameter>();
-		splits[2] = new ArrayList<MaturityParameter>();
+		for (int i = 0; i < splits.length; i++)
+			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
 			if (parameter instanceof ExtendedParameter)
 				((List<ExtendedParameter>) splits[1]).add((ExtendedParameter) parameter);
@@ -1731,30 +1733,42 @@ public class Analysis implements Cloneable {
 		return splits;
 	}
 
+	/**
+	 * [0] : Simple Parameter, [1] : CSSF Parameter, [2] : MAXEFF, [3] : other
+	 * 
+	 * @param parameters
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitSimpleParameters(List<Parameter> parameters) {
-		List<?>[] splits = new List<?>[3];
-		splits[0] = new ArrayList<Parameter>();
-		splits[1] = new ArrayList<ExtendedParameter>();
-		splits[2] = new ArrayList<MaturityParameter>();
+		List<?>[] splits = new List<?>[4];
+		for (int i = 0; i < splits.length; i++)
+			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
-			if (parameter.getType().getLabel().equals("SINGLE"))
+			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME))
 				((List<Parameter>) splits[0]).add(parameter);
-			else if (parameter.getType().getLabel().equals("MAXEFF"))
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_CSSF_NAME))
 				((List<Parameter>) splits[1]).add(parameter);
-			else
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
 				((List<Parameter>) splits[2]).add(parameter);
+			else
+				((List<Parameter>) splits[3]).add(parameter);
 		}
 		return (List<Parameter>[]) splits;
 	}
 
+	/**
+	 * [0] IMPACT, [1]: PROBA
+	 * @param parameters
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitExtendedParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[2];
-		splits[0] = new ArrayList<Parameter>();
-		splits[1] = new ArrayList<ExtendedParameter>();
+		for (int i = 0; i < splits.length; i++)
+			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
-			if (parameter.getType().getLabel().equals("IMPACT"))
+			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 				((List<Parameter>) splits[0]).add(parameter);
 			else
 				((List<Parameter>) splits[1]).add(parameter);
@@ -2605,6 +2619,22 @@ public class Analysis implements Cloneable {
 	public Map<Integer, RiskProfile> findRiskProfileByScenarioId(int idScenario) {
 		return riskProfiles.stream().filter(riskRegister -> riskRegister.getScenario().getId() == idScenario)
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getAsset().getId(), Function.identity()));
+	}
+
+	public List<Parameter> findParametersByType(String type) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
+	}
+
+	public Map<String, Parameter> mapParametersByType(String type) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toMap(Parameter::getDescription, Function.identity()));
+	}
+
+	public boolean hasParameterType(String type) {
+		return parameters.stream().anyMatch(parameter -> parameter.isMatch(type));
+	}
+
+	public Parameter findParameter(String type, String description) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type,description)).findAny().orElse(null);
 	}
 
 }
