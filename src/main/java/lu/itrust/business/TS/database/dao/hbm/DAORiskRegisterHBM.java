@@ -76,7 +76,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId)  {
-		String query = "SELECT riskregister FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregister WHERE analysis.id= :analysisID order by riskregister.position, riskregister.netEvaluation.importance desc, riskregister.expectedEvaluation.importance desc, riskregister.rawEvaluation.importance desc";
+		String query = "SELECT riskregister FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregister WHERE analysis.id= :analysisID order by riskregister.netEvaluation.importance desc, riskregister.expectedEvaluation.importance desc, riskregister.rawEvaluation.importance desc";
 		return (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisId).list();
 	}
 

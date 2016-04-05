@@ -204,7 +204,8 @@
 		</div>
 	</div>
 
-
+	<spring:message code='label.nil' var="nil"/>
+	<spring:message code='label.all' var="all"/>
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -236,13 +237,13 @@
 									</c:when>
 									<c:when test="${parameter.description== 'cssfCIASize'}">
 										<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfCIA" />
-										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='NONE,ALL' data-trick-min-value='-1' data-trick-step-value='1'
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all}' data-trick-min-value='-1' data-trick-step-value='1'
 											data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><c:choose>
 												<c:when test="${parameter.value <= -1 }">
-													NONE
+													${nil}
 													</c:when>
 												<c:when test="${parameter.value == 0}">
-													ALL
+													${all}
 													</c:when>
 												<c:otherwise>${cssfCIA}</c:otherwise>
 											</c:choose></td>

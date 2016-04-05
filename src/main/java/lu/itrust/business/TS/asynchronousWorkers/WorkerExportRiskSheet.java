@@ -45,6 +45,7 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
+import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.WordReport;
@@ -123,9 +124,12 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				} catch (Exception e1) {
 				}
 			}
-			if (e instanceof TrickException) {
-			} else {
-			}
+			MessageHandler messageHandler = null;
+			if (e instanceof TrickException)
+				messageHandler = new MessageHandler(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), e);
+			else
+				messageHandler = new MessageHandler("error.internal", "Internal error", e);
+			serviceTaskFeedback.send(getId(), messageHandler);
 			TrickLogManager.Persist(e);
 		} finally {
 			if (session != null) {
@@ -184,8 +188,6 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
-		if (analysis.getRiskProfiles().isEmpty())
-			throw new TrickException("error.risk_profile.empty", "No risk sheet");
 		int progress = 2, max = 60, size, index = 0;
 		RiskSheetComputation computation = new RiskSheetComputation(analysis);
 		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
@@ -194,7 +196,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		OutputStream outputStream = null;
 		File workFile = null;
 		try {
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.compute.risk_register", "Computing risk register", progress));
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
 			Map<String, RiskRegisterItem> oldRiskRegister = analysis.getRiskRegisters().stream().collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
 			MessageHandler messageHandler = computation.computeRiskRegister();
 			if (messageHandler != null)
@@ -233,7 +235,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 					.collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 			List<ExtendedParameter> probabilities = convertor.getProbabilityParameters(), impacts = convertor.getImpactsParameters();
 			boolean isFirst = true;
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Genarating risk sheet", progress += 8));
+			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
 			size = riskProfiles.size();
 			for (RiskProfile riskProfile : riskProfiles) {
 				isFirst = addRiskSheetHeader(document, riskProfile, isFirst);
@@ -251,7 +253,10 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				addField(document, getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"), riskProfile.getAsset().getName());
 				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"), riskProfile.getRiskTreatment());
 				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"), netImpact, impacts.get(0), probabilities.get(0));
-				String response = riskProfile.getRiskStrategy().getNameToLower();
+				RiskStrategy strategy = riskProfile.getRiskStrategy();
+				if(strategy == null)
+					strategy = RiskStrategy.AVOID;
+				String response = strategy.getNameToLower();
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
 				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
 				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), impacts.get(0), probabilities.get(0));
@@ -291,6 +296,8 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, ExtendedParameter impact, ExtendedParameter probability) {
 		addTitle(document, title);
 		XWPFTable table = document.createTable(3, 6);
+		if (probaImpact == null)
+			probaImpact = new RiskProbaImpact();
 		table.setStyleID("TSTABLEEVALUATION");
 		XWPFTableRow row = table.getRow(0);
 		getCell(row, 0).setText(getMessage("report.risk_sheet.probability", "Probability (P)"));

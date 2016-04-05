@@ -141,7 +141,6 @@ public class WorkerComputeRiskRegister implements Worker {
 			backup(analysis, session, lang);
 			RiskSheetComputation computation = new RiskSheetComputation(analysis);
 			serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.compute", "Computing Risk Register", 20));
-			long begin = System.nanoTime();
 			if (computation.computeRiskRegister() == null) {
 				restoreOwner(analysis, lang);
 				serviceTaskFeedback.send(id, new MessageHandler("info.risk_register.saving", "Saving Risk Register to database", 72));
@@ -155,7 +154,6 @@ public class WorkerComputeRiskRegister implements Worker {
 				System.out.println("Computing Risk Register Complete!");
 			} else
 				session.getTransaction().rollback();
-			System.out.println("Time: "+(System.nanoTime()- begin)*Math.exp(-9));
 		} catch (InterruptedException e) {
 			try {
 				canceled = true;
