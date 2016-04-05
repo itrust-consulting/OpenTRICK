@@ -9,7 +9,8 @@ function calculateRiskRegister() {
 			else if (message["error"]) {
 				$("#alert-dialog .modal-body").html(message["error"]);
 				$("#alert-dialog").modal("toggle");
-			}else unknowError()
+			} else
+				unknowError()
 		},
 		error : unknowError
 	});
@@ -28,7 +29,7 @@ function riskRegisterSwitchData(element) {
 		else
 			$(tds[i]).text($(tds[i]).attr("data-scale-level"));
 	}
-	var $li =  $("li[data-trick-role^='menu-risk-register-control']:not(.disabled)");
+	var $li = $("li[data-trick-role^='menu-risk-register-control']:not(.disabled)");
 	$("li[data-trick-role^='menu-risk-register-control']").removeClass("disabled");
 	$li.addClass("disabled");
 	$(window).resize();

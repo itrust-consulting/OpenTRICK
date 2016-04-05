@@ -71,17 +71,23 @@ function exportAnalysisReportData(analysisId) {
 	return false;
 }
 
-function exportRawActionPlan(analysisId) {
-	if (analysisId == null || analysisId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_analysis");
-		if (selectedScenario.length != 1)
-			return false;
-		analysisId = selectedScenario[0];
-	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/Export/Raw-Action-plan/' + analysisId).fail(unknowError);
-		return false;
-	} else
-		permissionError();
+function exportRiskSheet(idAnalysis) {
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.EXPORT)) {
+		$.ajax({
+			url : context + "/Analysis/RiskRegister/Export",
+			type : "post",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response["success"] != undefined)
+					new TaskManager().Start();
+				else if (message["error"]) {
+					$("#alert-dialog .modal-body").html(message["error"]);
+					$("#alert-dialog").modal("toggle");
+				} else
+					unknowError()
+			},
+			error : unknowError
+		});
+	}else permissionError();
 	return false;
 }

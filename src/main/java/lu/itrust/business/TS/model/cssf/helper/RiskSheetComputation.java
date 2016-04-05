@@ -47,6 +47,8 @@ public class RiskSheetComputation {
 
 	/** Analysis Object */
 	private Analysis analysis = null;
+	
+	private ParameterConvertor convertor;
 
 	/** Value to identify reputation impact like max impact */
 	public static final int MAX_IMPACT_REPUTATION = 0;
@@ -116,7 +118,7 @@ public class RiskSheetComputation {
 			System.out.println("Risk Register calculation...");
 			List<ExtendedParameter> extendedParameters = new ArrayList<>(22);
 			CSSFFilter filter = new CSSFFilter();
-			int mandatoryPhase = 0, impactThreshold = 6, probabilityThreshold = 5;
+			int mandatoryPhase = 0, impactThreshold = Constant.CSSF_IMPACT_THRESHOLD_VALUE, probabilityThreshold = Constant.CSSF_PROBABILITY_THRESHOLD_VALUE;
 			for (Parameter parameter : this.analysis.getParameters()) {
 				if (parameter instanceof ExtendedParameter)
 					extendedParameters.add((ExtendedParameter) parameter);
@@ -139,6 +141,7 @@ public class RiskSheetComputation {
 			helper = new ComputationHelper(extendedParameters);
 			filter.setImpact(helper.getParameterConvertor().getImpactValue(impactThreshold));
 			filter.setProbability(helper.getParameterConvertor().getProbabiltyValue(probabilityThreshold));
+			setConvertor(helper.getParameterConvertor());
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
 			// print risk register into console
 			// printRegister(this.analysis.getRiskRegisters());
@@ -836,5 +839,19 @@ public class RiskSheetComputation {
 
 	public Analysis getAnalysis() {
 		return analysis;
+	}
+
+	/**
+	 * @return the convertor
+	 */
+	public ParameterConvertor getConvertor() {
+		return convertor;
+	}
+
+	/**
+	 * @param convertor the convertor to set
+	 */
+	public void setConvertor(ParameterConvertor convertor) {
+		this.convertor = convertor;
 	}
 }

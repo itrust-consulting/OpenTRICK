@@ -32,16 +32,16 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  *
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }), @UniqueConstraint(columnNames = { "dtIdentifier", "fiAnalysis" }) })
 public class RiskProfile implements Cloneable {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idRiskProfile")
 	private int id;
-	
-	@Column(name="dtIdentifier")
-	private long identifier = 0;
+
+	@Column(name = "dtIdentifier")
+	private String identifier;
 
 	@ManyToOne
 	@JoinColumn(name = "fiAsset")
@@ -104,21 +104,19 @@ public class RiskProfile implements Cloneable {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
-	
-	
 
 	/**
 	 * @return the identifier
 	 */
-	public long getIdentifier() {
+	public String getIdentifier() {
 		return identifier;
 	}
 
 	/**
-	 * @param identifier the identifier to set
+	 * @param identifier
+	 *            the identifier to set
 	 */
-	public void setIdentifier(long identifier) {
+	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
 

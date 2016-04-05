@@ -145,18 +145,3 @@ function importDataRawRRF(idAnalysis) {
 	}
 	return false;
 }
-
-function exportRawRRF(analysisId) {
-	if (analysisId == null || analysisId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_analysis");
-		if (selectedScenario.length != 1)
-			return false;
-		analysisId = selectedScenario[0];
-	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/RRF/Export/Raw/' + analysisId).fail(unknowError);
-		return false;
-	} else
-		permissionError();
-	return false;
-}

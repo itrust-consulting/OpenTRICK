@@ -147,7 +147,7 @@ public class ControllerEditField {
 
 	private Pattern computeCostPattern = Pattern.compile("internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment");
 
-	private Pattern riskProfileNoFieldPattern = Pattern.compile("id|asset*|scenario*");
+	private Pattern riskProfileNoFieldPattern = Pattern.compile("^*\\.id$|^\\*.asset\\.*$|^*.scenario\\.*");
 
 	/**
 	 * itemInformation: <br>
@@ -499,7 +499,7 @@ public class ControllerEditField {
 
 	private Result updateRiskProfile(FieldEditor fieldEditor, RiskProfile riskProfile, Integer idAnalysis, Locale locale) {
 		try {
-			if (riskProfileNoFieldPattern.matcher(fieldEditor.getFieldName()).find())
+			if (riskProfileNoFieldPattern.matcher(fieldEditor.getFieldName()).matches())
 				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			Result result = Result.Success(messageSource.getMessage("success.risk_profile.updated", null, "Risk profile was successfully updated", locale));
 			String[] fields = fieldEditor.getFieldName().split("\\.");
@@ -524,7 +524,15 @@ public class ControllerEditField {
 					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			} else if (field.getType().isAssignableFrom(RiskStrategy.class))
 				riskProfile.setRiskStrategy(RiskStrategy.valueOf(fieldEditor.getValue().toString()));
-			else if (!SetFieldData(field, riskProfile, fieldEditor))
+			else if (field.getName().equals("identifier")) {
+				String identifier = fieldEditor.getValue() == null ? "" : fieldEditor.getValue().toString().trim();
+				if (identifier.isEmpty())
+					return Result.Error(messageSource.getMessage("error.identifier.null", null, "Identifier cannot be empty", locale));
+				else if (serviceRiskProfile.isUsed(identifier, idAnalysis))
+					return Result.Error(messageSource.getMessage("error.identifier.is_in_used", null, "Identifier are not available", locale));
+				else
+					riskProfile.setIdentifier(identifier);
+			} else if (!SetFieldData(field, riskProfile, fieldEditor))
 				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			serviceRiskProfile.saveOrUpdate(riskProfile);
 			return result;

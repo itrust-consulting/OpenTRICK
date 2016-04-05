@@ -2,7 +2,6 @@ package lu.itrust.business.TS.model.cssf.tools;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -372,41 +371,30 @@ public class CSSFSort {
 	}
 
 	public static List<RiskRegisterItem> sortAndConcatenate(ComputationHelper helper, CSSFFilter cssfFilter) {
-		List<RiskRegisterItem> directRegisters = new ArrayList<>();
-		List<RiskRegisterItem> indirectRegisters = new ArrayList<>();
-		List<RiskRegisterItem> ciaRegisters = cssfFilter.getCia() > -1 ? new ArrayList<>() : null;
-		Comparator<RiskRegisterItem> comparator = new NetImportanceComparator().reversed();
-		helper.getRiskRegisters().values().stream().forEach(riskRegister -> {
+		int cia = cssfFilter.getCia();
+		List<RiskRegisterItem> riskRegisterItems = new ArrayList<>();
+		helper.getRiskRegisters().values().stream().sorted(new NetImportanceComparator().reversed()).forEach(riskRegister -> {
 			switch (findGroup(riskRegister.getScenario().getType().getName())) {
 			case DIRECT:
-				directRegisters.add(riskRegister);
+				if (cssfFilter.getDirect() > 0 || riskRegister.isConformed(cssfFilter.getImpact(), cssfFilter.getProbability())) {
+					riskRegisterItems.add(riskRegister);
+					cssfFilter.setDirect(cssfFilter.getDirect() - 1);
+				}
 				break;
 			case INDIRECT:
-				indirectRegisters.add(riskRegister);
+				if (cssfFilter.getIndirect() > 0 || riskRegister.isConformed(cssfFilter.getImpact(), cssfFilter.getProbability())) {
+					riskRegisterItems.add(riskRegister);
+					cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
+				}
 				break;
 			default:
-				if (ciaRegisters != null)
-					ciaRegisters.add(riskRegister);
+				if (cia == 0 || cia > 0 && (cssfFilter.getCia() > 0 || riskRegister.isConformed(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
+					riskRegisterItems.add(riskRegister);
+					cssfFilter.setCia(cssfFilter.getCia() - 1);
+				}
 				break;
 			}
 		});
-
-		directRegisters.sort(comparator);
-		indirectRegisters.sort(comparator);
-
-		removeImproper(directRegisters, cssfFilter.getDirect(), cssfFilter.getImpact(), cssfFilter.getProbability());
-		removeImproper(indirectRegisters, cssfFilter.getIndirect(), cssfFilter.getImpact(), cssfFilter.getProbability());
-
-		directRegisters.addAll(indirectRegisters);
-
-		if (ciaRegisters != null) {
-			ciaRegisters.sort(comparator);
-			removeImproper(ciaRegisters, cssfFilter.getCia(ciaRegisters.size()), cssfFilter.getImpact(), cssfFilter.getProbability());
-			directRegisters.addAll(ciaRegisters);
-		}
-
-		directRegisters.sort(comparator);
-
-		return directRegisters;
+		return riskRegisterItems;
 	}
 }

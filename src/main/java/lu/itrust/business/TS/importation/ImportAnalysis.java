@@ -1312,8 +1312,8 @@ public class ImportAnalysis {
 
 		rs = sqlite.query("SELECT cssfImpactThreshold, cssfProbabilityThreshold, cssfDirectSize, cssfIndirectSize, cssfCIASize FROM scope");
 		if (rs == null) {
-			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, 6D));
-			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, 5D));
+			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
 			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
 			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
 			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));

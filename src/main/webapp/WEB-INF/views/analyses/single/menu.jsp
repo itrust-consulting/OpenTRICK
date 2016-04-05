@@ -107,8 +107,10 @@
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" />
 					</a></li>
+					<li><a href="#" onclick="return exportRiskSheet('${analysis.id}')"> <spring:message code="label.risk_sheet" />
+					</a></li>
+					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
 					<li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <spring:message code="label.sqlite_data" /></a></li>
-					<li><a href="#" onclick="return exportRawActionPlan('${analysis.id}');"> <spring:message code="label.raw_action_plan" /></a></li>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
@@ -125,7 +127,7 @@
 				<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
 			</c:if>
 			<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
-				<li><a href="#" onclick="return exportRawRRF(${analysis.id});"> <spring:message code="label.action.export.rrf.raw" /></a></li>
+				<li><a href="${pageContext.request.contextPath}/Analysis/RRF/Export/Raw/${analysis.id}" download> <spring:message code="label.action.export.rrf.raw" /></a></li>
 			</c:if>
 			<c:if test="${not isProfile and isEditable}">
 				<li class="divider"></li>

@@ -35,4 +35,6 @@ public interface ServiceRiskProfile {
 
 	RiskProfile getFromAnalysisById(int idAnalysis, int idRiskProfile);
 
+	boolean isUsed(String identifier, Integer idAnalysis);
+
 }

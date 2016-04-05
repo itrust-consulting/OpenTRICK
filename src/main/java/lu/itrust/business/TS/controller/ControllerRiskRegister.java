@@ -11,11 +11,11 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,7 +29,6 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -85,9 +84,9 @@ public class ControllerRiskRegister {
 		model.put("parameters", analysis.findExtendedByAnalysis());
 
 		model.put("language", analysis.getLanguage().getAlpha2());
-		
+
 		model.put("riskProfileMapping", analysis.mapRiskProfile());
-		
+
 		model.put("estimationMapping", analysis.mapAssessment());
 
 		// return view
@@ -145,18 +144,29 @@ public class ControllerRiskRegister {
 		return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", analysisLocale));
 
 	}
-	
+
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String export(@RequestBody CSSFFilter form,HttpSession session, HttpServletRequest  request, Principal principal){
+	public @ResponseBody String export(HttpSession session, HttpServletRequest request, Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		Worker worker = new WorkerExportRiskSheet(workersPoolManager, sessionFactory, serviceTaskFeedback,request.getServletContext().getRealPath("/WEB-INF"), analysisId,principal.getName(),messageSource );
+		Worker worker = new WorkerExportRiskSheet(workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"), analysisId,
+				principal.getName(), messageSource);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_sheet", null, "Start to export risk sheet", analysisLocale));
 	}
-	
+
+	@Value("${app.settings.risk_sheet.french.template.name}")
+	public void setFrTemplate(String template) {
+		WorkerExportRiskSheet.FR_TEMPLATE = template;
+	}
+
+	@Value("${app.settings.risk_sheet.english.template.name}")
+	public void setEnTemplate(String template) {
+		WorkerExportRiskSheet.ENG_TEMPLATE = template;
+	}
+
 }

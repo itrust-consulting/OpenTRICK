@@ -154,4 +154,12 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 				.setInteger("idRiskProfile", idRiskProfile).setInteger("idAnalysis", idAnalysis).uniqueResult();
 	}
 
+	@Override
+	public boolean isUsed(String identifier, Integer idAnalysis) {
+		return (boolean) getSession()
+				.createQuery(
+						"Select count(*)>0 From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.identifier = :identifier")
+				.setString("identifier", identifier).setInteger("idAnalysis", idAnalysis).uniqueResult();
+	}
+
 }

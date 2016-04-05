@@ -84,4 +84,9 @@ public class ServiceProfileImpl implements ServiceRiskProfile {
 		return daoRiskProfile.getFromAnalysisById(idAnalysis,idRiskProfile);
 	}
 
+	@Override
+	public boolean isUsed(String identifier, Integer idAnalysis) {
+		return daoRiskProfile.isUsed(identifier,idAnalysis );
+	}
+
 }

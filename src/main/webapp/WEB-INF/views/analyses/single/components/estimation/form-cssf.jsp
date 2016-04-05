@@ -15,6 +15,9 @@
 		</c:forEach>
 	</select>
 </c:set>
+<spring:message code='label.title.acro.raw' text='RAW' var="raw"/>
+<spring:message code='label.title.acro.net' text='NET' var="net"/>
+<spring:message code='label.title.acro.exp' text='EXP' var="exp"/>
 <table class='table alert-success'>
 	<thead>
 		<tr>
@@ -38,7 +41,7 @@
 	<tbody>
 		<tr class="alert-warning">
 			<!-- RAW -->
-			<td style="transform: rotate(270deg);"><spring:message code="label.raw"  text='RAW' /></td>
+			<td style="transform: rotate(270deg);">${raw}</td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name='probaScale'>${probaUnit}</button></span>
@@ -166,7 +169,7 @@
 		</tr>
 		<!-- NET -->
 		<tr>
-			<td style="transform: rotate(270deg);"><spring:message code="label.net"  text='NET' /></td>
+			<td style="transform: rotate(270deg);">${net}</td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
 					<spring:message text="${assessment.likelihood}" var="likelihood" />
@@ -247,7 +250,7 @@
 		</tr>
 		<!-- EXP -->
 		<tr class="alert-info">
-			<td style="transform: rotate(270deg);"><spring:message code="label.exp"  text='EXP' /></td>
+			<td style="transform: rotate(270deg);">${exp}</td>
 			<td style="border-right: 2px solid #ddd;">
 				<div class="input-group" align="right">
 					<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name="probaScale">${probaUnit}</button></span>
@@ -385,19 +388,21 @@
 		<c:choose>
 			<c:when test="${show_uncertainty}">
 				<tr>
-					<th width="16.66%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
-					<th width="16.66%" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
-					<th width="16.66%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-					<th width="16.66%" title='<spring:message code="label.title.alep" />' style="text-align: center;"><spring:message code="label.pessimistic" text='Pessimistic' /></th>
-					<th width="16.66%" title='<spring:message code="label.title.ale" />' style="text-align: center;"><spring:message code="label.ale.normal" text='ALE Normal' /></th>
-					<th width="16.66%" title='<spring:message code="label.title.aleo" />' style="text-align: center;"><spring:message code="label.optimistic" text='Optimistic' /></th>
+					<th width="14.28%" style="text-align: center;"><spring:message code="label.title.risk_identifier" /></th>
+					<th width="14.28%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
+					<th width="14.28%" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
+					<th width="14.28%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+					<th width="14.28%" title='<spring:message code="label.title.alep" />' style="text-align: center;"><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+					<th width="14.28%" title='<spring:message code="label.title.ale" />' style="text-align: center;"><spring:message code="label.ale.normal" text='ALE Normal' /></th>
+					<th width="14.28%" title='<spring:message code="label.title.aleo" />' style="text-align: center;"><spring:message code="label.optimistic" text='Optimistic' /></th>
 				</tr>
 			</c:when>
 			<c:otherwise>
 				<tr>
-					<th width="33.33" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
-					<th width="33.33" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-					<th width="33.33%" style="text-align: center;"><spring:message code="label.title.ale" /></th>
+					<th width="25%" style="text-align: center;"><spring:message code="label.title.risk_identifier" /></th>
+					<th width="25" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
+					<th width="25" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+					<th width="25%" style="text-align: center;"><spring:message code="label.title.ale" /></th>
 				</tr>
 			</c:otherwise>
 		</c:choose>
@@ -405,9 +410,11 @@
 	<tbody>
 		<tr>
 			<spring:message text="${assessment.owner}" var="owner" />
+			<spring:message text="${riskProfile.identifier}" var="identifier"/>
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
+					<td style="border-right: 2px solid #ddd;"><input name="identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
 					<td style="border-right: 2px solid #ddd;"><input name="uncertainty" class="form-control numeric" value='${uncertainty}' placeholder="${uncertainty}"
 						data-trick-type='double'></td>
 					<td>${strategyForm}</td>
@@ -432,6 +439,7 @@
 					</td>
 				</c:when>
 				<c:otherwise>
+					<td><input name="identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
 					<td>${strategyForm}</td>
 					<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 					<td>

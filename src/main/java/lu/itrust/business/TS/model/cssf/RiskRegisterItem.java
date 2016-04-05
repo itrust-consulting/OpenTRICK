@@ -46,7 +46,7 @@ public class RiskRegisterItem {
 
 	/** Identifier */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idRiskRegisterItem")
 	private int id = -1;
 
@@ -60,7 +60,6 @@ public class RiskRegisterItem {
 	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
 	private Asset asset = null;
-
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
@@ -85,7 +84,6 @@ public class RiskRegisterItem {
 			@AttributeOverride(name = "importance", column = @Column(name = "dtExpEvaluationImportance", nullable = false)) })
 	@Access(AccessType.FIELD)
 	private EvaluationResult expectedEvaluation = null;
-
 
 	/***********************************************************************************************
 	 * Constructors
@@ -232,8 +230,6 @@ public class RiskRegisterItem {
 		this.expectedEvaluation = expectedEvaluation;
 	}
 
-
-
 	public Asset getAsset() {
 		return asset;
 	}
@@ -253,5 +249,45 @@ public class RiskRegisterItem {
 
 	public Boolean is(int idAsset, int idScenario) {
 		return asset.getId() == idAsset && scenario.getId() == idScenario;
+	}
+	
+	/**
+	 * @return key
+	 * @see #key
+	 */
+	public String getKey() {
+		return key(asset, scenario);
+	}
+
+	/**
+	 * @return key
+	 * @see #keyName
+	 */
+	public String getKeyName() {
+		return keyName(asset, scenario);
+	}
+
+	/**
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @return asset.id+"^ID-'RISK_PROFILE'-ID^"+scenario.id
+	 */
+	public static String key(Asset asset, Scenario scenario) {
+		return asset.getId() + "^ID-'RISK_REGISTER'-ID^" + scenario.getId();
+	}
+
+	/**
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @return asset.getName()+"^NAME-'RISK_PROFILE'-NAME^"+scenario.getName()
+	 */
+	public static String keyName(Asset asset, Scenario scenario) {
+		return asset.getName() + "^NAME-'RISK_REGISTER'-NAME^" + scenario.getName();
+	}
+
+	public boolean isConformed(double impact, double probability) {
+		return netEvaluation.getImpact() >= impact && netEvaluation.getProbability() >= probability;
 	}
 }

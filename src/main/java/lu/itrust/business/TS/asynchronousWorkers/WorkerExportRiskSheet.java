@@ -6,18 +6,16 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -31,9 +29,11 @@ import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
+import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAORiskRegisterHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -44,7 +44,9 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
+import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.usermanagement.User;
@@ -65,6 +67,8 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 
 	private DAOAnalysis daoAnalysis;
 
+	private DAORiskRegister daoRiskRegister;
+
 	private DAOWordReport daoWordReport;
 
 	private DAOUser daoUser;
@@ -72,6 +76,10 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 	private MessageSource messageSource;
 
 	private Locale locale;
+
+	public static String FR_TEMPLATE;
+
+	public static String ENG_TEMPLATE;
 
 	public WorkerExportRiskSheet(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String rootPath, Integer analysisId,
 			String username, MessageSource messageSource) {
@@ -81,7 +89,6 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		setRootPath(rootPath);
 		setServiceTaskFeedback(serviceTaskFeedback);
 		setMessageSource(messageSource);
-		setLocale(Locale.ENGLISH);
 	}
 
 	@Override
@@ -101,11 +108,12 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			daoAnalysis = new DAOAnalysisHBM(session);
 			daoWordReport = new DAOWordReportHBM(session);
 			daoUser = new DAOUserHBM(session);
+			daoRiskRegister = new DAORiskRegisterHBM(session);
 			session.beginTransaction();
 			long reportId = processing();
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.save.risk_sheet", "Risk sheet has been successfully saved", 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport", reportId));
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport('" + reportId + "');reloadSection('section_riskregister');"));
 			serviceTaskFeedback.send(getId(), messageHandler);
 		} catch (Exception e) {
 			if (session != null) {
@@ -169,37 +177,64 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		}
 	}
 
-	private long processing() throws InvalidFormatException, IOException {
+	private long processing() throws Exception {
 		User user = daoUser.get(username);
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
-		if (analysis.getRiskRegisters().isEmpty())
-			throw new TrickException("error.analysis.risk_profile.empty", "Please compute risk register and try again");
 		if (analysis.getRiskProfiles().isEmpty())
 			throw new TrickException("error.risk_profile.empty", "No risk sheet");
+		int progress = 2, max = 60, size, index = 0;
+		RiskSheetComputation computation = new RiskSheetComputation(analysis);
 		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;
 		File workFile = null;
 		try {
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.compute.risk_register", "Computing risk register", progress));
+			Map<String, RiskRegisterItem> oldRiskRegister = analysis.getRiskRegisters().stream().collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
+			MessageHandler messageHandler = computation.computeRiskRegister();
+			if (messageHandler != null)
+				throw messageHandler.getException();
+			ParameterConvertor convertor = computation.getConvertor();
+			Map<String, RiskProfile> riskProfilesMap = analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
+					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
+			List<RiskProfile> riskProfiles = new LinkedList<>();
+			if (!oldRiskRegister.isEmpty()) {
+				List<RiskRegisterItem> registerItems = analysis.getRiskRegisters();
+				for (int i = 0; i < registerItems.size(); i++) {
+					RiskRegisterItem current = registerItems.get(i);
+					riskProfiles.add(riskProfilesMap.get(RiskProfile.key(current.getAsset(), current.getScenario())));
+					RiskRegisterItem registerItem = oldRiskRegister.remove(current.getKey());
+					if (registerItem == null)
+						continue;
+					registerItems.set(i, registerItem.merge(current));
+				}
+				if (!oldRiskRegister.isEmpty()) {
+					oldRiskRegister.values().forEach(riskRegister -> daoRiskRegister.delete(riskRegister));
+					oldRiskRegister.clear();
+				}
+			} else
+				analysis.getRiskRegisters().forEach(current -> riskProfiles.add(riskProfilesMap.get(RiskProfile.key(current.getAsset(), current.getScenario()))));
+
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, "Risk_sheet_fr"));
+			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
 			OPCPackage opcPackage = OPCPackage.open(doctemplate.getAbsoluteFile());
 			opcPackage.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
 			opcPackage.save(workFile);
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.data", "Preparing risk sheet template", progress += 8));
 			Map<String, Assessment> assessments = analysis.getAssessments().stream().filter(assessment -> assessment.isSelected())
 					.collect(Collectors.toMap(Assessment::getKey, Function.identity()));
-			List<ExtendedParameter> probabilities = new ArrayList<>(11), impacts = new ArrayList<>(11);
-			analysis.groupExtended(probabilities, impacts);
-			ParameterConvertor convertor = new ParameterConvertor(impacts, probabilities);
-			List<RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().filter(riskProfile -> riskProfile.isSelected()).collect(Collectors.toList());
+			List<ExtendedParameter> probabilities = convertor.getProbabilityParameters(), impacts = convertor.getImpactsParameters();
 			boolean isFirst = true;
+			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Genarating risk sheet", progress += 8));
+			size = riskProfiles.size();
 			for (RiskProfile riskProfile : riskProfiles) {
 				isFirst = addRiskSheetHeader(document, riskProfile, isFirst);
 				Assessment assessment = assessments.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()));
@@ -220,12 +255,15 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
 				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
 				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), impacts.get(0), probabilities.get(0));
+				messageHandler.setProgress(progress + ((++index / size) * 100 / max));
 			}
+			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
 			document.write(outputStream = new FileOutputStream(workFile));
 			outputStream.flush();
 			WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
 					FileCopyUtils.copyToByteArray(workFile));
 			daoWordReport.saveOrUpdate(report);
+			daoAnalysis.saveOrUpdate(analysis);
 			return report.getId();
 
 		} finally {
@@ -297,10 +335,10 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		table.setStyleID("TSTABLERISK");
 		XWPFTableRow row = table.getRow(0);
 		getCell(row, 0).setText(getMessage("report.risk_sheet.risk_id", "Risk ID"));
-		getCell(row, 1).setText(riskProfile.getIdentifier() + "");
+		getCell(row, 1).setText((riskProfile.getIdentifier() == null ? "" : riskProfile.getIdentifier()));
 		getCell(row, 2).setText(getMessage("report.risk_sheet.risk_category", "Category"));
 		String scenarioType = riskProfile.getScenario().getType().getName();
-		getCell(row, 3).setText(getMessage("label.scenario.type." + scenarioType.replace("-", "_"), scenarioType));
+		getCell(row, 3).setText(getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType));
 		getCell(row, 4).setText(getMessage("report.risk_sheet.title", "Title"));
 		getCell(row, 5).setText(riskProfile.getScenario().getName());
 		return false;

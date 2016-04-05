@@ -38,15 +38,15 @@
 					<thead>
 						<tr>
 							<th style="width: 1%" rowspan="2"><spring:message code="label.row.index" /></th>
-							<th style="width: 1%" rowspan="2" title='<spring:message code="label.title.id" />'><spring:message code="label.risk_register.id" /></th>
+							<th style="width: 3%" rowspan="2" title='<spring:message code="label.title.id" />'><spring:message code="label.risk_register.id" /></th>
 							<th style="width: 5%" rowspan="2" title='<spring:message code="label.risk_register.category" />'><spring:message code="label.risk_register.category" /></th>
 							<th rowspan="2" title='<spring:message code="label.risk_register.risk_title" />'><spring:message code="label.risk_register.risk_title" /></th>
 							<th style="width: 15%" rowspan="2" title='<spring:message code="label.risk_register.asset" />'><spring:message code="label.risk_register.asset" /></th>
 							<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.raw_eval" />'><spring:message code="label.risk_register.raw_eval" /></th>
 							<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.net_eval" />'><spring:message code="label.risk_register.net_eval" /></th>
 							<th colspan="3" class="text-center" title='<spring:message code="label.title.risk_register.exp_eval" />'><spring:message code="label.risk_register.exp_eval" /></th>
-							<th rowspan="2" style="width: 5%" title='<spring:message code="label.risk_register.strategy" />' ><spring:message code="label.risk_register.strategy" /></th>
-							<th style="width: 4%" rowspan="2" title='<spring:message code="label.risk_register.owner" />' ><spring:message code="label.risk_register.owner" /></th>
+							<th rowspan="2" style="width: 5%" title='<spring:message code="label.risk_register.strategy" />'><spring:message code="label.risk_register.strategy" /></th>
+							<th style="width: 4%" rowspan="2" title='<spring:message code="label.risk_register.owner" />'><spring:message code="label.risk_register.owner" /></th>
 						</tr>
 						<tr>
 							<th class="text-center" title='<spring:message code="label.risk_register.probability" />'><spring:message code="label.risk_register.acro.probability" /></th>
@@ -69,13 +69,14 @@
 							<c:set var="riskAssessment" value="${estimationMapping[ownerKey]}" />
 							<tr ${empty riskProfile or empty riskAssessment? 'class="warning"':''} data-trick-id='${riskProfile.id}'>
 								<td><spring:message text="${status.index+1}" /></td>
-								<td><spring:message text="${riskProfile.identifier}" /></td>
+								<td class="success" data-trick-id="${riskProfile.id}" data-trick-field=".identifier" onclick="return editField(this);" data-trick-class="RiskProfile"
+									data-trick-field-type="string"><spring:message text="${riskProfile.identifier}" /></td>
 								<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(item.scenario.type.name,'-','_'))}" /></td>
 								<td><spring:message text="${item.scenario.name}" /></td>
 								<td><spring:message text="${item.asset.name}" /></td>
 								<spring:message code="label.metric.euro_by_year" var="euro_by_year" />
 								<spring:message code="label.assessment.likelihood.unit" var="by_year" />
-								
+
 								<c:set var="registerHelper" value="${mappingRegisterHelpers[item.id]}" />
 								<fmt:formatNumber value="${fct:round(item.rawEvaluation.probability,3)}" maxFractionDigits="3" var="probability" />
 								<fmt:formatNumber value="${fct:round(item.rawEvaluation.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
@@ -102,7 +103,7 @@
 								<fmt:formatNumber value="${fct:round(item.expectedEvaluation.probability,3)}" maxFractionDigits="3" var="probability" />
 								<fmt:formatNumber value="${fct:round(item.expectedEvaluation.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
 								<fmt:formatNumber value="${fct:round(item.expectedEvaluation.importance*0.001,0)}" maxFractionDigits="0" var="importance" />
-								
+
 								<td data-scale-value="${probability}" data-scale-level='<fmt:formatNumber value="${registerHelper.expectedEvaluation.probability}" maxFractionDigits="0"/>'
 									class="text-center" title='<fmt:formatNumber value="${item.expectedEvaluation.probability}" maxFractionDigits="2" />${by_year}'>${probability}</td>
 								<td data-scale-value="${impact}" data-scale-level='<fmt:formatNumber value="${registerHelper.expectedEvaluation.impact}" maxFractionDigits="0"/>' class="text-center"
@@ -115,7 +116,8 @@
 									</c:when>
 									<c:otherwise>
 										<td class="success" data-trick-id="${riskProfile.id}" data-trick-field=".riskStrategy" onclick="return editField(this);" data-trick-class="RiskProfile"
-											data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><spring:message code="label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}" text="${accept}"/></td>
+											data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID" data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" data-trick-field-type="string"><spring:message
+												code="label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}" text="${accept}" /></td>
 									</c:otherwise>
 								</c:choose>
 								<c:choose>
