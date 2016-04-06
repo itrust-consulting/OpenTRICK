@@ -787,8 +787,7 @@ public class ChartGenerator {
 		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
 		if (scenario == null)
 			return null;
-		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		return rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
+		return rrfByScenario(scenario, idAnalysis, measures, locale);
 	}
 
 	public String rrfByScenario(Scenario scenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
@@ -1117,23 +1116,22 @@ public class ChartGenerator {
 
 					List<MeasureAssetValue> mavs = assetMeasure.getMeasureAssetValueByAssetType(atv.getAssetType());
 
-					if (mavs.size() == 0)
-						throw new TrickException("error.rrf.assetmeasure.no_assets",
-								"Measure '" + assetMeasure.getMeasureDescription().getReference() + "' does not have any assets of this asset type!",
-								assetMeasure.getMeasureDescription().getReference());
+					if (!mavs.isEmpty()) {
 
-					for (MeasureAssetValue mav : mavs) {
+						for (MeasureAssetValue mav : mavs) {
 
-						double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
+							double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
 
-						NumberFormat nf = new DecimalFormat();
-						nf.setMaximumFractionDigits(2);
+							NumberFormat nf = new DecimalFormat();
+							nf.setMaximumFractionDigits(2);
 
-						val = Double.valueOf(nf.format(val));
+							val = Double.valueOf(nf.format(val));
 
-						rrfMeasure.setValue(rrfMeasure.getValue() + val);
-					}
-					rrfAssetType.getRrfMeasures().add(rrfMeasure);
+							rrfMeasure.setValue(rrfMeasure.getValue() + val);
+						}
+						rrfAssetType.getRrfMeasures().add(rrfMeasure);
+					} else
+						rrfs.remove(atv.getAssetType().getType());
 				}
 			}
 		}

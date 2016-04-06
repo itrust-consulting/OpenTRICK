@@ -139,7 +139,6 @@
 									<c:if test="${analysisOnly and isEditable}">
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-									
 									<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td lang="${language}" ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate="${statusM},${statusAP},${statusNA}"
@@ -154,7 +153,6 @@
 												${statusM}
 											</c:otherwise>
 										</c:choose></td>
-
 									<c:choose>
 										<c:when test="${standardType.name.equals('MATURITY')}">
 											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"

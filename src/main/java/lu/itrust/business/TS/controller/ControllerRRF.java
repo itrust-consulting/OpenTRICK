@@ -333,7 +333,7 @@ public class ControllerRRF {
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 		List<Measure> measures = new ArrayList<Measure>();
-		for (AnalysisStandard standard : standards)
+		for (AnalysisStandard standard : standards){
 			if (standard.getStandard().getId() == measureFilter.getIdStandard() && standard.getStandard().getType() != StandardType.MATURITY) {
 				if (measureFilter.getIdMeasure() < 1 && standard.getStandard().getType() == StandardType.ASSET)
 					return JsonMessage.Error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
@@ -349,8 +349,8 @@ public class ControllerRRF {
 						measures.add(measure);
 
 			}
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
+		}
+		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, locale);
 	}
 
 	/***************

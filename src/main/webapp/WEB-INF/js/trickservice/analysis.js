@@ -100,7 +100,7 @@ function updateSettings(element, entryKey) {
 // reload measures
 function reloadMeasureRow(idMeasure, standard) {
 	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']")
-	if (!$currentRow.find("input,select,textarea").length) {
+	if (!$currentRow.find("input[type!='checkbox'],select,textarea").length) {
 		$.ajax({
 			url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
 			type : "get",
