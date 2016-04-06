@@ -202,7 +202,7 @@ public class ControllerRRF {
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Measure> measures = serviceMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
-		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
+		List<Scenario> scenarios = serviceScenario.getAllSelectedFromAnalysis(idAnalysis);
 		Map<Chapter, List<Measure>> splittedmeasures = MeasureManager.SplitByChapter(measures);
 		if (!splittedmeasures.isEmpty() && splittedmeasures.entrySet().iterator().next().getValue().get(0) != null) {
 
