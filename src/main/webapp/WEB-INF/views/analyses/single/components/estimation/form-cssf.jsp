@@ -414,7 +414,7 @@
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
-					<td style="border-right: 2px solid #ddd;"><input name="identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
+					<td style="border-right: 2px solid #ddd;"><input name="riskProfile.identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
 					<td style="border-right: 2px solid #ddd;"><input name="uncertainty" class="form-control numeric" value='${uncertainty}' placeholder="${uncertainty}"
 						data-trick-type='double'></td>
 					<td>${strategyForm}</td>
@@ -439,7 +439,7 @@
 					</td>
 				</c:when>
 				<c:otherwise>
-					<td><input name="identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
+					<td><input name="riskProfile.identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
 					<td>${strategyForm}</td>
 					<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 					<td>
