@@ -58,7 +58,8 @@
 					<li title='<spring:message code="label.menu.view.measures"/>'><a href="?open=edit-measure"><i class='glyphicon glyphicon-edit'></i> <spring:message
 								code="label.action.edit" /></a></li>
 				</c:if>
-				<li title='<spring:message code="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <spring:message code="label.action.manage" /></a></li>
+				<li title='<spring:message code="label.menu.manage_standard"/>'><a href="#" onclick="return manageStandard();"><i class='glyphicon glyphicon-cog'></i> <spring:message
+							code="label.action.manage" /></a></li>
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.implementation" /></li>
@@ -107,8 +108,10 @@
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" />
 					</a></li>
-					<li><a href="#" onclick="return exportRiskSheet('${analysis.id}')"> <spring:message code="label.risk_sheet" />
-					</a></li>
+					<c:if test="${show_cssf}">
+						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}')"> <spring:message code="label.risk_sheet" />
+						</a></li>
+					</c:if>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
 					<li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <spring:message code="label.sqlite_data" /></a></li>
 					<li class="divider"></li>
