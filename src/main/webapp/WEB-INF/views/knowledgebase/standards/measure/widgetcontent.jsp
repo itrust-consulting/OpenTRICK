@@ -53,7 +53,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">
-					<spring:message code="label.action.add.norm" text="Add" />
+					<spring:message code="label.action.add" text="Add" />
 				</button>
 			</div>
 		</div>

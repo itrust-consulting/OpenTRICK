@@ -121,7 +121,7 @@
 				<div class="form-group">
 					<div class="col-sm-12" style="text-align: center;">
 						<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
-							<spring:message code="label.user.update" text="Update" />
+							<spring:message code="label.action.update" text="Update" />
 						</button>
 					</div>
 				</div>

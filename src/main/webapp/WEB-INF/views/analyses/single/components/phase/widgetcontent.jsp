@@ -39,7 +39,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" style="display: none;">
-					<spring:message code="label.action.cancel_close" />
+					<spring:message code="label.action.cancel" />
 				</button>
 				<button id="addphasemodelbutton" type="button" class="btn btn-primary" onclick="savePhase('phase_form')">
 					<spring:message code="label.action.save" />

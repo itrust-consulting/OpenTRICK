@@ -1,4 +1,4 @@
-var taskManager = undefined;
+var taskManager = undefined, analysesCaching = undefined;
 
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
@@ -361,7 +361,8 @@ function customAnalysis(element) {
 						var $removeText = MessageResolver("label.action.delete", "Delete");
 						var $lockText = MessageResolver("label.action.lock", "Lock");
 						// load data from database and manage caching
-						var analysesCaching = {
+						
+						analysesCaching = {
 							versions : {},
 							identifiers : {},
 							customers : {},
