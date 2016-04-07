@@ -184,7 +184,7 @@ function newStandard() {
 	$("#addStandardModel input[name='type'][value='NORMAL']").prop("checked", true);
 	$("#standard_computable").prop("checked", false);
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.add", "Add a new Standard"));
-	$("#addstandardbutton").text(MessageResolver("label.action.add", "Add"));
+	$("#addstandardbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#standard_form").prop("action", "/Save");
 	$("#addStandardModel").modal('toggle');
 	return false;
@@ -208,7 +208,7 @@ function editSingleStandard(idStandard) {
 	$("#addStandardModel input[name='type'][value='" + standardtype + "']").prop("checked", "checked");
 	$("#standard_computable").prop("checked", $(rows[4]).attr("data-trick-computable") == 'Yes' ? "checked" : "");
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.update", "Update a Standard"));
-	$("#addstandardbutton").text(MessageResolver("label.action.edit", "Edit"));
+	$("#addstandardbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#standard_form").prop("action", "/Save");
 	$("#addStandardModel").modal('toggle');
 	return false;

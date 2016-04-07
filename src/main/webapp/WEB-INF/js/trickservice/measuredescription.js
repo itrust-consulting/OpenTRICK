@@ -88,7 +88,7 @@ function newMeasure(idStandard) {
 
 	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
-	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.add", "Add"));
+	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.save", "Save"));
 
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Add",
@@ -142,7 +142,7 @@ function editSingleMeasure(measureId, idStandard) {
 
 	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
-	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.edit", "Update"));
+	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.save", "Save"));
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
 		type : "GET",

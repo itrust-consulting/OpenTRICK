@@ -820,7 +820,7 @@ function editSingleAnalysis(analysisId) {
 				} else {
 					$("#analysis_form").html($(form).html());
 					$("#editAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
-					$("#editAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
+					$("#editAnalysisButton").text(MessageResolver("label.action.save", "Save"));
 					$("#analysis_form").prop("action", "/Save");
 					$("#editAnalysisModel").modal('toggle');
 				}
