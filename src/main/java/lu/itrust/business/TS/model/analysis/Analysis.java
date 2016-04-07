@@ -58,6 +58,7 @@ import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.ticketing.Project;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -153,6 +154,12 @@ public class Analysis implements Cloneable {
 	/** flag to determine if analysis has data */
 	@Column(name = "dtData", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean data;
+	
+	@ManyToOne
+	@JoinColumn(name="fiProject")
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
+	private Project project;
 
 	/** List of users and their access rights */
 	@OneToMany(mappedBy = "analysis")
@@ -1682,6 +1689,20 @@ public class Analysis implements Cloneable {
 			}
 		}
 		return ape;
+	}
+
+	/**
+	 * @return the project
+	 */
+	public Project getProject() {
+		return project;
+	}
+
+	/**
+	 * @param project the project to set
+	 */
+	public void setProject(Project project) {
+		this.project = project;
 	}
 
 	/**

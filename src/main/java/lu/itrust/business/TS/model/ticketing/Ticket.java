@@ -8,9 +8,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 
 @Entity
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtTaskId", "fiProject"}))
 public class Ticket {
 
 	@Id
@@ -18,15 +21,14 @@ public class Ticket {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
 	
-	@Column(name="dtExternalId")
-	private String ticketId;
+	@Column(name="dtTaskId")
+	private String taskId;
 	
-	@Column(name="dtReference")
-	private String reference;
+	@Column(name="dtMeasureRef")
+	private String measureRef;
 	
 	@Column(name="dtStandard")
 	private String standard;
-	
 	
 	/**
 	 * 
@@ -36,13 +38,13 @@ public class Ticket {
 	}
 
 	/**
-	 * @param ticketId
-	 * @param reference
+	 * @param taskId
+	 * @param measureRef
 	 * @param standard
 	 */
-	public Ticket(String ticketId, String reference, String standard) {
-		this.ticketId = ticketId;
-		this.reference = reference;
+	public Ticket(String taskId, String measureRef, String standard) {
+		this.taskId = taskId;
+		this.measureRef = measureRef;
 		this.standard = standard;
 	}
 
@@ -61,37 +63,33 @@ public class Ticket {
 		this.id = id;
 	}
 
-
 	/**
-	 * @return the ticketId
+	 * @return the taskId
 	 */
-	public String getTicketId() {
-		return ticketId;
+	public String getTaskId() {
+		return taskId;
 	}
 
 	/**
-	 * @param ticketId the ticketId to set
+	 * @param taskId the taskId to set
 	 */
-	public void setTicketId(String ticketId) {
-		this.ticketId = ticketId;
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
 	}
-
 
 	/**
-	 * @return the reference
+	 * @return the measureRef
 	 */
-	public String getReference() {
-		return reference;
+	public String getMeasureRef() {
+		return measureRef;
 	}
-
 
 	/**
-	 * @param reference the reference to set
+	 * @param measureRef the measureRef to set
 	 */
-	public void setReference(String reference) {
-		this.reference = reference;
+	public void setMeasureRef(String measureRef) {
+		this.measureRef = measureRef;
 	}
-
 
 	/**
 	 * @return the standard
