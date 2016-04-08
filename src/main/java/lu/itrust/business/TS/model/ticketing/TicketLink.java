@@ -14,7 +14,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtTaskId", "fiProject"}))
-public class Ticket {
+public class TicketLink {
 
 	@Id
 	@Column(name="idTicket")
@@ -33,7 +33,7 @@ public class Ticket {
 	/**
 	 * 
 	 */
-	public Ticket() {
+	public TicketLink() {
 
 	}
 
@@ -42,7 +42,7 @@ public class Ticket {
 	 * @param measureRef
 	 * @param standard
 	 */
-	public Ticket(String taskId, String measureRef, String standard) {
+	public TicketLink(String taskId, String measureRef, String standard) {
 		this.taskId = taskId;
 		this.measureRef = measureRef;
 		this.standard = standard;

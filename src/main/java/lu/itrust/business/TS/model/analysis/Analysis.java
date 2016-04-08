@@ -58,7 +58,7 @@ import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.ticketing.Project;
+import lu.itrust.business.TS.model.ticketing.ProjectLink;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -159,7 +159,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name="fiProject")
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
-	private Project project;
+	private ProjectLink projectLink;
 
 	/** List of users and their access rights */
 	@OneToMany(mappedBy = "analysis")
@@ -1692,17 +1692,17 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * @return the project
+	 * @return the projectLink
 	 */
-	public Project getProject() {
-		return project;
+	public ProjectLink getProject() {
+		return projectLink;
 	}
 
 	/**
-	 * @param project the project to set
+	 * @param projectLink the projectLink to set
 	 */
-	public void setProject(Project project) {
-		this.project = project;
+	public void setProject(ProjectLink projectLink) {
+		this.projectLink = projectLink;
 	}
 
 	/**
