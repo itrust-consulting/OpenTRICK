@@ -92,6 +92,9 @@ public abstract class Measure implements Cloneable {
 	private String toDo = "";
 
 	private String responsible = "";
+	
+	/** ticket id for ticketing system */
+	private String ticket;
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
@@ -495,6 +498,23 @@ public abstract class Measure implements Cloneable {
 	public void setRecurrentInvestment(double recurrentInvestment) {
 		this.recurrentInvestment = recurrentInvestment;
 	}
+	
+	/**
+	 * TicketingTask id
+	 * @return the ticket
+	 */
+	public String getTicket() {
+		return ticket;
+	}
+
+	/**
+	 * TicketingTask id
+	 * @param ticket the ticket to set
+	 */
+	public void setTicket(String ticket) {
+		this.ticket = ticket;
+	}
+
 
 	/**
 	 * hashCode:<br>
@@ -627,6 +647,4 @@ public abstract class Measure implements Cloneable {
 	public void setResponsible(String responsible) {
 		this.responsible = responsible;
 	}
-
-	
 }

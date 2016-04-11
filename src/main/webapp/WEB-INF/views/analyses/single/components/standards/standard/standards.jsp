@@ -30,32 +30,44 @@
 					</div>
 				</div>
 			</div>
-			<c:if test="${analysisOnly and isEditable}">
+			<c:if test="${isLinkedToProject or analysisOnly and isEditable}">
 				<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
-					<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
-					<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
-							class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
-					<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
-					<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
-						href="#"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete" /></a></li>
+					<c:if test="${analysisOnly and isEditable}">
+						<li><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
+						<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
+								class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
+					</c:if>
+					<c:if test="${isLinkedToProject}">
+						<li class="disabled" data-trick-selectable="true" data-trick-check="isLinkedTicketingSystem('section_standard_${standardid}')"><a href="#"
+							onclick="return openTicket('section_standard_${standardid}')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
+						<c:if test="${isEditable}">
+							<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return generateTickets('section_standard_${standardid}')"><spring:message
+										code="label.generate.tickets" text="Generate Tickets" /></a></li>
+							<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return synchroniseWithTicketingSystem('section_standard_${standardid}')"><spring:message
+										code="label.synchronise.to.ticketing.system" arguments="Jira" text="Synchronise with Jira" /></a></li>
+							<li class="disabled" data-trick-selectable="true" data-trick-check="isUnLinkedTicketingSystem('section_standard_${standardid}')"><a href="#"
+								onclick="return linkToTicketingSystem('section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="Jira" text="Link to Jira" /></a></li>
+							<li class="disabled" data-trick-selectable="true" data-trick-check="isLinkedTicketingSystem('section_standard_${standardid}')"><a href="#"
+								onclick="return unlinkFromTicketingSystem('section_standard_${standardid}')"><spring:message code="label.unlink.from.ticketing.system" arguments="Jira"
+										text="Unlink from Jira" /></a></li>
+						</c:if>
+					</c:if>
+					<c:if test="${analysisOnly and isEditable}">
+						<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
+						<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
+							href="#"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete" /></a></li>
+					</c:if>
 				</ul>
 			</c:if>
 			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
 				<thead>
 					<tr>
-						<c:choose>
-							<c:when test="${analysisOnly and isEditable}">
-								<th width="1%"></th>
-								<th width="2%" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
-								<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
-								<th width="2%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
-							</c:when>
-							<c:otherwise>
-								<th width="2.5%" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
-								<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
-								<th width="2.5%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
-							</c:otherwise>
-						</c:choose>
+						<c:if test="${isLinkedToProject or analysisOnly and isEditable}">
+							<th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')"></th>
+						</c:if>
+						<th width="2%" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+						<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+						<th width="2%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
 						<th width="2%" title='<spring:message code="label.title.measure.ir" />' ><spring:message code="label.measure.ir" /></th>
 						<th width="2%" title='<spring:message code="label.title.measure.iw" />' ><spring:message code="label.measure.iw" /></th>
 						<th width="2%" title='<spring:message code="label.title.measure.ew" />' ><spring:message code="label.measure.ew" /></th>
@@ -83,7 +95,6 @@
 				<tfoot>
 				</tfoot>
 				<tbody>
-					
 					<c:forEach items="${measures.get(standard)}" var="measure">
 						<c:set var="css">
 							<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
@@ -116,8 +127,9 @@
 							<c:when test="${not measure.measureDescription.computable}">
 								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 									data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-									<c:if test="${analysisOnly and isEditable}">
-										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+										<td><input type="checkbox" ${not analysisOnly?'disabled':''} class="checkbox"
+											onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
 									<td lang="${language}" ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td lang="${language}" ${popoverDescription} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
@@ -136,8 +148,9 @@
 							<c:otherwise>
 								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure"
 									data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
-									<c:if test="${analysisOnly and isEditable}">
-										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+										<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
+											onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
 									<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td lang="${language}" ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>

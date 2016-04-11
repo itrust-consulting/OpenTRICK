@@ -58,7 +58,6 @@ import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
-import lu.itrust.business.TS.model.ticketing.ProjectLink;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -155,12 +154,9 @@ public class Analysis implements Cloneable {
 	@Column(name = "dtData", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean data;
 	
-	@ManyToOne
-	@JoinColumn(name="fiProject")
-	@Cascade(CascadeType.SAVE_UPDATE)
-	@Access(AccessType.FIELD)
-	private ProjectLink projectLink;
-
+	/** Ticketing project id */
+	private String project;
+	
 	/** List of users and their access rights */
 	@OneToMany(mappedBy = "analysis")
 	@Cascade(CascadeType.ALL)
@@ -1575,6 +1571,24 @@ public class Analysis implements Cloneable {
 	public void setRiskRegisters(List<RiskRegisterItem> riskRegisters) {
 		this.riskRegisters = riskRegisters;
 	}
+	
+	
+
+	/**
+	 * Ticketing project id
+	 * @return the project
+	 */
+	public String getProject() {
+		return project;
+	}
+
+	/**
+	 * Ticketing project id
+	 * @param project the project to set
+	 */
+	public void setProject(String project) {
+		this.project = project;
+	}
 
 	/**
 	 * getData: <br>
@@ -1691,19 +1705,6 @@ public class Analysis implements Cloneable {
 		return ape;
 	}
 
-	/**
-	 * @return the projectLink
-	 */
-	public ProjectLink getProject() {
-		return projectLink;
-	}
-
-	/**
-	 * @param projectLink the projectLink to set
-	 */
-	public void setProject(ProjectLink projectLink) {
-		this.projectLink = projectLink;
-	}
 
 	/**
 	 * getActionPlan: <br>

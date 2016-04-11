@@ -379,3 +379,15 @@ function navToogled(section, parentMenu, navSelected) {
 	$(window).scroll();
 	return false;
 }
+
+function isLinkedToProject(){
+	return true;
+}
+
+function isLinkedTicketingSystem(){
+	return false;
+}
+
+function isUnLinkedTicketingSystem(){
+	return !isLinkedTicketingSystem();
+}
