@@ -38,17 +38,17 @@
 								class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
 					</c:if>
 					<c:if test="${isLinkedToProject}">
-						<li class="disabled" data-trick-selectable="true" data-trick-check="isLinkedTicketingSystem('section_standard_${standardid}')"><a href="#"
-							onclick="return openTicket('section_standard_${standardid}')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
+						<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+							onclick="return openTicket('#section_standard_${standardid}')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
 						<c:if test="${isEditable}">
-							<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return generateTickets('section_standard_${standardid}')"><spring:message
+							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#" onclick="return generateTickets('#section_standard_${standardid}')"><spring:message
 										code="label.generate.tickets" text="Generate Tickets" /></a></li>
-							<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return synchroniseWithTicketingSystem('section_standard_${standardid}')"><spring:message
+							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#" onclick="return synchroniseWithTicketingSystem('#section_standard_${standardid}')"><spring:message
 										code="label.synchronise.to.ticketing.system" arguments="Jira" text="Synchronise with Jira" /></a></li>
-							<li class="disabled" data-trick-selectable="true" data-trick-check="isUnLinkedTicketingSystem('section_standard_${standardid}')"><a href="#"
-								onclick="return linkToTicketingSystem('section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="Jira" text="Link to Jira" /></a></li>
-							<li class="disabled" data-trick-selectable="true" data-trick-check="isLinkedTicketingSystem('section_standard_${standardid}')"><a href="#"
-								onclick="return unlinkFromTicketingSystem('section_standard_${standardid}')"><spring:message code="label.unlink.from.ticketing.system" arguments="Jira"
+							<li class="disabled" data-trick-selectable="true" data-trick-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+								onclick="return linkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="Jira" text="Link to Jira" /></a></li>
+							<li class="disabled" data-trick-selectable="true" data-trick-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+								onclick="return unlinkFromTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.unlink.from.ticketing.system" arguments="Jira"
 										text="Unlink from Jira" /></a></li>
 						</c:if>
 					</c:if>
@@ -125,7 +125,8 @@
 						</c:set>
 						<c:choose>
 							<c:when test="${not measure.measureDescription.computable}">
-								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
+								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" 
+									data-trick-id="${measure.id}" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
 									data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
 										<td><input type="checkbox" ${not analysisOnly?'disabled':''} class="checkbox"
@@ -146,7 +147,8 @@
 								</tr>
 							</c:when>
 							<c:otherwise>
-								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure"
+								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" data-trick-level="${measure.measureDescription.level}" 
+									data-trick-class="Measure" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
 									data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
 										<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"

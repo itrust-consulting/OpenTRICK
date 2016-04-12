@@ -92,6 +92,7 @@
 	<script type="text/javascript">
 	<!--
 		application.openMode = OPEN_MODE.valueOf('${open}');
+		application.isLinkedToProject = ${isLinkedToProject};
 		-->
 	</script>
 </body>

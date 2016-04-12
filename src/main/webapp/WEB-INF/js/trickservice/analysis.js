@@ -28,7 +28,7 @@ $(document).ready(function() {
 		disableEditMode();
 		$tabOption.hide();
 	});
-	
+
 	Highcharts.setOptions({
 		lang : {
 			decimalPoint : ',',
@@ -380,14 +380,101 @@ function navToogled(section, parentMenu, navSelected) {
 	return false;
 }
 
-function isLinkedToProject(){
-	return true;
-}
+function openTicket(section) {
+	if (!application.isLinkedToProject)
+		return false;
+	var measures = [];
+	$("tbody>tr input:checked", section).closest("tr").each(function() {
+		if (this.getAttribute("data-is-linked") === "true")
+			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
+	});
 
-function isLinkedTicketingSystem(){
+	if (measures.length) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Ticketing/Open",
+			type : "POST",
+			async : false,
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(measures),
+			success : function(response, textStatus, jqXHR) {
+				var $modal = $("#modal-ticketing-view", new DOMParser().parseFromString(response, "text/html"));
+				if (!$modal.length)
+					unknowError();
+				else
+					$modal.appendTo($("#widgets")).modal("show");
+			},
+			error : unknowError
+		});
+	}
+	return false;
 	return false;
 }
 
-function isUnLinkedTicketingSystem(){
-	return !isLinkedTicketingSystem();
+function linkToTicketingSystem(section) {
+	if (!application.isLinkedToProject)
+		return false;
+	return false;
+}
+
+function generateTickets(section) {
+	if (!application.isLinkedToProject)
+		return false;
+	var measures = [];
+	$("tbody>tr input:checked", section).closest("tr").each(function() {
+		if (this.getAttribute("data-is-linked") === "false")
+			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
+	});
+
+	if (measures.length) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Ticketing/Generate",
+			type : "POST",
+			async : false,
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(measures),
+			success : function(response, textStatus, jqXHR) {
+				if (response.error)
+					unknowError(response.error);
+				else if (response.success) {
+					if (section == "#section_actionplans" || measures.length > 10)
+						location.reload();
+					else {
+						var $infoDialog = $("#info-dialog");
+						$(".modal-body", $infoDialog).html(response.success);
+						$infoDialog.modal("show");
+						reloadSection("section_actionplans");
+						setTimeout(function() {
+							var idStandard = $(section).attr("data-trick-id");
+							for (var i = 0; i < measures.length; i++)
+								reloadMeasureRow(measures[i], idStandard);
+						}, measures.length * 20);
+					}
+				} else
+					unknowError();
+			},
+			error : unknowError
+		});
+	}
+	return false;
+}
+
+function synchroniseWithTicketingSystem(section) {
+	if (!application.isLinkedToProject)
+		return false;
+	return false;
+}
+
+function isLinkedTicketingSystem(section) {
+	if (!application.isLinkedToProject)
+		return true;
+	return $("tbody>tr input:checked", section).closest("tr").attr("data-is-linked") === "true";
+}
+
+function isUnLinkedTicketingSystem(section) {
+	if (!application.isLinkedToProject)
+		return true;
+	var $element = $("tbody>tr input:checked", section).closest("tr");
+	if ($element.length != 1 || !$element.has("data-is-linked"))
+		return true;
+	return $element.attr("data-is-linked") === "false";
 }

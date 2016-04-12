@@ -19,7 +19,6 @@
 			<li><a href="#tabParameterImpactProba" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
 			<li><a href="#tabParameterOther" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.various" /></a></li>
 		</ul></li>
-
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_analysis" /> <span class="caret"></span></a>
 		<ul class="dropdown-menu">
 			<c:if test="${!isProfile}">

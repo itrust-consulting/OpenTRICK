@@ -23,22 +23,22 @@
 			<c:if test="${isEditable}">
 				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
 							code="label.action.add.asset" /></a></li>
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span
+				<li class="disabled" data-trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span
 						class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit.asset" /> </a></li>
 			</c:if>
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return showEstimation('asset')"><span
 					class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.show.asset.assessment" /> </a></li>
 			<c:if test="${isEditable}">
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span
+				<li data-trick-single-check="!isSelected('asset')" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span
 						class="glyphicon glyphicon-plus-sign"></span> <spring:message code="label.action.select.asset" /> </a></li>
-				<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span
+				<li data-trick-single-check="isSelected('asset')" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span
 						class="glyphicon glyphicon-minus-sign "></span> <spring:message code="label.action.unselect.asset" /> </a></li>
 				<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 				<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
 						class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete.asset" /> </a></li>
 			</c:if>
 		</ul>
-
+		
 		<table class="table table-hover table-fixed-header-analysis table-condensed" id="assetTable">
 			<thead>
 				<tr>

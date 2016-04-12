@@ -13,19 +13,23 @@ import lu.itrust.business.TS.model.ticketing.TicketingTask;
  */
 public abstract class TaskImpl implements TicketingTask {
 
-	private String id;
+	private String assignee;
 
-	private String name;
-
-	private String description;
-	
 	private Date created;
 	
-	private Date lastUpdated;
+	private Date due;
 	
-	private Date deadline;
+	private String description;
 
+	private String id;
+	
+	private String name;
+	
 	private int progress;
+	
+	private String reporter;
+
+	private Date updated;
 
 	/**
 	 * 
@@ -46,48 +50,39 @@ public abstract class TaskImpl implements TicketingTask {
 		this.progress = progress;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getAssignee()
+	 */
+	@Override
+	public String getAssignee() {
+		return this.assignee;
+	}
+
+	/**
+	 * @return the created
+	 */
+	@Override
+	public Date getCreated() {
+		return created;
+	}
+
+	/**
+	 * @return the due
+	 */
+	@Override
+	public Date getDue() {
+		return due;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.TS.model.ticketing.TicketingTicket#getDescription()
+	 * lu.itrust.business.TS.model.ticketing.TicketingObject#getDescription()
 	 */
 	@Override
 	public String getDescription() {
 		return this.description;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTicket#getProgess()
-	 */
-	@Override
-	public int getProgress() {
-		return this.progress;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.model.ticketing.TicketingTicket#setDescription(java
-	 * .lang.String)
-	 */
-	@Override
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.model.ticketing.TicketingTicket#setProgress(int)
-	 */
-	@Override
-	public void setProgress(int progress) {
-		this.progress = progress;
 	}
 
 	/*
@@ -113,6 +108,68 @@ public abstract class TaskImpl implements TicketingTask {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingObject#getProgess()
+	 */
+	@Override
+	public int getProgress() {
+		return this.progress;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getReporter()
+	 */
+	@Override
+	public String getReporter() {
+		return this.reporter;
+	}
+
+	/**
+	 * @return the updated
+	 */
+	@Override
+	public Date getUpdated() {
+		return updated;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setAssignee(java.lang.String)
+	 */
+	@Override
+	public void setAssignee(String assignee) {
+		this.assignee = assignee;
+	}
+
+	/**
+	 * @param created the created to set
+	 */
+	@Override
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	/**
+	 * @param due the due to set
+	 */
+	@Override
+	public void setDue(Date deadline) {
+		this.due = deadline;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingObject#setDescription(java
+	 * .lang.String)
+	 */
+	@Override
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#setId(java.lang.
 	 * String)
 	 */
@@ -133,54 +190,31 @@ public abstract class TaskImpl implements TicketingTask {
 		this.name = name;
 	}
 
-	/**
-	 * @return the created
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingObject#setProgress(int)
 	 */
 	@Override
-	public Date getCreated() {
-		return created;
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setReporter(java.lang.String)
+	 */
+	@Override
+	public void setReporter(String reporter) {
+		this.reporter = reporter;
 	}
 
 	/**
-	 * @param created the created to set
+	 * @param updated the updated to set
 	 */
 	@Override
-	public void setCreated(Date created) {
-		this.created = created;
+	public void setUpdated(Date lastUpdated) {
+		this.updated = lastUpdated;
 	}
-
-	/**
-	 * @return the lastUpdated
-	 */
-	@Override
-	public Date getLastUpdated() {
-		return lastUpdated;
-	}
-
-	/**
-	 * @param lastUpdated the lastUpdated to set
-	 */
-	@Override
-	public void setLastUpdated(Date lastUpdated) {
-		this.lastUpdated = lastUpdated;
-	}
-
-	/**
-	 * @return the deadline
-	 */
-	@Override
-	public Date getDeadline() {
-		return deadline;
-	}
-
-	/**
-	 * @param deadline the deadline to set
-	 */
-	@Override
-	public void setDeadline(Date deadline) {
-		this.deadline = deadline;
-	}
-
-	
 
 }

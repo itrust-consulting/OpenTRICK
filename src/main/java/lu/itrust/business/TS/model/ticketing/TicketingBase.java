@@ -7,13 +7,9 @@ package lu.itrust.business.TS.model.ticketing;
  * @author eomar
  *
  */
-public interface TicketingBase {
-
-	String getId();
+public interface TicketingBase extends TicketingObject {
 
 	String getName();
-
-	void setId(String id);
 
 	void setName(String name);
 }

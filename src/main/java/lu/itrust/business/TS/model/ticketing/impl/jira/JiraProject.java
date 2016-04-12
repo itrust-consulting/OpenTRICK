@@ -28,8 +28,8 @@ public class JiraProject extends ProjectImpl {
 	 * @param description
 	 * @param progress
 	 */
-	public JiraProject(String id, String name, String description, int progress) {
-		super(id, name, description, progress);
+	public JiraProject(String id, String name) {
+		super(id, name);
 	}
 
 	/* (non-Javadoc)

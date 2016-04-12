@@ -30,12 +30,12 @@
 					</c:forEach>
 				</c:if>
 				<c:if test="${isLinkedToProject}">
-					<li class="disabled" data-trick-selectable="true" data-trick-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
+					<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
 						onclick="return openTicket('#section_actionplans')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
 					<c:if test="${isEditable}">
-						<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return generateTickets('#section_actionplans')"><spring:message code="label.generate.tickets"
+						<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_actionplans')"><a href="#" onclick="return generateTickets('#section_actionplans')"><spring:message code="label.generate.tickets"
 									text="Generate Tickets" /></a></li>
-						<li class="disabled" data-trick-selectable="multi"><a href="#" onclick="return synchroniseWithTicketingSystem('#section_actionplans')"><spring:message
+						<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#" onclick="return synchroniseWithTicketingSystem('#section_actionplans')"><spring:message
 									code="label.synchronise.to.ticketing.system" arguments="Jira" text="Synchronise with Jira" /></a></li>
 						<li class="disabled" data-trick-selectable="true" data-trick-check="isUnLinkedTicketingSystem('#section_actionplans')"><a href="#"
 							onclick="return linkToTicketingSystem('#section_actionplans')"><spring:message code="label.link.to.ticketing.system" arguments="Jira" text="Link to Jira" /></a></li>
@@ -91,7 +91,7 @@
 									</tr>
 								</c:if>
 								<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
-									<tr data-trick-class="ActionPlanEntry" data-trick-id="${ape.id}" data-measure-id='${ape.measure.id}' data-is-linked='${not empty ape.measure.ticket}' data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.analysisStandard.standard.id}')">
+									<tr data-trick-class="ActionPlanEntry" data-trick-id="${ape.id}" data-measure-id='${ape.measure.id}' data-is-linked='${isLinkedToProject and not empty ape.measure.ticket}' data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.analysisStandard.standard.id}')">
 										<c:if test="${isLinkedToProject && apt=='APPN'}">
 											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox" onchange="return updateMenu(this,'#section_actionplans','#menu_actionplans');"></td>
 										</c:if>

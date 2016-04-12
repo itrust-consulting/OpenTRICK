@@ -42,9 +42,12 @@
 </c:set>
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
-		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
+		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" 
+			data-trick-id="${measure.id}" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-			<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+			<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+			</c:if>
 			<td lang="${language}" ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
 			<td lang="${language}" ${popoverDescription} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<c:choose>
@@ -60,9 +63,13 @@
 		</tr>
 	</c:when>
 	<c:otherwise>
-		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
+		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
+			data-is-linked='${isLinkedToProject and not empty measure.ticket}' >
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-			<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+			<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+				<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
+					onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
+			</c:if>
 			<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
 			<td lang="${language}" ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}' data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);">

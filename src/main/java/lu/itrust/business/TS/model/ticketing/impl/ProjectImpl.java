@@ -15,10 +15,6 @@ public abstract class ProjectImpl implements TicketingProject {
 	
 	private String name;
 	
-	private String description;
-	
-	private int progress;
-	
 	/**
 	 * 
 	 */
@@ -31,45 +27,9 @@ public abstract class ProjectImpl implements TicketingProject {
 	 * @param description
 	 * @param progress
 	 */
-	public ProjectImpl(String id, String name, String description, int progress) {
+	public ProjectImpl(String id, String name) {
 		this.id = id;
 		this.name = name;
-		this.description = description;
-		this.progress = progress;
-	}
-
-
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTicket#getDescription()
-	 */
-	@Override
-	public String getDescription() {
-		return this.description;
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTicket#getProgess()
-	 */
-	@Override
-	public int getProgress() {
-		return this.progress;
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTicket#setDescription(java.lang.String)
-	 */
-	@Override
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTicket#setProgress(int)
-	 */
-	@Override
-	public void setProgress(int progress) {
-		this.progress = progress;
 	}
 
 	/* (non-Javadoc)

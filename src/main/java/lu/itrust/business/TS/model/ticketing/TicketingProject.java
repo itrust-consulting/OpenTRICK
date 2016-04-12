@@ -9,7 +9,7 @@ import java.util.List;
  * @author eomar
  *
  */
-public interface TicketingProject extends TicketingTicket {
+public interface TicketingProject extends TicketingBase {
 
 	List<? extends TicketingTask> getTasks();
 

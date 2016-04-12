@@ -362,8 +362,8 @@ function isSelected(sectionName) {
 }
 
 function checkControlChange(checkbox, sectionName, appModalVar) {
-	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(application[appModalVar].modal).find(
-			"tbody tr td:first-child input");
+	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(
+			application[appModalVar].modal).find("tbody tr td:first-child input");
 	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(
 			application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0, $checkbox = $(checkbox);
 	if (!multiSelectAllowed) {
@@ -387,7 +387,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	if (sender) {
 		var $sender = $(sender);
 		if ($sender.is(":checked")) {
-			$sender.parent().parent().addClass("info")
+			$sender.closest("tr").addClass("info")
 			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $("li[data-trick-selectable='multi']", idMenu) : $(idMenu
 					+ " li[data-trick-selectable='multi']", application[appModalVar].modal)).length == 0;
 			if (multiSelectNotAllowed) {
@@ -397,14 +397,14 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 					if (sender == $item[0])
 						continue;
 					$item.prop("checked", false);
-					$item.parent().parent().removeClass("info");
+					$item.closest("tr").removeClass("info");
 				}
 			}
 		} else
-			$sender.parent().parent().removeClass("info")
+			$sender.closest("tr").removeClass("info")
 	}
 
-	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length;
+	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length, cachingChecker = {};
 	if (checkedCount > 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
@@ -413,31 +413,28 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
-			if (!$liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$liSelected.addClass("disabled");
+			updateMenuItemState(cachingChecker, $liSelected, checker);
 		}
 	} else if (checkedCount == 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+			var $liSelected = $($lis[i]), singleChecker = $liSelected.attr("data-trick-single-check");
 			if ($liSelected.attr("data-trick-selectable") != undefined)
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
-			if (!$liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$liSelected.addClass("disabled");
+			if (singleChecker !== undefined)
+				updateMenuItemState(cachingChecker, $liSelected, singleChecker);
+			else updateMenuItemState(cachingChecker, $liSelected, $liSelected.attr("data-trick-check"));
 		}
 	} else {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+			var $liSelected = $($lis[i]);
 			if ($liSelected.attr("data-trick-selectable") != undefined)
 				$liSelected.addClass("disabled");
 			else
 				$liSelected.removeClass("disabled");
-
-			if ($liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$liSelected.addClass("disabled");
 		}
 	}
 
@@ -452,6 +449,17 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		}
 	}
 	return false;
+}
+
+function updateMenuItemState(cachingChecker, $liSelected, checker) {
+	if (checker === undefined)
+		return;
+	if (!$liSelected.hasClass("disabled")) {
+		if (cachingChecker[checker] == undefined)
+			cachingChecker[checker] = eval(checker);
+		if (!cachingChecker[checker])
+			$liSelected.addClass("disabled");
+	}
 }
 
 /**
@@ -613,174 +621,176 @@ function closePopover() {
 	}
 }
 
-$(document).ready(function() {
-	var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
-	$(document).ajaxSend(function(e, xhr, options) {
-		xhr.setRequestHeader(header, token);
-	});
-
-	// prevent perform click while a menu is disabled
-	$("ul.nav li>a").on("click", function(e) {
-		if ($(e.currentTarget).parent().hasClass("disabled"))
-			e.preventDefault();
-	});
-
-	// prevent perform click while a menu is disabled
-	$("ul.nav li").on("click", function(e) {
-		if ($(e.currentTarget).hasClass("disabled"))
-			e.stopPropagation();
-	});
-
-	// prevent unknown error modal display
-	$window.bind("beforeunload", function() {
-		application["isReloading"] = true;
-	});
-
-	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-		var $target = $(e.currentTarget);
-		if ($target.find("li.active").length && !$target.hasClass("active"))
-			$target.addClass("active");
-	});
-
-	$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
-		var $parent = $(e.target).closest("li.dropdown-submenu");
-		if (!$parent.hasClass("active"))
-			$parent.addClass("active");
-	});
-
-	$("a[data-toggle='taskmanager']").on("click", function(e) { // task
-		// manager
-		var taksmanager = application['taskManager'];
-		if (taksmanager.isEmpty())
-			return false;
-		var $target = $(e.currentTarget), $parent = $target.parent();
-		if ($parent.hasClass("open"))
-			taksmanager.Hide();
-		else
-			taksmanager.Show();
-	});
-
-	$('#confirm-dialog').on('hidden.bs.modal', function() {
-		$("#confirm-dialog .btn-danger").unbind("click");
-	});
-
-	$('#alert-dialog').on('hidden.bs.modal', function() {
-		$("#alert-dialog .btn-danger").unbind("click");
-	});
-
-	if ($tabNav.length) {
-
-		var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabNav.find("#tabOption");
-		$window.on("resize.window", function() {
-			$tabContainer.css({
-				"margin-top" : $tabNav.height() + 12
-			// default margin-top is 50px and default $tabNav
-			// size is 38px
-			});
-		});
-
-		if ($option.length) {
-			var updateOption = function() {
-				var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills");
-				var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
-				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-					$option.fadeOut(function() {
-						$option.hide();
+$(document)
+		.ready(
+				function() {
+					var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
+					$(document).ajaxSend(function(e, xhr, options) {
+						xhr.setRequestHeader(header, token);
 					});
-				else {
-					if (!$option.find("#" + optionMenu.prop("id")).length) {
-						$option.find("ul").remove();
-						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
-						$("li[data-role='title']", cloneOption).remove()
-						cloneOption.removeAttr("style");
-						if ($subMenu.length) {
-							$subMenu.each(function() {
-								var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
-								$this.removeClass();
-								if ($this.closest("li").length)
-									$this.before("<li class='divider'></li>");
-								$lis.appendTo(cloneOption);
-								$this.text(text);
-								$this.addClass("dropdown-header");
+
+					// prevent perform click while a menu is disabled
+					$("ul.nav li>a").on("click", function(e) {
+						if ($(e.currentTarget).parent().hasClass("disabled"))
+							e.preventDefault();
+					});
+
+					// prevent perform click while a menu is disabled
+					$("ul.nav li").on("click", function(e) {
+						if ($(e.currentTarget).hasClass("disabled"))
+							e.stopPropagation();
+					});
+
+					// prevent unknown error modal display
+					$window.bind("beforeunload", function() {
+						application["isReloading"] = true;
+					});
+
+					$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
+						var $target = $(e.currentTarget);
+						if ($target.find("li.active").length && !$target.hasClass("active"))
+							$target.addClass("active");
+					});
+
+					$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+						var $parent = $(e.target).closest("li.dropdown-submenu");
+						if (!$parent.hasClass("active"))
+							$parent.addClass("active");
+					});
+
+					$("a[data-toggle='taskmanager']").on("click", function(e) { // task
+						// manager
+						var taksmanager = application['taskManager'];
+						if (taksmanager.isEmpty())
+							return false;
+						var $target = $(e.currentTarget), $parent = $target.parent();
+						if ($parent.hasClass("open"))
+							taksmanager.Hide();
+						else
+							taksmanager.Show();
+					});
+
+					$('#confirm-dialog').on('hidden.bs.modal', function() {
+						$("#confirm-dialog .btn-danger").unbind("click");
+					});
+
+					$('#alert-dialog').on('hidden.bs.modal', function() {
+						$("#alert-dialog .btn-danger").unbind("click");
+					});
+
+					if ($tabNav.length) {
+
+						var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabNav.find("#tabOption");
+						$window.on("resize.window", function() {
+							$tabContainer.css({
+								"margin-top" : $tabNav.height() + 12
+							// default margin-top is 50px and default $tabNav
+							// size is 38px
 							});
-						} else {
-							$("li.dropdown-header", cloneOption).each(function() {
-								var $this = $(this), $closestli = $this.closest("li");
-								if ($closestli.length && !$closestli.hasClass("divider"))
-									$this.before("<li class='divider'></li>");
-								$this.show();
+						});
+
+						if ($option.length) {
+							var updateOption = function() {
+								var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills");
+								var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
+								if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
+									$option.fadeOut(function() {
+										$option.hide();
+									});
+								else {
+									if (!$option.find("#" + optionMenu.prop("id")).length) {
+										$option.find("ul").remove();
+										var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
+										$("li[data-role='title']", cloneOption).remove()
+										cloneOption.removeAttr("style");
+										if ($subMenu.length) {
+											$subMenu.each(function() {
+												var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
+												$this.removeClass();
+												if ($this.closest("li").length)
+													$this.before("<li class='divider'></li>");
+												$lis.appendTo(cloneOption);
+												$this.text(text);
+												$this.addClass("dropdown-header");
+											});
+										} else {
+											$("li.dropdown-header", cloneOption).each(function() {
+												var $this = $(this), $closestli = $this.closest("li");
+												if ($closestli.length && !$closestli.hasClass("divider"))
+													$this.before("<li class='divider'></li>");
+												$this.show();
+											});
+										}
+										$("li.divider", cloneOption).show();
+										cloneOption.appendTo($option);
+										cloneOption.removeClass();
+										cloneOption.find("li").removeClass("pull-right")
+										cloneOption.addClass("dropdown-menu")
+									}
+
+									if (!$option.is(":visible")) {
+										$option.fadeIn(function() {
+											$option.show();
+										});
+									}
+								}
+							}
+
+							$window.on("scroll.window", function() {
+								setTimeout(updateOption, 100);
 							});
 						}
-						$("li.divider", cloneOption).show();
-						cloneOption.appendTo($option);
-						cloneOption.removeClass();
-						cloneOption.find("li").removeClass("pull-right")
-						cloneOption.addClass("dropdown-menu")
-					}
 
-					if (!$option.is(":visible")) {
-						$option.fadeIn(function() {
-							$option.show();
+						$window.on('hashchange', function() {
+							var hash = window.location.hash;
+							application["no-update-hash"] = true;
+							switchTab(hash ? hash.split('#')[1] : hash);
+							application["no-update-hash"] = false;
+						});
+
+						if (window.location.hash) {
+							$window.trigger("hashchange");
+							$bodyHtml.animate({
+								scrollTop : 0
+							}, 20);
+						}
+
+						$('a[data-toggle="tab"]', $tabNav).on('show.bs.tab', closePopover).on('shown.bs.tab', function(e) {
+
+							$bodyHtml.animate({
+								scrollTop : 0
+							}, 20);
+
+							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
+							if (window[callback] != undefined) {
+								var data = $target.attr("data-callback-data");
+								if (data == undefined)
+									window[callback].apply();
+								else
+									window[callback].apply(null, data.split(","));
+							}
+							if ($target.attr("data-update-required") == "true") {
+								var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
+								if (parameters == undefined)
+									window[trigger].apply();
+								else
+									window[trigger].apply(null, parameters.split(","));
+								$target.attr("data-update-required", "false");
+							}
+
+							if (!application["no-update-hash"])
+								window.location.hash = $target.attr("id");
 						});
 					}
-				}
-			}
-			
-			$window.on("scroll.window", function() {
-				setTimeout(updateOption, 100);
-			});
-		}
 
-		$window.on('hashchange', function() {
-			var hash = window.location.hash;
-			application["no-update-hash"] = true;
-			switchTab(hash ? hash.split('#')[1] : hash);
-			application["no-update-hash"] = false;
-		});
+					$('[data-toggle="tooltip"]').tooltip();
 
-		if (window.location.hash) {
-			$window.trigger("hashchange");
-			$bodyHtml.animate({
-				scrollTop : 0
-			}, 20);
-		}
+					$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
 
-		$('a[data-toggle="tab"]', $tabNav).on('show.bs.tab', closePopover).on('shown.bs.tab', function(e) {
-			
-			$bodyHtml.animate({
-				scrollTop : 0
-			}, 20);
-			
-			var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
-			if (window[callback] != undefined) {
-				var data = $target.attr("data-callback-data");
-				if (data == undefined)
-					window[callback].apply();
-				else
-					window[callback].apply(null, data.split(","));
-			}
-			if ($target.attr("data-update-required") == "true") {
-				var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
-				if (parameters == undefined)
-					window[trigger].apply();
-				else
-					window[trigger].apply(null, parameters.split(","));
-				$target.attr("data-update-required", "false");
-			}
-
-			if (!application["no-update-hash"])
-				window.location.hash = $target.attr("id");
-		});
-	}
-
-	$('[data-toggle="tooltip"]').tooltip();
-
-	$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
-
-	if ($popevers.length) {
-		$window.keydown(function(e) {
-			if (e.keyCode == 27)
-				closePopover();
-		});
-	}
-});
+					if ($popevers.length) {
+						$window.keydown(function(e) {
+							if (e.keyCode == 27)
+								closePopover();
+						});
+					}
+				});

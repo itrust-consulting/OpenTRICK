@@ -4,10 +4,12 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,6 +77,8 @@ import lu.itrust.business.TS.model.standard.measure.helper.MeasureForm;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.model.ticketing.impl.jira.JiraProject;
+import lu.itrust.business.TS.model.ticketing.impl.jira.JiraTask;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
 import lu.itrust.business.TS.validator.StandardValidator;
@@ -169,7 +173,7 @@ public class ControllerAnalysisStandard {
 			return null;
 
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-	
+
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
 		List<Standard> standards = new ArrayList<Standard>();
@@ -309,7 +313,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
-		model.addAttribute("isEditable",!OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
@@ -699,7 +703,7 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			
+
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
@@ -1013,6 +1017,30 @@ public class ControllerAnalysisStandard {
 		}
 		return "analyses/single/components/standards/measure";
 
+	}
+
+	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String generateTickets(@RequestBody List<Integer> measures, HttpSession session, Locale locale) {
+		return JsonMessage.Success(messageSource.getMessage("success.ticketing.create", null, "Tickets are successfully created", locale));
+	}
+
+	@RequestMapping(value = "/Ticketing/Open", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String openTickets(@RequestBody List<Integer> measures, Model model, HttpSession session, Locale locale) {
+		System.out.println(measures);
+		JiraProject project = new JiraProject("1", "RA 2016");
+		project.setTasks(new LinkedList<>());
+		JiraTask jiraTask = new JiraTask("2423", "New analysis drop fail JQuery (Chrome)",
+				"Check with some browsers if new analysis drop works well. It doesn't work with Chrome for instance. Thank you", 0);
+		jiraTask.setReporter("Cédric Muller");
+		jiraTask.setAssignee("OMAR Ensuifudine");
+		jiraTask.setStatus("Open");
+		jiraTask.setPriority("Normal");
+		Calendar calendar = Calendar.getInstance(locale);
+		calendar.roll(Calendar.DATE, 5);
+		jiraTask.setCreated(calendar.getTime());
+		project.getTasks().add(jiraTask);
+		model.addAttribute("project", project);
+		return String.format("analyses/single/components/ticketing/%s/home", "jira");
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)
