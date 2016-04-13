@@ -6,22 +6,19 @@ package lu.itrust.business.TS.model.ticketing.impl.jira;
 import java.util.List;
 import java.util.Map;
 
-import lu.itrust.business.TS.model.ticketing.TickectingComment;
 import lu.itrust.business.TS.model.ticketing.TicketingField;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
-import lu.itrust.business.TS.model.ticketing.impl.TaskImpl;
+import lu.itrust.business.TS.model.ticketing.impl.AbstractTask;
 
 /**
  * @author eomar
  *
  */
-public class JiraTask extends TaskImpl {
+public class JiraTask extends AbstractTask {
 	
-	private List<? extends TickectingComment> comments;
+	private List<JiraIssueLink> issueLinks;
 	
 	private Map<String, JiraCustomField> customFields;
-	
-	private List<? extends TicketingField> issueLinks;
 
 	private List<JiraTask> subTasks;
 
@@ -40,31 +37,18 @@ public class JiraTask extends TaskImpl {
 	/**
 	 * @param id
 	 * @param name
+	 * @param type TODO
+	 * @param status TODO
 	 * @param description
 	 * @param progress
 	 */
-	public JiraTask(String id, String name, String description, int progress) {
-		super(id, name, description, progress);
+	public JiraTask(String id, String name, String type, String status, String description, int progress) {
+		super(id, name, type, status, description, progress);
+		setPriority("Normal");
 	}
 
 	@Override
-	public List<? extends TickectingComment> getComments() {
-		return comments;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.model.ticketing.TicketingTask#getCustomFields()
-	 */
-	@Override
-	public Map<String, JiraCustomField> getCustomFields() {
-		return this.customFields;
-	}
-
-	@Override
-	public List<? extends TicketingField> getIssueLinks() {
+	public List<JiraIssueLink> getIssueLinks() {
 		return issueLinks;
 	}
 
@@ -83,20 +67,10 @@ public class JiraTask extends TaskImpl {
 		return type;
 	}
 
-	@Override
-	public void setComments(List<? extends TickectingComment> comments) {
-		this.comments = comments;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setCustomFields(Map<String, ? extends TicketingField> customFields) {
-		this.customFields = (Map<String, JiraCustomField>) customFields;
-	}
-
-	@Override
 	public void setIssueLinks(List<? extends TicketingField> issueLinks) {
-		this.issueLinks = issueLinks;
+		this.issueLinks = (List<JiraIssueLink>) issueLinks;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -131,4 +105,23 @@ public class JiraTask extends TaskImpl {
 		this.priority = priority;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getCustomFields()
+	 */
+	@Override
+	public Map<String, JiraCustomField> getCustomFields() {
+		return this.customFields;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setCustomFields(java.util.Map)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setCustomFields(Map<String, ? extends TicketingField> customFields) {
+		this.customFields = (Map<String, JiraCustomField>) customFields;
+	}
+
+	
+	
 }

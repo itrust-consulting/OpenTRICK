@@ -4,53 +4,63 @@
 package lu.itrust.business.TS.model.ticketing.impl;
 
 import java.util.Date;
+import java.util.List;
 
+import lu.itrust.business.TS.model.ticketing.TickectingComment;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
 
 /**
  * @author eomar
  *
  */
-public abstract class TaskImpl implements TicketingTask {
+public abstract class AbstractTask implements TicketingTask {
 
 	private String assignee;
 
 	private Date created;
-	
+
 	private Date due;
-	
+
 	private String description;
 
 	private String id;
-	
+
 	private String name;
-	
+
 	private int progress;
-	
+
 	private String reporter;
 
 	private Date updated;
+	
+	private List<Comment> comments;
 
 	/**
 	 * 
 	 */
-	public TaskImpl() {
+	public AbstractTask() {
 	}
 
 	/**
 	 * @param id
 	 * @param name
+	 * @param type
+	 * @param status
 	 * @param description
 	 * @param progress
 	 */
-	public TaskImpl(String id, String name, String description, int progress) {
+	public AbstractTask(String id, String name, String type, String status, String description, int progress) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.progress = progress;
+		setType(type);
+		setStatus(status);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getAssignee()
 	 */
 	@Override
@@ -115,7 +125,9 @@ public abstract class TaskImpl implements TicketingTask {
 		return this.progress;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getReporter()
 	 */
 	@Override
@@ -131,8 +143,12 @@ public abstract class TaskImpl implements TicketingTask {
 		return updated;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setAssignee(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingTask#setAssignee(java.lang
+	 * .String)
 	 */
 	@Override
 	public void setAssignee(String assignee) {
@@ -140,7 +156,8 @@ public abstract class TaskImpl implements TicketingTask {
 	}
 
 	/**
-	 * @param created the created to set
+	 * @param created
+	 *            the created to set
 	 */
 	@Override
 	public void setCreated(Date created) {
@@ -148,7 +165,8 @@ public abstract class TaskImpl implements TicketingTask {
 	}
 
 	/**
-	 * @param due the due to set
+	 * @param due
+	 *            the due to set
 	 */
 	@Override
 	public void setDue(Date deadline) {
@@ -201,8 +219,12 @@ public abstract class TaskImpl implements TicketingTask {
 		this.progress = progress;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setReporter(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingTask#setReporter(java.lang
+	 * .String)
 	 */
 	@Override
 	public void setReporter(String reporter) {
@@ -210,11 +232,28 @@ public abstract class TaskImpl implements TicketingTask {
 	}
 
 	/**
-	 * @param updated the updated to set
+	 * @param updated
+	 *            the updated to set
 	 */
 	@Override
 	public void setUpdated(Date lastUpdated) {
 		this.updated = lastUpdated;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getComments()
+	 */
+	@Override
+	public List<Comment> getComments() {
+		return this.comments;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setComments(java.util.List)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setComments(List<? extends TickectingComment> comments) {
+		this.comments = (List<Comment>) comments;
+	}
 }

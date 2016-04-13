@@ -3,19 +3,15 @@
  */
 package lu.itrust.business.TS.model.ticketing.impl.jira;
 
-import lu.itrust.business.TS.model.ticketing.TicketingField;
+import lu.itrust.business.TS.model.ticketing.impl.AbstractField;
 
 /**
  * @author eomar
  *
  */
-public class JiraCustomField implements TicketingField {
+public class JiraCustomField extends AbstractField {
 
-	private String id;
-	
-	private String name;
-	
-	private Object value;
+	private String value;
 	
 	/**
 	 * 
@@ -26,51 +22,17 @@ public class JiraCustomField implements TicketingField {
 	/**
 	 * @param id
 	 * @param name
-	 * @param value
 	 */
-	public JiraCustomField(String id, String name, Object value) {
-		this.id = id;
-		this.name = name;
-		this.value = value;
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#getId()
-	 */
-	@Override
-	public String getId() {
-		return this.id;
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#getName()
-	 */
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#setId(java.lang.String)
-	 */
-	@Override
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#setName(java.lang.String)
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
+	public JiraCustomField(String id, String name, String value) {
+		super(id, name);
+		setValue(value);
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingField#getValue()
 	 */
 	@Override
-	public Object getValue() {
+	public String getValue() {
 		return this.value;
 	}
 
@@ -79,6 +41,10 @@ public class JiraCustomField implements TicketingField {
 	 */
 	@Override
 	public void setValue(Object value) {
+		setValue((String)value);
+	}
+	
+	public void setValue(String value) {
 		this.value = value;
 	}
 

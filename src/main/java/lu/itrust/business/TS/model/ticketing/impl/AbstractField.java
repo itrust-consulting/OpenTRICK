@@ -3,36 +3,37 @@
  */
 package lu.itrust.business.TS.model.ticketing.impl;
 
-import lu.itrust.business.TS.model.ticketing.TicketingProject;
+import lu.itrust.business.TS.model.ticketing.TicketingField;
 
 /**
  * @author eomar
  *
  */
-public abstract class ProjectImpl implements TicketingProject {
-	
+public abstract class AbstractField implements TicketingField {
+
 	private String id;
-	
+
 	private String name;
-	
+
 	/**
 	 * 
 	 */
-	public ProjectImpl() {
+	public AbstractField() {
 	}
-	
+
 	/**
 	 * @param id
 	 * @param name
-	 * @param description
-	 * @param progress
+	 * @param value
 	 */
-	public ProjectImpl(String id, String name) {
+	public AbstractField(String id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#getId()
 	 */
 	@Override
@@ -40,7 +41,9 @@ public abstract class ProjectImpl implements TicketingProject {
 		return this.id;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#getName()
 	 */
 	@Override
@@ -48,19 +51,27 @@ public abstract class ProjectImpl implements TicketingProject {
 		return this.name;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#setId(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#setId(java.lang.
+	 * String)
 	 */
 	@Override
 	public void setId(String id) {
 		this.id = id;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingBase#setName(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingBase#setName(java.lang.
+	 * String)
 	 */
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
+
 }

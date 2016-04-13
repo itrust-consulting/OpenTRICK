@@ -77,7 +77,10 @@ import lu.itrust.business.TS.model.standard.measure.helper.MeasureForm;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-import lu.itrust.business.TS.model.ticketing.impl.jira.JiraProject;
+import lu.itrust.business.TS.model.ticketing.TicketingTask;
+import lu.itrust.business.TS.model.ticketing.impl.Comment;
+import lu.itrust.business.TS.model.ticketing.impl.jira.JiraCustomField;
+import lu.itrust.business.TS.model.ticketing.impl.jira.JiraIssueLink;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraTask;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
@@ -1026,20 +1029,27 @@ public class ControllerAnalysisStandard {
 
 	@RequestMapping(value = "/Ticketing/Open", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String openTickets(@RequestBody List<Integer> measures, Model model, HttpSession session, Locale locale) {
-		System.out.println(measures);
-		JiraProject project = new JiraProject("1", "RA 2016");
-		project.setTasks(new LinkedList<>());
-		JiraTask jiraTask = new JiraTask("2423", "New analysis drop fail JQuery (Chrome)",
-				"Check with some browsers if new analysis drop works well. It doesn't work with Chrome for instance. Thank you", 0);
-		jiraTask.setReporter("Cédric Muller");
-		jiraTask.setAssignee("OMAR Ensuifudine");
-		jiraTask.setStatus("Open");
-		jiraTask.setPriority("Normal");
+		List<TicketingTask> tasks = new LinkedList<>();
+		JiraTask task = new JiraTask("2423", "New analysis drop fail JQuery (Chrome)", "Bug", "Open",
+				"Check with some browsers if new analysis drop works well. It doesn't work with Chrome for instance. Thank you", 20);
+		task.setReporter("Cédric Muller");
+		task.setAssignee("OMAR Ensuifudine");
 		Calendar calendar = Calendar.getInstance(locale);
 		calendar.roll(Calendar.DATE, 5);
-		jiraTask.setCreated(calendar.getTime());
-		project.getTasks().add(jiraTask);
-		model.addAttribute("project", project);
+		task.setCreated(calendar.getTime());
+		tasks.add(task);
+		task.setIssueLinks(new LinkedList<>());
+		task.setSubTask(new LinkedList<>());
+		task.setIssueLinks(new LinkedList<>());
+		task.setComments(new LinkedList<>());
+		task.setCustomFields(new LinkedHashMap<>());
+		task.getSubTasks().add(new JiraTask("2436", "Test", "Bug", "Open", "lolll", 20));
+		task.getComments().add(new Comment("66555", "eomar", calendar.getTime(), "Fixed"));
+		task.getIssueLinks().add(new JiraIssueLink("68455", "Windows Bug", "https://redmine.itrust.lu/issues/2423"));
+		task.getCustomFields().put("Hidden comment", new JiraCustomField("854", "Hidden comment", "test hidden comment"));
+		tasks.addAll(task.getSubTasks());
+		model.addAttribute("first", task);
+		model.addAttribute("tasks", tasks);
 		return String.format("analyses/single/components/ticketing/%s/home", "jira");
 	}
 

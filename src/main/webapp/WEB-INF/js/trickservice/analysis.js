@@ -400,8 +400,41 @@ function openTicket(section) {
 				var $modal = $("#modal-ticketing-view", new DOMParser().parseFromString(response, "text/html"));
 				if (!$modal.length)
 					unknowError();
-				else
+				else {
+					$("#modal-ticketing-view").remove();
 					$modal.appendTo($("#widgets")).modal("show");
+					var $previous = $modal.find(".previous"), $next = $modal.find(".next"), $title = $modal.find(".modal-title");
+					$previous.find("a").on("click", function() {
+						if (!$previous.hasClass("disabled")) {
+							var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
+							if ($prev.length) {
+								$current.hide();
+								$prev.show();
+								$title.text($prev.show().attr("data-title"));
+								if (!$prev.prev().length)
+									$previous.addClass("disabled")
+								if ($next.hasClass("disabled"))
+									$next.removeClass("disabled");
+							}
+						}
+						return false;
+					});
+					
+					$next.find("a").on("click", function() {
+						if (!$next.hasClass("disabled")) {
+							var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
+							if ($nextElement.length) {
+								$current.hide();
+								$title.text($nextElement.show().attr("data-title"));
+								if (!$nextElement.next().length)
+									$next.addClass("disabled")
+								if ($previous.hasClass("disabled"))
+									$previous.removeClass("disabled");
+							}
+						}
+						return false;
+					});
+				}
 			},
 			error : unknowError
 		});

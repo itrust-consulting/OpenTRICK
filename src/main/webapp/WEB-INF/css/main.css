@@ -435,7 +435,7 @@ ul#task-manager>li>li {
 	text-align: right;
 }
 
-.nav-chapter{
+.nav-chapter {
 	overflow: hidden;
 }
 
@@ -444,8 +444,15 @@ ul#task-manager>li>li {
 }
 
 datalist {
-    display: none;
-} 
+	display: none;
+}
+
+.re-pre {
+	word-wrap: break-word;
+	white-space: pre-wrap;
+	overflow: auto;
+	resize: vertical;
+}
 
 @media ( min-width : 1200px) {
 	.max-height {

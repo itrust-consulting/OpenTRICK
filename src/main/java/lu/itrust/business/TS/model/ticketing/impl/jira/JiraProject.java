@@ -6,13 +6,13 @@ package lu.itrust.business.TS.model.ticketing.impl.jira;
 import java.util.List;
 
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
-import lu.itrust.business.TS.model.ticketing.impl.ProjectImpl;
+import lu.itrust.business.TS.model.ticketing.impl.AbstractProject;
 
 /**
  * @author eomar
  *
  */
-public class JiraProject extends ProjectImpl {
+public class JiraProject extends AbstractProject {
 
 	private List<JiraTask> tasks;
 	
