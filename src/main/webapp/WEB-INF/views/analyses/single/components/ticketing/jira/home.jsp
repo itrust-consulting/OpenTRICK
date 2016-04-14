@@ -54,12 +54,33 @@
 						<h4>
 							<spring:message code="label.description" text="Description" />
 						</h4>
-						<div class="well well-sm re-pre" style="height: 100px;"><spring:message text='${task.description}' /></div>
+						<div class="well well-sm re-pre"><spring:message text='${task.description}' /></div>
 						<c:forEach items="${task.customFields.values()}" var="customField">
 							<h4><spring:message text="${customField.name}" /></h4>
-							<p class="well well-sm re-pre" style="height: 50px;"><spring:message text="${customField.value}"/></p>
+							<p class="well well-sm re-pre"><spring:message text="${customField.value}"/></p>
 						</c:forEach>
 						<div class='panel-group' id='sub-item-${task.id}' role='tablist' aria-multiselectable="true">
+							<c:if test="${not empty task.comments}">
+								<div class='panel panel-default'>
+									<div class='panel-heading' role='tab' id='heading-task-comment-${task.id}'>
+										<h4 class="panel-title">
+											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#task-comment-${task.id}" aria-expanded="true" aria-controls="task-comment-${task.id}"><spring:message
+													code='label.comments' text='Comments' /> </a>
+										</h4>
+									</div>
+									<div id="task-comment-${task.id}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-task-comment-${task.id}">
+										<div class='panel-body'>
+											<c:forEach items="${task.comments}" var="comment">
+											<blockquote>
+												<p><spring:message text="${comment.description}" /></p>
+												<fmt:formatDate value="${comment.created}" var="dateComment"/>
+												<footer><spring:message text="${comment.author}, ${dateComment}"/></footer>
+											</blockquote>
+											</c:forEach>
+										</div>
+									</div>
+								</div>
+							</c:if>
 							<c:if test="${not empty task.subTasks}">
 								<div class='panel panel-default'>
 									<div class='panel-heading' role='tab' id='heading-sub-task-${task.id}'>
@@ -122,27 +143,7 @@
 									</div>
 								</div>
 							</c:if>
-							<c:if test="${not empty task.comments}">
-								<div class='panel panel-default'>
-									<div class='panel-heading' role='tab' id='heading-task-comment-${task.id}'>
-										<h4 class="panel-title">
-											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#task-comment-${task.id}" aria-expanded="true" aria-controls="task-comment-${task.id}"><spring:message
-													code='label.comments' text='Comments' /> </a>
-										</h4>
-									</div>
-									<div id="task-comment-${task.id}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-task-comment-${task.id}">
-										<div class='panel-body'>
-											<c:forEach items="${task.comments}" var="comment">
-											<blockquote>
-												<p><spring:message text="${comment.description}" /></p>
-												<fmt:formatDate value="${comment.created}" var="dateComment"/>
-												<footer><spring:message text="${comment.author}, ${dateComment}"/></footer>
-											</blockquote>
-											</c:forEach>
-										</div>
-									</div>
-								</div>
-							</c:if>
+							
 						</div>
 					</fieldset>
 				</c:forEach>

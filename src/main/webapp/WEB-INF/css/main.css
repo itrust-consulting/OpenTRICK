@@ -447,11 +447,23 @@ datalist {
 	display: none;
 }
 
+.re-pre:HOVER {
+	overflow: auto;
+}
+
 .re-pre {
 	word-wrap: break-word;
 	white-space: pre-wrap;
-	overflow: auto;
+	overflow: hidden;
 	resize: vertical;
+}
+
+.scrollable:HOVER {
+	overflow: auto;
+}
+
+.scrollable {
+	overflow: hidden;
 }
 
 @media ( min-width : 1200px) {

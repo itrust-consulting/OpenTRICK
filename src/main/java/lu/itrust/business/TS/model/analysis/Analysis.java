@@ -153,10 +153,10 @@ public class Analysis implements Cloneable {
 	/** flag to determine if analysis has data */
 	@Column(name = "dtData", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean data;
-	
+
 	/** Ticketing project id */
 	private String project;
-	
+
 	/** List of users and their access rights */
 	@OneToMany(mappedBy = "analysis")
 	@Cascade(CascadeType.ALL)
@@ -1571,11 +1571,10 @@ public class Analysis implements Cloneable {
 	public void setRiskRegisters(List<RiskRegisterItem> riskRegisters) {
 		this.riskRegisters = riskRegisters;
 	}
-	
-	
 
 	/**
 	 * Ticketing project id
+	 * 
 	 * @return the project
 	 */
 	public String getProject() {
@@ -1584,7 +1583,9 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * Ticketing project id
-	 * @param project the project to set
+	 * 
+	 * @param project
+	 *            the project to set
 	 */
 	public void setProject(String project) {
 		this.project = project;
@@ -1705,7 +1706,6 @@ public class Analysis implements Cloneable {
 		return ape;
 	}
 
-
 	/**
 	 * getActionPlan: <br>
 	 * Returns the Action Plan of a given Action Plan Type.
@@ -1727,9 +1727,10 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * [0] : Simple, [1] : Extended, [2] : Maturity 
+	 * [0] : Simple, [1] : Extended, [2] : Maturity
+	 * 
 	 * @param parameters
-	 * @return 
+	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitParameters(List<Parameter> parameters) {
@@ -1781,6 +1782,7 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * [0] IMPACT, [1]: PROBA
+	 * 
 	 * @param parameters
 	 * @return
 	 */
@@ -2656,7 +2658,11 @@ public class Analysis implements Cloneable {
 	}
 
 	public Parameter findParameter(String type, String description) {
-		return parameters.stream().filter(parameter -> parameter.isMatch(type,description)).findAny().orElse(null);
+		return parameters.stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
+	}
+
+	public Measure findMeasureById(int idMeasure) {
+		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId()==idMeasure).findAny().orElse(null);
 	}
 
 }

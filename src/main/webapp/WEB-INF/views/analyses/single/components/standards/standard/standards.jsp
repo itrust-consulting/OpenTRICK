@@ -45,11 +45,11 @@
 										code="label.generate.tickets" text="Generate Tickets" /></a></li>
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#" onclick="return synchroniseWithTicketingSystem('#section_standard_${standardid}')"><spring:message
 										code="label.synchronise.to.ticketing.system" arguments="Jira" text="Synchronise with Jira" /></a></li>
-							<li class="disabled" data-trick-selectable="true" data-trick-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+							<li class="disabled" data-trick-selectable="multi" data-trick-simple-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
 								onclick="return linkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="Jira" text="Link to Jira" /></a></li>
-							<li class="disabled" data-trick-selectable="true" data-trick-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
-								onclick="return unlinkFromTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.unlink.from.ticketing.system" arguments="Jira"
-										text="Unlink from Jira" /></a></li>
+							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+								onclick="return unLinkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.unlink.to.ticketing.system" arguments="Jira"
+										text="Unlink to Jira" /></a></li>
 						</c:if>
 					</c:if>
 					<c:if test="${analysisOnly and isEditable}">

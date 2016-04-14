@@ -54,4 +54,6 @@ public interface ServiceMeasure {
 	public void delete(Measure measure) ;
 
 	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) ;
+
+	public List<Measure> getByIdAnalysisAndIds(Integer idAnalysis, List<Integer> measureIds);
 }

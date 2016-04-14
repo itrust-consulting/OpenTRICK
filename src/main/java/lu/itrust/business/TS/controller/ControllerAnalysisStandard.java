@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -21,6 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +81,7 @@ import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
+import lu.itrust.business.TS.model.ticketing.helper.LinkForm;
 import lu.itrust.business.TS.model.ticketing.impl.Comment;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraCustomField;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraIssueLink;
@@ -1023,13 +1027,21 @@ public class ControllerAnalysisStandard {
 	}
 
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String generateTickets(@RequestBody List<Integer> measures, HttpSession session, Locale locale) {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String generateTickets(@RequestBody List<Integer> measures, Principal principal, HttpSession session, Locale locale) {
 		return JsonMessage.Success(messageSource.getMessage("success.ticketing.create", null, "Tickets are successfully created", locale));
 	}
 
 	@RequestMapping(value = "/Ticketing/Open", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String openTickets(@RequestBody List<Integer> measures, Model model, HttpSession session, Locale locale) {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String openTickets(@RequestBody List<Integer> measures, Model model, Principal principal, HttpSession session, Locale locale) {
 		List<TicketingTask> tasks = new LinkedList<>();
+		model.addAttribute("first", getSampleTickets(tasks, locale));
+		model.addAttribute("tasks", tasks);
+		return String.format("analyses/single/components/ticketing/%s/home", "jira");
+	}
+
+	private TicketingTask getSampleTickets(List<TicketingTask> tasks, Locale locale) {
 		JiraTask task = new JiraTask("2423", "New analysis drop fail JQuery (Chrome)", "Bug", "Open",
 				"Check with some browsers if new analysis drop works well. It doesn't work with Chrome for instance. Thank you", 20);
 		task.setReporter("Cédric Muller");
@@ -1048,9 +1060,69 @@ public class ControllerAnalysisStandard {
 		task.getIssueLinks().add(new JiraIssueLink("68455", "Windows Bug", "https://redmine.itrust.lu/issues/2423"));
 		task.getCustomFields().put("Hidden comment", new JiraCustomField("854", "Hidden comment", "test hidden comment"));
 		tasks.addAll(task.getSubTasks());
-		model.addAttribute("first", task);
+		return task;
+	}
+
+	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String unlinkTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).forEach(measure -> {
+			if (!StringUtils.isEmpty(measure.getTicket())) {
+				measure.setTicket(null);
+				serviceMeasure.saveOrUpdate(measure);
+			}
+		});
+		if (measureIds.size() > 1)
+			return JsonMessage.Success(messageSource.getMessage("success.unlinked.measures.to.ticket", null, "Measures has been successfully unlinked to tickets", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.unlinked.measure.to.ticket", null, "Measure has been successfully unlinked to a ticket", locale));
+
+	}
+
+	@RequestMapping(value = "/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String linkTickets(@RequestBody List<Integer> measureIds, Model model, Principal principal, HttpSession session, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		List<Measure> measures;
+		if (measureIds.size() > 5) {
+			Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+					.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
+		} else {
+			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+					.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
+		}
+		List<TicketingTask> tasks = new LinkedList<>();
+		getSampleTickets(tasks, locale);
 		model.addAttribute("tasks", tasks);
-		return String.format("analyses/single/components/ticketing/%s/home", "jira");
+		model.addAttribute("measures", measures);
+		model.addAttribute("language", analysis.getLanguage().getAlpha2());
+		return String.format("analyses/single/components/ticketing/%s/forms/link", "jira");
+	}
+
+	@RequestMapping(value = "/Ticketing/Link/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String linkTicket(@RequestBody LinkForm form, Principal principal, HttpSession session, Locale locale) {
+		System.out.println(form.getIdTicket());
+		System.out.println(form.getIdMeasure());
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		if (StringUtils.isEmpty(analysis.getProject()))
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_project", null, "Please link your analysis to a project and try again", locale));
+		Measure measure = analysis.findMeasureById(form.getIdMeasure());
+		if (measure == null)
+			return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+		if (!StringUtils.isEmpty(measure.getTicket())) {
+			return measure.getTicket().equals(form.getIdTicket())
+					? JsonMessage.Success(messageSource.getMessage("info.measure.already.link", null, "Measure has been already linked to this ticket", locale))
+					: JsonMessage.Error(messageSource.getMessage("error.measure.already.link", null, "Measure is already linked to another ticket", locale));
+		}
+		
+		measure.setTicket(form.getIdTicket());
+		serviceMeasure.saveOrUpdate(measure);
+		return JsonMessage.Success(messageSource.getMessage("success.link.measure.from.project", null, "Measure has been successfully linked to a ticket", locale));
+
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)

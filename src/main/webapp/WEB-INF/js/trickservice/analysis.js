@@ -419,7 +419,7 @@ function openTicket(section) {
 						}
 						return false;
 					});
-					
+
 					$next.find("a").on("click", function() {
 						if (!$next.hasClass("disabled")) {
 							var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
@@ -446,7 +446,129 @@ function openTicket(section) {
 function linkToTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
+	var measures = [];
+	$("tbody>tr input:checked", section).closest("tr").each(function() {
+		if (this.getAttribute("data-is-linked") === "false")
+			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
+	});
+
+	if (measures.length) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Ticketing/Link",
+			type : "POST",
+			async : false,
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(measures),
+			success : function(response, textStatus, jqXHR) {
+				var $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+				if (!$modal.length)
+					unknowError();
+				else {
+					$("#modal-ticketing-linker").remove();
+					$modal.appendTo($("#widgets")).modal("show");
+					var $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer");
+					$modal.find("#task-container>fieldset").appendTo($taskViewer);
+					$modal.find("#measure-container>fieldset").appendTo($measureViewer);
+					$modal.find("#task-container>a.list-group-item").on("click", function() {
+						$view = $(this.getAttribute("href"));
+						if (!$view.is(":visible")) {
+							$taskViewer.find("fieldset:visible").hide();
+							$view.show();
+						}
+						return false;
+					});
+
+					$modal.on("hidden.bs.modal", function() {
+						if (updateRequired)
+							reloadSection("section_actionplans");
+					});
+
+					$modal.find("#measure-container>a.list-group-item").on("click", function() {
+						$view = $(this.getAttribute("href"));
+						if (!$view.is(":visible")) {
+							$measureViewer.find("fieldset:visible").hide();
+							$view.show();
+						}
+						return false;
+					});
+
+					$linker.on('click', function() {
+						var $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
+						if ($measure.length && $ticket.length) {
+							$.ajax({
+								url : context + "/Analysis/Standard/Ticketing/Link/Measure",
+								type : "POST",
+								async : false,
+								contentType : "application/json;charset=UTF-8",
+								data : JSON.stringify({
+									"idMeasure" : $measure.attr("data-trick-id"),
+									"idTicket" : $ticket.attr("data-trick-id")
+								}),
+								success : function(response, textStatus, jqXHR) {
+									if (response.success) {
+										reloadMeasureRow($measure.attr("data-trick-id"), $measure.attr("data-trick-parent-id"));
+										$("#" + $measure.remove().attr("aria-controls")).remove();
+										$("#" + $ticket.remove().attr("aria-controls")).remove();
+										updateRequired = true;
+									} else if (response.error)
+										unknowError(response.error);
+									else
+										unknowError();
+								},
+								error : unknowError
+							});
+						}
+						return false;
+					});
+
+				}
+			},
+			error : unknowError
+		});
+	}
 	return false;
+}
+
+function unLinkToTicketingSystem(section) {
+	if (!application.isLinkedToProject)
+		return false;
+	var measures = [];
+	$("tbody>tr input:checked", section).closest("tr").each(function() {
+		if (this.getAttribute("data-is-linked") === "true")
+			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
+	});
+	if (measures.length) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Ticketing/UnLink",
+			type : "POST",
+			async : false,
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(measures),
+			success : function(response, textStatus, jqXHR) {
+				if (response.error)
+					unknowError(response.error);
+				else if (response.success) {
+					if (section == "#section_actionplans" || measures.length > 10)
+						location.reload();
+					else {
+						var $infoDialog = $("#info-dialog");
+						$(".modal-body", $infoDialog).html(response.success);
+						$infoDialog.modal("show");
+						reloadSection("section_actionplans");
+						setTimeout(function() {
+							var idStandard = $(section).attr("data-trick-id");
+							for (var i = 0; i < measures.length; i++)
+								reloadMeasureRow(measures[i], idStandard);
+						}, measures.length * 20);
+					}
+				} else
+					unknowError();
+			},
+			error : unknowError
+		});
+	}
+	return false;
+
 }
 
 function generateTickets(section) {

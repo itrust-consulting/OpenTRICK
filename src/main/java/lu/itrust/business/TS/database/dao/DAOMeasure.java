@@ -66,4 +66,6 @@ public interface DAOMeasure {
 	public List<NormalMeasure> getAllNormalMeasure(int pageIndex, int pageSize);
 
 	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int idAnalysis, String standard, ActionPlanMode appn);
+
+	public List<Measure> getByIdAnalysisAndIds(Integer idAnalysis, List<Integer> ids);
 }
