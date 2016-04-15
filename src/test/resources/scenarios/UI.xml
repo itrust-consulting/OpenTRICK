@@ -1,0 +1,20 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="ui">
+	<test name="All components">
+		<groups>
+			<define name="INITIALISE">
+				<include name="init" />
+				<include name="SignUp" />
+			</define>
+			<run>
+				<!-- <include name="INITIALISE" />
+				<include name="FAILURE_TEST_SUITE" /> -->
+				<include name="INITIALISE" />
+			</run>
+		</groups>
+
+		 <packages>
+			<package name="lu.itrust.TS.UI" />
+		</packages> 
+	</test>
+</suite>
