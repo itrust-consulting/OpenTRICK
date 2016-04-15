@@ -176,9 +176,7 @@ public class ControllerAnalysisStandard {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (idAnalysis == null)
-			return null;
-
+		
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
@@ -193,6 +191,8 @@ public class ControllerAnalysisStandard {
 		Map<String, List<Measure>> measures = mapMeasures(null, analysisStandards);
 
 		model.addAttribute("measures", measures);
+		
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
@@ -249,6 +249,8 @@ public class ControllerAnalysisStandard {
 		Map<String, List<Measure>> measures = mapMeasures(standardlabel, analysisStandards);
 
 		model.addAttribute("measures", measures);
+		
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
@@ -325,6 +327,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
@@ -1029,6 +1032,7 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String generateTickets(@RequestBody List<Integer> measures, Principal principal, HttpSession session, Locale locale) {
+		
 		return JsonMessage.Success(messageSource.getMessage("success.ticketing.create", null, "Tickets are successfully created", locale));
 	}
 
@@ -1062,6 +1066,13 @@ public class ControllerAnalysisStandard {
 		tasks.addAll(task.getSubTasks());
 		return task;
 	}
+	
+	
+	private List<TicketingTask> getSampleTickets(Locale locale) {
+		List<TicketingTask> tasks = new LinkedList<>();
+		getSampleTickets(tasks, locale);
+		return tasks;
+	}
 
 	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -1078,7 +1089,30 @@ public class ControllerAnalysisStandard {
 		return JsonMessage.Success(messageSource.getMessage("success.unlinked.measure.to.ticket", null, "Measure has been successfully unlinked to a ticket", locale));
 
 	}
-
+	
+	@RequestMapping(value = "/Ticketing/Synchronise", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String synchroniseWithTicketingSystem(@RequestBody List<Integer> ids,Model model, Principal principal, HttpSession session, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		List<Measure> measures;
+		if (ids.size() > 5) {
+			Map<Integer, Integer> contains = ids.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+					.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
+		} else {
+			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+					.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && ids.contains(measure.getId())).collect(Collectors.toList());
+		}
+		Map<String, TicketingTask> tasks = getSampleTickets(locale).stream().collect(Collectors.toMap(task-> task.getId(), Function.identity()));
+		List<Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+		model.addAttribute("measures", measures);
+		model.addAttribute("parameters", parameters);
+		model.addAttribute("tasks", tasks);
+		model.addAttribute("language", analysis.getLanguage().getAlpha2());
+		return String.format("analyses/single/components/ticketing/%s/forms/synchronise", "jira");
+	}
+	
 	@RequestMapping(value = "/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String linkTickets(@RequestBody List<Integer> measureIds, Model model, Principal principal, HttpSession session, Locale locale) {
@@ -1104,8 +1138,8 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Ticketing/Link/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String linkTicket(@RequestBody LinkForm form, Principal principal, HttpSession session, Locale locale) {
-		System.out.println(form.getIdTicket());
-		System.out.println(form.getIdMeasure());
+		if (StringUtils.isEmpty(form.getIdTicket()))
+			return JsonMessage.Error(messageSource.getMessage("error.ticket.not_found", null, "Ticket cannot be found", locale));
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		if (StringUtils.isEmpty(analysis.getProject()))
@@ -1118,6 +1152,8 @@ public class ControllerAnalysisStandard {
 					? JsonMessage.Success(messageSource.getMessage("info.measure.already.link", null, "Measure has been already linked to this ticket", locale))
 					: JsonMessage.Error(messageSource.getMessage("error.measure.already.link", null, "Measure is already linked to another ticket", locale));
 		}
+		if(analysis.hasTicket(form.getIdTicket()))
+			return JsonMessage.Error(messageSource.getMessage("error.ticket.already.linked", null, "Ticket is already linked to another measure", locale));
 		
 		measure.setTicket(form.getIdTicket());
 		serviceMeasure.saveOrUpdate(measure);

@@ -25,26 +25,26 @@
 								<fieldset id='measure-view-${measure.id}' aria-controls='measure-controller-${measure.id}' 
 									style="display: none" data-trick-id='${measure.id}' data-trick-parent-id='${measure.measureDescription.standard.id}'>
 									<legend>${measureTitle}</legend>
-									<h4><spring:message code='label.description' text='Description' /></h4>
-									<div class="well well-sm re-pre"><spring:message text="${description.description}" /></div>
 									<h4><spring:message code='label.to_do' text='Todo' /></h4>
 									<div class="well well-sm re-pre"><spring:message text='${measure.toDo}' /></div>
+									<h4><spring:message code='label.description' text='Description' /></h4>
+									<div class="well well-sm re-pre"><spring:message text="${description.description}" /></div>
 								</fieldset>
 							</c:forEach>
 						</div>
 					</div>
 				</div>
 				<div class="col-xs-6" style="height: 94.5%">
-					<div class="panel panel-warning scrollable" style="height: 40%">
-						<div id="measure-viewer" class='panel-body' style="height: 100%">
+					<div class="panel panel-warning" style="height: 40%;">
+						<div id="measure-viewer" class='panel-body' style="height: 100%; overflow-x: auto;">
 						</div>
 					</div>
 					<div class="text-center" style="height: 3%; margin-bottom: 16px; margin-top: -20px;">
-						<a href="#" id='measure-task-linker' class="btn btn-link"><i class="fa fa-link fa-2x" style="transform: rotate(45deg)" aria-hidden="true"></i>
+						<a href="#" id='measure-task-linker' title='<spring:message code='label.action.linked' text='Linked'/>' class="btn btn-link"><i class="fa fa-link fa-2x" style="transform: rotate(45deg)" aria-hidden="true"></i>
 						</a>
 					</div>
-					<div class='panel panel-info scrollable' style="height: 60%">
-						<div class='panel-body' id='task-viewer' style="height: 100%">
+					<div class='panel panel-info' style="height: 60%">
+						<div class='panel-body' id='task-viewer' style="height: 100%; overflow-x: auto;">
 						</div>
 					</div>
 				</div>
@@ -107,7 +107,7 @@
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-default" data-dismiss="modal" data-aria-hidden="false">
-					<spring:message code='label.action.cancel' />
+					<spring:message code='label.action.close' text='Close'/>
 				</button>
 			</div>
 		</div>

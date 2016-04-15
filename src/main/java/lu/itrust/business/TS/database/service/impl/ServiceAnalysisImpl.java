@@ -634,4 +634,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize) {
 		return daoAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(pageIndex, pageSize);
 	}
+
+	@Override
+	public String getProjectIdById(Integer idAnalysis) {
+		return daoAnalysis.getProjectIdById(idAnalysis);
+	}
+
+	@Override
+	public boolean hasProject(int idAnalysis) {
+		return daoAnalysis.hasProject(idAnalysis);
+	}
 }

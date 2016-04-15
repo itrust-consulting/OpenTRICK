@@ -12,7 +12,7 @@
 					<spring:message text="${first.type} #${first.id}" />
 				</h3>
 			</div>
-			<div class="modal-body" style="height: 700px; overflow-x: auto">
+			<div class="modal-body scrollable" style="height: 700px;">
 				<c:forEach items="${tasks}" var="task">
 					<fieldset data-trick-id='${task.id}' style="display: ${first != task? 'none':''}" data-title='<spring:message text="${task.type} #${task.id}" />'>
 						<h4>
@@ -54,14 +54,14 @@
 						<h4>
 							<spring:message code="label.description" text="Description" />
 						</h4>
-						<div class="well well-sm re-pre"><spring:message text='${task.description}' /></div>
+						<div class="well well-sm re-pre scrollable"><spring:message text='${task.description}' /></div>
 						<c:forEach items="${task.customFields.values()}" var="customField">
 							<h4><spring:message text="${customField.name}" /></h4>
-							<p class="well well-sm re-pre"><spring:message text="${customField.value}"/></p>
+							<p class="well well-sm re-pre scrollable"><spring:message text="${customField.value}"/></p>
 						</c:forEach>
 						<div class='panel-group' id='sub-item-${task.id}' role='tablist' aria-multiselectable="true">
 							<c:if test="${not empty task.comments}">
-								<div class='panel panel-default'>
+								<div class='panel panel-info'>
 									<div class='panel-heading' role='tab' id='heading-task-comment-${task.id}'>
 										<h4 class="panel-title">
 											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#task-comment-${task.id}" aria-expanded="true" aria-controls="task-comment-${task.id}"><spring:message
@@ -82,7 +82,7 @@
 								</div>
 							</c:if>
 							<c:if test="${not empty task.subTasks}">
-								<div class='panel panel-default'>
+								<div class='panel panel-info'>
 									<div class='panel-heading' role='tab' id='heading-sub-task-${task.id}'>
 										<h4 class="panel-title">
 											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#sub-task-${task.id}" aria-expanded="true" aria-controls="sub-task-${task.id}"><spring:message
@@ -125,7 +125,7 @@
 								</div>
 							</c:if>
 							<c:if test="${not empty task.issueLinks}">
-								<div class='panel panel-default'>
+								<div class='panel panel-info'>
 									<div class='panel-heading' role='tab' id='heading-issue-link-${task.id}'>
 										<h4 class="panel-title">
 											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#issue-link-${task.id}" aria-expanded="true" aria-controls="issue-link-${task.id}"><spring:message
@@ -149,7 +149,7 @@
 				</c:forEach>
 			</div>
 			<div class="modal-footer">
-				<c:if test="${tasks.size()>0}">
+				<c:if test="${tasks.size()>1}">
 					<nav class="col-lg-10">
 						<ul class="pager" style="margin: 0px;">
 							<li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> <spring:message code="label.action.previous"/></a></li>
@@ -157,7 +157,7 @@
 						</ul>
 					</nav>
 				</c:if>
-				<button class="btn btn-default" data-dismiss="modal" data-aria-hidden="false">Cancel</button>
+				<button class="btn btn-default" data-dismiss="modal" data-aria-hidden="false"><spring:message code='label.action.close' text='Close'/></button>
 			</div>
 		</div>
 	</div>

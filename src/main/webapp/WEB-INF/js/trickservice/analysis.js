@@ -111,11 +111,14 @@ function reloadMeasureRow(idMeasure, standard) {
 				if (!$newRow.length)
 					$currentRow.addClass("warning").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
 				else {
+					var $checked = $currentRow.find("input:checked");
 					$("[data-toggle='popover']", $currentRow).popover('destroy');
 					$("[data-toggle='tooltip']", $currentRow).tooltip('destroy');
 					$currentRow.replaceWith($newRow);
 					$("[data-toggle='popover']", $newRow).popover().on('show.bs.popover', togglePopever);
 					$("[data-toggle='tooltip']", $newRow).tooltip();
+					if ($checked.length)
+						$newRow.find("input[type='checkbox']").prop("checked", true).change();
 				}
 			},
 			error : unknowError
@@ -404,22 +407,6 @@ function openTicket(section) {
 					$("#modal-ticketing-view").remove();
 					$modal.appendTo($("#widgets")).modal("show");
 					var $previous = $modal.find(".previous"), $next = $modal.find(".next"), $title = $modal.find(".modal-title");
-					$previous.find("a").on("click", function() {
-						if (!$previous.hasClass("disabled")) {
-							var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
-							if ($prev.length) {
-								$current.hide();
-								$prev.show();
-								$title.text($prev.show().attr("data-title"));
-								if (!$prev.prev().length)
-									$previous.addClass("disabled")
-								if ($next.hasClass("disabled"))
-									$next.removeClass("disabled");
-							}
-						}
-						return false;
-					});
-
 					$next.find("a").on("click", function() {
 						if (!$next.hasClass("disabled")) {
 							var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
@@ -434,12 +421,26 @@ function openTicket(section) {
 						}
 						return false;
 					});
+					
+					$previous.find("a").on("click", function() {
+						if (!$previous.hasClass("disabled")) {
+							var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
+							if ($prev.length) {
+								$current.hide();
+								$title.text($prev.show().attr("data-title"));
+								if (!$prev.prev().length)
+									$previous.addClass("disabled")
+								if ($next.hasClass("disabled"))
+									$next.removeClass("disabled");
+							}
+						}
+						return false;
+					});
 				}
 			},
 			error : unknowError
 		});
 	}
-	return false;
 	return false;
 }
 
@@ -481,6 +482,7 @@ function linkToTicketingSystem(section) {
 					$modal.on("hidden.bs.modal", function() {
 						if (updateRequired)
 							reloadSection("section_actionplans");
+						$modal.remove();
 					});
 
 					$modal.find("#measure-container>a.list-group-item").on("click", function() {
@@ -510,8 +512,10 @@ function linkToTicketingSystem(section) {
 										$("#" + $measure.remove().attr("aria-controls")).remove();
 										$("#" + $ticket.remove().attr("aria-controls")).remove();
 										updateRequired = true;
+										if (!$measureViewer.find("fieldset").length || !$taskViewer.find("fieldset").length)
+											$modal.modal("hide");
 									} else if (response.error)
-										unknowError(response.error);
+										showDialog("#alert-dialog", response.error);
 									else
 										unknowError();
 								},
@@ -546,14 +550,12 @@ function unLinkToTicketingSystem(section) {
 			data : JSON.stringify(measures),
 			success : function(response, textStatus, jqXHR) {
 				if (response.error)
-					unknowError(response.error);
+					showDialog("#alert-dialog", response.error);
 				else if (response.success) {
 					if (section == "#section_actionplans" || measures.length > 10)
 						location.reload();
 					else {
-						var $infoDialog = $("#info-dialog");
-						$(".modal-body", $infoDialog).html(response.success);
-						$infoDialog.modal("show");
+						showDialog("#info-dialog", response.success);
 						reloadSection("section_actionplans");
 						setTimeout(function() {
 							var idStandard = $(section).attr("data-trick-id");
@@ -589,14 +591,12 @@ function generateTickets(section) {
 			data : JSON.stringify(measures),
 			success : function(response, textStatus, jqXHR) {
 				if (response.error)
-					unknowError(response.error);
+					showDialog("#alert-dialog", response.error);
 				else if (response.success) {
 					if (section == "#section_actionplans" || measures.length > 10)
 						location.reload();
 					else {
-						var $infoDialog = $("#info-dialog");
-						$(".modal-body", $infoDialog).html(response.success);
-						$infoDialog.modal("show");
+						showDialog("#info-dialog", response.success);
 						reloadSection("section_actionplans");
 						setTimeout(function() {
 							var idStandard = $(section).attr("data-trick-id");
@@ -616,6 +616,93 @@ function generateTickets(section) {
 function synchroniseWithTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
+	var measures = [];
+	$("tbody>tr input:checked", section).closest("tr").each(function() {
+		if (this.getAttribute("data-is-linked") === "true")
+			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
+	});
+
+	if (measures.length) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Ticketing/Synchronise",
+			type : "POST",
+			async : false,
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(measures),
+			success : function(response, textStatus, jqXHR) {
+				var $modal = $("#modal-ticketing-synchronise", new DOMParser().parseFromString(response, "text/html"));
+				if (!$modal.length)
+					unknowError();
+				else {
+					$("#modal-ticketing-synchronise").remove();
+					$modal.appendTo($("#widgets")).modal("show");
+					var $previous = $modal.find(".previous"), $next = $modal.find(".next");
+					$previous.find("a").on("click", function() {
+						if (!$previous.hasClass("disabled")) {
+							var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
+							if ($prev.length) {
+								$current.hide();
+								if (!$prev.show().prev().length)
+									$previous.addClass("disabled")
+								if ($next.hasClass("disabled"))
+									$next.removeClass("disabled");
+							}
+						}
+						return false;
+					});
+
+					$next.find("a").on("click", function() {
+						if (!$next.hasClass("disabled")) {
+							var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
+							if ($nextElement.length) {
+								$current.hide();
+								if (!$nextElement.show().next().length)
+									$next.addClass("disabled")
+								if ($previous.hasClass("disabled"))
+									$previous.removeClass("disabled");
+							}
+						}
+						return false;
+					});
+
+					$modal.find("select[name='implementationRate']")
+							.on(
+									"change",
+									function() {
+										var $this = $(this), $parent = $this.closest("fieldset"), idMeasure = $parent.attr("data-trick-id"), className = $this
+												.attr("data-trick-class"), type = className == "MaturityMeasure" ? "int" : "double";
+										$this.parent().removeClass("has-error has-success");
+										$.ajax({
+											url : context + "/Analysis/EditField/" + className + "/" + idMeasure,
+											type : "post",
+											data : '{"id":' + idMeasure + ', "fieldName":"implementationRate", "value":"' + defaultValueByType($this.val(), type, true)
+													+ '", "type": "' + type + '"}',
+											contentType : "application/json;charset=UTF-8",
+											success : function(response, textStatus, jqXHR) {
+												if (response["success"] != undefined) {
+													$this.parent().addClass("has-success");
+													reloadMeasureRow(idMeasure, $parent.attr("data-trick-parent-id"));
+												} else {
+													if (response["error"] != undefined)
+														showDialog("#alert-dialog", response["error"]);
+													else
+														showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+													$this.parent().addClass("has-error");
+												}
+												return true;
+											},
+											error : function(jqXHR, textStatus, errorThrown) {
+												showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+												$this.parent().addClass("has-error");
+											}
+										});
+									});
+
+				}
+			},
+			error : unknowError
+		});
+	}
 	return false;
 }
 

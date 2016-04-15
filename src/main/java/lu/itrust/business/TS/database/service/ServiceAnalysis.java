@@ -145,4 +145,8 @@ public interface ServiceAnalysis {
 	
 	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
 
+	public String getProjectIdById(Integer idAnalysis);
+	
+	public boolean hasProject(int idAnalysis);
+
 }

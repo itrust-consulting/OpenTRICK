@@ -117,6 +117,7 @@ public class ControllerActionPlan {
 		model.put("actionplans", actionplans);
 		model.put("assets", assets);
 		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
+		model.put("isLinkedToProject", serviceAnalysis.hasProject(selected));
 
 		// return view
 		return "analyses/single/components/actionplan";
@@ -146,6 +147,7 @@ public class ControllerActionPlan {
 			model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 		} else
 			model.put("actionplans", actionplans);
+		model.put("isLinkedToProject", serviceAnalysis.hasProject(selected));
 		// return view
 		return "analyses/single/components/actionPlan/section";
 	}

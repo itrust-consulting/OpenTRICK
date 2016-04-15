@@ -155,6 +155,7 @@ public class Analysis implements Cloneable {
 	private boolean data;
 
 	/** Ticketing project id */
+	@Column(name="dtProject")
 	private String project;
 
 	/** List of users and their access rights */
@@ -2665,4 +2666,9 @@ public class Analysis implements Cloneable {
 		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId()==idMeasure).findAny().orElse(null);
 	}
 
+	public boolean hasTicket(String idTicket) {
+		if(idTicket == null)
+			return false;
+		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).anyMatch(measure -> idTicket.equals(measure.getTicket()));
+	}
 }
