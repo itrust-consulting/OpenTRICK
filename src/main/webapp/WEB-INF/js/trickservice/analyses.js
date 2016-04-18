@@ -1049,27 +1049,53 @@ function linkToProject() {
 	if (idAnalysis.length != 1)
 		return false;
 	if (userCan(idAnalysis[0], ANALYSIS_RIGHT.ALL)) {
-		if (analyses.length) {
-			$.ajax({
-				url : context + "/Analysis/"+idAnalysis[0]+"/Ticketing/Load",
-				type : "GET",
-				async : false,
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
-					var $modal = $("#modal-ticketing-project-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
-					if (!$modal.length)
-						unknowError();
-					else{
-						$modal.appendTo("#widget").modal("show").on("hidden.bs.modal", function() {
-							if (updateRequired)
-								reloadSection("section_analysis");
-							$modal.remove();
-						});
-					}
-				},
-				error : unknowError
-			});
-		}
+		$.ajax({
+			url : context + "/Analysis/" + idAnalysis[0] + "/Ticketing/Load",
+			type : "GET",
+			async : false,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				var $modal = $("#modal-ticketing-project-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+				if (!$modal.length)
+					unknowError();
+				else {
+					$modal.appendTo("#widget").modal("show").on("hidden.bs.modal", function() {
+						if (updateRequired)
+							reloadSection("section_analysis");
+						$modal.remove();
+					});
+
+					var $selector = $modal.find("select[name='project']");
+					$modal.find("button[name='save']").on(
+							"click",
+							function() {
+								var project = $selector.val();
+								if (project != undefined && project.length) {
+									$.ajax({
+										url : context + "/Analysis/" + idAnalysis[0] + "/Ticketing/Link",
+										type : "POST",
+										async : false,
+										data : JSON.stringify(idAnalysis[0]),
+										contentType : "application/json;charset=UTF-8",
+										success : function(response, textStatus, jqXHR) {
+											if (response.error)
+												showDialog("#alert-dialog", response.error);
+											else if (response.success) {
+												$("tr[data-trick-id='" + idAnalysis[0] + "'][data-is-linked='false']").attr("data-is-linked", "true")
+														.find("input[type='checkbox']").change();
+												$modal.modal("hide");
+											} else
+												unknowError();
+										},
+										error : unknowError
+									});
+								}
+								return false;
+							})
+				}
+			},
+			error : unknowError
+		});
 	} else
 		permissionError();
 	return false;
@@ -1095,7 +1121,8 @@ function unLinkToProject() {
 					showDialog("#alert-dialog", response.error);
 				else if (response.success) {
 					showDialog("#info-dialog", response.success);
-					reloadSection("section_analysis");
+					for (var i = 0; i < analyses.length; i++)
+						$("tr[data-trick-id='" + analyses[i] + "'][data-is-linked='true']").attr("data-is-linked", "false").find("input[type='checkbox']").change();
 				} else
 					unknowError();
 			},

@@ -980,16 +980,16 @@ public class ControllerAnalysis {
 				: messageSource.getMessage("sucess.analysis.unlink.to.project", new String[] { "Jira" }, String.format("Analysis has been successfully unlinked to %s", "Jira"),
 						locale));
 	}
-	
+
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
-	@RequestMapping(value = "/${idAnalysis}/Ticketing/Load", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public  String loadProject(@PathVariable Integer idAnalysis,Model model, Principal principal, Locale locale) {
+	@RequestMapping(value = "/{idAnalysis}/Ticketing/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String loadProject(@PathVariable Integer idAnalysis, Model model, Principal principal, Locale locale) {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		String idProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
 		List<TicketingProject> projects = new LinkedList<>();
-		if(idProject!=null){
+		if (idProject != null) {
 			projects.add(new JiraProject(idProject, "Test project"));
-		}else {
+		} else {
 			projects.add(new JiraProject("68440", "Project 1"));
 			projects.add(new JiraProject("68441", "Project 2"));
 			projects.add(new JiraProject("68442", "Project 3"));
@@ -1000,7 +1000,22 @@ public class ControllerAnalysis {
 		model.addAttribute("projects", projects);
 		model.addAttribute("analysis", analysis);
 		return String.format("analyses/all/forms/ticketing_%s_link", "jira");
-		
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	@RequestMapping(value = "/{idAnalysis}/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String linkToProject(@PathVariable Integer idAnalysis, @RequestBody String idProject, Model model, Principal principal, Locale locale) {
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		if (StringUtils.isEmpty(idProject))
+			return JsonMessage.Error(messageSource.getMessage("error.project.not_found", null, "Project cannot be found", locale));
+		String OldProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
+		if (!(OldProject == null || OldProject.equals(idProject)))
+			return JsonMessage.Error(
+					messageSource.getMessage("error.analysis.linked.to.another.project", null, "Another project is already linked to another version of this analysis", locale));
+		analysis.setProject(idProject);
+		serviceAnalysis.saveOrUpdate(analysis);
+		return JsonMessage.Success(messageSource.getMessage("success.link.analysis.project", null, "Analysis has been successfully linked to project", locale));
+
 	}
 
 	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, String username, Locale locale) throws IOException {
