@@ -12,7 +12,7 @@ public class UI_SignUp extends UI_Initialisation {
 	
 		
 		// And now use this to visit Google
-		this.driver.get("http://ts:8088");
+		this.driver.get("http://ts:8080");
 
 		System.out.println(driver.getTitle());
 
