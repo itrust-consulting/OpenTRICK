@@ -5,10 +5,12 @@ import java.net.URL;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.test.context.ActiveProfiles;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test
+@ActiveProfiles({ "UI" })
 public class UI_Initialisation {
 
 	protected WebDriver driver;
