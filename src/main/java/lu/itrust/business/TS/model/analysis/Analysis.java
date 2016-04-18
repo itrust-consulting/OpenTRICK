@@ -2671,4 +2671,8 @@ public class Analysis implements Cloneable {
 			return false;
 		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).anyMatch(measure -> idTicket.equals(measure.getTicket()));
 	}
+
+	public boolean hasProject() {
+		return !(project ==null || project.isEmpty());
+	}
 }

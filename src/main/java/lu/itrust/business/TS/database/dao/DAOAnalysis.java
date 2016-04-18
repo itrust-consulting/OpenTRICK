@@ -162,4 +162,6 @@ public interface DAOAnalysis {
 
 	public boolean hasProject(int idAnalysis);
 
+	public String getProjectIdByIdentifier(String identifier);
+
 }

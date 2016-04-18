@@ -99,6 +99,8 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.model.ticketing.TicketingProject;
+import lu.itrust.business.TS.model.ticketing.impl.jira.JiraProject;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.HistoryValidator;
@@ -869,7 +871,7 @@ public class ControllerAnalysis {
 		file.transferTo(importFile);
 
 		// create worker
-		Worker worker = new WorkerAnalysisImport(workersPoolManager,sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
+		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
 
 		// register worker to tasklist
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
@@ -960,6 +962,45 @@ public class ControllerAnalysis {
 	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletResponse response) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		exportRawActionPlan(response, analysis, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
+	}
+
+	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String unlinkToProject(@RequestBody List<Integer> ids, Principal principal, Locale locale) {
+		User user = serviceUser.get(principal.getName());
+		ids.forEach(idAnalysis -> {
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			if (analysis != null && analysis.hasProject() && analysis.isUserAuthorized(user, AnalysisRight.ALL)) {
+				analysis.setProject(null);
+				serviceAnalysis.saveOrUpdate(analysis);
+			}
+		});
+		return JsonMessage.Success(ids.size() > 1
+				? messageSource.getMessage("sucess.analyses.unlink.to.project", new String[] { "Jira" }, String.format("Analyses has been successfully unlinked to %s", "Jira"),
+						locale)
+				: messageSource.getMessage("sucess.analysis.unlink.to.project", new String[] { "Jira" }, String.format("Analysis has been successfully unlinked to %s", "Jira"),
+						locale));
+	}
+	
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	@RequestMapping(value = "/${idAnalysis}/Ticketing/Load", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public  String loadProject(@PathVariable Integer idAnalysis,Model model, Principal principal, Locale locale) {
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		String idProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
+		List<TicketingProject> projects = new LinkedList<>();
+		if(idProject!=null){
+			projects.add(new JiraProject(idProject, "Test project"));
+		}else {
+			projects.add(new JiraProject("68440", "Project 1"));
+			projects.add(new JiraProject("68441", "Project 2"));
+			projects.add(new JiraProject("68442", "Project 3"));
+			projects.add(new JiraProject("68443", "Project 4"));
+			projects.add(new JiraProject("68444", "Project 5"));
+			projects.add(new JiraProject("68445", "Project 6"));
+		}
+		model.addAttribute("projects", projects);
+		model.addAttribute("analysis", analysis);
+		return String.format("analyses/all/forms/ticketing_%s_link", "jira");
+		
 	}
 
 	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, String username, Locale locale) throws IOException {

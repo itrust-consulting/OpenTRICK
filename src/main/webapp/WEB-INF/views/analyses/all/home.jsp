@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <sec:authentication var="user" property="principal" />
 <c:if test="${empty locale }">
-	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
 <!DOCTYPE html>
 <html lang="${locale.language}">
@@ -24,12 +24,21 @@
 								text="Build an analysis" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.READ)"> <span
 							class="glyphicon glyphicon-eye-open"></span> &nbsp;<spring:message code="label.action.read_only" text="Read only" /></a></li>
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.edit" text="Edit" /></a></li>
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span
+							class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.edit" text="Edit" /></a></li>
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
 						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-cog"></span> <spring:message code="label.menu.manage.access.analysis"
 								text="Manage Access Rights" /></a></li>
+								
+					<li class="disabled" data-trick-selectable="true"  data-trick-check="!isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span
+							class="glyphicon glyphicon-link"></span> <spring:message code="label.menu.link.project" arguments="Jira" text="Link to Jira" /></a></li>
+							
+					<li class="disabled" data-trick-selectable="multi"  data-trick-single-check="isLinked() && hasRight('ALL')"><a href="#" onclick="return unLinkToProject()"> <span
+							class="glyphicon glyphicon-scissors"></span> <spring:message code="label.menu.unlink.project"  arguments="Jira" text="Unlink to Jira" /></a></li>
+					
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRoleToCreateVersion()"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-duplicate"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
+
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"
 						data-trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-align-justify"></span> <spring:message code="label.edit.info" text="Edit info" /></a></li>
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span
@@ -90,11 +99,13 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${analyses}" var="analysis">
-							<tr data-trick-id="${analysis.id}" data-trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" ondblclick="return editSingleAnalysis(${analysis.id});"
+							<tr data-trick-id="${analysis.id}" data-is-linked='${not empty analysis.project}' data-trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" ondblclick="return editSingleAnalysis(${analysis.id});"
 								data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><spring:message text="${analysis.label}" /></td>
-								<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
+								<td><pre>
+										<spring:message text="${analysis.lastHistory.comment}" />
+									</pre></td>
 								<td data-trick-version="${analysis.version}">${analysis.version}</td>
 								<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 								<td><spring:message text="${analysis.lastHistory.author}" /></td>

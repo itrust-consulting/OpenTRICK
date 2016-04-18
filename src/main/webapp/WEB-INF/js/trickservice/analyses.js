@@ -361,7 +361,7 @@ function customAnalysis(element) {
 						var $removeText = MessageResolver("label.action.delete", "Delete");
 						var $lockText = MessageResolver("label.action.lock", "Lock");
 						// load data from database and manage caching
-						
+
 						analysesCaching = {
 							versions : {},
 							identifiers : {},
@@ -567,8 +567,7 @@ function customAnalysis(element) {
 							analysesCaching.cssfChecked = $cssf.is(":checked");
 							analysesCaching.checkProfile();
 						});
-						
-						
+
 						$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
 						$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkRiskDependancies().checkAssetStandard()");
 						$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
@@ -770,7 +769,7 @@ function customAnalysis(element) {
 /* History */
 function addHistory(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
-		var selectedAnalysis = findSelectItemIdBySection(("section_analysis"));
+		var selectedAnalysis = findSelectItemIdBySection("section_analysis");
 		if (selectedAnalysis.length != 1)
 			return false;
 		analysisId = selectedAnalysis[0];
@@ -1043,4 +1042,69 @@ function customerChange(customer, nameFilter) {
 		error : unknowError
 	});
 	return false;
+}
+
+function linkToProject() {
+	var idAnalysis = findSelectItemIdBySection("section_analysis")
+	if (idAnalysis.length != 1)
+		return false;
+	if (userCan(idAnalysis[0], ANALYSIS_RIGHT.ALL)) {
+		if (analyses.length) {
+			$.ajax({
+				url : context + "/Analysis/"+idAnalysis[0]+"/Ticketing/Load",
+				type : "GET",
+				async : false,
+				contentType : "application/json;charset=UTF-8",
+				success : function(response, textStatus, jqXHR) {
+					var $modal = $("#modal-ticketing-project-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+					if (!$modal.length)
+						unknowError();
+					else{
+						$modal.appendTo("#widget").modal("show").on("hidden.bs.modal", function() {
+							if (updateRequired)
+								reloadSection("section_analysis");
+							$modal.remove();
+						});
+					}
+				},
+				error : unknowError
+			});
+		}
+	} else
+		permissionError();
+	return false;
+}
+
+function unLinkToProject() {
+	var analyses = [];
+
+	$("tbody>tr input:checked", "#section_analysis").closest("tr").each(function() {
+		var idAnalysis = this.getAttribute("data-trick-id");
+		if (this.getAttribute("data-is-linked") === "true" && userCan(idAnalysis, ANALYSIS_RIGHT.ALL))
+			analyses.push(idAnalysis);
+	});
+	if (analyses.length) {
+		$.ajax({
+			url : context + "/Analysis/Ticketing/UnLink",
+			type : "POST",
+			async : false,
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(analyses),
+			success : function(response, textStatus, jqXHR) {
+				if (response.error)
+					showDialog("#alert-dialog", response.error);
+				else if (response.success) {
+					showDialog("#info-dialog", response.success);
+					reloadSection("section_analysis");
+				} else
+					unknowError();
+			},
+			error : unknowError
+		});
+	}
+	return false;
+}
+
+function isLinked() {
+	return $("tbody>tr input:checked", "#section_analysis").closest("tr").attr("data-is-linked") === "true";
 }
