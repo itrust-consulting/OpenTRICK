@@ -788,4 +788,6 @@ public class Constant {
 
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 
+	public static final String USER_TICKETING_SYSTEM_PASSWORD = "user-titcketing-creadential";
+
 }

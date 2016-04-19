@@ -352,7 +352,9 @@ function loadSystemLogScrolling() {
 }
 
 function updateSetting(idForm, sender) {
-	if ($(sender).is(":checked")) {
+	var $sender = $(sender);
+	if ($sender.attr("type")!="radio"  || $sender.is(":checked")) {
+		$sender.parent().removeClass("has-success");
 		$.ajax({
 			url : context + "/Admin/TSSetting/Update",
 			async : false,
@@ -362,6 +364,8 @@ function updateSetting(idForm, sender) {
 			success : function(response, textStatus, jqXHR) {
 				if (response !== true)
 					unknowError();
+				else if($sender.attr("type")!="radio")
+					$sender.parent().addClass("has-success");
 				return false;
 			},
 			error : unknowError

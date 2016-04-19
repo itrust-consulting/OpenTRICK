@@ -15,17 +15,17 @@ import lu.itrust.business.TS.model.ticketing.impl.AbstractTask;
  *
  */
 public class JiraTask extends AbstractTask {
-	
+
 	private List<JiraIssueLink> issueLinks;
-	
+
 	private Map<String, JiraCustomField> customFields;
 
 	private List<JiraTask> subTasks;
 
 	private String type;
-	
+
 	private String status;
-	
+
 	private String priority;
 
 	/**
@@ -37,13 +37,20 @@ public class JiraTask extends AbstractTask {
 	/**
 	 * @param id
 	 * @param name
-	 * @param type TODO
-	 * @param status TODO
+	 * @param type
+	 *            TODO
+	 * @param status
+	 *            TODO
 	 * @param description
 	 * @param progress
 	 */
 	public JiraTask(String id, String name, String type, String status, String description, int progress) {
 		super(id, name, type, status, description, progress);
+		setPriority("Normal");
+	}
+
+	public JiraTask(String id, String name, String type, String status) {
+		super(id, name, type, status, null, 0);
 		setPriority("Normal");
 	}
 
@@ -92,7 +99,7 @@ public class JiraTask extends AbstractTask {
 	@Override
 	public void setStatus(String status) {
 		this.status = status;
-		
+
 	}
 
 	@Override
@@ -105,16 +112,23 @@ public class JiraTask extends AbstractTask {
 		this.priority = priority;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#getCustomFields()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingTask#getCustomFields()
 	 */
 	@Override
 	public Map<String, JiraCustomField> getCustomFields() {
 		return this.customFields;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.TS.model.ticketing.TicketingTask#setCustomFields(java.util.Map)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.model.ticketing.TicketingTask#setCustomFields(java.
+	 * util.Map)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -122,6 +136,4 @@ public class JiraTask extends AbstractTask {
 		this.customFields = (Map<String, JiraCustomField>) customFields;
 	}
 
-	
-	
 }

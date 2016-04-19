@@ -2,14 +2,14 @@ package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,6 +51,8 @@ import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
+import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -62,6 +64,8 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
@@ -81,11 +85,10 @@ import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
+import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.model.ticketing.helper.LinkForm;
-import lu.itrust.business.TS.model.ticketing.impl.Comment;
-import lu.itrust.business.TS.model.ticketing.impl.jira.JiraCustomField;
-import lu.itrust.business.TS.model.ticketing.impl.jira.JiraIssueLink;
-import lu.itrust.business.TS.model.ticketing.impl.jira.JiraTask;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
 import lu.itrust.business.TS.validator.StandardValidator;
@@ -155,6 +158,12 @@ public class ControllerAnalysisStandard {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private ServiceUser serviceUser;
+
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get
 	 * compliances)
@@ -176,7 +185,7 @@ public class ControllerAnalysisStandard {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		
+
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
@@ -191,7 +200,7 @@ public class ControllerAnalysisStandard {
 		Map<String, List<Measure>> measures = mapMeasures(null, analysisStandards);
 
 		model.addAttribute("measures", measures);
-		
+
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
@@ -249,7 +258,7 @@ public class ControllerAnalysisStandard {
 		Map<String, List<Measure>> measures = mapMeasures(standardlabel, analysisStandards);
 
 		model.addAttribute("measures", measures);
-		
+
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
 
 		// add language of the analysis
@@ -1031,47 +1040,85 @@ public class ControllerAnalysisStandard {
 
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String generateTickets(@RequestBody List<Integer> measures, Principal principal, HttpSession session, Locale locale) {
-		
-		return JsonMessage.Success(messageSource.getMessage("success.ticketing.create", null, "Tickets are successfully created", locale));
+	public @ResponseBody String generateTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
+		Client client = null;
+		try {
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				List<Measure> measures;
+				if (measureIds.size() > 5) {
+					Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
+				} else {
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
+				}
+				client.createIssue(analysis.getProject(), analysis.getLanguage().getAlpha2(), principal.getName(), measures);
+				serviceAnalysis.saveOrUpdate(analysis);
+			}
+			return JsonMessage.Success(messageSource.getMessage("success.ticketing.create", null, "Tickets are successfully created", locale));
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
 	}
 
 	@RequestMapping(value = "/Ticketing/Open", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String openTickets(@RequestBody List<Integer> measures, Model model, Principal principal, HttpSession session, Locale locale) {
-		List<TicketingTask> tasks = new LinkedList<>();
-		model.addAttribute("first", getSampleTickets(tasks, locale));
-		model.addAttribute("tasks", tasks);
-		return String.format("analyses/single/components/ticketing/%s/home", "jira");
-	}
-
-	private TicketingTask getSampleTickets(List<TicketingTask> tasks, Locale locale) {
-		JiraTask task = new JiraTask("2423", "New analysis drop fail JQuery (Chrome)", "Bug", "Open",
-				"Check with some browsers if new analysis drop works well. It doesn't work with Chrome for instance. Thank you", 20);
-		task.setReporter("Cédric Muller");
-		task.setAssignee("OMAR Ensuifudine");
-		Calendar calendar = Calendar.getInstance(locale);
-		calendar.roll(Calendar.DATE, 5);
-		task.setCreated(calendar.getTime());
-		tasks.add(task);
-		task.setIssueLinks(new LinkedList<>());
-		task.setSubTask(new LinkedList<>());
-		task.setIssueLinks(new LinkedList<>());
-		task.setComments(new LinkedList<>());
-		task.setCustomFields(new LinkedHashMap<>());
-		task.getSubTasks().add(new JiraTask("2436", "Test", "Bug", "Open", "lolll", 20));
-		task.getComments().add(new Comment("66555", "eomar", calendar.getTime(), "Fixed"));
-		task.getIssueLinks().add(new JiraIssueLink("68455", "Windows Bug", "https://redmine.itrust.lu/issues/2423"));
-		task.getCustomFields().put("Hidden comment", new JiraCustomField("854", "Hidden comment", "test hidden comment"));
-		tasks.addAll(task.getSubTasks());
-		return task;
-	}
-	
-	
-	private List<TicketingTask> getSampleTickets(Locale locale) {
-		List<TicketingTask> tasks = new LinkedList<>();
-		getSampleTickets(tasks, locale);
-		return tasks;
+	public String openTickets(@RequestBody List<Integer> measures, Model model, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				List<String> keyIssues = null;
+				if (measures.size() > 5) {
+					Map<Integer, Integer> contains = measures.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					keyIssues = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket)
+							.collect(Collectors.toList());
+				} else {
+					keyIssues = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && measures.contains(measure.getId())).map(Measure::getTicket)
+							.collect(Collectors.toList());
+				}
+				List<TicketingTask> tasks = client.findTasksByIdsAndProjectId(analysis.getProject(), keyIssues);
+				if (!tasks.isEmpty())
+					model.addAttribute("first", tasks.get(0));
+				model.addAttribute("tasks", tasks);
+			}
+			return String.format("analyses/single/components/ticketing/%s/home", "jira");
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1089,50 +1136,98 @@ public class ControllerAnalysisStandard {
 		return JsonMessage.Success(messageSource.getMessage("success.unlinked.measure.to.ticket", null, "Measure has been successfully unlinked to a ticket", locale));
 
 	}
-	
+
 	@RequestMapping(value = "/Ticketing/Synchronise", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String synchroniseWithTicketingSystem(@RequestBody List<Integer> ids,Model model, Principal principal, HttpSession session, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		List<Measure> measures;
-		if (ids.size() > 5) {
-			Map<Integer, Integer> contains = ids.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
-			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-					.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
-		} else {
-			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-					.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && ids.contains(measure.getId())).collect(Collectors.toList());
+	public String synchroniseWithTicketingSystem(@RequestBody List<Integer> ids, Model model, Principal principal, HttpSession session, RedirectAttributes attributes,
+			Locale locale) {
+		Client client = null;
+		try {
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				List<Measure> measures;
+				if (ids.size() > 5) {
+					Map<Integer, Integer> contains = ids.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
+				} else {
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && ids.contains(measure.getId())).collect(Collectors.toList());
+				}
+				List<String> keyIssues = measures.stream().map(Measure::getTicket).collect(Collectors.toList());
+				Map<String, TicketingTask> tasks = client.findTasksByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
+						.collect(Collectors.toMap(task -> task.getId(), Function.identity()));
+				List<Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				model.addAttribute("measures", measures);
+				model.addAttribute("parameters", parameters);
+				model.addAttribute("tasks", tasks);
+				model.addAttribute("language", analysis.getLanguage().getAlpha2());
+			}
+			return String.format("analyses/single/components/ticketing/%s/forms/synchronise", "jira");
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		Map<String, TicketingTask> tasks = getSampleTickets(locale).stream().collect(Collectors.toMap(task-> task.getId(), Function.identity()));
-		List<Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
-		model.addAttribute("measures", measures);
-		model.addAttribute("parameters", parameters);
-		model.addAttribute("tasks", tasks);
-		model.addAttribute("language", analysis.getLanguage().getAlpha2());
-		return String.format("analyses/single/components/ticketing/%s/forms/synchronise", "jira");
+
 	}
-	
+
 	@RequestMapping(value = "/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String linkTickets(@RequestBody List<Integer> measureIds, Model model, Principal principal, HttpSession session, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		List<Measure> measures;
-		if (measureIds.size() > 5) {
-			Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
-			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-					.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
-		} else {
-			measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-					.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
+	public String linkTickets(@RequestBody List<Integer> measureIds, Model model, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				List<Measure> measures;
+				List<String> excludes = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
+
+				if (measureIds.size() > 5) {
+					Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
+				} else {
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
+				}
+				
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes));
+				model.addAttribute("measures", measures);
+				model.addAttribute("language", analysis.getLanguage().getAlpha2());
+			}
+			return String.format("analyses/single/components/ticketing/%s/forms/link", "jira");
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		List<TicketingTask> tasks = new LinkedList<>();
-		getSampleTickets(tasks, locale);
-		model.addAttribute("tasks", tasks);
-		model.addAttribute("measures", measures);
-		model.addAttribute("language", analysis.getLanguage().getAlpha2());
-		return String.format("analyses/single/components/ticketing/%s/forms/link", "jira");
 	}
 
 	@RequestMapping(value = "/Ticketing/Link/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1152,13 +1247,44 @@ public class ControllerAnalysisStandard {
 					? JsonMessage.Success(messageSource.getMessage("info.measure.already.link", null, "Measure has been already linked to this ticket", locale))
 					: JsonMessage.Error(messageSource.getMessage("error.measure.already.link", null, "Measure is already linked to another ticket", locale));
 		}
-		if(analysis.hasTicket(form.getIdTicket()))
+		if (analysis.hasTicket(form.getIdTicket()))
 			return JsonMessage.Error(messageSource.getMessage("error.ticket.already.linked", null, "Ticket is already linked to another measure", locale));
-		
+
 		measure.setTicket(form.getIdTicket());
 		serviceMeasure.saveOrUpdate(measure);
 		return JsonMessage.Success(messageSource.getMessage("success.link.measure.from.project", null, "Measure has been successfully linked to a ticket", locale));
 
+	}
+
+	private Client buildClient(String username) {
+		User user = serviceUser.get(username);
+		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+		TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
+		if (urlSetting == null || nameSetting == null)
+			throw new TrickException("error.load.setting", "Setting cannot be loaded");
+		Map<String, Object> settings = new HashMap<>(3);
+		settings.put("username", username);
+		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		settings.put("url", urlSetting.getValue());
+		Client client = null;
+		boolean isConnected = false;
+		try {
+			client = ClientBuilder.build(nameSetting.getString());
+			isConnected = client.connect(settings);
+		} catch (TrickException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new TrickException("error.ticket_system.connexion.failed", "Unable to connect to your ticketing system", e);
+		} finally {
+			if (!(client == null || isConnected)) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+		}
+		return client;
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)

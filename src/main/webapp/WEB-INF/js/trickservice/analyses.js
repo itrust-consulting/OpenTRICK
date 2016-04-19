@@ -1075,7 +1075,7 @@ function linkToProject() {
 										url : context + "/Analysis/" + idAnalysis[0] + "/Ticketing/Link",
 										type : "POST",
 										async : false,
-										data : JSON.stringify(idAnalysis[0]),
+										data : $selector.val(),
 										contentType : "application/json;charset=UTF-8",
 										success : function(response, textStatus, jqXHR) {
 											if (response.error)

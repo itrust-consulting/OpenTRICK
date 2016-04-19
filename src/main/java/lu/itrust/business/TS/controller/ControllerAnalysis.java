@@ -19,6 +19,7 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,11 +68,13 @@ import lu.itrust.business.TS.component.CustomerManager;
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -90,6 +93,8 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
@@ -100,7 +105,8 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
-import lu.itrust.business.TS.model.ticketing.impl.jira.JiraProject;
+import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.HistoryValidator;
@@ -164,6 +170,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private CustomDelete customDelete;
+
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
 
 	@Value("${app.settings.report.french.template.name}")
 	private String frenchReportName;
@@ -983,23 +992,37 @@ public class ControllerAnalysis {
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	@RequestMapping(value = "/{idAnalysis}/Ticketing/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String loadProject(@PathVariable Integer idAnalysis, Model model, Principal principal, Locale locale) {
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		String idProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
-		List<TicketingProject> projects = new LinkedList<>();
-		if (idProject != null) {
-			projects.add(new JiraProject(idProject, "Test project"));
-		} else {
-			projects.add(new JiraProject("68440", "Project 1"));
-			projects.add(new JiraProject("68441", "Project 2"));
-			projects.add(new JiraProject("68442", "Project 3"));
-			projects.add(new JiraProject("68443", "Project 4"));
-			projects.add(new JiraProject("68444", "Project 5"));
-			projects.add(new JiraProject("68445", "Project 6"));
+	public String loadProject(@PathVariable Integer idAnalysis, Model model, Principal principal, RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			client = buildClient(principal.getName());
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			String idProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
+			List<TicketingProject> projects = null;
+			if (idProject != null) {
+				TicketingProject project = client.findProjectById(idProject);
+				if (project != null)
+					(projects = new LinkedList<>()).add(project);
+			} else
+				projects = client.findProjects();
+			model.addAttribute("projects", projects);
+			model.addAttribute("analysis", analysis);
+			return String.format("analyses/all/forms/ticketing_%s_link", "jira");
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		model.addAttribute("projects", projects);
-		model.addAttribute("analysis", analysis);
-		return String.format("analyses/all/forms/ticketing_%s_link", "jira");
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
@@ -1211,5 +1234,36 @@ public class ControllerAnalysis {
 			TrickLogManager.Persist(e);
 		}
 		return false;
+	}
+
+	private Client buildClient(String username) {
+		User user = serviceUser.get(username);
+		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+		TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
+		if (urlSetting == null || nameSetting == null)
+			throw new TrickException("error.load.setting", "Setting cannot be loaded");
+		Map<String, Object> settings = new HashMap<>(3);
+		settings.put("username", username);
+		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		settings.put("url", urlSetting.getValue());
+		Client client = null;
+		boolean isConnected = false;
+		try {
+			client = ClientBuilder.build(nameSetting.getString());
+			isConnected = client.connect(settings);
+		} catch (TrickException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new TrickException("error.ticket_system.connexion.failed", "Unable to connect to your ticketing system", e);
+		} finally {
+			if (!(client == null || isConnected)) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+		}
+		return client;
 	}
 }
