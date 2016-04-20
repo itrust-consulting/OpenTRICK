@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 
@@ -19,27 +21,33 @@ import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.BasicPriority;
 import com.atlassian.jira.rest.client.api.domain.BasicUser;
-import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.IssueField;
+import com.atlassian.jira.rest.client.api.domain.IssueFieldId;
 import com.atlassian.jira.rest.client.api.domain.IssueLink;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
-import com.atlassian.jira.rest.client.api.domain.Priority;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.Resolution;
 import com.atlassian.jira.rest.client.api.domain.Status;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.User;
+import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
+import com.atlassian.jira.rest.client.api.domain.input.FieldInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.impl.Comment;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraCustomField;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraIssueLink;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraProject;
@@ -57,29 +65,11 @@ public class JiraClient implements Client {
 
 	private static final String PROJECT_S_AND_STATUS_OPEN_AND_KEY_IN_S = "project=%s and status=open and key in (%s) order by key";
 
+	private static final String PROJECT_S_AND_KEY_IN_S = "project=%s and key in (%s) order by key";
+
 	private JiraRestClient restClient;
 
-	private Map<String, Priority> priorities;
-
-	/**
-	 * @return the priorities
-	 */
-	public synchronized Map<String, Priority> getPriorities() {
-		if (priorities == null) {
-			Map<String, Priority> priorities = new HashMap<>();
-			restClient.getMetadataClient().getPriorities().claim().forEach(priority -> priorities.put(priority.getName(), priority));
-			setPriorities(priorities);
-		}
-		return priorities;
-	}
-
-	/**
-	 * @param priorities
-	 *            the priorities to set
-	 */
-	public void setPriorities(Map<String, Priority> priorities) {
-		this.priorities = priorities;
-	}
+	private ObjectMapper objectMapper;
 
 	/**
 	 * 
@@ -96,9 +86,6 @@ public class JiraClient implements Client {
 	public void close() throws IOException {
 		if (restClient != null)
 			restClient.close();
-		if (priorities != null)
-			priorities.clear();
-		priorities = null;
 		restClient = null;
 	}
 
@@ -170,6 +157,7 @@ public class JiraClient implements Client {
 		Resolution resolution = issue.getResolution();
 		BasicPriority priority = issue.getPriority();
 		User reporter = issue.getReporter(), assignee = issue.getAssignee();
+		IssueField progress = issue.getField("progress");
 		DateTime created = issue.getCreationDate(), due = issue.getDueDate(), update = issue.getUpdateDate();
 		JiraTask task = new JiraTask(issue.getKey(), issue.getSummary(), type.getName(), status.getName(), issue.getDescription(), 0);
 		if (reporter != null)
@@ -184,24 +172,30 @@ public class JiraClient implements Client {
 			task.setUpdated(update.toDate());
 		if (priority != null)
 			task.setPriority(priority.getName());
+		if (progress != null) {
+			try {
+				JsonNode node = getObjectMapper().readTree(progress.getValue().toString());
+				if (node.has("percent"))
+					task.setProgress(node.get("percent").asInt(0));
+			} catch (Exception e) {
+				TrickLogManager.Persist(e);
+			}
+		}
 		task.setComments(new LinkedList<>());
 		task.setIssueLinks(new LinkedList<>());
 		task.setCustomFields(new LinkedHashMap<>());
+		task.setSubTask(new LinkedList<>());
 
 		Iterable<Subtask> subTasks = issue.getSubtasks();
-		Iterable<Comment> comments = issue.getComments();
 		Iterable<IssueLink> issueLinks = issue.getIssueLinks();
 
 		if (resolution != null)
-			task.getCustomFields().put("Resolution", new JiraCustomField(resolution.getId().toString(), "Resolution", resolution.getDescription()));
+			task.getCustomFields().put("Resolution", new JiraCustomField(resolution.getId().toString(), "Resolution", resolution.getName()));
 
-		if (comments != null) {
-			comments.forEach(comment -> {
-				BasicUser author = comment.getAuthor();
-				task.getComments().add(new lu.itrust.business.TS.model.ticketing.impl.Comment(comment.getId().toString(), author == null ? null : author.getDisplayName(),
-						comment.getCreationDate().toDate(), comment.getBody()));
-			});
-		}
+		issue.getComments().forEach(comment -> {
+			BasicUser author = comment.getAuthor();
+			task.getComments().add(new Comment(comment.getId().toString(), author == null ? null : author.getDisplayName(), comment.getCreationDate().toDate(), comment.getBody()));
+		});
 
 		if (issueLinks != null) {
 			try {
@@ -214,13 +208,10 @@ public class JiraClient implements Client {
 		}
 
 		if (subTasks != null)
-			subTasks.forEach(subIssue -> task.getSubTasks().add(loadTask(subIssue)));
+			subTasks.forEach(subIssue -> task.getSubTasks()
+					.add(new JiraTask(subIssue.getIssueKey(), subIssue.getSummary(), subIssue.getIssueType().getName(), subIssue.getStatus().getName())));
 
 		return task;
-	}
-
-	private JiraTask loadTask(Subtask issue) {
-		return new JiraTask(issue.getIssueKey(), issue.getSummary(), issue.getIssueType().getDescription(), issue.getStatus().getDescription());
 	}
 
 	/*
@@ -287,22 +278,27 @@ public class JiraClient implements Client {
 			builder.setAssigneeName(task.getAssignee());
 		if (task.getDue() != null)
 			builder.setDueDate(new DateTime(task.getDue().getTime()));
-		Priority priority = getPriorities().get(task.getPriority());
-		if (priority != null)
-			builder.setPriority(priority);
 		BasicIssue issue = restClient.getIssueClient().createIssue(builder.build()).claim();
 		task.setId(issue.getKey());
 		return true;
 	}
 
 	@Override
-	public List<TicketingTask> findTasksByIdsAndProjectId(String idProject, List<String> keyIssues) {
+	public List<TicketingTask> findOpenedByIdsAndProjectId(String idProject, List<String> keyIssues) {
+		return findAllByProjectId(idProject, keyIssues, true);
+	}
+
+	private List<TicketingTask> findAllByProjectId(String idProject, List<String> keyIssues, boolean openOnly) {
 		List<TicketingTask> tasks = new LinkedList<>();
 		String include = "";
 		for (String key : keyIssues)
 			include += (include.isEmpty() ? "" : ", ") + key;
-		restClient.getSearchClient().searchJql(String.format(PROJECT_S_AND_STATUS_OPEN_AND_KEY_IN_S, idProject, include), keyIssues.size(), 0, null).claim().getIssues()
-				.forEach(issue -> tasks.add(loadTask(issue)));
+		Set<String> options = new HashSet<>(1);
+		options.add("*navigable");
+		options.add("comment");
+		restClient.getSearchClient()
+				.searchJql(String.format(openOnly ? PROJECT_S_AND_STATUS_OPEN_AND_KEY_IN_S : PROJECT_S_AND_KEY_IN_S, idProject, include), keyIssues.size(), 0, options).claim()
+				.getIssues().forEach(issue -> tasks.add(loadTask(issue)));
 		return tasks;
 	}
 
@@ -315,13 +311,12 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public boolean createIssue(String idProject, String language, String username, List<Measure> measures) {
+	public boolean createIssues(String idProject, String language, List<Measure> measures, MessageHandler handler, int maxProgess) {
 		if (restClient == null)
-			return false;
+			throw new TrickException("error.internal", "Internal error");
 		Project project = restClient.getProjectClient().getProject(idProject).claim();
 		if (project == null)
-			return false;
-		Map<String, IssueType> issueTypes = new HashMap<>();
+			throw new TrickException("error.project.not_found", "Project cannot be found");
 		IssueType issueType = null;
 		for (IssueType type : project.getIssueTypes()) {
 			if (type.getName().equalsIgnoreCase("Task")) {
@@ -330,23 +325,21 @@ public class JiraClient implements Client {
 			} else if (issueType == null)
 				issueType = type;
 		}
+		int min = handler.getProgress(), size = measures.size(), current = 0;
+		Map<String, Object> estimations = new HashMap<>(1);
 		for (Measure measure : measures) {
 			MeasureDescription description = measure.getMeasureDescription();
 			MeasureDescriptionText descriptionText = description.findByAlph2(language);
 			IssueInputBuilder builder = new IssueInputBuilder(project, issueType,
 					String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()));
 			builder.setDescription(measure.getToDo());
-			// builder.setReporterName("");
-			// builder.setAssigneeName(measure.getResponsible().isEmpty()?
-			// username : measure.getResponsible());
+			estimations.put("originalEstimate", (measure.getInternalWL() + measure.getExternalWL()) + "d");
+			builder.setFieldInput(new FieldInput(IssueFieldId.TIMETRACKING_FIELD, new ComplexIssueInputFieldValue(estimations)));
 			builder.setDueDate(new DateTime(measure.getPhase().getEndDate().getTime()));
-			Priority priority = getPriorities().get("normal");
-			if (priority != null)
-				builder.setPriority(priority);
 			BasicIssue issue = restClient.getIssueClient().createIssue(builder.build()).claim();
 			measure.setTicket(issue.getKey());
+			handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
 		}
-
 		return false;
 	}
 
@@ -354,11 +347,36 @@ public class JiraClient implements Client {
 	public List<TicketingTask> findOtherTasksByProjectId(String idProject, List<String> excludes) {
 		List<TicketingTask> tasks = new LinkedList<>();
 		String exclude = "";
+
 		for (String key : excludes)
 			exclude += (exclude.isEmpty() ? "" : ", ") + key;
-		restClient.getSearchClient().searchJql(String.format(PROJECT_S_AND_STATUS_OPEN_AND_KEY_NOT_IN_S, idProject, exclude)).claim().getIssues()
-				.forEach(issue -> tasks.add(loadTask(issue)));
+		restClient.getSearchClient().searchJql(String.format(PROJECT_S_AND_STATUS_OPEN_AND_KEY_NOT_IN_S, idProject, exclude)).claim().getIssues().forEach(issue -> {
+
+			tasks.add(loadTask(issue));
+		});
 		return tasks;
+	}
+
+	@Override
+	public List<TicketingTask> findByIdsAndProjectId(String idProject, List<String> keyIssues) {
+		return findAllByProjectId(idProject, keyIssues, false);
+	}
+
+	/**
+	 * @return the objectMapper
+	 */
+	protected ObjectMapper getObjectMapper() {
+		if (objectMapper == null)
+			objectMapper = new ObjectMapper();
+		return objectMapper;
+	}
+
+	/**
+	 * @param objectMapper
+	 *            the objectMapper to set
+	 */
+	protected void setObjectMapper(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
 	}
 
 }

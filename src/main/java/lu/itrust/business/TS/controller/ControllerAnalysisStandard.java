@@ -18,8 +18,10 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +36,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerGenerateTickets;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -52,8 +56,10 @@ import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -163,6 +169,18 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
+
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+
+	@Autowired
+	private TaskExecutor executor;
 
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get
@@ -1041,40 +1059,16 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String generateTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
-		Client client = null;
-		try {
-			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-			if (analysis.hasProject()) {
-				client = buildClient(principal.getName());
-				List<Measure> measures;
-				if (measureIds.size() > 5) {
-					Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
-					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
-				} else {
-					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
-				}
-				client.createIssue(analysis.getProject(), analysis.getLanguage().getAlpha2(), principal.getName(), measures);
-				serviceAnalysis.saveOrUpdate(analysis);
-			}
-			return JsonMessage.Success(messageSource.getMessage("success.ticketing.create", null, "Tickets are successfully created", locale));
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-		} finally {
-			if (client != null) {
-				try {
-					client.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, measureIds, serviceTaskFeedback, workersPoolManager,
+				sessionFactory);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			worker.cancel();
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		} else {
+			((WorkerGenerateTickets) worker).setClient(buildClient(principal.getName()));
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.starting.creating.tickets", null, "Please wait while creating tickets", locale));
 		}
-
 	}
 
 	@RequestMapping(value = "/Ticketing/Open", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1096,7 +1090,7 @@ public class ControllerAnalysisStandard {
 							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && measures.contains(measure.getId())).map(Measure::getTicket)
 							.collect(Collectors.toList());
 				}
-				List<TicketingTask> tasks = client.findTasksByIdsAndProjectId(analysis.getProject(), keyIssues);
+				List<TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues);
 				if (!tasks.isEmpty())
 					model.addAttribute("first", tasks.get(0));
 				model.addAttribute("tasks", tasks);
@@ -1156,7 +1150,7 @@ public class ControllerAnalysisStandard {
 							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && ids.contains(measure.getId())).collect(Collectors.toList());
 				}
 				List<String> keyIssues = measures.stream().map(Measure::getTicket).collect(Collectors.toList());
-				Map<String, TicketingTask> tasks = client.findTasksByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
+				Map<String, TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
 						.collect(Collectors.toMap(task -> task.getId(), Function.identity()));
 				List<Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 				model.addAttribute("measures", measures);
@@ -1205,7 +1199,7 @@ public class ControllerAnalysisStandard {
 					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
 				}
-				
+
 				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes));
 				model.addAttribute("measures", measures);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());

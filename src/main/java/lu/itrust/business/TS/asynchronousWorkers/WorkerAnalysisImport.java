@@ -26,7 +26,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @author eom
  * 
  */
-public class WorkerAnalysisImport extends WorkerImpl implements Worker {
+public class WorkerAnalysisImport extends WorkerImpl {
 
 	private boolean canDeleteFile = true;
 

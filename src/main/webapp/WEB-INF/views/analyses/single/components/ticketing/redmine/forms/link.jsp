@@ -70,7 +70,6 @@
 										<fmt:formatDate value="${task.created}" var="created" />
 										<spring:message code="label.add.by" arguments="${task.reporter},${created}" text="Add by ${task.reporter}, ${created}" />
 									</p>
-									<c:set value="${task.customFields.remove('Resolution')}" var="resolution"/>
 									<table class="table">
 										<thead>
 											<tr>
@@ -79,7 +78,6 @@
 												<th><spring:message code="label.assignee" text="Assignee" /></th>
 												<th><spring:message code="label.created_date" text="Created" /></th>
 												<th><spring:message code="label.due.date" text="Due date" /></th>
-												<th><spring:message code="label.resolution" text="Resolution" /></th>
 												<th><spring:message code="label.progress" text="Progress" /></th>
 											</tr>
 										</thead>
@@ -90,13 +88,14 @@
 												<td><spring:message text="${task.assignee}" /></td>
 												<td><fmt:formatDate value="${task.created}" /></td>
 												<td><fmt:formatDate value="${task.due}" /></td>
-												<td><spring:message text="${resolution.value}" /></td>
-												<td><div class="progress" title="${task.progress}%">
+												<td>
+													<div class="progress" title="${task.progress}%">
 														<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="${task.progress}" aria-valuemin="0" aria-valuemax="100"
 															style="width: ${task.progress}%;">
 															<span style="color: #333;">${task.progress}%</span>
 														</div>
-													</div></td>
+													</div>
+												</td>
 											</tr>
 										</tbody>
 									</table>

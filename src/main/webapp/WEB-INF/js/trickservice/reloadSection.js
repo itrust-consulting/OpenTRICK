@@ -27,7 +27,7 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 					},
 					error : unknowError
 				});
-	} else 
+	} else
 		$section.closest(".tab-tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
 	return false;
 }
@@ -111,8 +111,11 @@ function findControllerBySection(section, subSection) {
 		"section_soa" : "/Analysis/Standard/SOA"
 	};
 
-	if (section.match("^section_standard_"))
+	if (section.match("^section_standard_")) {
+		$("[data-toggle='popover']", "#" + section).popover('destroy');
+		$("[data-toggle='tooltip']", "#" + section).tooltip('destroy');
 		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
+	}
 
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
@@ -149,8 +152,8 @@ function callbackBySection(section) {
 			return false;
 		},
 		"section_standard" : function() {
-			$("#" + section + " [data-toggle='popover']").popover('hide').on('show.bs.popover', togglePopever);
-			$("#" + section + " [data-toggle='tooltip']").tooltip("hide");
+			$("[data-toggle='popover']", "#" + section).popover().on('show.bs.popover', togglePopever);
+			$("[data-toggle='tooltip']", "#" + section).tooltip();
 		},
 		"section_language" : function() {
 			rebuildMeasureLanguage();
@@ -158,8 +161,10 @@ function callbackBySection(section) {
 
 	};
 
-	if (section.match("^section_standard_"))
-		$("#" + section + " td.popover-element").popover('hide');
+	if (section.match("^section_standard_")) {
+		$("[data-toggle='popover']", "#" + section).popover().on('show.bs.popover', togglePopever);
+		$("[data-toggle='tooltip']", "#" + section).tooltip();
+	}
 
 	return callbacks[section];
 }

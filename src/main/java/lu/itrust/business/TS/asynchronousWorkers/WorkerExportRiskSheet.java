@@ -56,7 +56,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @author eomar
  *
  */
-public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
+public class WorkerExportRiskSheet extends WorkerImpl {
 
 	private String username;
 

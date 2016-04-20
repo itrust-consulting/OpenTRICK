@@ -393,6 +393,7 @@ function openTicket(section) {
 	});
 
 	if (measures.length) {
+		var $progress = $("#progress-dialog").modal("show");
 		$.ajax({
 			url : context + "/Analysis/Standard/Ticketing/Open",
 			type : "POST",
@@ -400,45 +401,49 @@ function openTicket(section) {
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(measures),
 			success : function(response, textStatus, jqXHR) {
-				var $modal = $("#modal-ticketing-view", new DOMParser().parseFromString(response, "text/html"));
-				if (!$modal.length)
-					unknowError();
-				else {
-					$("#modal-ticketing-view").remove();
-					$modal.appendTo($("#widgets")).modal("show");
-					var $previous = $modal.find(".previous"), $next = $modal.find(".next"), $title = $modal.find(".modal-title");
-					$next.find("a").on("click", function() {
-						if (!$next.hasClass("disabled")) {
-							var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
-							if ($nextElement.length) {
-								$current.hide();
-								$title.text($nextElement.show().attr("data-title"));
-								if (!$nextElement.next().length)
-									$next.addClass("disabled")
-								if ($previous.hasClass("disabled"))
-									$previous.removeClass("disabled");
+				$progress.one("hide.bs.modal", function() {
+					var $modal = $("#modal-ticketing-view", new DOMParser().parseFromString(response, "text/html"));
+					if (!$modal.length)
+						unknowError();
+					else {
+						$("#modal-ticketing-view").remove();
+						$modal.appendTo($("#widgets")).modal("show");
+						var $previous = $modal.find(".previous"), $next = $modal.find(".next"), $title = $modal.find(".modal-title");
+						$next.find("a").on("click", function() {
+							if (!$next.hasClass("disabled")) {
+								var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
+								if ($nextElement.length) {
+									$current.hide();
+									$title.text($nextElement.show().attr("data-title"));
+									if (!$nextElement.next().length)
+										$next.addClass("disabled")
+									if ($previous.hasClass("disabled"))
+										$previous.removeClass("disabled");
+								}
 							}
-						}
-						return false;
-					});
-					
-					$previous.find("a").on("click", function() {
-						if (!$previous.hasClass("disabled")) {
-							var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
-							if ($prev.length) {
-								$current.hide();
-								$title.text($prev.show().attr("data-title"));
-								if (!$prev.prev().length)
-									$previous.addClass("disabled")
-								if ($next.hasClass("disabled"))
-									$next.removeClass("disabled");
+							return false;
+						});
+
+						$previous.find("a").on("click", function() {
+							if (!$previous.hasClass("disabled")) {
+								var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
+								if ($prev.length) {
+									$current.hide();
+									$title.text($prev.show().attr("data-title"));
+									if (!$prev.prev().length)
+										$previous.addClass("disabled")
+									if ($next.hasClass("disabled"))
+										$next.removeClass("disabled");
+								}
 							}
-						}
-						return false;
-					});
-				}
+							return false;
+						});
+					}
+				});
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.modal("hide");
 		});
 	}
 	return false;
@@ -454,6 +459,7 @@ function linkToTicketingSystem(section) {
 	});
 
 	if (measures.length) {
+		var $progress = $("#progress-dialog").modal("show");
 		$.ajax({
 			url : context + "/Analysis/Standard/Ticketing/Link",
 			type : "POST",
@@ -461,73 +467,77 @@ function linkToTicketingSystem(section) {
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(measures),
 			success : function(response, textStatus, jqXHR) {
-				var $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
-				if (!$modal.length)
-					unknowError();
-				else {
-					$("#modal-ticketing-linker").remove();
-					$modal.appendTo($("#widgets")).modal("show");
-					var $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer");
-					$modal.find("#task-container>fieldset").appendTo($taskViewer);
-					$modal.find("#measure-container>fieldset").appendTo($measureViewer);
-					$modal.find("#task-container>a.list-group-item").on("click", function() {
-						$view = $(this.getAttribute("href"));
-						if (!$view.is(":visible")) {
-							$taskViewer.find("fieldset:visible").hide();
-							$view.show();
-						}
-						return false;
-					});
+				$progress.one("hide.bs.modal", function() {
+					var $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+					if (!$modal.length)
+						unknowError();
+					else {
+						$("#modal-ticketing-linker").remove();
+						$modal.appendTo($("#widgets")).modal("show");
+						var $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer");
+						$modal.find("#task-container>fieldset").appendTo($taskViewer);
+						$modal.find("#measure-container>fieldset").appendTo($measureViewer);
+						$modal.find("#task-container>a.list-group-item").on("click", function() {
+							$view = $(this.getAttribute("href"));
+							if (!$view.is(":visible")) {
+								$taskViewer.find("fieldset:visible").hide();
+								$view.show();
+							}
+							return false;
+						});
 
-					$modal.on("hidden.bs.modal", function() {
-						if (updateRequired)
-							reloadSection("section_actionplans");
-						$modal.remove();
-					});
+						$modal.on("hidden.bs.modal", function() {
+							if (updateRequired)
+								reloadSection("section_actionplans");
+							$modal.remove();
+						});
 
-					$modal.find("#measure-container>a.list-group-item").on("click", function() {
-						$view = $(this.getAttribute("href"));
-						if (!$view.is(":visible")) {
-							$measureViewer.find("fieldset:visible").hide();
-							$view.show();
-						}
-						return false;
-					});
+						$modal.find("#measure-container>a.list-group-item").on("click", function() {
+							$view = $(this.getAttribute("href"));
+							if (!$view.is(":visible")) {
+								$measureViewer.find("fieldset:visible").hide();
+								$view.show();
+							}
+							return false;
+						});
 
-					$linker.on('click', function() {
-						var $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
-						if ($measure.length && $ticket.length) {
-							$.ajax({
-								url : context + "/Analysis/Standard/Ticketing/Link/Measure",
-								type : "POST",
-								async : false,
-								contentType : "application/json;charset=UTF-8",
-								data : JSON.stringify({
-									"idMeasure" : $measure.attr("data-trick-id"),
-									"idTicket" : $ticket.attr("data-trick-id")
-								}),
-								success : function(response, textStatus, jqXHR) {
-									if (response.success) {
-										reloadMeasureRow($measure.attr("data-trick-id"), $measure.attr("data-trick-parent-id"));
-										$("#" + $measure.remove().attr("aria-controls")).remove();
-										$("#" + $ticket.remove().attr("aria-controls")).remove();
-										updateRequired = true;
-										if (!$measureViewer.find("fieldset").length || !$taskViewer.find("fieldset").length)
-											$modal.modal("hide");
-									} else if (response.error)
-										showDialog("#alert-dialog", response.error);
-									else
-										unknowError();
-								},
-								error : unknowError
-							});
-						}
-						return false;
-					});
+						$linker.on('click', function() {
+							var $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
+							if ($measure.length && $ticket.length) {
+								$.ajax({
+									url : context + "/Analysis/Standard/Ticketing/Link/Measure",
+									type : "POST",
+									async : false,
+									contentType : "application/json;charset=UTF-8",
+									data : JSON.stringify({
+										"idMeasure" : $measure.attr("data-trick-id"),
+										"idTicket" : $ticket.attr("data-trick-id")
+									}),
+									success : function(response, textStatus, jqXHR) {
+										if (response.success) {
+											reloadMeasureRow($measure.attr("data-trick-id"), $measure.attr("data-trick-parent-id"));
+											$("#" + $measure.remove().attr("aria-controls")).remove();
+											$("#" + $ticket.remove().attr("aria-controls")).remove();
+											updateRequired = true;
+											if (!$measureViewer.find("fieldset").length || !$taskViewer.find("fieldset").length)
+												$modal.modal("hide");
+										} else if (response.error)
+											showDialog("#alert-dialog", response.error);
+										else
+											unknowError();
+									},
+									error : unknowError
+								});
+							}
+							return false;
+						});
 
-				}
+					}
+				});
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.modal("hide");
 		});
 	}
 	return false;
@@ -542,6 +552,7 @@ function unLinkToTicketingSystem(section) {
 			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
 	});
 	if (measures.length) {
+		var $progress = $("#progress-dialog").modal("show");
 		$.ajax({
 			url : context + "/Analysis/Standard/Ticketing/UnLink",
 			type : "POST",
@@ -549,24 +560,29 @@ function unLinkToTicketingSystem(section) {
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(measures),
 			success : function(response, textStatus, jqXHR) {
-				if (response.error)
-					showDialog("#alert-dialog", response.error);
-				else if (response.success) {
-					if (section == "#section_actionplans" || measures.length > 10)
-						location.reload();
-					else {
-						showDialog("#info-dialog", response.success);
-						reloadSection("section_actionplans");
-						setTimeout(function() {
-							var idStandard = $(section).attr("data-trick-id");
-							for (var i = 0; i < measures.length; i++)
-								reloadMeasureRow(measures[i], idStandard);
-						}, measures.length * 20);
-					}
-				} else
-					unknowError();
+				$progress.one("hide.bs.modal", function() {
+					if (response.error)
+						showDialog("#alert-dialog", response.error);
+					else if (response.success) {
+						if (section == "#section_actionplans" || measures.length > 10)
+							location.reload();
+						else {
+							showDialog("#info-dialog", response.success);
+							reloadSection("section_actionplans");
+							setTimeout(function() {
+								var idStandard = $(section).attr("data-trick-id");
+								for (var i = 0; i < measures.length; i++)
+									reloadMeasureRow(measures[i], idStandard);
+							}, measures.length * 20);
+						}
+					} else
+						unknowError();
+				});
+
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.modal("hide");
 		});
 	}
 	return false;
@@ -592,19 +608,9 @@ function generateTickets(section) {
 			success : function(response, textStatus, jqXHR) {
 				if (response.error)
 					showDialog("#alert-dialog", response.error);
-				else if (response.success) {
-					if (section == "#section_actionplans" || measures.length > 10)
-						location.reload();
-					else {
-						showDialog("#info-dialog", response.success);
-						reloadSection("section_actionplans");
-						setTimeout(function() {
-							var idStandard = $(section).attr("data-trick-id");
-							for (var i = 0; i < measures.length; i++)
-								reloadMeasureRow(measures[i], idStandard);
-						}, measures.length * 20);
-					}
-				} else
+				else if (response.success)
+					application["taskManager"].Start();
+				else
 					unknowError();
 			},
 			error : unknowError
@@ -623,84 +629,89 @@ function synchroniseWithTicketingSystem(section) {
 	});
 
 	if (measures.length) {
-		$.ajax({
-			url : context + "/Analysis/Standard/Ticketing/Synchronise",
-			type : "POST",
-			async : false,
-			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(measures),
-			success : function(response, textStatus, jqXHR) {
-				var $modal = $("#modal-ticketing-synchronise", new DOMParser().parseFromString(response, "text/html"));
-				if (!$modal.length)
-					unknowError();
-				else {
-					$("#modal-ticketing-synchronise").remove();
-					$modal.appendTo($("#widgets")).modal("show");
-					var $previous = $modal.find(".previous"), $next = $modal.find(".next");
-					$previous.find("a").on("click", function() {
-						if (!$previous.hasClass("disabled")) {
-							var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
-							if ($prev.length) {
-								$current.hide();
-								if (!$prev.show().prev().length)
-									$previous.addClass("disabled")
-								if ($next.hasClass("disabled"))
-									$next.removeClass("disabled");
-							}
-						}
-						return false;
-					});
+		var $progress = $("#progress-dialog").modal("show");
+		$.ajax(
+				{
+					url : context + "/Analysis/Standard/Ticketing/Synchronise",
+					type : "POST",
+					async : false,
+					contentType : "application/json;charset=UTF-8",
+					data : JSON.stringify(measures),
+					success : function(response, textStatus, jqXHR) {
+						$progress.one("hide.bs.modal", function() {
+							var $modal = $("#modal-ticketing-synchronise", new DOMParser().parseFromString(response, "text/html"));
+							if (!$modal.length)
+								unknowError();
+							else {
+								$("#modal-ticketing-synchronise").remove();
+								$modal.appendTo($("#widgets")).modal("show");
+								var $previous = $modal.find(".previous"), $next = $modal.find(".next");
+								$previous.find("a").on("click", function() {
+									if (!$previous.hasClass("disabled")) {
+										var $current = $modal.find("fieldset:visible"), $prev = $current.prev();
+										if ($prev.length) {
+											$current.hide();
+											if (!$prev.show().prev().length)
+												$previous.addClass("disabled")
+											if ($next.hasClass("disabled"))
+												$next.removeClass("disabled");
+										}
+									}
+									return false;
+								});
 
-					$next.find("a").on("click", function() {
-						if (!$next.hasClass("disabled")) {
-							var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
-							if ($nextElement.length) {
-								$current.hide();
-								if (!$nextElement.show().next().length)
-									$next.addClass("disabled")
-								if ($previous.hasClass("disabled"))
-									$previous.removeClass("disabled");
-							}
-						}
-						return false;
-					});
+								$next.find("a").on("click", function() {
+									if (!$next.hasClass("disabled")) {
+										var $current = $modal.find("fieldset:visible"), $nextElement = $current.next();
+										if ($nextElement.length) {
+											$current.hide();
+											if (!$nextElement.show().next().length)
+												$next.addClass("disabled")
+											if ($previous.hasClass("disabled"))
+												$previous.removeClass("disabled");
+										}
+									}
+									return false;
+								});
 
-					$modal.find("select[name='implementationRate']")
-							.on(
-									"change",
-									function() {
-										var $this = $(this), $parent = $this.closest("fieldset"), idMeasure = $parent.attr("data-trick-id"), className = $this
-												.attr("data-trick-class"), type = className == "MaturityMeasure" ? "int" : "double";
-										$this.parent().removeClass("has-error has-success");
-										$.ajax({
-											url : context + "/Analysis/EditField/" + className + "/" + idMeasure,
-											type : "post",
-											data : '{"id":' + idMeasure + ', "fieldName":"implementationRate", "value":"' + defaultValueByType($this.val(), type, true)
-													+ '", "type": "' + type + '"}',
-											contentType : "application/json;charset=UTF-8",
-											success : function(response, textStatus, jqXHR) {
-												if (response["success"] != undefined) {
-													$this.parent().addClass("has-success");
-													reloadMeasureRow(idMeasure, $parent.attr("data-trick-parent-id"));
-												} else {
-													if (response["error"] != undefined)
-														showDialog("#alert-dialog", response["error"]);
-													else
-														showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+								$modal.find("select[name='implementationRate']").on(
+										"change",
+										function() {
+											var $this = $(this), $parent = $this.closest("fieldset"), idMeasure = $parent.attr("data-trick-id"), className = $this
+													.attr("data-trick-class"), type = className == "MaturityMeasure" ? "int" : "double";
+											$this.parent().removeClass("has-error has-success");
+											$.ajax({
+												url : context + "/Analysis/EditField/" + className + "/" + idMeasure,
+												type : "post",
+												data : '{"id":' + idMeasure + ', "fieldName":"implementationRate", "value":"' + defaultValueByType($this.val(), type, true)
+														+ '", "type": "' + type + '"}',
+												contentType : "application/json;charset=UTF-8",
+												success : function(response, textStatus, jqXHR) {
+													if (response["success"] != undefined) {
+														$this.parent().addClass("has-success");
+														reloadMeasureRow(idMeasure, $parent.attr("data-trick-parent-id"));
+													} else {
+														if (response["error"] != undefined)
+															showDialog("#alert-dialog", response["error"]);
+														else
+															showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+														$this.parent().addClass("has-error");
+													}
+													return true;
+												},
+												error : function(jqXHR, textStatus, errorThrown) {
+													showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 													$this.parent().addClass("has-error");
 												}
-												return true;
-											},
-											error : function(jqXHR, textStatus, errorThrown) {
-												showDialog("#alert-dialog", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-												$this.parent().addClass("has-error");
-											}
+											});
 										});
-									});
 
-				}
-			},
-			error : unknowError
+							}
+						})
+					},
+					error : unknowError
+				}).complete(function() {
+			$progress.modal("hide");
 		});
 	}
 	return false;

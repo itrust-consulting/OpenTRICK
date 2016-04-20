@@ -16,7 +16,7 @@
 					<spring:message text="${first.type} #${first.id}" />
 				</h3>
 			</div>
-			<div class="modal-body" style="height: 700px;">
+			<div class="modal-body scrollable" style="height: 700px;">
 				<c:forEach items="${tasks}" var="task">
 					<fieldset data-trick-id='${task.id}' style="display: ${first != task? 'none':''}" data-title='<spring:message text="${task.type} #${task.id}" />'>
 						<h4>
@@ -26,7 +26,6 @@
 							<fmt:formatDate value="${task.created}" var="created" />
 							<spring:message code="label.add.by" arguments="${task.reporter},${created}" text="Add by ${task.reporter}, ${created}" />
 						</p>
-						<c:set value="${task.customFields.remove('Resolution')}" var="resolution"/>
 						<table class="table">
 							<thead>
 								<tr>
@@ -35,7 +34,6 @@
 									<th><spring:message code="label.assignee" text="Assignee" /></th>
 									<th><spring:message code="label.created_date" text="Created" /></th>
 									<th><spring:message code="label.due.date" text="Due date" /></th>
-									<th><spring:message code="label.resolution" text="Resolution" /></th>
 									<th><spring:message code="label.progress" text="Progress" /></th>
 								</tr>
 							</thead>
@@ -46,34 +44,35 @@
 									<td><spring:message text="${task.assignee}" /></td>
 									<td><fmt:formatDate value="${task.created}" /></td>
 									<td><fmt:formatDate value="${task.due}" /></td>
-									<td><spring:message text="${resolution.value}" /></td>
-									<td><div class="progress" title="${task.progress}%">
+									<td>
+										<div class="progress" title="${task.progress}%">
 											<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="${task.progress}" aria-valuemin="0" aria-valuemax="100"
 												style="width: ${task.progress}%;">
 												<span style="color: #333;">${task.progress}%</span>
 											</div>
-										</div></td>
+										</div>
+									</td>
 								</tr>
 							</tbody>
 						</table>
 						<h4>
 							<spring:message code="label.description" text="Description" />
 						</h4>
-						<div class="well well-sm re-pre"><spring:message text='${task.description}' /></div>
+						<div class="well well-sm re-pre scrollable"><spring:message text='${task.description}' /></div>
 						<c:forEach items="${task.customFields.values()}" var="customField">
 							<h4><spring:message text="${customField.name}" /></h4>
-							<p class="well well-sm re-pre"><spring:message text="${customField.value}"/></p>
+							<p class="well well-sm re-pre scrollable"><spring:message text="${customField.value}"/></p>
 						</c:forEach>
-						<div class='panel-group' id='view-sub-item-${task.id}' role='tablist' aria-multiselectable="true">
+						<div class='panel-group' id='sub-item-${task.id}' role='tablist' aria-multiselectable="true">
 							<c:if test="${not empty task.comments}">
 								<div class='panel panel-info'>
-									<div class='panel-heading' role='tab' id='heading-view-task-comment-${task.id}'>
+									<div class='panel-heading' role='tab' id='heading-task-comment-${task.id}'>
 										<h4 class="panel-title">
-											<a role="button" data-toggle="collapse" data-parent="#view-sub-item-${task.id}" href="#view-task-comment-${task.id}" aria-expanded="true" aria-controls="view-task-comment-${task.id}"><spring:message
+											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#task-comment-${task.id}" aria-expanded="true" aria-controls="task-comment-${task.id}"><spring:message
 													code='label.comments' text='Comments' /> </a>
 										</h4>
 									</div>
-									<div id="view-task-comment-${task.id}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-view-task-comment-${task.id}">
+									<div id="task-comment-${task.id}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-task-comment-${task.id}">
 										<div class='panel-body'>
 											<c:forEach items="${task.comments}" var="comment">
 											<blockquote>
@@ -88,13 +87,13 @@
 							</c:if>
 							<c:if test="${not empty task.subTasks}">
 								<div class='panel panel-info'>
-									<div class='panel-heading' role='tab' id='heading-view-sub-task--${task.id}'>
+									<div class='panel-heading' role='tab' id='heading-sub-task-${task.id}'>
 										<h4 class="panel-title">
-											<a role="button" data-toggle="collapse" data-parent="#view-sub-item-${task.id}" href="#view-sub-task--${task.id}" aria-expanded="true" aria-controls="view-sub-task--${task.id}"><spring:message
+											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#sub-task-${task.id}" aria-expanded="true" aria-controls="sub-task-${task.id}"><spring:message
 													code='label.sub_tasks' text='Sub tasks' /> </a>
 										</h4>
 									</div>
-									<div id="view-sub-task--${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-view-sub-task--${task.id}">
+									<div id="sub-task-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-sub-task-${task.id}">
 										<div class='panel-body'>
 											<table class="table">
 												<thead>
@@ -131,13 +130,13 @@
 							</c:if>
 							<c:if test="${not empty task.issueLinks}">
 								<div class='panel panel-info'>
-									<div class='panel-heading' role='tab' id='heading-view-issue-link-${task.id}'>
+									<div class='panel-heading' role='tab' id='heading-issue-link-${task.id}'>
 										<h4 class="panel-title">
-											<a role="button" data-toggle="collapse" data-parent="#view-sub-item-${task.id}" href="#view-issue-link-${task.id}" aria-expanded="true" aria-controls="view-issue-link-${task.id}"><spring:message
+											<a role="button" data-toggle="collapse" data-parent="#sub-item-${task.id}" href="#issue-link-${task.id}" aria-expanded="true" aria-controls="issue-link-${task.id}"><spring:message
 													code='label.issue_links' text='Issues links' /> </a>
 										</h4>
 									</div>
-									<div id="view-issue-link-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-view-issue-link-${task.id}">
+									<div id="issue-link-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-issue-link-${task.id}">
 										<div class='panel-body'>
 											
 												<c:forEach items="${task.issueLinks}" var="issueLink">
