@@ -44,12 +44,12 @@
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#" onclick="return generateTickets('#section_standard_${standardid}')"><spring:message
 										code="label.generate.tickets" text="Generate Tickets" /></a></li>
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#" onclick="return synchroniseWithTicketingSystem('#section_standard_${standardid}')"><spring:message
-										code="label.synchronise.to.ticketing.system" arguments="Jira" text="Synchronise with Jira" /></a></li>
+										code="label.synchronise.to.ticketing.system" arguments="${ticketingName}" text="Synchronise with ${ticketingName}" /></a></li>
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
-								onclick="return linkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="Jira" text="Link to Jira" /></a></li>
+								onclick="return linkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="${ticketingName}" text="Link to ${ticketingName}" /></a></li>
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
-								onclick="return unLinkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.unlink.to.ticketing.system" arguments="Jira"
-										text="Unlink to Jira" /></a></li>
+								onclick="return unLinkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.unlink.to.ticketing.system" arguments="${ticketingName}"
+										text="Unlink to ${ticketingName}" /></a></li>
 						</c:if>
 					</c:if>
 					<c:if test="${analysisOnly and isEditable}">

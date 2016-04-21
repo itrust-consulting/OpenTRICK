@@ -18,7 +18,7 @@
 <body>
 	<div id="wrap" class="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
-		<c:set var="isLinkedToProject" value="${not empty analysis.project}" scope="request"/>
+		<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request"/>
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="menu.jsp" />

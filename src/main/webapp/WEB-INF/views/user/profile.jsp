@@ -45,6 +45,28 @@
 						</div>
 					</div>
 				</c:if>
+				<c:if test="${allowedTicketing}">
+					<div class="page-header">
+						<h3>
+							<spring:message code="label.user.title.ticketing.system.credential" text="Ticketing system credential" />
+						</h3>
+					</div>
+					<div class="form-group">
+						<label for="ticketingUsername" id='titcketing-credential-username' class="col-sm-3 control-label"> <spring:message
+								code="label.user.login" text="Username" />
+						</label>
+						<div class="col-sm-9">
+							<input class="form-control" name="ticketingUsername" value="${user.userSettings['user-titcketing-credential-username']}" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="ticketingPassword" class="col-sm-3 control-label"> <spring:message code="label.user.password" text="Password" />
+						</label>
+						<div class="col-sm-9">
+							<input type="password" id="ticketingPassword" name="ticketingPassword" class="form-control"/>
+						</div>
+					</div>
+				</c:if>
 				<div class="page-header">
 					<h3>
 						<spring:message code="label.user.title.personal_information" text="Personal Information" />
@@ -73,15 +95,17 @@
 					</div>
 				</div>
 				<div class="form-group">
-						<label for="connexionType" class="col-sm-3 control-label"><spring:message code="label.user.connexion.type" text="Authentication type" /></label>
-						<div class="col-sm-9">
-							<div class="btn-group" data-toggle="buttons" id="radioConnexionType">
-								<label class="btn ${user.connexionType==-1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.standard" text="Standard" /><input name="connexionType" type="radio" readonly="readonly" value="-1"></label> <label
-									class="btn ${user.connexionType==0?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.both" text="Both" /><input name="connexionType" type="radio" readonly="readonly" value="0" checked="checked"></label>
-								<label class="btn ${user.connexionType==1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.ldap" text="LDAP" /><input name="connexionType" type="radio" readonly="readonly" value="1"></label>
-							</div>
+					<label for="connexionType" class="col-sm-3 control-label"><spring:message code="label.user.connexion.type" text="Authentication type" /></label>
+					<div class="col-sm-9">
+						<div class="btn-group" data-toggle="buttons" id="radioConnexionType">
+							<label class="btn ${user.connexionType==-1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.standard" text="Standard" /><input
+								name="connexionType" type="radio" readonly="readonly" value="-1"></label> <label class="btn ${user.connexionType==0?'btn-primary':'btn-default'} disabled"><spring:message
+									code="label.user.connexion.both" text="Both" /><input name="connexionType" type="radio" readonly="readonly" value="0" checked="checked"></label> <label
+								class="btn ${user.connexionType==1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.ldap" text="LDAP" /><input
+								name="connexionType" type="radio" readonly="readonly" value="1"></label>
 						</div>
 					</div>
+				</div>
 				<div class="form-group">
 					<c:if test="${user.roles.size()>1}">
 						<label for="roles" class="col-sm-3 control-label"> <spring:message code="label.user.account.roles" text="Roles" />
@@ -121,7 +145,7 @@
 				<div class="form-group">
 					<div class="col-sm-12" style="text-align: center;">
 						<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
-							<spring:message code="label.action.update" text="Update" />
+							<spring:message code="label.action.save" text="Save" />
 						</button>
 					</div>
 				</div>

@@ -98,13 +98,8 @@ public class JiraClient implements Client {
 	 */
 	@Override
 	public boolean connect(Map<String, Object> settings) {
-		String url = settings.get("url")
-				.toString()/*
-							 * ,password =
-							 * settings.get("password").toString(),username =
-							 * settings.get("username").toString()
-							 */;
-		return connect(url, "eomar", "testJira");
+		String url = settings.get("url").toString(), password = settings.get("password").toString(), username = settings.get("username").toString();
+		return connect(url, username, password);
 	}
 
 	/*

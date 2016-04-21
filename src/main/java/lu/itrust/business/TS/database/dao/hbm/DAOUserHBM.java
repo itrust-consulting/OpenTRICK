@@ -25,6 +25,8 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 @Repository
 public class DAOUserHBM extends DAOHibernate implements DAOUser {
+	
+	
 
 	/**
 	 * Constructor: <br>

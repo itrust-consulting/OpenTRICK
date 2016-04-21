@@ -43,6 +43,4 @@ public interface Client extends Closeable{
 	List<TicketingTask> findByIdsAndProjectId(String project, List<String> keyIssues);
 
 	List<TicketingTask> findOtherTasksByProjectId(String project, List<String> excludes);
-
-	
 }

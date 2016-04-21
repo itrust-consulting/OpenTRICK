@@ -99,6 +99,10 @@
 
 	<!-- File Uploader -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+	
+	<bean class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
+		<property name="password" value="${app.settings.password.ecryption.key}" />
+	</bean>
 
 	<import resource="spring-security.xml" />
 

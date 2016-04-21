@@ -64,4 +64,9 @@ public class ServiceTSSettingImpl implements ServiceTSSetting {
 		daotsSetting.delete(name);
 	}
 
+	@Override
+	public boolean isAllowed(TSSettingName name) {
+		return  daotsSetting.isAllowed(name);
+	}
+
 }

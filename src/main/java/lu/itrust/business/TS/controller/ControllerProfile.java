@@ -42,6 +42,7 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
@@ -49,6 +50,7 @@ import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
@@ -91,6 +93,9 @@ public class ControllerProfile {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
 	/**
 	 * profile: <br>
 	 * Description
@@ -111,10 +116,12 @@ public class ControllerProfile {
 		user.setPassword(EMPTY_STRING);
 		// add profile to model
 		model.addAttribute("user", user);
+		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
 		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
 		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
+
 		return "user/home";
 	}
 
@@ -379,6 +386,7 @@ public class ControllerProfile {
 				else if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
 					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
 			}
+
 			if (!errors.containsKey("currentPassword")) {
 				if (!StringUtils.isEmpty(password)) {
 					if (user.getConnexionType() == User.LADP_CONNEXION)
@@ -395,9 +403,20 @@ public class ControllerProfile {
 							user.setPassword(oldPassword);
 							errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
 						} else {
-
 							user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 						}
+					}
+				}
+
+				if (serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK)) {
+					String ticketingUsername = readStringValue(jsonNode, "ticketingUsername"), ticketingPassword = readStringValue(jsonNode, "ticketingPassword");
+					if (StringUtils.isEmpty(ticketingUsername)) {
+						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
+						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+					} else {
+						user.setSetting(Constant.USER_TICKETING_SYSTEM_USERNAME, ticketingUsername);
+						if (!StringUtils.isEmpty(ticketingPassword))
+							user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, ticketingPassword);
 					}
 				}
 

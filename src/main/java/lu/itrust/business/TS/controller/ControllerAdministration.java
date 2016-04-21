@@ -183,8 +183,20 @@ public class ControllerAdministration {
 		List<TSSetting> tsSettings = new LinkedList<TSSetting>();
 		for (TSSettingName name : TSSettingName.values()) {
 			TSSetting tsSetting = serviceTSSetting.get(name);
-			if (tsSetting == null)
-				tsSetting = new TSSetting(name, true);
+			if (tsSetting == null) {
+				switch (name) {
+				case SETTING_ALLOWED_RESET_PASSWORD:
+				case SETTING_ALLOWED_SIGNUP:
+					tsSetting = new TSSetting(name, true);
+					break;
+				case TICKETING_SYSTEM_NAME:
+				case TICKETING_SYSTEM_URL:
+					tsSetting = new TSSetting(name, null);
+				case SETTING_ALLOWED_TICKETING_SYSTEM_LINK:
+					tsSetting = new TSSetting(name, false);
+					break;
+				}
+			}
 			tsSettings.add(tsSetting);
 		}
 
@@ -433,7 +445,7 @@ public class ControllerAdministration {
 			return "analyses/all/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors
-			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			model.addAttribute("errors", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return "analyses/all/forms/manageUserAnalysisRights";
 		}
@@ -570,7 +582,7 @@ public class ControllerAdministration {
 			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -734,7 +746,7 @@ public class ControllerAdministration {
 			TrickLogManager.Persist(e);
 			return null;
 		} catch (Exception e) {
-			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return null;
 		}

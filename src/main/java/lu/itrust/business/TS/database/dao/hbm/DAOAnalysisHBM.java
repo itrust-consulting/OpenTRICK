@@ -755,6 +755,13 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@Override
 	public String getProjectIdByIdentifier(String identifier) {
-		return (String) getSession().createQuery("Select distinct project From Analysis where identifier = :identifier and project IS NOT NULL").setParameter("identifier", identifier).uniqueResult();
+		return (String) getSession().createQuery("Select distinct project From Analysis where identifier = :identifier and project IS NOT NULL")
+				.setParameter("identifier", identifier).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getAllProjectIds() {
+		return getSession().createQuery("Select distinct project From Analysis where project IS NOT NULL").list();
 	}
 }

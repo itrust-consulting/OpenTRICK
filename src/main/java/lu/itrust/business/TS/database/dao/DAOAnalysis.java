@@ -164,4 +164,6 @@ public interface DAOAnalysis {
 
 	public String getProjectIdByIdentifier(String identifier);
 
+	public List<String> getAllProjectIds();
+
 }

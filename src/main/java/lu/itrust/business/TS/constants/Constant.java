@@ -786,8 +786,16 @@ public class Constant {
 
 	public static final String CURRENT_CUSTOMER = "currentCustomer";
 
+	public static final String ALLOWED_TICKETING = "allowedTicketing";
+
+	public static final String TICKETING_NAME = "ticketingName";
+
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 
-	public static final String USER_TICKETING_SYSTEM_PASSWORD = "user-titcketing-creadential";
+	public static final String USER_TICKETING_SYSTEM_USERNAME = "user-titcketing-credential-username";
+
+	public static final String USER_TICKETING_SYSTEM_PASSWORD = "user-titcketing-credential-password";
+
+	public static final String USER_TICKETING_SYSTEM_IV = "user-titcketing-credential-iv";
 
 }

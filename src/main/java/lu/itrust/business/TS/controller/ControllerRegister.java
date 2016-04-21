@@ -47,7 +47,6 @@ import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
@@ -68,7 +67,6 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
  */
 @Controller
 public class ControllerRegister {
-
 
 	@Autowired
 	private MessageSource messageSource;
@@ -113,8 +111,7 @@ public class ControllerRegister {
 	@RequestMapping("/Register")
 	public String add(Map<String, Object> model) {
 		// create new user object and add it to model
-		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
-		if (!(setting == null || setting.getBoolean()))
+		if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP))
 			return "redirect:/Home";
 		model.put("user", new User());
 		return "user/register";
@@ -132,24 +129,18 @@ public class ControllerRegister {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-
-			TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
-			if (!(setting == null || setting.getBoolean()))
+			if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP))
 				return null;
-
 			User user = new User();
-
 			if (!buildUser(errors, user, source, locale))
 				return errors;
-
 			// check if users exist and give first user admin role
 			Role role = null;
 			if (serviceUser.noUsers()) {
-
 				// check if admin role exists and create it if not
 				role = serviceRole.getByName(RoleType.ROLE_ADMIN.name());
 				if (role == null) {
@@ -198,8 +189,7 @@ public class ControllerRegister {
 	}
 
 	public String checkAttempt(String name, HttpSession session, Principal principal) {
-		TSSetting setting = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
-		if (!(principal == null && (setting == null || setting.getBoolean())))
+		if (principal != null || !serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD))
 			return "redirect:/Home";
 		Integer attempt = (Integer) session.getAttribute(name);
 		if (attempt == null)
@@ -216,7 +206,6 @@ public class ControllerRegister {
 
 	@RequestMapping("/ResetPassword")
 	public String resetPassword(Principal principal, Model model, HttpSession session) {
-
 		String attempt = checkAttempt("attempt-reset-password", session, principal);
 		if (attempt != null)
 			return attempt;
@@ -225,11 +214,10 @@ public class ControllerRegister {
 	}
 
 	public static String URL(HttpServletRequest request) {
-		return request.getScheme()
-				+ "://"
-				+ request.getServerName()
-				+ ("http".equals(request.getScheme()) && request.getServerPort() == 80 || "https".equals(request.getScheme()) && request.getServerPort() == 443 ? "" : ":"
-						+ request.getServerPort()) + request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+		return request.getScheme() + "://" + request.getServerName()
+				+ ("http".equals(request.getScheme()) && request.getServerPort() == 80 || "https".equals(request.getScheme()) && request.getServerPort() == 443 ? ""
+						: ":" + request.getServerPort())
+				+ request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
 	}
 
 	@RequestMapping("/ResetPassword/Save")
@@ -257,8 +245,9 @@ public class ControllerRegister {
 				if (resetPassword2 != null)
 					serviceResetPassword.delete(resetPassword2);
 				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-				resetPassword2 = new ResetPassword(user, passwordEncoder.encodePassword(String.valueOf(System.nanoTime()),
-						String.valueOf(new Random(System.currentTimeMillis()).nextDouble())), new Timestamp(System.currentTimeMillis() + timeoutValue));
+				resetPassword2 = new ResetPassword(user,
+						passwordEncoder.encodePassword(String.valueOf(System.nanoTime()), String.valueOf(new Random(System.currentTimeMillis()).nextDouble())),
+						new Timestamp(System.currentTimeMillis() + timeoutValue));
 				serviceResetPassword.saveOrUpdate(resetPassword2);
 				serviceEmailSender.sendResetPassword(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
 				/**
@@ -277,7 +266,7 @@ public class ControllerRegister {
 
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 		return "redirect:/Login";
 	}
@@ -293,8 +282,8 @@ public class ControllerRegister {
 			return "redirect:/Login";
 		session.removeAttribute("attempt-request");
 		if (resetPassword.getUser().getConnexionType() == User.LADP_CONNEXION) {
-			attributes
-					.addFlashAttribute("error", messageSource.getMessage("error.ldap.change.password", null, "To reset your password, please contact your administrator", locale));
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.ldap.change.password", null, "To reset your password, please contact your administrator", locale));
 			return "redirect:/Login";
 		} else if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
@@ -445,7 +434,7 @@ public class ControllerRegister {
 				user.setLocale(userlocale);
 
 		} catch (Exception e) {
-			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

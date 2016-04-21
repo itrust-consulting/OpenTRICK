@@ -29,13 +29,14 @@
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
 						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-cog"></span> <spring:message code="label.menu.manage.access.analysis"
 								text="Manage Access Rights" /></a></li>
-								
-					<li class="disabled" data-trick-selectable="true"  data-trick-check="!isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span
-							class="glyphicon glyphicon-link"></span> <spring:message code="label.menu.link.project" arguments="Jira" text="Link to Jira" /></a></li>
-							
-					<li class="disabled" data-trick-selectable="multi"  data-trick-single-check="isLinked() && hasRight('ALL')"><a href="#" onclick="return unLinkToProject()"> <span
-							class="glyphicon glyphicon-scissors"></span> <spring:message code="label.menu.unlink.project"  arguments="Jira" text="Unlink to Jira" /></a></li>
-					
+					<c:if test="${allowedTicketing}">
+						<li class="disabled" data-trick-selectable="true" data-trick-check="!isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span
+								class="glyphicon glyphicon-link"></span> <spring:message code="label.menu.link.project" arguments="${ticketingName}" text="Link to ${ticketingName}" /></a></li>
+
+						<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinked() && hasRight('ALL')"><a href="#" onclick="return unLinkToProject()"> <span
+								class="glyphicon glyphicon-scissors"></span> <spring:message code="label.menu.unlink.project" arguments="${ticketingName}" text="Unlink to ${ticketingName}" /></a></li>
+					</c:if>
+
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRoleToCreateVersion()"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-duplicate"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
 

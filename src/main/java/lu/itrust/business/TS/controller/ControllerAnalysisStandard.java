@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -16,6 +18,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.SessionFactory;
@@ -60,6 +64,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -219,7 +224,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("measures", measures);
 
-		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
@@ -277,7 +282,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("measures", measures);
 
-		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
@@ -354,7 +359,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
-		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis));
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
@@ -740,7 +745,6 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
@@ -867,10 +871,7 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		try {
-
-			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
-			locale = new Locale(language.getAlpha2());
-
+			
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 			if (measure == null)
 				throw new TrickException("error.measure.not_found", "Measure cannot be found");
@@ -922,7 +923,7 @@ public class ControllerAnalysisStandard {
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -943,8 +944,6 @@ public class ControllerAnalysisStandard {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-
-			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
 
@@ -1004,7 +1003,7 @@ public class ControllerAnalysisStandard {
 				validate(measureForm, errors, locale);
 				if (!errors.isEmpty())
 					return errors;
-				if (!update(measure, measureForm, idAnalysis, language, locale, errors).isEmpty())
+				if (!update(measure, measureForm, idAnalysis, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
 					return errors;
 			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
 				if (measure.getId() < 1)
@@ -1059,6 +1058,8 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String generateTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
+		if (!loadUserSettings(principal, null, null))
+			throw new ResourceNotFoundException();
 		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, measureIds, serviceTaskFeedback, workersPoolManager,
 				sessionFactory);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
@@ -1076,6 +1077,8 @@ public class ControllerAnalysisStandard {
 	public String openTickets(@RequestBody List<Integer> measures, Model model, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale) {
 		Client client = null;
 		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
 			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 			if (analysis.hasProject()) {
 				client = buildClient(principal.getName());
@@ -1095,7 +1098,9 @@ public class ControllerAnalysisStandard {
 					model.addAttribute("first", tasks.get(0));
 				model.addAttribute("tasks", tasks);
 			}
-			return String.format("analyses/single/components/ticketing/%s/home", "jira");
+			return String.format("analyses/single/components/ticketing/%s/home", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (TrickException e) {
 			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
@@ -1118,6 +1123,8 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String unlinkTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
+		if (!loadUserSettings(principal, null, null))
+			throw new ResourceNotFoundException();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).forEach(measure -> {
 			if (!StringUtils.isEmpty(measure.getTicket())) {
@@ -1137,6 +1144,8 @@ public class ControllerAnalysisStandard {
 			Locale locale) {
 		Client client = null;
 		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
 			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 			if (analysis.hasProject()) {
 				client = buildClient(principal.getName());
@@ -1158,7 +1167,9 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("tasks", tasks);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			}
-			return String.format("analyses/single/components/ticketing/%s/forms/synchronise", "jira");
+			return String.format("analyses/single/components/ticketing/%s/forms/synchronise", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (TrickException e) {
 			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
@@ -1184,6 +1195,8 @@ public class ControllerAnalysisStandard {
 	public String linkTickets(@RequestBody List<Integer> measureIds, Model model, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale) {
 		Client client = null;
 		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
 			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 			if (analysis.hasProject()) {
 				client = buildClient(principal.getName());
@@ -1204,7 +1217,9 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("measures", measures);
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			}
-			return String.format("analyses/single/components/ticketing/%s/forms/link", "jira");
+			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (TrickException e) {
 			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
@@ -1227,11 +1242,15 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Ticketing/Link/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String linkTicket(@RequestBody LinkForm form, Principal principal, HttpSession session, Locale locale) {
+		if (!loadUserSettings(principal, null, null))
+			throw new ResourceNotFoundException();
 		if (StringUtils.isEmpty(form.getIdTicket()))
 			return JsonMessage.Error(messageSource.getMessage("error.ticket.not_found", null, "Ticket cannot be found", locale));
+
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		if (StringUtils.isEmpty(analysis.getProject()))
+
+		if (!analysis.hasProject())
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_project", null, "Please link your analysis to a project and try again", locale));
 		Measure measure = analysis.findMeasureById(form.getIdMeasure());
 		if (measure == null)
@@ -1257,7 +1276,7 @@ public class ControllerAnalysisStandard {
 		if (urlSetting == null || nameSetting == null)
 			throw new TrickException("error.load.setting", "Setting cannot be loaded");
 		Map<String, Object> settings = new HashMap<>(3);
-		settings.put("username", username);
+		settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
 		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
 		settings.put("url", urlSetting.getValue());
 		Client client = null;
@@ -1279,6 +1298,27 @@ public class ControllerAnalysisStandard {
 			}
 		}
 		return client;
+	}
+
+	private boolean loadUserSettings(@Nonnull Principal principal, @Nullable Model model, @Nullable User user) {
+		boolean allowedTicketing = false;
+		try {
+			if (user == null)
+				user = serviceUser.get(principal.getName());
+			TSSetting name = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME), url = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
+					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
+			if (model != null && allowedTicketing)
+				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+
+		} finally {
+			if (model != null)
+				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
+		}
+		return allowedTicketing;
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)

@@ -18,6 +18,8 @@ public interface ServiceTSSetting {
 
 	List<TSSetting> getAll();
 
+	boolean isAllowed(TSSettingName name);
+	
 	void saveOrUpdate(TSSetting tsSetting);
 
 	TSSetting merge(TSSetting tsSetting);
@@ -27,4 +29,6 @@ public interface ServiceTSSetting {
 	void delete(TSSetting tsSetting);
 
 	void delete(String name);
+
+	
 }
