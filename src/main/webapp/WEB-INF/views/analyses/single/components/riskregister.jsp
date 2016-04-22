@@ -20,10 +20,10 @@
 		</div>
 		<ul class="nav nav-pills bordered-bottom" id="menu_riskRegister">
 			<c:if test="${not empty riskregister}">
-				<li class="disabled" data-trick-role="menu-risk-register-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
-							key="label.risk_register.display.value" /></a></li>
-				<li data-trick-role="menu-risk-register-control-level"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><fmt:message
-							key="label.risk_register.display.level" /></a></li>
+				<li class="disabled" data-trick-role="menu-risk-register-control-value"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><spring:message
+							code="label.risk_register.display.value" /></a></li>
+				<li data-trick-role="menu-risk-register-control-level"><a href="#" onclick="return riskRegisterSwitchData(this.parentNode);"><spring:message
+							code="label.risk_register.display.level" /></a></li>
 			</c:if>
 			<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 			<li class="pull-right"><a href="#" onclick="return calculateRiskRegister();"><i class="glyphicon glyphicon-expand"></i> <spring:message code="label.action.compute" /></a></li>

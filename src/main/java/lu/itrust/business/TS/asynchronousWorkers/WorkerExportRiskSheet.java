@@ -325,9 +325,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	private void addField(XWPFDocument document, String title, String content) {
 		addTitle(document, title);
-		XWPFParagraph paragraph = document.createParagraph();
-		paragraph.setStyle("CorpsTxt");
-		paragraph.createRun().setText(content);
+		if (content == null || content.isEmpty())
+			return;
+		String[] texts = content.split("(\r\n|\n\r|\r|\n)");
+		for (int i = 0; i < texts.length; i++) {
+			XWPFParagraph paragraph = document.createParagraph();
+			paragraph.setStyle("CorpsTxt");
+			paragraph.createRun().setText(texts[i]);
+		}
 	}
 
 	private boolean addRiskSheetHeader(XWPFDocument document, RiskProfile riskProfile, boolean isFirst) {
