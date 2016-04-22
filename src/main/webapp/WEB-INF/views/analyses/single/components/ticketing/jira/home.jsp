@@ -109,7 +109,7 @@
 												<tbody>
 													<c:forEach items="${task.subTasks}" var="subTask">
 														<tr>
-															<td><a href="#${subTask.id}"><spring:message text="${subTask.type} #${subTask.id}" /></a></td>
+															<td><spring:message text="${subTask.type} #${subTask.id}" /></td>
 															<td><spring:message text="${subTask.name}" /></td>
 															<td><spring:message text="${subTask.status}" /></td>
 															<td><spring:message text="${subTask.assignee}" /></td>
@@ -139,11 +139,9 @@
 									</div>
 									<div id="view-issue-link-${task.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-view-issue-link-${task.id}">
 										<div class='panel-body'>
-											
 												<c:forEach items="${task.issueLinks}" var="issueLink">
 													<a href="${issueLink.link}" target="_blank" class="btn btn-link"><i class="fa fa-external-link" aria-hidden="true"></i> <spring:message text="${issueLink.name}"/></a>
 												</c:forEach>
-											
 										</div>
 									</div>
 								</div>

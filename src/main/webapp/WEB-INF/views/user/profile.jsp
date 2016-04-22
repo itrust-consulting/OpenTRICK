@@ -52,11 +52,11 @@
 						</h3>
 					</div>
 					<div class="form-group">
-						<label for="ticketingUsername" id='titcketing-credential-username' class="col-sm-3 control-label"> <spring:message
+						<label for="ticketingUsername" class="col-sm-3 control-label"> <spring:message
 								code="label.user.login" text="Username" />
 						</label>
 						<div class="col-sm-9">
-							<input class="form-control" name="ticketingUsername" value="${user.userSettings['user-titcketing-credential-username']}" />
+							<input class="form-control" id='ticketingUsername' name="ticketingUsername" value="${user.userSettings['user-titcketing-credential-username']}" />
 						</div>
 					</div>
 					<div class="form-group">

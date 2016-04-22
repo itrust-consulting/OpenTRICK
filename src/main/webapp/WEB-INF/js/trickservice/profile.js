@@ -230,25 +230,15 @@ function updateProfile(form) {
 						$(errorElement).text(response[error]);
 						switch (error) {
 						case "currentPassword":
-							$(errorElement).appendTo($("#" + form + " #currentPassword").parent());
-							break;
 						case "password":
-							$(errorElement).appendTo($("#" + form + " #password").parent());
-							break;
 						case "repeatPassword":
-							$(errorElement).appendTo($("#" + form + " #repeatPassword").parent());
-							break;
 						case "firstName":
-							$(errorElement).appendTo($("#" + form + " #firstName").parent());
-							break;
 						case "lastName":
-							$(errorElement).appendTo($("#" + form + " #lastName").parent());
-							break;
 						case "email":
-							$(errorElement).appendTo($("#" + form + " #email").parent());
-							break;
 						case "locale":
-							$(errorElement).appendTo($("#" + form + " #locale").parent());
+						case "ticketingUsername":
+						case "ticketingPassword":
+							$(errorElement).appendTo($("#" + form + " #"+error).parent());
 							break;
 						case "user": {
 							var errElement = document.createElement("div");

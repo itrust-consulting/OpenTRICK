@@ -410,7 +410,6 @@ public class ControllerAnalysis {
 				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-
 		} finally {
 			if (model != null)
 				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
@@ -1008,8 +1007,8 @@ public class ControllerAnalysis {
 			}
 		});
 		return JsonMessage.Success(ids.size() > 1
-				? messageSource.getMessage("sucess.analyses.unlink.to.project", new String[] { name }, String.format("Analyses has been successfully unlinked to %s", name), locale)
-				: messageSource.getMessage("sucess.analysis.unlink.to.project", new String[] { name }, String.format("Analysis has been successfully unlinked to %s", name),
+				? messageSource.getMessage("sucess.analyses.unlink.from.project", new String[] { name }, String.format("Analyses has been successfully unlinked from %s", name), locale)
+				: messageSource.getMessage("sucess.analysis.unlink.from.project", new String[] { name }, String.format("Analysis has been successfully unlinked from %s", name),
 						locale));
 	}
 

@@ -38,19 +38,25 @@
 								class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit" /></a></li>
 					</c:if>
 					<c:if test="${isLinkedToProject}">
-						<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
-							onclick="return openTicket('#section_standard_${standardid}')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
-						<c:if test="${isEditable}">
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#" onclick="return generateTickets('#section_standard_${standardid}')"><spring:message
-										code="label.generate.tickets" text="Generate Tickets" /></a></li>
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#" onclick="return synchroniseWithTicketingSystem('#section_standard_${standardid}')"><spring:message
-										code="label.synchronise.to.ticketing.system" arguments="${ticketingName}" text="Synchronise with ${ticketingName}" /></a></li>
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
-								onclick="return linkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="${ticketingName}" text="Link to ${ticketingName}" /></a></li>
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
-								onclick="return unLinkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.unlink.to.ticketing.system" arguments="${ticketingName}"
-										text="Unlink to ${ticketingName}" /></a></li>
-						</c:if>
+						<c:choose>
+							<c:when test="${isEditable}">
+								<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+									onclick="return synchroniseWithTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.open.ticket_measure"
+											text="Open Measure/Ticket" /></a></li>
+								<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+									onclick="return generateTickets('#section_standard_${standardid}')"><spring:message code="label.generate.tickets" text="Generate Tickets" /></a></li>
+								<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+									onclick="return linkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.link.to.ticketing.system" arguments="${ticketingName}"
+											text="Link to ${ticketingName}" /></a></li>
+								<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+									onclick="return unLinkToTicketingSystem('#section_standard_${standardid}')"><spring:message code="label.unlink.from.ticketing.system" arguments="${ticketingName}"
+											text="Unlink from ${ticketingName}" /></a></li>
+							</c:when>
+							<c:otherwise>
+								<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_standard_${standardid}')"><a href="#"
+									onclick="return openTicket('#section_standard_${standardid}')"><spring:message code="label.open.ticket" text="Open ticket" /></a></li>
+							</c:otherwise>
+						</c:choose>
 					</c:if>
 					<c:if test="${analysisOnly and isEditable}">
 						<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>

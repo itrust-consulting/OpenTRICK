@@ -44,7 +44,7 @@
 						</div>
 					</div>
 					<div class="text-center" style="height: 3%; margin-bottom: 16px; margin-top: -20px;">
-						<a href="#" id='measure-task-linker' title='<spring:message code='label.action.linked' text='Linked'/>' class="btn btn-link"><i class="fa fa-link fa-2x" style="transform: rotate(45deg)" aria-hidden="true"></i>
+						<a href="#" id='measure-task-linker' title='<spring:message code='label.action.link' text='Link'/>' class="btn btn-link"><i class="fa fa-unlink fa-2x" style="transform: rotate(45deg)" aria-hidden="true"></i>
 						</a>
 					</div>
 					<div class='panel panel-info' style="height: 60%">

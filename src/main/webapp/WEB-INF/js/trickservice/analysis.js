@@ -1,6 +1,5 @@
-var el = null;
-
-var table = null;
+var el = null, table = null, taskController = function() {
+};
 
 $(document).ready(function() {
 
@@ -445,7 +444,8 @@ function openTicket(section) {
 		}).complete(function() {
 			$progress.modal("hide");
 		});
-	}
+	} else
+		showDialog("#info-dialog", MessageResolver("info.ticketing.open.no_action.required", "None of the selected measures is related to a task"));
 	return false;
 }
 
@@ -460,86 +460,139 @@ function linkToTicketingSystem(section) {
 
 	if (measures.length) {
 		var $progress = $("#progress-dialog").modal("show");
-		$.ajax({
-			url : context + "/Analysis/Standard/Ticketing/Link",
-			type : "POST",
-			async : false,
-			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(measures),
-			success : function(response, textStatus, jqXHR) {
-				$progress.one("hide.bs.modal", function() {
-					var $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
-					if (!$modal.length)
-						unknowError();
-					else {
-						$("#modal-ticketing-linker").remove();
-						$modal.appendTo($("#widgets")).modal("show");
-						var $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer");
-						$modal.find("#task-container>fieldset").appendTo($taskViewer);
-						$modal.find("#measure-container>fieldset").appendTo($measureViewer);
-						$modal.find("#task-container>a.list-group-item").on("click", function() {
-							$view = $(this.getAttribute("href"));
-							if (!$view.is(":visible")) {
-								$taskViewer.find("fieldset:visible").hide();
-								$view.show();
-							}
-							return false;
-						});
+		$
+				.ajax(
+						{
+							url : context + "/Analysis/Standard/Ticketing/Link",
+							type : "POST",
+							async : false,
+							contentType : "application/json;charset=UTF-8",
+							data : JSON.stringify(measures),
+							success : function(response, textStatus, jqXHR) {
+								$progress
+										.one(
+												"hide.bs.modal",
+												function() {
+													if (response['error'])
+														showDialog("#alert-dialog", response['error']);
+													else {
+														var $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+														if (!$modal.length)
+															unknowError();
+														else {
+															$("#modal-ticketing-linker").remove();
+															$modal.appendTo($("#widgets")).modal("show");
+															var isFinished = false, $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer"), $taskContainer = $modal
+																	.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = $tasks.length;
 
-						$modal.on("hidden.bs.modal", function() {
-							if (updateRequired)
-								reloadSection("section_actionplans");
-							$modal.remove();
-						});
+															taskController = function() {
+																$view = $(this.getAttribute("href"));
+																if (!$view.is(":visible")) {
+																	$taskViewer.find("fieldset:visible").hide();
+																	$view.show();
+																}
+																return false;
+															}
 
-						$modal.find("#measure-container>a.list-group-item").on("click", function() {
-							$view = $(this.getAttribute("href"));
-							if (!$view.is(":visible")) {
-								$measureViewer.find("fieldset:visible").hide();
-								$view.show();
-							}
-							return false;
-						});
+															$tasks.appendTo($taskViewer);
 
-						$linker.on('click', function() {
-							var $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
-							if ($measure.length && $ticket.length) {
-								$.ajax({
-									url : context + "/Analysis/Standard/Ticketing/Link/Measure",
-									type : "POST",
-									async : false,
-									contentType : "application/json;charset=UTF-8",
-									data : JSON.stringify({
-										"idMeasure" : $measure.attr("data-trick-id"),
-										"idTicket" : $ticket.attr("data-trick-id")
-									}),
-									success : function(response, textStatus, jqXHR) {
-										if (response.success) {
-											reloadMeasureRow($measure.attr("data-trick-id"), $measure.attr("data-trick-parent-id"));
-											$("#" + $measure.remove().attr("aria-controls")).remove();
-											$("#" + $ticket.remove().attr("aria-controls")).remove();
-											updateRequired = true;
-											if (!$measureViewer.find("fieldset").length || !$taskViewer.find("fieldset").length)
-												$modal.modal("hide");
-										} else if (response.error)
-											showDialog("#alert-dialog", response.error);
-										else
-											unknowError();
-									},
-									error : unknowError
-								});
-							}
-							return false;
-						});
+															$taskContainer.find("a.list-group-item").on("click", taskController);
 
-					}
+															$modal
+																	.on("hidden.bs.modal", function() {
+																		if (updateRequired)
+																			reloadSection("section_actionplans");
+																		$modal.remove();
+																	}).on("show.bs.modal",function(){
+																		$taskContainer.scrollTop();
+																	})
+																	.on(
+																			"shown.bs.modal",
+																			function() {
+																				$taskContainer
+																						.on(
+																								"scroll",
+																								function() {
+
+																									if (!isFinished
+																											&& ($taskContainer.scrollTop() + $taskContainer.innerHeight() >= $taskContainer[0].scrollHeight)) {
+																										$.ajax({
+																											url : context + "/Analysis/Standard/Ticketing/Load?startIndex=" + (size + 1),
+																											type : "POST",
+																											async : false,
+																											contentType : "application/json;charset=UTF-8",
+																											data : JSON.stringify(measures),
+																											success : function(response, textStatus, jqXHR) {
+																												$subTaskContainer = $("#task-container", new DOMParser()
+																														.parseFromString(response, "text/html"));
+																												var $subTasks = $subTaskContainer.find("fieldset");
+																												if (!(isFinished = $subTasks.length == 0)) {
+																													size += $subTasks.length;
+																													$subTasks.appendTo($taskViewer);
+																													$subTaskContainer.find("a.list-group-item").appendTo($taskContainer)
+																															.on("click", taskController);
+																												}
+																											},
+																											error : function() {
+																												isFinished = true;
+																											}
+																										});
+																									}
+																								});
+
+																			});
+
+															$modal.find("#measure-container>fieldset").appendTo($measureViewer);
+															$modal.find("#measure-container>a.list-group-item").on("click", function() {
+																$view = $(this.getAttribute("href"));
+																if (!$view.is(":visible")) {
+																	$measureViewer.find("fieldset:visible").hide();
+																	$view.show();
+																}
+																return false;
+															});
+
+															$linker.on('click', function() {
+																var $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
+																if ($measure.length && $ticket.length) {
+																	$.ajax({
+																		url : context + "/Analysis/Standard/Ticketing/Link/Measure",
+																		type : "POST",
+																		async : false,
+																		contentType : "application/json;charset=UTF-8",
+																		data : JSON.stringify({
+																			"idMeasure" : $measure.attr("data-trick-id"),
+																			"idTicket" : $ticket.attr("data-trick-id")
+																		}),
+																		success : function(response, textStatus, jqXHR) {
+																			if (response.success) {
+																				reloadMeasureRow($measure.attr("data-trick-id"), $measure.attr("data-trick-parent-id"));
+																				$("#" + $measure.remove().attr("aria-controls")).remove();
+																				$("#" + $ticket.remove().attr("aria-controls")).remove();
+																				updateRequired = true;
+																				if (!$measureViewer.find("fieldset").length || !$taskViewer.find("fieldset").length)
+																					$modal.modal("hide");
+																			} else if (response.error)
+																				showDialog("#alert-dialog", response.error);
+																			else
+																				unknowError();
+																		},
+																		error : unknowError
+																	});
+																}
+																return false;
+															});
+
+														}
+													}
+												});
+							},
+							error : unknowError
+						}).complete(function() {
+					$progress.modal("hide");
 				});
-			},
-			error : unknowError
-		}).complete(function() {
-			$progress.modal("hide");
-		});
-	}
+	} else
+		showDialog("#info-dialog", MessageResolver("info.ticketing.link.no_action.required", "All selected measures are already related to tasks"));
 	return false;
 }
 
@@ -552,39 +605,50 @@ function unLinkToTicketingSystem(section) {
 			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
 	});
 	if (measures.length) {
-		var $progress = $("#progress-dialog").modal("show");
-		$.ajax({
-			url : context + "/Analysis/Standard/Ticketing/UnLink",
-			type : "POST",
-			async : false,
-			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(measures),
-			success : function(response, textStatus, jqXHR) {
-				$progress.one("hide.bs.modal", function() {
-					if (response.error)
-						showDialog("#alert-dialog", response.error);
-					else if (response.success) {
-						if (section == "#section_actionplans" || measures.length > 10)
-							location.reload();
-						else {
-							showDialog("#info-dialog", response.success);
-							reloadSection("section_actionplans");
-							setTimeout(function() {
-								var idStandard = $(section).attr("data-trick-id");
-								for (var i = 0; i < measures.length; i++)
-									reloadMeasureRow(measures[i], idStandard);
-							}, measures.length * 20);
-						}
-					} else
-						unknowError();
-				});
 
-			},
-			error : unknowError
-		}).complete(function() {
-			$progress.modal("hide");
+		var $question = measures.length == 1 ? MessageResolver("confirm.unlink.measure", "Are you sure, you want to unlink this measure and task") : MessageResolver(
+				"confirm.unlink.measures", "Are you sure, you want to unlink measures and tasks"), $confirm = $("#confirm-dialog .modal-body").text();
+		$(".btn-danger", $confirm).click(function() {
+			var $progress = $("#progress-dialog").modal("show");
+			$.ajax({
+				url : context + "/Analysis/Standard/Ticketing/UnLink",
+				type : "POST",
+				async : false,
+				contentType : "application/json;charset=UTF-8",
+				data : JSON.stringify(measures),
+				success : function(response, textStatus, jqXHR) {
+					$progress.one("hide.bs.modal", function() {
+						if (response.error)
+							showDialog("#alert-dialog", response.error);
+						else if (response.success) {
+							if (section == "#section_actionplans")
+								location.reload();
+							else {
+								showDialog("#info-dialog", response.success);
+								if (measures.length > 30)
+									reloadSection([ section.replace("#", ''), "section_actionplans" ]);
+								else {
+									reloadSection("section_actionplans");
+									setTimeout(function() {
+										var idStandard = $(section).attr("data-trick-id");
+										for (var i = 0; i < measures.length; i++)
+											reloadMeasureRow(measures[i], idStandard);
+									}, measures.length * 20);
+								}
+							}
+						} else
+							unknowError();
+					});
+
+				},
+				error : unknowError
+			}).complete(function() {
+				$progress.modal("hide");
+			});
 		});
-	}
+		$confirm.modal("show");
+	} else
+		showDialog("#info-dialog", MessageResolver("info.ticketing.unlink.no_action.required", "None of the selected measures is related to a task"));
 	return false;
 
 }
@@ -615,7 +679,8 @@ function generateTickets(section) {
 			},
 			error : unknowError
 		});
-	}
+	} else
+		showDialog("#info-dialog", MessageResolver("info.ticketing.generate.no_action.required", "All selected measures are already related to tasks"));
 	return false;
 }
 
@@ -713,7 +778,8 @@ function synchroniseWithTicketingSystem(section) {
 				}).complete(function() {
 			$progress.modal("hide");
 		});
-	}
+	} else
+		showDialog("#info-dialog", MessageResolver("info.ticketing.synchronise.no_action.required", "None of the selected measures is related to a task"));
 	return false;
 }
 

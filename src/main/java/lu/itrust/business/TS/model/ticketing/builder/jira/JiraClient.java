@@ -28,6 +28,7 @@ import com.atlassian.jira.rest.client.api.domain.IssueLink;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.Resolution;
+import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.Status;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.User;
@@ -35,6 +36,7 @@ import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldVal
 import com.atlassian.jira.rest.client.api.domain.input.FieldInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import com.atlassian.util.concurrent.Promise;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -339,16 +341,22 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public List<TicketingTask> findOtherTasksByProjectId(String idProject, List<String> excludes) {
+	public List<TicketingTask> findOtherTasksByProjectId(String idProject, List<String> excludes, int maxSize, int startIndex) {
 		List<TicketingTask> tasks = new LinkedList<>();
-		String exclude = "";
+		Promise<SearchResult> promise = null;
+		if (excludes == null || excludes.isEmpty())
+			promise = restClient.getSearchClient().searchJql(LOAD_BY_PROJECT_KEY, maxSize, startIndex, null);
+		else {
+			String exclude = "";
+			for (String key : excludes)
+				exclude += (exclude.isEmpty() ? "" : ", ") + key;
+			promise = restClient.getSearchClient().searchJql(String.format(PROJECT_S_AND_STATUS_OPEN_AND_KEY_NOT_IN_S, idProject, exclude), maxSize, startIndex, null);
+		}
 
-		for (String key : excludes)
-			exclude += (exclude.isEmpty() ? "" : ", ") + key;
-		restClient.getSearchClient().searchJql(String.format(PROJECT_S_AND_STATUS_OPEN_AND_KEY_NOT_IN_S, idProject, exclude)).claim().getIssues().forEach(issue -> {
-
+		promise.claim().getIssues().forEach(issue -> {
 			tasks.add(loadTask(issue));
 		});
+
 		return tasks;
 	}
 

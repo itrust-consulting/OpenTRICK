@@ -92,13 +92,13 @@ public class WorkerGenerateTickets extends WorkerImpl {
 							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
 				}
 				if (!measures.isEmpty()) {
-					handler.update("info.creating.tickets", "Creating tickets", 10);
+					handler.update("info.creating.tickets", "Creating tickets", 3);
 					client.createIssues(analysis.getProject(), analysis.getLanguage().getAlpha2(), measures, handler, 95);
 					handler.update("info.update.analysis", "Updating analysis", 95);
 					daoAnalysis.saveOrUpdate(analysis);
 					handler.update("info.commit.transcation", "Commit transaction", 98);
 					session.getTransaction().commit();
-					handler = new MessageHandler("success.ticketing.create", "Tickets are successfully created", 100);
+					handler = new MessageHandler("success.ticketing.created", "Tickets are successfully created", 100);
 					Standard standard = measures.get(0).getAnalysisStandard().getStandard();
 					boolean isSame = !measures.stream().anyMatch(measure -> !measure.getAnalysisStandard().getStandard().equals(standard));
 					if (measures.size() < 10) {

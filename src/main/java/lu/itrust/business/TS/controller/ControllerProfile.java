@@ -9,7 +9,9 @@ import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_DIRCT
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_KEY;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SQLITE;
 
+import java.io.IOException;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -47,14 +49,18 @@ import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
+import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
@@ -417,6 +423,12 @@ public class ControllerProfile {
 						user.setSetting(Constant.USER_TICKETING_SYSTEM_USERNAME, ticketingUsername);
 						if (!StringUtils.isEmpty(ticketingPassword))
 							user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, ticketingPassword);
+						if(!isConnected(user)){
+							errors.put("ticketingUsername", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
+							errors.put("ticketingPassword", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
+							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
+							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+						}
 					}
 				}
 
@@ -459,6 +471,32 @@ public class ControllerProfile {
 
 		return errors.isEmpty();
 
+	}
+
+	private Boolean isConnected(User user) {
+		Client client = null;
+		try {
+			TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+			TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
+			if (urlSetting == null || nameSetting == null)
+				throw new TrickException("error.load.setting", "Setting cannot be loaded");
+			Map<String, Object> settings = new HashMap<>(3);
+			settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
+			settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+			settings.put("url", urlSetting.getValue());
+			return (client = ClientBuilder.build(nameSetting.getString())).connect(settings);
+		}catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return false;
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+		}
 	}
 
 	private String readStringValue(JsonNode jsonNode, String fieldName) {

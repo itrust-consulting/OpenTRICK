@@ -24,9 +24,9 @@
 									</h4>
 								</div>
 								<div class=" panel-body" style="height: 300px; margin-bottom: 10px; overflow-x: auto;">
-									<div class="form-group">
+									<div class="form-group ">
 										<label class="control-label col-xs-6"><spring:message code='label.implementation_rate' text='Implementation rate' /></label>
-										<div class="col-xs-6">
+										<div class="col-xs-3">
 											<c:choose>
 												<c:when test="${measure.measureDescription.standard.type.name=='MATURITY'}">
 													<select class="form-control" name='implementationRate' data-trick-class='MaturityMeasure'>
@@ -44,6 +44,7 @@
 												</c:otherwise>
 											</c:choose>
 										</div>
+										<div class='clearfix'></div>
 									</div>
 									<h4>
 										<spring:message code='label.to_do' text='Todo' />

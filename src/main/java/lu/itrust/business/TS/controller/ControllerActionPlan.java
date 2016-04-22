@@ -48,6 +48,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -114,21 +115,19 @@ public class ControllerActionPlan {
 	@RequestMapping
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String showActionPlan(HttpSession session, Model model, Principal principal) throws Exception {
-
 		// retrieve analysis ID
 		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
-
 		// load all affected assets of the actionplans (unique assets used)
 		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
-
+		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		// prepare model
-		model.addAttribute("actionplans", actionplans);
 		model.addAttribute("assets", assets);
+		model.addAttribute("actionplans", actionplans);
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 
 		// return view
 		return "analyses/single/components/actionplan";
@@ -175,11 +174,14 @@ public class ControllerActionPlan {
 		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
 		if (!actionplans.isEmpty()) {
 			// prepare model
+			OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 			model.addAttribute("actionplans", actionplans);
 			model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
+			model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
+			model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 		} else
 			model.addAttribute("actionplans", actionplans);
-		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
+		
 		// return view
 		return "analyses/single/components/actionPlan/section";
 	}

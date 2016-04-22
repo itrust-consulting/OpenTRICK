@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -871,7 +872,7 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
 		try {
-			
+
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 			if (measure == null)
 				throw new TrickException("error.measure.not_found", "Measure cannot be found");
@@ -1133,8 +1134,8 @@ public class ControllerAnalysisStandard {
 			}
 		});
 		if (measureIds.size() > 1)
-			return JsonMessage.Success(messageSource.getMessage("success.unlinked.measures.to.ticket", null, "Measures has been successfully unlinked to tickets", locale));
-		return JsonMessage.Success(messageSource.getMessage("success.unlinked.measure.to.ticket", null, "Measure has been successfully unlinked to a ticket", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.unlinked.measures.from.tickets", null, "Measures has been successfully unlinked from tickets", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.unlinked.measure.from.ticket", null, "Measure has been successfully unlinked from a ticket", locale));
 
 	}
 
@@ -1212,9 +1213,46 @@ public class ControllerAnalysisStandard {
 					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
 				}
-
-				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes));
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, 0));
 				model.addAttribute("measures", measures);
+				model.addAttribute("language", analysis.getLanguage().getAlpha2());
+			}
+			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@RequestMapping(value = "/Ticketing/Load", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String loadTickets(@RequestBody List<Integer> measureIds, @RequestParam(name = "startIndex") int startIndex, Model model, Principal principal, HttpSession session,
+			RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				List<String> excludes = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, startIndex));
 				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
@@ -1265,7 +1303,7 @@ public class ControllerAnalysisStandard {
 
 		measure.setTicket(form.getIdTicket());
 		serviceMeasure.saveOrUpdate(measure);
-		return JsonMessage.Success(messageSource.getMessage("success.link.measure.from.project", null, "Measure has been successfully linked to a ticket", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.link.measure.to.ticket", null, "Measure has been successfully linked to a ticket", locale));
 
 	}
 
@@ -1282,8 +1320,7 @@ public class ControllerAnalysisStandard {
 		Client client = null;
 		boolean isConnected = false;
 		try {
-			client = ClientBuilder.build(nameSetting.getString());
-			isConnected = client.connect(settings);
+			isConnected = (client = ClientBuilder.build(nameSetting.getString())).connect(settings);
 		} catch (TrickException e) {
 			throw e;
 		} catch (Exception e) {
