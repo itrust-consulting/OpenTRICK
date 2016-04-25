@@ -60,4 +60,6 @@ public interface DAOAssessment {
 	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario);
 
 	public Assessment getByAssetAndScenario(int idAsset, int idScenario);
+
+	public List<String> getDistinctOwnerByIdAnalysis(Integer analysisId);
 }

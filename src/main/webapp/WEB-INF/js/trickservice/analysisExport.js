@@ -74,20 +74,39 @@ function exportAnalysisReportData(analysisId) {
 function exportRiskSheet(idAnalysis) {
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.EXPORT)) {
 		$.ajax({
-			url : context + "/Analysis/RiskRegister/Export",
-			type : "post",
+			url : context + "/Analysis/RiskRegister/Form/Export",
+			type : "GET",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				if (response["success"] != undefined)
-					new TaskManager().Start();
-				else if (message["error"]) {
-					$("#alert-dialog .modal-body").html(message["error"]);
-					$("#alert-dialog").modal("toggle");
-				} else
-					unknowError()
+				var $modal = $("div#exportRiskSheetForm", new DOMParser().parseFromString(response, "text/html"));
+				$("button[name='export']").on("click", function() {
+					$.ajax({
+						url : context + "/Analysis/RiskRegister/Export",
+						type : "post",
+						data : $("form", $modal).serialize(),
+						contentType : "application/json;charset=UTF-8",
+						success : function(response, textStatus, jqXHR) {
+							if (response["success"] != undefined)
+								new TaskManager().Start();
+							else if (message["error"]) {
+								$("#alert-dialog .modal-body").html(message["error"]);
+								$("#alert-dialog").modal("toggle");
+							} else
+								unknowError()
+						},
+						error : unknowError
+					});
+				});
+
+				$modal.appendTo("#widgets");
+
+				$modal.on("hidden.bs.modal", function() {
+					$modal.remove();
+				});
 			},
 			error : unknowError
 		});
-	}else permissionError();
+	} else
+		permissionError();
 	return false;
 }

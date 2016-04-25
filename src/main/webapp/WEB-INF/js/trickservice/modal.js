@@ -78,8 +78,8 @@ function Modal(content, body) {
 		this.modal.setAttribute("class", "modal fade in");
 		this.modal.setAttribute("role", "dialog");
 		this.modal.setAttribute("tabindex", "-1");
-		this.modal.setAttribute("aria-hidden", "true");
-		this.modal.setAttribute("aria-hidden", "true");
+		this.modal.setAttribute("data-aria-hidden", "true");
+		/*this.modal.setAttribute("aria-hidden", "true");*/
 		this.modal_dialog.setAttribute("class", "modal-dialog");
 		modal_content.setAttribute("class", "modal-content");
 		this.modal_header.setAttribute("class", "modal-header");

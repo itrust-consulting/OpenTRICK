@@ -238,9 +238,14 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
 			size = riskProfiles.size();
 			for (RiskProfile riskProfile : riskProfiles) {
-				isFirst = addRiskSheetHeader(document, riskProfile, isFirst);
+				addRiskSheetHeader(document, riskProfile, isFirst);
 				Assessment assessment = assessments.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()));
-				addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner());
+				if (isFirst) {
+					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner(), isFirst);
+					isFirst = false;
+				} else
+					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner());
+
 				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"), riskProfile.getScenario().getDescription());
 				RiskProbaImpact netImpact = new RiskProbaImpact();
 				netImpact.setImpactFin(convertor.getImpact(assessment.getImpactFin()));
@@ -254,8 +259,8 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"), riskProfile.getRiskTreatment());
 				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"), netImpact, impacts.get(0), probabilities.get(0));
 				RiskStrategy strategy = riskProfile.getRiskStrategy();
-				if(strategy == null)
-					strategy = RiskStrategy.AVOID;
+				if (strategy == null)
+					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
 				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
@@ -294,7 +299,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 	}
 
 	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, ExtendedParameter impact, ExtendedParameter probability) {
-		addTitle(document, title);
+		addTitle(document, title, false);
 		XWPFTable table = document.createTable(3, 6);
 		if (probaImpact == null)
 			probaImpact = new RiskProbaImpact();
@@ -317,43 +322,51 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		getCell(row, 5).setText(probaImpact.getImportance() + "");
 	}
 
-	private void addTitle(XWPFDocument document, String title) {
-		XWPFParagraph paragraph = document.createParagraph();
+	private void addTitle(XWPFDocument document, String title, boolean isFirst) {
+		XWPFParagraph paragraph = isFirst ? document.getLastParagraph() : document.createParagraph();
 		paragraph.setStyle("TSTitle");
 		paragraph.createRun().setText(title);
 	}
 
+	private void addField(XWPFDocument document, String title, String content, boolean isFirst) {
+		addTitle(document, title, isFirst);
+		addFieldContent(document, content);
+	}
+
 	private void addField(XWPFDocument document, String title, String content) {
-		addTitle(document, title);
+		addTitle(document, title, false);
+		addFieldContent(document, content);
+	}
+
+	private void addFieldContent(XWPFDocument document, String content) {
 		if (content == null || content.isEmpty())
 			return;
 		String[] texts = content.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
 			XWPFParagraph paragraph = document.createParagraph();
-			paragraph.setStyle("CorpsTxt");
+			paragraph.setStyle("BodyOfText");
 			paragraph.createRun().setText(texts[i]);
 		}
 	}
 
-	private boolean addRiskSheetHeader(XWPFDocument document, RiskProfile riskProfile, boolean isFirst) {
+	private void addRiskSheetHeader(XWPFDocument document, RiskProfile riskProfile, boolean isFirst) {
 		XWPFTable table = null;
 		if (isFirst)
 			table = document.insertNewTbl(document.getParagraphs().get(0).getCTP().newCursor());
-		else {
-			document.createParagraph().setPageBreak(true);
-			table = document.createTable(1, 6);
-		}
-
+		else
+			table = document.createTable(2, 3);
 		table.setStyleID("TSTABLERISK");
 		XWPFTableRow row = table.getRow(0);
 		getCell(row, 0).setText(getMessage("report.risk_sheet.risk_id", "Risk ID"));
-		getCell(row, 1).setText((riskProfile.getIdentifier() == null ? "" : riskProfile.getIdentifier()));
-		getCell(row, 2).setText(getMessage("report.risk_sheet.risk_category", "Category"));
+		getCell(row, 1).setText(getMessage("report.risk_sheet.risk_category", "Category"));
+		getCell(row, 2).setText(getMessage("report.risk_sheet.title", "Title"));
+		row = table.getRow(1);
+		if(row==null)
+			row = table.createRow();
+		getCell(row, 0).setText((riskProfile.getIdentifier() == null ? "" : riskProfile.getIdentifier()));
 		String scenarioType = riskProfile.getScenario().getType().getName();
-		getCell(row, 3).setText(getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType));
-		getCell(row, 4).setText(getMessage("report.risk_sheet.title", "Title"));
-		getCell(row, 5).setText(riskProfile.getScenario().getName());
-		return false;
+		getCell(row, 1).setText(getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType));
+		getCell(row, 2).setText(riskProfile.getScenario().getName());
 	}
 
 	private XWPFTableCell getCell(XWPFTableRow row, int i) {
