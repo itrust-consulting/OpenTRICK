@@ -345,7 +345,7 @@ public class JiraClient implements Client {
 		List<TicketingTask> tasks = new LinkedList<>();
 		Promise<SearchResult> promise = null;
 		if (excludes == null || excludes.isEmpty())
-			promise = restClient.getSearchClient().searchJql(LOAD_BY_PROJECT_KEY, maxSize, startIndex, null);
+			promise = restClient.getSearchClient().searchJql(String.format(LOAD_BY_PROJECT_KEY,idProject), maxSize, startIndex, null);
 		else {
 			String exclude = "";
 			for (String key : excludes)

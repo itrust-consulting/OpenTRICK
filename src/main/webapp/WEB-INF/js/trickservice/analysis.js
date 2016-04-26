@@ -606,8 +606,9 @@ function unLinkToTicketingSystem(section) {
 	});
 	if (measures.length) {
 
-		var $question = measures.length == 1 ? MessageResolver("confirm.unlink.measure", "Are you sure, you want to unlink this measure and task") : MessageResolver(
-				"confirm.unlink.measures", "Are you sure, you want to unlink measures and tasks"), $confirm = $("#confirm-dialog .modal-body").text();
+		var $confirm = $("#confirm-dialog"), $question = measures.length == 1 ? MessageResolver("confirm.unlink.measure", "Are you sure, you want to unlink this measure and task") : MessageResolver(
+				"confirm.unlink.measures", "Are you sure, you want to unlink measures and tasks");
+		$confirm.find(".modal-body").text($question);
 		$(".btn-danger", $confirm).click(function() {
 			var $progress = $("#progress-dialog").modal("show");
 			$.ajax({
