@@ -447,7 +447,7 @@ function customAnalysis(element) {
 									cursor : "move",
 									start : function(e, ui) {
 										$(ui.helper).css({
-											'z-index' : '1085',
+											'z-index' : '1385',
 											'min-width' : instance.cloneWidth,
 											'border-radius' : "5px"
 										});
