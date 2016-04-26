@@ -106,8 +106,7 @@ function exportRiskSheet(idAnalysis) {
 										case "indirect":
 										case "cia":
 										case "owner":
-											$(errorElement).appendTo($("select[name='" + error + "']", $modal));
-											console.log(response[error]);
+											$(errorElement).appendTo($("select[name='" + error + "']", $modal).parent());
 											break;
 										}
 									}
