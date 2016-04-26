@@ -46,6 +46,7 @@ import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.WordReport;
@@ -64,27 +65,30 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 
 	private int idAnalysis;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
+	private Locale locale;
 
-	private DAOAnalysis daoAnalysis;
+	private ServiceTaskFeedback serviceTaskFeedback;
 
 	private DAORiskRegister daoRiskRegister;
 
 	private DAOWordReport daoWordReport;
 
-	private DAOUser daoUser;
-
 	private MessageSource messageSource;
 
-	private Locale locale;
+	private DAOAnalysis daoAnalysis;
+
+	private DAOUser daoUser;
+
+	private CSSFFilter cssfFilter;
 
 	public static String FR_TEMPLATE;
 
 	public static String ENG_TEMPLATE;
 
-	public WorkerExportRiskSheet(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String rootPath, Integer analysisId,
-			String username, MessageSource messageSource) {
+	public WorkerExportRiskSheet(CSSFFilter cssfFilter, WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, String rootPath,
+			Integer analysisId, String username, MessageSource messageSource) {
 		super(poolManager, sessionFactory);
+		setCssfFilter(cssfFilter);
 		setUsername(username);
 		setIdAnalysis(analysisId);
 		setRootPath(rootPath);
@@ -198,7 +202,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		try {
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
 			Map<String, RiskRegisterItem> oldRiskRegister = analysis.getRiskRegisters().stream().collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
-			MessageHandler messageHandler = computation.computeRiskRegister();
+			MessageHandler messageHandler = computation.computeRiskRegister(getCssfFilter());
 			if (messageHandler != null)
 				throw messageHandler.getException();
 			ParameterConvertor convertor = computation.getConvertor();
@@ -221,7 +225,6 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				}
 			} else
 				analysis.getRiskRegisters().forEach(current -> riskProfiles.add(riskProfilesMap.get(RiskProfile.key(current.getAsset(), current.getScenario()))));
-
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
@@ -231,15 +234,19 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			opcPackage.save(workFile);
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.data", "Preparing risk sheet template", progress += 8));
-			Map<String, Assessment> assessments = analysis.getAssessments().stream().filter(assessment -> assessment.isSelected())
-					.collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+			Map<String, Assessment> assessments = cssfFilter.hasOwner()
+					? analysis.getAssessments().stream().filter(assessment -> assessment.isSelected() && cssfFilter.getOwner().equals(assessment.getOwner()))
+							.collect(Collectors.toMap(Assessment::getKey, Function.identity()))
+					: analysis.getAssessments().stream().filter(assessment -> assessment.isSelected()).collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 			List<ExtendedParameter> probabilities = convertor.getProbabilityParameters(), impacts = convertor.getImpactsParameters();
-			boolean isFirst = true;
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
 			size = riskProfiles.size();
+			boolean isFirst = true;
 			for (RiskProfile riskProfile : riskProfiles) {
 				addRiskSheetHeader(document, riskProfile, isFirst);
 				Assessment assessment = assessments.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()));
+				if (assessment == null)
+					continue;
 				if (isFirst) {
 					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner(), isFirst);
 					isFirst = false;
@@ -361,7 +368,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 		getCell(row, 1).setText(getMessage("report.risk_sheet.risk_category", "Category"));
 		getCell(row, 2).setText(getMessage("report.risk_sheet.title", "Title"));
 		row = table.getRow(1);
-		if(row==null)
+		if (row == null)
 			row = table.createRow();
 		getCell(row, 0).setText((riskProfile.getIdentifier() == null ? "" : riskProfile.getIdentifier()));
 		String scenarioType = riskProfile.getScenario().getType().getName();
@@ -469,6 +476,21 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 	 */
 	public void setLocale(Locale locale) {
 		this.locale = locale;
+	}
+
+	/**
+	 * @return the cssfFilter
+	 */
+	protected CSSFFilter getCssfFilter() {
+		return cssfFilter;
+	}
+
+	/**
+	 * @param cssfFilter
+	 *            the cssfFilter to set
+	 */
+	protected void setCssfFilter(CSSFFilter cssfFilter) {
+		this.cssfFilter = cssfFilter;
 	}
 
 }

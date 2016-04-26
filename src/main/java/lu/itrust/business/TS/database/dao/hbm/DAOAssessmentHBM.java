@@ -309,7 +309,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	public List<String> getDistinctOwnerByIdAnalysis(Integer analysisId) {
 		return getSession()
 				.createQuery(
-						"Select distinct assessment.owner From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true")
+						"Select distinct assessment.owner From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true and assessment.owner<>''")
 				.setInteger("idAnalysis", analysisId).list();
 	}
 }

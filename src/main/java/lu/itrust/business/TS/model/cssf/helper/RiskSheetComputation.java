@@ -854,4 +854,38 @@ public class RiskSheetComputation {
 	public void setConvertor(ParameterConvertor convertor) {
 		this.convertor = convertor;
 	}
+
+	public MessageHandler computeRiskRegister(CSSFFilter filter) {
+		// create a messagehandler object
+				ComputationHelper helper = null;
+				try {
+					System.out.println("Risk Register calculation...");
+					List<ExtendedParameter> extendedParameters = new ArrayList<>(22);
+					int mandatoryPhase = 0;
+					for (Parameter parameter : this.analysis.getParameters()) {
+						if (parameter instanceof ExtendedParameter)
+							extendedParameters.add((ExtendedParameter) parameter);
+						else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE))
+							mandatoryPhase = (int) parameter.getValue();
+					}
+					// ****************************************************************
+					// * calculate RiskRegister using CSSFComputation
+					// ****************************************************************
+					helper = new ComputationHelper(extendedParameters);
+					setConvertor(helper.getParameterConvertor());
+					this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
+					// print risk register into console
+					// printRegister(this.analysis.getRiskRegisters());
+					return null;
+				} catch (Exception e) {
+					// print error message
+					System.out.println("Risk Register calculation and saving failed!");
+					TrickLogManager.Persist(e);
+					return new MessageHandler(e);
+				} finally {
+					if (helper != null) {
+						helper.destroy();
+					}
+				}
+	}
 }
