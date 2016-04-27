@@ -208,6 +208,7 @@
 								</div>
 							</div>
 						</div>
+						<div class='clearfix'></div>
 					</div>
 				</form>
 				<span style="display: block; clear: both; margin: 0; padding: 0"></span>

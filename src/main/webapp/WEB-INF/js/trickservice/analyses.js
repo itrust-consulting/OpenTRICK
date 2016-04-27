@@ -442,7 +442,7 @@ function customAnalysis(element) {
 									helper : "clone",
 									cancel : "span.glyphicon-remove-sign",
 									revert : "invalid",
-									containment : "#buildAnalysisModal #group_2",
+									containment : "#group_2",
 									accept : "*[dropzone='true']",
 									cursor : "move",
 									start : function(e, ui) {
