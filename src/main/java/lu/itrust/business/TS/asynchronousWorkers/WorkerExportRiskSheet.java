@@ -243,16 +243,16 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			size = riskProfiles.size();
 			boolean isFirst = true;
 			for (RiskProfile riskProfile : riskProfiles) {
-				addRiskSheetHeader(document, riskProfile, isFirst);
 				Assessment assessment = assessments.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()));
 				if (assessment == null)
 					continue;
+				addRiskSheetHeader(document, riskProfile, isFirst);
 				if (isFirst) {
 					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner(), isFirst);
 					isFirst = false;
 				} else
 					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner());
-
+				
 				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"), riskProfile.getScenario().getDescription());
 				RiskProbaImpact netImpact = new RiskProbaImpact();
 				netImpact.setImpactFin(convertor.getImpact(assessment.getImpactFin()));
