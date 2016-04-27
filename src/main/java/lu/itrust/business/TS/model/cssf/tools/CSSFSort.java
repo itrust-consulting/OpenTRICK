@@ -371,26 +371,29 @@ public class CSSFSort {
 	}
 
 	public static List<RiskRegisterItem> sortAndConcatenate(ComputationHelper helper, CSSFFilter cssfFilter) {
-		int cia = cssfFilter.getCia();
+		int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
 		List<RiskRegisterItem> riskRegisterItems = new ArrayList<>();
 		helper.getRiskRegisters().values().stream().sorted(new NetImportanceComparator().reversed()).forEach(riskRegister -> {
 			switch (findGroup(riskRegister.getScenario().getType().getName())) {
 			case DIRECT:
-				if (cssfFilter.getDirect() > 0 || riskRegister.isConformed(cssfFilter.getImpact(), cssfFilter.getProbability())) {
+				if (direct == -1 || direct > -1 && (cssfFilter.getDirect() > 0 || riskRegister.isCompliant(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
 					riskRegisterItems.add(riskRegister);
-					cssfFilter.setDirect(cssfFilter.getDirect() - 1);
+					if (direct > 0)
+						cssfFilter.setDirect(cssfFilter.getDirect() - 1);
 				}
 				break;
 			case INDIRECT:
-				if (cssfFilter.getIndirect() > 0 || riskRegister.isConformed(cssfFilter.getImpact(), cssfFilter.getProbability())) {
+				if (inderect == -1 || inderect > -1 && (cssfFilter.getIndirect() > 0 || riskRegister.isCompliant(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
 					riskRegisterItems.add(riskRegister);
-					cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
+					if (inderect > 0)
+						cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
 				}
 				break;
 			default:
-				if (cia == 0 || cia > 0 && (cssfFilter.getCia() > 0 || riskRegister.isConformed(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
+				if (cia == -1 || cia > -1 && (cssfFilter.getCia() > 0 || riskRegister.isCompliant(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
 					riskRegisterItems.add(riskRegister);
-					cssfFilter.setCia(cssfFilter.getCia() - 1);
+					if (cia > 0)
+						cssfFilter.setCia(cssfFilter.getCia() - 1);
 				}
 				break;
 			}

@@ -21,6 +21,8 @@ public class CSSFFilter {
 	private double impact;
 
 	private double probability;
+	
+	private String owner;
 
 	/**
 	 * 
@@ -140,6 +142,32 @@ public class CSSFFilter {
 	 */
 	public void setProbability(double probability) {
 		this.probability = probability;
+	}
+
+	/**
+	 * @return the owner
+	 */
+	public String getOwner() {
+		return owner;
+	}
+
+	/**
+	 * @param owner the owner to set
+	 */
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	
+	public boolean hasOwner() {
+		return !(owner ==null || owner.trim().isEmpty());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CSSFFilter [direct=" + direct + ", indirect=" + indirect + ", cia=" + cia + ", impact=" + impact + ", probability=" + probability + ", owner=" + owner + "]";
 	}
 
 }

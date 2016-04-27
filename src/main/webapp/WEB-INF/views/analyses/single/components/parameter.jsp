@@ -206,6 +206,7 @@
 
 	<spring:message code='label.nil' var="nil"/>
 	<spring:message code='label.all' var="all"/>
+	<spring:message code='label.compliant' var="compliant"/>
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -227,26 +228,27 @@
 							<c:forEach items="${simpleParameters[1]}" var="parameter">
 								<c:choose>
 									<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
-										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' class="success textaligncenter"
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1' class="success textaligncenter"
 											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
 												pattern="#" /></td>
 									</c:when>
-									<c:when test="${parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
-										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='-1' class="success textaligncenter" data-trick-field="value"
-											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
-									</c:when>
-									<c:when test="${parameter.description== 'cssfCIASize'}">
-										<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfCIA" />
-										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all}' data-trick-min-value='-1' data-trick-step-value='1'
-											data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><c:choose>
-												<c:when test="${parameter.value <= -1 }">
+									<c:when test="${parameter.description== 'cssfCIASize' or parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
+										<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfSize" />
+										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all},${compliant}' data-trick-min-value='-2' data-trick-step-value='1'
+											data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);">
+											<c:choose>
+												<c:when test="${parameter.value <= -2 }">
 													${nil}
 													</c:when>
-												<c:when test="${parameter.value == 0}">
+													<c:when test="${parameter.value == -1}">
 													${all}
 													</c:when>
-												<c:otherwise>${cssfCIA}</c:otherwise>
-											</c:choose></td>
+												<c:when test="${parameter.value == 0}">
+													${compliant}
+													</c:when>
+												<c:otherwise>${cssfSize}</c:otherwise>
+											</c:choose>
+										</td>
 									</c:when>
 								</c:choose>
 							</c:forEach>

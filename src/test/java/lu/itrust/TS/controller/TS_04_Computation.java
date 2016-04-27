@@ -109,7 +109,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(post("/Analysis/EditField/Parameter/" + id).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", id, "value", "double", 0D)))
+						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", id, "value", "double", -1D)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 

@@ -74,20 +74,62 @@ function exportAnalysisReportData(analysisId) {
 function exportRiskSheet(idAnalysis) {
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.EXPORT)) {
 		$.ajax({
-			url : context + "/Analysis/RiskRegister/Export",
-			type : "post",
+			url : context + "/Analysis/RiskRegister/Form/Export",
+			type : "GET",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				if (response["success"] != undefined)
-					new TaskManager().Start();
-				else if (message["error"]) {
-					$("#alert-dialog .modal-body").html(message["error"]);
-					$("#alert-dialog").modal("toggle");
+				var $modal = $("div#exportRiskSheetForm", new DOMParser().parseFromString(response, "text/html"));
+				if ($modal.length) {
+					$("button[name='export']", $modal).on("click", function() {
+						$.ajax({
+							url : context + "/Analysis/RiskRegister/Export",
+							type : "post",
+							data : serializeForm($("form", $modal)),
+							contentType : "application/json;charset=UTF-8",
+							success : function(response, textStatus, jqXHR) {
+								$(".label-danger",$modal).remove();
+								if (response["success"] != undefined) {
+									$modal.modal("hide");
+									new TaskManager().Start();
+								} else if (response["error"]) {
+									$("#alert-dialog .modal-body").html(message["error"]);
+									$("#alert-dialog").modal("toggle");
+								} else {
+									for ( var error in response) {
+										var errorElement = document.createElement("label");
+										errorElement.setAttribute("class", "label label-danger");
+										$(errorElement).text(response[error]);
+										switch (error) {
+										case "impact":
+										case "probability":
+										case "direct":
+										case "indirect":
+										case "cia":
+										case "owner":
+											$(errorElement).appendTo($("select[name='" + error + "']", $modal).parent());
+											break;
+										}
+									}
+
+								}
+							},
+							error : unknowError
+						});
+					});
+
+					$modal.appendTo("#widgets");
+
+					$modal.on("hidden.bs.modal", function() {
+						$modal.remove();
+					});
+
+					$modal.modal("show");
 				} else
-					unknowError()
+					unknowError();
 			},
 			error : unknowError
 		});
-	}else permissionError();
+	} else
+		permissionError();
 	return false;
 }
