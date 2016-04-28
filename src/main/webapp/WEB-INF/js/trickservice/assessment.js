@@ -145,6 +145,7 @@ EstimationHelper.prototype = {
 	},
 	load : function() {
 		var instance = this;
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : instance.loadUrl(),
 			contentType : "application/json;charset=UTF-8",
@@ -153,6 +154,8 @@ EstimationHelper.prototype = {
 				return instance.updateContent(reponse);
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 		return this;
 	},
@@ -160,15 +163,17 @@ EstimationHelper.prototype = {
 		if (this.isReadOnly)
 			return this.load();
 		var instance = this;
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : instance.updateUrl(),
 			contentType : "application/json;charset=UTF-8",
 			type : "post",
-			async : false,
 			success : function(reponse) {
 				return instance.updateContent(reponse);
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 		return this;
 

@@ -69,4 +69,9 @@ public class ServiceTSSettingImpl implements ServiceTSSetting {
 		return  daotsSetting.isAllowed(name);
 	}
 
+	@Override
+	public boolean isAllowed(TSSettingName name, boolean defaultValue) {
+		return daotsSetting.isAllowed(name,defaultValue);
+	}
+
 }

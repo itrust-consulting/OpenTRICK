@@ -73,6 +73,7 @@ function exportAnalysisReportData(analysisId) {
 
 function exportRiskSheet(idAnalysis) {
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.EXPORT)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/RiskRegister/Form/Export",
 			type : "GET",
@@ -128,7 +129,9 @@ function exportRiskSheet(idAnalysis) {
 					unknowError();
 			},
 			error : unknowError
-		});
+		}).complete(function(){
+			$progress.hide();
+		})
 	} else
 		permissionError();
 	return false;

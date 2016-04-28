@@ -22,6 +22,7 @@ function selectAsset(assetId, value) {
 					requiredUpdate.push(selectedItem[i]);
 			}
 			if (requiredUpdate.length) {
+				var $progress = $("#loading-indicator").show();
 				$.ajax({
 					url : context + "/Analysis/Asset/Select",
 					contentType : "application/json;charset=UTF-8",
@@ -33,9 +34,12 @@ function selectAsset(assetId, value) {
 						return false;
 					},
 					error : unknowError
+				}).complete(function() {
+					$progress.hide();
 				});
 			}
 		} else {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Asset/Select/" + assetId,
 				async : false,
@@ -45,6 +49,8 @@ function selectAsset(assetId, value) {
 					return false;
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		}
 	}
@@ -69,6 +75,7 @@ function deleteAsset() {
 									"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
 									assetname));
 		$("#confirm-dialog .btn-danger").click(function() {
+			var $progress = $("#loading-indicator").show(), hasChange = false;
 			while (selectedAsset.length) {
 				var assetId = selectedAsset.pop();
 				$.ajax({
@@ -76,9 +83,10 @@ function deleteAsset() {
 					type : "POST",
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
-						if (response["success"] != undefined)
-							reloadSection("section_asset");
-						else if (response["error"] != undefined) {
+						if (response["success"] != undefined) {
+							$("tr[data-trick-id='" + assetId + "']", "#section_asset").remove();
+							hasChange = true;
+						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").text(response["error"]);
 							$("#alert-dialog").modal("toggle");
 						} else {
@@ -88,6 +96,13 @@ function deleteAsset() {
 						return false;
 					},
 					error : unknowError
+				}).complete(function() {
+					if (!selectedAsset.length) {
+						$progress.hide();
+						if (hasChange)
+							reloadSection("section_asset");
+					}
+
 				});
 			}
 
@@ -111,6 +126,9 @@ function editAsset(rowTrickId, isAdd) {
 				return false;
 			rowTrickId = findTrickID(selectedScenario[0]);
 		}
+
+		var $progress = $("#loading-indicator").show();
+
 		$.ajax({
 			url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Analysis/Asset/Add" : "/Analysis/Asset/Edit/" + rowTrickId),
 			async : true,
@@ -125,12 +143,15 @@ function editAsset(rowTrickId, isAdd) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	}
 	return false;
 }
 
 function saveAsset(form) {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/Asset/Save",
 		type : "post",
@@ -181,6 +202,8 @@ function saveAsset(form) {
 			$(errorElement).appendTo($("#addAssetModal .modal-body"));
 			return false;
 		}
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
 }

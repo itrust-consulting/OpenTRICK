@@ -34,7 +34,6 @@ function saveAssessmentData(e) {
 	else {
 		$.ajax({
 			url : context + "/Analysis/EditField/Estimation/Update?asset=" + idAsset + "&scenario=" + idScenario,
-			async : false,
 			type : "post",
 			data : '{"id":' + idAsset + ', "fieldName":"' + name + '", "value":"' + defaultValueByType(value, type) + '", "type": "' + type + '"}',
 			contentType : "application/json;charset=UTF-8",

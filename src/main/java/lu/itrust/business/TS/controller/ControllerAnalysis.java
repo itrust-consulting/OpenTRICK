@@ -447,9 +447,11 @@ public class ControllerAnalysis {
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
 			return "redirect:/Logout";
+		loadUserSettings(principal, model, user);
 		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
+		
 		return "analyses/all/home";
 	}
 

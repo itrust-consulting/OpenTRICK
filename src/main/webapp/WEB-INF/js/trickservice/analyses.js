@@ -18,6 +18,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 	}
 
 	if (canManageAccess()) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/ManageAccess/" + analysisId,
 			type : "get",
@@ -37,6 +38,8 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 				});
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -45,6 +48,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 }
 
 function updatemanageAnalysisAccess(analysisId, userrightsform) {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/ManageAccess/Update/" + analysisId,
 		type : "post",
@@ -68,7 +72,10 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
+	return false;
 }
 
 function findTrickisProfile(element) {
@@ -170,9 +177,8 @@ function deleteAnalysis(analysisId) {
 			$("#deleteAnalysisModel .btn").unbind();
 			$("#deleteAnalysisModel").modal("hide");
 		});
-		$("#deleteanalysisbuttonYes").click(function() {
+		$("#deleteanalysisbuttonYes").one("click",function() {
 			$("#deleteprogressbar").show();
-			$("#deleteAnalysisModel .btn").unbind();
 			$("#deleteAnalysisModel .btn").prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
@@ -180,7 +186,6 @@ function deleteAnalysis(analysisId) {
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					$("#deleteprogressbar").hide();
-					$("#deleteanalysisbuttonYes").prop("disabled", false);
 					$("#deleteAnalysisModel").modal('hide');
 					if (response.success != undefined) {
 						reloadSection("section_analysis");
@@ -191,11 +196,11 @@ function deleteAnalysis(analysisId) {
 					return false;
 				},
 				error : unknowError
+			}).complete(function(){
+				$("#deleteanalysisbuttonYes").prop("disabled", false);
 			});
-
 			return false;
 		});
-		$("#deleteAnalysisModel .btn").prop("disabled", false);
 		$("#deleteAnalysisModel").modal('show');
 	} else
 		permissionError();
@@ -210,6 +215,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 		analysisId = selectedAnalysis[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.READ)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/AnalysisProfile/Add/" + analysisId,
 			type : "get",
@@ -248,6 +254,8 @@ function createAnalysisProfile(analysisId, section_analysis) {
 
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	}
 	return false;
@@ -274,15 +282,14 @@ function saveAnalysisProfile(form) {
 		data[name] = value;
 
 	});
-
-	var jsonarray = JSON.stringify(data);
+	
+	var $progress = $("#loading-indicator").show();
 
 	$.ajax({
 		url : context + "/AnalysisProfile/Save",
 		type : "post",
-		data : jsonarray,
+		data : JSON.stringify(data),
 		contentType : "application/json;charset=UTF-8",
-		aync : true,
 		success : function(response, textStatus, jqXHR) {
 
 			var alert = $("#analysisProfileform .label-danger");
@@ -334,6 +341,8 @@ function saveAnalysisProfile(form) {
 
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
 	return false;
 }

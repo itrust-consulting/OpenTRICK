@@ -211,7 +211,6 @@ function savePhase(form) {
 	$.ajax({
 		url : context + "/Analysis/Phase/Save",
 		type : "post",
-		async : true,
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
@@ -278,11 +277,11 @@ function deletePhase(idPhase) {
 	
 	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
 	$("#confirm-dialog .btn-danger").click(function() {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Phase/Delete/" + idPhase,
 			contentType : "application/json;charset=UTF-8",
 			type : 'POST',
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
 					setTimeout(function() {
@@ -298,9 +297,11 @@ function deletePhase(idPhase) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	});
-	$("#confirm-dialog").modal("toggle");
+	$("#confirm-dialog").modal("show");
 	return false;
 }
 

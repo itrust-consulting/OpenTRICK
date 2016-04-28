@@ -16,7 +16,7 @@ function isAnalysisOnlyStandard(section) {
 
 function manageStandard() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var $modal = $("#standardModal"), locale = findAnalysisLocale();
+		var $modal = $("#standardModal");
 		$modal.find(".alert").remove();
 		$.ajax({
 			url : context + "/Analysis/Standard/Manage",
@@ -51,13 +51,7 @@ function createStandard() {
 		return false;
 
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-
-		var alert = $("#createStandardModal .label-danger");
-		if (alert.length)
-			alert.remove();
-
-		var locale = findAnalysisLocale();
-
+		$("#createStandardModal .label-danger").remove();
 		$("#createStandardModal #createstandardbutton").prop("disabled", false);
 		$("#createStandardModal #standard_label").prop("value", "");
 		$("#createStandardModal #standard_version").prop("value", "");
@@ -69,29 +63,24 @@ function createStandard() {
 		$("#createstandardbutton").text(MessageResolver("label.action.create", "Create"));
 		$("#createstandardbutton").attr("onclick", "doCreateStandard('standard_form')");
 		$("#createStandardModal").modal('show');
-
 	} else
 		permissionError();
 	return false;
 }
 
 function doCreateStandard(form) {
-	$("#createStandardModal #createstandardbutton").prop("disabled", true);
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		$("#createStandardModal #createstandardbutton").prop("disabled", true);
 		$.ajax({
 			url : context + "/Analysis/Standard/Create",
 			type : "post",
 			data : serializeForm(form),
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				$("#createStandardModal #createstandardbutton").prop("disabled", false);
-				var alert = $("#createStandardModal .label-danger");
-				if (alert.length)
-					alert.remove();
+				$("#createStandardModal .label-danger").remove();
 				for ( var error in response) {
 					var errorElement = document.createElement("label");
 					errorElement.setAttribute("class", "label label-danger");
-
 					$(errorElement).text(response[error]);
 					switch (error) {
 					case "label":
@@ -127,11 +116,10 @@ function doCreateStandard(form) {
 				return false;
 
 			},
-			error : function() {
-				unknowError();
-				$("#createStandardModal #createstandardbutton").prop("disabled", false);
-			}
-		});
+			error : unknowError
+		}).complete(function(){
+			$("#createStandardModal #createstandardbutton").prop("disabled", false);
+		})
 	} else
 		permissionError();
 	return false;
@@ -254,9 +242,7 @@ function addStandard() {
 	var selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
 	if (selectedItem.length != 0)
 		return false;
-	var alert = $("#addStandardModal .alert");
-	if (alert.length)
-		alert.remove();
+	var alert = $("#addStandardModal .alert").remove();
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#add_standard_progressbar").css("display", "none");
 		$.ajax({

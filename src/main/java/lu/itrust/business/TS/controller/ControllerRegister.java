@@ -111,7 +111,7 @@ public class ControllerRegister {
 	@RequestMapping("/Register")
 	public String add(Map<String, Object> model) {
 		// create new user object and add it to model
-		if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP))
+		if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP,true))
 			return "redirect:/Home";
 		model.put("user", new User());
 		return "user/register";
@@ -133,8 +133,8 @@ public class ControllerRegister {
 			HttpServletResponse response) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP))
-				return null;
+			if (!serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_SIGNUP,true))
+				return errors;
 			User user = new User();
 			if (!buildUser(errors, user, source, locale))
 				return errors;
@@ -179,7 +179,6 @@ public class ControllerRegister {
 
 			return errors;
 		} catch (ConstraintViolationException | DataIntegrityViolationException e) {
-
 			errors.put("constraint",
 					messageSource.getMessage("error.user.constraint", null, "A username already exists with this email! Choose another username or email!", locale));
 			errors.put("login", messageSource.getMessage("error.user.username.used_change", null, "Change the username", locale));
@@ -189,7 +188,7 @@ public class ControllerRegister {
 	}
 
 	public String checkAttempt(String name, HttpSession session, Principal principal) {
-		if (principal != null || !serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD))
+		if (principal != null || !serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD,true))
 			return "redirect:/Home";
 		Integer attempt = (Integer) session.getAttribute(name);
 		if (attempt == null)
