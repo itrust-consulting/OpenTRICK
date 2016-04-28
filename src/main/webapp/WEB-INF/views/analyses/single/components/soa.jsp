@@ -34,7 +34,7 @@
 					<c:forEach items="${soa}" var="measure">
 						<c:choose>
 							<c:when test="${not measure.measureDescription.computable}">
-								<tr style="background-color: #F8F8F8;">
+								<tr style="background-color: #F8F8F8;" data-trick-id='${measure.id}'>
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
