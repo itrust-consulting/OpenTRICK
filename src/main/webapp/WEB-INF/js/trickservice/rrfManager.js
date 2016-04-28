@@ -12,8 +12,7 @@ function rrfError(message) {
 }
 
 function loadRRF() {
-	var $progress = $("#progress-dialog");
-	$progress.modal("show");
+	var $progress = $("#loading-indicator").show();
 	$
 			.ajax(
 					{
@@ -37,7 +36,7 @@ function loadRRF() {
 
 								initialiseStandardFilter();
 
-								if (application.openMode!==OPEN_MODE.READ) {
+								if (application.openMode !== OPEN_MODE.READ) {
 
 									var $controlApplySubChapter = $("#measure-control-apply-sub-chapter", $rrfUI), $selectetiveControlApplySubChapter = $(
 											"#measure-control-apply-selective-sub-chapter", $rrfUI), applyMeasureCharacteristics = function(data, idMeasure) {
@@ -112,7 +111,7 @@ function loadRRF() {
 						},
 						error : unknowError
 					}).complete(function() {
-				$("#progress-dialog").modal("hide");
+				$progress.hide();
 			});
 
 	return false;
@@ -277,7 +276,7 @@ function initialiseMeasuresClick() {
 		$("#rrfEditor #selectable_rrf_measures_chapter_controls a.active").removeClass("active");
 
 		// get current element data
-		var $this = $(this), classname = $this.attr("data-trick-class"),trickid = $this.attr("data-trick-id");
+		var $this = $(this), classname = $this.attr("data-trick-class"), trickid = $this.attr("data-trick-id");
 
 		// select current
 		$this.addClass("active");

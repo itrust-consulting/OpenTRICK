@@ -462,6 +462,12 @@ datalist {
 	overflow: auto;
 }
 
+#loading-indicator {
+	position: fixed;
+	top: 50%;
+	left:50%;
+}
+
 .scrollable {
 	overflow: hidden;
 }

@@ -174,6 +174,7 @@ function selectScenario(scenarioId, value) {
 				if (value != selected)
 					requiredUpdate.push(selectedItem[i]);
 			}
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Scenario/Select",
 				contentType : "application/json;charset=UTF-8",
@@ -184,18 +185,22 @@ function selectScenario(scenarioId, value) {
 					return false;
 				},
 				error : unknowError
-			});
+			}).complete(function(){
+				$progress.hide();
+			})
 		} else {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Scenario/Select/" + scenarioId,
-				async : true,
 				contentType : "application/json;charset=UTF-8",
 				success : function(reponse) {
 					reloadSection("section_scenario");
 					return false;
 				},
 				error : unknowError
-			});
+			}).complete(function(){
+				$progress.hide();
+			})
 		}
 	}
 	return false;

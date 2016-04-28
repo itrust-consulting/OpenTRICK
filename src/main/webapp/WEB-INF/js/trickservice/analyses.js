@@ -1049,10 +1049,10 @@ function linkToProject() {
 	if (idAnalysis.length != 1)
 		return false;
 	if (userCan(idAnalysis[0], ANALYSIS_RIGHT.ALL)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/" + idAnalysis[0] + "/Ticketing/Load",
 			type : "GET",
-			async : false,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				var $modal = $("#modal-ticketing-project-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
@@ -1095,6 +1095,8 @@ function linkToProject() {
 				}
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -1110,10 +1112,10 @@ function unLinkToProject() {
 			analyses.push(idAnalysis);
 	});
 	if (analyses.length) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Ticketing/UnLink",
 			type : "POST",
-			async : false,
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(analyses),
 			success : function(response, textStatus, jqXHR) {
@@ -1127,6 +1129,8 @@ function unLinkToProject() {
 					unknowError();
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	}
 	return false;

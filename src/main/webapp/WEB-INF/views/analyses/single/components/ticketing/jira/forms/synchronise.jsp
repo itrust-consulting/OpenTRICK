@@ -23,7 +23,7 @@
 										<spring:message text='${measure.measureDescription.standard.label} - ${measure.measureDescription.reference} - ${description.domain}' />
 									</h4>
 								</div>
-								<div class=" panel-body" style="height: 300px; margin-bottom: 10px; overflow-x: auto;">
+								<div class=" panel-body" style="height: 300px; margin-bottom: 10px; overflow-y: auto;">
 									<div class="form-group ">
 										<label class="control-label col-xs-6"><spring:message code='label.implementation_rate' text='Implementation rate' /></label>
 										<div class="col-xs-3">

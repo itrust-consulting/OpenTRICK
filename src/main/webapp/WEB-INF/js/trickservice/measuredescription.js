@@ -40,7 +40,7 @@ function showMeasures(idStandard, languageId, reloadBody) {
 	}
 	if (languageId == undefined || languageId == null)
 		languageId = findDefaultLanguageId();
-	$("#progress-dialog").modal("show");
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Language/" + languageId + "/Measures",
 		type : "POST",
@@ -50,10 +50,8 @@ function showMeasures(idStandard, languageId, reloadBody) {
 			if ($newSection.length) {
 				$section = $("#section_kb_measure");
 				var sectionSmartUpdate = new SectionSmartUpdate("section_kb_measure", $newSection);
-				if (reloadBody || sectionSmartUpdate.Update()) {
+				if (reloadBody || sectionSmartUpdate.Update())
 					$("tbody", $section).replaceWith($("tbody", $newSection));
-					console.log("here");
-				}
 				$("#hidden-standard-data", $section).replaceWith($("#hidden-standard-data", $newSection));
 				$("#section_title_measure", $section).text($("#section_title_measure", $newSection).text());
 				$section.attr("data-standard-id", idStandard);
@@ -65,7 +63,7 @@ function showMeasures(idStandard, languageId, reloadBody) {
 		},
 		error : unknowError,
 		complete : function() {
-			$("#progress-dialog").modal("hide");
+			$progress.hide();
 		}
 	});
 	return false;

@@ -85,7 +85,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) 
 }
 
 function displayActionPlanAssets() {
-	$("#progress-dialog").modal("show");
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/Assets",
 		data : {
@@ -120,7 +120,7 @@ function displayActionPlanAssets() {
 		},
 		error : unknowError,
 		complete:function(){
-			$("#progress-dialog").modal("hide");
+			$progress.hide();
 		}
 	});
 	return false;
