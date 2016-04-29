@@ -401,9 +401,7 @@ function openTicket(section) {
 			data : JSON.stringify(measures),
 			success : function(response, textStatus, jqXHR) {
 				var $modal = $("#modal-ticketing-view", new DOMParser().parseFromString(response, "text/html"));
-				if (!$modal.length)
-					unknowError();
-				else {
+				if ($modal.length) {
 					$("#modal-ticketing-view").remove();
 					$modal.appendTo($("#widgets")).modal("show");
 					var $previous = $modal.find(".previous"), $next = $modal.find(".next"), $title = $modal.find(".modal-title");
@@ -436,7 +434,10 @@ function openTicket(section) {
 						}
 						return false;
 					});
-				}
+				} else if (response["error"])
+					showDialog("#alert-dialog", response['error']);
+				else
+					unknowError();
 			},
 			error : unknowError
 		}).complete(function() {
@@ -683,9 +684,7 @@ function synchroniseWithTicketingSystem(section) {
 					data : JSON.stringify(measures),
 					success : function(response, textStatus, jqXHR) {
 						var $modal = $("#modal-ticketing-synchronise", new DOMParser().parseFromString(response, "text/html"));
-						if (!$modal.length)
-							unknowError();
-						else {
+						if ($modal.length) {
 							$("#modal-ticketing-synchronise").remove();
 							$modal.appendTo($("#widgets")).modal("show");
 							var $previous = $modal.find(".previous"), $next = $modal.find(".next");
@@ -749,7 +748,10 @@ function synchroniseWithTicketingSystem(section) {
 										});
 									});
 
-						}
+						} else if (response["error"])
+							showDialog("#alert-dialog", response['error']);
+						else
+							unknowError();
 					},
 					error : unknowError
 				}).complete(function() {

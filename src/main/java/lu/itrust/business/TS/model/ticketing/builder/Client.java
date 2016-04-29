@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.ticketing.builder;
 
 import java.io.Closeable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public interface Client extends Closeable{
 	
 	boolean createIssue(String idProject ,TicketingTask task);
 	
-	boolean createIssues(String project, String language, List<Measure> measures,MessageHandler handler, int maxProgess);
+	boolean createIssues(String project, String language, Collection<Measure> measures,MessageHandler handler, int maxProgess);
 	
 	TicketingTask findTaskById(String idTask);
 	
@@ -38,9 +39,9 @@ public interface Client extends Closeable{
 
 	List<TicketingTask> findTaskByProjectId(String idProject);
 
-	List<TicketingTask> findOpenedByIdsAndProjectId(String project, List<String> keyIssues);
+	List<TicketingTask> findOpenedByIdsAndProjectId(String project, Collection<String> keyIssues);
 	
-	List<TicketingTask> findByIdsAndProjectId(String project, List<String> keyIssues);
+	List<TicketingTask> findByIdsAndProjectId(String project, Collection<String> keyIssues);
 
-	List<TicketingTask> findOtherTasksByProjectId(String project, List<String> excludes, int maxSize, int startIndex);
+	List<TicketingTask> findOtherTasksByProjectId(String project, Collection<String> excludes, int maxSize, int startIndex);
 }

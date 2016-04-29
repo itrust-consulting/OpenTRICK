@@ -358,15 +358,7 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>1.17</version>
-			<scope>test</scope>
-		</dependency>
-
-
+		
 		<dependency>
 			<groupId>com.atlassian.jira</groupId>
 			<artifactId>jira-rest-java-client-core</artifactId>
@@ -402,7 +394,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<suiteXmlFiles>
-						<suiteXmlFile>src/test/resources/scenarios/1.yaml</suiteXmlFile>
+						<suiteXmlFile>src/test/resources/scenarios/Controller.xml</suiteXmlFile>
 
 					</suiteXmlFiles>
 				</configuration>

@@ -5,6 +5,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -82,16 +83,20 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			if (analysis.hasProject()) {
 				MessageHandler handler = new MessageHandler("info.load.measure", null, "Loading measures", 1);
 				serviceTaskFeedback.send(getId(), handler);
-				List<Measure> measures;
+				Map<Integer, Measure> mapMeasures;
 				if (measureIds.size() > 5) {
 					Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
-					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
+					mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket()))
+							.collect(Collectors.toMap(Measure::getId, Function.identity()));
 				} else {
-					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
+					mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId()))
+							.collect(Collectors.toMap(Measure::getId, Function.identity()));
 				}
-				if (!measures.isEmpty()) {
+				if (!mapMeasures.isEmpty()) {
+					List<Measure> measures = new LinkedList<>();
+					measureIds.stream().filter(key -> mapMeasures.containsKey(key)).forEach(key -> measures.add(mapMeasures.get(key)));
 					handler.update("info.creating.tickets", "Creating tickets", 3);
 					client.createIssues(analysis.getProject(), analysis.getLanguage().getAlpha2(), measures, handler, 95);
 					handler.update("info.update.analysis", "Updating analysis", 95);
@@ -142,7 +147,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 				}
 			}
 		}
-		
+
 		if (client != null) {
 			try {
 				client.close();

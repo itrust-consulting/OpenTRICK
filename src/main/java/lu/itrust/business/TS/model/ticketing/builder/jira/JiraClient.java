@@ -6,6 +6,7 @@ package lu.itrust.business.TS.model.ticketing.builder.jira;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -65,9 +66,9 @@ public class JiraClient implements Client {
 
 	private static final String PROJECT_S_AND_STATUS_OPEN_AND_KEY_NOT_IN_S = "project=%s and status=open and key not in (%s) order by key";
 
-	private static final String PROJECT_S_AND_STATUS_OPEN_AND_KEY_IN_S = "project=%s and status=open and key in (%s) order by key";
+	private static final String PROJECT_S_AND_STATUS_OPEN_AND_KEY_IN_S = "project=%s and status=open and key in (%s)";
 
-	private static final String PROJECT_S_AND_KEY_IN_S = "project=%s and key in (%s) order by key";
+	private static final String PROJECT_S_AND_KEY_IN_S = "project=%s and key in (%s)";
 
 	private JiraRestClient restClient;
 
@@ -281,11 +282,11 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public List<TicketingTask> findOpenedByIdsAndProjectId(String idProject, List<String> keyIssues) {
+	public List<TicketingTask> findOpenedByIdsAndProjectId(String idProject, Collection<String> keyIssues) {
 		return findAllByProjectId(idProject, keyIssues, true);
 	}
 
-	private List<TicketingTask> findAllByProjectId(String idProject, List<String> keyIssues, boolean openOnly) {
+	private List<TicketingTask> findAllByProjectId(String idProject,Collection<String> keyIssues, boolean openOnly) {
 		List<TicketingTask> tasks = new LinkedList<>();
 		String include = "";
 		for (String key : keyIssues)
@@ -308,7 +309,7 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public boolean createIssues(String idProject, String language, List<Measure> measures, MessageHandler handler, int maxProgess) {
+	public boolean createIssues(String idProject, String language, Collection<Measure> measures, MessageHandler handler, int maxProgess) {
 		if (restClient == null)
 			throw new TrickException("error.internal", "Internal error");
 		Project project = restClient.getProjectClient().getProject(idProject).claim();
@@ -341,7 +342,7 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public List<TicketingTask> findOtherTasksByProjectId(String idProject, List<String> excludes, int maxSize, int startIndex) {
+	public List<TicketingTask> findOtherTasksByProjectId(String idProject, Collection<String> excludes, int maxSize, int startIndex) {
 		List<TicketingTask> tasks = new LinkedList<>();
 		Promise<SearchResult> promise = null;
 		if (excludes == null || excludes.isEmpty())
@@ -361,7 +362,7 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public List<TicketingTask> findByIdsAndProjectId(String idProject, List<String> keyIssues) {
+	public List<TicketingTask> findByIdsAndProjectId(String idProject, Collection<String> keyIssues) {
 		return findAllByProjectId(idProject, keyIssues, false);
 	}
 
