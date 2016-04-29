@@ -464,16 +464,32 @@ datalist {
 
 #loading-indicator {
 	position: fixed;
-	z-index:2000;
+	z-index: 2000;
 	top: 50%;
-	left:50%;
+	left: 50%;
 }
 
 .scrollable {
 	overflow: hidden;
 }
 
+.back-btn-top {
+	display: none;
+}
+
 @media ( min-width : 1200px) {
+	
+	li.back-btn-bottom {
+		display: none;
+	}
+	
+	.back-btn-top {
+		margin-top: 10px;
+		display: block;
+		position: fixed;
+		right: 5px;
+	}
+	
 	.max-height {
 		height: 100%;
 	}
