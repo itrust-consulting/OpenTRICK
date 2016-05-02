@@ -145,6 +145,7 @@ function callbackBySection(section) {
 			compliance('27001');
 			compliance('27002');
 			reloadSection("section_summary");
+			reloadSection("section_soa");
 			return false;
 		},
 		"section_summary" : function() {
@@ -188,6 +189,7 @@ SectionSmartUpdate.prototype = {
 		case "section_customer":
 		case "section_profile_analysis":
 		case "section_kb_measure":
+		case "section_soa":
 			return this.__generic_update(this.data, "#" + this.sectionName, -1);
 		default:
 			break;
