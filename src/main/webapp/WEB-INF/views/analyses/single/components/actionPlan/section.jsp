@@ -30,6 +30,7 @@
 					</c:forEach>
 				</c:if>
 				<c:if test="${isLinkedToProject}">
+					<c:set var="ttSysName" value="${fn:toLowerCase(ticketingName)}"/>
 					<c:choose>
 						<c:when test="${isEditable}">
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
@@ -104,7 +105,15 @@
 										</c:if>
 										<td><spring:message text="${ape.order}" /></td>
 										<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
-										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
+										<td>
+											<c:choose>
+												<c:when test="${isLinkedToProject and not empty ape.measure.ticket}">
+													<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,ape.measure.ticket)" var="ticketLink" />
+													<a  href="${ticketLink}" target="_blank"><spring:message text="${ape.measure.measureDescription.reference}" /> <i class="fa fa-external-link" aria-hidden="true"></i></a>
+												</c:when>
+												<c:otherwise><spring:message text="${ape.measure.measureDescription.reference}" /></c:otherwise>
+											</c:choose>
+										</td>
 										<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha2(language).getDomain()}" /></b> <br /> <spring:message
 												text="${ape.measure.getToDo()}" /></td>
 										<td align="right" ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber

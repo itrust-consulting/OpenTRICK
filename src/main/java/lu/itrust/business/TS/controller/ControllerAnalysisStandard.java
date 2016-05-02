@@ -3,6 +3,7 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -1337,7 +1338,7 @@ public class ControllerAnalysisStandard {
 		Client client = null;
 		boolean isConnected = false;
 		try {
-			isConnected = (client = ClientBuilder.build(nameSetting.getString())).connect(settings);
+			isConnected = (client = ClientBuilder.Build(nameSetting.getString())).connect(settings);
 		} catch (TrickException e) {
 			throw e;
 		} catch (Exception e) {
@@ -1363,8 +1364,10 @@ public class ControllerAnalysisStandard {
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
 					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (model != null && allowedTicketing)
+			if (model != null && allowedTicketing){
 				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
+				model.addAttribute(TICKETING_URL, url.getString());
+			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 

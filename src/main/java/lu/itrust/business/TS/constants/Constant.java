@@ -789,6 +789,8 @@ public class Constant {
 	public static final String ALLOWED_TICKETING = "allowedTicketing";
 
 	public static final String TICKETING_NAME = "ticketingName";
+	
+	public static final String TICKETING_URL = "ticketingURL";
 
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 

@@ -3,6 +3,7 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -98,7 +99,7 @@ public class ControllerActionPlan {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
 
@@ -132,7 +133,7 @@ public class ControllerActionPlan {
 		// return view
 		return "analyses/single/components/actionplan";
 	}
-	
+
 	private boolean loadUserSettings(Principal principal, @Nullable Model model, @Nullable User user) {
 		boolean allowedTicketing = false;
 		try {
@@ -142,8 +143,10 @@ public class ControllerActionPlan {
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
 					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (model != null && allowedTicketing)
+			if (model != null && allowedTicketing) {
 				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
+				model.addAttribute(TICKETING_URL, url.getString());
+			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 
@@ -181,20 +184,19 @@ public class ControllerActionPlan {
 			model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 		} else
 			model.addAttribute("actionplans", actionplans);
-		
+
 		// return view
 		return "analyses/single/components/actionPlan/section";
 	}
-	
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/Assets", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String loadAssets(@RequestParam(defaultValue="APPN") String selectedApt,Model model, HttpSession session, Principal principal) throws Exception{
+	public String loadAssets(@RequestParam(defaultValue = "APPN") String selectedApt, Model model, HttpSession session, Principal principal) throws Exception {
 		try {
-			section(model,session,principal);
-			model.addAttribute("selectedApt",ActionPlanMode.valueOf(selectedApt));
-			model.addAttribute("assets", ActionPlanManager.getAssetsByActionPlanType((List<ActionPlanEntry>)model.asMap().get("actionplans")));
+			section(model, session, principal);
+			model.addAttribute("selectedApt", ActionPlanMode.valueOf(selectedApt));
+			model.addAttribute("assets", ActionPlanManager.getAssetsByActionPlanType((List<ActionPlanEntry>) model.asMap().get("actionplans")));
 			return "analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
@@ -243,7 +245,6 @@ public class ControllerActionPlan {
 		// retrieve analysis id to compute
 		int analysisId = jsonNode.get("id").asInt();
 
-
 		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
 
@@ -262,7 +263,7 @@ public class ControllerActionPlan {
 			}
 
 			boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
-			Worker worker = new WorkerComputeActionPlan(workersPoolManager,sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
+			Worker worker = new WorkerComputeActionPlan(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			// execute task

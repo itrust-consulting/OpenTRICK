@@ -484,7 +484,7 @@ public class ControllerProfile {
 			settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
 			settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
 			settings.put("url", urlSetting.getValue());
-			return (client = ClientBuilder.build(nameSetting.getString())).connect(settings);
+			return (client = ClientBuilder.Build(nameSetting.getString())).connect(settings);
 		}catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;

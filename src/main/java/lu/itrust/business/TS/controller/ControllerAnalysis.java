@@ -14,6 +14,7 @@ import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAGE;
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,6 +132,7 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
+	
 	@Autowired
 	private ServiceUser serviceUser;
 
@@ -406,8 +408,10 @@ public class ControllerAnalysis {
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
 					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (model != null && allowedTicketing)
+			if (model != null && allowedTicketing){
 				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
+				model.addAttribute(TICKETING_URL, url.getString());
+			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		} finally {
@@ -1283,7 +1287,7 @@ public class ControllerAnalysis {
 		Client client = null;
 		boolean isConnected = false;
 		try {
-			client = ClientBuilder.build(nameSetting.getString());
+			client = ClientBuilder.Build(nameSetting.getString());
 			isConnected = client.connect(settings);
 		} catch (TrickException e) {
 			throw e;
