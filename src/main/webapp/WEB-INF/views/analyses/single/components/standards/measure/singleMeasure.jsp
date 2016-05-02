@@ -45,7 +45,7 @@
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" 
 			data-trick-id="${measure.id}" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-			<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td lang="${language}" ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
@@ -66,7 +66,7 @@
 		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
 			data-is-linked='${isLinkedToProject and not empty measure.ticket}' >
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-			<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
 					onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
