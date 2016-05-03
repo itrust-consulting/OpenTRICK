@@ -109,7 +109,7 @@
 											<c:choose>
 												<c:when test="${isLinkedToProject and not empty ape.measure.ticket}">
 													<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,ape.measure.ticket)" var="ticketLink" />
-													<a  href="${ticketLink}" target="_blank"><spring:message text="${ape.measure.measureDescription.reference}" /> <i class="fa fa-external-link" aria-hidden="true"></i></a>
+													<a  href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${ape.measure.measureDescription.reference}" /></a>
 												</c:when>
 												<c:otherwise><spring:message text="${ape.measure.measureDescription.reference}" /></c:otherwise>
 											</c:choose>

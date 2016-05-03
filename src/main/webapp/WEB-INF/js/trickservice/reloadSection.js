@@ -183,6 +183,7 @@ SectionSmartUpdate.prototype = {
 		case "section_scenario":
 		case "section_phase":
 			return this.__generic_update(this.data, "#" + this.sectionName, 1);
+		case "section_analysis":
 		case "section_user":
 		case "section_standard":
 		case "section_language":
@@ -192,6 +193,8 @@ SectionSmartUpdate.prototype = {
 		case "section_soa":
 			return this.__generic_update(this.data, "#" + this.sectionName, -1);
 		default:
+			if (this.sectionName.match("^section_standard_"))
+				return this.__generic_update(this.data, "#" + this.sectionName, -1);
 			break;
 		}
 		return true;

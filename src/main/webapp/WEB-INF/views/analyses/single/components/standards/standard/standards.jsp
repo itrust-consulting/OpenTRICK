@@ -144,7 +144,7 @@
 									<c:choose>
 										<c:when test="${hasTicket}">
 											<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
-											<a href="${ticketLink}" target="_blank"><spring:message text="${measure.measureDescription.reference}" /></a>
+											<a href="${ticketLink}" target="_titck_ts"><spring:message text="${measure.measureDescription.reference}" /></a>
 										</c:when>
 										<c:otherwise><spring:message text="${measure.measureDescription.reference}" /></c:otherwise>
 									</c:choose>
@@ -170,11 +170,11 @@
 										<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
 											onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-									<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}>
+									<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''} >
 										<c:choose>
 											<c:when test="${hasTicket}">
 												<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
-												<a href="${ticketLink}" target="_blank"><spring:message text="${measure.measureDescription.reference}" /> <i class="fa fa-external-link" aria-hidden="true"></i></a>
+												<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
 											</c:when>
 											<c:otherwise><spring:message text="${measure.measureDescription.reference}" /></c:otherwise>
 										</c:choose>

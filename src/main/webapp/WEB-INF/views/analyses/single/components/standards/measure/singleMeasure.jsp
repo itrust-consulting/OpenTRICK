@@ -40,6 +40,7 @@
 		data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' style='cursor: pointer;'
 	</c:if>
 </c:set>
+<c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}"/>
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" 
@@ -48,7 +49,17 @@
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td lang="${language}" ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
+			<td lang="${language}" ${popoverRef} >
+				<c:choose>
+					<c:when test="${hasTicket}">
+						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
+						<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+					</c:when>
+					<c:otherwise>
+						<spring:message text="${measure.measureDescription.reference}" />
+					</c:otherwise>
+				</c:choose>
+			</td>
 			<td lang="${language}" ${popoverDescription} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
@@ -70,7 +81,17 @@
 				<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
 					onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
+			<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}>
+				<c:choose>
+					<c:when test="${hasTicket}">
+						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
+						<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+					</c:when>
+					<c:otherwise>
+						<spring:message text="${measure.measureDescription.reference}" />
+					</c:otherwise>
+				</c:choose>
+			</td>
 			<td lang="${language}" ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}' data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);">
 				<c:choose>

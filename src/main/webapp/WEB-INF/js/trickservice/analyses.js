@@ -1090,8 +1090,7 @@ function linkToProject() {
 											if (response.error)
 												showDialog("#alert-dialog", response.error);
 											else if (response.success) {
-												$("tr[data-trick-id='" + idAnalysis[0] + "'][data-is-linked='false']").attr("data-is-linked", "true")
-														.find("input[type='checkbox']").change();
+												reloadSection("section_analysis");
 												$modal.modal("hide");
 											} else
 												unknowError();
@@ -1131,9 +1130,8 @@ function unLinkToProject() {
 				if (response.error)
 					showDialog("#alert-dialog", response.error);
 				else if (response.success) {
+					reloadSection("section_analysis");
 					showDialog("#info-dialog", response.success);
-					for (var i = 0; i < analyses.length; i++)
-						$("tr[data-trick-id='" + analyses[i] + "'][data-is-linked='true']").attr("data-is-linked", "false").find("input[type='checkbox']").change();
 				} else
 					unknowError();
 			},

@@ -1047,6 +1047,7 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("isMaturity", isMaturity);
 			if (isMaturity)
 				model.addAttribute("impscales", serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
+			model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 			model.addAttribute("showTodo", measureDescription.isComputable());
 			model.addAttribute("language", language.getAlpha2());
 			model.addAttribute("selectedMeasure", measure);

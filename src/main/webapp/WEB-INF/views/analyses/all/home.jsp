@@ -90,6 +90,9 @@
 							<th width="1%"></th>
 							<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
 							<th width="35%"><spring:message code="label.analysis.comment" text="Comment" /></th>
+							<c:if test="${allowedTicketing}">
+								<th><spring:message code="label.link.to.project" arguments="${ticketingName}" text="${ticketingName}" /></th>
+							</c:if>
 							<th><spring:message code="label.analysis.version" text="version" /></th>
 							<th width="8%"><spring:message code="label.analysis.creation_date" text="Create date" /></th>
 							<th><spring:message code="label.analysis.author" text="Author" /></th>
@@ -105,6 +108,16 @@
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><spring:message text="${analysis.label}" /></td>
 								<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
+								<c:if test="${allowedTicketing}">
+									<th>
+										<c:choose>
+											<c:when test="${not empty analysis.project}">
+												<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).ProjectLink(ticketingName.toLowerCase(),ticketingURL,analysis.project)" var="projectLink" />
+												<a class="btn-link" href="${projectLink}" target="_titck_ts"><spring:message text="${analysis.project}"/> <i class="fa fa-external-link" aria-hidden="true"></i></a>
+											</c:when>
+										</c:choose>
+									</th>
+								</c:if>
 								<td data-trick-version="${analysis.version}">${analysis.version}</td>
 								<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 								<td><spring:message text="${analysis.lastHistory.author}" /></td>

@@ -50,6 +50,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.TicketingTask;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.helper.CommentComparator;
 import lu.itrust.business.TS.model.ticketing.impl.Comment;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraCustomField;
 import lu.itrust.business.TS.model.ticketing.impl.jira.JiraIssueLink;
@@ -73,6 +74,8 @@ public class JiraClient implements Client {
 	private JiraRestClient restClient;
 
 	private ObjectMapper objectMapper;
+	 
+	private CommentComparator comparator = new CommentComparator();
 
 	/**
 	 * 
@@ -158,6 +161,7 @@ public class JiraClient implements Client {
 		IssueField progress = issue.getField("progress");
 		DateTime created = issue.getCreationDate(), due = issue.getDueDate(), update = issue.getUpdateDate();
 		JiraTask task = new JiraTask(issue.getKey(), issue.getSummary(), type.getName(), status.getName(), issue.getDescription(), 0);
+
 		if (reporter != null)
 			task.setReporter(reporter.getDisplayName());
 		if (assignee != null)
@@ -179,6 +183,8 @@ public class JiraClient implements Client {
 				TrickLogManager.Persist(e);
 			}
 		}
+		
+		
 		task.setComments(new LinkedList<>());
 		task.setIssueLinks(new LinkedList<>());
 		task.setCustomFields(new LinkedHashMap<>());
@@ -194,6 +200,13 @@ public class JiraClient implements Client {
 			BasicUser author = comment.getAuthor();
 			task.getComments().add(new Comment(comment.getId().toString(), author == null ? null : author.getDisplayName(), comment.getCreationDate().toDate(), comment.getBody()));
 		});
+
+		issue.getWorklogs().forEach(workerLog -> {
+			BasicUser author = workerLog.getUpdateAuthor();
+			task.getComments().add(new Comment(null, author == null ? null : author.getDisplayName(), workerLog.getCreationDate().toDate(), workerLog.getComment()));
+		});
+		
+		task.getComments().sort(comparator);
 
 		if (issueLinks != null) {
 			try {
@@ -286,7 +299,7 @@ public class JiraClient implements Client {
 		return findAllByProjectId(idProject, keyIssues, true);
 	}
 
-	private List<TicketingTask> findAllByProjectId(String idProject,Collection<String> keyIssues, boolean openOnly) {
+	private List<TicketingTask> findAllByProjectId(String idProject, Collection<String> keyIssues, boolean openOnly) {
 		List<TicketingTask> tasks = new LinkedList<>();
 		String include = "";
 		for (String key : keyIssues)
@@ -294,6 +307,7 @@ public class JiraClient implements Client {
 		Set<String> options = new HashSet<>(1);
 		options.add("*navigable");
 		options.add("comment");
+		options.add("worklog");
 		restClient.getSearchClient()
 				.searchJql(String.format(openOnly ? PROJECT_S_AND_STATUS_OPEN_AND_KEY_IN_S : PROJECT_S_AND_KEY_IN_S, idProject, include), keyIssues.size(), 0, options).claim()
 				.getIssues().forEach(issue -> tasks.add(loadTask(issue)));
@@ -346,7 +360,7 @@ public class JiraClient implements Client {
 		List<TicketingTask> tasks = new LinkedList<>();
 		Promise<SearchResult> promise = null;
 		if (excludes == null || excludes.isEmpty())
-			promise = restClient.getSearchClient().searchJql(String.format(LOAD_BY_PROJECT_KEY,idProject), maxSize, startIndex, null);
+			promise = restClient.getSearchClient().searchJql(String.format(LOAD_BY_PROJECT_KEY, idProject), maxSize, startIndex, null);
 		else {
 			String exclude = "";
 			for (String key : excludes)
