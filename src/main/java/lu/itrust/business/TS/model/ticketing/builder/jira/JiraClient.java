@@ -74,7 +74,7 @@ public class JiraClient implements Client {
 	private JiraRestClient restClient;
 
 	private ObjectMapper objectMapper;
-	 
+
 	private CommentComparator comparator = new CommentComparator();
 
 	/**
@@ -183,8 +183,7 @@ public class JiraClient implements Client {
 				TrickLogManager.Persist(e);
 			}
 		}
-		
-		
+
 		task.setComments(new LinkedList<>());
 		task.setIssueLinks(new LinkedList<>());
 		task.setCustomFields(new LinkedHashMap<>());
@@ -205,7 +204,7 @@ public class JiraClient implements Client {
 			BasicUser author = workerLog.getUpdateAuthor();
 			task.getComments().add(new Comment(null, author == null ? null : author.getDisplayName(), workerLog.getCreationDate().toDate(), workerLog.getComment()));
 		});
-		
+
 		task.getComments().sort(comparator);
 
 		if (issueLinks != null) {
@@ -323,7 +322,7 @@ public class JiraClient implements Client {
 	}
 
 	@Override
-	public boolean createIssues(String idProject, String language, Collection<Measure> measures, MessageHandler handler, int maxProgess) {
+	public boolean createIssues(String idProject, String language, Collection<Measure> measures, Collection<Measure> updateMeasures, MessageHandler handler, int maxProgess) {
 		if (restClient == null)
 			throw new TrickException("error.internal", "Internal error");
 		Project project = restClient.getProjectClient().getProject(idProject).claim();
@@ -337,7 +336,7 @@ public class JiraClient implements Client {
 			} else if (issueType == null)
 				issueType = type;
 		}
-		int min = handler.getProgress(), size = measures.size(), current = 0;
+		int min = handler.getProgress(), size = measures.size() + updateMeasures.size(), current = 0;
 		Map<String, Object> estimations = new HashMap<>(1);
 		for (Measure measure : measures) {
 			MeasureDescription description = measure.getMeasureDescription();
@@ -352,6 +351,39 @@ public class JiraClient implements Client {
 			measure.setTicket(issue.getKey());
 			handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
 		}
+
+		if (!updateMeasures.isEmpty()) {
+			for (Measure measure : updateMeasures) {
+				MeasureDescription description = measure.getMeasureDescription();
+				try {
+					Issue issue = restClient.getSearchClient().searchJql(String.format(PROJECT_S_AND_KEY_IN_S, idProject, measure.getTicket()), 1, 0, null).claim().getIssues()
+							.iterator().next();
+					if (issue == null) {
+						handler.update("error.ticket.not_found",
+								String.format("Task for (%s - %s) cannot be found", description.getStandard().getLabel(), description.getReference()), 0,
+								description.getStandard().getLabel(), description.getReference());
+					} else {
+						MeasureDescriptionText descriptionText = description.findByAlph2(language);
+						IssueInputBuilder builder = new IssueInputBuilder(project, issue.getIssueType(),
+								String.format("%s - %s: %s", description.getStandard().getLabel(), description.getReference(), descriptionText.getDomain()));
+						builder.setDescription(measure.getToDo());
+						estimations.put("originalEstimate", (measure.getInternalWL() + measure.getExternalWL()) + "d");
+						builder.setFieldInput(new FieldInput(IssueFieldId.TIMETRACKING_FIELD, new ComplexIssueInputFieldValue(estimations)));
+						builder.setDueDate(new DateTime(measure.getPhase().getEndDate().getTime()));
+						restClient.getIssueClient().updateIssue(measure.getTicket(), builder.build());
+					}
+				} catch (Exception e) {
+					TrickLogManager.Persist(e);
+					handler.update("error.update.ticket",
+							String.format("An unknown error occurred while update task for %s - %s", description.getStandard().getLabel(), description.getReference()), 0,
+							description.getStandard().getLabel(), description.getReference());
+				} finally {
+					handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
+				}
+			}
+			;
+		}
+
 		return false;
 	}
 

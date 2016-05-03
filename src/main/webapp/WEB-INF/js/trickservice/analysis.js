@@ -632,22 +632,14 @@ function unLinkToTicketingSystem(section) {
 
 }
 
-function generateTickets(section) {
-	if (!application.isLinkedToProject)
-		return false;
-	var measures = [];
-	$("tbody>tr input:checked", section).closest("tr").each(function() {
-		if (this.getAttribute("data-is-linked") === "false")
-			measures.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
-	});
-
-	if (measures.length) {
+function updateOrGenereteTickets(data) {
+	if (data != undefined && (data.updates.length || data.news.length)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Standard/Ticketing/Generate",
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(measures),
+			data : JSON.stringify(data),
 			success : function(response, textStatus, jqXHR) {
 				if (response.error)
 					showDialog("#alert-dialog", response.error);
@@ -662,6 +654,34 @@ function generateTickets(section) {
 		});
 	} else
 		showDialog("#info-dialog", MessageResolver("info.ticketing.generate.no_action.required", "All selected measures are already related to tasks"));
+	return false;
+}
+
+function generateTickets(section) {
+	if (!application.isLinkedToProject)
+		return false;
+	var measures = {
+		updates : [],
+		news : [],
+	};
+	$("tbody>tr input:checked", section).closest("tr").each(function() {
+		if (this.getAttribute("data-is-linked") === "false")
+			measures.news.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
+		else
+			measures.updates.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id"));
+	});
+
+	if (measures.updates.length) {
+		var $confirm = $("#confirm-dialog"), $question = measures.length == 1 ? MessageResolver("confirm.update.ticket", "Are you sure, you want to update measure task")
+				: MessageResolver("confirm.update.tickets", "Are you sure, you want to update " + measures.updates.length + " measures tasks", measures.updates.length);
+		$confirm.find(".modal-body").text($question);
+		$(".btn-danger", $confirm).click(function() {
+			$confirm.modal("hide");
+			updateOrGenereteTickets(measures);
+		});
+		$confirm.modal("show");
+	} else
+		updateOrGenereteTickets(measures);
 	return false;
 }
 

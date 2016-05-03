@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.messagehandler;
 
+import java.util.LinkedList;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lu.itrust.business.TS.asynchronousWorkers.AsyncCallback;
@@ -55,7 +57,6 @@ public class MessageHandler {
 		setException(exception);
 	}
 
-
 	/**
 	 * @param code
 	 * @param parameters
@@ -91,7 +92,6 @@ public class MessageHandler {
 		this.message = message;
 		setException(exception);
 	}
-
 
 	public MessageHandler(String code, String message, int progress) {
 		this.code = code;
@@ -259,4 +259,14 @@ public class MessageHandler {
 		this.message = message;
 		this.progress = progress;
 	}
+
+	public void update(String code, String message, int progress, Object... parameters) {
+		this.asyncCallback = null;
+		this.code = code;
+		this.message = message;
+		this.parameters = parameters;
+		if (progress > this.progress)
+			this.progress = progress;
+	}
+
 }

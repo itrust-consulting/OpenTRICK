@@ -102,6 +102,7 @@ import lu.itrust.business.TS.model.ticketing.TicketingTask;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
 import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.model.ticketing.helper.LinkForm;
+import lu.itrust.business.TS.model.ticketing.helper.TicketingForm;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
@@ -1061,10 +1062,10 @@ public class ControllerAnalysisStandard {
 
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String generateTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
+	public @ResponseBody String generateTickets(@RequestBody TicketingForm  form, Principal principal, HttpSession session, Locale locale) {
 		if (!loadUserSettings(principal, null, null))
 			throw new ResourceNotFoundException();
-		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, measureIds, serviceTaskFeedback, workersPoolManager,
+		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, form, serviceTaskFeedback, workersPoolManager,
 				sessionFactory);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 			worker.cancel();

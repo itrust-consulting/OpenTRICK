@@ -26,6 +26,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.helper.TicketingForm;
 
 /**
  * @author eomar
@@ -37,7 +38,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 
 	private Client client = null;
 
-	private List<Integer> measureIds = null;
+	private TicketingForm ticketingForm;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -49,12 +50,12 @@ public class WorkerGenerateTickets extends WorkerImpl {
 	 * @param poolManager
 	 * @param sessionFactory
 	 */
-	public WorkerGenerateTickets(Integer idAnalysis, Client client, List<Integer> measureIds, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager,
+	public WorkerGenerateTickets(Integer idAnalysis, Client client, TicketingForm ticketingForm, ServiceTaskFeedback serviceTaskFeedback, WorkersPoolManager poolManager,
 			SessionFactory sessionFactory) {
 		super(poolManager, sessionFactory);
 		this.idAnalysis = idAnalysis;
 		this.client = client;
-		this.measureIds = measureIds;
+		this.ticketingForm = ticketingForm;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
@@ -83,38 +84,34 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			if (analysis.hasProject()) {
 				MessageHandler handler = new MessageHandler("info.load.measure", null, "Loading measures", 1);
 				serviceTaskFeedback.send(getId(), handler);
-				Map<Integer, Measure> mapMeasures;
-				if (measureIds.size() > 5) {
-					Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
-					mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket()))
-							.collect(Collectors.toMap(Measure::getId, Function.identity()));
-				} else {
-					mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
-							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId()))
-							.collect(Collectors.toMap(Measure::getId, Function.identity()));
-				}
+				Map<Integer, Integer> contains = ticketingForm.getNews().stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+				ticketingForm.getUpdates().forEach(idMeasure -> contains.put(idMeasure, idMeasure));
+				Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+						.filter(measure -> contains.containsKey(measure.getId())).collect(Collectors.toMap(Measure::getId, Function.identity()));
 				if (!mapMeasures.isEmpty()) {
-					List<Measure> measures = new LinkedList<>();
-					measureIds.stream().filter(key -> mapMeasures.containsKey(key)).forEach(key -> measures.add(mapMeasures.get(key)));
+					List<Measure> newMeasures = new LinkedList<>(), updateMeasures = new LinkedList<>();
+					ticketingForm.getNews().stream().filter(key -> mapMeasures.containsKey(key)).forEach(key -> newMeasures.add(mapMeasures.get(key)));
+					ticketingForm.getUpdates().stream().filter(key -> mapMeasures.containsKey(key)).forEach(key -> updateMeasures.add(mapMeasures.get(key)));
 					handler.update("info.creating.tickets", "Creating tickets", 3);
-					client.createIssues(analysis.getProject(), analysis.getLanguage().getAlpha2(), measures, handler, 95);
+					client.createIssues(analysis.getProject(), analysis.getLanguage().getAlpha2(), newMeasures, updateMeasures, handler, 95);
 					handler.update("info.update.analysis", "Updating analysis", 95);
 					daoAnalysis.saveOrUpdate(analysis);
 					handler.update("info.commit.transcation", "Commit transaction", 98);
 					session.getTransaction().commit();
 					handler = new MessageHandler("success.ticketing.created", "Tickets are successfully created", 100);
-					Standard standard = measures.get(0).getAnalysisStandard().getStandard();
-					boolean isSame = !measures.stream().anyMatch(measure -> !measure.getAnalysisStandard().getStandard().equals(standard));
-					if (measures.size() < 10) {
-						String data = "reloadSection('section_actionplans');";
-						for (Measure measure : measures)
-							data += "reloadMeasureRow(" + measure.getId() + "," + measure.getAnalysisStandard().getStandard().getId() + ");";
-						handler.setAsyncCallback(new AsyncCallback(data));
-					} else if (isSame)
-						handler.setAsyncCallback(new AsyncCallback("reloadSection(['section_standard_" + standard.getId() + "','section_actionplans'])"));
-					else
-						handler.setAsyncCallback(new AsyncCallback("location.reload()"));
+					if (!newMeasures.isEmpty()) {
+						Standard standard = newMeasures.get(0).getAnalysisStandard().getStandard();
+						boolean isSame = !newMeasures.stream().anyMatch(measure -> !measure.getAnalysisStandard().getStandard().equals(standard));
+						if (newMeasures.size() < 10) {
+							String data = "reloadSection('section_actionplans');";
+							for (Measure measure : newMeasures)
+								data += "reloadMeasureRow(" + measure.getId() + "," + measure.getAnalysisStandard().getStandard().getId() + ");";
+							handler.setAsyncCallback(new AsyncCallback(data));
+						} else if (isSame)
+							handler.setAsyncCallback(new AsyncCallback("reloadSection(['section_standard_" + standard.getId() + "','section_actionplans'])"));
+						else
+							handler.setAsyncCallback(new AsyncCallback("location.reload()"));
+					}
 				}
 				serviceTaskFeedback.send(getId(), handler);
 			}
@@ -158,9 +155,9 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			}
 		}
 
-		if (measureIds != null) {
-			measureIds.clear();
-			measureIds = null;
+		if (ticketingForm != null) {
+			ticketingForm.clear();
+			ticketingForm = null;
 		}
 	}
 
