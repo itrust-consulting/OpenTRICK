@@ -1,5 +1,4 @@
-var el = null, table = null, taskController = function() {
-};
+var el = null, table = null, taskController = function() {};
 
 $(document).ready(function() {
 
@@ -111,11 +110,9 @@ function reloadMeasureRow(idMeasure, standard) {
 					$currentRow.addClass("warning").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
 				else {
 					var $checked = $currentRow.find("input:checked");
-					$("[data-toggle='popover']", $currentRow).popover('destroy');
 					$("[data-toggle='tooltip']", $currentRow).tooltip('destroy');
 					$currentRow.replaceWith($newRow);
-					$("[data-toggle='popover']", $newRow).popover().on('show.bs.popover', togglePopever);
-					$("[data-toggle='tooltip']", $newRow).tooltip();
+					$("[data-toggle='tooltip']", $newRow).tooltip().on('show.bs.tooltip', toggleToolTip);
 					if ($checked.length)
 						$newRow.find("input[type='checkbox']").prop("checked", true).change();
 				}
@@ -662,7 +659,7 @@ function generateTickets(section) {
 		return false;
 	var measures = {
 		updates : [],
-		news : [],
+		news : []
 	};
 	$("tbody>tr input:checked", section).closest("tr").each(function() {
 		if (this.getAttribute("data-is-linked") === "false")
@@ -672,8 +669,8 @@ function generateTickets(section) {
 	});
 
 	if (measures.updates.length) {
-		var $confirm = $("#confirm-dialog"), $question = measures.length == 1 ? MessageResolver("confirm.update.ticket", "Are you sure, you want to update measure task")
-				: MessageResolver("confirm.update.tickets", "Are you sure, you want to update " + measures.updates.length + " measures tasks", measures.updates.length);
+		var $confirm = $("#confirm-dialog"), $question = measures.updates.length == 1 ? MessageResolver("confirm.update.ticket", "Are you sure, you want to update measure task")
+				: MessageResolver("confirm.update.tickets", "Are you sure, you want to update " + measures.updates.length + " measures tasks", [measures.updates.length]);
 		$confirm.find(".modal-body").text($question);
 		$(".btn-danger", $confirm).click(function() {
 			$confirm.modal("hide");

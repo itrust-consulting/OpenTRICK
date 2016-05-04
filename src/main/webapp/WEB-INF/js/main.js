@@ -84,6 +84,20 @@ function togglePopever(e) {
 	return e;
 }
 
+function toggleToolTip(e) {
+	var target = e.target, current = application["settings-open-tooltip"];
+	if (current != undefined) {
+		if (target === current)
+			return e;
+		else 
+			$(current).tooltip("hide");
+	}
+	application["settings-open-tooltip"] = target;
+	return e;
+}
+
+
+
 $.fn.hasAttr = function(name) {
 	return this[0].hasAttribute(name);
 };
@@ -612,6 +626,13 @@ function oldversionComparator(version1, version2) {
 		return value1 > value2 ? 1 : -1;
 }
 
+function closeToolTips(){
+	if (application["settings-open-tooltip"]) {
+		$(application["settings-open-tooltip"]).tooltip("hide");;
+		delete application["settings-open-tooltip"];
+	}
+}
+
 function closePopover() {
 	if (application["settings-open-popover"]) {
 		if (application["settings-open-popover"].hasAttribute("aria-describedby"))
@@ -754,8 +775,8 @@ $(document)
 							}, 20);
 						}
 
-						$('a[data-toggle="tab"]', $tabNav).on('show.bs.tab', closePopover).on('shown.bs.tab', function(e) {
-
+						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+							closeToolTips();
 							$bodyHtml.animate({
 								scrollTop : 0
 							}, 20);
@@ -782,14 +803,21 @@ $(document)
 						});
 					}
 
-					$('[data-toggle="tooltip"]').tooltip();
+					 var $toolTips = $('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
 
-					$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
+					/*$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
 
 					if ($popevers.length) {
 						$window.keydown(function(e) {
 							if (e.keyCode == 27)
 								closePopover();
 						});
-					}
+					}*/
+					 
+					 if ($toolTips.length) {
+							$window.keydown(function(e) {
+								if (e.keyCode == 27)
+									closeToolTips();
+							});
+						}
 				});

@@ -9,7 +9,7 @@
 	<div class="section" id="section_profile">
 		<span id="profileInfo" hidden="hidden"></span>
 		<div style="margin: 0 auto; max-width: 650px;">
-			<form id="updateprofileform" name="updateprofileform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/Update">
+			<form id="updateprofileform" name="updateprofileform" onsubmit="return updateProfile('updateprofileform');" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/Update">
 				<div class="page-header">
 					<h3>
 						<spring:message code="label.user.title.login_information" text="Login Information" />
@@ -27,21 +27,21 @@
 						<label for="oldPassword" class="col-sm-3 control-label"> <spring:message code="label.user.current_password" text="Current Password" />
 						</label>
 						<div class="col-sm-9">
-							<input type="password" id="currentPassword" name="currentPassword" class="form-control" required="required" />
+							<input type="password" id="currentPassword" name="currentPassword" class="form-control" required="required"/>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="password" class="col-sm-3 control-label"> <spring:message code="label.user.password" text="Password" />
 						</label>
 						<div class="col-sm-9">
-							<input type="password" id="password" name="password" class="form-control" required="required" />
+							<input type="password" id="password" name="password" class="form-control" />
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="repeatPassword" class="col-sm-3 control-label"> <spring:message code="label.user.repeat_password" text="Repeat password" />
 						</label>
 						<div class="col-sm-9">
-							<input type="password" id="repeatPassword" name="repeatPassword" class="form-control" required="required" />
+							<input type="password" id="repeatPassword" name="repeatPassword" class="form-control"/>
 						</div>
 					</div>
 				</c:if>
@@ -90,8 +90,7 @@
 					<label for="email" class="col-sm-3 control-label"> <spring:message code="label.user.email" text="Email address" />
 					</label>
 					<div class="col-sm-9">
-						<input type="text" id="email" name="email" class="form-control" ${user.connexionType==1?'disabled="disabled" readonly="readonly"':''} required
-							pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' value="${user.email}" />
+						<input type="email" id="email" name="email" class="form-control" ${user.connexionType==1?'disabled="disabled" readonly="readonly"':''} required value="${user.email}" />
 					</div>
 				</div>
 				<div class="form-group">
@@ -144,7 +143,7 @@
 				</div>
 				<div class="form-group">
 					<div class="col-sm-12" style="text-align: center;">
-						<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
+						<button class="btn btn-primary" type="submit">
 							<spring:message code="label.action.save" text="Save" />
 						</button>
 					</div>

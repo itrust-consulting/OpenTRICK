@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -98,8 +97,8 @@ public class WorkerGenerateTickets extends WorkerImpl {
 					daoAnalysis.saveOrUpdate(analysis);
 					handler.update("info.commit.transcation", "Commit transaction", 98);
 					session.getTransaction().commit();
-					handler = new MessageHandler("success.ticketing.created", "Tickets are successfully created", 100);
 					if (!newMeasures.isEmpty()) {
+						handler.update("success.ticketing.created", "Tasks are successfully created", 100);
 						Standard standard = newMeasures.get(0).getAnalysisStandard().getStandard();
 						boolean isSame = !newMeasures.stream().anyMatch(measure -> !measure.getAnalysisStandard().getStandard().equals(standard));
 						if (newMeasures.size() < 10) {
@@ -111,7 +110,11 @@ public class WorkerGenerateTickets extends WorkerImpl {
 							handler.setAsyncCallback(new AsyncCallback("reloadSection(['section_standard_" + standard.getId() + "','section_actionplans'])"));
 						else
 							handler.setAsyncCallback(new AsyncCallback("location.reload()"));
-					}
+					} else if (handler.getCode().startsWith("error."))
+						handler.setProgress(100);
+					else
+						handler.update("success.ticketing.updated", "Tasks are successfully updated", 100);
+
 				}
 				serviceTaskFeedback.send(getId(), handler);
 			}

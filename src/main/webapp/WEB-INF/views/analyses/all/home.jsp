@@ -87,7 +87,11 @@
 				<table class="table table-hover" style="border-top: 1px solid #dddddd;">
 					<thead>
 						<tr>
-							<th width="1%"></th>
+							<th width="1%">
+								<c:if test="${allowedTicketing}">
+									<input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis');">
+								</c:if>
+							</th>
 							<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
 							<th width="35%"><spring:message code="label.analysis.comment" text="Comment" /></th>
 							<c:if test="${allowedTicketing}">

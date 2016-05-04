@@ -353,6 +353,7 @@ public class JiraClient implements Client {
 		}
 
 		if (!updateMeasures.isEmpty()) {
+			handler.update("info.updating.tickets", "Updating tasks", handler.getProgress());
 			for (Measure measure : updateMeasures) {
 				MeasureDescription description = measure.getMeasureDescription();
 				try {
@@ -374,9 +375,10 @@ public class JiraClient implements Client {
 					}
 				} catch (Exception e) {
 					TrickLogManager.Persist(e);
-					handler.update("error.update.ticket",
-							String.format("An unknown error occurred while update task for %s - %s", description.getStandard().getLabel(), description.getReference()), 0,
-							description.getStandard().getLabel(), description.getReference());
+					if (!handler.getCode().startsWith("error."))
+						handler.update("error.update.ticket",
+								String.format("An unknown error occurred while update task for %s - %s", description.getStandard().getLabel(), description.getReference()), 0,
+								description.getStandard().getLabel(), description.getReference());
 				} finally {
 					handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
 				}

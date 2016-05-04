@@ -67,13 +67,11 @@ public class ControllerTask {
 
 			// load worker of task
 			Worker worker = workersPoolManager.get(id);
-
-
+			
 			// retrieve last feedback message
 			MessageHandler messageHandler = serviceTaskFeedback.recieveLast(id);
 			
 			// set worker status
-
 			if (worker == null) {
 				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted",locale));
 				asyncResult.setFlag(0);

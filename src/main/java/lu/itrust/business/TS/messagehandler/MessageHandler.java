@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.messagehandler;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -269,4 +270,12 @@ public class MessageHandler {
 			this.progress = progress;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "MessageHandler [idTask=" + idTask + ", taskStatus=" + taskStatus + ", taskName=" + taskName + ", asyncCallback=" + asyncCallback + ", code=" + code
+				+ ", parameters=" + Arrays.toString(parameters) + ", message=" + message + ", progress=" + progress + ", exception=" + exception + "]";
+	}
 }

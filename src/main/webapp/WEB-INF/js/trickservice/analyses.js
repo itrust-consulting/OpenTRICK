@@ -350,8 +350,8 @@ function saveAnalysisProfile(form) {
 function customAnalysis(element) {
 	if ($(element).parent().hasClass("disabled"))
 		return false;
-	$
-			.ajax({
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
 				url : context + "/Analysis/Build",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
@@ -409,6 +409,7 @@ function customAnalysis(element) {
 							},
 							loadByCustomerIdAndIdentifier : function(idCustomer, identifier) {
 								var instance = this;
+								$progress.show();
 								$.ajax({
 									url : context + "/Analysis/Build/Customer/" + idCustomer + "/Identifier/" + identifier,
 									type : "get",
@@ -419,10 +420,13 @@ function customAnalysis(element) {
 										else
 											unknowError();
 									}
+								}).complete(function(){
+									$progress.hide();
 								});
 							},
 							loadByCustomerId : function(idCustomer) {
 								var instance = this;
+								$progress.show();
 								$.ajax({
 									url : context + "/Analysis/Build/Customer/" + idCustomer,
 									type : "get",
@@ -433,6 +437,8 @@ function customAnalysis(element) {
 										else
 											unknowError();
 									}
+								}).complete(function(){
+									$progress.hide();
 								});
 							},
 							updateVersionSelector : function(identifier) {
@@ -771,6 +777,8 @@ function customAnalysis(element) {
 					return false;
 				},
 				error : unknowError
+			}).complete(function(){
+				$progress.hide();
 			});
 	return false;
 }
@@ -786,6 +794,7 @@ function addHistory(analysisId) {
 	}
 
 	if (canCreateNewVersion(analysisId)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/" + analysisId + "/NewVersion",
 			type : "get",
@@ -799,6 +808,8 @@ function addHistory(analysisId) {
 					unknowError();
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -1029,6 +1040,7 @@ function duplicateAnalysis(form, analyisId) {
 }
 
 function customerChange(customer, nameFilter) {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/DisplayByCustomer/" + $(customer).val(),
 		type : "post",
@@ -1049,6 +1061,8 @@ function customerChange(customer, nameFilter) {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
 	return false;
 }

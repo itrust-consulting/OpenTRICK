@@ -36,8 +36,8 @@
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isLinkedTicketingSystem('#section_actionplans')"><a href="#"
 								onclick="return synchroniseWithTicketingSystem('#section_actionplans')"><spring:message code="label.open.ticket_measure"
 										text="Open Measure/Ticket" /></a></li>
-							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_actionplans')"><a href="#"
-								onclick="return generateTickets('#section_actionplans')"><spring:message code="label.generate.tickets" text="Generate Tickets" /></a></li>
+							<li class="disabled" data-trick-selectable="multi"><a href="#"
+								onclick="return generateTickets('#section_actionplans')"><spring:message code="label.action.create_or_update.tickets" text="Generate/Update Tickets" /></a></li>
 							<li class="disabled" data-trick-selectable="multi" data-trick-single-check="isUnLinkedTicketingSystem('#section_actionplans')"><a href="#"
 								onclick="return linkToTicketingSystem('#section_actionplans')"><spring:message code="label.link.to.ticketing.system" arguments="${ticketingName}"
 										text="Link to ${ticketingName}" /></a></li>

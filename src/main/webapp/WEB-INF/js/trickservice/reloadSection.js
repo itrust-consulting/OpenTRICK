@@ -112,11 +112,10 @@ function findControllerBySection(section, subSection) {
 	};
 
 	if (section.match("^section_standard_")) {
-		$("[data-toggle='popover']", "#" + section).popover('destroy');
 		$("[data-toggle='tooltip']", "#" + section).tooltip('destroy');
 		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
 	}
-
+	
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
 	else
@@ -153,8 +152,7 @@ function callbackBySection(section) {
 			return false;
 		},
 		"section_standard" : function() {
-			$("[data-toggle='popover']", "#" + section).popover().on('show.bs.popover', togglePopever);
-			$("[data-toggle='tooltip']", "#" + section).tooltip();
+			$("[data-toggle='tooltip']", "#" + section).tooltip().on('show.bs.tooltip', toggleToolTip)
 		},
 		"section_language" : function() {
 			rebuildMeasureLanguage();
@@ -162,10 +160,8 @@ function callbackBySection(section) {
 
 	};
 
-	if (section.match("^section_standard_")) {
-		$("[data-toggle='popover']", "#" + section).popover().on('show.bs.popover', togglePopever);
-		$("[data-toggle='tooltip']", "#" + section).tooltip();
-	}
+	if (section.match("^section_standard_"))
+		$("[data-toggle='tooltip']", "#" + section).tooltip().on('show.bs.tooltip', toggleToolTip);
 
 	return callbacks[section];
 }
