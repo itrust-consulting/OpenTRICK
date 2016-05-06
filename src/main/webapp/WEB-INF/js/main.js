@@ -804,15 +804,6 @@ $(document)
 					}
 
 					 var $toolTips = $('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
-
-					/*$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
-
-					if ($popevers.length) {
-						$window.keydown(function(e) {
-							if (e.keyCode == 27)
-								closePopover();
-						});
-					}*/
 					 
 					 if ($toolTips.length) {
 							$window.keydown(function(e) {

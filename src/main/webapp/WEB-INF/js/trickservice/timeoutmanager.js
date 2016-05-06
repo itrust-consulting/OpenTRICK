@@ -17,11 +17,11 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 	// SessionManager Module
 	var SessionManager = function() {
 
-		var originalTitle = document.title, extending = false, minutetext = MessageResolver("info.session.minute", "minute"), minutestext = MessageResolver("info.session.minutes",
-				"minutes"), secondtext = MessageResolver("info.session.second", "second"), secondstext = MessageResolver("info.session.seconds", "seconds"), expireSessionUrl = ($(
+		var originalTitle = document.title, extending = false, $timeoutModal = $('#sm-countdown-dialog'), $updateButton = $("#sm-continuebutton", $timeoutModal), $countTitle = 	$('#sm-countdown',$timeoutModal), minutetext = MessageResolver("info.session.minute", "minute"), minutestext = MessageResolver(
+				"info.session.minutes", "minutes"), secondtext = MessageResolver("info.session.second", "second"), secondstext = MessageResolver("info.session.seconds", "seconds"), expireSessionUrl = ($(
 				"#nav-container").attr("data-trick-id") != undefined) ? (context + "/Analysis/" + findAnalysisId() + "/Select?open=" + application.openMode.value)
 				: window.location.href;
-		var sessionTimeoutSeconds = 14.9999 * 60, countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds, displayCountdownIntervalId, promptToExtendSessionTimeoutId, count = countdownSeconds, extendSessionUrl = context
+		var sessionTimeoutSeconds = 14.9999 * 60, $window = $(window), countdownSeconds = 60, secondsBeforePrompt = sessionTimeoutSeconds - countdownSeconds, displayCountdownIntervalId, promptToExtendSessionTimeoutId, count = countdownSeconds, extendSessionUrl = context
 				+ '/IsAuthenticate';
 
 		var endSession = function() {
@@ -51,11 +51,9 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 					else
 						secondsDisplay = '<strong>' + seconds + "</strong> " + secondstext + '.';
 				}
-
-				cdDisplay = minutesDisplay + secondsDisplay;
-
+				
 				document.title = 'Expire in ' + StringHelpers.padLeft(minutes, '00') + ':' + StringHelpers.padLeft(seconds, '00');
-				$('#sm-countdown').html(cdDisplay);
+				$countTitle.html(minutesDisplay + secondsDisplay);
 				if (count === 0) {
 					document.title = 'Session Expired';
 					endSession();
@@ -67,13 +65,13 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 		};
 
 		var promptToExtendSession = function() {
-			$('#sm-countdown-dialog').modal("show");
-
-			$("#sm-continuebutton").on("click", function() {
+			$timeoutModal.modal("show");
+			$updateButton.on("click", function() {
+				$window.off("keydown.sm");
+				$timeoutModal.modal("hide");
 				refreshSession();
-				$('#sm-countdown-dialog').modal("hide");
 			});
-
+			
 			count = countdownSeconds;
 			displayCountdown();
 		};
@@ -107,6 +105,15 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 			}
 		};
 
+		$timeoutModal.on("show.bs.modal", function() {
+			$window.on("keydown.sm", function(e) {
+				if (e.keyCode == 13)
+					$updateButton.trigger("click");
+			});
+		}).on("hide.bs.modal", function() {
+			$window.off("keydown.sm");
+		});
+
 		// Public Functions
 		return {
 			start : function() {
@@ -117,6 +124,7 @@ $(function() { // Wrap it all in jQuery documentReady because we use jQuery UI
 			}
 
 		};
+
 	}();
 
 	SessionManager.start();
