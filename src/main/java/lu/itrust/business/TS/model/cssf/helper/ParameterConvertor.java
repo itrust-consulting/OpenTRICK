@@ -164,6 +164,10 @@ public class ParameterConvertor {
 		}
 	}
 
+	public ExtendedParameter getImpact(double impact) {
+		return findByValue(impact, impactsParameters);
+	}
+
 	public ExtendedParameter getProbability(String likelihood) {
 		try {
 			return findByAcronym(likelihood, getMapProbabilities());
@@ -174,6 +178,10 @@ public class ParameterConvertor {
 				throw e;
 			}
 		}
+	}
+
+	public ExtendedParameter getProbability(double likelihood) {
+		return findByValue(likelihood, probabilityParameters);
 	}
 
 	public double findImpact(String impact) {

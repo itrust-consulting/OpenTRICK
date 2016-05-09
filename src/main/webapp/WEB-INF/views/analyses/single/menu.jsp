@@ -106,14 +106,15 @@
 				<li class="divider"></li>
 				<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
-					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" />
-					</a></li>
+					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:if test="${show_cssf}">
+					<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
+						</a></li>
 						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}')"> <spring:message code="label.risk_sheet" />
 						</a></li>
 					</c:if>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
-					<li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <spring:message code="label.sqlite_data" /></a></li>
+					<%-- <li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <spring:message code="label.sqlite_data" /></a></li> --%>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>

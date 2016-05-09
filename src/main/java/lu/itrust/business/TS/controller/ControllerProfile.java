@@ -49,6 +49,7 @@ import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.ReportType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
@@ -283,13 +284,13 @@ public class ControllerProfile {
 
 		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-
+		
 		// set response contenttype to sqlite
-		response.setContentType("docm");
+		response.setContentType(ReportType.getExtension(wordReport.getType()));
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + String.format("%s_%s_V%s.docm", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion()) + "\"");
+				"attachment; filename=\"" + String.format("%s_%s_V%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), response.getContentType()) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());
