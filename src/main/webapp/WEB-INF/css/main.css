@@ -478,18 +478,15 @@ datalist {
 }
 
 @media ( min-width : 1200px) {
-	
 	li.back-btn-bottom {
 		display: none;
 	}
-	
 	.back-btn-top {
 		margin-top: 10px;
 		display: block;
 		position: fixed;
 		right: 5px;
 	}
-	
 	.max-height {
 		height: 100%;
 	}
@@ -499,41 +496,64 @@ datalist {
 	div[role='left-menu']+div[class*='col-'] {
 		float: right;
 	}
+	
 	@media ( min-height :400px) {
 		.nav-chapter {
 			height: 36%;
 		}
 	}
+	
 	@media ( min-height :500px) {
 		.nav-chapter {
 			height: 48%;
 		}
 	}
+	
 	@media ( min-height :600px) {
+		
 		.nav-chapter {
-			height: 54%;
+			height: 50%;
+		}
+		
+		@media ( min-width : 1280px) {
+			.nav-chapter {
+				height: 54%;
+			}
+		}
+		
+		@media ( min-width : 1400px) {
+			.nav-chapter {
+				height: 64%;
+			}
 		}
 	}
+	
 	@media ( min-height :766px) {
+		
 		.nav-chapter {
 			height: 60%;
 		}
+		
+		@media ( min-width : 1600px) {
+			.nav-chapter {
+				height: 66%;
+			}
+		}
 	}
+	
 	@media ( min-height :900px) {
+	
 		.nav-chapter {
 			height: 66%;
 		}
-		@media ( min-width : 1700px) {
+		
+		@media ( min-width : 1600px) {
 			.nav-chapter {
 				height: 72%;
 			}
 		}
 	}
-	@media ( min-height :1000px) {
-		.nav-chapter {
-			height: 72%;
-		}
-	}
+
 	@media ( min-height :1200px) {
 		.nav-chapter {
 			height: 78%;
