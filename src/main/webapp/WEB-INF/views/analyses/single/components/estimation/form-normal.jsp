@@ -7,33 +7,37 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
+<c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}"/>
 <div class="form-group">
 	<table class='table'>
 		<thead>
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<tr>
-						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
-						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
-						<th width="14.28%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-						<th width="14.28%" style="text-align: center;" title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
-						<th width="14.28%" style="text-align: center;" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
-						<th width="14.28%" style="text-align: center;" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
+						<th width="12.5%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
+						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
+						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
+						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
+						<th width="12.5%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+						<th width="12.5%" style="text-align: center;" title='<spring:message code="label.title.alep" />'><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+						<th width="12.5%" style="text-align: center;" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
+						<th width="12.5%" style="text-align: center;" title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
 					</tr>
 				</c:when>
 				<c:otherwise>
 					<tr>
-						<th width="25%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
-						<th width="25%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
-						<th width="25%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-						<th width="25%" style="text-align: center;"><spring:message code="label.title.ale" /></th>
+						<th width="20%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
+						<th width="20%" style="text-align: center;"><spring:message code="label.title.impact" /></th>
+						<th width="20%" style="text-align: center;"><spring:message code="label.title.likelihood" /></th>
+						<th width="20%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+						<th width="20%" style="text-align: center;"><spring:message code="label.title.ale" /></th>
 					</tr>
 				</c:otherwise>
 			</c:choose>
 		</thead>
 		<tbody>
 			<tr>
+				<td style="border-right: 2px solid #ddd;text-align: center;"><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}"/></strong></td>
 				<td>
 					<div class="input-group">
 						<c:catch>
@@ -91,7 +95,7 @@
 						</td>
 					</c:when>
 					<c:otherwise>
-						<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
+						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 						<td>
 							<div class="input-group" title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;">
 								<span class="input-group-addon">k&euro;</span><input name="ALEP" class="form-control numeric" disabled="disabled"
