@@ -154,8 +154,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.perform(post(String.format("/Analysis/Duplicate/%d", ANALYSIS_ID)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"author\":\"%s\", \"version\":\"%s\", \"comment\":\"%s\"}", "Admin Admin", "0.0.2", "comment")))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).findValue("analysis_task_id").asText("");
-
-		wait(1000);
+		wait(100);
 		Worker worker = workersPoolManager.get(TASK_ID);
 		notNull(worker, "Worker cannot be found");
 		while (worker.isWorking())
