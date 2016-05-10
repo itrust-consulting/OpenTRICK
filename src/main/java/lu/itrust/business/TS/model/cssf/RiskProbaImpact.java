@@ -117,10 +117,13 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	public int getImportance() {
-		return getMaxImpact() * (probability == null ? 0 : probability.getLevel());
+		return getImpactLevel() * getProbabilityLevel();
 	}
 
-	private int getMaxImpact() {
+	/**
+	 * @return Max of impact level
+	 */
+	public int getImpactLevel() {
 		int max = impactFin == null ? 0 : impactFin.getLevel();
 		if (impactRep != null)
 			max = Math.max(max, impactRep.getLevel());
@@ -129,6 +132,10 @@ public class RiskProbaImpact implements Cloneable {
 		if (impactLeg != null)
 			max = Math.max(max, impactLeg.getLevel());
 		return max;
+	}
+
+	public int getProbabilityLevel() {
+		return probability == null ? 0 : probability.getLevel();
 	}
 
 	/*

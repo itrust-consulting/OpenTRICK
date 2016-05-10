@@ -117,7 +117,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			session.beginTransaction();
 			long reportId = processing();
 			session.getTransaction().commit();
-			MessageHandler messageHandler = new MessageHandler("success.save.risk_sheet", "Risk sheet has been successfully saved", 100);
+			MessageHandler messageHandler = new MessageHandler("success.export.risk_sheet", "Risk sheet has been successfully exported", 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport('" + reportId + "');reloadSection('section_riskregister');"));
 			serviceTaskFeedback.send(getId(), messageHandler);
 		} catch (Exception e) {
@@ -233,7 +233,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			opcPackage.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
 			opcPackage.save(workFile);
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.data", "Preparing risk sheet template", progress += 8));
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
 			Map<String, Assessment> assessments = cssfFilter.hasOwner()
 					? analysis.getAssessments().stream().filter(assessment -> assessment.isSelected() && cssfFilter.getOwner().equals(assessment.getOwner()))
 							.collect(Collectors.toMap(Assessment::getKey, Function.identity()))
@@ -272,7 +272,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
 				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
 				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), impacts.get(0), probabilities.get(0));
-				messageHandler.setProgress(progress + ((++index / size) * 100 / max));
+				messageHandler.setProgress((int) (progress + (++index / (double) size) * (max-progress)));
 			}
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
 			document.write(outputStream = new FileOutputStream(workFile));

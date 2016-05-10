@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskRegister;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
@@ -158,7 +159,7 @@ public class ControllerRiskRegister {
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	@RequestMapping(value = "/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/RiskSheet/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String exportFrom(HttpSession session, Model model, HttpServletRequest request, Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<ExtendedParameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
@@ -182,7 +183,7 @@ public class ControllerRiskRegister {
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
-	@RequestMapping(value = "/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/RiskSheet/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object export(@RequestBody CSSFFilter cssfFilter, HttpSession session, HttpServletRequest request, Principal principal, Locale locale) {
 		Map<String, String> errors = new HashMap<>();
 		if (cssfFilter.getImpact() < 0 || cssfFilter.getImpact() > Constant.DOUBLE_MAX_VALUE)
@@ -197,11 +198,11 @@ public class ControllerRiskRegister {
 			errors.put("cia", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
 		if (!errors.isEmpty())
 			return errors;
-		
+
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		Worker worker = new WorkerExportRiskSheet(cssfFilter,workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"), analysisId,
-				principal.getName(), messageSource);
+		Worker worker = new WorkerExportRiskSheet(cssfFilter, workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"),
+				analysisId, principal.getName(), messageSource);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
 		// execute task
@@ -209,14 +210,38 @@ public class ControllerRiskRegister {
 		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_sheet", null, "Start to export risk sheet", analysisLocale));
 	}
 
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@RequestMapping(value = "/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object export(HttpSession session, HttpServletRequest request, Principal principal, Locale locale) {
+		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
+		Worker worker = new WorkerExportRiskRegister(analysisId, principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), sessionFactory, workersPoolManager,
+				serviceTaskFeedback, messageSource);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_register", null, "Start to export risk register", analysisLocale));
+	}
+
 	@Value("${app.settings.risk_sheet.french.template.name}")
-	public void setFrTemplate(String template) {
+	public void setRiskSheetFrTemplate(String template) {
 		WorkerExportRiskSheet.FR_TEMPLATE = template;
 	}
 
 	@Value("${app.settings.risk_sheet.english.template.name}")
-	public void setEnTemplate(String template) {
+	public void setRiskSheetEnTemplate(String template) {
 		WorkerExportRiskSheet.ENG_TEMPLATE = template;
+	}
+
+	@Value("${app.settings.risk_regsiter.french.template.name}")
+	public void setRiskRegisterFrTemplate(String template) {
+		WorkerExportRiskRegister.FR_TEMPLATE = template;
+	}
+
+	@Value("${app.settings.risk_regsiter.english.template.name}")
+	public void setRiskRegisterEnTemplate(String template) {
+		WorkerExportRiskRegister.ENG_TEMPLATE = template;
 	}
 
 }

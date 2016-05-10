@@ -175,4 +175,8 @@ public class WordReport {
 	public static WordReport BuildRiskSheet(String identifier, String label, String version, User user, String name, long length, byte[] file) {
 		return new WordReport(identifier, ReportType.RISK_SHEET, label, version, user, name, length, file);
 	}
+
+	public static WordReport BuildRiskRegister(String identifier, String label, String version, User user, String name, long length, byte[] file) {
+		return new WordReport(identifier, ReportType.RISK_REGISTER, label, version, user, name, length, file);
+	}
 }
