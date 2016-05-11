@@ -43,7 +43,6 @@
 		</thead>
 		<tbody>
 			<c:if test="${not empty scenario}">
-				<c:set var="prevAsset" value="null" />
 				<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).Sort(assessments)" var="sortedAssessments" />
 				<c:forEach items="${sortedAssessments}" var="assessment">
 					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}">

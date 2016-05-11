@@ -30,7 +30,7 @@ function saveAssessmentData(e) {
 			.attr('data-trick-asset-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target.hasAttr("placeholder") ? $target
 			.attr("placeholder") : $target.attr("data-trick-value");
 	if (value == oldValue)
-		$target.parent().removeClass('has-error');
+		$target.parent().removeClass('has-error').removeAttr("title");
 	else {
 		$.ajax({
 			url : context + "/Analysis/EditField/Estimation/Update?asset=" + idAsset + "&scenario=" + idScenario,
@@ -42,14 +42,14 @@ function saveAssessmentData(e) {
 					unknowError();
 				else {
 					var $parent = $target.parent();
-					if (response.error) {
-						$parent.addClass("has-error");
-						$parent.removeClass("has-success");
-						$parent.attr("title", response.message);
-					} else {
-						$parent.removeAttr("title");
-						$parent.removeClass("has-error");
-						$parent.addClass("has-success");
+					if (response.error)
+						$parent.addClass("has-error").removeClass("has-success").attr("title", response.message);
+					else {
+						$parent.removeAttr("title").removeClass("has-error");
+						if ($target.attr("readonly"))
+							$target.removeClass("has-success");
+						else
+							$parent.addClass("has-success");
 						var updated = false;
 						for (var i = 0; i < response.fields.length; i++) {
 							var field = response.fields[i], $element = $target;
@@ -59,11 +59,6 @@ function saveAssessmentData(e) {
 								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
 								if (field.name == "computedNextImportance") {
 									$element.attr("placeholder", field.value).val(field.value);
-									var $nextImportance = $("[name='netImportance'].form-control", $assessmentUI), value = $nextImportance.val() | 0;
-									if (field.value != value)
-										$element.parent().addClass("has-error");
-									else
-										$element.parent().removeClass("has-error");
 									continue;
 								}
 							}
@@ -115,9 +110,22 @@ function loadAssessmentData(id) {
 				if (OPEN_MODE.isReadOnly()) {
 					$("select:not([disabled])", $assessmentUI).prop("disabled", true);
 					$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
+					$("a[data-controller]", $assessmentUI).remove();
 				} else {
 					$("select", $assessmentUI).on("change", saveAssessmentData);
 					$("textarea,input:not([disabled])", $assessmentUI).on("blur", saveAssessmentData);
+
+					$("a[data-controller]", $assessmentUI).on("click", function() {
+						var $description = $("#description", $assessmentUI), $control = $("i.fa", this);
+						if ($control.hasClass("fa-lock")) {
+							$control.removeClass("fa-lock").addClass("fa-unlock")
+							$description.removeAttr("readonly");
+						} else {
+							$control.removeClass("fa-unlock").addClass("fa-lock")
+							$description.attr("readonly", true).parent().removeAttr("title").removeClass("has-success has-error");
+						}
+						return false;
+					});
 				}
 
 				$("button[name='probaScale']", $assessmentUI).click(function() {

@@ -477,6 +477,17 @@ datalist {
 	display: none;
 }
 
+.editable>a[data-controller]{
+	font-size:10px;
+	margin-left: -13px; margin-right:3px;
+}
+
+.editable:HOVER>a[data-controller]{
+	position:relative;
+	font-size:15px;
+	margin-left: -18px; margin-right:3px;
+}
+
 @media ( min-width : 1200px) {
 	li.back-btn-bottom {
 		display: none;

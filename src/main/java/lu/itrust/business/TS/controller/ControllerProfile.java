@@ -297,7 +297,7 @@ public class ControllerProfile {
 
 		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-		
+
 		// set response contenttype to sqlite
 		response.setContentType(ReportType.getExtension(wordReport.getType()));
 
@@ -312,12 +312,12 @@ public class ControllerProfile {
 		// creates on the
 		// client side the sqlite file)
 		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
-
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store.report.download",
-				String.format("Analysis: %s, version: %s, exported at: %s, type: report", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated()),
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store." + ReportType.getCodeName(wordReport.getType()) + ".download",
+				String.format("Analysis: %s, version: %s, exported at: %s, type: %s", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated(),
+						ReportType.getDisplayName(wordReport.getType())),
 				principal.getName(), LogAction.DOWNLOAD, wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()));
 
 		// return
@@ -424,7 +424,7 @@ public class ControllerProfile {
 						user.setSetting(Constant.USER_TICKETING_SYSTEM_USERNAME, ticketingUsername);
 						if (!StringUtils.isEmpty(ticketingPassword))
 							user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, ticketingPassword);
-						if(!isConnected(user)){
+						if (!isConnected(user)) {
 							errors.put("ticketingUsername", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
 							errors.put("ticketingPassword", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
 							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
@@ -486,7 +486,7 @@ public class ControllerProfile {
 			settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
 			settings.put("url", urlSetting.getValue());
 			return (client = ClientBuilder.Build(nameSetting.getString())).connect(settings);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;
 		} finally {

@@ -233,14 +233,14 @@
 			</td>
 			<c:choose>
 				<c:when test="${empty netModelling }">
-					<td style="border-left: 2px solid window;" ${computeNextImportance==0?'':'class="has-error"'} ><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+					<td style="border-left: 2px solid window;"><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"></td>
 					<td><input name="netImpact" disabled="disabled" class="form-control numeric"></td>
 					<td><input name="netImportance" disabled="disabled" class="form-control numeric"></td>
 				</c:when>
 				<c:otherwise>
 					<fmt:formatNumber value="${netModelling.importance}" maxFractionDigits="0" var='netImportance'/>
-					<td style="border-left: 2px solid window;" ${computeNextImportance==netModelling.importance?'':'class="has-error"'} ><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+					<td style="border-left: 2px solid window;"><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"
 						value='<fmt:formatNumber value="${netModelling.probability}" maxFractionDigits="0"/>'></td>
 					<td><input name="netImpact" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${netModelling.impact}" maxFractionDigits="0" />'></td>
