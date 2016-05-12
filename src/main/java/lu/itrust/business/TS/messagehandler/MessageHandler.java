@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.messagehandler;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

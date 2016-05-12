@@ -41,6 +41,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.asset.helper.AssetTypeValueComparator;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.OpenMode;
@@ -256,7 +257,9 @@ public class ControllerScenario {
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
 		// add scenario to model
-		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
+		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
+		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());
+		model.addAttribute("scenario", scenario);
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		return "analyses/single/components/scenario/manageScenario";
 	}

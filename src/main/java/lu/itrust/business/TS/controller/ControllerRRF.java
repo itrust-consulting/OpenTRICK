@@ -46,7 +46,6 @@ import lu.itrust.business.TS.component.RFFMeasureFilter;
 import lu.itrust.business.TS.component.RRFScenarioFilter;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
@@ -60,6 +59,7 @@ import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.asset.helper.AssetTypeValueComparator;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Customer;
@@ -299,9 +299,8 @@ public class ControllerRRF {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadRRFScenario(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Scenario scenario = DAOHibernate.Initialise(serviceScenario.getFromAnalysisById(idAnalysis, elementID));
-		for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues())
-			assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
+		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
+		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());
 		model.addAttribute("selectedScenario", scenario);
 		double typeValue = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
 		model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
@@ -331,6 +330,7 @@ public class ControllerRRF {
 			return null;
 
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
+		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());
 		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 		List<Measure> measures = new ArrayList<Measure>();
 		for (AnalysisStandard standard : standards){

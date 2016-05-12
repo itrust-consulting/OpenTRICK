@@ -813,9 +813,9 @@ public class ControllerAnalysisStandard {
 			if (!analysisStandard.getStandard().isAnalysisOnly())
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			Measure measure = MeasureManager.Create(analysisStandard);
+			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
 
-			MeasureProperties properties = null;
+			Measure measure = MeasureManager.Create(analysisStandard);
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
@@ -827,11 +827,11 @@ public class ControllerAnalysisStandard {
 
 				model.addAttribute("assetTypes", analysisAssetTypes);
 
-				((AssetMeasure) measure).setMeasurePropertyList(properties = new MeasureProperties());
+				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 
 			} else if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
-				normalMeasure.setMeasurePropertyList(properties = new MeasureProperties());
+				normalMeasure.setMeasurePropertyList(new MeasureProperties());
 				List<AssetType> assetTypes = serviceAssetType.getAll();
 
 				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
@@ -845,10 +845,11 @@ public class ControllerAnalysisStandard {
 
 			measure.setMeasureDescription(new MeasureDescription(new MeasureDescriptionText(language)));
 
-			if (properties != null) {
-				boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
-				for (String category : isCSSF ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS)
-					properties.setCategoryValue(category, 0);
+			if (!isCSSF) {
+				Map<String, Boolean> excludes = new HashMap<>();
+				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
+					excludes.put(category, true);
+				model.addAttribute("cssfExcludes", excludes);
 			}
 
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
@@ -882,7 +883,7 @@ public class ControllerAnalysisStandard {
 			else if (!(measure.getAnalysisStandard().getStandard().isComputable() || measure.getAnalysisStandard().getStandard().isAnalysisOnly()))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			MeasureProperties properties = null;
+			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
@@ -901,11 +902,8 @@ public class ControllerAnalysisStandard {
 						availableAssets.remove(assetValue.getAsset());
 				}
 
-				properties = ((AssetMeasure) measure).getMeasurePropertyList();
-
 			} else if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
-				properties = normalMeasure.getMeasurePropertyList();
 				List<AssetType> assetTypes = serviceAssetType.getAll();
 				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
 				for (AssetType assetType : assetTypes) {
@@ -917,10 +915,11 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
 			}
 
-			if (properties != null) {
-				boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
-				for (String category : isCSSF ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS)
-					properties.getCategoryValue(category);
+			if (!isCSSF) {
+				Map<String, Boolean> excludes = new HashMap<>();
+				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
+					excludes.put(category, true);
+				model.addAttribute("cssfExcludes", excludes);
 			}
 
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
@@ -1062,11 +1061,10 @@ public class ControllerAnalysisStandard {
 
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String generateTickets(@RequestBody TicketingForm  form, Principal principal, HttpSession session, Locale locale) {
+	public @ResponseBody String generateTickets(@RequestBody TicketingForm form, Principal principal, HttpSession session, Locale locale) {
 		if (!loadUserSettings(principal, null, null))
 			throw new ResourceNotFoundException();
-		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, form, serviceTaskFeedback, workersPoolManager,
-				sessionFactory);
+		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, form, serviceTaskFeedback, workersPoolManager, sessionFactory);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 			worker.cancel();
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
@@ -1366,7 +1364,7 @@ public class ControllerAnalysisStandard {
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
 					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (model != null && allowedTicketing){
+			if (model != null && allowedTicketing) {
 				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
 				model.addAttribute(TICKETING_URL, url.getString());
 			}

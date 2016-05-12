@@ -143,7 +143,7 @@
 											<th class="warning"><spring:message code="label.rrf.measure.strength_measure" /></th>
 											<th class="warning"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
-												<th class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
+												<th class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
 														key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 											</c:forEach>
 											<th class="success"><spring:message code="label.rrf.measure.preventive" /></th>
@@ -178,7 +178,7 @@
 												data-slider-min="0" data-slider-max="4" data-slider-step="1" data-slider-value="${measureForm.properties.getFSectoral()}" name="fsectoral"
 												data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
-												<td class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
+												<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
 													id="${fn:replace(category,'.','_')}" value="${measureForm.properties.categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
 													data-slider-value="${measureForm.properties.categories.get(category)}" name=<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />
 													data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
@@ -235,7 +235,7 @@
 											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="fsectoral_value"
 												value="${measureForm.properties.getFSectoral()}" name="fsectoral"></td>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category" varStatus="catStatus">
-												<td class="info" data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
+												<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
 													id='<spring:message text="${category}"/>_value' readonly="readonly" class="form-control" value="${measureForm.properties.categories.get(category)}"
 													name="<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />"></td>
 											</c:forEach>

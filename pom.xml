@@ -274,27 +274,6 @@
 			<version>3.14</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jayway.jsonpath</groupId>
-			<artifactId>json-path</artifactId>
-			<version>2.2.0</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>net.minidev</groupId>
-			<artifactId>json-smart</artifactId>
-			<version>2.2.1</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.36</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- Email -->
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
@@ -331,12 +310,21 @@
 			<artifactId>shared-ldap</artifactId>
 			<version>0.9.15</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.atlassian.jira</groupId>
+			<artifactId>jira-rest-java-client-core</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.7</version>
 		</dependency>
+		
+		<!-- Unit testing -->
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -365,12 +353,19 @@
 			<version>1.4.191</version>
 			<scope>test</scope>
 		</dependency>
-
-
+		
 		<dependency>
-			<groupId>com.atlassian.jira</groupId>
-			<artifactId>jira-rest-java-client-core</artifactId>
-			<version>3.0.0</version>
+			<groupId>net.minidev</groupId>
+			<artifactId>json-smart</artifactId>
+			<version>2.2.1</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.2.0</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
