@@ -461,9 +461,10 @@ function manageMeasure(url) {
 						updateAssetUI($(this).val());
 					});
 				}
-				$($content.find(".slider")).slider().each(function() {
-					$(this).on("slide", function(event) {
-						$content.find("#values input[name='" + event.target.name + "']").val(event.value);
+				$($content.find(".slider")).slider({reversed:true}).each(function() {
+					$(this).on("change", function(event) {
+						console.log(event);
+						$content.find("#values input[name='" + event.target.name + "']").val(event.value.newValue);
 					})
 				});
 				new Modal($content).Show();

@@ -166,16 +166,6 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	display: none
 }
 
-.slider-control {
-	float: left;
-	margin-left: 3px;
-	text-decoration: none;
-}
-
-.slider-control:HOVER, .slider-control:FOCUS {
-	text-decoration: none;
-}
-
 .center-block {
 	display: block;
 	margin-left: auto;
@@ -486,6 +476,10 @@ datalist {
 	position:relative;
 	font-size:15px;
 	margin-left: -18px; margin-right:3px;
+}
+
+#control_rrf_measure .slider.slider-vertical, #control_rrf_scenario .slider.slider-vertical {
+    height: 164px;
 }
 
 @media ( min-width : 1200px) {

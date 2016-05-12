@@ -13,7 +13,7 @@
 		<spring:message text="${typeValue?'success':'danger'}" var="cssclass" />
 		<table data-trick-controller-name='scenario' class="table table-condensed" style="margin-bottom: 0;">
 			<thead>
-				<tr>
+				<tr style="text-align: center;">
 					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.preventive" /></th>
 					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.detective" /></th>
 					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.limitative" /></th>
@@ -29,7 +29,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
+				<tr style="text-align: center;">
 					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="${selectedScenario.preventive}" data-slider-min="0"
 						data-slider-max="1" data-slider-step="0.05" data-slider-value="${selectedScenario.preventive}" data-slider-orientation="vertical" data-slider-selection="after"
 						name="preventive" data-slider-tooltip="show"></td>
@@ -66,26 +66,26 @@
 					</c:forEach>
 				</tr>
 				<tr>
-					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive_value" readonly="readonly" class="form-control"
+					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly" class="form-control"
 						value="${selectedScenario.preventive}"></td>
-					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" readonly="readonly" class="form-control" id="scenario_detective_value"
+					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_detective_value"
 						value="${selectedScenario.detective}"></td>
-					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative_value" readonly="readonly" class="form-control"
+					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly" class="form-control"
 						value="${selectedScenario.limitative}"></td>
-					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" readonly="readonly" class="form-control" id="scenario_corrective_value"
+					<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_corrective_value"
 						value="${selectedScenario.corrective}"></td>
-					<td class="warning" data-trick-type="source"><input type="text" readonly="readonly" class="form-control" id="scenario_intentional_value"
+					<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_intentional_value"
 						value="${selectedScenario.intentional}"></td>
-					<td class="warning" data-trick-type="source"><input type="text" readonly="readonly" class="form-control" id="scenario_accidental_value"
+					<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_accidental_value"
 						value="${selectedScenario.accidental}"></td>
-					<td class="warning" data-trick-type="source"><input type="text" readonly="readonly" class="form-control" id="scenario_environmental_value"
+					<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_environmental_value"
 						value="${selectedScenario.environmental}"></td>
-					<td class="warning" data-trick-type="source"><input type="text" readonly="readonly" class="form-control" id="scenario_internalThreat_value"
+					<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_internalThreat_value"
 						value="${selectedScenario.internalThreat}"></td>
-					<td class="warning" data-trick-type="source"><input type="text" readonly="readonly" class="form-control" id="scenario_externalThreat_value"
+					<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_externalThreat_value"
 						value="${selectedScenario.externalThreat}"></td>
 					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
-						<td class="" data-trick-class="AssetType"><input type="text" id='scenario_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;"
+						<td class="" data-trick-class="AssetType"><input type="text" style="text-align: center;" id='scenario_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;"
 							readonly="readonly" class="form-control" value="${assetType.value}" name="<spring:message text="${assetType.assetType.type}" />"></td>
 					</c:forEach>
 				</tr>

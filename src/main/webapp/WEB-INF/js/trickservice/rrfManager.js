@@ -125,7 +125,7 @@ function initialiseMeasureSliders() {
 	else
 		$("[id^='measure-control-apply']").hide();
 
-	$("#rrfEditor #control_rrf_measure .slider").slider().each(function() {
+	$("#rrfEditor #control_rrf_measure .slider").slider({reversed : true}).each(function() {
 		if (application.openMode === OPEN_MODE.READ) {
 			$(this).prop("disabled", true);
 			$(this).addClass("disabled");
@@ -170,7 +170,7 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 }
 
 function initialiseScenarioSliders() {
-	$("#rrfEditor #control_rrf_scenario .slider").slider().each(function() {
+	$("#rrfEditor #control_rrf_scenario .slider").slider({reversed : true}).each(function() {
 		if (application.openMode === OPEN_MODE.READ) {
 			$(this).prop("disabled", true);
 			$(this).addClass("disabled");

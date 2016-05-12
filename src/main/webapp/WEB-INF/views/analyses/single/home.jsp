@@ -68,6 +68,9 @@
 		<jsp:include page="../../template/footer.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
+	<script src="<spring:url value="/js/bootstrap/bootstrap-slider.min.js" />"></script>
+	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js" />"></script>
+	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/analysis.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>

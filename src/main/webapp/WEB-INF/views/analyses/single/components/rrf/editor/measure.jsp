@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <table data-trick-controller-name='measure' class="table table-condensed" style="margin-bottom: 0;">
 	<thead>
-		<tr>
+		<tr style="text-align: center;">
 			<th class="warning"><spring:message code="label.rrf.measure.strength_measure" /></th>
 			<th class="warning"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
 			<c:if test="${!empty(categories)}">
@@ -39,7 +39,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr>
+		<tr style="text-align: center;">
 			<td class="warning"><input type="text" class="slider" id="measure_fmeasure" value="${strength_measure}" data-slider-min="0" data-slider-max="10" data-slider-step="1"
 				data-slider-value="${strength_measure}" name="fmeasure" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 			<td class="warning"><input type="text" class="slider" id="measure_fsectoral" value="${strength_sectorial}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
@@ -86,33 +86,33 @@
 			</c:if>
 		</tr>
 		<tr>
-			<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_fmeasure_value" value="${strength_measure}" name="fmeasure"></td>
-			<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_fsectoral_value" value="${strength_sectorial}" name="fsectoral"></td>
+			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_fmeasure_value" value="${strength_measure}" name="fmeasure"></td>
+			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_fsectoral_value" value="${strength_sectorial}" name="fsectoral"></td>
 			<c:if test="${!empty(categories)}">
 				<c:forEach items="${categories.keySet()}" var="category" varStatus="catStatus">
-					<td class="info" data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
+					<td class="info" data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text" style="text-align: center;"
 						id='measure_<spring:message text="${fn:replace(category,'.','_')}"/>_value' readonly="readonly" class="form-control" value="${categories.get(category)}"
 						name="<spring:message text="${category}" />"></td>
 				</c:forEach>
 			</c:if>
-			<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_preventive_value" value="${preventive}" name="preventive"></td>
-			<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_detective_value" value="${detective}" name="detective"></td>
-			<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_limitative_value" value="${limitative}" name="limitative"></td>
-			<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_corrective_value" value="${corrective}" name="corrective"></td>
-			<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_intentional_value" value="${intentional}" name="intentional"></td>
-			<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_accidental_value" value="${accidental}" name="accidental"></td>
-			<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_environmental_value" value="${environmental}" name="environmental"></td>
-			<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_internalThreat_value" value="${internalThreat}" name="internalThreat"></td>
-			<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_externalThreat_value" value="${externalThreat}" name="externalThreat"></td>
+			<td class="success"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_preventive_value" value="${preventive}" name="preventive"></td>
+			<td class="success"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_detective_value" value="${detective}" name="detective"></td>
+			<td class="success"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_limitative_value" value="${limitative}" name="limitative"></td>
+			<td class="success"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_corrective_value" value="${corrective}" name="corrective"></td>
+			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_intentional_value" value="${intentional}" name="intentional"></td>
+			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_accidental_value" value="${accidental}" name="accidental"></td>
+			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_environmental_value" value="${environmental}" name="environmental"></td>
+			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_internalThreat_value" value="${internalThreat}" name="internalThreat"></td>
+			<td class="warning"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="measure_externalThreat_value" value="${externalThreat}" name="externalThreat"></td>
 			<c:if test="${!empty(assetTypes)}">
 				<c:forEach items="${assetTypes}" var="assetType">
-					<td data-trick-class="AssetType"><input type="text" id='measure_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;" readonly="readonly"
+					<td data-trick-class="AssetType"><input type="text" style="text-align: center; min-width: 46px" id='measure_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;" readonly="readonly"
 						class="form-control" value="${assetType.value}" name="<spring:message text="${assetType.assetType.type}" />"></td>
 				</c:forEach>
 			</c:if>
 			<c:if test="${!empty(assets)}">
 				<c:forEach items="${assets}" var="asset">
-					<td data-trick-class="AssetType"><input type="text" id='measure_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
+					<td data-trick-class="AssetType"><input type="text" style="text-align: center; min-width: 46px" id='measure_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
 						class="form-control" value="${asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
 				</c:forEach>
 			</c:if>
