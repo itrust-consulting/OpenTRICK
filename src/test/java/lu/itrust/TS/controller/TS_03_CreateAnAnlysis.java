@@ -208,8 +208,9 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 	public void test_10_AddScenario() throws Exception {
 		this.mockMvc.perform(post("/Analysis/Scenario/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
-				.content(String.format("{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\"%s}", "Scenario test", 1, false,
-						"Test scenario", SCENARIO_ASSET_TYPE_VALUE)))
+				.content(String.format(
+						"{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\"%s, \"preventive\": 1.0, \"detective\": 0 , \"limitative\": 0, \"corrective\": 0, \"intentional\": 1, \"accidental\": 0, \"environmental\": 0, \"internalThreat\": 0, \"externalThreat\": 0}",
+						"Scenario test", 1, false, "Test scenario", SCENARIO_ASSET_TYPE_VALUE)))
 				.andExpect(status().isOk()).andExpect(content().string("{}"));
 	}
 
@@ -232,50 +233,50 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "accidental", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "environmental", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "internalThreat", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "externalThreat", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "preventive", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "detective", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "limitative", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
-						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "corrective", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
@@ -317,8 +318,10 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_12_CheckAssessment")
 	public void test_13_SelectAssetAndScenario() throws Exception {
-		this.mockMvc.perform(get("/Analysis/Asset/Select/" + getInteger(ASSET_TRICK_SERVICE)).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-				.accept(APPLICATION_JSON_CHARSET_UTF_8).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc
+				.perform(get("/Analysis/Asset/Select/" + getInteger(ASSET_TRICK_SERVICE)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
 				.perform(get("/Analysis/Scenario/Select/" + getInteger(SCENARIO_SCENARIO_TEST)).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
@@ -331,13 +334,13 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		Integer idAssessment = getInteger(ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST);
 		notNull(idAssessment, "Assessment id cannot be null");
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-						.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "impactFin", "String", "i9")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-						.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "likelihood", "String", "p9")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
