@@ -9,6 +9,7 @@
 	<script src="<spring:url value="/js/dom-parser.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootbox.min.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootstrap-tooltip.js" />"></script>
+	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
 	<script src="<spring:url value="/js/main.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/timeoutmanager.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>

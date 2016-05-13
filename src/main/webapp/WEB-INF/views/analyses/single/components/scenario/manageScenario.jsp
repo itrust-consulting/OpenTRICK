@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="addScenarioModal" tabindex="-1" role="dialog" data-aria-labelledby="addNewScenario" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog">
+	<div class="modal-dialog" style="min-width: 50%;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -14,89 +14,215 @@
 					<spring:message code="label.title.scenario.${empty(scenario)? 'add':'edit'}" />
 				</h4>
 			</div>
-			<div class="modal-body">
-				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="scenario_form">
+			<div class="modal-body" style="padding-bottom: 5px; padding-top: 5px;">
+				<ul id="scenario_form_tabs" class="nav nav-tabs">
+					<li class="active"><a href="#tab_scenario_general" data-toggle="tab"><spring:message code="label.menu.gerneral" text="General" /></a></li>
+					<li><a href="#tab_scenario_properties" data-toggle="tab"><spring:message code="label.menu.properties" text="Properties" /></a></li>
+					<li id="error_scenario_container" style="padding-top: 10px; padding-left: 10px"></li>
+				</ul>
+				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal tab-content" id="scenario_form">
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
-					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scenario.name" />
-						</label>
-						<div class="col-sm-10">
-							<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
+					<div id="tab_scenario_general" class="tab-pane active" style="padding-top: 17px;">
+						<div class="form-group">
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scenario.name" />
+							</label>
+							<div class="col-sm-10">
+								<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="scenarioType.id" class="col-sm-2 control-label"> <spring:message code="label.scenario.type" />
+							</label>
+							<div class="col-sm-10">
+								<select name="scenarioType" class="form-control" id="scenario_scenariotype_id">
+									<c:choose>
+										<c:when test="${!empty(scenariotypes)}">
+											<option value='-1'><spring:message code="label.scenario.type.select" /></option>
+											<c:forEach items="${scenariotypes}" var="scenariotype">
+												<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><spring:message
+														code="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
+											</c:forEach>
+										</c:when>
+										<c:otherwise>
+											<option value='-1'><spring:message code="label.scenario.type.loading" /></option>
+										</c:otherwise>
+									</c:choose>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.scenario.description" />
+							</label>
+							<div class="col-sm-10">
+								<textarea name="description" class="form-control resize_vectical_only" rows="12" id="scenario_description"><spring:message
+										text="${empty(scenario)? '': scenario.description}" /></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.scenario.selected" />
+							</label>
+							<div class="col-sm-8" align="center">
+								<input name="selected" id="scenario_selected" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
+							</div>
+						</div>
+						<div class="panel panel-primary">
+							<div class="panel-body">
+								<label class="col-sm-12 text-center"> <spring:message code="label.scenario.application.asset.types" /></label>
+								<table class="table">
+									<c:choose>
+										<c:when test="${!empty(scenario)}">
+											<thead>
+												<tr style="text-align: center;">
+													<c:forEach items="${scenario.assetTypeValues}" var="assettypevalue" varStatus="status">
+														<td><spring:message code="label.asset_type.${fn:toLowerCase(assettypevalue.assetType.type)}" /></td>
+													</c:forEach>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<c:forEach items="${scenario.assetTypeValues}" var="assetTypeValue" varStatus="status">
+														<td align="center"><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1"
+															name="<spring:message text="${assetTypeValue.assetType.type}" />" /></td>
+													</c:forEach>
+												</tr>
+											</tbody>
+										</c:when>
+										<c:when test="${!empty(assetTypes)}">
+											<thead>
+												<tr style="text-align: center;">
+													<c:forEach items="${assetTypes}" var="assetType">
+														<td align="center"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.type)}" /></td>
+													</c:forEach>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<c:forEach items="${assetTypes}" var="assetType" varStatus="status">
+														<td align="center"><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
+													</c:forEach>
+												</tr>
+											</tbody>
+										</c:when>
+									</c:choose>
+								</table>
+							</div>
 						</div>
 					</div>
-					<div class="form-group">
-						<label for="scenarioType.id" class="col-sm-2 control-label"> <spring:message code="label.scenario.type" />
-						</label>
-						<div class="col-sm-10">
-							<select name="scenarioType" class="form-control" id="scenario_scenariotype_id">
-								<c:choose>
-									<c:when test="${!empty(scenariotypes)}">
-										<option value='-1'><spring:message code="label.scenario.type.select" /></option>
-										<c:forEach items="${scenariotypes}" var="scenariotype">
-											<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><spring:message
-													code="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
-										</c:forEach>
-									</c:when>
-									<c:otherwise>
-										<option value='-1'><spring:message code="label.scenario.type.loading" /></option>
-									</c:otherwise>
-								</c:choose>
-							</select>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.scenario.description" />
-						</label>
-						<div class="col-sm-10">
-							<textarea name="description" class="form-control resize_vectical_only" id="scenario_description"><spring:message
-									text="${empty(scenario)? '': scenario.description}" /></textarea>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.scenario.selected" />
-						</label>
-						<div class="col-sm-10" align="center">
-							<input name="selected" id="scenario_selected" class="checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
-						</div>
-					</div>
-					<div class="panel panel-primary">
-						<div class="panel-body">
-							<label class="col-sm-12 text-center"> <spring:message code="label.scenario.application.asset.types" /></label>
-							<table class="table">
-								<c:choose>
-									<c:when test="${!empty(scenario)}">
-										<thead>
-											<tr>
-												<c:forEach items="${scenario.assetTypeValues}" var="assettypevalue" varStatus="status">
-													<td><spring:message code="label.asset_type.${fn:toLowerCase(assettypevalue.assetType.type)}" /></td>
-												</c:forEach>
+					<div id="tab_scenario_properties" class="tab-pane" style="padding-top: 17px;">
+						<spring:message text="${empty scenario or scenario.hasControlCharacteristics()?'success':'danger'}" var="cssclass" />
+						<div class="sceneario-sliders">
+							<table data-trick-controller-name='scenario' class="table table-condensed" style="margin-bottom: 0;">
+								<thead>
+									<tr style="text-align: center;">
+										<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.preventive" /></th>
+										<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.detective" /></th>
+										<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.limitative" /></th>
+										<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.corrective" /></th>
+										<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.intentional" /></th>
+										<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.accidental" /></th>
+										<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
+										<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
+										<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:choose>
+										<c:when test="${empty scenario}">
+											<tr style="text-align: center;">
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="0.25" data-slider-min="0" data-slider-max="1"
+													data-slider-step="0.05" data-slider-value="0.25" data-slider-orientation="vertical" data-slider-selection="after" name="preventive" data-slider-tooltip="show"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="0.25" data-slider-min="0" data-slider-max="1"
+													data-slider-step="0.05" data-slider-value="0.25" name="detective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="0.25" data-slider-min="0" data-slider-max="1"
+													data-slider-step="0.05" data-slider-value="0.25" data-slider-orientation="vertical" data-slider-selection="after" name="limitative" data-slider-tooltip="show"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="0.25" data-slider-min="0" data-slider-max="1"
+													data-slider-step="0.05" data-slider-value="0.25" name="corrective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="0" data-slider-min="0" data-slider-max="1"
+													data-slider-step="1" data-slider-value="0" name="intentional" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_accidental" value="0" data-slider-min="0" data-slider-max="1"
+													data-slider-step="1" data-slider-value="0" name="accidental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="0" data-slider-min="0" data-slider-max="1"
+													data-slider-step="1" data-slider-value="0" name="environmental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="0" data-slider-min="0" data-slider-max="1"
+													data-slider-step="1" data-slider-value="0" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_externalThreat" value="0" data-slider-min="0" data-slider-max="1"
+													data-slider-step="1" data-slider-value="0" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 											</tr>
-										</thead>
-										<tbody>
 											<tr>
-												<c:forEach items="${scenario.assetTypeValues}" var="assetTypeValue" varStatus="status">
-													<td align="center"><input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1" name="<spring:message text="${assetTypeValue.assetType.type}" />" /></td>
-												</c:forEach>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly"
+													class="form-control" value="0.25"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_detective_value" value="0.25"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly"
+													class="form-control" value="0.25"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_corrective_value" value="0.25"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_intentional_value" value="0"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_accidental_value"
+													value="0"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_environmental_value" value="0"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_internalThreat_value" value="0"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_externalThreat_value" value="0"></td>
 											</tr>
-										</tbody>
-									</c:when>
-									<c:when test="${!empty(assetTypes)}">
-										<thead>
+										</c:when>
+										<c:otherwise>
+											<tr style="text-align: center;">
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="${scenario.preventive}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.preventive}" data-slider-orientation="vertical" data-slider-selection="after"
+													name="preventive" data-slider-tooltip="show"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="${scenario.detective}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
+													data-slider-tooltip="show"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="${scenario.limitative}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.limitative}" data-slider-orientation="vertical" data-slider-selection="after"
+													name="limitative" data-slider-tooltip="show"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="${scenario.corrective}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.corrective}" name="corrective" data-slider-orientation="vertical"
+													data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="${scenario.intentional}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.intentional}" name="intentional" data-slider-orientation="vertical"
+													data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_accidental" value="${scenario.accidental}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.accidental}" name="accidental" data-slider-orientation="vertical" data-slider-selection="after"
+													data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="${scenario.environmental}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.environmental}" name="environmental" data-slider-orientation="vertical"
+													data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="${scenario.internalThreat}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.internalThreat}" name="internalThreat" data-slider-orientation="vertical"
+													data-slider-selection="after" data-slider-tooltip="show"></td>
+												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_externalThreat" value="${scenario.externalThreat}" data-slider-min="0"
+													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.externalThreat}" name="externalThreat" data-slider-orientation="vertical"
+													data-slider-selection="after" data-slider-tooltip="show"></td>
+											</tr>
 											<tr>
-												<c:forEach items="${assetTypes}" var="assetType">
-													<td align="center"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.type)}" /></td>
-												</c:forEach>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly"
+													class="form-control" value="${scenario.preventive}"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_detective_value" value="${scenario.detective}"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly"
+													class="form-control" value="${scenario.limitative}"></td>
+												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_corrective_value" value="${scenario.corrective}"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_intentional_value" value="${scenario.intentional}"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_accidental_value"
+													value="${scenario.accidental}"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_environmental_value" value="${scenario.environmental}"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_internalThreat_value" value="${scenario.internalThreat}"></td>
+												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+													id="scenario_externalThreat_value" value="${scenario.externalThreat}"></td>
 											</tr>
-										</thead>
-										<tbody>
-											<tr>
-												<c:forEach items="${assetTypes}" var="assetType" varStatus="status">
-													<td align="center"><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
-												</c:forEach>
-											</tr>
-										</tbody>
-									</c:when>
-								</c:choose>
+										</c:otherwise>
+									</c:choose>
+
+								</tbody>
 							</table>
 						</div>
 					</div>

@@ -482,6 +482,18 @@ datalist {
     height: 164px;
 }
 
+.sceneario-sliders{
+	height: 568.5px; overflow: hidden;
+}
+
+.sceneario-sliders:HOVER {
+	overflow: auto;
+}
+
+.sceneario-sliders .slider.slider-vertical{
+	height: 445px;
+}
+
 @media ( min-width : 1200px) {
 	li.back-btn-bottom {
 		display: none;

@@ -17,13 +17,38 @@ function editScenario(rowTrickId, isAdd) {
 			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response, textStatus, jqXHR) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if ((addScenarioModal = doc.getElementById("addScenarioModal")) == null)
-					return false;
-				if ($("#addScenarioModal").length)
-					$("#addScenarioModal").html($(addScenarioModal).html());
-				$("#addScenarioModal").modal("toggle");
+				var $modal = $("#addScenarioModal", new DOMParser().parseFromString(response, "text/html"));
+				if (!$modal.length)
+					unknowError();
+				else {
+					$("#addScenarioModal").replaceWith($modal);
+					$modal.find(".slider").slider({
+						reversed : true
+					}).each(
+							function() {
+								$(this).on(
+										"change",
+										function(event) {
+											$modal.find("#scenario_" + event.target.name + "_value").val(event.value.newValue);
+											switch (event.target.name) {
+											case "preventive":
+											case "detective":
+											case "limitative":
+											case "corrective":
+												var total = parseFloat($("#scenario_preventive_value", $modal).val()) + parseFloat($("#scenario_detective_value", $modal).val())
+														+ parseFloat($("#scenario_limitative_value", $modal).val()) + parseFloat($("#scenario_corrective_value", $modal).val());
+												if (Math.abs(1 - total) > 0.01)
+													$(".pdlc", $modal).removeClass("success").addClass("danger");
+												else
+													$(".pdlc", $modal).removeClass("danger").addClass("success");
+												break;
+											default:
+												break;
+											}
+										});
+							});
+					$modal.modal("show");
+				}
 				return false;
 			},
 			error : unknowError
@@ -33,63 +58,62 @@ function editScenario(rowTrickId, isAdd) {
 }
 
 function saveScenario(form) {
-	return $.ajax({
-		url : context + "/Analysis/Scenario/Save",
-		type : "post",
-		data : serializeScenarioForm(form),
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response, textStatus, jqXHR) {
-			var label = $("#addScenarioModal .label-danger");
-			if (label.length)
-				label.remove();
-			var alert = $("#addScenarioModal [class='alert alert-danger alert-dismissable']");
-			if (alert.length)
-				alert.remove();
-			for ( var error in response) {
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
-
-				$(errorElement).text(response[error]);
-				switch (error) {
-				case "name":
-					$(errorElement).appendTo($("#scenario_form #scenario_name").parent());
-					break;
-				case "scenarioType":
-					$(errorElement).appendTo($("#scenario_form #scenario_scenariotype_id").parent());
-					break;
-				case "description":
-					$(errorElement).appendTo($("#scenario_form #scenario_description").parent());
-					break;
-				case "selected":
-					$(errorElement).appendTo($("#scenario_form #asset_selected").parent());
-					break;
-				case "scenario":
-					var errorElement = document.createElement("div");
-					errorElement.setAttribute("class", "alert alert-danger alert-dismissable");
-
-					var tmpelement = document.createElement("button");
-					tmpelement.setAttribute("class", "close");
-					tmpelement.setAttribute("data-dismiss", "alert");
-					tmpelement.setAttribute("aria-hidden", "true");
-					$(tmpelement).html("&times;");
+	try {
+		$("#addScenarioModal .label-danger").remove();
+		$.ajax({
+			url : context + "/Analysis/Scenario/Save",
+			type : "post",
+			data : serializeScenarioForm(form),
+			contentType : "application/json;charset=UTF-8",
+			async : true,
+			success : function(response, textStatus, jqXHR) {
+				for ( var error in response) {
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
 
 					$(errorElement).text(response[error]);
-
-					$(tmpelement).appendTo($(errorElement));
-
-					$(errorElement).insertBefore($("#scenario_form"));
-					break;
+					switch (error) {
+					case "name":
+						$(errorElement).appendTo($("#scenario_form #scenario_name").parent());
+						break;
+					case "scenarioType":
+						$(errorElement).appendTo($("#scenario_form #scenario_scenariotype_id").parent());
+						break;
+					case "description":
+						$(errorElement).appendTo($("#scenario_form #scenario_description").parent());
+						break;
+					case "selected":
+						$(errorElement).appendTo($("#scenario_form #asset_selected").parent());
+						break;
+					case "scenario":
+						$(errorElement).appendTo($("#error_scenario_container"));
+						break;
+					}
 				}
-			}
-			if (!$("#addScenarioModal .label-danger").length && !$("#addScenarioModal .alert-danger").length) {
-				$("#addScenarioModal").modal("toggle");
-				reloadSection("section_scenario");
-			}
-			return false;
-		},
-		error : unknowError
-	});
+				if (!$("#addScenarioModal .label-danger").length) {
+					$("#addScenarioModal").modal("toggle");
+					reloadSection("section_scenario");
+				} else
+					$("#addScenarioModal li:not(.active) a[href='#tab_scenario_general']").tab("show");
+				return false;
+			},
+			error : unknowError
+		});
+	} catch (e) {
+		switch (e) {
+		case "error.scenario.control.characteristic":
+			$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please check control characteristics, sum must be 1")).appendTo($("#error_scenario_container"));
+			break;
+		case "error.scenario.threat.source":
+			$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please define a threat source")).appendTo($("#error_scenario_container"));
+			break;
+		default:
+			$("<label class='label label-danger'></label>").text(MessageResolver("error.unknown.occurred", "An unknown error occurred")).appendTo($("#error_scenario_container"));
+			break;
+		}
+		$("#addScenarioModal li:not(.active) a[href='#tab_scenario_properties']").tab("show");
+	}
+	return false;
 }
 
 function deleteScenario(scenarioId) {
@@ -148,11 +172,19 @@ function deleteScenario(scenarioId) {
 }
 
 function serializeScenarioForm(formId) {
-	var data = $("#" + formId).serializeJSON();
+	var $form = $("#" + formId), data = $form.serializeJSON();
 	data["scenarioType"] = {
 		"id" : parseInt(data["scenarioType"], 0),
 		"type" : $("#scenario_scenariotype_id option:selected").text()
 	};
+
+	var total = parseFloat(data['preventive']) + parseFloat(data['detective']) + parseFloat(data['limitative']) + parseFloat(data['corrective']), source = parseFloat(data['intentional'])
+			+ parseFloat(data['accidental']) + parseFloat(data['environmental']) + parseFloat(data['internalThreat']) + parseFloat(data['externalThreat']);
+
+	if (Math.abs(1 - total) > 0.001)
+		throw "error.scenario.control.characteristic";
+	if (source == 0)
+		throw "error.scenario.threat.source";
 	return JSON.stringify(data);
 }
 
@@ -185,7 +217,7 @@ function selectScenario(scenarioId, value) {
 					return false;
 				},
 				error : unknowError
-			}).complete(function(){
+			}).complete(function() {
 				$progress.hide();
 			})
 		} else {
@@ -198,7 +230,7 @@ function selectScenario(scenarioId, value) {
 					return false;
 				},
 				error : unknowError
-			}).complete(function(){
+			}).complete(function() {
 				$progress.hide();
 			})
 		}

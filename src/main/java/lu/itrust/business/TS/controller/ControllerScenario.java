@@ -122,7 +122,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -156,7 +156,7 @@ public class ControllerScenario {
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.Persist(e);
-			errors.add(JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale)));
+			errors.add(JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale)));
 			return errors;
 		}
 	}
@@ -300,7 +300,7 @@ public class ControllerScenario {
 		try {
 			// get analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			
+
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
 			List<AssetType> assetTypes = serviceAssetType.getAll();
@@ -316,14 +316,14 @@ public class ControllerScenario {
 					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis", locale));
 					return errors;
 				}
-				
+
 				serviceScenario.saveOrUpdate(scenario);
-				
+
 				if (scenario.isSelected())
 					assessmentAndRiskProfileManager.selectScenario(scenario);
 				else
 					assessmentAndRiskProfileManager.unSelectScenario(scenario);
-				
+
 			} else {
 				if (serviceScenario.exist(idAnalysis, scenario.getName())) {
 					errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
@@ -333,9 +333,9 @@ public class ControllerScenario {
 			}
 
 			assessmentAndRiskProfileManager.buildOnly(scenario, analysis);
-			
+
 			serviceAnalysis.saveOrUpdate(analysis);
-	
+
 			return errors;
 
 		} catch (TrickException e) {
@@ -458,6 +458,24 @@ public class ControllerScenario {
 				returnvalue.setDescription(description);
 			}
 
+			returnvalue.setAccidental(jsonNode.get("accidental").asInt());
+			
+			returnvalue.setEnvironmental(jsonNode.get("environmental").asInt());
+			
+			returnvalue.setExternalThreat(jsonNode.get("externalThreat").asInt());
+			
+			returnvalue.setInternalThreat(jsonNode.get("internalThreat").asInt());
+			
+			returnvalue.setIntentional(jsonNode.get("intentional").asInt());
+			
+			returnvalue.setDetective(jsonNode.get("detective").asDouble());
+
+			returnvalue.setCorrective(jsonNode.get("corrective").asDouble());
+			
+			returnvalue.setLimitative(jsonNode.get("limitative").asDouble());
+			
+			returnvalue.setPreventive(jsonNode.get("preventive").asDouble());
+			
 			for (AssetType assetType : assetTypes) {
 
 				AssetTypeValue atv = null;
@@ -473,6 +491,10 @@ public class ControllerScenario {
 					returnvalue.addAssetTypeValue(new AssetTypeValue(assetType, value));
 
 			}
+			if(!returnvalue.hasThreatSource())
+				throw new TrickException("error.scenario.threat.source", "Please define a threat source.");
+			if(!returnvalue.hasControlCharacteristics())
+				throw new TrickException("error.scenario.control.characteristic", "Sum of the control characteristics must be equal to 1.");
 			return returnvalue;
 
 		} catch (TrickException e) {
@@ -480,8 +502,7 @@ public class ControllerScenario {
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-
-			errors.put("scenario",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("scenario", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 

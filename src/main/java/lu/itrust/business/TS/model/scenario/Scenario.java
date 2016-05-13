@@ -40,7 +40,7 @@ import lu.itrust.business.TS.model.general.SecurityCriteria;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idScenario")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -484,7 +484,7 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "ScenarioAssetTypeValue", joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, inverseJoinColumns = {
-			@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }) )
+			@JoinColumn(name = "fiAssetTypeValue", nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
@@ -621,6 +621,14 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public String toString() {
 		return "Scenario [name=" + name + ", type=" + type + ", selected=" + selected + ", description=" + description + ", assetTypeValues=" + assetTypeValues + "]";
+	}
+
+	public boolean hasThreatSource() {
+		return (getAccidental() + getIntentional() + getEnvironmental() + getExternalThreat() + getInternalThreat()) > 0;
+	}
+
+	public boolean hasControlCharacteristics() {
+		return Math.abs(1 - (getCorrective() + getLimitative() + getPreventive() + getDetective())) < 1e-3;
 	}
 
 }

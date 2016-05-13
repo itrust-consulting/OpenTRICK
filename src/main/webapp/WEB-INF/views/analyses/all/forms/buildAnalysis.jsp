@@ -23,8 +23,8 @@
 						</div>
 					</li>
 				</ul>
-				<form action="#" class="form-horizontal tab-content" id="tabs" style="height: 420">
-					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
+				<form action="#" class="form-horizontal tab-content" id="tabs">
+					<div id="group_1" class="tab-pane active" style="padding-top: 10px; height: 575.5px">
 						<div class="form-group">
 							<label for="customer" class="col-sm-2 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
 							</label>
@@ -86,7 +86,7 @@
 							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 							</label>
 							<div class="col-sm-10">
-								<textarea name="comment" class="form-control resize_vectical_only" rows="6" style="height: 157.4px;" required="required"></textarea>
+								<textarea name="comment" class="form-control resize_vectical_only" rows="5"  required="required"></textarea>
 							</div>
 						</div>
 						<div class="form-group">

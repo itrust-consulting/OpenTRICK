@@ -1155,7 +1155,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	public int getCategoryValue(String category) throws TrickException {
 
 		// check if the category key is valid -> NO
-		if (!isCategoryKey(category))
+		if (!(categories.containsKey(category) || isCategoryKey(category)))
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
 
 		Integer value = categories.get(category);

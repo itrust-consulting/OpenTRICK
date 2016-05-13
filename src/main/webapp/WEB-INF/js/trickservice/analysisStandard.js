@@ -117,7 +117,7 @@ function doCreateStandard(form) {
 
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$("#createStandardModal #createstandardbutton").prop("disabled", false);
 		})
 	} else
@@ -461,11 +461,12 @@ function manageMeasure(url) {
 						updateAssetUI($(this).val());
 					});
 				}
-				$($content.find(".slider")).slider({reversed:true}).each(function() {
+				$content.find(".slider").slider({
+					reversed : true
+				}).each(function() {
 					$(this).on("change", function(event) {
-						console.log(event);
 						$content.find("#values input[name='" + event.target.name + "']").val(event.value.newValue);
-					})
+					});
 				});
 				new Modal($content).Show();
 			} else if (response["error"] != undefined) {
@@ -507,6 +508,7 @@ function saveMeasure() {
 		data.type = "ASSET";
 		if (data.computable && !data.assetValues.length) {
 			$("<label class='label label-danger'></label>").text(MessageResolver("error.asset.empty", "Asset cannot be empty")).appendTo($("#modalMeasureForm #error_container"));
+			$("#modalMeasureForm a[href='#tab_asset']").tab("show");
 			return false;
 		}
 	} else
@@ -541,7 +543,8 @@ function saveMeasure() {
 					reloadMeasureRow(data.id, data.idStandard);
 				else
 					reloadSection("section_standard_" + data.idStandard);
-			}
+			} else if ($genearal.length)
+				$("#modalMeasureForm a[href='#tab_general']").tab("show");
 			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {

@@ -85,7 +85,7 @@
 					<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_externalThreat_value"
 						value="${selectedScenario.externalThreat}"></td>
 					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
-						<td class="" data-trick-class="AssetType"><input type="text" style="text-align: center;" id='scenario_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;"
+						<td class="" data-trick-class="AssetType"><input type="text" style="text-align: center; min-width: 40px;" id='scenario_<spring:message text="${assetType.assetType.type}"/>_value'
 							readonly="readonly" class="form-control" value="${assetType.value}" name="<spring:message text="${assetType.assetType.type}" />"></td>
 					</c:forEach>
 				</tr>

@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="modalMeasureForm" tabindex="-1" role="dialog" data-aria-labelledby="measureForm" style="z-index: 1042" data-aria-hidden="true">
-	<div class="modal-dialog" style="width: 50%;">
+	<div class="modal-dialog" style="min-width: 50%;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -22,7 +22,7 @@
 
 				</h4>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="padding-top: 5px;">
 				<ul id="measure_form_tabs" class="nav nav-tabs">
 					<c:if test="${not empty(isAnalysisOnly) and isAnalysisOnly}">
 						<li class="active"><a href="#tab_general" data-toggle="tab"><spring:message code="label.menu.assetmeasure.gerneral" text="General" /></a></li>
@@ -179,8 +179,8 @@
 												data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
 												<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-													id="${fn:replace(category,'.','_')}" value="${measureForm.properties.categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-													data-slider-value="${measureForm.properties.categories.get(category)}" name=<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />
+													id="${fn:replace(category,'.','_')}" value="${measureForm.properties.getCategoryValue(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+													data-slider-value="${measureForm.properties.getCategoryValue(category)}" name=<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />
 													data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 											</c:forEach>
 											<td class="success"><input type="text" id="preventive" class="slider" value="${measureForm.properties.preventive}" data-slider-min="0" data-slider-max="4"
@@ -236,7 +236,7 @@
 												value="${measureForm.properties.getFSectoral()}" name="fsectoral"></td>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category" varStatus="catStatus">
 												<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
-													style="text-align: center;" id='<spring:message text="${category}"/>_value' readonly="readonly" class="form-control" value="${measureForm.properties.categories.get(category)}"
+													style="text-align: center;" id='<spring:message text="${category}"/>_value' readonly="readonly" class="form-control" value="${measureForm.properties.getCategoryValue(category)}"
 													name="<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />"></td>
 											</c:forEach>
 											<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="preventive_value"
