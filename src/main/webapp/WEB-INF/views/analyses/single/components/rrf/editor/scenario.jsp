@@ -14,17 +14,17 @@
 		<table data-trick-controller-name='scenario' class="table table-condensed" style="margin-bottom: 0;">
 			<thead>
 				<tr style="text-align: center;">
-					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.preventive" /></th>
-					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.detective" /></th>
-					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.limitative" /></th>
-					<th class="${cssclass} pdlc" data-trick-type="type"><spring:message code="label.rrf.scenario.corrective" /></th>
-					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.intentional" /></th>
-					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.accidental" /></th>
-					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
-					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
-					<th class="warning" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
+					<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.preventive" /></th>
+					<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.detective" /></th>
+					<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.limitative" /></th>
+					<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.corrective" /></th>
+					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.intentional" /></th>
+					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.accidental" /></th>
+					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
+					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
+					<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
 					<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
-						<th class=""><spring:message text='${assetType.assetType.type}' /></th>
+						<th class="text-center"><spring:message text='${assetType.assetType.type}' /></th>
 					</c:forEach>
 				</tr>
 			</thead>

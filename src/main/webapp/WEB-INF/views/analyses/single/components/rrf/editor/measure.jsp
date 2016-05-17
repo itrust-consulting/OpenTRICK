@@ -7,33 +7,33 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <table data-trick-controller-name='measure' class="table table-condensed" style="margin-bottom: 0;">
 	<thead>
-		<tr style="text-align: center;">
-			<th class="warning"><spring:message code="label.rrf.measure.strength_measure" /></th>
-			<th class="warning"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
+		<tr>
+			<th class="warning text-center"><spring:message code="label.rrf.measure.strength_measure" /></th>
+			<th class="warning text-center"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
 			<c:if test="${!empty(categories)}">
 				<c:forEach items="${categories.keySet()}" var="category">
-					<th class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
+					<th class="info text-center" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
 							key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 				</c:forEach>
 			</c:if>
 
-			<th class="success"><spring:message code="label.rrf.measure.preventive" /></th>
-			<th class="success"><spring:message code="label.rrf.measure.detective" /></th>
-			<th class="success"><spring:message code="label.rrf.measure.limitative" /></th>
-			<th class="success"><spring:message code="label.rrf.measure.corrective" /></th>
-			<th class="warning"><spring:message code="label.rrf.measure.intentional" /></th>
-			<th class="warning"><spring:message code="label.rrf.measure.accidental" /></th>
-			<th class="warning"><spring:message code="label.rrf.measure.environmental" /></th>
-			<th class="warning"><spring:message code="label.rrf.measure.internal_threat" /></th>
-			<th class="warning"><spring:message code="label.rrf.measure.external_threat" /></th>
+			<th class="success text-center"><spring:message code="label.rrf.measure.preventive" /></th>
+			<th class="success text-center"><spring:message code="label.rrf.measure.detective" /></th>
+			<th class="success text-center"><spring:message code="label.rrf.measure.limitative" /></th>
+			<th class="success text-center"><spring:message code="label.rrf.measure.corrective" /></th>
+			<th class="warning text-center"><spring:message code="label.rrf.measure.intentional" /></th>
+			<th class="warning text-center"><spring:message code="label.rrf.measure.accidental" /></th>
+			<th class="warning text-center"><spring:message code="label.rrf.measure.environmental" /></th>
+			<th class="warning text-center"><spring:message code="label.rrf.measure.internal_threat" /></th>
+			<th class="warning text-center"><spring:message code="label.rrf.measure.external_threat" /></th>
 			<c:if test="${!empty(assetTypes)}">
 				<c:forEach items="${assetTypes}" var="assetType">
-					<th><spring:message code='label.asset_type.${fn:toLowerCase(assetType.assetType.type)}' /></th>
+					<th class="text-center"><spring:message code='label.asset_type.${fn:toLowerCase(assetType.assetType.type)}' /></th>
 				</c:forEach>
 			</c:if>
 			<c:if test="${!empty(assets)}">
 				<c:forEach items="${assets}" var="asset">
-					<th><spring:message text='${asset.asset.name}' /></th>
+					<th class="text-center"><spring:message text='${asset.asset.name}' /></th>
 				</c:forEach>
 			</c:if>
 		</tr>
