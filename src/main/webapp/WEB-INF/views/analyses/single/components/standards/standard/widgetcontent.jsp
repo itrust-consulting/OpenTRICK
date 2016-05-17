@@ -14,18 +14,24 @@
 					<spring:message code="label.menu.manage_standard" />
 				</h4>
 			</div>
-			<div class="modal-body">
-				<div class="panel panel-default" id="section_manage_standards"></div>
+			<div class="modal-body tab-content">
+				<div id="section_manage_standards" class="tab-pane active"></div>
+				<div id="available_standards" class="tab-pane"></div>
+				<div id="standard_form" class="tab-pane"></div>
 			</div>
-			<div class="modal-footer" style="margin-top: 0;">
-				<div class="progress progress-striped active" style="display: none; width: 100%; margin-top: 15px; margin-bottom: 0;" id="standard_progressbar">
-					<div class="progress-bar progress-striped" role="progressbar" style="width: 100%;"></div>
-				</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
+					<spring:message code="label.action.close" />
+				</button>
+				<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;"><spring:message code="label.action.cancel" /></a>
+				<button class="btn btn-primary" style="display: none;" name="save">
+					<spring:message code="label.action.save" />
+				</button>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="addStandardModal" tabindex="-1" role="dialog" data-aria-labelledby="addStandardmodal" data-aria-hidden="true" data-backdrop="static">
+<%-- <div class="modal fade" id="addStandardModal" tabindex="-1" role="dialog" data-aria-labelledby="addStandardmodal" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 800px;">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -42,8 +48,8 @@
 			</div>
 		</div>
 	</div>
-</div>
-<div class="modal fade" id="createStandardModal" tabindex="-1" role="dialog" data-aria-labelledby="createStandardmodal" data-aria-hidden="true" data-backdrop="static">
+</div> --%>
+<%-- <div class="modal fade" id="createStandardModal" tabindex="-1" role="dialog" data-aria-labelledby="createStandardmodal" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 800px;">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -100,7 +106,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> --%>
 <div class="modal fade" id="deleteStandardModal" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteStandard" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">

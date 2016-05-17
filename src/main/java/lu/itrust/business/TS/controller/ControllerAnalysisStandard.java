@@ -490,7 +490,7 @@ public class ControllerAnalysisStandard {
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
-		return "analyses/single/components/standards/standard/manageForm";
+		return "analyses/single/components/standards/standard/form/manage";
 	}
 
 	/**

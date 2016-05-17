@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div id="available_standards" class="modal-body">
+<div id="available_standards">
 	<c:if test="${!empty(availableStandards)}">
 		<form name="standard" action="${pageContext.request.contextPath}/Analysis/Save/Standard?${_csrf.parameterName}=${_csrf.token}" class="form" id="addStandardForm">
 			<div class="form-group">

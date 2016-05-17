@@ -25,14 +25,14 @@
 			<div class="modal-body" style="padding-top: 5px;">
 				<ul id="measure_form_tabs" class="nav nav-tabs">
 					<c:if test="${not empty(isAnalysisOnly) and isAnalysisOnly}">
-						<li class="active"><a href="#tab_general" data-toggle="tab"><spring:message code="label.menu.assetmeasure.gerneral" text="General" /></a></li>
+						<li class="active"><a href="#tab_general" data-toggle="tab"><spring:message code="label.menu.gerneral" text="General" /></a></li>
 						<c:if test="${measureForm.type == 'ASSET' }">
-							<li><a href="#tab_asset" data-toggle="tab"><spring:message code="label.menu.assetmeasure.assets" text="Assets" /></a></li>
+							<li><a href="#tab_asset" data-toggle="tab"><spring:message code="label.menu.assets" text="Assets" /></a></li>
 						</c:if>
 					</c:if>
 					<c:if test="${isComputable or not isAnalysisOnly}">
 						<li ${empty(isAnalysisOnly) or not isAnalysisOnly ?'class="active"':''}><a href="#tab_properties" data-toggle="tab"><spring:message
-									code="label.menu.assetmeasure.properties" text="Properties" /></a></li>
+									code="label.menu.properties" text="Properties" /></a></li>
 					</c:if>
 					<li id="error_container" style="padding-top: 10px"></li>
 				</ul>
