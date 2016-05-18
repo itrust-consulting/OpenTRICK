@@ -17,6 +17,7 @@
 			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID"/>
 		<csrf request-matcher-ref="csrfEnabledRequestMatcher"/>
+		<http-basic />
 	</http>
 	
 	<beans:bean id="csrfEnabledRequestMatcher" class="lu.itrust.business.TS.controller.helper.CsrfEnabledRequestMatcher" />

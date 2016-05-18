@@ -157,7 +157,7 @@
 										<c:when test="${standardType.name.equals('MATURITY')}">
 											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
 												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
-													value="${measure.getImplementationRate()}" maxFractionDigits="0" minFractionDigits="0" /></td>
+													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 										</c:when>
 										<c:otherwise>
 											<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"
