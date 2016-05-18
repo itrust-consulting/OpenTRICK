@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.model.api.model;
 
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -11,18 +11,33 @@ import java.util.List;
  *
  */
 public class ApiRRF {
-	
+
 	private int analysisId;
-	
+
 	private double impact;
-	
+
 	private double probability;
-	
+
 	private ApiAsset asset;
-	
+
 	private ApiNamable scenario;
-	
-	private List<ApiStandard> standards = Collections.emptyList();
+
+	private List<ApiStandard> standards = new LinkedList<>();
+
+	/**
+	 * 
+	 */
+	public ApiRRF() {
+	}
+
+	/**
+	 * @param analysisId
+	 */
+	public ApiRRF(int analysisId, double impact, double probability) {
+		this.analysisId = analysisId;
+		this.impact = impact;
+		this.probability = probability;
+	}
 
 	/**
 	 * @return the analysisId
@@ -32,7 +47,8 @@ public class ApiRRF {
 	}
 
 	/**
-	 * @param analysisId the analysisId to set
+	 * @param analysisId
+	 *            the analysisId to set
 	 */
 	public void setAnalysisId(int analysisId) {
 		this.analysisId = analysisId;
@@ -46,7 +62,8 @@ public class ApiRRF {
 	}
 
 	/**
-	 * @param impact the impact to set
+	 * @param impact
+	 *            the impact to set
 	 */
 	public void setImpact(double impact) {
 		this.impact = impact;
@@ -60,7 +77,8 @@ public class ApiRRF {
 	}
 
 	/**
-	 * @param probability the probability to set
+	 * @param probability
+	 *            the probability to set
 	 */
 	public void setProbability(double probability) {
 		this.probability = probability;
@@ -74,7 +92,8 @@ public class ApiRRF {
 	}
 
 	/**
-	 * @param asset the asset to set
+	 * @param asset
+	 *            the asset to set
 	 */
 	public void setAsset(ApiAsset asset) {
 		this.asset = asset;
@@ -88,7 +107,8 @@ public class ApiRRF {
 	}
 
 	/**
-	 * @param scenario the scenario to set
+	 * @param scenario
+	 *            the scenario to set
 	 */
 	public void setScenario(ApiNamable scenario) {
 		this.scenario = scenario;
@@ -102,7 +122,8 @@ public class ApiRRF {
 	}
 
 	/**
-	 * @param standards the standards to set
+	 * @param standards
+	 *            the standards to set
 	 */
 	public void setStandards(List<ApiStandard> standards) {
 		this.standards = standards;

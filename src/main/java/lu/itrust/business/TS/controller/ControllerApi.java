@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.constants.Constant;
@@ -36,10 +38,16 @@ import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
+import lu.itrust.business.TS.model.api.model.ApiAsset;
+import lu.itrust.business.TS.model.api.model.ApiMeasure;
+import lu.itrust.business.TS.model.api.model.ApiNamable;
+import lu.itrust.business.TS.model.api.model.ApiRRF;
+import lu.itrust.business.TS.model.api.model.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
-import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 
 /**
@@ -156,10 +164,25 @@ public class ControllerApi {
 		return new ApiResult(0);
 	}
 
-	public Object loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
-			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String[] standardNames, Principal principal, HttpServletResponse response) throws Exception {
+	/**
+	 * Load RRF for a set of measure
+	 * 
+	 * @param idAnalysis
+	 * @param idAsset
+	 * @param idScenario
+	 * @param standardNames
+	 * @param principal
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/load-rrf", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	public void loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
+			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String standard, Principal principal, HttpServletResponse response)
+			throws Exception {
+		String[] standardNames = standard.split(",");
 		if (standardNames.length == 0)
-			return null;
+			throw new TrickException("error.standards.empty", "Standard cannot be empty");
+
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
@@ -167,15 +190,30 @@ public class ControllerApi {
 			throw new TrickException("error.403.access.denied", "You do not have the necessary permissions to perform this action");
 		Map<String, AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream()
 				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getLabel(), Function.identity()));
-		for (String name : standardNames) {
-			if (!analysisStandards.containsKey(name))
-				throw new TrickException("error.standard.not_found", "Standard cannot be found");
-		}
 		Assessment assessment = analysis.getAssessments().stream()
 				.filter(assessment1 -> assessment1.getAsset().getId() == idAsset && assessment1.getScenario().getId() == idScenario).findAny()
 				.orElseThrow(() -> new TrickException("error.assessment.not_found", "Assessment cannot be found"));
-
-		return null;
+		ApiRRF apiRRF = new ApiRRF(idAnalysis, assessment.getImpactReal(), assessment.getLikelihoodReal());
+		apiRRF.setScenario(new ApiNamable(assessment.getScenario().getId(), assessment.getScenario().getName()));
+		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getValue()));
+		Parameter rrfTuning = analysis.findParameterByTypeAndDescription(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		Map<String, Double> dynamicParameters = analysis.getParameters().stream().filter(parameter -> (parameter instanceof DynamicParameter))
+				.map(parameter -> (DynamicParameter) parameter).collect(Collectors.toMap(DynamicParameter::getAcronym, DynamicParameter::getValue));
+		for (String name : standardNames) {
+			AnalysisStandard analysisStandard = analysisStandards.get(name);
+			if (analysisStandard == null)
+				throw new TrickException("error.standard.not_found", "Standard cannot be found");
+			ApiStandard apiStandard = new ApiStandard(analysisStandard.getStandard().getId(), analysisStandard.getStandard().getLabel());
+			analysisStandard.getMeasures().stream().filter(measure -> measure.getMeasureDescription().isComputable()).forEach(measure -> {
+				apiStandard.getMeasures().add(new ApiMeasure(measure.getId(), measure.getMeasureDescription().getReference(),
+						(int) measure.getImplementationRateValue(dynamicParameters), measure.getCost(), RRF.calculateRRF(assessment, rrfTuning, measure)));
+			});
+			apiRRF.getStandards().add(apiStandard);
+		}
+		response.setContentType("json");
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"rrf.json\"");
+		new ObjectMapper().writeValue(response.getOutputStream(), apiRRF);
 
 	}
 }

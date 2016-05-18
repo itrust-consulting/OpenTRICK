@@ -12,6 +12,19 @@ public class ApiTrickObject {
 	private Integer id;
 
 	/**
+	 * 
+	 */
+	public ApiTrickObject() {
+	}
+
+	/**
+	 * @param id
+	 */
+	public ApiTrickObject(Integer id) {
+		this.id = id;
+	}
+
+	/**
 	 * @return the id
 	 */
 	public Integer getId() {

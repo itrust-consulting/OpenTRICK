@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.model.api.model;
 
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -12,7 +12,21 @@ import java.util.List;
  */
 public class ApiStandard extends ApiNamable {
 	
-	private List<ApiMeasure> measures = Collections.emptyList();
+	private List<ApiMeasure> measures = new LinkedList<>();
+
+	/**
+	 * 
+	 */
+	public ApiStandard() {
+	}
+
+	/**
+	 * @param id
+	 * @param name
+	 */
+	public ApiStandard(Integer id, String name) {
+		super(id, name);
+	}
 
 	/**
 	 * @return the measures

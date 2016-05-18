@@ -10,6 +10,20 @@ package lu.itrust.business.TS.model.api.model;
 public class ApiNamable extends ApiTrickObject {
 	
 	private String name;
+	
+	/**
+	 * 
+	 */
+	public ApiNamable() {
+	}
+
+	/**
+	 * @param name
+	 */
+	public ApiNamable(Integer id, String name) {
+		super(id);
+		this.name = name;
+	}
 
 	/**
 	 * @return the name
@@ -24,5 +38,7 @@ public class ApiNamable extends ApiTrickObject {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	
 
 }

@@ -16,6 +16,26 @@ public class ApiMeasure extends ApiNamable {
 	private double rrf;
 
 	/**
+	 * 
+	 */
+	public ApiMeasure() {
+	}
+
+	/**
+	 * @param id
+	 * @param name
+	 * @param implRate
+	 * @param cost
+	 * @param rrf
+	 */
+	public ApiMeasure(Integer id, String name, int implRate, double cost, double rrf) {
+		super(id, name);
+		this.implRate = implRate;
+		this.cost = cost;
+		this.rrf = rrf;
+	}
+
+	/**
 	 * @return the implRate
 	 */
 	public int getImplRate() {
