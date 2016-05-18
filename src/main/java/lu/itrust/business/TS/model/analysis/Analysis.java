@@ -83,7 +83,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion", "dtCreationDate" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion" }))
 public class Analysis implements Cloneable {
 
 	/***********************************************************************************************
@@ -1101,18 +1101,22 @@ public class Analysis implements Cloneable {
 	/**
 	 * Gets the list of all parameters that shall be taken into consideration
 	 * whenever an expression (e.g. for likelihood) is evaluated.
+	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
 	 */
 	public List<AcronymParameter> getExpressionParameters() {
-		// We assume that all parameters that have an acronym can be used in an expression
-		// Maybe we want to change this in the future (checking parameter.type); then this is the place to act.
+		// We assume that all parameters that have an acronym can be used in an
+		// expression
+		// Maybe we want to change this in the future (checking parameter.type);
+		// then this is the place to act.
 		// In that case, we must update
-		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer), so in particular
+		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
+		// so in particular
 		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
 		List<AcronymParameter> expressionParameters = new ArrayList<>();
 		for (Parameter parameter : this.parameters)
 			if (parameter instanceof AcronymParameter)
-				expressionParameters.add((AcronymParameter)parameter);
+				expressionParameters.add((AcronymParameter) parameter);
 		return expressionParameters;
 	}
 
@@ -2012,6 +2016,7 @@ public class Analysis implements Cloneable {
 	 * Gets a list of all parameters that are considered to be used as variable
 	 * when evaluating an arithmetic expression. The parameter acronym is then
 	 * replaced by the value of the respective parameter.
+	 * 
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 10, 2015
 	 */
@@ -2499,11 +2504,8 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
-		return parameters.stream()
-				.filter(parameter -> parameter instanceof DynamicParameter)
-				.collect(Collectors.toMap(
-						parameter -> ((DynamicParameter)parameter).getAcronym(),
-						parameter -> (DynamicParameter)parameter));
+		return parameters.stream().filter(parameter -> parameter instanceof DynamicParameter)
+				.collect(Collectors.toMap(parameter -> ((DynamicParameter) parameter).getAcronym(), parameter -> (DynamicParameter) parameter));
 	}
 
 	public List<Assessment> removeAssessment(Asset asset) {
@@ -2696,5 +2698,7 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(AcronymParameter::getAcronym, Function.identity()));
 	}
 
+	public boolean isUserAuthorized(String username, AnalysisRight right) {
+		return userRights.stream().anyMatch(userRight -> userRight.getUser().getLogin().equals(username) && UserAnalysisRight.userIsAuthorized(userRight, right));
+	}
 }
-

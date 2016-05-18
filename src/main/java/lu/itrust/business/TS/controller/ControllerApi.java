@@ -2,7 +2,11 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.text.MessageFormat;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,21 +18,29 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
 import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
+import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
+import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
 
 /**
  * ControllerApi.java: <br>
@@ -58,6 +70,9 @@ public class ControllerApi {
 
 	@Autowired
 	private WorkersPoolManager poolManager;
+
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
 
 	/**
 	 * Method is called whenever an exception of type TrickException is thrown
@@ -139,5 +154,28 @@ public class ControllerApi {
 
 		// Success
 		return new ApiResult(0);
+	}
+
+	public Object loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
+			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String[] standardNames, Principal principal, HttpServletResponse response) throws Exception {
+		if (standardNames.length == 0)
+			return null;
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+		if (!analysis.isUserAuthorized(principal.getName(), AnalysisRight.EXPORT))
+			throw new TrickException("error.403.access.denied", "You do not have the necessary permissions to perform this action");
+		Map<String, AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().stream()
+				.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard().getLabel(), Function.identity()));
+		for (String name : standardNames) {
+			if (!analysisStandards.containsKey(name))
+				throw new TrickException("error.standard.not_found", "Standard cannot be found");
+		}
+		Assessment assessment = analysis.getAssessments().stream()
+				.filter(assessment1 -> assessment1.getAsset().getId() == idAsset && assessment1.getScenario().getId() == idScenario).findAny()
+				.orElseThrow(() -> new TrickException("error.assessment.not_found", "Assessment cannot be found"));
+
+		return null;
+
 	}
 }

@@ -7,7 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -34,7 +33,7 @@ public class UserAnalysisRight implements Cloneable {
 
 	/** id */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue
 	@Column(name = "idUserAnalysisRight")
 	private long id = -1;
 
@@ -175,7 +174,6 @@ public class UserAnalysisRight implements Cloneable {
 	 * @return true if th euser has the right or false if not.
 	 */
 	public static final boolean userIsAuthorized(UserAnalysisRight uar, AnalysisRight right) {
-
 		return (uar.getRight().ordinal() <= right.ordinal() ? true : false);
 
 	}
