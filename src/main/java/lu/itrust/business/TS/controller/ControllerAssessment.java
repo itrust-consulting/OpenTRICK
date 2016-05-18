@@ -329,7 +329,8 @@ public class ControllerAssessment {
 			Asset asset = serviceAsset.get(elementID);
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 
-			// retrieve parameters which are considered in the expression evaluation
+			// retrieve parameters which are considered in the expression
+			// evaluation
 			List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 
 			// retrieve assessments of analysis
@@ -411,7 +412,8 @@ public class ControllerAssessment {
 
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 
-			// retrieve parameters which are considered in the expression evaluation
+			// retrieve parameters which are considered in the expression
+			// evaluation
 			List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 
 			// load assessments

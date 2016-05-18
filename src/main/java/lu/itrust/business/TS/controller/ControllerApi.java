@@ -32,11 +32,11 @@ import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificat
 
 /**
  * ControllerApi.java: <br>
- *     This controller is responsible for accepting external notifications
- *     which serve as risk indicator (such as IDS alerts). From these the
- *     probabilities that certain events happen, are deduced and stored in
- *     variables ready to be used within the TRICK service user interface
- *     (asset/scenario estimation).
+ * This controller is responsible for accepting external notifications which
+ * serve as risk indicator (such as IDS alerts). From these the probabilities
+ * that certain events happen, are deduced and stored in variables ready to be
+ * used within the TRICK service user interface (asset/scenario estimation).
+ * 
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 4, 2015
  */
@@ -60,8 +60,8 @@ public class ControllerApi {
 	private WorkersPoolManager poolManager;
 
 	/**
-	 * Method is called whenever an exception of type TrickException
-	 * is thrown in this controller.
+	 * Method is called whenever an exception of type TrickException is thrown
+	 * in this controller.
 	 */
 	@ResponseStatus(value = HttpStatus.FORBIDDEN)
 	@ExceptionHandler(TrickException.class)
@@ -81,16 +81,18 @@ public class ControllerApi {
 		else
 			return new ApiResult(0, principal.getName());
 	}
-	
+
 	/**
-	 * This method is responsible for accepting external notifications
-	 * which serve as risk indicator (such as IDS alerts). From these, the
+	 * This method is responsible for accepting external notifications which
+	 * serve as risk indicator (such as IDS alerts). From these, the
 	 * probabilities that certain events happen, are deduced and stored in
 	 * variables ready to be used within the TRICK service user interface
 	 * (asset/scenario estimation).
-	 * @param data One or multiple notifications sent to TRICK Service.
+	 * 
+	 * @param data
+	 *            One or multiple notifications sent to TRICK Service.
 	 * @return Returns an error code (0 = success).
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
@@ -100,20 +102,23 @@ public class ControllerApi {
 			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, userName));
 
 		// Trigger execution of worker which computes dynamic parameters.
-		// This method only schedules the task if it does not have been scheduled yet for the given user.
+		// This method only schedules the task if it does not have been
+		// scheduled yet for the given user.
 		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
 
 		// Success
 		return new ApiResult(0);
 	}
-	
+
 	/**
 	 * This method is responsible for accepting requests that set the value of a
-	 * dynamic parameter ready to be used within the TRICK service user interface
-	 * (asset/scenario estimation).
-	 * @param data One or multiple notifications sent to TRICK Service.
+	 * dynamic parameter ready to be used within the TRICK service user
+	 * interface (asset/scenario estimation).
+	 * 
+	 * @param data
+	 *            One or multiple notifications sent to TRICK Service.
 	 * @return Returns an error code (0 = success).
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object set(HttpSession session, Principal principal, @RequestBody ApiSetParameterRequest request) throws Exception {
@@ -123,10 +128,13 @@ public class ControllerApi {
 			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, userName));
 
 		// Trigger execution of worker which computes dynamic parameters.
-		// This method only schedules the task if it does not have been scheduled yet for the given user.
+		// This method only schedules the task if it does not have been
+		// scheduled yet for the given user.
 		//
-		// Note that we cannot set the value directly because we do not know whether there are other parameter setters
-		// or external notifications in the database which also impact the value of the parameter.
+		// Note that we cannot set the value directly because we do not know
+		// whether there are other parameter setters
+		// or external notifications in the database which also impact the value
+		// of the parameter.
 		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
 
 		// Success

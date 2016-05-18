@@ -145,12 +145,10 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(
-					LogType.ANALYSIS,
-					"log.analysis.profile.create",
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.profile.create",
 					String.format("Analyis: %s, version: %s, profile: %s, name: %s, version: %s", analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
-							copy.getLabel(), copy.getVersion()), username, LogAction.CREATE, analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
-					copy.getLabel(), copy.getVersion());
+							copy.getLabel(), copy.getVersion()),
+					username, LogAction.CREATE, analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(), copy.getLabel(), copy.getVersion());
 		} catch (TrickException e) {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));

@@ -48,7 +48,7 @@ public class ControllerSummary {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
-	
+
 	@Autowired
 	private ServiceLanguage serviceLanguage;
 
@@ -78,7 +78,7 @@ public class ControllerSummary {
 
 		// add actionplan summaries
 		model.addAttribute("summaries", serviceActionPlanSummary.getAllFromAnalysis(idAnalysis));
-		
+
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
 		return "analyses/single/components/summary";
@@ -119,7 +119,8 @@ public class ControllerSummary {
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		// generate chart
-		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);
+		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), summaryStages, phases, actionPlanType,
+				customLocale != null ? customLocale : locale);
 	}
 
 	/**

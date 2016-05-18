@@ -73,15 +73,21 @@ public interface DAOParameter {
 	 * Gets a list of all parameters that are considered to be used as variable
 	 * when evaluating an arithmetic expression. The parameter acronym is then
 	 * replaced by the value of the respective parameter.
-	 * @param idAnalysis The identifier of the analysis for which parameters shall be retrieved.
+	 * 
+	 * @param idAnalysis
+	 *            The identifier of the analysis for which parameters shall be
+	 *            retrieved.
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 10, 2015
 	 */
 	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception;
-	
+
 	/**
 	 * Gets all dynamic parameters for the given analysis.
-	 * @param idAnalysis The identifier of the analysis for which parameters shall be retrieved.
+	 * 
+	 * @param idAnalysis
+	 *            The identifier of the analysis for which parameters shall be
+	 *            retrieved.
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 11, 2015
 	 */

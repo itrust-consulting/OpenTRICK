@@ -37,7 +37,7 @@ public interface DAOAnalysisStandard {
 	public void saveOrUpdate(AnalysisStandard analysisStandard) ;
 
 	public void delete(AnalysisStandard analysisStandard) ;
-	
+
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard);
 
 	public boolean belongsToAnalysis(Integer idAnalysis, int id);

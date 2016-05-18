@@ -46,7 +46,7 @@ public class ControllerHome {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -64,7 +64,7 @@ public class ControllerHome {
 		return String.format("{\"message\":\"%s\"}",
 				messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
 	}
-	
+
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Feedback")
 	public @ResponseBody List<MessageHandler> revice(Principal principal) {
@@ -88,7 +88,7 @@ public class ControllerHome {
 			model.addAttribute("resetPassword", register == null || resetPassword.getBoolean());
 		} catch (GenericJDBCException e) {
 			model.addAttribute("error", messageSource.getMessage("error.database.connection_failed", null, "No connection to the database...", locale));
-		}catch(Exception e){
+		} catch (Exception e) {
 			model.addAttribute("error", messageSource.getMessage("error.setting.not.loaded", null, "Settings cannot be loaded", locale));
 		}
 	}

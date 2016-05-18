@@ -243,5 +243,4 @@ public class ControllerRiskRegister {
 	public void setRiskRegisterEnTemplate(String template) {
 		WorkerExportRiskRegister.ENG_TEMPLATE = template;
 	}
-
 }

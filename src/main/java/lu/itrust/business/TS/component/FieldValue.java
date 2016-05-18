@@ -5,15 +5,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class FieldValue {
-	
+
 	private String name;
 
 	private Object value;
-	
+
 	private String title;
-	
+
 	private Object realValue;
-	
 
 	/**
 	 * @param name
@@ -56,7 +55,8 @@ public class FieldValue {
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -70,7 +70,8 @@ public class FieldValue {
 	}
 
 	/**
-	 * @param value the value to set
+	 * @param value
+	 *            the value to set
 	 */
 	public void setValue(Object value) {
 		this.value = value;
@@ -84,7 +85,8 @@ public class FieldValue {
 	}
 
 	/**
-	 * @param title the title to set
+	 * @param title
+	 *            the title to set
 	 */
 	public void setTitle(String title) {
 		this.title = title;
@@ -98,12 +100,11 @@ public class FieldValue {
 	}
 
 	/**
-	 * @param realValue the realValue to set
+	 * @param realValue
+	 *            the realValue to set
 	 */
 	public void setRealValue(Object realValue) {
 		this.realValue = realValue;
 	}
-	
-	
 
 }

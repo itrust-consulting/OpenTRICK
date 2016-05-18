@@ -223,9 +223,8 @@ public class WorkerExportAnalysis implements Worker {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export",
-					String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(), analysis.getVersion()), user.getLogin(), LogAction.EXPORT,
-					analysis.getIdentifier(), analysis.getVersion());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export", String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(), analysis.getVersion()),
+					user.getLogin(), LogAction.EXPORT, analysis.getIdentifier(), analysis.getVersion());
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			try {

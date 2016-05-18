@@ -403,6 +403,7 @@ public class DatabaseHandler {
 		} catch (SQLException e) {
 			TrickLogManager.Persist(e);
 		}
+
 		// ****************************************************************
 		// * return the result
 		// ****************************************************************

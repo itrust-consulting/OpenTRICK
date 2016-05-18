@@ -37,13 +37,10 @@ public class CustomerManager {
 		/**
 		 * Log
 		 */
-		analyses.stream()
-				.filter(analysis -> analysis.getCustomer() != customer)
-				.findAny()
-				.ifPresent(
-						analysis -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.switch.analysis.customer",
-								String.format("Analysis: %s, old: %s, new: %s", analysis.getIdentifier(), analysis.getCustomer().getOrganisation(), customer.getOrganisation()),
-								username, LogAction.SWITCH_CUSTOMER, analysis.getIdentifier(), analysis.getCustomer().getOrganisation(), customer.getOrganisation()));
+		analyses.stream().filter(analysis -> analysis.getCustomer() != customer).findAny()
+				.ifPresent(analysis -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.switch.analysis.customer",
+						String.format("Analysis: %s, old: %s, new: %s", analysis.getIdentifier(), analysis.getCustomer().getOrganisation(), customer.getOrganisation()), username,
+						LogAction.SWITCH_CUSTOMER, analysis.getIdentifier(), analysis.getCustomer().getOrganisation(), customer.getOrganisation()));
 		for (Analysis analysis : analyses) {
 			analysis.setCustomer(customer);
 			analysis.getUserRights().stream().forEach(userAnalysisRight -> {

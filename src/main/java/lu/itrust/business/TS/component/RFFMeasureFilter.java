@@ -8,11 +8,11 @@ package lu.itrust.business.TS.component;
  *
  */
 public class RFFMeasureFilter {
-	
+
 	private int idStandard;
-	
+
 	private int idMeasure;
-	
+
 	private String chapter;
 
 	/**
@@ -23,7 +23,8 @@ public class RFFMeasureFilter {
 	}
 
 	/**
-	 * @param idStandard the idStandard to set
+	 * @param idStandard
+	 *            the idStandard to set
 	 */
 	public void setIdStandard(int idStandard) {
 		this.idStandard = idStandard;
@@ -37,7 +38,8 @@ public class RFFMeasureFilter {
 	}
 
 	/**
-	 * @param idMeasure the idMeasure to set
+	 * @param idMeasure
+	 *            the idMeasure to set
 	 */
 	public void setIdMeasure(int idMeasure) {
 		this.idMeasure = idMeasure;
@@ -51,7 +53,8 @@ public class RFFMeasureFilter {
 	}
 
 	/**
-	 * @param chapter the chapter to set
+	 * @param chapter
+	 *            the chapter to set
 	 */
 	public void setChapter(String chapter) {
 		this.chapter = chapter;

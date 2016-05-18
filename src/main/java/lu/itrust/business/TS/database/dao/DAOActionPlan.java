@@ -46,5 +46,5 @@ public interface DAOActionPlan {
 	public void delete(ActionPlanEntry actionPlanEntry) ;
 	
 	public void deleteAllFromAnalysis(Integer analysisID) ;
-	
+
 }

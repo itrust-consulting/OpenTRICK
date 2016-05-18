@@ -108,8 +108,8 @@ public class WorkerAnalysisImport extends WorkerImpl implements Worker {
 			}
 			if (canDeleteFile) {
 				File file = new File(fileName);
-				if (file.exists()){
-					if (!file.delete()){
+				if (file.exists()) {
+					if (!file.delete()) {
 						file.deleteOnExit();
 					}
 				}
@@ -257,10 +257,10 @@ public class WorkerAnalysisImport extends WorkerImpl implements Worker {
 						}
 					}
 				}
-			
+
 				if (canDeleteFile) {
 					File file = new File(fileName);
-					if (file.exists()){
+					if (file.exists()) {
 						if (!file.delete())
 							file.deleteOnExit();
 					}

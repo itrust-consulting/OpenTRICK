@@ -790,12 +790,14 @@ public class Constant {
 
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 
-	/* **********************************************************************************************
-	   EXTERNAL NOTIFICATIONS & DYNAMIC PARAMETERS
-	   **********************************************************************************************/
+	/*
+	 * *************************************************************************
+	 * ********************* EXTERNAL NOTIFICATIONS & DYNAMIC PARAMETERS
+	 **********************************************************************************************/
 
 	/**
-	 * The maximum number of past seconds which the chart of dynamic parameter evolution should display.
+	 * The maximum number of past seconds which the chart of dynamic parameter
+	 * evolution should display.
 	 */
 	public static final long CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS = 12 * 30 * 86400;
 	/**
@@ -803,8 +805,9 @@ public class Constant {
 	 */
 	public static final double CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR = 1.5;
 	/**
-	 * The number of seconds in the past after which the logarithmic scale should stop
-	 * (in favour of a linear scale with step size equal the current step size resulting from the logarithmic increase).
+	 * The number of seconds in the past after which the logarithmic scale
+	 * should stop (in favour of a linear scale with step size equal the current
+	 * step size resulting from the logarithmic increase).
 	 */
 	public static final long CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE = 86400 * 14;
 
@@ -813,7 +816,9 @@ public class Constant {
 	public static final String ACRO_PARAMETER = "acro_parameter";
 	public static final String VALUE_PARAMETER = "value_parameter";
 
-	public static final double EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE = 500.; // in k€/y
-	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/- 20%
+	public static final double EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE = 500.; // in
+																				// k€/y
+	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
+																			// 20%
 
 }

@@ -54,7 +54,7 @@ public interface DAOAssessment {
 	public void saveOrUpdate(List<Assessment> assessments) ;
 
 	public void delete(Assessment assessment) ;
-	
+
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis);
 
 	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario);

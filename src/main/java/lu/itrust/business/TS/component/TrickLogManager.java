@@ -219,7 +219,8 @@ public class TrickLogManager {
 				e.getCause().printStackTrace(printStream);
 			e.printStackTrace(printStream);
 			String stackTrace = outStream.toString();
-			return Persist(LogLevel.ERROR, LogType.SYSTEM, "error.system.exception", String.format("Stack trace: %s", stackTrace), "TS logger", LogAction.RISE_EXCEPTION, stackTrace);
+			return Persist(LogLevel.ERROR, LogType.SYSTEM, "error.system.exception", String.format("Stack trace: %s", stackTrace), "TS logger", LogAction.RISE_EXCEPTION,
+					stackTrace);
 		} finally {
 			try {
 				if (outStream != null)
@@ -231,8 +232,8 @@ public class TrickLogManager {
 					printStream.close();
 			} catch (Exception e1) {
 			}
-			
-			if(e!=null && instance.logger.isDebugEnabled())
+
+			if (e != null && instance.logger.isDebugEnabled())
 				e.printStackTrace();
 		}
 	}

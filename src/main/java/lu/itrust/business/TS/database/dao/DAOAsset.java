@@ -42,7 +42,7 @@ public interface DAOAsset {
 	public void delete(Integer id) ;
 
 	public void delete(Asset asset) ;
-	
+
 	public boolean exist(Integer idAnalysis, String name);
 
 	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset);

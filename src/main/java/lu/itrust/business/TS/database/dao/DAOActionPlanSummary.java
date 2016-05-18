@@ -38,5 +38,5 @@ public interface DAOActionPlanSummary {
 	public void delete(SummaryStage summaryStage) ;
 	
 	public void deleteAllFromAnalysis(Integer analysisID) ;
-	
+
 }

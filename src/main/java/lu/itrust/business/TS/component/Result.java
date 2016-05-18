@@ -11,13 +11,13 @@ import java.util.Set;
  *
  */
 public class Result {
-	
+
 	private boolean error = false;
-	
+
 	private String message = null;
-	
+
 	private Set<FieldValue> fields = new LinkedHashSet<FieldValue>();
-	
+
 	/**
 	 * @param hasError
 	 * @param message
@@ -35,7 +35,8 @@ public class Result {
 	}
 
 	/**
-	 * @param error the error to set
+	 * @param error
+	 *            the error to set
 	 */
 	protected void setError(boolean error) {
 		this.error = error;
@@ -49,18 +50,19 @@ public class Result {
 	}
 
 	/**
-	 * @param message the message to set
+	 * @param message
+	 *            the message to set
 	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
-	public void turnOnError(String message){
+
+	public void turnOnError(String message) {
 		setError(true);
 		setMessage(message);
 	}
-	
-	public void turnOnSuccess(String message){
+
+	public void turnOnSuccess(String message) {
 		setError(true);
 		setMessage(message);
 	}
@@ -73,14 +75,13 @@ public class Result {
 	}
 
 	/**
-	 * @param fields the fields to set
+	 * @param fields
+	 *            the fields to set
 	 */
 	public void setFields(Set<FieldValue> fields) {
 		this.fields = fields;
 	}
-	
-	
-	
+
 	/**
 	 * @return
 	 * @see java.util.Set#isEmpty()
@@ -116,11 +117,11 @@ public class Result {
 		return fields.remove(o);
 	}
 
-	public static Result Error(String message){
+	public static Result Error(String message) {
 		return new Result(true, message);
 	}
-	
-	public static Result Success(String message){
+
+	public static Result Success(String message) {
 		return new Result(false, message);
 	}
 

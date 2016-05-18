@@ -22,15 +22,15 @@ public interface DAOTrickLog {
 	Long count();
 
 	Long countByLevel(LogLevel level);
-	
+
 	List<TrickLog> getAll();
-	
+
 	List<TrickLog> getAllByLevel(LogLevel level, int page, int size);
-	
+
 	List<TrickLog> getAllByLevel(LogLevel level);
-	
+
 	List<TrickLog> getAll(int page, int size);
-	
+
 	TrickLog save(TrickLog trickLog);
 
 	void saveOrUpdate(TrickLog trickLog);

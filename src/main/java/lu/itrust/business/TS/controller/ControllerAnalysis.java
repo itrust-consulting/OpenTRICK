@@ -157,7 +157,7 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceRole serviceRole;
-	
+
 	@Autowired
 	private CustomerManager customerManager;
 

@@ -9,7 +9,7 @@ import lu.itrust.business.TS.model.asset.AssetType;
  * Detailed description...
  *
  * @author smenghi, itrust consulting s.à.rl.
- * @version 
+ * @version
  * @since 16 janv. 2013
  */
 public interface DAOAssetType {

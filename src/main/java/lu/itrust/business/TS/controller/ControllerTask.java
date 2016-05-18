@@ -159,9 +159,9 @@ public class ControllerTask {
 
 		List<String> result = serviceTaskFeedback.tasks(principal.getName());
 
-		if(result == null)
+		if (result == null)
 			result = new ArrayList<String>();
-		
+
 		// get tasks of this user
 		return result;
 	}

@@ -471,10 +471,10 @@ public class AssessmentAndRiskProfileManager {
 		return assessment;
 	}
 
-	public static void ComputeAlE(List<Assessment> assessments, List<ExtendedParameter> parameters) {
-		Map<String, ExtendedParameter> parametersMapping = new LinkedHashMap<>(parameters.size());
+	public static void ComputeAlE(List<Assessment> assessments, List<AcronymParameter> parameters) {
+		Map<String, AcronymParameter> parametersMapping = new LinkedHashMap<>(parameters.size());
 		try {
-			for (ExtendedParameter extendedParameter : parameters)
+			for (AcronymParameter extendedParameter : parameters)
 				parametersMapping.put(extendedParameter.getAcronym(), extendedParameter);
 			for (Assessment assessment : assessments)
 				ComputeAlE(assessment, parametersMapping);

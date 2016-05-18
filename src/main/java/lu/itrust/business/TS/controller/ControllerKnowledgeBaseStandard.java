@@ -1138,5 +1138,4 @@ public class ControllerKnowledgeBaseStandard {
 			return false;
 		}
 	}
-
 }

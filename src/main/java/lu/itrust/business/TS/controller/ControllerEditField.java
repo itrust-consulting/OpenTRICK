@@ -342,8 +342,7 @@ public class ControllerEditField {
 				try {
 					field = clazz.getDeclaredField(fieldEditor.getFieldName());
 					break;
-				}
-				catch (NoSuchFieldException ex) {
+				} catch (NoSuchFieldException ex) {
 					// continue
 				}
 			}
@@ -367,14 +366,14 @@ public class ControllerEditField {
 				serviceParameter.saveOrUpdate(parameter);
 
 				// Update bounds for IMPACT and PROBABILITY
-				if (parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME) ||
-					parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
+				if (parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
+						|| parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
 					// retrieve parameters
 					List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysisAndType(id, parameter.getType());
-	
+
 					// update impact value
 					ParameterManager.ComputeImpactValue(parameters);
-	
+
 					// update parameters
 					serviceParameter.saveOrUpdate(parameters);
 				}
