@@ -5,12 +5,12 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div id="section_manage_standards" class="tab-pane active" style="height: 500px; overflow-x: auto; margin-top: -10px">
+<div id="section_manage_standards" class="tab-pane active" style="height: 500px; overflow-y: auto; overflow-x:hidden; margin-top: -10px">
 	<ul id="menu_manage_standards" class="nav nav-pills bordered-bottom">
-		<li><a href="#addStandardTab" data-toggle="tab"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.action.create" /></a></li>
-		<li><a href="#" data-toggle="tab"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.action.add" /></a></li>
-		<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a onclick="return editStandard();" href="#"><span
-				class="glyphicon glyphicon-edit primary"></span>&nbsp;<spring:message code="label.action.edit" /></a></li>
+		<li><a href="#available_standards" data-toggle="tab" role='add'><span class="glyphicon glyphicon-import"></span> <spring:message code="label.action.import" /></a></li>
+		<li><a href="#standard_form" data-toggle="tab" role='create'><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.create" /></a></li>
+		<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a href="#standard_form" data-toggle="tab"
+			role='edit'><span class="glyphicon glyphicon-edit primary"></span> <spring:message code="label.action.edit" /></a></li>
 		<li data-trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<spring:message
 					code="label.action.remove" /></a></li>
 	</ul>

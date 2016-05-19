@@ -16,8 +16,6 @@ function isAnalysisOnlyStandard(section) {
 
 function manageStandard() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var $modal = $("#standardModal");
-		$modal.find(".alert").remove();
 		$.ajax({
 			url : context + "/Analysis/Standard/Manage",
 			type : "get",
@@ -27,13 +25,46 @@ function manageStandard() {
 				if (response["error"] != undefined)
 					showError($(".modal-body", $modal)[0], response["error"]);
 				else {
-					var forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
+					var $modal = $("#standardModal"), forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
 					if (!forms.length)
 						showError($(".modal-footer", $modal)[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 					else
 						$("#section_manage_standards").replaceWith(forms);
+
+					var $tabs = $modal.find("#menu_manage_standards a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer>button[name='cancel']"), $backBtn = $modal
+							.find(".modal-footer>a.btn"), $saveBtn = $modal.find(".modal-footer>button[name='save']");
+
+					$tabs.on("show.bs.tab", function(e) {
+						return !$(this).parent().hasClass("disabled");
+					}).on('shown.bs.tab', function() {
+						$(this).parent().removeClass("active");
+						$saveBtn.toggle();
+						$backBtn.toggle();
+						$cancelBtn.toggle();
+					});
+
+					$tabs.each(function() {
+						switch (this.getAttribute("role")) {
+						case "add":
+							break;
+						case "edit":
+							break;
+						case "create":
+							break;
+						default:
+							break;
+						}
+					});
+
+					$backBtn.on('click', function() {
+						$saveBtn.toggle();
+						$backBtn.toggle();
+						$cancelBtn.toggle();
+					});
+
+					$modal.modal("show");
 				}
-				$modal.modal("show");
+
 			},
 			error : unknowError
 		});

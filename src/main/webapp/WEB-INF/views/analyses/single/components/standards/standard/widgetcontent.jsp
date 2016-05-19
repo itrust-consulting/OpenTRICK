@@ -15,17 +15,19 @@
 				</h4>
 			</div>
 			<div class="modal-body tab-content">
-				<div id="section_manage_standards" class="tab-pane active"></div>
-				<div id="available_standards" class="tab-pane"></div>
-				<div id="standard_form" class="tab-pane"></div>
+				<div id="section_manage_standards" class="tab-pane active" style="height: 500px; overflow-y: auto; overflow-x:hidden; margin-top: -10px"></div>
+				<div id="available_standards" class="tab-pane" style="height: 500px; overflow-y: auto; overflow-x:hidden; margin-top: -10px"></div>
+				<div id="standard_form" class="tab-pane" style="overflow-y: auto; overflow-x:hidden; height: 490px;">
+					<jsp:include page="form/create.jsp" />
+				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
-					<spring:message code="label.action.close" />
-				</button>
-				<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;"><spring:message code="label.action.cancel" /></a>
 				<button class="btn btn-primary" style="display: none;" name="save">
 					<spring:message code="label.action.save" />
+				</button>
+				<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;"><spring:message code="label.action.cancel" /></a>
+				<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
+					<spring:message code="label.action.close" />
 				</button>
 			</div>
 		</div>
