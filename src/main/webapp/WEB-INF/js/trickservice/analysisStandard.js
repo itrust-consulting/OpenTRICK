@@ -2,7 +2,7 @@
 
 $(document).ready(function() {
 	$('#standardModal').on('hidden.bs.modal', function() {
-		reloadSection("section_standard");
+		//reloadSection("section_standard");
 	})
 });
 
@@ -34,22 +34,21 @@ function manageStandard() {
 					var $tabs = $modal.find("#menu_manage_standards a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer>button[name='cancel']"), $backBtn = $modal
 							.find(".modal-footer>a.btn"), $saveBtn = $modal.find(".modal-footer>button[name='save']");
 
-					$tabs.on("show.bs.tab", function(e) {
-						return !$(this).parent().hasClass("disabled");
-					}).on('shown.bs.tab', function() {
+					$tabs.on('shown.bs.tab', function() {
 						$(this).parent().removeClass("active");
 						$saveBtn.toggle();
 						$backBtn.toggle();
 						$cancelBtn.toggle();
-					});
-
-					$tabs.each(function() {
+					}).each(function() {
 						switch (this.getAttribute("role")) {
-						case "add":
+						case "import":
+							$(this).on('show.bs.tab',importStandard)
 							break;
 						case "edit":
+							$(this).on('show.bs.tab',editStandard)
 							break;
-						case "create":
+						case "add":
+							$(this).on('show.bs.tab',addStandard)
 							break;
 						default:
 							break;
@@ -74,6 +73,62 @@ function manageStandard() {
 }
 
 // manage analysis standards
+
+function importStandard(e){
+	if($(e.currentTarget).parent().hasClass("disabled"))
+		return false;
+	return true;
+}
+
+function editStandard(e) {
+	if($(e.currentTarget).parent().hasClass("disabled"))
+		return false;
+	if (1) {
+
+		selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
+		if (selectedItem.length != 1)
+			return false;
+	} else {
+		selectedItem = standardrowobject;
+	}
+	var canbeedited = $(selectedItem).attr("data-trick-analysisOnly");
+
+	if (canbeedited === "true") {
+
+		if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+
+			var id = $(selectedItem).attr("data-trick-id"), $model = $("#createStandardModal"), locale = findAnalysisLocale(), label = $(selectedItem).find("td:nth-child(2)")
+					.text(), description = $(selectedItem).find("td:nth-child(4)").text(), type = $(selectedItem).attr("data-trick-type"), computable = $(selectedItem).attr(
+					"data-trick-computable");
+			$("#createStandardModal .label-danger").remove();
+
+			$("#createstandardbutton", $model).prop("disabled", false);
+			$("#standard_label", $model).prop("value", label);
+			$("#standard_description", $model).prop("value", description);
+			$("#standard_form input[name='type']", $model).removeProp("checked").prop("disabled", true);
+			$("#standard_form input[name='type'][value='" + type + "']", $model).prop("checked", true);
+			$("#id", $model).val(id);
+			if (computable === "true")
+				$("#standard_computable", $model).prop("checked", true);
+			else
+				$("#standard_computable", $model).removeProp("checked");
+			$("#createstandardtitle", $model).text(MessageResolver("label.title.analysis.manage_standard.edit", "Edit standard"));
+			$("#createstandardbutton").text(MessageResolver("label.action.edit", "Edit"));
+			$("#createstandardbutton").attr("onclick", "doEditStandard('standard_form')");
+			$("#createStandardModal").modal('show');
+
+		} else
+			permissionError();
+	}
+
+	return true;
+}
+
+function addStandard(e) {
+	if($(e.currentTarget).parent().hasClass("disabled"))
+		return false;
+	return true;
+}
 
 function createStandard() {
 
@@ -156,52 +211,6 @@ function doCreateStandard(form) {
 	return false;
 }
 
-// manage analysis standards
-
-function editStandard(standardrowobject) {
-
-	var selectedItem = undefined;
-
-	if (standardrowobject == undefined || standardrowobject == null) {
-
-		selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
-		if (selectedItem.length != 1)
-			return false;
-	} else {
-		selectedItem = standardrowobject;
-	}
-	var canbeedited = $(selectedItem).attr("data-trick-analysisOnly");
-
-	if (canbeedited === "true") {
-
-		if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-
-			var id = $(selectedItem).attr("data-trick-id"), $model = $("#createStandardModal"), locale = findAnalysisLocale(), label = $(selectedItem).find("td:nth-child(2)")
-					.text(), description = $(selectedItem).find("td:nth-child(4)").text(), type = $(selectedItem).attr("data-trick-type"), computable = $(selectedItem).attr(
-					"data-trick-computable");
-			$("#createStandardModal .label-danger").remove();
-
-			$("#createstandardbutton", $model).prop("disabled", false);
-			$("#standard_label", $model).prop("value", label);
-			$("#standard_description", $model).prop("value", description);
-			$("#standard_form input[name='type']", $model).removeProp("checked").prop("disabled", true);
-			$("#standard_form input[name='type'][value='" + type + "']", $model).prop("checked", true);
-			$("#id", $model).val(id);
-			if (computable === "true")
-				$("#standard_computable", $model).prop("checked", true);
-			else
-				$("#standard_computable", $model).removeProp("checked");
-			$("#createstandardtitle", $model).text(MessageResolver("label.title.analysis.manage_standard.edit", "Edit standard"));
-			$("#createstandardbutton").text(MessageResolver("label.action.edit", "Edit"));
-			$("#createstandardbutton").attr("onclick", "doEditStandard('standard_form')");
-			$("#createStandardModal").modal('show');
-
-		} else
-			permissionError();
-	}
-
-	return false;
-}
 
 function doEditStandard(form) {
 	var $modal = $("#createStandardModal");
@@ -268,51 +277,6 @@ function doEditStandard(form) {
 	return false;
 }
 
-function addStandard() {
-
-	var selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
-	if (selectedItem.length != 0)
-		return false;
-	var alert = $("#addStandardModal .alert").remove();
-	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		$("#add_standard_progressbar").css("display", "none");
-		$.ajax({
-			url : context + "/Analysis/Standard/Available",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				if (response["0"] != undefined) {
-					$("#add_standard_progressbar").css("display", "none");
-					showError($("#addStandardModal .modal-footer")[0], response["0"]);
-				} else {
-
-					if (!$.isEmptyObject(response)) {
-
-						var text = '<div class="col-sm-6"><select name="idNorm" class="form-control">';
-
-						for ( var standard in response) {
-
-							// alert(standard + ' ' + response[standard]);
-							text += '<option value="' + standard + '">' + response[standard] + '</option>';
-
-						}
-						text += '</select></div><div class="col-sm-2"><button type="button" class="btn btn-primary" onclick="return doAddStandard(\'addStandardModal\');">'
-								+ MessageResolver("label.action.add", "add") + '</button></div>';
-						$("#addStandardModal .modal-body").html(text);
-
-					} else {
-						var text = '<div class="col-sm-12"><b>' + MessageResolver("label.no_standards_available", "No standards available") + '</b></div>';
-						$("#addStandardModal .modal-body").html(text);
-					}
-					$("#addStandardModal").modal("show");
-				}
-			},
-			error : unknowError
-		});
-	} else
-		permissionError();
-	return false;
-}
 
 function doAddStandard(form) {
 	$("#standardModal .alert").remove();
