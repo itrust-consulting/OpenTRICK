@@ -637,22 +637,9 @@ public class ControllerAnalysisStandard {
 	 */
 	@RequestMapping(value = "/Available", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<Integer, String> getAvailableStandards(HttpSession session, Principal principal, Locale locale) throws Exception {
-
-		Map<Integer, String> availableStandards = new LinkedHashMap<Integer, String>();
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		try {
-			List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
-			for (Standard standard : standards)
-				availableStandards.put(standard.getId(), standard.getLabel() + " - " + standard.getVersion());
-			return availableStandards;
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			availableStandards.clear();
-			availableStandards.put(0, messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred",
-					new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2())));
-			return availableStandards;
-		}
+	public String getAvailableStandards(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		model.addAttribute("availableStandards", serviceStandard.getAllNotInAnalysis((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS)));
+		return "analyses/single/components/standards/standard/form/import";
 	}
 
 	/**

@@ -2,7 +2,7 @@
 
 $(document).ready(function() {
 	$('#standardModal').on('hidden.bs.modal', function() {
-		//reloadSection("section_standard");
+		// reloadSection("section_standard");
 	})
 });
 
@@ -27,28 +27,29 @@ function manageStandard() {
 				else {
 					var $modal = $("#standardModal"), forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
 					if (!forms.length)
-						showError($(".modal-footer", $modal)[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
+						showError($("#error-standard-modal", $modal)[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 					else
 						$("#section_manage_standards").replaceWith(forms);
 
-					var $tabs = $modal.find("#menu_manage_standards a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer>button[name='cancel']"), $backBtn = $modal
-							.find(".modal-footer>a.btn"), $saveBtn = $modal.find(".modal-footer>button[name='save']");
+					var $tabs = $modal.find("#menu_manage_standards a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer button[name='cancel']"), $backBtn = $modal
+							.find(".modal-footer a.btn"), $saveBtn = $modal.find(".modal-footer button[name='save']");
 
 					$tabs.on('shown.bs.tab', function() {
 						$(this).parent().removeClass("active");
-						$saveBtn.toggle();
+						if (this.getAttribute("role") != "import")
+							$saveBtn.show();
 						$backBtn.toggle();
 						$cancelBtn.toggle();
 					}).each(function() {
 						switch (this.getAttribute("role")) {
 						case "import":
-							$(this).on('show.bs.tab',importStandard)
+							$(this).on('show.bs.tab', importStandard)
 							break;
 						case "edit":
-							$(this).on('show.bs.tab',editStandard)
+							$(this).on('show.bs.tab', editStandard)
 							break;
 						case "add":
-							$(this).on('show.bs.tab',addStandard)
+							$(this).on('show.bs.tab', addStandard)
 							break;
 						default:
 							break;
@@ -56,11 +57,10 @@ function manageStandard() {
 					});
 
 					$backBtn.on('click', function() {
-						$saveBtn.toggle();
+						$saveBtn.hide();
 						$backBtn.toggle();
 						$cancelBtn.toggle();
 					});
-
 					$modal.modal("show");
 				}
 
@@ -74,24 +74,56 @@ function manageStandard() {
 
 // manage analysis standards
 
-function importStandard(e){
-	if($(e.currentTarget).parent().hasClass("disabled"))
+function importStandard(e) {
+	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
-	return true;
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url : context + "/Analysis/Standard/Available",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		async : false,
+		success : function(response, textStatus, jqXHR) {
+			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#importStandardTable");
+			if (!$content.length) {
+				showError($(".modal-body", $modal)[0], MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+				e.preventDefault();
+			} else {
+				var $standardModal = $("#standardModal"), $tableStandard = $standardModal.find("#table_current_standard");
+				$("#importStandardTable", $standardModal).replaceWith($content);
+				$content.find("button.btn").on("click", function(e) {
+					var $this = $(this), $tr = $this.closest("tr");
+					$progress.show();
+					$.ajax({
+						url : context + "/Analysis/Standard/Add/" + $tr.attr("data-trick-id"),
+						type : "post",
+						contentType : "application/json;charset=UTF-8",
+						success : function(response, textStatus, jqXHR) {
+							if (response["error"] != undefined) {
+								showError($(".modal-body", $modal)[0], response["error"]);
+							} else if (response["success"] != undefined) {
+								$tableStandard.find("tbody>tr:not([data-trick-id])").remove();
+								$tr.find("td:last-child").remove();
+								$tr.appendTo($tableStandard.find("tbody")).find("td").show();
+							}
+						},
+						error : unknowError
+					}).complete(function() {
+						$progress.hide();
+					});
+				});
+			}
+		},
+		error : unknowError
+	}).complete(function() {
+		$progress.hide();
+	});
 }
 
 function editStandard(e) {
-	if($(e.currentTarget).parent().hasClass("disabled"))
+	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
-	if (1) {
-
-		selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
-		if (selectedItem.length != 1)
-			return false;
-	} else {
-		selectedItem = standardrowobject;
-	}
-	var canbeedited = $(selectedItem).attr("data-trick-analysisOnly");
+	var selectedItem = $("#section_manage_standards tbody>tr[data-trick-analysisOnly='true'] :checked").closest("tr");
 
 	if (canbeedited === "true") {
 
@@ -125,7 +157,7 @@ function editStandard(e) {
 }
 
 function addStandard(e) {
-	if($(e.currentTarget).parent().hasClass("disabled"))
+	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
 	return true;
 }
@@ -211,7 +243,6 @@ function doCreateStandard(form) {
 	return false;
 }
 
-
 function doEditStandard(form) {
 	var $modal = $("#createStandardModal");
 	$("#createstandardbutton", $modal).prop("disabled", true);
@@ -277,50 +308,6 @@ function doEditStandard(form) {
 	return false;
 }
 
-
-function doAddStandard(form) {
-	$("#standardModal .alert").remove();
-	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		$("#add_standard_progressbar").css("display", "inline-block");
-		var idStandard = $("#" + form + " select").val();
-		$.ajax({
-			url : context + "/Analysis/Standard/Add/" + idStandard,
-			type : "post",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				if (response["error"] != undefined) {
-					$("#add_standard_progressbar").css("display", "none");
-					showError($("#addStandardModal .modal-footer")[0], response["error"]);
-					$("#addStandardModal .modal-footer div[class='alert alert-danger']").css("margin-bottom", "0");
-				} else if (response["success"] != undefined) {
-					$("#add_standard_progressbar").css("display", "none");
-					$.ajax({
-						url : context + "/Analysis/Standard/Manage",
-						type : "get",
-						async : false,
-						contentType : "application/json;charset=UTF-8",
-						success : function(response, textStatus, jqXHR) {
-							var parser = new DOMParser();
-							var doc = parser.parseFromString(response, "text/html");
-							$("#section_manage_standards table.table").replaceWith($(doc).find("#section_manage_standards table.table"));
-							updateMenu(undefined, '#section_manage_standards', '#menu_manage_standards');
-						},
-						error : unknowError
-					});
-					$("#addStandardModal").modal("hide");
-
-				}
-			},
-			error : function() {
-				unknowError();
-				$("#add_standard_progressbar").css("display", "none");
-			}
-		});
-	} else
-		permissionError();
-	return false;
-}
-
 function removeStandard() {
 
 	var selectedStandard = $("#section_manage_standards :checked");
@@ -343,7 +330,6 @@ function removeStandard() {
 				if (response["error"] != undefined) {
 					$(deleteModal.modal_footer).find("#delete_standard_progressbar").css("display", "none");
 					showError($("#standardModal .modal-footer")[0], response["error"]);
-					$("#standardModal .modal-footer").find("div[class='alert alert-danger']").css("margin-bottom", "0");
 				} else if (response["success"] != undefined) {
 					$(deleteModal.modal_footer).find("#delete_standard_progressbar").css("display", "none");
 					$.ajax({
@@ -352,9 +338,9 @@ function removeStandard() {
 						async : false,
 						contentType : "application/json;charset=UTF-8",
 						success : function(response, textStatus, jqXHR) {
-							var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
+							var $table = $("#table_current_standard", new DOMParser().parseFromString(response, "text/html"));
 							if ($table.length) {
-								$("#section_manage_standards table.table").replaceWith($table);
+								$("#section_manage_standards #table_current_standard").replaceWith($table);
 								updateMenu(undefined, '#section_manage_standards', '#menu_manage_standards');
 							} else
 								unknowError();

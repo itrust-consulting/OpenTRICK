@@ -5,32 +5,34 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div id="available_standards">
-	<c:if test="${!empty(availableStandards)}">
-		<form name="standard" action="${pageContext.request.contextPath}/Analysis/Save/Standard?${_csrf.parameterName}=${_csrf.token}" class="form" id="addStandardForm">
-			<div class="form-group">
-				<label> <spring:message code="label.analysis.add.standard.select.choose" />
-				</label>
-				<div style="height: 14px;">
-					<div class="col-lg-11">
-						<select name="idStandard" class="form-control" onchange="$('#selectedStandardDescription').html($('#addStandardForm select option:selected').attr('title'));">
-							<c:forEach items="${standards}" var="standard">
-								<option title='<spring:message text="${availableStandards.description}"/>' value="${availableStandards.id}">
-									<spring:message text="${availableStandards.label}" /> -
-									<spring:message text="${availableStandards.version}" />
-								</option>
-							</c:forEach>
-						</select>
-					</div>
-					<div class="col-lg-1" style="padding: 6px;">
-						<a href="#" onclick="saveStandard('addStandardForm')" style="font-size: 20px;" id="btn_save_standard" title='<spring:message code="label.action.add" />'><span
-							class="fa fa-plus-circle"></span></a>
-					</div>
-				</div>
-			</div>
-		</form>
-	</c:if>
-	<c:if test="${empty(availableStandards)}">
-		<spring:message code="label.no_standards_available" />
-	</c:if>
-</div>
+<form name="standard" action="/Create?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="standard_form" method="post">
+	<input type="hidden" value="-1" name="id" id="id">
+	<div class="form-group">
+		<label class="control-label col-sm-2"><spring:message code="label.norm.standard_type" /></label>
+		<div class="col-sm-10 text-center">
+			<label class="radio-inline col-sm-offset-2 col-sm-4"> <input type="radio" name="type" value="NORMAL"> <spring:message code="label.norm.standard_type.normal" /></label>
+			<label class="radio-inline col-sm-4"> <input type="radio" name="type" value="ASSET"> <spring:message code="label.norm.standard_type.asset" />
+			</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="label" class="col-sm-2 control-label"><spring:message code="label.norm.label" /> </label>
+		<div class="col-sm-10">
+			<input name="label" id="standard_label" class="form-control" type="text" />
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="computable" class="col-sm-2 control-label"> <spring:message code="label.norm.computable" />
+		</label>
+		<div class="col-sm-10" align="center">
+			<input name="computable" id="standard_computable" class="checkbox" type="checkbox" checked />
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="description" class="col-sm-2 control-label"> <spring:message code="label.norm.description" />
+		</label>
+		<div class="col-sm-10">
+			<textarea name="description" id="standard_description" class="form-control resize_vectical_only" rows="16"></textarea>
+		</div>
+	</div>
+</form>

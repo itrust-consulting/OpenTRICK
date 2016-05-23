@@ -213,6 +213,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;
+		OPCPackage opcPackage = null;
 		File workFile = null;
 		try {
 			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
@@ -244,7 +245,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			workFile = new File(
 					String.format("%s/tmp/RISK_REGISTER_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			File doctemplate = new File(String.format("%s/data/%s.dotx", rootPath, locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
-			OPCPackage opcPackage = OPCPackage.open(doctemplate.getAbsoluteFile());
+			opcPackage = OPCPackage.open(doctemplate.getAbsoluteFile());
 			opcPackage.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
 					"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
 			opcPackage.save(workFile);
@@ -323,6 +324,9 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 			if (workFile != null && workFile.exists() && !workFile.delete())
 				workFile.deleteOnExit();
+			
+			if(opcPackage!=null)
+				opcPackage.close();
 		}
 	}
 
