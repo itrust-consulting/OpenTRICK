@@ -4,28 +4,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
-import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.impl.ServiceExternalNotificationImpl;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.usermanagement.RoleType;
-
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Component which allows to compute the values of dynamic parameters.
@@ -40,23 +38,19 @@ public class DynamicParameterComputer {
 	private DAOAnalysis daoAnalysis;
 
 	@Autowired
-	private DAOParameter daoParameter;
-
-	@Autowired
 	private DAOParameterType daoParameterType;
 
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
 
 	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentManager;
 
 	public DynamicParameterComputer() {
 	}
 
-	public DynamicParameterComputer(Session session, AssessmentManager assessmentManager) {
+	public DynamicParameterComputer(Session session, AssessmentAndRiskProfileManager assessmentManager) {
 		this.daoAnalysis = new DAOAnalysisHBM(session);
-		this.daoParameter = new DAOParameterHBM(session);
 		this.daoParameterType = new DAOParameterTypeHBM(session);
 		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
 		this.assessmentManager = assessmentManager;
@@ -108,7 +102,7 @@ public class DynamicParameterComputer {
 		// yet/anymore
 		ParameterType dynamicParameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
 		if (dynamicParameterType == null) {
-			dynamicParameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
+			dynamicParameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_DYNAMIC, Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
 			dynamicParameterType.setId(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
 		}
 

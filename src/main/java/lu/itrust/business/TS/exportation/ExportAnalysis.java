@@ -953,9 +953,6 @@ public class ExportAnalysis {
 				case Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME:
 					query = DatabaseHandler.generateInsertQuery("potentiality", 7);
 					break;
-				case Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME:
-					query = DatabaseHandler.generateInsertQuery("severity", 7);
-					break;
 			}
 
 			// Exclude all other extended parameters (there should be none)

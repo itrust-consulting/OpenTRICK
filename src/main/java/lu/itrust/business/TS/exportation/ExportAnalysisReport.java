@@ -1411,7 +1411,7 @@ public class ExportAnalysisReport {
 						while (row.getTableCells().size() < 16)
 							row.createCell();
 						row.getCell(2).setText(getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null, measure.getStatus(), locale));
-						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
+						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue(expressionParameters)));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
 						addCellNumber(row.getCell(5), kEuroFormat.format(measure.getExternalWL()));
 						addCellNumber(row.getCell(6), numberFormat.format(measure.getInvestment() * 0.001));
@@ -1423,7 +1423,7 @@ public class ExportAnalysisReport {
 						addCellParagraph(row.getCell(12), measure.getPhase().getNumber() + "");
 						addCellParagraph(row.getCell(13), measure.getResponsible());
 						addCellParagraph(row.getCell(14), measure.getToDo());
-						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
+						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue(expressionParameters) >= 100) {
 							for (int i = 0; i < 16; i++)
 								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
 						} else {

@@ -24,6 +24,7 @@ import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -117,6 +118,7 @@ public class RiskSheetComputation {
 
 			System.out.println("Risk Register calculation...");
 			List<ExtendedParameter> extendedParameters = new ArrayList<>(22);
+			List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 			CSSFFilter filter = new CSSFFilter();
 			int mandatoryPhase = 0, impactThreshold = Constant.CSSF_IMPACT_THRESHOLD_VALUE, probabilityThreshold = Constant.CSSF_PROBABILITY_THRESHOLD_VALUE;
 			for (Parameter parameter : this.analysis.getParameters()) {
@@ -142,7 +144,7 @@ public class RiskSheetComputation {
 			filter.setImpact(helper.getParameterConvertor().getImpactValue(impactThreshold));
 			filter.setProbability(helper.getParameterConvertor().getProbabiltyValue(probabilityThreshold));
 			setConvertor(helper.getParameterConvertor());
-			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
+			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter, expressionParameters));
 			// print risk register into console
 			// printRegister(this.analysis.getRiskRegisters());
 			return null;
@@ -250,7 +252,7 @@ public class RiskSheetComputation {
 	 * @see CSSFTools#sortByGroup(Map)
 	 * @see CSSFTools#sortAndConcatenateGroup(Map)
 	 */
-	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final ComputationHelper helper, CSSFFilter cssfFilter)
+	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final ComputationHelper helper, CSSFFilter cssfFilter, List<AcronymParameter> expressionParameters)
 			throws TrickException {
 		if (cssfFilter == null)
 			cssfFilter = new CSSFFilter(helper.getParameterConvertor().getImpactValue(6), helper.getParameterConvertor().getProbabiltyValue(5));
@@ -268,7 +270,7 @@ public class RiskSheetComputation {
 		// Array with size)
 		computeNetALE(helper, assessments);
 		// calculate RawALEs, DeltaALEs and Probability Relative Impacts
-		computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(helper, tmas);
+		computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(helper, tmas, expressionParameters);
 		// compute
 		cssfFinalComputation(helper);
 		// Concatenate direct and indirect using 20 direct and those with
@@ -449,7 +451,7 @@ public class RiskSheetComputation {
 	 * @see #computeRawALE(Map, Map, TMA, List)
 	 * @see #computeProbabilityRelativeImpact(Map, Scenario, Measure)
 	 */
-	private static void computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(ComputationHelper helper, List<TMA> tmas) {
+	private static void computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(ComputationHelper helper, List<TMA> tmas, List<AcronymParameter> expressionParameters) {
 
 		// parse all TMA entries
 		tmas.forEach(tma -> {
@@ -476,10 +478,10 @@ public class RiskSheetComputation {
 				String key = getKey(tma.getAssessment());
 
 				// compute deltaALE
-				computeDeltaALEs(helper.getDeltaALEs(), computeALE(helper, tma.getAssessment()), tma, key);
+				computeDeltaALEs(helper.getDeltaALEs(), computeALE(helper, tma.getAssessment()), tma, key, expressionParameters);
 
 				// compute RawALE
-				computeRawALE(helper.getRawALEs(), helper.getNetALEs(), tma, key);
+				computeRawALE(helper.getRawALEs(), helper.getNetALEs(), tma, key, expressionParameters);
 
 				// Compute Relative Probability and Relative Impact
 				computeProbabilityRelativeImpact(helper.getProbabilityRelativeImpacts(), key, scenario);
@@ -578,9 +580,9 @@ public class RiskSheetComputation {
 	 *            The List of Parameters
 	 * @throws TrickException
 	 */
-	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, String key) throws TrickException {
+	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, String key, List<AcronymParameter> expressionParameters) throws TrickException {
 
-		double currentDeltaALE = TMA.calculateDeltaALE(deltaALEs.containsKey(key) ? ALE - deltaALEs.get(key) : ALE, tma.getRRF(), tma.getMeasure());
+		double currentDeltaALE = TMA.calculateDeltaALE(deltaALEs.containsKey(key) ? ALE - deltaALEs.get(key) : ALE, tma.getRRF(), tma.getMeasure(), expressionParameters);
 		// retireve existing summed value of this scneario and add current
 		// deltaALE, if none exist
 		// use the current as new value
@@ -601,7 +603,7 @@ public class RiskSheetComputation {
 	 * @param parameters
 	 *            The Parameter List
 	 */
-	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, String key) {
+	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, String key, List<AcronymParameter> expressionParameters) {
 
 		// Retrieve current rawALE of the scenario ID if it does not exist take
 		// the start value of
@@ -610,7 +612,7 @@ public class RiskSheetComputation {
 
 		// Retrieve implementation rate of the measure and transform it to
 		// percentage
-		double ImplementationRate = tma.getMeasure().getImplementationRateValue() * 0.01;
+		double ImplementationRate = tma.getMeasure().getImplementationRateValue(expressionParameters) * 0.01;
 
 		// calculate new RAW ALE using formula
 		rawALE /= (1.0 - tma.getRRF() * ImplementationRate);
@@ -861,6 +863,7 @@ public class RiskSheetComputation {
 				try {
 					System.out.println("Risk Register calculation...");
 					List<ExtendedParameter> extendedParameters = new ArrayList<>(22);
+					List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 					int mandatoryPhase = 0;
 					for (Parameter parameter : this.analysis.getParameters()) {
 						if (parameter instanceof ExtendedParameter)
@@ -873,7 +876,7 @@ public class RiskSheetComputation {
 					// ****************************************************************
 					helper = new ComputationHelper(extendedParameters);
 					setConvertor(helper.getParameterConvertor());
-					this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
+					this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter, expressionParameters));
 					// print risk register into console
 					// printRegister(this.analysis.getRiskRegisters());
 					return null;
