@@ -113,9 +113,10 @@
 											<ul class="nav nav-pills">
 												<li class="disabled text"><a style="cursor: default; color: inherit;"><spring:message code="label.rrf.control.measure" /></a></li>
 												<li id='measure-control-apply-sub-chapter' class="pull-right text-danger"><a href="#"><spring:message code="label.rrf.control.measure.apply.sub.chapter" /></a></li>
-												<li id='measure-control-apply-selective-sub-chapter' class="pull-right text-danger"><a href="#"><spring:message code="label.rrf.control.measure.apply.selective.sub.chapter" /></a></li>
-												
-											
+												<li id='measure-control-apply-selective-sub-chapter' class="pull-right text-danger"><a href="#"><spring:message
+															code="label.rrf.control.measure.apply.selective.sub.chapter" /></a></li>
+
+
 											</ul>
 										</div>
 									</div>

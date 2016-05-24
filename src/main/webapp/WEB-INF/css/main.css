@@ -65,9 +65,15 @@ body {
 	padding-top: 5px;
 }
 
+.nav.bordered-bottom{
+	padding-bottom: 5px;
+}
+
 .nav.bordered-bottom, .bordered-bottom {
 	border-bottom: 1px solid #dddddd;
 }
+
+
 
 .navbar-custom {
 	margin-top: 50px;

@@ -338,12 +338,18 @@ public class Duplicator {
 		if (anonymize) {
 			copy.setComment(Constant.EMPTY_STRING);
 			copy.setToDo(Constant.EMPTY_STRING);
-			copy.setCost(0);
+			copy.setResponsible(Constant.EMPTY_STRING);
+			copy.setTicket(Constant.EMPTY_STRING);
+			copy.setRecurrentInvestment(0);
+			copy.setInternalMaintenance(0);
+			copy.setExternalMaintenance(0);
 			copy.setExternalWL(0);
 			copy.setInternalWL(0);
 			copy.setInvestment(0);
 			copy.setLifetime(0);
+			copy.setCost(0);
 		}
+		
 		if (copy instanceof MaturityMeasure) {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
 			Parameter parameter = parameters.get(Parameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME,
@@ -444,9 +450,8 @@ public class Duplicator {
 			copy.setLabel(name);
 			copy.setProfile(true);
 			copy.setData(false);
-
+			copy.setProject(Constant.EMPTY_STRING);
 			// do not set analysis specific data which are unused for profile
-
 			// history
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.history", "Delete analysis histories", 3));
 			copy.setHistories(null);
@@ -466,14 +471,18 @@ public class Duplicator {
 			// assessments
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.risk_profile", "empty risk profile", 15));
 			copy.setRiskProfiles(null);
-
+			
 			// item information
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.itemInformation", "Clear item information", 20));
-			copy.setItemInformations(null);
-
+			copy.setItemInformations(new ArrayList<>());
+			for (ItemInformation itemInformation : analysis.getItemInformations()) 
+				copy.getItemInformations().add(itemInformation.anonymise());
+			
 			// risk information
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.riskInformation", "Clear risk information", 30));
-			copy.setRiskInformations(null);
+			copy.setRiskInformations(new ArrayList<>());
+			for (RiskInformation riskInformation : analysis.getRiskInformations())
+				copy.getRiskInformations().add(riskInformation.anonymise());
 
 			// actionplans
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.actionplan", "Clear actionplans and summaries", 35));

@@ -35,7 +35,7 @@ public class Standard implements Cloneable {
 
 	/** Standard ID */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idStandard")
 	private int id = -1;
 
@@ -54,7 +54,7 @@ public class Standard implements Cloneable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtType", nullable = false)
 	@Access(AccessType.FIELD)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.MERGE})
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	private StandardType type = null;
 
 	/** Standard available for actionplan computation */
@@ -363,6 +363,14 @@ public class Standard implements Cloneable {
 		this.label = standard.label;
 		this.type = standard.type;
 		return this;
+	}
+
+	public boolean isMatch(Standard standard) {
+		return label.equals(standard.label) && standard.type == standard.type;
+	}
+
+	public boolean hasSameName(Standard standard) {
+		return label.equals(standard.label);
 	}
 
 }

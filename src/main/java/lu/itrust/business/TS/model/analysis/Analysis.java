@@ -155,7 +155,7 @@ public class Analysis implements Cloneable {
 	private boolean data;
 
 	/** Ticketing project id */
-	@Column(name="dtProject")
+	@Column(name = "dtProject")
 	private String project;
 
 	/** List of users and their access rights */
@@ -1419,12 +1419,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<AnalysisStandard> getAnalysisOnlyStandards() {
-		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
-		for (AnalysisStandard standard : analysisStandards) {
-			if (standard.getStandard().isAnalysisOnly())
-				standards.add(standard);
-		}
-		return standards;
+		return analysisStandards.stream().filter(standard -> standard.getStandard().isAnalysisOnly()).collect(Collectors.toList());
 
 	}
 
@@ -2663,16 +2658,16 @@ public class Analysis implements Cloneable {
 	}
 
 	public Measure findMeasureById(int idMeasure) {
-		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId()==idMeasure).findAny().orElse(null);
+		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
 	}
 
 	public boolean hasTicket(String idTicket) {
-		if(idTicket == null)
+		if (idTicket == null)
 			return false;
 		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).anyMatch(measure -> idTicket.equals(measure.getTicket()));
 	}
 
 	public boolean hasProject() {
-		return !(project ==null || project.isEmpty());
+		return !(project == null || project.isEmpty());
 	}
 }

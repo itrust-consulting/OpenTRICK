@@ -420,7 +420,8 @@ public class DatabaseHandler {
 		// ****************************************************************
 		// * close the database connection
 		// ****************************************************************
-		con.close();
+		if (con != null && !con.isClosed())
+			con.close();
 	}
 
 	/**
