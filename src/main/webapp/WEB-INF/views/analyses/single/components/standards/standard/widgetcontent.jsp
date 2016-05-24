@@ -10,30 +10,30 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title">
-					<spring:message code="label.menu.manage_standard" />
-				</h4>
+				<div class="modal-title">
+					<h4 class="col-xs-4" style="padding: 0; margin: 0">
+						<spring:message code="label.menu.manage_standard" />
+					</h4>
+					<div class="col-xs-7" id="error-standard-modal" style="padding: 0"></div>
+				</div>
 			</div>
 			<div class="modal-body tab-content">
 				<div id="section_manage_standards" class="tab-pane active" style="height: 500px; overflow-y: auto; overflow-x: hidden; margin-top: -10px"></div>
 				<div id="available_standards" class="tab-pane" style="height: 500px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
 					<jsp:include page="form/import.jsp" />
 				</div>
-				<div id="standard_form" class="tab-pane" style="overflow-y: auto; overflow-x: hidden; height: 490px;">
+				<div id="standard_form_container" class="tab-pane" style="overflow-y: auto; overflow-x: hidden; height: 490px;">
 					<jsp:include page="form/add.jsp" />
 				</div>
 			</div>
 			<div class="modal-footer">
-				<div class="col-xs-8" id="error-standard-modal"></div>
-				<div class="col-xs-4">
-					<button class="btn btn-primary" style="display: none;" name="save">
-						<spring:message code="label.action.save" />
-					</button>
-					<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;"><spring:message code="label.action.cancel" /></a>
-					<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
-						<spring:message code="label.action.close" />
-					</button>
-				</div>
+				<button class="btn btn-primary" style="display: none;" name="save">
+					<spring:message code="label.action.save" />
+				</button>
+				<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;"><spring:message code="label.action.cancel" /></a>
+				<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
+					<spring:message code="label.action.close" />
+				</button>
 			</div>
 		</div>
 	</div>
@@ -114,7 +114,7 @@
 		</div>
 	</div>
 </div> --%>
-<div class="modal fade" id="deleteStandardModal" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteStandard" role="dialog">
+<div class="modal fade" id="deleteStandardModal" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteStandard" role="dialog" data-backdrop="false">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">

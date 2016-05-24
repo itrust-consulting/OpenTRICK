@@ -2,6 +2,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.hibernate.Session;
@@ -197,6 +198,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 	@Override
 	public void run() {
 		Session session = null;
+		DatabaseHandler DatabaseHandler = null;
 		try {
 			synchronized (this) {
 				if (getPoolManager() != null && !getPoolManager().exist(getId()))
@@ -207,7 +209,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				OnStarted();
 			}
 			setStarted(new Timestamp(System.currentTimeMillis()));
-			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
+			DatabaseHandler = new DatabaseHandler(fileName);
 			session = getSessionFactory().openSession();
 			User user = new DAOUserHBM(session).get(username);
 			if (user == null)
@@ -256,6 +258,12 @@ public class WorkerAnalysisImport extends WorkerImpl {
 							setFinished(new Timestamp(System.currentTimeMillis()));
 						}
 					}
+				}
+				
+				try {
+					if(DatabaseHandler!=null)
+						DatabaseHandler.close();
+				} catch (SQLException e) {
 				}
 			
 				if (canDeleteFile) {

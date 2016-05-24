@@ -506,64 +506,39 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Create", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
-			Locale locale) throws Exception {
-
+	public @ResponseBody Object createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 		try {
-			// retrieve analysis id
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
-			// create new standard object
 			Standard standard = buildStandard(errors, value, locale, analysis);
-
 			if (!errors.isEmpty())
-				// return error on failure
 				return errors;
-
-			List<AnalysisStandard> astandards = analysis.getAnalysisOnlyStandards();
-
-			for (AnalysisStandard astandard : astandards)
-				if ((astandard.getStandard().getLabel().equals(standard.getLabel())) && (astandard.getStandard().getType().equals(standard.getType()))) {
-					errors.put("standard", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+			if (standard.getId() < 1) {
+				if (analysis.getAnalysisStandards().stream().anyMatch(analysisStandard -> analysisStandard.getStandard().hasSameName(standard)))
+					throw new TrickException("error.analysis.standard_exist_in_analysis", "The standard already exists in this analysis!");
+				standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
+				switch (standard.getType()) {
+				case ASSET:
+					analysis.addAnalysisStandard(new AssetStandard(standard));
+					break;
+				case MATURITY:
+					analysis.addAnalysisStandard(new MaturityStandard(standard));
+					break;
+				case NORMAL:
+				default:
+					analysis.addAnalysisStandard(new NormalStandard(standard));
 					break;
 				}
-
-			if (!errors.isEmpty())
-				// return error on failure
-				return errors;
-
-			standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
-
-			serviceStandard.save(standard);
-
-			AnalysisStandard astandard = null;
-
-			switch (standard.getType()) {
-			case ASSET:
-				astandard = new AssetStandard(standard);
-				break;
-			case MATURITY:
-				astandard = new MaturityStandard(standard);
-				break;
-			case NORMAL:
-			default:
-				astandard = new NormalStandard(standard);
-				break;
-			}
-
-			if (astandard != null) {
-				analysis.addAnalysisStandard(astandard);
 				serviceAnalysis.saveOrUpdate(analysis);
+				return JsonMessage.Success(messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", locale));
+			} else {
+				serviceStandard.saveOrUpdate(standard);
+				return JsonMessage.Success(messageSource.getMessage("success.analysis.update.standard", null, "The standard was successfully updated", locale));
 			}
-
-			errors.put("success", messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", locale));
-
 		} catch (TrickException e) {
 			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
@@ -573,55 +548,6 @@ public class ControllerAnalysisStandard {
 			errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
 			return errors;
 		}
-		return errors;
-	}
-
-	/**
-	 * updateStandard: <br>
-	 * Description
-	 * 
-	 * @param value
-	 * @param session
-	 * @param principal
-	 * @param model
-	 * @param attributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> updateStandard(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
-			Locale locale) throws Exception {
-		Map<String, String> errors = new LinkedHashMap<String, String>();
-
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		try {
-			// retrieve analysis id
-
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
-			// create new standard object
-			Standard standard = buildStandard(errors, value, locale, analysis);
-
-			// build standard
-
-			if (!errors.isEmpty())
-				// return error on failure
-				return errors;
-
-			serviceStandard.saveOrUpdate(standard);
-
-		} catch (TrickException e) {
-			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
-			return errors;
-		} catch (Exception e) {
-			errors.put("standard", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			TrickLogManager.Persist(e);
-			return errors;
-		}
-		return errors;
 	}
 
 	/**
