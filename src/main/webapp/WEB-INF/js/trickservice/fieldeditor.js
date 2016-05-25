@@ -662,11 +662,12 @@ function AssessmentImpactFieldEditor(element) {
 	};
 }
 
+/*
 AssessmentProbaFieldEditor.prototype = new FieldEditor();
 function AssessmentProbaFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
-/*
+
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
 		var $probAcronyms = $("#Scale_Probability td[data-trick-field='acronym']"), $probaAcronymsValues = $("#Scale_Probability td[data-trick-field='value']");
 		for (var i = 0; i < $probAcronyms.length; i++) {
@@ -719,15 +720,13 @@ function AssessmentProbaFieldEditor(element) {
 			return '0';
 		return value;
 	};
-*/
 }
+*/
 
-/*
 AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 function AssessmentProbaFieldEditor(element) {
 	FieldEditor.call(this, element);
 }
-*/
 
 function SelectText(element) {
 	var doc = document, text = doc.getElementById(element), range, selection;

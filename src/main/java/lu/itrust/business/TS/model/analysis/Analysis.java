@@ -1786,7 +1786,7 @@ public class Analysis implements Cloneable {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitExtendedParameters(List<Parameter> parameters) {
-		List<?>[] splits = new List<?>[2];
+		List<?>[] splits = new List<?>[3];
 		for (int i = 0; i < splits.length; i++)
 			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
@@ -1794,6 +1794,8 @@ public class Analysis implements Cloneable {
 				((List<Parameter>) splits[0]).add(parameter);
 			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 				((List<Parameter>) splits[1]).add(parameter);
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
+				((List<Parameter>) splits[2]).add(parameter);
 		}
 		return (List<Parameter>[]) splits;
 	}

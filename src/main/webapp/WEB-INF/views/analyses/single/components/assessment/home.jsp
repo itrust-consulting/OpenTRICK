@@ -11,6 +11,8 @@
 <spring:message code="label.title.probability_scale" var="probabilityScaleTitle" />
 <spring:message code="label.action.next" var="nextSelected" />
 <spring:message code="label.action.previous" var="prevSelected" />
+<spring:message code="label.menu.show.dynamic_parameters_list" var="dynamicParametersTitle" />
+<spring:message code="label.menu.show.dynamic_parameters_list" var="dynamicParametersMenu" />
 <c:set var="impactScaleTitle">
 	${fn:replace(impactScaleTitle,"'", "\\'" )}
 </c:set>
@@ -31,7 +33,7 @@
 		<li data-role='nav-next'><a href="#" onclick="return nextSelected()">${nextSelected} <i class="fa fa-angle-double-right"></i></a></li>
 		<li><a href="#" onclick="return displayParameters('#Scale_Impact', '${impactScaleTitle}')">${impactScaleMenu}</a></li>
 		<li><a href="#" onclick="return displayParameters('#Scale_Probability', '${probabilityScaleTitle}')">${probabilityScaleMenu}</a></li>
-		<li><a href="#" onclick="return displayParameters('#Scale_DynamicParameters', '${dynamicParametersScaleTitle}')">${dynamicParametersScaleMenu}</a></li>
+		<li><a href="#" onclick="return displayParameters('#DynamicParameters', '${dynamicParametersTitle}')">${dynamicParametersMenu}</a></li>
 	</ul>
 	<jsp:include page="scenarios.jsp" />
 </div>
@@ -50,7 +52,7 @@
 			<li data-role='nav-next'><a href="#" onclick="return nextSelected()">${nextSelected} <i class="fa fa-angle-double-right"></i></a></li>
 			<li><a href="#" onclick="return displayParameters('#Scale_Impact', '${impactScaleTitle}')">${impactScaleMenu}</a></li>
 			<li><a href="#" onclick='return displayParameters("#Scale_Probability", "${probabilityScaleTitle}")'>${probabilityScaleMenu}</a></li>
-		<li><a href="#" onclick="return displayParameters('#DynamicParameters', '${dynamicParametersTitle}')">${dynamicParametersMenu}</a></li>
+			<li><a href="#" onclick="return displayParameters('#DynamicParameters', '${dynamicParametersTitle}')">${dynamicParametersMenu}</a></li>
 		</ul>
 		<jsp:include page="assets.jsp" />
 	</div>

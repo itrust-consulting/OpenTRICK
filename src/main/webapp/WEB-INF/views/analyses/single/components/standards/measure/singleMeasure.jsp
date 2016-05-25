@@ -90,6 +90,7 @@
 				</c:when>
 				<c:otherwise>
 					<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"
+						title="${measure.getImplementationRateValue()}"
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><spring:message
 							text="${measure.getImplementationRate()}" /></td>
 				</c:otherwise>

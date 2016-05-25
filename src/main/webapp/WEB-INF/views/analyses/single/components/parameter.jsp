@@ -112,19 +112,19 @@
 		<span id="anchorParameter_Dynamic" class="anchor"></span>
 		<div class="panel panel-default" id="DynamicParameters">
 			<div class="panel-heading">
-				<fmt:message key="label.parameter.dynamic.probability" />
+				<spring:message code="label.parameter.dynamic.probability" />
 			</div>
 			<div class="panel-body">
 				<table class="table table-hover">
 					<thead>
 						<tr>
-							<th class="textaligncenter"><fmt:message key="label.parameter.acronym" /></th>
-							<th class="textaligncenter"><fmt:message key="label.parameter.value" /> <fmt:message key="label.assessment.likelihood.unit" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
 						</tr>
 					</thead>
 					<tbody>
 						<fmt:setLocale value="fr" scope="session" />
-						<c:forEach items="${simpleParameters[3]}" var="parameter" varStatus="status">
+						<c:forEach items="${simpleParameters[4]}" var="parameter" varStatus="status">
 							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
 								<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
