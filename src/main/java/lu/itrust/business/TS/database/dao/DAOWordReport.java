@@ -24,10 +24,10 @@ public interface DAOWordReport {
 	List<WordReport> getAllFromUser(String username);
 
 	List<WordReport> getAllFromUser(String username, Integer pageIndex, Integer pageSize);
-	
+
 	List<WordReport> getAllFromUserByFilterControl(String username, Integer page, FilterControl filter);
-	
-	List<WordReport> getAllFromUserAndIdentifier(String username,String identifier, Integer pageIndex, Integer pageSize);
+
+	List<WordReport> getAllFromUserAndIdentifier(String username, String identifier, Integer pageIndex, Integer pageSize);
 
 	WordReport save(WordReport wordReport);
 
@@ -36,7 +36,7 @@ public interface DAOWordReport {
 	WordReport merge(WordReport wordReport);
 
 	void delete(Integer id);
-	
+
 	void delete(String filename);
 
 	void delete(WordReport wordReport);
@@ -44,7 +44,5 @@ public interface DAOWordReport {
 	List<String> getDistinctIdentifierByUser(User user);
 
 	void deeleteByUser(User user);
-
-	
 
 }

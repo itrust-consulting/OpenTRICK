@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.model.standard.measure;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Access;
@@ -219,6 +221,12 @@ public class MaturityMeasure extends Measure implements Cloneable {
 		return (Parameter) super.getImplementationRate();
 	}
 
+	@Override
+	@Transient
+	public List<String> getVariablesInvolvedInImplementationRateValue() {
+		return new ArrayList<String>();
+	}
+	
 	/**
 	 * setImplementationRate: <br>
 	 * Sets the Field "implementationRate" with a Parameter object.

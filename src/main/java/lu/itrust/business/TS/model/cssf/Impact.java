@@ -1,8 +1,9 @@
 package lu.itrust.business.TS.model.cssf;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -62,7 +63,7 @@ public class Impact {
 	final static String ACRONYM_REGEX = "^c([0-9]|10)$";
 
 	/** The Analysis Parameters Array */
-	private Map<String, Parameter> parameters;
+	private Map<String, ExtendedParameter> parameters;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -83,8 +84,8 @@ public class Impact {
 	 * @param parameters
 	 *            The Analysis Parameters Array
 	 */
-	public Impact(double reputation, double operational, double legal, double financial, Map<String, Parameter> parameters) {
-		this.setParameters(parameters);//must be first
+	public Impact(double reputation, double operational, double legal, double financial, Map<String, ExtendedParameter> parameters) {
+		this.setParameters(parameters);// must be first
 		this.setReputation(reputation);
 		this.setOperational(operational);
 		this.setLegal(legal);
@@ -106,15 +107,15 @@ public class Impact {
 	 * @param parameters
 	 *            The Analysis Parameters Array
 	 */
-	public Impact(String reputation, String operational, String legal, String financial, Map<String, Parameter> parameters) {
-		this.setParameters(parameters);//must be first
+	public Impact(String reputation, String operational, String legal, String financial, Map<String, ExtendedParameter> parameters) {
+		this.setParameters(parameters);// must be first
 		this.setReputation(reputation);
 		this.setOperational(operational);
 		this.setLegal(legal);
 		this.setFinancial(financial);
 	}
 
-	public void setParameters(Map<String, Parameter> parameters2) {
+	public void setParameters(Map<String, ExtendedParameter> parameters2) {
 		this.parameters = parameters2;
 	}
 
@@ -128,13 +129,11 @@ public class Impact {
 	 * @param parameters
 	 *            The value to set the parameters
 	 */
-	public void setParameters(List<Parameter> parameters) {
+	public void setParameters(List<? extends Parameter> parameters) {
 		if (this.parameters != null)
 			this.parameters.clear();
-		this.parameters = new LinkedHashMap<String, Parameter>();
-		for (Parameter parameter : parameters)
-			if ((parameter instanceof ExtendedParameter) && parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				this.parameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
+		this.parameters = parameters.stream().filter(parameter -> (parameter instanceof ExtendedParameter && parameter.getType().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)))
+				.map(parameter -> (ExtendedParameter) (parameter)).collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
 	}
 
 	/**
@@ -191,7 +190,7 @@ public class Impact {
 	 * convert numeric value to acronym.
 	 * 
 	 * @return
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public String getAcronymOperational() throws TrickException {
 
@@ -264,13 +263,11 @@ public class Impact {
 	 * value, it will be converted into a valid Acronym.
 	 * 
 	 * @return The Reputation Impact Acronym
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public String getAcronymReputation() throws TrickException {
-
 		// check if reputation is a String -> YES
 		if (reputation instanceof String) {
-
 			// return acronym
 			return (String) reputation;
 		} else {
@@ -344,7 +341,7 @@ public class Impact {
 	 * it will be converted into a valid Acronym.
 	 * 
 	 * @return The Legal Impact Acronym
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public String getAcronymLegal() throws TrickException {
 
@@ -427,7 +424,7 @@ public class Impact {
 	 * value, it will be converted into a valid Acronym.
 	 * 
 	 * @return The Financial Impact Acronym
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public String getAcronymFinancial() throws TrickException {
 
@@ -515,7 +512,7 @@ public class Impact {
 	 *            The impact value as string
 	 * @return A valid Double value (k euro)
 	 */
-	public static double convertStringImpactToDouble(String impact, Map<String, Parameter> parameters) {
+	public static double convertStringImpactToDouble(String impact, Map<String, ExtendedParameter> parameters) {
 
 		double value = 0;
 		// ****************************************************************
@@ -546,29 +543,16 @@ public class Impact {
 	 * @param parameters
 	 *            The Parameters Array to find the Acronym
 	 * @return The Acronym of the Impact Value
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
-	public static String convertDoubleImpactToAcronym(double impact, Map<String, Parameter> parameters) throws TrickException {
+	public static String convertDoubleImpactToAcronym(double impact, Map<String, ExtendedParameter> parameters) throws TrickException {
 
 		// check if impact < 0 -> YES
-		if (impact < 0) 
-			throw new TrickException("error.impact.impact","Impact should be a natural numbers");
-
-		// parse parameters to find the matching impact
-		for (Parameter parameter : parameters.values()) {
-
-			// check if parameter is a ExtendedParameter (for impact and
-			// probability parameters) +
-			// check if type of parameter is impact +
-			// check if impact value is in the parameter bounds
-			if ((parameter instanceof ExtendedParameter) && (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					&& ((ExtendedParameter) parameter).getBounds().isInRange(impact)) {
-
-				// returns the Acronym
-				return ((ExtendedParameter) parameter).getAcronym();
-			}
-		}
-		throw new TrickException("error.impact.impact.acronym_not_found","Acronym cannot be found");
+		if (impact < 0)
+			throw new TrickException("error.impact.impact", "Impact should be a natural numbers");
+		return parameters.values().stream()
+				.filter(parameter -> parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME) && parameter.getBounds().isInRange(impact))
+				.map(ExtendedParameter::getAcronym).findAny().orElseThrow(() -> new TrickException("error.impact.impact.acronym_not_found", "Acronym cannot be found"));
 	}
 
 	/**

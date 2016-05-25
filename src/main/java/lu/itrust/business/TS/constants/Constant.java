@@ -16,105 +16,103 @@ package lu.itrust.business.TS.constants;
  * @since 9 January 2013
  */
 public class Constant {
-	
+
 	/***********************************************************************************************
 	 * List of Role and permissions (for controllers) - BEGIN
 	 **********************************************************************************************/
-	
+
 	/** Role user */
 	public static final String ROLE_USER_ONLY = "hasRole('ROLE_USER')";
-		
+
 	/** Role consultant */
 	public static final String ROLE_CONSULTANT_ONLY = "hasRole('ROLE_CONSULTANT')";
-	
+
 	/** Role admin */
 	public static final String ROLE_ADMIN_ONLY = "hasRole('ROLE_ADMIN')";
-	
+
 	/** Role supervisor */
 	public static final String ROLE_SUPERVISOR_ONLY = "hasRole('ROLE_SUPERVISOR')";
-	
+
 	/** Role at least consultant */
 	public static final String ROLE_MIN_USER = "hasAnyRole('ROLE_USER', 'ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
-	
+
 	/** Role at least consultant */
 	public static final String ROLE_MIN_CONSULTANT = "hasAnyRole('ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
-	
+
 	/** Role supervisor */
 	public static final String ROLE_MIN_ADMIN = "hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')";
-	
+
 	public static final String SETTING_DEFAULT_SHOW_UNCERTAINTY = "DEFAULT_SHOW_UNCERTAINTY";
-	
+
 	public static final String SETTING_DEFAULT_SHOW_CSSF = "DEFAULT_SHOW_CSSF";
-	
+
 	public static final String SETTING_DEFAULT_UI_LANGUAGE = "DEFAULT_UI_LANGUAGE";
-	
+
 	public static final String SETTING_SHOW_UNCERTAINTY = "SHOW_UNCERTAINTY";
-	
+
 	public static final String SETTING_SHOW_CSSF = "SHOW_CSSF";
-	
+
 	public static final String SETTING_LANGUAGE = "LANGUAGE";
-	
+
 	/***********************************************************************************************
 	 * List of Role and permissions (for controllers)s - BEGIN
 	 **********************************************************************************************/
-	
+
 	/***********************************************************************************************
 	 * action plan modes used inside controller - BEGIN
 	 **********************************************************************************************/
-	
+
 	/** normal (only phase normal) */
 	public static final String ACTIONPLAN_CONTROLLER_NORMAL = "normal";
-		
+
 	/** Role consultant */
 	public static final String ACTIONPLAN_CONTROLLER_UNCERTAINTY = "all";
-	
-	
+
 	/***********************************************************************************************
 	 * action plan modes used inside controller - END
 	 **********************************************************************************************/
-	
+
 	/***********************************************************************************************
 	 * item information field values - BEGIN
 	 **********************************************************************************************/
-	
-	public static final String TYPE_ORGANISM="type_organism";							
-	public static final String TYPE_PROFIT_ORGANISM="type_profit_organism";				
-	public static final String NAME_ORGANISM="name_organism";							
-	public static final String PRESENTATION_ORGANISM="presentation_organism";			
-	public static final String SECTOR_ORGANISM="sector_organism";						
-	public static final String RESPONSIBLE_ORGANISM="responsible_organism";				
-	public static final String STAFF_ORGANISM="staff_organism";							
-	public static final String ACTIVITIES_ORGANISM="activities_organism";				
-	public static final String EXCLUDED_ASSETS="excluded_assets";						
-	public static final String OCCUPATION="occupation";									
-	public static final String FUNCTIONAL="functional";									
-	public static final String JURIDIC="juridic";										
-	public static final String POL_ORGANISATION="pol_organisation";						
-	public static final String MANAGEMENT_ORGANISATION="management_organisation";		
-	public static final String PREMISES="premises";										
-	public static final String REQUIREMENTS="requirements";								
-	public static final String EXPECTATIONS="expectations";								
-	public static final String ENVIRONMENT="environment ";								
-	public static final String INTERFACE="interface";									
-	public static final String STRATEGIC="strategic";									
-	public static final String PROCESSUS_DEVELOPMENT="processus_development";			
-	public static final String STAKEHOLDER_IDENTIFICATION="stakeholder_identification";	
-	public static final String ROLE_RESPONSABILITY="role_responsability";				
-	public static final String STAKEHOLDER_RELATION="stakeholder_relation";				
-	public static final String ESCALATION_WAY="escalation_way";							
-	public static final String DOCUMENT_CONSERVE="document_conserve";					
-	
+
+	public static final String TYPE_ORGANISM = "type_organism";
+	public static final String TYPE_PROFIT_ORGANISM = "type_profit_organism";
+	public static final String NAME_ORGANISM = "name_organism";
+	public static final String PRESENTATION_ORGANISM = "presentation_organism";
+	public static final String SECTOR_ORGANISM = "sector_organism";
+	public static final String RESPONSIBLE_ORGANISM = "responsible_organism";
+	public static final String STAFF_ORGANISM = "staff_organism";
+	public static final String ACTIVITIES_ORGANISM = "activities_organism";
+	public static final String EXCLUDED_ASSETS = "excluded_assets";
+	public static final String OCCUPATION = "occupation";
+	public static final String FUNCTIONAL = "functional";
+	public static final String JURIDIC = "juridic";
+	public static final String POL_ORGANISATION = "pol_organisation";
+	public static final String MANAGEMENT_ORGANISATION = "management_organisation";
+	public static final String PREMISES = "premises";
+	public static final String REQUIREMENTS = "requirements";
+	public static final String EXPECTATIONS = "expectations";
+	public static final String ENVIRONMENT = "environment ";
+	public static final String INTERFACE = "interface";
+	public static final String STRATEGIC = "strategic";
+	public static final String PROCESSUS_DEVELOPMENT = "processus_development";
+	public static final String STAKEHOLDER_IDENTIFICATION = "stakeholder_identification";
+	public static final String ROLE_RESPONSABILITY = "role_responsability";
+	public static final String STAKEHOLDER_RELATION = "stakeholder_relation";
+	public static final String ESCALATION_WAY = "escalation_way";
+	public static final String DOCUMENT_CONSERVE = "document_conserve";
+
 	public static final String IS_NOT_ACHIEVED = "not_achieved";
 	public static final String IS_RUDIMENTARY_ACHIEVED = "rudimentary_achieved";
 	public static final String IS_PARTIALLY_ACHIEVED = "partially_achieved";
 	public static final String IS_LARGELY_ACHIEVED = "largly_achieved";
 	public static final String IS_FULLY_ACHIEVED = "fully_achieved";
-	
+
 	/***********************************************************************************************
 	 * item information field values - END
 	 **********************************************************************************************/
-	
-	
+
 	/***********************************************************************************************
 	 * List of Regular Expressions - BEGIN
 	 **********************************************************************************************/
@@ -124,20 +122,20 @@ public class Constant {
 
 	/** Regular expression to validate impactFin value */
 	public static final String REGEXP_VALID_IMPACT = "\\d+|\\d+\\.\\d*|[cC]([0-9]|10)";
-	
+
 	public static final String REGEXP_VALID_IMPACT_ACRONYM = "[cC]([0-9]|10)";
 
 	/** Regular *Expression to check on valid Names */
 	public static final String REGEXP_VALID_NAME = "^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð -]+[',.]?\\s?){1,4}";
-	
+
 	public static final String REGEXP_VALID_USERNAME = "^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9]+[.]?){1,4}";
-	
+
 	/** Email Regular expression to be valid */
 	public static final String REGEXP_VALID_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
 	/** Password Regular expression */
 	public static final String REGEXP_VALID_PASSWORD = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*)(?=\\S+$).{8,}$";
-	
+
 	/** Telephone number regular expression to be valid */
 	public static final String REGEXP_VALID_PHONE = "^(\\+)?(\\d){5,}$";
 
@@ -149,7 +147,7 @@ public class Constant {
 
 	/** Regular Expression to check on valid Alpha 3 code */
 	public static final String REGEXP_VALID_ALPHA_2 = "[A-Z,a-z]{2}";
-	
+
 	/** Regular Expression to check on valid Alpha 3 code */
 	public static final String REGEXP_VALID_ALPHA_3 = "[A-Z,a-z]{3}";
 
@@ -158,10 +156,10 @@ public class Constant {
 
 	/** Status regular expression */
 	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M";
-	
+
 	/** Status regular expression */
 	public static final String REGEXP_VALID_STANDARD_MEASURE_STATUS = "AP|NA";
-	
+
 	/** Status regular expression */
 	public static final String REGEXP_VALID_MATURITY_MEASURE_STATUS = "M|NA";
 
@@ -169,7 +167,7 @@ public class Constant {
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
 	/** Regular expression for Parameter types */
-	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE";
+	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
 
 	/** Regular expression for asset types */
 	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl";
@@ -232,7 +230,7 @@ public class Constant {
 	public static final String ASSET_TYPE_BUSI = "Busi";
 	public static final String ASSET_TYPE_FIN = "Fin";
 	public static final String ASSET_TYPE_COMPL = "Compl";
-	
+
 	public static final String ASSET_TYPES = "Serv,Info,SW,HW,Net,Staff,IV,Busi,Fin,Compl";
 
 	/** Item Information Categories */
@@ -268,8 +266,8 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE = 4;
 	public final static int PARAMETERTYPE_TYPE_MAX_EFF = 5;
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
-	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 7;
-	public final static int PARAMETERTYPE_TYPE_SEVERITY = 8;
+	public final static int PARAMETERTYPE_TYPE_CSSF = 7;
+	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 8;
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -278,8 +276,8 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_MAX_EFF_NAME = "MAXEFF";
 	public final static String PARAMETERTYPE_TYPE_PROPABILITY_NAME = "PROBA";
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
+	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
-	public final static String PARAMETERTYPE_TYPE_SEVERITY_NAME = "SEVERITY";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
@@ -324,7 +322,6 @@ public class Constant {
 	public static final String INTEGRITY_RISK = "Integrity";
 	public static final String AVAILABILITY_RISK = "Availability";
 
-	
 	public final static String EMPTY_STRING = "";
 
 	public final static String CHECKBOX_CONTROL_ON = "on";
@@ -612,11 +609,9 @@ public class Constant {
 	public static final String MEASURE_LIMITING = "limiting";
 	public static final String MEASURE_DETECTIVE = "detective";
 	public static final String MEASURE_PREVENTIVE = "preventive";
-	public static final String MEASURE_AVAILABILITY = AVAILABILITY_RISK
-			.toLowerCase();
+	public static final String MEASURE_AVAILABILITY = AVAILABILITY_RISK.toLowerCase();
 	public static final String MEASURE_INTEGRITY = INTEGRITY_RISK.toLowerCase();
-	public static final String MEASURE_CONFIDENTIALITY = CONFIDENTIALITY_RISK
-			.toLowerCase();
+	public static final String MEASURE_CONFIDENTIALITY = CONFIDENTIALITY_RISK.toLowerCase();
 	public static final String MEASURE_STRENGTH_SECTORAL = "strength_sectoral";
 	public static final String MEASURE_STRENGTH_MEASURE = "strength_measure";
 	public static final String MEASURE_REVISION = "revision";
@@ -673,6 +668,15 @@ public class Constant {
 	public static final String PARAMETER_LIFETIME_DEFAULT = "lifetime_default";
 	public static final String PARAMETER_EXTERNAL_SETUP_RATE = "external_setup_rate";
 	public static final String PARAMETER_INTERNAL_SETUP_RATE = "internal_setup_rate";
+
+	/** CSSF Parameters **/
+	public static final String CSSF_IMPACT_THRESHOLD = "cssfImpactThreshold";
+	public static final String CSSF_PROBABILITY_THRESHOLD = "cssfProbabilityThreshold";
+	public static final String CSSF_DIRECT_SIZE = "cssfDirectSize";
+	public static final String CSSF_INDIRECT_SIZE = "cssfIndirectSize";
+	public static final String CSSF_CIA_SIZE = "cssfCIASize";
+	public static final int CSSF_IMPACT_THRESHOLD_VALUE = 5;
+	public static final int CSSF_PROBABILITY_THRESHOLD_VALUE = 6;
 
 	/** List of Constants for the Sqlite Table "assessment" */
 	public static final String ASSESSMENT_COMMENT = MEASURE_COMMENT;
@@ -743,56 +747,78 @@ public class Constant {
 	public static final String RI_TYPE = "type";
 	public static final String RI_COMMENT2 = "comment2";
 	public static final String RI_COMMENT = MEASURE_COMMENT;
+	public static final String RI_OWNER = "owner";
 	public static final String RI_EXPO = "expo";
 	public static final String RI_LEVEL = "level";
 	public static final String RI_ACRO = "acro";
 	public static final String RI_NAME = "name";
 
-	
-
 	/***********************************************************************************************
 	 * SQLITE CONSTANT FIELDS - END
 	 **********************************************************************************************/
-	
+
 	/** Controller */
 	public static final String SELECTED_ANALYSIS = "selectedAnalysis";
-	
-	public static final String SELECTED_ANALYSIS_READ_ONLY = "selected-analysis-read-only";
+
+	public static final String OPEN_MODE = "selected-analysis-open-mode";
 
 	public static final String SELECTED_ANALYSIS_LANGUAGE = "selected-analysis-language";
 
+	public static final String REGEX_SPLIT_REFERENCE = "\\.|\\s|;|-|,";
+
 	public static final String ACCEPT_APPLICATION_JSON_CHARSET_UTF_8 = "Accept=application/json;charset=UTF-8";
 
+	public static final String FILTER_CONTROL_SQLITE = "SQLITE";
 
-	/* **********************************************************************************************
-	   EXTERNAL NOTIFICATIONS & DYNAMIC PARAMETERS
-	   **********************************************************************************************/
+	public static final String FILTER_CONTROL_REPORT = "REPORT";
 
-	/** The minimum value of the severity which an external notification can have. */
-	public static final int EXTERNAL_NOTIFICATION_MIN_SEVERITY = 0;
+	public static final String FILTER_CONTROL_SORT_KEY = "%s_SORT";
 
-	/** The maximum value of the severity which an external notification can have. */
-	public static final int EXTERNAL_NOTIFICATION_MAX_SEVERITY = 10;
+	public static final String FILTER_CONTROL_SORT_DIRCTION_KEY = "%s_SORT_DIRECTION";
 
-	/** The pattern for the label and acronym of the severity parameters. */
-	public static final String PARAMETER_SEVERITY_NAME_PATTERN = "s%d";
+	public static final String FILTER_CONTROL_SIZE_KEY = "%s_SIZE";
+
+	public static final String FILTER_CONTROL_FILTER_KEY = "%s_FILTER";
+
+	public static final String FILTER_ANALYSIS_NAME = "filter_analysis_name";
+
+	public static final String LAST_SELECTED_ANALYSIS_NAME = "last-selected-analysis-name";
+
+	public static final String ANALYSIS_TASK_ID = "analysis_task_id";
+
+	public static final String CURRENT_CUSTOMER = "currentCustomer";
+
+	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
+
+	/*
+	 * *************************************************************************
+	 * ********************* EXTERNAL NOTIFICATIONS & DYNAMIC PARAMETERS
+	 **********************************************************************************************/
 
 	/**
-	 * The number of past months which the chart of dynamic parameter evolution should display.
+	 * The maximum number of past seconds which the chart of dynamic parameter
+	 * evolution should display.
 	 */
-	public static final int CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS = 12;
-
-	/* SQLite columns of table "severity" */
-	public static final String NAME_SEVERITY = "name_severity";
-	public static final String SCALE_SEVERITY = "scale_severity";
-	public static final String ACRO_SEVERITY = "acro_severity";
-	public static final String VALUE_SEVERITY = "value_severity";
-	public static final String VALUE_FROM_SEVERITY = "value_from_severity";
-	public static final String VALUE_TO_SEVERITY = "value_to_severity";
+	public static final long CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS = 12 * 30 * 86400;
+	/**
+	 * Factor by which the time interval (x-axis) is progressively multiplied.
+	 */
+	public static final double CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR = 1.5;
+	/**
+	 * The number of seconds in the past after which the logarithmic scale
+	 * should stop (in favour of a linear scale with step size equal the current
+	 * step size resulting from the logarithmic increase).
+	 */
+	public static final long CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE = 86400 * 14;
 
 	/* SQLite columns of table "dynamic_parameter" */
 	public static final String NAME_PARAMETER = "name_parameter";
 	public static final String ACRO_PARAMETER = "acro_parameter";
 	public static final String VALUE_PARAMETER = "value_parameter";
+
+	public static final double EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE = 500.; // in
+																				// k€/y
+	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
+																			// 20%
 
 }

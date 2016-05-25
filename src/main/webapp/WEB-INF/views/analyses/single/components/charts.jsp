@@ -11,7 +11,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.asset" />
+						<spring:message code="label.title.chart.asset" />
 					</h3>
 				</div>
 			</div>
@@ -27,7 +27,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.scenario" />
+						<spring:message code="label.title.chart.scenario" />
 					</h3>
 				</div>
 			</div>
@@ -43,7 +43,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.compliance" />
+						<spring:message code="label.title.chart.compliance" />
 					</h3>
 				</div>
 			</div>
@@ -57,7 +57,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.evolution.profitability.compliance" />
+						<spring:message code="label.title.chart.evolution.profitability.compliance" />
 					</h3>
 				</div>
 			</div>
@@ -78,7 +78,7 @@
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
-						<fmt:message key="label.title.chart.budget" />
+						<spring:message code="label.title.chart.budget" />
 					</h3>
 				</div>
 			</div>
@@ -92,8 +92,8 @@
 		</c:if>
 	</div>
 </div>
-<div class="tab-pane trick-chart-tab" id="tabChartDynamic" data-update-required="true" data-trigger="loadChartDynamic">
-	<div id="chart_dynamic">
+<div class="tab-pane trick-chart-tab" id="tabChartParameterEvolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">
+	<div id="chart_parameterevolution">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -103,6 +103,34 @@
 				</div>
 			</div>
 		</div>
-		<div id="chart_dynamic_body" class="col-xs-12"></div>
+		<div id="chart_parameterevolution_body" class="col-xs-12"></div>
+	</div>
+</div>
+<div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByAssetType" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
+	<div id="chart_aleevolutionbyassettype">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.aleevolution" />
+					</h3>
+				</div>
+			</div>
+		</div>
+		<div id="chart_aleevolutionbyassettype_body" class="col-xs-12"></div>
+	</div>
+</div>
+<div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByScenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
+	<div id="chart_aleevolutionbyscenario">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.aleevolution_by_asset_type" />
+					</h3>
+				</div>
+			</div>
+		</div>
+		<div id="chart_aleevolutionbyscenario_body" class="col-xs-12"></div>
 	</div>
 </div>

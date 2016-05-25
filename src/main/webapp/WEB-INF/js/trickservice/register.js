@@ -2,17 +2,12 @@ function register(form) {
 	$.ajax({
 		url : context + "/DoRegister",
 		type : "post",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		data : serializeForm(form),
 		success : function(response,textStatus,jqXHR) {
-
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();
-
-			var alert = $("#" + form + " .label-danger");
-			if (alert.length)
-				alert.remove();
-
+			$("#" + form + " .label-danger").remove();
 			$("#success").attr("hidden", "hidden");
 			$("#success div").remove();
 			
@@ -63,27 +58,23 @@ function register(form) {
 			}
 
 			if (!$("#" + form + " .label-danger").length) {
-
-				var login = $("#" + form + " #login").val();
 				
 				$('body').load(context + "/Login", {
 					"registerSuccess" : true,
-					"login" : login
+					"login" : $("#" + form + " #login").val()
 				});
 
 			}
 			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			var alert = $("#" + form + " .label-danger");
-			if (alert.length)
-				alert.remove();
+			$("#" + form + " .label-danger").remove();
 			var errElement = document.createElement("div");
-			errElement.setAttribute("class", "alert alert-warning");
-			$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + errorThrown);
+			errElement.setAttribute("class", "alert alert-danger");
+			$(errElement).html("<button type='button' class='close' onclick='$(this).parent().remove()'>&times;</button>" + errorThrown);
 			$(errElement).appendTo($("#success"));
 			$("#success").removeAttr("hidden");
-		},
+		}
 	});
 
 	return false;
@@ -97,6 +88,12 @@ function register(form) {
  */
 (function($) {
 
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	$(document).ajaxSend(function(e, xhr, options) {
+		xhr.setRequestHeader(header, token);
+	});
+	
 	$.fn.serializeJSON = function() {
 		var json = {};
 		var form = $(this);

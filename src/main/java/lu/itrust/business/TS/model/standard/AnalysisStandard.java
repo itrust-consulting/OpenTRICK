@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -18,11 +19,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.standard.measure.Measure;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * AnalysisStandard: <br>
@@ -35,7 +36,7 @@ import org.hibernate.annotations.CascadeType;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtDiscriminator")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }) )
 public abstract class AnalysisStandard implements Cloneable {
 
 	/***********************************************************************************************
@@ -44,7 +45,7 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	/** AnalysisStandard id */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idAnalysisStandard")
 	private int id = -1;
 
@@ -52,7 +53,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
 	@Access(AccessType.FIELD)
-	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE})
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.MERGE })
 	private Standard standard = null;
 
 	/** AnalysisStandard List of measures */
@@ -94,6 +95,18 @@ public abstract class AnalysisStandard implements Cloneable {
 	 */
 	public Standard getStandard() {
 		return standard;
+	}
+
+	public boolean isComputable() {
+		if (standard == null)
+			throw new TrickException("error.standard.null", "Standard cannot be null");
+		return standard.isComputable();
+	}
+
+	public boolean isAnalysisOnly() {
+		if (standard == null)
+			throw new TrickException("error.standard.null", "Standard cannot be null");
+		return standard.isAnalysisOnly();
 	}
 
 	/**
@@ -143,6 +156,16 @@ public abstract class AnalysisStandard implements Cloneable {
 	}
 
 	/**
+	 * getMeasures: <br>
+	 * Returns the measures field value.
+	 * 
+	 * @return The value of the measures field
+	 */
+	public List<? extends Measure> getExendedMeasures() {
+		return measures;
+	}
+
+	/**
 	 * setMeasures: <br>
 	 * Sets the Field "measures" with a value.
 	 * 
@@ -179,7 +202,7 @@ public abstract class AnalysisStandard implements Cloneable {
 	 * 
 	 * @return
 	 * @throws CloneNotSupportedException
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public AnalysisStandard duplicate() throws CloneNotSupportedException, TrickException {
 		AnalysisStandard analysisStandard = (AnalysisStandard) super.clone();
@@ -209,8 +232,8 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Check if this object equals another object of the same type. Equal means: the field id,
-	 * description, domain and reference.
+	 * Check if this object equals another object of the same type. Equal means:
+	 * the field id, description, domain and reference.
 	 * 
 	 * @param obj
 	 *            The other object to check on

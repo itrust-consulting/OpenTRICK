@@ -10,25 +10,24 @@
 		<div class="container">
 			<div class="row-fluid">
 				<h3>
-					<fmt:message key="label.title.scope"/>
+					<spring:message code="label.title.scope"/>
 				</h3>
 			</div>
 		</div>
 	</div>
 	<div class="section" id="section_itemInformation">
-		<c:set var="newline" value="(\r\n|\n\r|\r|\n)"/>
 		<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header-analysis">
 			<thead>
 				<tr>
-					<th style="width:25%"><fmt:message key="label.item_information.description" /></th>
-					<th><fmt:message key="label.item_information.value" /></th>
+					<th style="width:25%"><spring:message code="label.item_information.description" /></th>
+					<th><spring:message code="label.item_information.value" /></th>
 				</tr>
 			</thead>
 			<tfoot></tfoot>
 			<tbody>
 				<c:forEach items="${itemInformations}" var="itemInformation">
 					<tr data-trick-class="ItemInformation" data-trick-id="${itemInformation.id}">
-						<td><fmt:message key="label.item_information.${itemInformation.description.trim()}" /></td>
+						<td><spring:message code="label.item_information.${fn:trim(itemInformation.description)}" text ="${itemInformation.description}" /></td>
 						<td onclick="return editField(this.firstElementChild);" class="success"><pre data-trick-field="value" data-trick-content="text" data-trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 					</tr>
 				</c:forEach>

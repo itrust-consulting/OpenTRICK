@@ -2,10 +2,11 @@ package lu.itrust.business.TS.model.externalnotification;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**
@@ -51,13 +52,11 @@ public class ExternalNotification {
 	private long halfLife;
 
 	/**
-	 * Specifies how strong the impact on the overall probability is.
-	 * More precisely, an assertiveness of 1.0 will cause the overall probability to be withdrawn and replaced by the probability of this external notification.
-	 * On the other hand, an assertiveness value of 0.0 will cause the overall probability to take this external notification into account
-	 * Value is a floating-point number in the range [0.0, 1.0].
+	 * The external notification type, specifying how the external notification impacts the alarm level.
 	 */
-	@Column(name = "dtAssertiveness", nullable = false)
-	private double assertiveness;
+	@Column(name = "dtType", nullable = false)
+	@Enumerated(EnumType.ORDINAL)
+	private ExternalNotificationType type;
 
 	/**
 	 * Represents the number of notifications incorporated by this object.
@@ -74,7 +73,7 @@ public class ExternalNotification {
 	 * Values lie in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
 	 */
 	@Column(name = "dtSeverity", nullable = false)
-	private int severity;
+	private double severity;
 
 	public Integer getId() {
 		return id;
@@ -152,33 +151,31 @@ public class ExternalNotification {
 	/**
 	 * Gets the severity of this notification.
 	 */
-	public int getSeverity() {
+	public double getSeverity() {
 		return severity;
 	}
 
 	/**
 	 * Sets the severity of this notification.
 	 */
-	public void setSeverity(int severity) throws TrickException {
-		if (severity < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || severity > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
-			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY, Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY });
+	public void setSeverity(double severity) throws TrickException {
+		if (severity < 0.0 || severity > 1.0)
+			throw new TrickException("error.externalnotification.severity_out_of_range", "The notification severity must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
 		this.severity = severity;
 	}
 
 	/**
-	 * Gets the assertiveness of this notification.
+	 * Gets the external notification type.
 	 */
-	public double getAssertiveness() {
-		return assertiveness;
+	public ExternalNotificationType getType() {
+		return type;
 	}
 
 	/**
-	 * Sets the assertiveness of this notification.
+	 * Sets the external notification type.
 	 */
-	public void setAssertiveness(double assertiveness) throws TrickException {
-		if (assertiveness < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY || assertiveness > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY)
-			throw new TrickException("error.externalnotification.assertiveness_out_of_range", "The notification assertiveness must lie in [{0},{1}].", new Object[] { 0.0, 1.0 });
-		this.assertiveness = assertiveness;
+	public void setType(ExternalNotificationType type) throws TrickException {
+		this.type = type;
 	}
 
 	/**

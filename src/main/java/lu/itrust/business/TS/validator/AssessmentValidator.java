@@ -21,7 +21,7 @@ public class AssessmentValidator extends ValidatorFieldImpl {
 		try {
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			// e.printStackTrace();
+			// TrickLogManager.Persist(e);
 			return Double.NaN;
 		}
 	}

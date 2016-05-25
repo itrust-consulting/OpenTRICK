@@ -1,18 +1,28 @@
 package lu.itrust.business.TS.validator;
 
 import java.util.List;
-
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.asset.AssetType;
-import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
+import java.util.regex.Pattern;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
+
 public class AssetValidator extends ValidatorFieldImpl implements Validator {
+
+	private Pattern editableField = Pattern.compile("comment|hiddenComment");
+	
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.validator.field.ValidatorField#isEditable(java.lang.String)
+	 */
+	@Override
+	public boolean isEditable(String fieldName) {
+		return editableField.matcher(fieldName).find();
+	}
 
 	@Override
 	public String validate(String fieldName, Object candidate) {
@@ -32,8 +42,16 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 		case "value":
 			if (candidate == null || !(candidate instanceof Double))
 				return "error.asset.value.unsupported::Value is not supported";
-			else if ((Double)candidate <0)
+			else if ((Double) candidate < 0)
 				return "error.asset.value.invalid::Value has to be 0 or greater";
+			break;
+		case "comment":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.asset.comment.unsupported::Comment should be a string";
+			break;
+		case "hiddenComment":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.asset.hidden_comment.unsupported::Hidden comment should be a string";
 			break;
 		}
 		return null;
@@ -56,12 +74,11 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 
 	@Override
 	public void validate(Object arg0, Errors arg1) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.asset.name.empty", "Name cannot be empty");
-
+		
 		Asset asset = (Asset) arg0;
-		if (!arg1.hasFieldErrors("name") && !asset.getName().matches(Constant.REGEXP_VALID_NAME))
-			arg1.rejectValue("name", "error.asset.name.invalid", "Name is not valid");
-
+		
+		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.asset.name.empty", "Name cannot be empty");
+		
 		if (!arg1.hasFieldErrors("assetType") && !(asset.getAssetType() instanceof AssetType))
 			arg1.rejectValue("assetType", "error.asset.assetType.invalid", "Asset Type is not valid");
 

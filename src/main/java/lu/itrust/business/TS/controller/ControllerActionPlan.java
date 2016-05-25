@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,27 +9,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceActionPlan;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
-import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.permissionevaluator.PermissionEvaluator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +25,27 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceActionPlan;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.permissionevaluator.PermissionEvaluator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
 /**
  * ControllerAdministration.java: <br>
@@ -75,9 +77,6 @@ public class ControllerActionPlan {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceAsset serviceAsset;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -134,7 +133,7 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 		// retrieve analysis ID
@@ -153,7 +152,7 @@ public class ControllerActionPlan {
 	
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/Assets", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Assets", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String loadAssets(@RequestParam(defaultValue="APPN") String selectedApt,Model model, HttpSession session, Principal principal) throws Exception{
 		try {
@@ -162,7 +161,7 @@ public class ControllerActionPlan {
 			model.addAttribute("assets", ActionPlanManager.getAssetsByActionPlanType((List<ActionPlanEntry>)model.asMap().get("actionplans")));
 			return "analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			throw e;
 		}
 	}
@@ -176,19 +175,14 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/ComputeOptions", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model) throws Exception {
-
 		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 		model.put("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(analysisID));
 		model.put("show_cssf", serviceAnalysis.isAnalysisCssf(analysisID));
-
 		model.put("id", analysisID);
-
 		model.put("standards", serviceAnalysisStandard.getAllFromAnalysis(analysisID));
-
 		return "analyses/single/components/actionPlan/form";
 	}
 
@@ -201,7 +195,7 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
 		// prepare permission verifier
@@ -213,7 +207,6 @@ public class ControllerActionPlan {
 		// retrieve analysis id to compute
 		int analysisId = jsonNode.get("id").asInt();
 
-		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 
 		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
@@ -233,15 +226,14 @@ public class ControllerActionPlan {
 			}
 
 			boolean reloadSection = session.getAttribute(Constant.SELECTED_ANALYSIS) != null;
-			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
-			worker.setPoolManager(workersPoolManager);
+			Worker worker = new WorkerComputeActionPlan(workersPoolManager,sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 			// execute task
 			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", analysisLocale));
+			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 		} else {
-			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", analysisLocale));
+			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		}
 	}
 }

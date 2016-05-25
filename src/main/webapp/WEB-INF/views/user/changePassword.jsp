@@ -11,13 +11,13 @@
 <jsp:include page="../template/header.jsp" />
 <body>
 	<div class="container">
-		<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px; margin-top: 50px;">
+		<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/images/TrickService.png" /> style="height: 200px; margin-top: 50px;">
 		<div style="margin: 0 auto; max-width: 600px; padding: 0px 15px">
 			<h2 class="form-signin-heading col-sm-offset-3">
 				<spring:message code="label.title.user.change.password" text="Change your password" />
 			</h2>
 			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -30px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
-			<form:form modelAttribute="changePassword" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/ChangePassword/Save">
+			<form:form modelAttribute="changePassword" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/ChangePassword/Save?${_csrf.parameterName}=${_csrf.token}">
 				<form:hidden path="requestId" />
 				<div class="form-group" style="margin-top: 20px;">
 					<form:label path="password" class="col-sm-3 control-label">

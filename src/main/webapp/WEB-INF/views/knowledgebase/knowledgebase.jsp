@@ -4,16 +4,18 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<!-- ################################################################ Set Page Title ################################################################ -->
-<c:set scope="request" var="title">label.title.knowledgebase</c:set>
 <!-- ###################################################################### HTML #################################################################### -->
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+</c:if>
 <!DOCTYPE html>
-<html>
+<html lang="${locale.language}">
 <!-- Include Header -->
+<c:set scope="request" var="title" value="label.title.knowledgebase"/>
 <jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
-	<div id="wrap">
+	<div id="wrap" class="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
@@ -22,7 +24,13 @@
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
 				<li class="active"><a href="#tab_customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers" /></a></li>
 				<li><a href="#tab_language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language" /></a></li>
-				<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
+
+				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.knowledgebase.standards_measures"
+							text="Standards-measures" /><span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
+						<li id="control_tab_measure" style="display: none;"><a href="#tab_measure" data-toggle="tab"><spring:message code="label.menu.knowledgebase.measures" text="Measures" /></a></li>
+					</ul></li>
 				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
@@ -32,7 +40,9 @@
 				<jsp:include page="language/languages.jsp" />
 				<jsp:include page="standards/standard/standards.jsp" />
 				<jsp:include page="analysis/analyses.jsp" />
+				<jsp:include page="standards/measure/measures.jsp" />
 				<jsp:include page="widget.jsp" />
+
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

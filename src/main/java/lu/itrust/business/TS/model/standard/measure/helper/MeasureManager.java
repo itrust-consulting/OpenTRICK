@@ -9,6 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
@@ -18,6 +22,7 @@ import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
+import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.exception.TrickException;
@@ -43,10 +48,6 @@ import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureReferance;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * MeasureManager.java: <br>
@@ -85,8 +86,10 @@ public class MeasureManager {
 
 	@Autowired
 	private CustomDelete customDelete;
-	
-	
+
+	@Autowired
+	private DAOMeasureDescription daoMeasureDescription;
+
 	public static Standard getStandard(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
 			if (standard.getLabel().equals(standardname))
@@ -211,54 +214,47 @@ public class MeasureManager {
 	public void createNewMeasureForAllAnalyses(MeasureDescription measureDescription) throws Exception {
 		List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromStandard(measureDescription.getStandard());
 		for (AnalysisStandard astandard : analysisStandards) {
-			boolean found = false;
-			for (Measure measure : astandard.getMeasures()) {
-				if (measure.getMeasureDescription().equals(measureDescription)) {
-					found = true;
-					break;
-				}
-			}
-			if (found == false) {
-
-				Analysis analysis = daoAnalysis.get(daoAnalysisStandard.getAnalysisIDFromAnalysisStandard(astandard.getId()));
-				Measure measure = null;
-				Object implementationRate = null;
-				if (astandard instanceof NormalStandard) {
-					measure = new NormalMeasure();
-					List<AssetType> assetTypes = daoAssetType.getAll();
-					List<AssetTypeValue> assetTypeValues = ((NormalMeasure) measure).getAssetTypeValues();
-					for (AssetType assetType : assetTypes)
-						assetTypeValues.add(new AssetTypeValue(assetType, 0));
-					((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-					implementationRate = new Double(0);
-				} else if (astandard instanceof MaturityStandard) {
-					measure = new MaturityMeasure();
-					for (Parameter parameter : analysis.getParameters()) {
-						if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
-							implementationRate = parameter;
-							break;
-						}
+			Analysis analysis = daoAnalysis.getByAnalysisStandardId(astandard.getId());
+			Measure measure = null;
+			Object implementationRate = null;
+			if (astandard instanceof NormalStandard) {
+				measure = new NormalMeasure();
+				List<AssetType> assetTypes = daoAssetType.getAll();
+				List<AssetTypeValue> assetTypeValues = ((NormalMeasure) measure).getAssetTypeValues();
+				for (AssetType assetType : assetTypes)
+					assetTypeValues.add(new AssetTypeValue(assetType, 0));
+				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+				implementationRate = new Double(0);
+			} else if (astandard instanceof MaturityStandard) {
+				measure = new MaturityMeasure();
+				for (Parameter parameter : analysis.getParameters()) {
+					if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
+						implementationRate = parameter;
+						break;
 					}
-				} else if (astandard instanceof AssetStandard) {
-					measure = new AssetMeasure();
-					((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-					implementationRate = new Double(0);
-					((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
 				}
-				Phase phase = analysis.getPhaseByNumber(Constant.PHASE_DEFAULT);
-				if (phase == null) {
-					phase = new Phase(Constant.PHASE_DEFAULT);
-					phase.setAnalysis(analysis);
-				}
-				measure.setPhase(phase);
-				measure.setImplementationRate(implementationRate);
-				measure.setAnalysisStandard(astandard);
-				measure.setMeasureDescription(measureDescription);
-				measure.setStatus("AP");
-				astandard.getMeasures().add(measure);
-				daoAnalysisStandard.saveOrUpdate(astandard);
+			} else if (astandard instanceof AssetStandard) {
+				measure = new AssetMeasure();
+				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+				implementationRate = new Double(0);
+				((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
 			}
+			Phase phase = analysis.getPhaseByNumber(Constant.PHASE_DEFAULT);
+			if (phase == null) {
+				phase = new Phase(Constant.PHASE_DEFAULT);
+				phase.setAnalysis(analysis);
+			}
+			measure.setPhase(phase);
+			measure.setImplementationRate(implementationRate);
+			measure.setAnalysisStandard(astandard);
+			measure.setMeasureDescription(measureDescription);
+			measure.setStatus("AP");
+			astandard.getMeasures().add(measure);
+			daoAnalysisStandard.saveOrUpdate(astandard);
 		}
+		
+		if(measureDescription.getId()<1)
+			daoMeasureDescription.saveOrUpdate(measureDescription);
 	}
 
 	@Transactional

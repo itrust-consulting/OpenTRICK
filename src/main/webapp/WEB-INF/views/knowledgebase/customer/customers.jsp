@@ -13,16 +13,10 @@
 						code="label.customer.edit" text="Edit" /> </a></li>
 			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 						code="label.menu.delete.customer" text="Delete" /> </a></li>
-			<c:if test="${!empty(adminView)}">
-				<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-					<li class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile()"><a href="#" onclick="return manageUsers();"><span class="glyphicon glyphicon-remove"></span> <spring:message
-								code="label.menu.manage.access.user_customer" text="Manage user access" /> </a></li>
-				</sec:authorize>
-			</c:if>
 		</ul>
 		<c:choose>
 			<c:when test="${!empty customers}">
-				<table class="table">
+				<table class="table table-hover">
 					<thead>
 						<tr>
 							<th width="1%"></th>
@@ -34,11 +28,6 @@
 							<th><spring:message code="label.customer.zip_code" text="Zip code" /></th>
 							<th><spring:message code="label.customer.city" text="City"/></th>
 							<th><spring:message code="label.customer.country" text="Country"/></th>
-							<c:if test="${!empty(adminView)}">
-								<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-									<th><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
-								</sec:authorize>
-							</c:if>
 						</tr>
 					</thead>
 					<tbody>

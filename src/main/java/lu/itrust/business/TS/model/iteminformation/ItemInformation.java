@@ -3,6 +3,7 @@ package lu.itrust.business.TS.model.iteminformation;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -30,7 +31,7 @@ public class ItemInformation implements Cloneable {
 
 	/** id unsaved value = -1 */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idItemInformation")
 	private int id = -1;
 

@@ -15,34 +15,33 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<div class="col-sm-12 row">
-					<form id="analysisProfileform" action="/AnalysisProfile/Save" method="post" class="form">
-						<input type="hidden" id="id" name="id" value="${id}" />
-						<div class="form-group">
-							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.name" text="Name" /></label>
-							<div class="col-sm-10">
-								<input class="form-control" id="name" name="name">
-							</div>
+				<form id="analysisProfileform" action="/AnalysisProfile/Save?${_csrf.parameterName}=${_csrf.token}" method="post" class="form">
+					<input type="hidden" id="id" name="id" value="${id}" />
+					<div class="form-group">
+						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.name" text="Name" /></label>
+						<div class="col-sm-10">
+							<input class="form-control" id="name" name="name">
 						</div>
-						<div class="form-group">
-							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.standards" text="Standards" /></label>
-							<div class="panel-body col-sm-10">
-								<c:if test="${!empty analysisStandards}">
-									<select class="form-control" name="standards" id="standards" multiple="multiple" style="display: none;">
-										<c:forEach items="${analysisStandards}" var="analysisStandard">
-											<option value="standard_${analysisStandard.standard.id}">${analysisStandard.standard.label}</option>
-										</c:forEach>
-									</select>
-									<ul class="list-group">
-										<c:forEach items="${analysisStandards}" var="analysisStandard">
-											<a data-trick-opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
-										</c:forEach>
-									</ul>
-								</c:if>
-							</div>
+					</div>
+					<div class="form-group">
+						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.standards" text="Standards" /></label>
+						<div class="panel-body col-sm-10">
+							<c:if test="${!empty analysisStandards}">
+								<select class="form-control" name="standards" id="standards" multiple="multiple" style="display: none;">
+									<c:forEach items="${analysisStandards}" var="analysisStandard">
+										<option value="standard_${analysisStandard.standard.id}">${analysisStandard.standard.label}</option>
+									</c:forEach>
+								</select>
+								<ul class="list-group">
+									<c:forEach items="${analysisStandards}" var="analysisStandard">
+										<a data-trick-opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
+									</c:forEach>
+								</ul>
+							</c:if>
 						</div>
-					</form>
-				</div>
+					</div>
+				</form>
+				<div class='clearfix'></div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" onclick="saveAnalysisProfile('analysisProfileform')">

@@ -32,12 +32,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#get(int)
 	 */
 	@Override
-	public Assessment get(Integer id) throws Exception {
+	public Assessment get(Integer id)  {
 		return daoAssessment.get(id);
 	}
 
@@ -48,13 +48,13 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @param idAnalysis
 	 * @param idAssessment
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getFromAnalysisById(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) throws Exception {
+	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment)  {
 		return daoAssessment.getFromAnalysisById(idAnalysis, idAssessment);
 	}
 
@@ -65,13 +65,13 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @param assessmentId
 	 * @param analysisId
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId)  {
 		return daoAssessment.belongsToAnalysis(analysisId, assessmentId);
 	}
 
@@ -80,12 +80,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAll()
 	 */
 	@Override
-	public List<Assessment> getAll() throws Exception {
+	public List<Assessment> getAll()  {
 		return daoAssessment.getAll();
 	}
 
@@ -95,12 +95,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromAnalysisID(int)
 	 */
 	@Override
-	public List<Assessment> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Assessment> getAllFromAnalysis(Integer idAnalysis)  {
 		return daoAssessment.getAllFromAnalysis(idAnalysis);
 	}
 
@@ -111,13 +111,13 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @param idAnalysis
 	 * @param acronym
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAssessmentFromAnalysisAndImpactLikelihoodAcronym(int,
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym) throws Exception {
+	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym)  {
 		return daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
 	}
 
@@ -127,12 +127,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromAnalysisAndSelectedScenario(java.lang.Integer)
 	 */
 	@Override
-	public List<Assessment> getAllFromAnalysisAndSelectedScenario(Integer idAnalysis) throws Exception {
+	public List<Assessment> getAllFromAnalysisAndSelectedScenario(Integer idAnalysis)  {
 		return daoAssessment.getAllFromAnalysisAndSelectedScenario(idAnalysis);
 	}
 
@@ -142,12 +142,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param scenarioID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromScenarioId(int)
 	 */
 	@Override
-	public List<Assessment> getAllFromScenario(Integer scenarioID) throws Exception {
+	public List<Assessment> getAllFromScenario(Integer scenarioID)  {
 		return daoAssessment.getAllFromScenario(scenarioID);
 	}
 
@@ -157,12 +157,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param scenario
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromScenario(lu.itrust.business.TS.model.scenario.Scenario)
 	 */
 	@Override
-	public List<Assessment> getAllFromScenario(Scenario scenario) throws Exception {
+	public List<Assessment> getAllFromScenario(Scenario scenario)  {
 		return daoAssessment.getAllFromScenario(scenario);
 	}
 
@@ -172,12 +172,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param scenario
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllSelectedAssessmentFromScenario(lu.itrust.business.TS.model.scenario.Scenario)
 	 */
 	@Override
-	public List<Assessment> getAllSelectedFromScenario(Scenario scenario) throws Exception {
+	public List<Assessment> getAllSelectedFromScenario(Scenario scenario)  {
 		return daoAssessment.getAllSelectedFromScenario(scenario);
 	}
 
@@ -187,12 +187,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param scenario
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllUnselectedAssessmentFromScenario(lu.itrust.business.TS.model.scenario.Scenario)
 	 */
 	@Override
-	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario) throws Exception {
+	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario)  {
 		return daoAssessment.getAllUnselectedFromScenario(scenario);
 	}
 
@@ -202,12 +202,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromAnalysisAndSelectedAsset(java.lang.Integer)
 	 */
 	@Override
-	public List<Assessment> getAllFromAnalysisAndSelectedAsset(Integer idAnalysis) throws Exception {
+	public List<Assessment> getAllFromAnalysisAndSelectedAsset(Integer idAnalysis)  {
 		return daoAssessment.getAllFromAnalysisAndSelectedAsset(idAnalysis);
 	}
 
@@ -217,12 +217,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param assetID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromAssetId(int)
 	 */
 	@Override
-	public List<Assessment> getAllFromAsset(Integer assetID) throws Exception {
+	public List<Assessment> getAllFromAsset(Integer assetID)  {
 		return daoAssessment.getAllFromAsset(assetID);
 	}
 
@@ -232,12 +232,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param asset
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromAsset(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@Override
-	public List<Assessment> getAllFromAsset(Asset asset) throws Exception {
+	public List<Assessment> getAllFromAsset(Asset asset)  {
 		return daoAssessment.getAllFromAsset(asset);
 	}
 
@@ -247,12 +247,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param asset
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllSelectedAssessmentFromAsset(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@Override
-	public List<Assessment> getAllSelectedFromAsset(Asset asset) throws Exception {
+	public List<Assessment> getAllSelectedFromAsset(Asset asset)  {
 		return daoAssessment.getAllSelectedFromAsset(asset);
 	}
 
@@ -262,12 +262,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * 
 	 * @param asset
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllUnSelectedAssessmentFromAsset(lu.itrust.business.TS.model.asset.Asset)
 	 */
 	@Override
-	public List<Assessment> getAllUnSelectedFromAsset(Asset asset) throws Exception {
+	public List<Assessment> getAllUnSelectedFromAsset(Asset asset)  {
 		return daoAssessment.getAllUnSelectedFromAsset(asset);
 	}
 
@@ -276,13 +276,13 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * Description
 	 * 
 	 * @param assessment
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#save(lu.itrust.business.TS.model.assessment.Assessment)
 	 */
 	@Transactional
 	@Override
-	public void save(Assessment assessment) throws Exception {
+	public void save(Assessment assessment)  {
 		daoAssessment.save(assessment);
 	}
 
@@ -291,13 +291,13 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * Description
 	 * 
 	 * @param assessment
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#saveOrUpdate(lu.itrust.business.TS.model.assessment.Assessment)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Assessment assessment) throws Exception {
+	public void saveOrUpdate(Assessment assessment)  {
 		daoAssessment.saveOrUpdate(assessment);
 	}
 
@@ -306,13 +306,13 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * Description
 	 * 
 	 * @param assessments
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#saveOrUpdate(java.util.List)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(List<Assessment> assessments) throws Exception {
+	public void saveOrUpdate(List<Assessment> assessments)  {
 		daoAssessment.saveOrUpdate(assessments);
 	}
 
@@ -321,18 +321,33 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * Description
 	 * 
 	 * @param assessment
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#delete(lu.itrust.business.TS.model.assessment.Assessment)
 	 */
 	@Transactional
 	@Override
-	public void delete(Assessment assessment) throws Exception {
+	public void delete(Assessment assessment)  {
 		daoAssessment.delete(assessment);
 	}
 
 	@Override
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis) {
 		return daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
+	}
+
+	@Override
+	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario) {
+		return daoAssessment.getByAssetAndScenario(asset, scenario);
+	}
+
+	@Override
+	public Assessment getByAssetAndScenario(int idAsset, int idScenario) {
+		return daoAssessment.getByAssetAndScenario(idAsset, idScenario);
+	}
+
+	@Override
+	public List<String> getDistinctOwnerByIdAnalysis(Integer analysisId) {
+		return daoAssessment.getDistinctOwnerByIdAnalysis(analysisId);
 	}
 }

@@ -9,12 +9,16 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.constants.Constant;
@@ -24,9 +28,6 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Measure: <br>
@@ -73,10 +74,14 @@ public abstract class Measure implements Cloneable {
 	/** The LifeTime of the Measure (in Years) */
 	private double lifetime = 0;
 
-	/** The internal MaintenanceRecurrentInvestment of the Measure (in Man Days) */
+	/**
+	 * The internal MaintenanceRecurrentInvestment of the Measure (in Man Days)
+	 */
 	private double internalMaintenance = 0;
 
-	/** The external MaintenanceRecurrentInvestment of the Measure (in Man Days) */
+	/**
+	 * The external MaintenanceRecurrentInvestment of the Measure (in Man Days)
+	 */
 	private double externalMaintenance = 0;
 
 	/** The recurrent investment of maintenance of the Measure (Currency) */
@@ -95,6 +100,8 @@ public abstract class Measure implements Cloneable {
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
+
+	
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -132,7 +139,7 @@ public abstract class Measure implements Cloneable {
 	 * @return The Measure Identifier
 	 */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idMeasure")
 	public int getId() {
 		return id;
@@ -211,12 +218,8 @@ public abstract class Measure implements Cloneable {
 	public abstract double getImplementationRateValue(Map<String, Double> dynamicParameters);
 
 	@Transient
-	@Deprecated // this method is used by the UI only
-	@Access(AccessType.FIELD)
-	public double getImplementationRateValue() {
-		return getImplementationRateValue(new HashMap<>());
-	}
-	
+	public abstract List<String> getVariablesInvolvedInImplementationRateValue();
+
 	@Transient
 	public double getImplementationRateValue(List<AcronymParameter> expressionParameters) {
 		// Turn expression parameters into a map { key => value }
@@ -347,7 +350,7 @@ public abstract class Measure implements Cloneable {
 	 * @throws TrickException
 	 */
 	public void setCost(double cost) throws TrickException {
-		if (cost < 0)
+		if (cost < 0 && cost != -1)
 			throw new TrickException("error.measure.cost", "Cost cannot be negative");
 		this.cost = cost;
 	}
@@ -634,6 +637,7 @@ public abstract class Measure implements Cloneable {
 		return GeneralComperator.VersionComparator(reference, reference2);
 	}
 
+	@Column(name = "dtResponsible")
 	public String getResponsible() {
 		return responsible;
 	}
@@ -642,4 +646,5 @@ public abstract class Measure implements Cloneable {
 		this.responsible = responsible;
 	}
 
+	
 }

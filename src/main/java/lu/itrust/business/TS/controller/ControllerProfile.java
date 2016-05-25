@@ -1,5 +1,14 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.EMPTY_STRING;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_FILTER_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_REPORT;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SIZE_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_DIRCTION_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_KEY;
+import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SQLITE;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -7,27 +16,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceRole;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.ServiceUserSqLite;
-import lu.itrust.business.TS.database.service.ServiceWordReport;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.general.UserSQLite;
-import lu.itrust.business.TS.model.general.WordReport;
-import lu.itrust.business.TS.model.general.helper.FilterControl;
-import lu.itrust.business.TS.model.general.helper.TrickFilter;
-import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.validator.UserValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -37,6 +25,7 @@ import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +36,27 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.ServiceUserSqLite;
+import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.ReportType;
+import lu.itrust.business.TS.model.general.UserSQLite;
+import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.general.helper.FilterControl;
+import lu.itrust.business.TS.model.general.helper.TrickFilter;
+import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.validator.UserValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
  * ControllerProfile.java: <br>
@@ -61,23 +71,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 public class ControllerProfile {
 
-	private static final String FILTER_CONTROL_SQLITE = "SQLITE";
-
-	private static final String FILTER_CONTROL_REPORT = "REPORT";
-
-	private static final String FILTER_CONTROL_SORT_KEY = "%s_SORT";
-
-	private static final String FILTER_CONTROL_SORT_DIRCTION_KEY = "%s_SORT_DIRECTION";
-
-	private static final String FILTER_CONTROL_SIZE_KEY = "%s_SIZE";
-
-	private static final String FILTER_CONTROL_FILTER_KEY = "%s_FILTER";
-
 	@Autowired
 	private ServiceUser serviceUser;
-
-	@Autowired
-	private ServiceRole serviceRole;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -114,24 +109,20 @@ public class ControllerProfile {
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
 			return "redirect:/Logout";
-		user.setPassword(Constant.EMPTY_STRING);
+		user.setPassword(EMPTY_STRING);
 		// add profile to model
 		model.addAttribute("user", user);
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
-		TrickFilter filterControl = buildFromUser(user, FILTER_CONTROL_SQLITE);
-		session.setAttribute("sqliteControl", filterControl);
-		filterControl = buildFromUser(user, FILTER_CONTROL_REPORT);
-		session.setAttribute("reportControl", filterControl);
+		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
+		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
 		return "user/home";
 	}
 
 	private TrickFilter buildFromUser(User user, String type) {
-		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)), filter = user
-				.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
+		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)),
+				filter = user.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
 		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
-
-		System.out.println(sort);
 
 		if (size == null)
 			size = 30;
@@ -144,8 +135,9 @@ public class ControllerProfile {
 		return new FilterControl(sort, direction, size, filter);
 	}
 
-	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
@@ -154,10 +146,12 @@ public class ControllerProfile {
 		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
 		session.setAttribute("sqliteControl", filterControl);
 		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+
 	}
 
-	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+
 		if (!filterControl.validate())
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
@@ -166,6 +160,7 @@ public class ControllerProfile {
 		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
 		session.setAttribute("reportControl", filterControl);
 		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+
 	}
 
 	private void updateFilterControl(User user, FilterControl value, String type) throws Exception {
@@ -176,7 +171,7 @@ public class ControllerProfile {
 		serviceUser.saveOrUpdate(user);
 	}
 
-	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String sectionSqlite(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
 		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
 		if (filter == null)
@@ -185,7 +180,7 @@ public class ControllerProfile {
 		return "user/sqlites";
 	}
 
-	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
 		FilterControl filter = (FilterControl) session.getAttribute("reportControl");
 		if (filter == null)
@@ -195,7 +190,7 @@ public class ControllerProfile {
 
 	}
 
-	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteSqlite(@PathVariable Integer id, Principal principal, Locale locale) throws Exception {
 		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 		if (userSQLite == null)
@@ -204,7 +199,7 @@ public class ControllerProfile {
 		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
 	}
 
-	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String deleteReport(@PathVariable Integer id, Principal principal, Locale locale) {
 		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
 		if (report == null)
@@ -289,12 +284,13 @@ public class ControllerProfile {
 
 		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
-
+		
 		// set response contenttype to sqlite
-		response.setContentType("docm");
+		response.setContentType(ReportType.getExtension(wordReport.getType()));
 
 		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.docm", wordReport.getLabel(), wordReport.getVersion()) + "\"");
+		response.setHeader("Content-Disposition",
+				"attachment; filename=\"" + String.format("%s_%s_V%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), response.getContentType()) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());
@@ -326,7 +322,7 @@ public class ControllerProfile {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response)
 			throws Exception {
 
@@ -345,8 +341,8 @@ public class ControllerProfile {
 
 		} catch (Exception e) {
 
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 	}
@@ -369,39 +365,57 @@ public class ControllerProfile {
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
-
-			String currentPassword = jsonNode.get("currentPassword").asText();
-			String password = jsonNode.get("password").asText();
-			String repeatedPassword = jsonNode.get("repeatPassword").asText();
-			String firstname = jsonNode.get("firstName").asText();
-			String lastname = jsonNode.get("lastName").asText();
-			String email = jsonNode.get("email").asText();
-			String userlocale = jsonNode.get("locale").asText();
+			String currentPassword = readStringValue(jsonNode, "currentPassword");
+			String password = readStringValue(jsonNode, "password");
+			String repeatedPassword = readStringValue(jsonNode, "repeatPassword");
+			String firstname = readStringValue(jsonNode, "firstName");
+			String lastname = readStringValue(jsonNode, "lastName");
+			String email = readStringValue(jsonNode, "email");
+			String userlocale = readStringValue(jsonNode, "locale");
 			String error = null;
 			String oldPassword = user.getPassword();
-
-			if (currentPassword != Constant.EMPTY_STRING) {
-
-				if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
+			if (user.getConnexionType() != User.LADP_CONNEXION) {
+				if (StringUtils.isEmpty(currentPassword))
+					errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null, "Enter current password for changes to take effect!", locale));
+				else if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
 					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
+			}
+			if (!errors.containsKey("currentPassword")) {
+				if (!StringUtils.isEmpty(password)) {
+					if (user.getConnexionType() == User.LADP_CONNEXION)
+						errors.put("user", messageSource.getMessage("error.ldap.change.password", null, "Please contact your administrator to reset your password.", locale));
+					else {
+						error = validator.validate(user, "password", password);
+						if (error != null)
+							errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+						else
+							user.setPassword(password);
 
-				if (password != Constant.EMPTY_STRING) {
+						error = validator.validate(user, "repeatPassword", repeatedPassword);
+						if (error != null) {
+							user.setPassword(oldPassword);
+							errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
+						} else {
 
-					error = validator.validate(user, "password", password);
-					if (error != null)
-						errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
-					else
-						user.setPassword(password);
-
-					error = validator.validate(user, "repeatPassword", repeatedPassword);
-					if (error != null) {
-						user.setPassword(oldPassword);
-						errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
-					} else {
-
-						user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+							user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+						}
 					}
 				}
+
+				if (user.getConnexionType() == User.LADP_CONNEXION && !user.getEmail().equals(email))
+					errors.put("email", messageSource.getMessage("error.ldap.change.email", null, "Please contact your administrator to update your email.", locale));
+				else {
+					error = validator.validate(user, "email", email);
+					if (error != null)
+						errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+					else if (!user.getEmail().equals(email)) {
+						if (serviceUser.existByEmail(email))
+							errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
+						else
+							user.setEmail(email);
+					}
+				}
+
 				error = validator.validate(user, "firstName", firstname);
 				if (error != null)
 					errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
@@ -414,32 +428,22 @@ public class ControllerProfile {
 				else
 					user.setLastName(lastname);
 
-				error = validator.validate(user, "email", email);
-				if (error != null)
-					errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-				else if (!user.getEmail().equals(email)) {
-					if (serviceUser.existByEmail(email))
-						errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
-					else
-						user.setEmail(email);
-				}
-
 				error = validator.validate(user, "locale", userlocale);
 				if (error != null)
 					errors.put("locale", serviceDataValidation.ParseError(error, messageSource, locale));
 				else
 					user.setLocale(userlocale);
-
-			} else
-				errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null, "Enter current password for changes to take effect!", locale));
-
+			}
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 		}
 
 		return errors.isEmpty();
 
 	}
 
+	private String readStringValue(JsonNode jsonNode, String fieldName) {
+		return jsonNode.has(fieldName) ? jsonNode.get(fieldName).textValue() : null;
+	}
 }

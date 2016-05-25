@@ -2,6 +2,10 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -12,10 +16,6 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceAnalysisImpl.java: <br>
@@ -37,13 +37,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#get(int)
 	 */
 
 	@Override
-	public Analysis get(Integer id) throws Exception {
+	public Analysis get(Integer id)  {
 		return daoAnalysis.get(id);
 	}
 
@@ -52,13 +52,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getDefaultProfile()
 	 */
 
 	@Override
-	public Analysis getDefaultProfile() throws Exception {
+	public Analysis getDefaultProfile()  {
 		return daoAnalysis.getDefaultProfile();
 	}
 
@@ -69,14 +69,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param identifier
 	 * @param version
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getFromIdentifierVersion(java.lang.String,
 	 *      java.lang.String)
 	 */
 
 	@Override
-	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) throws Exception {
+	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID)  {
 		return daoAnalysis.getFromIdentifierVersionCustomer(identifier, version, customerID);
 	}
 
@@ -86,13 +86,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(int)
 	 */
 
 	@Override
-	public boolean exists(Integer idAnalysis) throws Exception {
+	public boolean exists(Integer idAnalysis)  {
 		return daoAnalysis.exists(idAnalysis);
 	}
 
@@ -103,13 +103,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param identifier
 	 * @param version
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#exists(java.lang.String,
+	 *      java.lang.String)
 	 */
 
 	@Override
-	public boolean exists(String identifier, String version) throws Exception {
+	public boolean exists(String identifier, String version)  {
 		return daoAnalysis.exists(identifier, version);
 	}
 
@@ -119,13 +120,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param analysisid
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#isProfile(int)
 	 */
 
 	@Override
-	public boolean isProfile(Integer analysisid) throws Exception {
+	public boolean isProfile(Integer analysisid)  {
 		return daoAnalysis.isProfile(analysisid);
 	}
 
@@ -139,7 +140,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 */
 
 	@Override
-	public boolean hasData(Integer idAnalysis) throws Exception {
+	public boolean hasData(Integer idAnalysis)  {
 		return daoAnalysis.hasData(idAnalysis);
 	}
 
@@ -148,13 +149,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllAnalysisIDs()
 	 */
 
 	@Override
-	public List<Integer> getAllAnalysisIDs() throws Exception {
+	public List<Integer> getAllAnalysisIDs()  {
 		return daoAnalysis.getAllAnalysisIDs();
 	}
 
@@ -163,13 +164,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAll()
 	 */
 
 	@Override
-	public List<Analysis> getAll() throws Exception {
+	public List<Analysis> getAll()  {
 		return daoAnalysis.getAll();
 	}
 
@@ -178,13 +179,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllNotEmpty()
 	 */
 
 	@Override
-	public List<Analysis> getAllNotEmpty() throws Exception {
+	public List<Analysis> getAllNotEmpty()  {
 		return daoAnalysis.getAllNotEmpty();
 	}
 
@@ -193,13 +194,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllProfiles()
 	 */
 
 	@Override
-	public List<Analysis> getAllProfiles() throws Exception {
+	public List<Analysis> getAllProfiles()  {
 		return daoAnalysis.getAllProfiles();
 	}
 
@@ -210,14 +211,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param userName
 	 * @param customerID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromUserNameAndCustomerId(java.lang.String,
 	 *      java.lang.Integer)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID) throws Exception {
+	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID)  {
 		return daoAnalysis.getAllFromUserAndCustomer(userName, customerID);
 	}
 
@@ -228,14 +229,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param userName
 	 * @param idCustomer
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getFromUserNameAndCustomerIdAndNotEmpty(java.lang.String,
 	 *      int)
 	 */
 
 	@Override
-	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) throws Exception {
+	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer)  {
 		return daoAnalysis.getAllNotEmptyFromUserAndCustomer(userName, idCustomer);
 	}
 
@@ -248,14 +249,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param pageIndex
 	 * @param pageSize
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getFromUserNameAndCustomer(java.lang.String,
 	 *      java.lang.Integer, int, int)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
+	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize)  {
 		return daoAnalysis.getAllFromUserAndCustomerByPageAndSizeIndex(login, customer, pageIndex, pageSize);
 	}
 
@@ -265,13 +266,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param idCustomer
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdAndProfile(int)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) throws Exception {
+	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer)  {
 		return daoAnalysis.getAllFromCustomerAndProfile(idCustomer);
 	}
 
@@ -283,14 +284,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param pageIndex
 	 * @param pageSize
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdAndProfileByPageAndSize(java.lang.Integer,
 	 *      java.lang.Integer, java.lang.Integer)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
+	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize)  {
 		return daoAnalysis.getAllFromCustomerAndProfileByPageAndSizeIndex(customerID, pageIndex, pageSize);
 	}
 
@@ -300,13 +301,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param user
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromUser(User user) throws Exception {
+	public List<Analysis> getAllFromUser(User user)  {
 		return daoAnalysis.getAllFromUser(user);
 	}
 
@@ -316,13 +317,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param customer
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomer(lu.itrust.business.TS.model.general.Customer)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception {
+	public List<Analysis> getAllFromCustomer(Customer customer)  {
 		return daoAnalysis.getAllFromCustomer(customer);
 	}
 
@@ -334,14 +335,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param identifier
 	 * @param version
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.model.general.Customer,
 	 *      java.lang.String, java.lang.String)
 	 */
 
 	@Override
-	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception {
+	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version)  {
 		return daoAnalysis.getAllFromCustomerIdentifierVersion(customer, identifier, version);
 	}
 
@@ -352,14 +353,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @param idAnalysis
 	 * @param Parameter
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getParameterFromAnalysis(java.lang.Integer,
 	 *      java.lang.String)
 	 */
 
 	@Override
-	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception {
+	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter)  {
 		return daoAnalysis.getParameterFromAnalysis(idAnalysis, Parameter);
 	}
 
@@ -369,13 +370,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param analysisID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getLanguageOfAnalysis(int)
 	 */
 
 	@Override
-	public Language getLanguageOfAnalysis(Integer analysisID) throws Exception {
+	public Language getLanguageOfAnalysis(Integer analysisID)  {
 		return daoAnalysis.getLanguageOfAnalysis(analysisID);
 	}
 
@@ -385,13 +386,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#getVersionOfAnalysis(int)
 	 */
 
 	@Override
-	public String getVersionOfAnalysis(Integer id) throws Exception {
+	public String getVersionOfAnalysis(Integer id)  {
 		return daoAnalysis.getVersionOfAnalysis(id);
 	}
 
@@ -400,13 +401,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @param analysis
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#save(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
-	public void save(Analysis analysis) throws Exception {
+	public void save(Analysis analysis)  {
 		daoAnalysis.save(analysis);
 	}
 
@@ -415,13 +416,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @param analysis
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#saveOrUpdate(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Analysis analysis) throws Exception {
+	public void saveOrUpdate(Analysis analysis)  {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
@@ -430,13 +431,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @param analysis
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#delete(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	@Transactional
 	@Override
-	public void delete(Analysis analysis) throws Exception {
+	public void delete(Analysis analysis)  {
 		daoAnalysis.delete(analysis);
 	}
 
@@ -445,13 +446,13 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @param analysisId
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysis#delete(java.lang.Integer)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer analysisId) throws Exception {
+	public void delete(Integer analysisId)  {
 		daoAnalysis.delete(analysisId);
 	}
 
@@ -471,7 +472,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier,List<AnalysisRight> rights) {
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier, List<AnalysisRight> rights) {
 		return daoAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, username, identifier, rights);
 	}
 
@@ -491,12 +492,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public boolean isAnalysisUncertainty(Integer analysisID) throws Exception {
+	public boolean isAnalysisUncertainty(Integer analysisID)  {
 		return daoAnalysis.isAnalysisUncertainty(analysisID);
 	}
 
 	@Override
-	public boolean isAnalysisCssf(Integer analysisID) throws Exception {
+	public boolean isAnalysisCssf(Integer analysisID)  {
 		return daoAnalysis.isAnalysisCssf(analysisID);
 	}
 
@@ -562,17 +563,17 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public boolean isAnalysisCustomer(int idAnalysis, int idCustomer) {
-		return daoAnalysis.isAnalysisCustomer(idAnalysis,idCustomer);
+		return daoAnalysis.isAnalysisCustomer(idAnalysis, idCustomer);
 	}
 
 	@Override
 	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer) {
-		return daoAnalysis.getNamesByUserAndCustomerAndNotEmpty(username,idCustomer);
+		return daoAnalysis.getNamesByUserAndCustomerAndNotEmpty(username, idCustomer);
 	}
 
 	@Override
 	public List<Analysis> getAllByUserAndCustomerAndNameAndNotEmpty(String username, Integer idCustomer, String name) {
-		return daoAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(username,idCustomer, name);
+		return daoAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(username, idCustomer, name);
 	}
 
 	@Override
@@ -592,12 +593,12 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards) {
-		return daoAnalysis.getAllHasRightsAndContainsStandard(username,rights,  standards);
+		return daoAnalysis.getAllHasRightsAndContainsStandard(username, rights, standards);
 	}
 
 	@Override
 	public boolean existsByNameAndCustomerId(String name, int idCustomer) {
-		return daoAnalysis.existsByNameAndCustomerId(name,idCustomer);
+		return daoAnalysis.existsByNameAndCustomerId(name, idCustomer);
 	}
 
 	@Override
@@ -607,11 +608,35 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize) {
-		return daoAnalysis.getAllNotEmpty(pageIndex,pageSize);
+		return daoAnalysis.getAllNotEmpty(pageIndex, pageSize);
 	}
 
 	@Override
 	public int countNotEmpty() {
 		return daoAnalysis.countNotEmpty();
+	}
+
+	@Override
+	public Analysis getByCustomerAndLabelAndVersion(int customerId, String name, String version) {
+		return daoAnalysis.getByCustomerAndNameAndVersion(customerId,name, version);
+	}
+
+	@Override
+	public Analysis getByIdentifierAndVersion(String identifier, String version) {
+		return daoAnalysis.getByIdentifierAndVersion(identifier, version);
+	}
+
+	@Override
+	public Analysis getProfileByName(String name) {
+		return daoAnalysis.getProfileByName(name);
+	}
+
+	public int countNotEmptyNoItemInformationAndRiskInformation() {
+		return daoAnalysis.countNotEmptyNoItemInformationAndRiskInformation();
+	}
+
+	@Override
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize) {
+		return daoAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(pageIndex, pageSize);
 	}
 }

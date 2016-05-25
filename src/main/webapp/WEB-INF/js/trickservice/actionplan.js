@@ -2,7 +2,7 @@ function displayActionPlanOptions(analysisId) {
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/ComputeOptions",
 		type : "GET",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionplancomputeoptions");
 			if ($content.length)
@@ -32,15 +32,15 @@ function calculateActionPlanWithOptions(form) {
 		data[name] = value;
 
 	});
-	var jsonarray = JSON.stringify(data);
+	
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/Compute",
 		type : "post",
-		data : jsonarray,
-		contentType : "application/json",
+		data : JSON.stringify(data),
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
-				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan", null, $("#nav-container").attr("data-trick-language")))
+				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan"))
 						.Start();
 			else if (response["error"]) {
 				$("#alert-dialog .modal-body").html(response["error"]);
@@ -70,7 +70,6 @@ function hideActionplanAssets(sectionactionplan, menu) {
 function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({
 		url : context + "/Analyis/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
-		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("tr[data-trick-id='" + idActionPlanEntry + "']");
@@ -92,7 +91,6 @@ function displayActionPlanAssets() {
 		data : {
 			'selectedApt' : $("#menu_actionplan>li.disabled[data-trick-nav-control]").attr('data-trick-nav-control')
 		},
-		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionPlanAssets");

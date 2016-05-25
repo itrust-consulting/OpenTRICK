@@ -30,12 +30,12 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#get(int)
 	 */
 	@Override
-	public ItemInformation get(Integer id) throws Exception {
+	public ItemInformation get(Integer id)  {
 		return daoItemInformation.get(id);
 	}
 
@@ -46,13 +46,13 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * @param idAnalysis
 	 * @param idItemInformation
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#getFromAnalysisById(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idItemInformation) throws Exception {
+	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idItemInformation)  {
 		return daoItemInformation.getFromAnalysisById(idAnalysis, idItemInformation);
 	}
 
@@ -63,13 +63,13 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * @param idAnalysis
 	 * @param description
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#getFromAnalysisIdByDescription(int,
 	 *      java.lang.String)
 	 */
 	@Override
-	public ItemInformation getFromAnalysisByDescription(Integer idAnalysis, String description) throws Exception {
+	public ItemInformation getFromAnalysisByDescription(Integer idAnalysis, String description)  {
 		return daoItemInformation.getFromAnalysisByDescription(idAnalysis, description);
 	}
 
@@ -80,13 +80,13 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * @param historyId
 	 * @param analysisId
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer historyId, Integer analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer historyId, Integer analysisId)  {
 		return daoItemInformation.belongsToAnalysis(historyId, analysisId);
 	}
 
@@ -95,12 +95,12 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#getAllItemInformation()
 	 */
 	@Override
-	public List<ItemInformation> getAll() throws Exception {
+	public List<ItemInformation> getAll()  {
 		return daoItemInformation.getAll();
 	}
 
@@ -110,12 +110,12 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * 
 	 * @param analysisID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#getAllFromAnalysisId(int)
 	 */
 	@Override
-	public List<ItemInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
+	public List<ItemInformation> getAllFromAnalysis(Integer analysisID)  {
 		return daoItemInformation.getAllFromAnalysis(analysisID);
 	}
 
@@ -124,13 +124,13 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * Description
 	 * 
 	 * @param itemInformation
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#save(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Transactional
 	@Override
-	public void save(ItemInformation itemInformation) throws Exception {
+	public void save(ItemInformation itemInformation)  {
 		daoItemInformation.save(itemInformation);
 	}
 
@@ -139,13 +139,13 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * Description
 	 * 
 	 * @param itemInformation
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#saveOrUpdate(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(ItemInformation itemInformation) throws Exception {
+	public void saveOrUpdate(ItemInformation itemInformation)  {
 		daoItemInformation.saveOrUpdate(itemInformation);
 	}
 
@@ -154,13 +154,13 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	 * Description
 	 * 
 	 * @param itemInformation
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceItemInformation#delete(lu.itrust.business.TS.model.iteminformation.ItemInformation)
 	 */
 	@Transactional
 	@Override
-	public void delete(ItemInformation itemInformation) throws Exception {
+	public void delete(ItemInformation itemInformation)  {
 		daoItemInformation.delete(itemInformation);
 	}
 }

@@ -15,7 +15,8 @@ public class ComparatorMeasureDescription implements Comparator<MeasureDescripti
 
 	@Override
 	public int compare(MeasureDescription o1, MeasureDescription o2) {
-		return Compare(o1.getReference(), o2.getReference());
+		//return Compare(o1.getReference(), o2.getReference());
+		return o1.compareTo(o2);
 	}
 	
 	public static int Compare(String reference1, String reference2){

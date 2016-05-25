@@ -15,10 +15,14 @@ import java.util.ListIterator;
 public class RiskRegisterItemGroup {
 
 	private int idScenario = -1;
-	
+
 	private int position = 0;
 
 	private double netImportance = 0;
+
+	private double expectedImportance = 0;
+
+	private double rawImportance = 0;
 
 	private List<RiskRegisterItem> registers = new ArrayList<>();
 
@@ -34,10 +38,20 @@ public class RiskRegisterItemGroup {
 	 * @return
 	 * @see java.util.List#add(java.lang.Object)
 	 */
-	public boolean add(RiskRegisterItem e) {
-		setNetImportance(getNetImportance()
-				+ e.getNetEvaluation().getImportance());
-		return registers.add(e);
+	public boolean add(RiskRegisterItem registerItem) {
+		if (registerItem == null)
+			return false;
+		else if (contains(registerItem))
+			return true;
+		addItem(registerItem);
+		return registers.add(registerItem);
+
+	}
+
+	private void addItem(RiskRegisterItem registerItem) {
+		setNetImportance(getNetImportance() + registerItem.getNetEvaluation().getImportance());
+		setExpectedImportance(getExpectedImportance() + registerItem.getExpectedEvaluation().getImportance());
+		setRawImportance(getRawImportance() + registerItem.getRawEvaluation().getImportance());
 	}
 
 	/**
@@ -46,6 +60,8 @@ public class RiskRegisterItemGroup {
 	 */
 	public void clear() {
 		setNetImportance(0);
+		setExpectedImportance(0);
+		setRawImportance(0);
 		registers.clear();
 	}
 
@@ -126,8 +142,7 @@ public class RiskRegisterItemGroup {
 	public boolean remove(Object o) {
 		if (registers.remove(o)) {
 			RiskRegisterItem registerItem = (RiskRegisterItem) o;
-			setNetImportance(getNetImportance()
-					- registerItem.getNetEvaluation().getImportance());
+			removeItem(registerItem);
 			return true;
 		}
 		return false;
@@ -142,8 +157,8 @@ public class RiskRegisterItemGroup {
 	public RiskRegisterItem set(int index, RiskRegisterItem element) {
 		RiskRegisterItem registerItem = registers.set(index, element);
 		if (registerItem != null)
-			setNetImportance(getNetImportance()
-					- registerItem.getNetEvaluation().getImportance());
+			removeItem(registerItem);
+		addItem(element);
 		return registerItem;
 	}
 
@@ -180,14 +195,50 @@ public class RiskRegisterItemGroup {
 	}
 
 	public void setPosition(int i) {
-		for (RiskRegisterItem  registerItem: registers)
-			registerItem.setPosition(i);
 		this.position = i;
-		
 	}
 
 	public int getPosition() {
 		return position;
+	}
+
+	/**
+	 * @return the expectedImportance
+	 */
+	public double getExpectedImportance() {
+		return expectedImportance;
+	}
+
+	/**
+	 * @param expectedImportance
+	 *            the expectedImportance to set
+	 */
+	public void setExpectedImportance(double expectedImportance) {
+		this.expectedImportance = expectedImportance;
+	}
+
+	/**
+	 * @return the rawImportance
+	 */
+	public double getRawImportance() {
+		return rawImportance;
+	}
+
+	/**
+	 * @param rawImportance
+	 *            the rawImportance to set
+	 */
+	public void setRawImportance(double rawImportance) {
+		this.rawImportance = rawImportance;
+	}
+	
+	/**
+	 * @param registerItem
+	 */
+	private void removeItem(RiskRegisterItem registerItem) {
+		setNetImportance(getNetImportance() - registerItem.getNetEvaluation().getImportance());
+		setExpectedImportance(getExpectedImportance() - registerItem.getExpectedEvaluation().getImportance());
+		setRawImportance(getRawImportance() - registerItem.getRawEvaluation().getImportance());
 	}
 
 }

@@ -11,9 +11,12 @@ body {
 
 /* Wrapper for page content to push down footer */
 #wrap {
+	height: 100%;
+}
+
+.wrap {
 	min-height: 100%;
 	height: auto !important;
-	height: 100%;
 	/* Negative indent footer by its height */
 	margin: 0 auto -60px;
 	/* Pad bottom by footer height */
@@ -28,6 +31,10 @@ body {
 /* Custom page CSS
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
+.container {
+	width: 99%;
+}
+
 #wrap>.container {
 	min-height: 100%;
 	margin-top: 50px;
@@ -37,15 +44,11 @@ body {
 	margin: 20px 0;
 }
 
-.container {
-	width: 96%;
-}
-
 .nav-analysis, .nav-tab {
 	z-index: 1029;
 	background-color: white;
 	padding-top: 5px;
-	max-width: 94.5%;
+	max-width: 97.5%;
 }
 
 .nav-analysis li.dropdown-submenu.active>a:HOVER {
@@ -57,44 +60,12 @@ body {
 	padding-right: 15px;
 }
 
-.carousel-control.no-background {
-	width: 15px;
-	margin-top: 0;
-	z-index: 10;
-}
-
-.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev {
-	font-size: 60px;
-}
-
-.carousel-control.no-background .icon-next {
-	margin-right: -23px;
-}
-
-.carousel-control.no-background .icon-prev {
-	margin-left: -23px;
-}
-
-.vertical-text {
-	transform: rotate(12deg);
-}
-
-.nav-container {
-	padding-top: 80px;
-	margin-top: -50px;
-}
-
 #nav-container, #tab-container {
 	margin-top: 50px;
 	padding-top: 5px;
 }
 
-.nav-container h3, .sectionpanel {
-	margin-top: -120px;
-	padding-top: 120px;
-}
-
-.nav.bordered-bottom {
+.nav.bordered-bottom, .bordered-bottom {
 	border-bottom: 1px solid #dddddd;
 }
 
@@ -119,27 +90,8 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	background-color: #FFFFFF;
 }
 
-#contextMenu {
-	z-index: 1080;
-}
-
 .actionplanassethidden {
 	display: none;
-}
-
-.tooltip {
-	display: none;
-	position: absolute;
-	border: 1px solid #333;
-	background-color: #161616;
-	border-radius: 5px;
-	padding: 10px;
-	color: #fff;
-	font-size: 12px;
-}
-
-.tablesorter thead tr.tablesorter-filter-row {
-	display: none
 }
 
 .checkboxselectable {
@@ -289,28 +241,8 @@ table.floatThead-table {
 	background-color: #FFF;
 }
 
-.headertofixtable {
-	width: 100%;
-	table-layout: fixed;
-	padding: 0;
-	margin: 0;
-}
-
-.headertofixtablelargecolumn {
-	overflow: hidden;
-}
-
 .resize_vectical_only {
 	resize: vertical;
-}
-
-table th {
-	font-size: 14px;
-}
-
-table td {
-	font-size: 13px;
-	color: #101010;
 }
 
 td>pre {
@@ -327,55 +259,6 @@ td>pre {
 
 .popover-content>pre {
 	word-break: normal;
-}
-
-.text-rotate-360 {
-	transform: rotate(360deg);
-}
-
-.text-rotate-270 {
-	display: block;
-	margin-bottom: -13px;
-	margin-top: -50px;
-	padding-bottom: 85px;
-	padding-left: 8px;
-	transform: rotate(270deg);
-}
-
-.text-rotate-270-fix-1 {
-	margin-bottom: inherit;
-	margin-left: -20px;
-	margin-right: inherit;
-	margin-top: inherit;
-	padding: inherit;
-}
-
-.text-rotate-270-fix-2 {
-	margin-bottom: 10px;
-	margin-left: -30px;
-	margin-right: inherit;
-	margin-top: inherit;
-	padding: inherit;
-}
-
-.text-rotate-180 {
-	transform: rotate(180deg);
-}
-
-.text-rotate-90 {
-	transform: rotate(90deg);
-}
-
-.text-rotate-75 {
-	transform: rotate(75deg);
-}
-
-.text-rotate-45 {
-	transform: rotate(45deg);
-}
-
-.text-rotate-30 {
-	transform: rotate(30deg);
 }
 
 #buildAnalysisModal .well.well-sm {
@@ -458,7 +341,7 @@ a[role="changeUILanguage"]:hover {
 }
 
 ul.asset-measure {
-	height: 250px;
+	height: 265px;
 	padding: 0px;
 	overflow: auto;
 	margin: 8px auto 0 auto;
@@ -472,17 +355,146 @@ ul.asset-measure>li {
 	height: 310px;
 }
 
-#nav-container .tab-pane.active, #tab-container .tab-pane.active {
-	overflow: auto;
-}
-
-#nav-container .tab-pane.trick-chart-tab{
-	overflow:inherit;
-}
-
 #uploadStandardModal .progress {
 	max-width: 95%;
 	margin-top: 10px;
 	margin-bottom: -15px;
 	margin-top: 10px;
+}
+
+td.selected, .table>tbody>tr.info>td.selected {
+	background-color: #dff0d8
+}
+
+.table>tbody>tr.warning.info, .table>tbody>tr.warning.info>td {
+	background-color: #d9edf7;
+}
+
+.table>tbody>tr.danger.info, .table>tbody>tr.danger.info>td {
+	background-color: #d9edf7;
+}
+
+td.selected, .table>tbody>tr.warning>td.selected {
+	background-color: #fcf8e3;
+}
+
+td.selected, .table>tbody>tr.danger>td.selected {
+	background-color: #f2dede;
+}
+
+td.unselected, .table>tbody>tr.info>td.unselected {
+	background-color: window;
+}
+
+ul#task-manager {
+	padding: 0;
+	min-width: 450px;
+	padding: 10px;
+	max-height: 250px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+ul#task-manager>li>li {
+	border-top: 1px solid #777;
+}
+
+.tooltip-inner {
+	max-width: 800px;
+	white-space: pre-wrap;
+	word-break: normal;
+	overflow: hidden;
+	text-align: justify;
+}
+
+.popover {
+	max-width: 800px;
+	max-height: 660px;
+}
+
+.popover pre {
+	overflow: auto;
+	max-height: 600px;
+}
+
+.trick-ui table .form-control, .trick-ui table .input-group-addon {
+	padding: 0px 3px;
+}
+
+.trick-ui {
+	height: auto !important;
+	padding-bottom: 18px;
+	margin-bottom: -18px;
+}
+
+.trick-ui label, .trick-ui th {
+	font-weight: normal;
+}
+
+.numeric {
+	text-align: right;
+}
+
+.nav-chapter{
+	overflow: hidden;
+}
+
+.nav-chapter:HOVER {
+	overflow: auto;
+}
+
+datalist {
+    display: none;
+} 
+
+@media ( min-width : 1200px) {
+	.max-height {
+		height: 100%;
+	}
+	div[role='left-menu'] {
+		position: fixed;
+	}
+	div[role='left-menu']+div[class*='col-'] {
+		float: right;
+	}
+	@media ( min-height :400px) {
+		.nav-chapter {
+			height: 36%;
+		}
+	}
+	@media ( min-height :500px) {
+		.nav-chapter {
+			height: 48%;
+		}
+	}
+	@media ( min-height :600px) {
+		.nav-chapter {
+			height: 54%;
+		}
+	}
+	@media ( min-height :766px) {
+		.nav-chapter {
+			height: 60%;
+		}
+	}
+	@media ( min-height :900px) {
+		.nav-chapter {
+			height: 66%;
+		}
+		@media ( min-width : 1700px) {
+			.nav-chapter {
+				height: 72%;
+			}
+		}
+	}
+	@media ( min-height :1000px) {
+		.nav-chapter {
+			height: 72%;
+		}
+	}
+	@media ( min-height :1200px) {
+		.nav-chapter {
+			height: 78%;
+		}
+	}
 }

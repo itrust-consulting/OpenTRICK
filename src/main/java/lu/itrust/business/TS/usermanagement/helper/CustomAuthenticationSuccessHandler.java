@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.usermanagement.helper;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -9,13 +8,6 @@ import java.util.Locale;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,6 +17,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.LocaleResolver;
 
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.dao.DAOUser;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.usermanagement.User;
+
 /**
  * AuthenticationSuccessHandler.java: <br>
  * Detailed description...
@@ -33,54 +31,37 @@ import org.springframework.web.servlet.LocaleResolver;
  * @version
  * @since Sep 26, 2014
  */
+@Transactional
 @Component
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
 	@Autowired
-	private ServiceUser serviceUser;
+	private DAOUser daoUser;
 
 	@Autowired
 	private LocaleResolver localeResolver;
 
-	@Autowired
-	private ServiceLanguage serviceLanguage;
-
 	@Override
-	@Transactional
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-		UserDetails user = (UserDetails) authentication.getPrincipal();
-
 		try {
-
-			User myUser = serviceUser.get(user.getUsername());
-
-			Locale locale = null;
-
+			UserDetails user = (UserDetails) authentication.getPrincipal();
+			User myUser = daoUser.get(user.getUsername());
 			if (myUser.getLocale() == null) {
 				myUser.setLocale("en");
-				serviceUser.saveOrUpdate(myUser);
+				daoUser.saveOrUpdate(myUser);
 			}
-
-			locale = new Locale(myUser.getLocale());
-
-			localeResolver.setLocale(request, response, locale);
-
-			DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
-			Date date = new Date();
-			String stringdate = dateFormat.format(date);
+			localeResolver.setLocale(request, response, new Locale(myUser.getLocale()));
+			String stringdate = new SimpleDateFormat("MMM d, yyyy HH:mm:ss").format(new Date());
 			String remoteaddr = request.getHeader("X-FORWARDED-FOR");
 			if (remoteaddr == null)
 				remoteaddr = request.getRemoteAddr();
-			System.out.println(stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + request.getParameter("j_username") + "'! Requesting IP: "
-					+ remoteaddr);
-			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", request.getParameter("j_username"), remoteaddr),
-					request.getParameter("j_username"), LogAction.SIGN_IN, remoteaddr);
-
+			System.out.println(stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + user.getUsername() + "'! Requesting IP: " + remoteaddr);
+			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", user.getUsername(), remoteaddr), user.getUsername(),
+					LogAction.SIGN_IN, remoteaddr);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ServletException(e.getMessage());
+			TrickLogManager.Persist(e);
+		} finally {
+			super.onAuthenticationSuccess(request, response, authentication);
 		}
-
-		super.onAuthenticationSuccess(request, response, authentication);
 	}
 }

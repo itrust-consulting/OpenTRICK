@@ -9,21 +9,21 @@ import lu.itrust.business.TS.model.asset.AssetType;
  * Detailed description...
  *
  * @author smenghi, itrust consulting s.à.rl.
- * @version 
+ * @version
  * @since 16 janv. 2013
  */
 public interface DAOAssetType {
-	public AssetType get(Integer id) throws Exception;
+	public AssetType get(Integer id) ;
 
-	public AssetType getByName(String assetTypeName) throws Exception;
+	public AssetType getByName(String assetTypeName) ;
 
-	public List<AssetType> getAll() throws Exception;
+	public List<AssetType> getAll() ;
 
-	public List<AssetType> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<AssetType> getAllFromAnalysis(Integer idAnalysis) ;
 
-	public void save(AssetType assetType) throws Exception;
+	public void save(AssetType assetType) ;
 
-	public void saveOrUpdate(AssetType assetType) throws Exception;
+	public void saveOrUpdate(AssetType assetType) ;
 
-	public void delete(AssetType assetType) throws Exception;
+	public void delete(AssetType assetType) ;
 }

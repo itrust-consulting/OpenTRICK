@@ -7,13 +7,13 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane active" id="tabHistory">
 	<div class="section" id="section_history">
-		<table class="table table-hover table-fixed-header-analysis table-condensed">
+		<table class="table table-hover table-fixed-header-analysis table-condensed"  data-fh-scroll-multi="1.09">
 			<thead>
 				<tr>
-					<th style="width: 3%"><fmt:message key="label.history.version" /></th>
-					<th style="width: 5%"><fmt:message key="label.history.date" /></th>
-					<th style="width: 15%"><fmt:message key="label.history.author" /></th>
-					<th><fmt:message key="label.history.comment" /></th>
+					<th style="width: 6%"><spring:message code="label.history.version" /></th>
+					<th style="width: 6%"><spring:message code="label.history.date" /></th>
+					<th style="width: 15%"><spring:message code="label.history.author" /></th>
+					<th><spring:message code="label.history.comment" /></th>
 				</tr>
 			</thead>
 			<tbody>

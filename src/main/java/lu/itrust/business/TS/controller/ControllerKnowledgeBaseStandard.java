@@ -1,10 +1,11 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,36 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
-import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
-import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
-import lu.itrust.business.TS.database.service.ServiceStandard;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.model.standard.Standard;
-import lu.itrust.business.TS.model.standard.StandardType;
-import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureDescription;
-import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
-import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
-import lu.itrust.business.TS.validator.StandardValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
-
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -59,6 +31,7 @@ import org.hibernate.SessionFactory;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumn;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumns;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -75,6 +48,36 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerImportStandard;
+import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
+import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
+import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.StandardType;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureDescription;
+import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
+import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
+import lu.itrust.business.TS.validator.StandardValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
  * ControllerStandard.java: <br>
@@ -123,10 +126,10 @@ public class ControllerKnowledgeBaseStandard {
 	private CustomDelete customDelete;
 
 	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
 	private MeasureManager measureManager;
+
+	@Value("${app.settings.standard.template.path}")
+	private String template;
 
 	/**
 	 * displayAll: <br>
@@ -153,7 +156,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model) throws Exception {
 
 		// call default
@@ -199,7 +202,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 
 		// init errors list
@@ -224,7 +227,7 @@ public class ControllerKnowledgeBaseStandard {
 					TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.add", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
 							principal.getName(), LogAction.CREATE, standard.getLabel(), String.valueOf(standard.getVersion()));
 				} catch (Exception e) {
-					e.printStackTrace();
+					TrickLogManager.Persist(e);
 					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
 				}
 
@@ -234,12 +237,17 @@ public class ControllerKnowledgeBaseStandard {
 				if (tmpStandard == null)
 					errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
 				else if (!tmpStandard.isAnalysisOnly()) {
-					serviceStandard.saveOrUpdate(tmpStandard.update(standard));
-					/**
-					 * Log
-					 */
-					TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.update", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
-							principal.getName(), LogAction.UPDATE, standard.getLabel(), String.valueOf(standard.getVersion()));
+
+					if (!tmpStandard.getType().equals(standard.getType()) && serviceStandard.isUsed(tmpStandard))
+						errors.put("type", messageSource.getMessage("error.norm.type.update", null, "Standard is in use, type cannot be updated!", locale));
+					else {
+						serviceStandard.saveOrUpdate(tmpStandard.update(standard));
+						/**
+						 * Log
+						 */
+						TrickLogManager.Persist(LogType.ANALYSIS, "log.standard.update", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
+								principal.getName(), LogAction.UPDATE, standard.getLabel(), String.valueOf(standard.getVersion()));
+					}
 				} else
 					errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
 							"This standard can only be managed within the selected analysis where this standard belongs!", locale));
@@ -248,8 +256,8 @@ public class ControllerKnowledgeBaseStandard {
 			// errors
 		} catch (Exception e) {
 			// return errors
-			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -263,7 +271,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, Locale locale) throws Exception {
 
 		try {
@@ -282,16 +290,27 @@ public class ControllerKnowledgeBaseStandard {
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Standard was deleted successfully", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error message
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			String[] parts = e.getMessage().split(":");
 			String code = parts[0];
 			String defaultmessage = parts[1];
 			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
 		}
+	}
+
+	@RequestMapping(value="/Template", method = RequestMethod.GET)
+	public void downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		File templateFile = new File(request.getServletContext().getRealPath(template));
+		if (!(templateFile.exists() && templateFile.isFile()))
+			throw new ResourceNotFoundException();
+		response.setContentLength((int) templateFile.length());
+		response.setContentType(FilenameUtils.getExtension(template));
+		response.setHeader("Content-Disposition", "attachment; filename=\"Template.xlsx\"");
+		Files.copy(templateFile.toPath(), response.getOutputStream());
 	}
 
 	/**
@@ -301,7 +320,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String uploadStandard() throws Exception {
 		return "knowledgebase/standards/standard/uploadForm";
 	}
@@ -318,7 +337,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8,method=RequestMethod.POST)
 	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
@@ -344,7 +363,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/{idStandard}", headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Export/{idStandard}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response)
 			throws Exception {
 
@@ -353,262 +372,267 @@ public class ControllerKnowledgeBaseStandard {
 		if (standard == null)
 			return "404";
 
-		InputStream templateFile = new FileInputStream(request.getServletContext().getRealPath("/WEB-INF/data") + "/TL_TRICKService_NormImport_V1.1.xlsx");
-		@SuppressWarnings("resource")
-		XSSFWorkbook workbook = new XSSFWorkbook(templateFile);
-		templateFile.close();
+		XSSFWorkbook workbook = null;
 
-		XSSFSheet sheet = null;
-		XSSFTable table = null;
+		try {
 
-		/**
-		 * Standard
-		 */
+			workbook = new XSSFWorkbook(request.getServletContext().getRealPath(template));
 
-		sheet = workbook.getSheet("NormInfo");
+			XSSFSheet sheet = null;
+			XSSFTable table = null;
 
-		for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+			/**
+			 * Standard
+			 */
 
-			table = sheet.getTables().get(indexTable);
+			sheet = workbook.getSheet("NormInfo");
 
-			if (table.getName().equals("TableNormInfo")) {
-				break;
+			for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+
+				table = sheet.getTables().get(indexTable);
+
+				if (table.getName().equals("TableNormInfo")) {
+					break;
+				}
 			}
-		}
 
-		int row, namecol, versioncol, desccol, computablecol;
+			int row, namecol, versioncol, desccol, computablecol;
 
-		namecol = table.getStartCellReference().getCol();
-		versioncol = namecol + 1;
-		desccol = versioncol + 1;
-		computablecol = table.getEndCellReference().getCol();
-		row = table.getStartCellReference().getRow() + 1;
+			namecol = table.getStartCellReference().getCol();
+			versioncol = namecol + 1;
+			desccol = versioncol + 1;
+			computablecol = table.getEndCellReference().getCol();
+			row = table.getStartCellReference().getRow() + 1;
 
-		XSSFCell cell = null;
+			XSSFCell cell = null;
 
-		// standard name
-		cell = sheet.getRow(row).getCell(namecol);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
-		cell.setCellValue(standard.getLabel());
-
-		// standard version
-		cell = sheet.getRow(row).getCell(versioncol);
-		cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-		cell.setCellValue(standard.getVersion());
-
-		// standard description
-		cell = sheet.getRow(row).getCell(desccol);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
-		cell.setCellValue(standard.getDescription());
-
-		// standard computable
-		cell = sheet.getRow(row).getCell(computablecol);
-		cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
-		cell.setCellValue(standard.isComputable());
-
-		/**
-		 * Measures
-		 */
-
-		sheet = workbook.getSheet("NormData");
-
-		for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-
-			table = sheet.getTables().get(indexTable);
-
-			if (table.getName().equals("TableNormData")) {
-				break;
-			}
-		}
-
-		List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
-
-		int levelcol, referencecol;
-		levelcol = 0;
-		referencecol = 1;
-		computablecol = 2;
-
-		List<Language> languages = serviceLanguage.getAll();
-
-		int headerRow = 0;
-
-		XSSFRow sheetrow = sheet.getRow(headerRow);
-		XSSFCellStyle headerStyle = sheetrow.getCell(0).getCellStyle();
-
-		int colnumber = 0;
-
-		cell = sheetrow.getCell(colnumber);
-		if (cell == null) {
-			cell = sheetrow.createCell(colnumber);
-		}
-		cell.setCellValue("Level");
-		cell.setCellStyle(headerStyle);
-
-		colnumber++;
-
-		cell = sheetrow.getCell(colnumber);
-		if (cell == null) {
-			cell = sheetrow.createCell(colnumber);
-		}
-		cell.setCellValue("Reference");
-		cell.setCellStyle(headerStyle);
-		colnumber++;
-
-		cell = sheetrow.getCell(colnumber);
-		if (cell == null) {
-			cell = sheetrow.createCell(colnumber);
-		}
-		cell.setCellValue("Computable");
-		cell.setCellStyle(headerStyle);
-		colnumber++;
-
-		for (Language language : languages) {
-
-			XSSFCell domaincell = sheetrow.getCell(colnumber);
-			XSSFCell desccell = sheetrow.getCell(colnumber + 1);
-
-			if (domaincell == null) {
-				domaincell = sheetrow.createCell(colnumber);
-			}
-			domaincell.setCellValue("Domain_" + language.getAlpha3());
-			domaincell.setCellStyle(headerStyle);
-
-			if (desccell == null) {
-				desccell = sheetrow.createCell(colnumber + 1);
-			}
-			desccell.setCellValue("Description_" + language.getAlpha3());
-			desccell.setCellStyle(headerStyle);
-			colnumber = colnumber + 2;
-		}
-
-		CellReference ref1 = table.getStartCellReference();
-
-		// update the table. coumn headers must match the corresponding cells in
-		// the sheet
-		CTTableColumns cols = table.getCTTable().getTableColumns();
-		cols.setTableColumnArray(null);
-		cols.setCount(colnumber);
-		CTTableColumn col = cols.addNewTableColumn();
-		col.setName("domain");
-		col.setId(4);
-		for (int i = 4; i < colnumber; i++) {
-			col = cols.addNewTableColumn();
-			col.setName(sheetrow.getCell(i).getRawValue());
-			col.setId(i + 1);
-		}
-
-		// update the "ref" attribute
-		table.getCTTable().setRef(new CellRangeAddress((ref1.getRow()), measuredescriptions.size(), (ref1.getCol()), colnumber).formatAsString());
-
-		// System.out.println("Rows: ("+(ref1.getRow()+1)
-		// +":"+measuredescriptions.size()+"):::Cols: ("+ (ref1.getCol()+1) +
-		// ":"+ colnumber +")");
-
-		row = 1;
-
-		for (MeasureDescription measuredescription : measuredescriptions) {
-
-			sheetrow = sheet.getRow(row);
-			cell = sheetrow.getCell(levelcol);
-			if (cell == null)
-				cell = sheetrow.createCell(levelcol);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-			cell.setCellValue(measuredescription.getLevel());
-
-			cell = sheet.getRow(row).getCell(referencecol);
-			if (cell == null)
-				cell = sheetrow.createCell(referencecol);
+			// standard name
+			cell = sheet.getRow(row).getCell(namecol);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue(measuredescription.getReference());
+			cell.setCellValue(standard.getLabel());
 
+			// standard version
+			cell = sheet.getRow(row).getCell(versioncol);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(standard.getVersion());
+
+			// standard description
+			cell = sheet.getRow(row).getCell(desccol);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(standard.getDescription());
+
+			// standard computable
 			cell = sheet.getRow(row).getCell(computablecol);
-			if (cell == null)
-				cell = sheetrow.createCell(computablecol);
 			cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
-			cell.setCellValue(measuredescription.isComputable());
+			cell.setCellValue(standard.isComputable());
 
-			int domaincol = computablecol + 1;
+			/**
+			 * Measures
+			 */
 
-			int descriptioncol = domaincol + 1;
+			sheet = workbook.getSheet("NormData");
+
+			for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+
+				table = sheet.getTables().get(indexTable);
+
+				if (table.getName().equals("TableNormData")) {
+					break;
+				}
+			}
+
+			List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
+
+			int levelcol, referencecol;
+			levelcol = 0;
+			referencecol = 1;
+			computablecol = 2;
+
+			List<Language> languages = serviceLanguage.getAll();
+
+			int headerRow = 0;
+
+			XSSFRow sheetrow = sheet.getRow(headerRow);
+			XSSFCellStyle headerStyle = sheetrow.getCell(0).getCellStyle();
+
+			int colnumber = 0;
+
+			cell = sheetrow.getCell(colnumber);
+			if (cell == null) {
+				cell = sheetrow.createCell(colnumber);
+			}
+			cell.setCellValue("Level");
+			cell.setCellStyle(headerStyle);
+
+			colnumber++;
+
+			cell = sheetrow.getCell(colnumber);
+			if (cell == null) {
+				cell = sheetrow.createCell(colnumber);
+			}
+			cell.setCellValue("Reference");
+			cell.setCellStyle(headerStyle);
+			colnumber++;
+
+			cell = sheetrow.getCell(colnumber);
+			if (cell == null) {
+				cell = sheetrow.createCell(colnumber);
+			}
+			cell.setCellValue("Computable");
+			cell.setCellStyle(headerStyle);
+			colnumber++;
 
 			for (Language language : languages) {
 
-				MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
+				XSSFCell domaincell = sheetrow.getCell(colnumber);
+				XSSFCell desccell = sheetrow.getCell(colnumber + 1);
 
-				String domain = "";
+				if (domaincell == null) {
+					domaincell = sheetrow.createCell(colnumber);
+				}
+				domaincell.setCellValue("Domain_" + language.getAlpha3());
+				domaincell.setCellStyle(headerStyle);
 
-				String description = "";
+				if (desccell == null) {
+					desccell = sheetrow.createCell(colnumber + 1);
+				}
+				desccell.setCellValue("Description_" + language.getAlpha3());
+				desccell.setCellStyle(headerStyle);
+				colnumber = colnumber + 2;
+			}
 
-				if (measureDescriptionText != null) {
-					domain = measureDescriptionText.getDomain();
-					description = measureDescriptionText.getDescription();
+			CellReference ref1 = table.getStartCellReference();
+
+			// update the table. coumn headers must match the corresponding
+			// cells in
+			// the sheet
+			CTTableColumns cols = table.getCTTable().getTableColumns();
+			cols.setTableColumnArray(null);
+			cols.setCount(colnumber);
+			CTTableColumn col = cols.addNewTableColumn();
+			col.setName("domain");
+			col.setId(4);
+			for (int i = 4; i < colnumber; i++) {
+				col = cols.addNewTableColumn();
+				col.setName(sheetrow.getCell(i).getRawValue());
+				col.setId(i + 1);
+			}
+
+			// update the "ref" attribute
+			table.getCTTable().setRef(new CellRangeAddress((ref1.getRow()), measuredescriptions.size(), (ref1.getCol()), colnumber).formatAsString());
+
+			// System.out.println("Rows: ("+(ref1.getRow()+1)
+			// +":"+measuredescriptions.size()+"):::Cols: ("+ (ref1.getCol()+1)
+			// +
+			// ":"+ colnumber +")");
+
+			row = 1;
+
+			for (MeasureDescription measuredescription : measuredescriptions) {
+
+				sheetrow = sheet.getRow(row);
+				cell = sheetrow.getCell(levelcol);
+				if (cell == null)
+					cell = sheetrow.createCell(levelcol);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(measuredescription.getLevel());
+
+				cell = sheet.getRow(row).getCell(referencecol);
+				if (cell == null)
+					cell = sheetrow.createCell(referencecol);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(measuredescription.getReference());
+
+				cell = sheet.getRow(row).getCell(computablecol);
+				if (cell == null)
+					cell = sheetrow.createCell(computablecol);
+				cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+				cell.setCellValue(measuredescription.isComputable());
+
+				int domaincol = computablecol + 1;
+
+				int descriptioncol = domaincol + 1;
+
+				for (Language language : languages) {
+
+					MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
+
+					String domain = "";
+
+					String description = "";
+
+					if (measureDescriptionText != null) {
+						domain = measureDescriptionText.getDomain();
+						description = measureDescriptionText.getDescription();
+					}
+
+					cell = sheet.getRow(row).getCell(domaincol);
+					if (cell == null)
+						cell = sheetrow.createCell(domaincol);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(domain);
+					// System.out.println("Domaincol: "+domaincol);
+					domaincol++;
+					domaincol++;
+
+					cell = sheet.getRow(row).getCell(descriptioncol);
+					if (cell == null)
+						cell = sheetrow.createCell(descriptioncol);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(description);
+					// System.out.println("Desccol: "+descriptioncol);
+					descriptioncol++;
+					descriptioncol++;
+
 				}
 
-				cell = sheet.getRow(row).getCell(domaincol);
-				if (cell == null)
-					cell = sheetrow.createCell(domaincol);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(domain);
-				// System.out.println("Domaincol: "+domaincol);
-				domaincol++;
-				domaincol++;
+				row = row + 1;
 
-				cell = sheet.getRow(row).getCell(descriptioncol);
-				if (cell == null)
-					cell = sheetrow.createCell(descriptioncol);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(description);
-				// System.out.println("Desccol: "+descriptioncol);
-				descriptioncol++;
-				descriptioncol++;
+				sheet.createRow(row);
 
 			}
 
-			row = row + 1;
+			/**
+			 * Output
+			 */
 
-			sheet.createRow(row);
+			ByteArrayOutputStream standardFile = new ByteArrayOutputStream();
 
+			workbook.write(standardFile);
+
+			String identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion();
+
+			// return standardFile to user
+
+			// set response contenttype to sqlite
+			response.setContentType("xlsx");
+
+			// set sqlite file size as response size
+			response.setContentLength(standardFile.size());
+
+			// set response header with location of the filename
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
+
+			// return the sqlite file (as copy) to the response outputstream (
+			// whihc
+			// creates on the
+			// client side the sqlite file)
+
+			response.getOutputStream().write(standardFile.toByteArray());
+
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.standard",
+					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()), principal.getName(), LogAction.EXPORT, standard.getLabel(),
+					String.valueOf(standard.getVersion()));
+			// return
+			return null;
+		} finally {
+			if (workbook != null)
+				workbook.close();
 		}
 
-		/**
-		 * Output
-		 */
-
-		ByteArrayOutputStream standardFile = new ByteArrayOutputStream();
-		workbook.write(standardFile);
-
-		int length = standardFile.size();
-
-		String identifierName = "";
-
-		identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion() + "_V1.1";
-
-		// return standardFile to user
-
-		// set response contenttype to sqlite
-		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-		// set sqlite file size as response size
-		response.setContentLength(length);
-
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + (identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".xlsx\"");
-
-		// return the sqlite file (as copy) to the response outputstream ( whihc
-		// creates on the
-		// client side the sqlite file)
-		OutputStream out = response.getOutputStream();
-
-		out.write(standardFile.toByteArray());
-
-		/**
-		 * Log
-		 */
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.standard", String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
-				principal.getName(), LogAction.EXPORT, standard.getLabel(), String.valueOf(standard.getVersion()));
-
-		// return
-		return null;
 	}
 
 	/**
@@ -642,22 +666,16 @@ public class ControllerKnowledgeBaseStandard {
 			// parse measuredescriptions and remove texts to add only selected
 			// language text
 			for (MeasureDescription mesDesc : mesDescs) {
-
 				mesDesc.setMeasureDescriptionTexts(new ArrayList<MeasureDescriptionText>());
-
 				// load only from language
 				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
-
 				// check if not null
 				if (mesDescText == null) {
-
 					// create new empty descriptiontext with language
 					mesDescText = new MeasureDescriptionText();
 					mesDescText.setLanguage(lang);
 				}
-
 				mesDesc.addMeasureDescriptionText(mesDescText);
-
 				// System.out.println(mesDescText.getDomain() + "::" +
 				// mesDescText.getDescription());
 
@@ -669,7 +687,7 @@ public class ControllerKnowledgeBaseStandard {
 			model.addAttribute("standard", serviceStandard.get(idStandard));
 			model.addAttribute("measureDescriptions", mesDescs);
 		}
-		return "knowledgebase/standards/measure/measures";
+		return "knowledgebase/standards/measure/section";
 	}
 
 	/**
@@ -812,7 +830,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/{idStandard}/Measures/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idStandard}/Measures/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@PathVariable("idStandard") int idStandard, @RequestBody String value, Locale locale) {
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -823,11 +841,11 @@ public class ControllerKnowledgeBaseStandard {
 
 			// retrieve measure id
 			int id = jsonNode.get("id").asInt();
-
+			boolean isNew = false;
 			// create new empty measuredescription object
 			MeasureDescription measureDescription = serviceMeasureDescription.get(id);
 
-			if (measureDescription == null) {
+			if ((isNew = measureDescription == null)) {
 				// retrieve standard
 				measureDescription = new MeasureDescription();
 				Standard standard = serviceStandard.get(idStandard);
@@ -838,9 +856,10 @@ public class ControllerKnowledgeBaseStandard {
 				errors.put("measureDescription.norm",
 						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
-			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale)) {
-				serviceMeasureDescription.saveOrUpdate(measureDescription);
-				measureManager.createNewMeasureForAllAnalyses(measureDescription);
+			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, jsonNode, locale)) {
+				if (isNew)
+					measureManager.createNewMeasureForAllAnalyses(measureDescription);
+				else serviceMeasureDescription.saveOrUpdate(measureDescription);
 			}
 
 			// System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");
@@ -852,8 +871,8 @@ public class ControllerKnowledgeBaseStandard {
 		catch (Exception e) {
 
 			// return errors
-			errors.put("measuredescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("measuredescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 
@@ -869,7 +888,7 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{idStandard}/Measures/Delete/{idMeasure}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idStandard}/Measures/Delete/{idMeasure}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale) {
 		try {
 			// try to delete measure
@@ -881,7 +900,7 @@ public class ControllerKnowledgeBaseStandard {
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
@@ -896,8 +915,8 @@ public class ControllerKnowledgeBaseStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
+	@RequestMapping(value = "/{idStandard}/Measures/Force/Delete/{idMeasureDescription}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String forceDeleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasureDescription") int idMeasureDescription,
 			Principal principal, Locale locale) {
 		try {
@@ -907,7 +926,7 @@ public class ControllerKnowledgeBaseStandard {
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
@@ -922,13 +941,11 @@ public class ControllerKnowledgeBaseStandard {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildMeasureDescription(Map<String, String> errors, MeasureDescription measuredescription, String source, Locale locale) {
+	private boolean buildMeasureDescription(Map<String, String> errors, MeasureDescription measuredescription, JsonNode jsonNode, Locale locale) {
 		try {
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
 
 			String reference = jsonNode.get("reference").asText();
+
 			Integer level = null;
 			Boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
 			try {
@@ -946,6 +963,7 @@ public class ControllerKnowledgeBaseStandard {
 			if (error != null)
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
+				reference = reference.trim();
 				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
 					errors.put("measuredescription.reference",
 							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
@@ -958,8 +976,7 @@ public class ControllerKnowledgeBaseStandard {
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
 			else if (!errors.containsKey("measuredescription.reference")) {
-
-				if (reference.split("\\.").length != level)
+				if (reference.split(Constant.REGEX_SPLIT_REFERENCE).length != level)
 					errors.put("measuredescription.level",
 							messageSource.getMessage("error.measure_description.level.not.match.reference", null, "The level and the reference do not match.", locale));
 				else
@@ -1027,8 +1044,8 @@ public class ControllerKnowledgeBaseStandard {
 		} catch (Exception e) {
 
 			// return error message
-			errors.put("measureDescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("measureDescription",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
@@ -1070,7 +1087,7 @@ public class ControllerKnowledgeBaseStandard {
 			try {
 				version = jsonNode.get("version").asInt();
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
 
 			// check if standard has to be updated
@@ -1116,10 +1133,9 @@ public class ControllerKnowledgeBaseStandard {
 
 		} catch (Exception e) {
 			// return error
-			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("standard",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return false;
 		}
 	}
-
 }

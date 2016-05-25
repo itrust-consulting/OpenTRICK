@@ -3,6 +3,7 @@ package lu.itrust.business.TS.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 public class TrickService {
 
 	/** database ID */
-	@Id @GeneratedValue 
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="idTrickService")
 	private int id = -1;
 	
@@ -29,7 +31,7 @@ public class TrickService {
 	
 	@Column(name="dtInstalled", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean installed = false;
-
+	
 	/**
 	 * Constructor: <br>
 	 */

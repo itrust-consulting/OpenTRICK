@@ -16,28 +16,28 @@ import lu.itrust.business.TS.model.standard.Standard;
  */
 public interface DAOAnalysisStandard {
 	
-	public AnalysisStandard get(Integer id) throws Exception;
+	public AnalysisStandard get(Integer id) ;
 
-	public List<AnalysisStandard> getAll() throws Exception;
+	public List<AnalysisStandard> getAll() ;
 
-	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId) throws Exception;
+	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId) ;
 
-	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId) throws Exception;
+	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId) ;
 	
-	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception;
+	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) ;
 
-	public List<AnalysisStandard> getAllFromStandard(Standard standard) throws Exception;
+	public List<AnalysisStandard> getAllFromStandard(Standard standard) ;
 	
-	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) throws Exception;
+	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) ;
 
-	public void deleteAllFromAnalysis(Integer analysisId) throws Exception;
+	public void deleteAllFromAnalysis(Integer analysisId) ;
 	
-	public void save(AnalysisStandard analysisStandard) throws Exception;
+	public void save(AnalysisStandard analysisStandard) ;
 
-	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception;
+	public void saveOrUpdate(AnalysisStandard analysisStandard) ;
 
-	public void delete(AnalysisStandard analysisStandard) throws Exception;
-	
+	public void delete(AnalysisStandard analysisStandard) ;
+
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard);
 
 	public boolean belongsToAnalysis(Integer idAnalysis, int id);

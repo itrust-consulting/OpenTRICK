@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -15,6 +16,7 @@ import lu.itrust.business.TS.model.actionplan.helper.TMA;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.Phase;
@@ -36,6 +38,7 @@ import lu.itrust.business.expressions.StringExpressionParser;
  * @author itrust consulting s.�.rl. : BJA, EOM, SME, SMU
  * @version 0.1
  * @since 11 d�c. 2012
+ * @deprecated by {@link RiskSheetComputation}
  */
 public class RiskRegisterComputation {
 
@@ -124,15 +127,13 @@ public class RiskRegisterComputation {
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis), this.analysis.getParameters(), this.analysis.getExpressionParameters()));
 
 			// print risk register into console
-			printRegister(this.analysis.getRiskRegisters());
-
+			//printRegister(this.analysis.getRiskRegisters());
 			return null;
-
 		} catch (Exception e) {
 
 			// print error message
 			System.out.println("Risk Register calculation and saving failed!");
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 
 			return new MessageHandler(e);
 		}
@@ -162,12 +163,12 @@ public class RiskRegisterComputation {
 		// print each risk register item
 		for (RiskRegisterItem registerItem : registers) {
 			System.out.println("--------------------------------------------------------------------" + "----------------------------------------");
-			System.out.print(registerItem.getId() + " | " + registerItem.getPosition() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId() + " | "
+			System.out.print(registerItem.getId() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId() + " | "
 				+ registerItem.getScenario().getType().getName() + " | " + registerItem.getScenario().getName());
 			printRiskRegisterItem(registerItem.getRawEvaluation());
 			printRiskRegisterItem(registerItem.getNetEvaluation());
-			printRiskRegisterItem(registerItem.getExpectedImportance());
-			System.out.print(" | " + registerItem.getStrategy() + "\n");
+			printRiskRegisterItem(registerItem.getExpectedEvaluation());
+			System.out.println();
 		}
 	}
 
@@ -404,11 +405,11 @@ public class RiskRegisterComputation {
 	 */
 	protected static Map<String, Impact> computeImpactGeneric(final List<Assessment> assessments, final List<Parameter> parameters) {
 
-		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
+		Map<String, ExtendedParameter> mapParameters = new LinkedHashMap<>();
 
 		for (Parameter parameter : parameters)
 			if ((parameter instanceof ExtendedParameter) && parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
+				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), (ExtendedParameter) parameter);
 
 		// initialise the result (which is an Array where each Entry is defined by the Scenario ID
 		// and the Sum of Impacts of each Impact Category)
@@ -490,11 +491,11 @@ public class RiskRegisterComputation {
 	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments, final List<Parameter> parameters, final List<AcronymParameter> expressionParameters)
 			throws TrickException {
 
-		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
+		Map<String, ExtendedParameter> mapParameters = new LinkedHashMap<>();
 
 		for (Parameter parameter : parameters)
 			if ((parameter instanceof ExtendedParameter))
-				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
+				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), (ExtendedParameter)parameter);
 
 		// initialise the risk register with the size of elements inside the impacts list
 		Map<String, RiskRegisterItem> riskRegisters = new HashMap<String, RiskRegisterItem>(impacts.size());
@@ -688,7 +689,7 @@ public class RiskRegisterComputation {
 	 * @param expressionParameters All parameters of the analysis which shall be taken into consideration when evaluating expressions for likelihood.
 	 * @return
 	 */
-	private static double computeALE(Map<String, Impact> impacts, Assessment assessment, Map<String, Parameter> extendedParameters, List<AcronymParameter> expressionParameters) {
+	private static double computeALE(Map<String, Impact> impacts, Assessment assessment, Map<String, ExtendedParameter> extendedParameters, List<AcronymParameter> expressionParameters) {
 
 		String key = assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
 		int index = getMaxImpactCode(impacts.get(key));
@@ -812,11 +813,11 @@ public class RiskRegisterComputation {
 	private static void computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(Map<String, double[]> probabilityRelativeImpacts, Map<String, Impact> impacts, Map<String, Double> rawALEs,
 			Map<String, Double> deltaALEs, final Map<String, Double> netALEs, final List<TMA> tmas, final List<Parameter> allParameters, final List<AcronymParameter> expressionParameters) throws TrickException {
 
-		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
+		Map<String, ExtendedParameter> mapParameters = new LinkedHashMap<>();
 
 		for (Parameter parameter : allParameters)
 			if ((parameter instanceof ExtendedParameter))
-				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
+				mapParameters.put(((ExtendedParameter) parameter).getAcronym(), (ExtendedParameter) parameter);
 
 		// parse all TMA entries
 		for (TMA tma : tmas) {
@@ -1091,7 +1092,7 @@ public class RiskRegisterComputation {
 		double importanceNet = riskRegisters.getNetEvaluation().getImportance();
 
 		if (deltaALE == null) {
-			riskRegisters.setExpectedImportance(new EvaluationResult(netProbability, netImpact));
+			riskRegisters.setExpectedEvaluation(new EvaluationResult(netProbability, netImpact));
 			return;
 		}
 
@@ -1122,14 +1123,14 @@ public class RiskRegisterComputation {
 		 */
 
 		if (expImportance < 0) {
-			riskRegisters.setExpectedImportance(new EvaluationResult(0, 0));
+			riskRegisters.setExpectedEvaluation(new EvaluationResult(0, 0));
 			System.err.println("Expected importance " + expImportance + "<0 for " + riskRegisters.getScenario().getName());
 		} else {
 			// computation of proportional strength
 			double x = probabilityRelativeImpact[0] / probabilityRelativeImpact[1];
 
 			// update expected importance
-			riskRegisters.setExpectedImportance(computeImpactAndProbability(x, netImpact, netProbability, expImportance));
+			riskRegisters.setExpectedEvaluation(computeImpactAndProbability(x, netImpact, netProbability, expImportance));
 		}
 	}
 

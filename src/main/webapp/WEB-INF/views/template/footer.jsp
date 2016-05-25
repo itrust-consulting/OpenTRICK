@@ -3,23 +3,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set var="url">
-	<%=request.getAttribute("javax.servlet.forward.request_uri")%>
-</c:set>
 <div id="footer" class="navbar navbar-inverse navbar-fixed-bottom" style="height: 30px; min-height: 30px">
 	<div class="container" style="height: 100%;">
 		<spring:eval expression="T(java.util.Calendar).YEAR" var="YEAR" />
 		<spring:eval expression="T(java.util.Calendar).getInstance().get(YEAR)" var="year" />
-		<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" />
+		<c:if test="${empty locale }">
+			<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" />
+		</c:if>
 		<c:set var="copyRight">
-			<spring:message code="label.copy_right.text" text="2007-${year} itrust consulting - All Rights Reserved" />
+			<spring:message code="label.copy_right.text" text="2015-${year} itrust consulting - All Rights Reserved" />
 		</c:set>
-		<c:set var="persiteParameter">
-			?
-			<c:if test="${isReadOnly}">
-				readOnly=true&
-			</c:if>
-		</c:set>
+		<c:set var="persiteParameter" value="?${not empty open? 'open='.concat(open.value.concat('&')):'' }" />
 		<div class="pull-left" style="width: 25%;">
 			<c:choose>
 				<c:when test="${locale.language=='en'}">
@@ -36,8 +30,7 @@
 		</div>
 		<div style="color: white; text-align: center; width: 50%; margin: 0 auto; margin-top: 5px; float: left;">&copy; ${fn:replace(copyRight,'{0}',year)}</div>
 		<div class="pull-right" style="color: white; float: right; width: 25%; text-align: right; margin-top: 5px;">
-			v
-			<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" />
+			v<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" />
 		</div>
 	</div>
 </div>

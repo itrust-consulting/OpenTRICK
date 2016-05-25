@@ -8,11 +8,11 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.exception.TrickException;
@@ -40,21 +40,13 @@ import lu.itrust.business.TS.model.scenario.Scenario;
 @Table(name = "RiskRegister", uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiAsset", "fiScenario" }))
 public class RiskRegisterItem {
 
-	private static final String REDUCE_VALUE = "reduce";
-
-	private static final String SHRINK_OLD_REDUCE_VALUE = "Shrink";
-
-	/** Regular Expression for Strategy */
-	@Transient
-	public static final String REGEX_STRATEGY = "accept|reduce|transfer|avoid";
-
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
 	/** Identifier */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idRiskRegisterItem")
 	private int id = -1;
 
@@ -68,10 +60,6 @@ public class RiskRegisterItem {
 	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
 	private Asset asset = null;
-
-	/** Position in the RiskRegister */
-	@Column(name = "dtOrder", nullable = false)
-	private int position = 0;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
@@ -95,13 +83,7 @@ public class RiskRegisterItem {
 			@AttributeOverride(name = "probability", column = @Column(name = "dtExpEvaluationProbability", nullable = false)),
 			@AttributeOverride(name = "importance", column = @Column(name = "dtExpEvaluationImportance", nullable = false)) })
 	@Access(AccessType.FIELD)
-	private EvaluationResult expectedImportance = null;
-
-	/** Strategy */
-	@Column(name = "dtResponseStrategy", nullable = false)
-	private String strategy = REDUCE_VALUE;
-
-	private String owner = "";
+	private EvaluationResult expectedEvaluation = null;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -114,7 +96,7 @@ public class RiskRegisterItem {
 	 */
 	public RiskRegisterItem() throws TrickException {
 		rawEvaluation = new EvaluationResult(0, 0);
-		expectedImportance = new EvaluationResult(0, 0);
+		expectedEvaluation = new EvaluationResult(0, 0);
 		netEvaluation = new EvaluationResult(0, 0);
 	}
 
@@ -129,7 +111,7 @@ public class RiskRegisterItem {
 		this.setScenario(scenario);
 		this.setAsset(asset);
 		rawEvaluation = new EvaluationResult(0, 0);
-		expectedImportance = new EvaluationResult(0, 0);
+		expectedEvaluation = new EvaluationResult(0, 0);
 		netEvaluation = new EvaluationResult(0, 0);
 	}
 
@@ -156,27 +138,6 @@ public class RiskRegisterItem {
 	 */
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	/**
-	 * getPosition: <br>
-	 * Returns the "position" field Value.
-	 * 
-	 * @return The Postion inside the List
-	 */
-	public int getPosition() {
-		return position;
-	}
-
-	/**
-	 * setPosition: <br>
-	 * Sets the field "position" with a value.
-	 * 
-	 * @param position
-	 *            The Value to set the Position
-	 */
-	public void setPosition(int position) {
-		this.position = position;
 	}
 
 	/**
@@ -248,58 +209,25 @@ public class RiskRegisterItem {
 	}
 
 	/**
-	 * getExpectedImportance: <br>
-	 * Returns the "expectedImportance" field Object.
+	 * getExpectedEvaluation: <br>
+	 * Returns the "expectedEvaluation" field Object.
 	 * 
 	 * @return The Expected Evaluation Object (With Probability - Impact -
 	 *         Importance)
 	 */
-	public EvaluationResult getExpectedImportance() {
-		return expectedImportance;
+	public EvaluationResult getExpectedEvaluation() {
+		return expectedEvaluation;
 	}
 
 	/**
-	 * setExpectedImportance: <br>
-	 * Sets the field "expectedImportance" with a Object.
+	 * setExpectedEvaluation: <br>
+	 * Sets the field "expectedEvaluation" with a Object.
 	 * 
-	 * @param expectedImportance
+	 * @param expectedEvaluation
 	 *            The Expected Evaluation Object to set
 	 */
-	public void setExpectedImportance(EvaluationResult expectedImportance) {
-		this.expectedImportance = expectedImportance;
-	}
-
-	/**
-	 * getStrategy: <br>
-	 * Returns the "strategy" field Value.
-	 * 
-	 * @return The Strategy
-	 */
-	public String getStrategy() {
-		return strategy;
-	}
-
-	/**
-	 * setStrategy: <br>
-	 * Sets the field "strategy" with a value.
-	 * 
-	 * @param strategy
-	 *            The Strategy to set
-	 * @throws TrickException
-	 */
-	public void setStrategy(String strategy) throws TrickException {
-
-		if (SHRINK_OLD_REDUCE_VALUE.equalsIgnoreCase(strategy))
-			strategy = REDUCE_VALUE;
-		else if (strategy == null || !strategy.matches(REGEX_STRATEGY)) // check
-																		// if
-																		// strategy
-																		// is
-																		// Shrink
-																		// or
-																		// Accepted
-			throw new TrickException("error.risk_register.strategy.empty", "Strategy is not valid");
-		this.strategy = strategy;
+	public void setExpectedEvaluation(EvaluationResult expectedEvaluation) {
+		this.expectedEvaluation = expectedEvaluation;
 	}
 
 	public Asset getAsset() {
@@ -310,21 +238,56 @@ public class RiskRegisterItem {
 		this.asset = asset;
 	}
 
-	public String getOwner() {
-		return owner;
-	}
-
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
-
 	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {
 		if (riskRegister != null) {
-			this.position = riskRegister.position;
-			this.expectedImportance = riskRegister.expectedImportance;
+			this.expectedEvaluation = riskRegister.expectedEvaluation;
 			this.netEvaluation = riskRegister.netEvaluation;
 			this.rawEvaluation = riskRegister.rawEvaluation;
 		}
 		return this;
+	}
+
+	public Boolean is(int idAsset, int idScenario) {
+		return asset.getId() == idAsset && scenario.getId() == idScenario;
+	}
+	
+	/**
+	 * @return key
+	 * @see #key
+	 */
+	public String getKey() {
+		return key(asset, scenario);
+	}
+
+	/**
+	 * @return key
+	 * @see #keyName
+	 */
+	public String getKeyName() {
+		return keyName(asset, scenario);
+	}
+
+	/**
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @return asset.id+"^ID-'RISK_PROFILE'-ID^"+scenario.id
+	 */
+	public static String key(Asset asset, Scenario scenario) {
+		return asset.getId() + "^ID-'RISK_REGISTER'-ID^" + scenario.getId();
+	}
+
+	/**
+	 * 
+	 * @param asset
+	 * @param scenario
+	 * @return asset.getName()+"^NAME-'RISK_PROFILE'-NAME^"+scenario.getName()
+	 */
+	public static String keyName(Asset asset, Scenario scenario) {
+		return asset.getName() + "^NAME-'RISK_REGISTER'-NAME^" + scenario.getName();
+	}
+
+	public boolean isCompliant(double impact, double probability) {
+		return netEvaluation.getImpact() >= impact && netEvaluation.getProbability() >= probability;
 	}
 }

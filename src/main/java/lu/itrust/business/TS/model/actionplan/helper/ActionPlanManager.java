@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
@@ -47,10 +48,10 @@ public class ActionPlanManager {
 				assets.add(apa.getAsset());
 			return assets;
 		} catch (TrickException e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 	}
@@ -73,7 +74,7 @@ public class ActionPlanManager {
 
 			return apassets;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 	}

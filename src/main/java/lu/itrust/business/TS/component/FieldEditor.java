@@ -8,13 +8,13 @@ package lu.itrust.business.TS.component;
  *
  */
 public class FieldEditor {
-	
+
 	private Integer id;
-	
+
 	private String fieldName;
-	
+
 	private String type;
-	
+
 	private Object value;
 
 	/**
@@ -25,7 +25,8 @@ public class FieldEditor {
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(Integer id) {
 		this.id = id;
@@ -39,7 +40,8 @@ public class FieldEditor {
 	}
 
 	/**
-	 * @param value the value to set
+	 * @param value
+	 *            the value to set
 	 */
 	public void setValue(Object value) {
 		this.value = value;
@@ -53,7 +55,8 @@ public class FieldEditor {
 	}
 
 	/**
-	 * @param fieldName the fieldName to set
+	 * @param fieldName
+	 *            the fieldName to set
 	 */
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
@@ -67,20 +70,21 @@ public class FieldEditor {
 	}
 
 	/**
-	 * @param type the type to set
+	 * @param type
+	 *            the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "FieldEditor [id=" + id + ", fieldName=" + fieldName + ", type=" + type + ", value=" + value + "]";
 	}
-	
-	
 
 }

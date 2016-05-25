@@ -2,14 +2,14 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceMeasureDescriptionImpl.java: <br>
@@ -31,12 +31,12 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#get(int)
 	 */
 	@Override
-	public MeasureDescription get(Integer id) throws Exception {
+	public MeasureDescription get(Integer id)  {
 		return daoMeasureDescription.get(id);
 	}
 
@@ -49,7 +49,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.model.standard.Standard)
 	 */
 	@Override
-	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception {
+	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard)  {
 		return daoMeasureDescription.getByReferenceAndStandard(reference, standard);
 	}
 
@@ -62,7 +62,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, java.lang.Integer)
 	 */
 	@Override
-	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) throws Exception {
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard)  {
 		return daoMeasureDescription.existsForMeasureByReferenceAndStandard(reference, idStandard);
 	}
 
@@ -75,7 +75,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.model.standard.Standard)
 	 */
 	@Override
-	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception {
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard)  {
 		return daoMeasureDescription.existsForMeasureByReferenceAndStandard(reference, standard);
 	}
 
@@ -84,12 +84,12 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getAllMeasureDescriptions()
 	 */
 	@Override
-	public List<MeasureDescription> getAll() throws Exception {
+	public List<MeasureDescription> getAll()  {
 		return this.daoMeasureDescription.getAll();
 	}
 
@@ -102,7 +102,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getAllByStandard(java.lang.Integer)
 	 */
 	@Override
-	public List<MeasureDescription> getAllByStandard(Integer idStandard) throws Exception {
+	public List<MeasureDescription> getAllByStandard(Integer idStandard)  {
 		return this.daoMeasureDescription.getAllByStandard(idStandard);
 	}
 
@@ -115,7 +115,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getAllByStandard(java.lang.String)
 	 */
 	@Override
-	public List<MeasureDescription> getAllByStandard(String label) throws Exception {
+	public List<MeasureDescription> getAllByStandard(String label)  {
 		return this.daoMeasureDescription.getAllByStandard(label);
 	}
 
@@ -128,7 +128,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getAllByStandard(lu.itrust.business.TS.model.standard.Standard)
 	 */
 	@Override
-	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception {
+	public List<MeasureDescription> getAllByStandard(Standard standard)  {
 		return this.daoMeasureDescription.getAllByStandard(standard);
 	}
 
@@ -137,13 +137,13 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * Description
 	 * 
 	 * @param measureDescription
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#save(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription)
 	 */
 	@Transactional
 	@Override
-	public void save(MeasureDescription measureDescription) throws Exception {
+	public void save(MeasureDescription measureDescription)  {
 		daoMeasureDescription.save(measureDescription);
 	}
 
@@ -152,13 +152,13 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * Description
 	 * 
 	 * @param measureDescription
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#saveOrUpdate(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception {
+	public void saveOrUpdate(MeasureDescription measureDescription)  {
 		daoMeasureDescription.saveOrUpdate(measureDescription);
 	}
 
@@ -167,19 +167,19 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * Description
 	 * 
 	 * @param measureDescription
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#delete(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription)
 	 */
 	@Transactional
 	@Override
-	public void delete(MeasureDescription measureDescription) throws Exception {
+	public void delete(MeasureDescription measureDescription)  {
 		daoMeasureDescription.delete(measureDescription);
 	}
 
 	@Transactional
 	@Override
-	public void delete(int id) throws Exception {
+	public void delete(int id)  {
 		daoMeasureDescription.delete(id);
 	}
 

@@ -11,34 +11,30 @@
 			<li><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.customer" text="Add" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleCustomer();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 						code="label.menu.edit.customer" text="Edit" /> </a></li>
-			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
-						code="label.menu.delete.customer" text="Delete" /> </a></li>
-			<c:if test="${!empty(adminView)}">
-				<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-					<li class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile()"><a href="#" onclick="return manageUsers();"><span class="glyphicon glyphicon-remove"></span> <spring:message
-								code="label.menu.manage.access.user_customer" text="Manage user access" /> </a></li>
-				</sec:authorize>
-			</c:if>
+			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span>
+					<spring:message code="label.menu.delete.customer" text="Delete" /> </a></li>
+			<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+				<li class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile()"><a href="#" onclick="return manageUsers();"><span
+						class="glyphicon glyphicon-edit"></span> <spring:message code="label.menu.manage.access.user_customer" text="Manage user access" /> </a></li>
+			</sec:authorize>
 		</ul>
 		<c:choose>
 			<c:when test="${!empty customers}">
-				<table class="table">
+				<table class="table table-hover">
 					<thead>
 						<tr>
 							<th></th>
-							<th><spring:message code="label.customer.organisation" text="Company"/></th>
-							<th><spring:message code="label.customer.contact_person" text="Contact person"/></th>
-							<th><spring:message code="label.customer.phone_number" text="Phone number"/></th>
-							<th><spring:message code="label.customer.email" text="Email address"/></th>
-							<th><spring:message code="label.customer.address" text="Address"/></th>
-							<th><spring:message code="label.customer.city" text="City"/></th>
-							<th><spring:message code="label.customer.zip_code" text="Zip code"/></th>
-							<th><spring:message code="label.customer.country" text="Country"/></th>
-							<c:if test="${!empty(adminView)}">
-								<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-									<th><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
-								</sec:authorize>
-							</c:if>
+							<th><spring:message code="label.customer.organisation" text="Company" /></th>
+							<th><spring:message code="label.customer.contact_person" text="Contact person" /></th>
+							<th><spring:message code="label.customer.phone_number" text="Phone number" /></th>
+							<th><spring:message code="label.customer.email" text="Email address" /></th>
+							<th><spring:message code="label.customer.address" text="Address" /></th>
+							<th><spring:message code="label.customer.city" text="City" /></th>
+							<th><spring:message code="label.customer.zip_code" text="Zip code" /></th>
+							<th><spring:message code="label.customer.country" text="Country" /></th>
+							<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+								<th><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
+							</sec:authorize>
 						</tr>
 					</thead>
 					<tbody>
@@ -53,11 +49,10 @@
 								<td data-trick-name='ZIPCode'><spring:message text="${customer.ZIPCode}" /></td>
 								<td data-trick-name='city'><spring:message text="${customer.city}" /></td>
 								<td data-trick-name='country'><spring:message text="${customer.country}" /></td>
-								<c:if test="${!empty(adminView)}">
-									<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-										<td data-trick-name='canBeUsed' data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}" text="${customer.canBeUsed?'No':'Yes'}" /></td>
-									</sec:authorize>
-								</c:if>
+								<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+									<td data-trick-name='canBeUsed' data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}"
+											text="${customer.canBeUsed?'No':'Yes'}" /></td>
+								</sec:authorize>
 							</tr>
 						</c:forEach>
 					</tbody>
@@ -65,7 +60,7 @@
 			</c:when>
 			<c:otherwise>
 				<h4>
-					<spring:message code="label.customer.empty" text="No customer"/>
+					<spring:message code="label.customer.empty" text="No customer" />
 				</h4>
 			</c:otherwise>
 		</c:choose>

@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<script src="<spring:url value="/js/jquery-2.0.js" />"></script>
+<script src="<spring:url value="/js/jquery-2.1.4.min.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootstrap.min.js" />"></script>
 <sec:authorize access="authenticated">
 	<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
@@ -12,7 +12,7 @@
 	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/bootstrap-tooltip.js" />"></script>
 	<script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
-	<script  src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
+	<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
 	<script src="<spring:url value="/js/main.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/timeoutmanager.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>

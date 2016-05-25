@@ -11,15 +11,15 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="navbar navbar-inverse navbar-fixed-top" role="main-menu" style="z-index: 1030;" >
+<div class="navbar navbar-inverse navbar-fixed-top" role="main-menu" style="z-index: 1030;">
 	<div class="container">
 		<div class="navbar-header">
+			<a class="navbar-brand" style="color: #ffffff; font-weight: bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 				<span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
 			</button>
 		</div>
 		<sec:authorize access="authenticated">
-			<a class="navbar-brand" style="color: #ffffff; font-weight: bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<li ${menu.equals("Home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Home"> <spring:message code="label.menu.home" text="Home" /></a></li>
@@ -33,6 +33,8 @@
 								code="label.menu.import.analysis" text="Import" /></a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="taskmanager" style="padding: 16px"><spring:message code="label.background.task" /> <span id="task-counter" class="fa badge">0</span></a>
+						<ul class="dropdown-menu" id="task-manager"></ul></li>
 					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile"> <spring:message code="label.profile" text="Profile" /></a></li>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 						<li ${menu.equals("Admin")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Admin"> <spring:message code="label.administration" text="Admin" /></a></li>
@@ -49,15 +51,22 @@
 								</a></li>
 								<li><a href="#" onclick="return fixAllAssessments()"> <spring:message code="label.scenario.fix.assessments" text="Update assessments of all analyses" />
 								</a></li>
+								<li><a href="#" onclick="return addCSSFParameters()"> <spring:message code="label.add.css_parameters" text="Add CSSF Parameters" />
+								</a></li>
 								<li class="divider"></li>
 								<li class="dropdown-header"><spring:message code="label.runtime.dropdown_header.Major" text="Major patches" /></li>
+								<li><a href="#" onclick="return updateAnalysesRiskAndItemInformation()"> <spring:message code="label.update.analyses.risk_item.information" text="Copy missing risk or item information from default profile" />
+								</a></li>
 								<li><a href="#" onclick="return restoreAnalysisRights()"> <spring:message code="label.restore.analysis.right" text="Restore analysis rights" />
 								</a></li>
 								<li><a href="#" onclick="return updateAnalysesScopes()"> <spring:message code="label.update.analyses.scopes" text="Update analyses scopes" />
 								</a></li>
 							</ul></li>
 					</sec:authorize>
-					<li><a href="${pageContext.request.contextPath}/j_spring_security_logout"> <spring:message code="label.menu.logout" text="Logout" /></a></li>
+					<li><a href="#" onclick="return $('#logoutFormSubmiter').click()"><spring:message code="label.menu.logout" text="Logout" /></a>
+						<form action="${pageContext.request.contextPath}/signout" method="post" style="display: none">
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> <input type="submit" id="logoutFormSubmiter" />
+						</form></li>
 				</ul>
 			</div>
 		</sec:authorize>

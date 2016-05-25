@@ -111,7 +111,7 @@ public class MeasureForm {
 	}
 
 	public void setReference(String reference) {
-		this.reference = reference;
+		this.reference = reference == null? null : reference.trim();
 	}
 
 	public int getLevel() {

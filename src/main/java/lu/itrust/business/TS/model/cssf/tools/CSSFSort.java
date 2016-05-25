@@ -8,6 +8,8 @@ import java.util.Map;
 
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItemGroup;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.cssf.helper.ComputationHelper;
 
 /**
  * CSSFSort: <br>
@@ -44,7 +46,9 @@ public class CSSFSort {
 	/** acceptable net Impact to verify on risk register list item adding */
 	public static final int ACCEPTABLE_NET_IMPACT = 6;
 
-	/** acceptable net probability to verify on risk register list item adding */
+	/**
+	 * acceptable net probability to verify on risk register list item adding
+	 */
 	public static final int ACCEPTABLE_NET_PROBABILITY = 5;
 
 	/** Group name: <b>other</b> */
@@ -62,8 +66,9 @@ public class CSSFSort {
 
 	/**
 	 * sortByGroup: <br>
-	 * Initialises groups with empty RiskRegisterItem Lists (if group name was not yet found), or
-	 * with existing groups Sort risk register in three groups [direct, indirect, other]
+	 * Initialises groups with empty RiskRegisterItem Lists (if group name was
+	 * not yet found), or with existing groups Sort risk register in three
+	 * groups [direct, indirect, other]
 	 * 
 	 * @param registers
 	 *            CSSF computation result
@@ -127,21 +132,22 @@ public class CSSFSort {
 	 * sortAndConcatGroup: <br>
 	 * Identify:
 	 * <ul>
-	 * <li>20 most important direct risk(referring to the net importance value)</li>
-	 * <li>5 most important indirect risk(referring to the net importance value)</li>
-	 * <li>
-	 * Risks that have a net impact >=6 and net impact probability >= 5 (inside direct and indirect)
+	 * <li>20 most important direct risk(referring to the net importance value)
 	 * </li>
+	 * <li>5 most important indirect risk(referring to the net importance value)
+	 * </li>
+	 * <li>Risks that have a net impact >=6 and net impact probability >= 5
+	 * (inside direct and indirect)</li>
 	 * </ul>
 	 * Afterwards, the 2 lists will be concatenated<br>
 	 * <ul>
-	 * <li>
-	 * RiskRegister with id between 1 and 20, are the 20 most important direct risk(referring to the
-	 * net importance value) after 20 come those where impact >= 6 and probability >= 5</li>
-	 * <li>
-	 * RiskRegister with id after the 20 and x items with impact >= 6 and probability >= 5 come the
-	 * 5 most important indirect risk(referring to the net importance value) after these 5 items
-	 * come all indirect risk that have impact >= 6 and probability >= 5</li>
+	 * <li>RiskRegister with id between 1 and 20, are the 20 most important
+	 * direct risk(referring to the net importance value) after 20 come those
+	 * where impact >= 6 and probability >= 5</li>
+	 * <li>RiskRegister with id after the 20 and x items with impact >= 6 and
+	 * probability >= 5 come the 5 most important indirect risk(referring to the
+	 * net importance value) after these 5 items come all indirect risk that
+	 * have impact >= 6 and probability >= 5</li>
 	 * </ul>
 	 * 
 	 * @param groups
@@ -149,6 +155,7 @@ public class CSSFSort {
 	 * 
 	 * @return A concatenated list of all direct and indirect items
 	 */
+	@Deprecated
 	public static List<RiskRegisterItem> sortAndConcatenateGroup(Map<String, List<RiskRegisterItemGroup>> groups, double acceptableImportace) {
 
 		// initialise or use existing group direct
@@ -200,64 +207,51 @@ public class CSSFSort {
 
 	/**
 	 * selectedByProbabilityAndImpactAndIndexing: <br>
-	 * Indexing RiskRegisterItem and remove all item with (net impact < impactMin or net pro <
-	 * probaMin).
+	 * Indexing RiskRegisterItem and remove all item with (net impact <
+	 * impactMin or net pro < probaMin).
 	 * 
 	 * @param registerItems
 	 *            The Items List to check
-	 * @param startIndex
-	 *            The start index inside the List
 	 * @param impactMin
 	 *            The minimum Impact value to be valid
 	 * @param probaMin
 	 *            The minimum Probability value to be valid
+	 * @param startIndex
+	 *            The start index inside the List
 	 * 
-	 * @deprecated by {@link #checkImpactAndProbability}
 	 */
-	public static void selectedByProbabilityAndImpactAndIndexing(List<RiskRegisterItem> registerItems, int startIndex, int impactMin, int probaMin) {
-
-		// initialise index
-		int i = 0;
-
+	public static void removeImproper(List<RiskRegisterItem> registerItems, int limit, double impactMin, double probaMin) {
 		// parse all risk register items given as parameter
-		while (i < registerItems.size()) {
-
+		for (int i = 0; i < registerItems.size();) {
 			// retrieve probability value
 			double pro = registerItems.get(i).getNetEvaluation().getProbability();
-
 			// retrieve impact value
 			double impact = registerItems.get(i).getNetEvaluation().getImpact();
-
 			// check if probability and impact are not acceptable
-			if (impact < impactMin || pro < probaMin)
-
-				// remove item
-				registerItems.remove(i);
-			else {
-
-				// set position inside the list
-				registerItems.get(i).setPosition(i + startIndex);
-
-				// move to next item
+			if (i < limit || (impact >= impactMin && pro >= probaMin))
 				i++;
-			}
+			else
+				registerItems.remove(i);
 		}
 	}
 
 	/**
 	 * indexRiskRegisterItem: <br>
 	 * RiskRegisterItem Indexing, on item out of bounds "limit" check with
-	 * {@link #checkImpactAndProbability(RiskRegisterItem)} to have usable Items. Unusable items
-	 * will be removed.
+	 * {@link #checkImpactAndProbability(RiskRegisterItem)} to have usable
+	 * Items. Unusable items will be removed.
 	 * 
 	 * @param registerItems
 	 *            The List of Risk Register Items to Index
 	 * @param startIndex
 	 *            The Index to start
 	 * @param limit
-	 *            the Limit of Items to add (default: 20 for direct; 5 for indirect)
+	 *            the Limit of Items to add (default: 20 for direct; 5 for
+	 *            indirect)
 	 * @param parameters
+	 *
 	 */
+	@Deprecated
 	public static void indexRiskRegisterItem(List<RiskRegisterItemGroup> registerItems, int startIndex, int limit, double acceptableNetImportace) {
 
 		// parse all risk register items
@@ -281,8 +275,8 @@ public class CSSFSort {
 	/**
 	 * findGroup:<br>
 	 * Tries to identify the group name [direct, indirect, other]<br>
-	 * Parameter name should meet this convention: Category - Description (example: D1-Strat). Check
-	 * if the parameter si direct or indirect.
+	 * Parameter name should meet this convention: Category - Description
+	 * (example: D1-Strat). Check if the parameter si direct or indirect.
 	 * 
 	 * @param name
 	 *            The Category to check
@@ -323,13 +317,15 @@ public class CSSFSort {
 
 	/**
 	 * isDirect: <br>
-	 * Check if the given Category meets {@link #DIRECT_REGEX this regular expression}. In other
-	 * words it checks if the given Category is of Type Direct
+	 * Check if the given Category meets {@link #DIRECT_REGEX this regular
+	 * expression}. In other words it checks if the given Category is of Type
+	 * Direct
 	 * 
 	 * @param name
 	 *            The Category name to check
 	 * 
-	 * @return True if the Category is Direct; False if the Category is not Direct
+	 * @return True if the Category is Direct; False if the Category is not
+	 *         Direct
 	 * 
 	 */
 	public static boolean isDirect(String name) {
@@ -338,25 +334,28 @@ public class CSSFSort {
 
 	/**
 	 * isIndirect: <br>
-	 * Check if the given Category meets {@link #INDIRECT_REGEX this regular expression}
+	 * Check if the given Category meets {@link #INDIRECT_REGEX this regular
+	 * expression}
 	 * 
 	 * @param name
 	 *            The Category Type to check
 	 * 
-	 * @return True if the Category Type is Indirect; False if Category is not Indirect
+	 * @return True if the Category Type is Indirect; False if Category is not
+	 *         Indirect
 	 */
 	public static boolean isIndirect(String name) {
 		return name == null ? false : name.matches(INDIRECT_REGEX);
 	}
 
 	public static void sortByNetImportance(List<RiskRegisterItemGroup> registerItems) {
-		Collections.sort(registerItems, new NetImportanceRegisterGroupComparatorDescending());
+		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceRegisterGroupComparator()));
 	}
 
 	/**
 	 * sortByNetImportance: <br>
-	 * Sort a given Group of Risk Register Items by NET Importance. The Algorithme to compare is
-	 * located inside the NetImportanceComparatorDescending class (it checks one item with another
+	 * Sort a given Group of Risk Register Items by NET Importance. The
+	 * Algorithme to compare is located inside the
+	 * NetImportanceComparatorDescending class (it checks one item with another
 	 * on a criteria inside NetImportanceComparatorDescending to sort)
 	 * 
 	 * @param registerItems
@@ -365,10 +364,40 @@ public class CSSFSort {
 	 * @see NetImportanceComparatorDescending
 	 */
 	public static void sortRiskRegisterItemGroupByNetImportance(List<RiskRegisterItem> registerItems) {
-
 		// Sort the given list of risk register items using the Collections java
 		// class and using the
 		// NetImportanceComparatorDescending check
-		Collections.sort(registerItems, new NetImportanceComparatorDescending());
+		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceComparator()));
+	}
+
+	public static List<RiskRegisterItem> sortAndConcatenate(ComputationHelper helper, CSSFFilter cssfFilter) {
+		int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
+		List<RiskRegisterItem> riskRegisterItems = new ArrayList<>();
+		helper.getRiskRegisters().values().stream().sorted(new NetImportanceComparator().reversed()).forEach(riskRegister -> {
+			switch (findGroup(riskRegister.getScenario().getType().getName())) {
+			case DIRECT:
+				if (direct == -1 || direct > -1 && (cssfFilter.getDirect() > 0 || riskRegister.isCompliant(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
+					riskRegisterItems.add(riskRegister);
+					if (direct > 0)
+						cssfFilter.setDirect(cssfFilter.getDirect() - 1);
+				}
+				break;
+			case INDIRECT:
+				if (inderect == -1 || inderect > -1 && (cssfFilter.getIndirect() > 0 || riskRegister.isCompliant(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
+					riskRegisterItems.add(riskRegister);
+					if (inderect > 0)
+						cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
+				}
+				break;
+			default:
+				if (cia == -1 || cia > -1 && (cssfFilter.getCia() > 0 || riskRegister.isCompliant(cssfFilter.getImpact(), cssfFilter.getProbability()))) {
+					riskRegisterItems.add(riskRegister);
+					if (cia > 0)
+						cssfFilter.setCia(cssfFilter.getCia() - 1);
+				}
+				break;
+			}
+		});
+		return riskRegisterItems;
 	}
 }

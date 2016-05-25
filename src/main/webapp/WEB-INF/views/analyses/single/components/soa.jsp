@@ -12,7 +12,7 @@
 				<div class="container">
 					<div class="row-fluid">
 						<h3>
-							<spring:message text="27002" />
+							<spring:message code="label.title.soa" />
 						</h3>
 					</div>
 				</div>
@@ -20,12 +20,12 @@
 			<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_SOA_27002">
 				<thead>
 					<tr>
-						<th style="width: 5%;"><fmt:message key="label.measure.ref" /></th>
-						<th style="width: 15%;"><fmt:message key="label.measure.domain" /></th>
-						<th style="width: 5%;"><fmt:message key="label.measure.phase" /></th>
-						<th style="width: 15%;"><fmt:message key="label.measure.soa.risk" /></th>
-						<th><fmt:message key="label.measure.soa.comment" /></th>
-						<th><fmt:message key="label.measure.SOA.reference" /></th>
+						<th style="width: 5%;" title='<spring:message code="label.title.sao.measure.ref" />' ><spring:message code="label.measure.ref" /></th>
+						<th style="width: 15%;" title='<spring:message code="label.measure.domain" />' ><spring:message code="label.measure.domain" /></th>
+						<th style="width: 5%;" title='<spring:message code="label.measure.phase" />' ><spring:message code="label.measure.phase" /></th>
+						<th style="width: 15%;" title='<spring:message code="label.measure.soa.risk" />' ><spring:message code="label.measure.soa.risk" /></th>
+						<th title='<spring:message code="label.comment" />' ><spring:message code="label.comment" /></th>
+						<th title='<spring:message code="label.reference" />' ><spring:message code="label.reference" /></th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -34,7 +34,7 @@
 					<c:forEach items="${soa}" var="measure">
 						<c:choose>
 							<c:when test="${not measure.measureDescription.computable}">
-								<tr style="background-color: #F8F8F8;">
+								<tr style="background-color: #F8F8F8;" data-trick-id='${measure.id}'>
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
@@ -60,12 +60,12 @@
 										</c:otherwise>
 									</c:choose>
 									<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-									<td><c:choose>
-											<c:when test="${measure.phase.number == 0}">NA
-															</c:when>
-											<c:otherwise>${measure.phase.number}
-															</c:otherwise>
-										</c:choose></td>
+									<td>
+										<c:choose>
+											<c:when test="${measure.phase.number == 0}">NA</c:when>
+											<c:otherwise>${measure.phase.number}</c:otherwise>
+										</c:choose>
+									</td>
 									<c:set var="newLine" value="\n" />
 									<td><pre><spring:message text="${measure.measurePropertyList.getSoaRisk()}" /></pre></td>
 									<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaComment()}" /></pre></td>

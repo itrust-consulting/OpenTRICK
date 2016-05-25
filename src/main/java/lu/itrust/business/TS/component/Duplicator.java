@@ -8,6 +8,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
@@ -27,10 +33,13 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -47,11 +56,6 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * Duplicator.java: <br>
  * Detailed description...
@@ -62,8 +66,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class Duplicator {
-
-	public static final String KEY_PARAMETER_FORMAT = "%s-#-_##_-#-%s";
 
 	@Autowired
 	private DAOAnalysisStandard daoAnalysisStandard;
@@ -80,6 +82,9 @@ public class Duplicator {
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
+	@Autowired
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
+
 	public Duplicator() {
 	}
 
@@ -89,6 +94,8 @@ public class Duplicator {
 		this.daoStandard = new DAOStandardHBM(session);
 		this.daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
 		this.daoMeasureDescriptionText = new DAOMeasureDescriptionTextHBM(session);
+		this.assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
+
 	}
 
 	/**
@@ -97,13 +104,9 @@ public class Duplicator {
 	 * 
 	 * @param analysis
 	 * @param serviceTaskFeedback
-	 *            TODO
 	 * @param idTask
-	 *            TODO
 	 * @param minProgress
-	 *            TODO
 	 * @param maxProgress
-	 *            TODO
 	 * @param copy
 	 * @return
 	 * @throws Exception
@@ -122,15 +125,13 @@ public class Duplicator {
 
 		double bound = ((double) (maxProgress - minProgress)) / 100.0;
 
-		String language = analysis.getLanguage().getAlpha2();
-
 		try {
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", language, (int) (minProgress + bound * 2)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", (int) (minProgress + bound * 2)));
 
 			Analysis copy = analysis.duplicateTo(newAnalysis);
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.right", "Copy rights", language, (int) (minProgress + bound * 4)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.right", "Copy rights", (int) (minProgress + bound * 4)));
 
 			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
 			for (UserAnalysisRight uar : analysis.getUserRights()) {
@@ -138,34 +139,34 @@ public class Duplicator {
 				copy.addUserRight(uarcopy);
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.history", "Copy history", language, (int) (minProgress + bound * 7)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.history", "Copy history", (int) (minProgress + bound * 7)));
 
 			copy.setHistories(new ArrayList<History>(analysis.getHistories().size()));
 			for (History history : analysis.getHistories())
 				copy.getHistories().add(history.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Copy item information", language, (int) (minProgress + bound * 10)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Copy item information", (int) (minProgress + bound * 10)));
 
 			copy.setItemInformations(new ArrayList<ItemInformation>(analysis.getItemInformations().size()));
 			for (ItemInformation itemInformation : analysis.getItemInformations())
 				copy.getItemInformations().add(itemInformation.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", language, (int) (minProgress + bound * 12)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", (int) (minProgress + bound * 12)));
 
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
 				Parameter parameter2 = parameter.duplicate();
-				parameters.put(String.format(KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter2);
+				parameters.put(parameter2.getKey(), parameter2);
 				copy.getParameters().add(parameter2);
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", language, (int) (minProgress + bound * 15)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", (int) (minProgress + bound * 15)));
 
 			copy.setRiskInformations(new ArrayList<RiskInformation>(analysis.getRiskInformations().size()));
 			for (RiskInformation riskInformation : analysis.getRiskInformations())
 				copy.getRiskInformations().add(riskInformation.duplicate());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", language, (int) (minProgress + bound * 20)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", (int) (minProgress + bound * 20)));
 
 			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
 			for (Scenario scenario : analysis.getScenarios()) {
@@ -173,7 +174,7 @@ public class Duplicator {
 				copy.getScenarios().add(scenarios.get(scenario.getId()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", language, (int) (minProgress + bound * 30)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", (int) (minProgress + bound * 30)));
 
 			copy.setAssets(new ArrayList<Asset>(analysis.getAssets().size()));
 			for (Asset asset : analysis.getAssets()) {
@@ -181,7 +182,7 @@ public class Duplicator {
 				copy.getAssets().add(assets.get(asset.getId()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy estimations", language, (int) (minProgress + bound * 40)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy estimations", (int) (minProgress + bound * 35)));
 
 			copy.setAssessments(new ArrayList<Assessment>(analysis.getAssessments().size()));
 
@@ -192,7 +193,19 @@ public class Duplicator {
 				copy.getAssessments().add(clone);
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", language, (int) (minProgress + bound * 50)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.risk_profile", "Copy risk profiles", (int) (minProgress + bound * 40)));
+
+			copy.setRiskProfiles(new ArrayList<>(analysis.getRiskProfiles().size()));
+
+			for (RiskProfile riskProfile : analysis.getRiskProfiles())
+				copy.getRiskProfiles().add(riskProfile.duplicate(assets, scenarios, parameters));
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", (int) (minProgress + bound * 45)));
+			
+			assessmentAndRiskProfileManager.UpdateRiskDendencies(copy, parameters.entrySet().stream().filter(entry -> entry.getValue() instanceof ExtendedParameter)
+					.collect(Collectors.toMap(entry -> ((ExtendedParameter) entry.getValue()).getAcronym(), entry -> (ExtendedParameter) entry.getValue())));
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", (int) (minProgress + bound * 50)));
 
 			copy.setPhases(new ArrayList<Phase>(analysis.getPhases().size()));
 
@@ -201,21 +214,22 @@ public class Duplicator {
 				copy.addPhase(phases.get(phase.getNumber()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", language, (int) (minProgress + bound * 60)));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * 60)));
 
 			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
 
-			Integer percentageperstandard = (int) 40 / analysis.getAnalysisStandards().size();
+			if (!analysis.getAnalysisStandards().isEmpty()) {
 
-			int copycounter = 0;
+				Integer percentageperstandard = (int) 40 / analysis.getAnalysisStandards().size();
 
-			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-				copycounter++;
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", language, (int) (minProgress + bound
-						* (60 + (percentageperstandard * copycounter)))));
-				copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
+				int copycounter = 0;
+
+				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+					copycounter++;
+					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * (60 + (percentageperstandard * copycounter)))));
+					copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
+				}
 			}
-
 			return copy;
 		} finally {
 			scenarios.clear();
@@ -250,14 +264,14 @@ public class Duplicator {
 					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, assets, parameters, anonymize));
 				else
 					measures.add(duplicateMeasure(measure,
-							phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), astandard,
-							assets, parameters, anonymize));
+							phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), astandard, assets,
+							parameters, anonymize));
 
 			astandard.setMeasures(measures);
 			return astandard;
 		} else {
 			Standard standard = analysisStandard.getStandard().duplicate();
-			
+
 			standard.setVersion(daoStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 
 			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
@@ -332,8 +346,8 @@ public class Duplicator {
 		}
 		if (copy instanceof MaturityMeasure) {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
-			Parameter parameter = parameters.get(String.format(KEY_PARAMETER_FORMAT, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, anonymize ? Constant.IS_NOT_ACHIEVED
-					: ((MaturityMeasure) measure).getImplementationRate().getDescription()));
+			Parameter parameter = parameters.get(Parameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME,
+					anonymize ? Constant.IS_NOT_ACHIEVED : ((MaturityMeasure) measure).getImplementationRate().getDescription()));
 			if (parameter == null) {
 				for (Parameter param : parameters.values()) {
 					if (param instanceof MaturityParameter && param.getValue() == 0) {
@@ -408,7 +422,7 @@ public class Duplicator {
 
 			Map<String, Parameter> parameters = new LinkedHashMap<>();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", null, 2));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", 2));
 
 			// duplicate the analysis
 			Analysis copy = analysis.duplicate();
@@ -434,51 +448,55 @@ public class Duplicator {
 			// do not set analysis specific data which are unused for profile
 
 			// history
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.history", "Delete analysis histories", null, 3));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.history", "Delete analysis histories", 3));
 			copy.setHistories(null);
 
 			// analysis rights
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.right", "Delete analysis rights", null, 4));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.right", "Delete analysis rights", 4));
 			copy.setUserRights(null);
 
 			// assets
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.asset", "Clear assets", null, 5));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.asset", "Clear assets", 5));
 			copy.setAssets(null);
 
 			// assessments
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.assessment", "empty assessments", null, 10));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.assessment", "empty assessments", 10));
 			copy.setAssessments(null);
 
+			// assessments
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.risk_profile", "empty risk profile", 15));
+			copy.setRiskProfiles(null);
+
 			// item information
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.itemInformation", "Clear item information", null, 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.itemInformation", "Clear item information", 20));
 			copy.setItemInformations(null);
 
 			// risk information
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.riskInformation", "Clear risk information", null, 30));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.riskInformation", "Clear risk information", 30));
 			copy.setRiskInformations(null);
 
 			// actionplans
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.actionplan", "Clear actionplans and summaries", null, 35));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.actionplan", "Clear actionplans and summaries", 35));
 			copy.setActionPlans(null);
 			copy.setSummaries(null);
 
 			// risk register
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.riskregister", "Clear risk register", null, 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.riskregister", "Clear risk register", 40));
 			copy.setRiskRegisters(null);
 
 			// copy nessesary data to profile
 
 			// parameters
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", null, 45));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
 				Parameter parameter2 = parameter.duplicate();
-				parameters.put(String.format(KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter2);
+				parameters.put(parameter2.getKey(), parameter2);
 				copy.getParameters().add(parameter2);
 			}
 
 			// phases
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.phase", "Clear phases", null, 50));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.phase", "Clear phases", 50));
 
 			copy.setPhases(new ArrayList<Phase>());
 
@@ -496,33 +514,35 @@ public class Duplicator {
 			copy.addPhase(tmpPhase);
 
 			// scenarios
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", null, 55));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 55));
 			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
 			for (Scenario scenario : analysis.getScenarios())
 				copy.getScenarios().add(scenario.duplicate());
 
 			// standards
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60));
 
 			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
-			Integer percentageperstandard = (int) 40 / standards.size();
+			if (!standards.isEmpty()) {
+				Integer percentageperstandard = (int) 40 / standards.size();
 
-			int copycounter = 0;
-			for (Integer standardID : standards) {
-				copycounter++;
-				AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
-				if (standard != null) {
-					copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, null, true));
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60 + (percentageperstandard * copycounter)));
+				int copycounter = 0;
+				for (Integer standardID : standards) {
+					copycounter++;
+					AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
+					if (standard != null) {
+						copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, null, true));
+						serviceTaskFeedback.send(idTask,
+								new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60 + (percentageperstandard * copycounter)));
+					}
 				}
 			}
-
 			return copy;
-		} catch (CloneNotSupportedException cex) {
-			cex.printStackTrace();
+		} catch (CloneNotSupportedException e) {
+			TrickLogManager.Persist(e);
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return null;
 		}
 

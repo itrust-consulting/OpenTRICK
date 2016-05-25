@@ -1,24 +1,13 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.general.LogAction;
-import lu.itrust.business.TS.model.general.LogLevel;
-import lu.itrust.business.TS.model.general.LogType;
-import lu.itrust.business.TS.validator.LanguageValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -35,6 +24,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.model.general.Language;
+import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
+import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.validator.LanguageValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
+
 /**
  * ControllerLanguage.java: <br>
  * Detailed description...
@@ -48,6 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/KnowledgeBase/Language")
 public class ControllerLanguage {
 
+
 	@Autowired
 	private ServiceLanguage serviceLanguage;
 
@@ -57,14 +59,11 @@ public class ControllerLanguage {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
-	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
 	/**
 	 * 
 	 * Display all Language
 	 * 
-	 * */
+	 */
 	@RequestMapping
 	public String loadAllLanguages(Map<String, Object> model) throws Exception {
 		model.put("languages", serviceLanguage.getAll());
@@ -79,7 +78,7 @@ public class ControllerLanguage {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Model model) throws Exception {
 		model.addAttribute("languages", serviceLanguage.getAll());
 		return "knowledgebase/language/languages";
@@ -89,7 +88,7 @@ public class ControllerLanguage {
 	 * 
 	 * Display single Language
 	 * 
-	 * */
+	 */
 	@RequestMapping("/{languageId}")
 	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
 			Locale locale) throws Exception {
@@ -113,32 +112,23 @@ public class ControllerLanguage {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 			Language language = new Language();
 			if (!buildLanguage(errors, language, value, locale))
 				return errors;
-			if (language.getId() < 1) {
-				if (serviceLanguage.existsByAlpha3(language.getAlpha3()))
-					errors.put("alpha3", messageSource.getMessage("error.language.alph_3.duplicate", null, "Alpha 3 code is already in use", locale));
-				if (serviceLanguage.existsByAltName(language.getAltName()))
-					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
-				if (serviceLanguage.existsByName(language.getName()))
-					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
-			}
-			if (errors.isEmpty()) {
-				serviceLanguage.saveOrUpdate(language);
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.language.add_or_update", String.format("Language: %s", language.getAlpha3()), principal.getName(),
-						LogAction.CREATE_OR_UPDATE, language.getAlpha3());
-			}
+			serviceLanguage.saveOrUpdate(language);
+			/**
+			 * Log
+			 */
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.language.add_or_update", String.format("Language: %s", language.getAlpha3()), principal.getName(),
+					LogAction.CREATE_OR_UPDATE, language.getAlpha3());
+
 		} catch (Exception e) {
-			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("language",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 		}
 		return errors;
 	}
@@ -147,15 +137,15 @@ public class ControllerLanguage {
 	 * 
 	 * Delete single language
 	 * 
-	 * */
-	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	 */
+	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String deleteLanguage(@PathVariable("languageId") Integer languageId, Principal principal, Locale locale) {
 		try {
 			Language language = serviceLanguage.get(languageId);
 			if (language == null)
 				return JsonMessage.Error(messageSource.getMessage("error.language.not_exist", null, "Language does not exist", locale));
-			if (serviceLanguage.isInUse(language))
-				return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used", locale));
+			if (serviceLanguage.isUsed(language))
+				return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language cannot be deleted, it is still used", locale));
 			serviceLanguage.delete(language);
 			/**
 			 * Log
@@ -164,7 +154,7 @@ public class ControllerLanguage {
 					LogAction.DELETE, language.getAlpha3());
 			return JsonMessage.Success(messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used.", locale));
 		}
 	}
@@ -184,8 +174,7 @@ public class ControllerLanguage {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			int id = jsonNode.get("id").asInt();
-			if (id > 0)
-				language.setId(jsonNode.get("id").asInt());
+
 			ValidatorField validator = serviceDataValidation.findByClass(Language.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new LanguageValidator());
@@ -210,11 +199,29 @@ public class ControllerLanguage {
 				errors.put("altName", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				language.setAltName(altName);
+
+			if (id > 0) {
+				language.setId(id);
+				if (serviceLanguage.existsByIdAndAlpha3(id, alpha3))
+					errors.put("alpha3", messageSource.getMessage("error.language.alph_3.duplicate", null, "Alpha 3 code is already in use", locale));
+				if (serviceLanguage.existsByIdAndName(id, name))
+					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
+				if (serviceLanguage.existsByIdAndAltName(id, altName))
+					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
+
+			} else {
+				if (serviceLanguage.existsByAlpha3(language.getAlpha3()))
+					errors.put("alpha3", messageSource.getMessage("error.language.alph_3.duplicate", null, "Alpha 3 code is already in use", locale));
+				if (serviceLanguage.existsByAltName(language.getAltName()))
+					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
+				if (serviceLanguage.existsByName(language.getName()))
+					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
+			}
 			return errors.isEmpty();
 
 		} catch (Exception e) {
-			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("language",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return false;
 		}
 

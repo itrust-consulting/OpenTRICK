@@ -1,34 +1,47 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
-import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.ServiceRiskRegister;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskRegister;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskSheet;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssessment;
+import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.Parameter;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -47,28 +60,7 @@ public class ControllerRiskRegister {
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceRiskRegister serviceRiskRegister;
-
-	@Autowired
-	private ServiceAnalysisStandard serviceAnalysisStandard;
-	
-	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
-	private ServiceUser serviceUser;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
-	@Autowired
-	private ServiceLanguage serviceLanguage;
-
-	@Autowired
-	private ServiceAsset serviceAsset;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -81,6 +73,12 @@ public class ControllerRiskRegister {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
+	private ServiceParameter serviceParameter;
+
+	@Autowired
+	private ServiceAssessment serviceAssessment;
 
 	/**
 	 * showRiskRegister: <br>
@@ -97,19 +95,21 @@ public class ControllerRiskRegister {
 	public String showRiskRegister(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
 
 		// retrieve analysis ID
-		Integer selected = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
+		Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		// load all actionplans from the selected analysis
-
 		// prepare model
-		model.put("riskregister", serviceRiskRegister.getAllFromAnalysis(selected));
-		
-		model.put("parameters", serviceParameter.getAllExtendedFromAnalysis(selected));
-		
-		model.put("language", serviceLanguage.getFromAnalysis(selected).getAlpha2());
+		model.put("riskregister", analysis.getRiskRegisters());
+
+		model.put("parameters", analysis.findExtendedByAnalysis());
+
+		model.put("language", analysis.getLanguage().getAlpha2());
+
+		model.put("riskProfileMapping", analysis.mapRiskProfile());
+
+		model.put("estimationMapping", analysis.mapAssessment());
 
 		// return view
-		return "analyses/single/components/riskregister";
+		return "analyses/single/components/riskRegister/home";
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class ControllerRiskRegister {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 		return showRiskRegister(session, model, principal);
 
@@ -146,22 +146,101 @@ public class ControllerRiskRegister {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String computeRiskRegister(HttpSession session, Principal principal) throws Exception {
-		
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-
 		WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, true);
-
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
-
 		// execute task
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", analysisLocale));
+	}
 
-		
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@RequestMapping(value = "/RiskSheet/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String exportFrom(HttpSession session, Model model, HttpServletRequest request, Principal principal) {
+		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		List<ExtendedParameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
+		serviceParameter.getAllExtendedFromAnalysis(analysisId).forEach(parameter -> {
+			if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				impacts.add(parameter);
+			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+				probabilities.add(parameter);
+		});
+
+		model.addAttribute("parameters", serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_CSSF).stream()
+				.collect(Collectors.toMap(Parameter::getDescription, Function.identity())));
+
+		model.addAttribute("owners", serviceAssessment.getDistinctOwnerByIdAnalysis(analysisId));
+
+		model.addAttribute("impacts", impacts);
+
+		model.addAttribute("probabilities", probabilities);
+
+		return "analyses/single/components/riskRegister/form";
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@RequestMapping(value = "/RiskSheet/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object export(@RequestBody CSSFFilter cssfFilter, HttpSession session, HttpServletRequest request, Principal principal, Locale locale) {
+		Map<String, String> errors = new HashMap<>();
+		if (cssfFilter.getImpact() < 0 || cssfFilter.getImpact() > Constant.DOUBLE_MAX_VALUE)
+			errors.put("impact", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+		if (cssfFilter.getProbability() < 0 || cssfFilter.getProbability() > Constant.DOUBLE_MAX_VALUE)
+			errors.put("probability", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+		if (cssfFilter.getDirect() < -2)
+			errors.put("direct", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+		if (cssfFilter.getIndirect() < -2)
+			errors.put("indirect", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+		if (cssfFilter.getCia() < -2)
+			errors.put("cia", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+		if (!errors.isEmpty())
+			return errors;
+
+		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
+		Worker worker = new WorkerExportRiskSheet(cssfFilter, workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"),
+				analysisId, principal.getName(), messageSource);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_sheet", null, "Start to export risk sheet", analysisLocale));
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	@RequestMapping(value = "/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object export(HttpSession session, HttpServletRequest request, Principal principal, Locale locale) {
+		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
+		Worker worker = new WorkerExportRiskRegister(analysisId, principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), sessionFactory, workersPoolManager,
+				serviceTaskFeedback, messageSource);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_register", null, "Start to export risk register", analysisLocale));
+	}
+
+	@Value("${app.settings.risk_sheet.french.template.name}")
+	public void setRiskSheetFrTemplate(String template) {
+		WorkerExportRiskSheet.FR_TEMPLATE = template;
+	}
+
+	@Value("${app.settings.risk_sheet.english.template.name}")
+	public void setRiskSheetEnTemplate(String template) {
+		WorkerExportRiskSheet.ENG_TEMPLATE = template;
+	}
+
+	@Value("${app.settings.risk_regsiter.french.template.name}")
+	public void setRiskRegisterFrTemplate(String template) {
+		WorkerExportRiskRegister.FR_TEMPLATE = template;
+	}
+
+	@Value("${app.settings.risk_regsiter.english.template.name}")
+	public void setRiskRegisterEnTemplate(String template) {
+		WorkerExportRiskRegister.ENG_TEMPLATE = template;
 	}
 }

@@ -15,43 +15,43 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
  * @since Jan 16, 2013
  */
 public interface ServiceMeasure {
-	public Measure get(Integer id) throws Exception;
+	public Measure get(Integer id) ;
 
-	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception;
+	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) ;
 
-	public Measure getFromAnalysisAndStandardAndReference(Integer idAnalysis, Integer idStandard, String reference) throws Exception;
+	public Measure getFromAnalysisAndStandardAndReference(Integer idAnalysis, Integer idStandard, String reference) ;
 	
-	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) ;
 
-	public List<Measure> getAll() throws Exception;
+	public List<Measure> getAll() ;
 
-	public List<Measure> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<Measure> getAllFromAnalysis(Integer idAnalysis) ;
 
-	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) ;
 
-	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) ;
 
-	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) throws Exception;
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) ;
 
-	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard) throws Exception;
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard) ;
 
-	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard) throws Exception;
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard) ;
 
-	public List<NormalMeasure> getAllNormalMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysis(Integer idAnalysis) ;
 
-	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis) ;
 
-	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception;
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) ;
 
-	public Measure save(Measure measure) throws Exception;
+	public Measure save(Measure measure) ;
 
-	public void saveOrUpdate(Measure measure) throws Exception;
+	public void saveOrUpdate(Measure measure) ;
 
-	public Measure merge(Measure measure) throws Exception;
+	public Measure merge(Measure measure) ;
 
-	public void delete(Integer id) throws Exception;
+	public void delete(Integer id) ;
 
-	public void delete(Measure measure) throws Exception;
+	public void delete(Measure measure) ;
 
-	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
+	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) ;
 }

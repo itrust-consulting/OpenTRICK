@@ -1,12 +1,14 @@
 package lu.itrust.business.TS.database.service.impl;
 
-import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
-import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
-import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
+import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
+import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 
 /**
  * ServiceAssetTypeValueImpl.java: <br>
@@ -28,12 +30,12 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#get(int)
 	 */
 	@Override
-	public MeasureAssetValue get(Integer id) throws Exception {
+	public MeasureAssetValue get(Integer id)  {
 		return daoMeasureAssetValue.get(id);
 	}
 
@@ -43,13 +45,13 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * 
 	 * @param assetTypeValue
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public void save(MeasureAssetValue measureAssetValue) throws Exception {
+	public void save(MeasureAssetValue measureAssetValue)  {
 		daoMeasureAssetValue.save(measureAssetValue);
 	}
 
@@ -59,13 +61,13 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * 
 	 * @param assetTypeValue
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(MeasureAssetValue measureAssetValue) throws Exception {
+	public void saveOrUpdate(MeasureAssetValue measureAssetValue)  {
 		daoMeasureAssetValue.saveOrUpdate(measureAssetValue);
 	}
 
@@ -74,20 +76,26 @@ public class ServiceMeasureAssetValueImpl implements ServiceMeasureAssetValue {
 	 * Description
 	 * 
 	 * @param assetTypeValue
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.model.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
-	public void delete(MeasureAssetValue measureAssetValue) throws Exception {
+	public void delete(MeasureAssetValue measureAssetValue)  {
 		daoMeasureAssetValue.delete(measureAssetValue);
 	}
 
 	@Override
-	public MeasureAssetValue getByAssetId(int idAsset) {
+	public List<MeasureAssetValue> getByAssetId(int idAsset) {
 		
 		return daoMeasureAssetValue.getByAssetId(idAsset);
+	}
+
+
+	@Override
+	public MeasureAssetValue getByMeasureIdAndAssetId(int measureId, int assetId) {
+		return daoMeasureAssetValue.getByMeasureIdAndAssetId(measureId, assetId);
 	}
 
 }

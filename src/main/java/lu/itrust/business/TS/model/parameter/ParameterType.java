@@ -48,14 +48,15 @@ public class ParameterType {
 	 *            The Parameter Type Label
 	 * @throws TrickException
 	 */
-	public ParameterType(String label) throws TrickException {
+	public ParameterType(int id,String label) throws TrickException {
+		setId(id);
 		setLabel(label);
 	}
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
-
+	
 	/**
 	 * getId: <br>
 	 * Returns the id field value.

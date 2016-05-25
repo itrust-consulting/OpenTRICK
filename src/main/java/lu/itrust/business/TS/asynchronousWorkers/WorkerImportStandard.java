@@ -2,9 +2,20 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFTable;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -18,6 +29,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -27,18 +39,13 @@ import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-
 public class WorkerImportStandard implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());
+
+	private Date started = null;
+
+	private Date finished = null;
 
 	private Exception error;
 
@@ -96,6 +103,7 @@ public class WorkerImportStandard implements Worker {
 				if (canceled || working)
 					return;
 				working = true;
+				started = new Timestamp(System.currentTimeMillis());
 			}
 
 			session = sessionFactory.openSession();
@@ -106,45 +114,80 @@ public class WorkerImportStandard implements Worker {
 
 			importNewStandard();
 
+			serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+
 			transaction.commit();
 
-			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", null, 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_standard\")", null));
+			messageHandler = new MessageHandler("success.import.standard", "Standard was successfully imported", 100);
+			
+			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection", "section_standard"));
 			serviceTaskFeedback.send(id, messageHandler);
-			String username = serviceTaskFeedback.findUsernameById(this.getId());
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()),
-					username, LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
+			String username = serviceTaskFeedback.findUsernameById(this.getId());
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard", String.format("Standard: %s, version: %d", newstandard.getLabel(), newstandard.getVersion()), username,
+					LogAction.IMPORT, newstandard.getLabel(), String.valueOf(newstandard.getVersion()));
+		} catch (TrickException e) {
+			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), this.error = e));
+			TrickLogManager.Persist(e);
+			if (transaction != null && transaction.getStatus().canRollback())
+				session.getTransaction().rollback();
 		} catch (Exception e) {
-			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null, e));
-			e.printStackTrace();
-			try {
-				if (transaction != null && transaction.isInitiator())
-					session.getTransaction().rollback();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), this.error = e));
+			TrickLogManager.Persist(e);
+			if (transaction != null && transaction.getStatus().canRollback())
+				session.getTransaction().rollback();
 		} finally {
 			try {
-				if (session != null)
+				if (session != null && !session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				e.printStackTrace();
+				TrickLogManager.Persist(e);
 			}
-			if (importFile != null && importFile.exists())
-				importFile.delete();
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+			if (importFile != null && importFile.exists()) {
+				if (!importFile.delete())
+					importFile.deleteOnExit();
+			}
 
 		}
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#isMatch(java.lang.String
+	 * , java.lang.Object)
+	 */
+	@Override
+	public boolean isMatch(String express, Object... values) {
+		try {
+			String[] expressions = express.split("\\+");
+			boolean match = values.length == expressions.length && values.length == 1;
+			for (int i = 0; i < expressions.length && match; i++) {
+				switch (expressions[i]) {
+				case "class":
+					match &= values[i].equals(getClass());
+					break;
+				default:
+					match = false;
+					break;
+				}
+			}
+			return match;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	/**
@@ -155,31 +198,37 @@ public class WorkerImportStandard implements Worker {
 	 */
 	public void importNewStandard() throws Exception {
 
-		System.out.println("Import new Standard from Excel template...");
+		FileInputStream fileToOpen = null;
 
-		FileInputStream fileToOpen = new FileInputStream(importFile);
+		try {
 
-		// Get the workbook instance for XLS file
-		workbook = new XSSFWorkbook(fileToOpen);
+			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.from.excel", "Import new Standard from Excel template", 1));
 
-		sheetNumber = workbook.getNumberOfSheets();
+			fileToOpen = new FileInputStream(importFile);
 
-		newstandard = null;
+			// Get the workbook instance for XLS file
 
-		System.out.println("Retrieve Standard...");
+			workbook = new XSSFWorkbook(fileToOpen);
 
-		getStandard();
+			sheetNumber = workbook.getNumberOfSheets();
 
-		if (newstandard != null) {
+			newstandard = null;
 
-			System.out.println("Retrieve Measures of Standard...");
-			getMeasures();
-			System.out.println("Import Standard Done!");
-		} else {
-			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null,
-					"The Excel file containing Standard to import is malformed. Please check its content!");
-			serviceTaskFeedback.send(id, messageHandler);
+			serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.information", "Import standard information", 5));
+			
+			getStandard();
+
+			if (newstandard != null) {
+				serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.measure", "Import measures", 10));
+				getMeasures();
+				serviceTaskFeedback.send(id, new MessageHandler("success.import.norm", "Standard was been successfully imported", 95));
+			} else
+				throw new TrickException("error.import.norm.malformedExcelFile", "The Excel file containing Standard to import is malformed. Please check its content!");
+		} finally {
+			if (fileToOpen != null)
+				fileToOpen.close();
 		}
+
 	}
 
 	/**
@@ -212,18 +261,18 @@ public class WorkerImportStandard implements Worker {
 						endColSheet = table.getEndCellReference().getCol();
 						startRowSheet = table.getStartCellReference().getRow();
 						endRowSheet = table.getEndCellReference().getRow();
-
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
 								if (daoStandard.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(),
 										(int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue())) {
 									newstandard = daoStandard.getStandardByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(),
 											(int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
-									messageHandler = new MessageHandler("error.import.norm.exists", new Object[] { newstandard.getLabel(), newstandard.getVersion() },
-											"Standard label (" + newstandard.getLabel() + ") and version (" + newstandard.getVersion()
-													+ ") already exist, updating existing Standard");
-									serviceTaskFeedback.send(id, messageHandler);
-									System.out.println("Updating existing Standard (" + newstandard.getLabel() + " - " + newstandard.getVersion() + ")...");
+									newstandard.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
+									newstandard.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
+									serviceTaskFeedback.send(id, new MessageHandler("info.import.norm.safe.update",
+											new Object[] { newstandard.getLabel(), newstandard.getVersion() },
+											String.format("Updating of standard %s, version %d. No measure shall be waived.", newstandard.getLabel(), newstandard.getVersion()),
+											10));
 								} else {
 
 									newstandard = new Standard();
@@ -239,6 +288,10 @@ public class WorkerImportStandard implements Worker {
 									else
 										newstandard.setType(StandardType.NORMAL);
 									daoStandard.save(newstandard);
+									serviceTaskFeedback.send(id, new MessageHandler("info.import.norm",
+											new Object[] { newstandard.getLabel(), newstandard.getVersion() },
+											String.format("Import standard %s, version %d.", newstandard.getLabel(), newstandard.getVersion()),
+											10));
 								}
 							}
 					}
@@ -283,21 +336,15 @@ public class WorkerImportStandard implements Worker {
 						endColSheet = table.getEndCellReference().getCol();
 						startRowSheet = table.getStartCellReference().getRow();
 						endRowSheet = table.getEndCellReference().getRow();
-
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-
 								measureDescription = daoMeasureDescription.getByReferenceAndStandard(sheet.getRow(indexRow).getCell(1).getStringCellValue(), newstandard);
-
 								if (measureDescription == null) {
-
 									measureDescription = new MeasureDescription();
 									measureDescription.setStandard(newstandard);
 									daoMeasureDescription.save(measureDescription);
 								}
-
-								// System.out.println("Row: " + indexRow);
-
+								
 								if (sheet.getRow(indexRow).getCell(0).getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
 									measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
 								else
@@ -336,12 +383,12 @@ public class WorkerImportStandard implements Worker {
 												}
 
 												if (daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId())) {
-													measureDescriptionText = daoMeasureDescriptionText
-															.getForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId());
+													measureDescriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(),
+															lang.getId());
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1)
-															.getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null
+															? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
 
 													if (domain.isEmpty() || measureDescription.isComputable() && description.isEmpty())
 														System.out.println("Measuredescriptiontext not valid! Skipping...");
@@ -356,8 +403,8 @@ public class WorkerImportStandard implements Worker {
 													measureDescriptionText.setLanguage(lang);
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1)
-															.getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null
+															? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
 
 													if (!domain.isEmpty())
 														measureDescriptionText.setDomain(domain);
@@ -427,24 +474,41 @@ public class WorkerImportStandard implements Worker {
 	@Override
 	public void cancel() {
 		try {
-			synchronized (this) {
-				if (working) {
-					Thread.currentThread().interrupt();
-					canceled = true;
+			if (isWorking() && !isCanceled()) {
+				synchronized (this) {
+					if (isWorking() && !isCanceled()) {
+						Thread.currentThread().interrupt();
+						canceled = true;
+					}
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			error = e;
+			TrickLogManager.Persist(error = e);
 		} finally {
-			if (importFile != null && importFile.exists())
-				importFile.delete();
-			synchronized (this) {
-				working = false;
+			if (isWorking()) {
+				synchronized (this) {
+					if (isWorking()) {
+						working = false;
+						finished = new Timestamp(System.currentTimeMillis());
+					}
+				}
 			}
-			if (poolManager != null)
-				poolManager.remove(getId());
+			if (importFile != null && importFile.exists()) {
+				if (!importFile.delete())
+					importFile.deleteOnExit();
+			}
+
 		}
+	}
+
+	@Override
+	public Date getStarted() {
+		return started;
+	}
+
+	@Override
+	public Date getFinished() {
+		return finished;
 	}
 
 }

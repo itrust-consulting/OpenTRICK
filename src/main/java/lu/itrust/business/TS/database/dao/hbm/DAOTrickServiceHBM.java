@@ -1,10 +1,10 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import lu.itrust.business.TS.database.dao.DAOTrickService;
-import lu.itrust.business.TS.model.TrickService;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAOTrickService;
+import lu.itrust.business.TS.model.TrickService;
 
 /**
  * DAOTrickServiceHBM.java: <br>
@@ -39,7 +39,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#get(int)
 	 */
 	@Override
-	public TrickService get(Integer id) throws Exception {
+	public TrickService get(Integer id)  {
 		return (TrickService) getSession().get(TrickService.class, id);
 	}
 
@@ -50,7 +50,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#getStatus()
 	 */
 	@Override
-	public TrickService getStatus() throws Exception {
+	public TrickService getStatus()  {
 		return (TrickService) getSession().createQuery("From TrickService").uniqueResult();
 	}
 
@@ -61,7 +61,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#save(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Override
-	public void save(TrickService trickservice) throws Exception {
+	public void save(TrickService trickservice)  {
 		getSession().save(trickservice);
 	}
 
@@ -72,7 +72,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#saveOrUpdate(lu.itrust.business.TS.model.TrickService)
 	 */
 	@Override
-	public void saveOrUpdate(TrickService trickservice) throws Exception {
+	public void saveOrUpdate(TrickService trickservice)  {
 		getSession().saveOrUpdate(trickservice);
 	}
 
@@ -83,7 +83,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#remove(String)
 	 */
 	@Override
-	public void delete(TrickService trickservice) throws Exception {
+	public void delete(TrickService trickservice)  {
 		getSession().delete(trickservice);
 	}
 }

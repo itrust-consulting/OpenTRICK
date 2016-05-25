@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
-import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
-import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
+import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
  * ServiceMeasureDescriptionTextImpl.java: <br>
@@ -31,12 +31,12 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#get(int)
 	 */
 	@Override
-	public MeasureDescriptionText get(Integer id) throws Exception {
+	public MeasureDescriptionText get(Integer id)  {
 		return daoMeasureDescriptionText.get(id);
 	}
 
@@ -47,13 +47,13 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * @param idMeasureDescription
 	 * @param idLanguage
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#getMeasureDescriptionTextByIdAndLanguageId(int,
 	 *      int)
 	 */
 	@Override
-	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage)  {
 		return daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(idMeasureDescription, idLanguage);
 	}
 
@@ -64,13 +64,13 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * @param idMeasureDescription
 	 * @param idLanguage
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#existsForLanguageByMeasureDescriptionIdAndLanguageId(int,
 	 *      int)
 	 */
 	@Override
-	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage)  {
 		return daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(idMeasureDescription, idLanguage);
 	}
 
@@ -80,12 +80,12 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * 
 	 * @param measureDescriptionID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#getAllMeasureDescriptionTextsByMeasureDescriptionId(int)
 	 */
 	@Override
-	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID) throws Exception {
+	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID)  {
 		return daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescriptionID);
 	}
 
@@ -94,13 +94,13 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * Description
 	 * 
 	 * @param measureDescription
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#save(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
-	public void save(MeasureDescriptionText measureDescription) throws Exception {
+	public void save(MeasureDescriptionText measureDescription)  {
 		daoMeasureDescriptionText.save(measureDescription);
 	}
 
@@ -109,13 +109,13 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * Description
 	 * 
 	 * @param measureDescription
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(MeasureDescriptionText measureDescription) throws Exception {
+	public void saveOrUpdate(MeasureDescriptionText measureDescription)  {
 		daoMeasureDescriptionText.saveOrUpdate(measureDescription);
 	}
 
@@ -124,13 +124,13 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * Description
 	 * 
 	 * @param measureDescription
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText#delete(lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
-	public void delete(MeasureDescriptionText measureDescription) throws Exception {
+	public void delete(MeasureDescriptionText measureDescription)  {
 		daoMeasureDescriptionText.delete(measureDescription);
 	}
 }

@@ -5,14 +5,14 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
-
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 
 /**
  * @author oensuifudine

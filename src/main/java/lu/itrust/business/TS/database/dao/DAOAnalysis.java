@@ -24,43 +24,43 @@ public interface DAOAnalysis {
 
 	public Long countByIdentifier(String identifier);
 
-	public void delete(Analysis analysis) throws Exception;
+	public void delete(Analysis analysis) ;
 
-	public void delete(Integer idAnalysis) throws Exception;
+	public void delete(Integer idAnalysis) ;
 
-	public boolean exists(Integer idAnalysis) throws Exception;
+	public boolean exists(Integer idAnalysis) ;
 
 	public boolean exists(String identifier);
 
-	public boolean exists(String identifier, String version) throws Exception;
+	public boolean exists(String identifier, String version) ;
 
-	public Analysis get(Integer idAnalysis) throws Exception;
+	public Analysis get(Integer idAnalysis) ;
 
-	public List<Analysis> getAll() throws Exception;
+	public List<Analysis> getAll() ;
 
-	public List<Integer> getAllAnalysisIDs() throws Exception;
+	public List<Integer> getAllAnalysisIDs() ;
 
 	public List<Analysis> getAllByIdentifier(String identifier);
 
-	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception;
+	public List<Analysis> getAllFromCustomer(Customer customer) ;
 
 	public List<Analysis> getAllFromCustomer(Integer id);
 
-	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) throws Exception;
+	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) ;
 
-	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception;
+	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) ;
 
-	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
+	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) ;
 
-	public List<Analysis> getAllFromUser(User user) throws Exception;
+	public List<Analysis> getAllFromUser(User user) ;
 
-	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID) throws Exception;
+	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID) ;
 
-	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception;
+	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) ;
 
-	public List<Analysis> getAllNotEmpty() throws Exception;
+	public List<Analysis> getAllNotEmpty() ;
 
-	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) throws Exception;
+	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) ;
 
 	public List<String> getAllNotEmptyVersion(int analysisId);
 
@@ -68,7 +68,7 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards);
 
-	public List<Analysis> getAllProfiles() throws Exception;
+	public List<Analysis> getAllProfiles() ;
 
 	public List<String> getAllVersion(String identifier);
 
@@ -80,11 +80,11 @@ public interface DAOAnalysis {
 
 	public List<Customer> getCustomersByIdAnalysis(String identifier);
 
-	public Analysis getDefaultProfile() throws Exception;
+	public Analysis getDefaultProfile() ;
 
 	public int getDefaultProfileId();
 
-	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) throws Exception;
+	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) ;
 
 	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights);
 
@@ -94,25 +94,25 @@ public interface DAOAnalysis {
 
 	public String getLabelFromId(int idAnalysis);
 
-	public Language getLanguageOfAnalysis(Integer idAnalysis) throws Exception;
+	public Language getLanguageOfAnalysis(Integer idAnalysis) ;
 
-	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception;
+	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) ;
 
-	public String getVersionOfAnalysis(Integer idAnalysis) throws Exception;
+	public String getVersionOfAnalysis(Integer idAnalysis) ;
 
-	public boolean hasData(Integer idAnalysis) throws Exception;
+	public boolean hasData(Integer idAnalysis) ;
 
-	public boolean isAnalysisCssf(Integer analysisID) throws Exception;
+	public boolean isAnalysisCssf(Integer analysisID) ;
 
 	public boolean isAnalysisOwner(Integer analysisId, String userName);
 
-	public boolean isAnalysisUncertainty(Integer analysisID) throws Exception;
+	public boolean isAnalysisUncertainty(Integer analysisID) ;
 
-	public boolean isProfile(Integer idAnalysis) throws Exception;
+	public boolean isProfile(Integer idAnalysis) ;
 
-	public void save(Analysis analysis) throws Exception;
+	public void save(Analysis analysis) ;
 
-	public void saveOrUpdate(Analysis analysis) throws Exception;
+	public void saveOrUpdate(Analysis analysis) ;
 
 	public List<Customer> getCustomersByIdAnalysis(int analysisId);
 
@@ -141,12 +141,22 @@ public interface DAOAnalysis {
 	public List<Analysis> getAllHasRightsAndContainsStandard(String username, List<AnalysisRight> rights, List<Standard> standards);
 
 	public boolean existsByNameAndCustomerId(String name, int idCustomer);
-	
+
 	public List<Analysis> getAllNotEmpty(int pageIndex, int pageSize);
 
 	public int countNotEmpty();
 
-	
+	public Analysis getByCustomerAndNameAndVersion(int customerId, String name, String version);
+
+	public Analysis getByIdentifierAndVersion(String identifier, String version);
+
+	public Analysis getProfileByName(String name);
+
+	public Analysis getByAnalysisStandardId(int idAnalysisStandard);
+
+	public int countNotEmptyNoItemInformationAndRiskInformation();
+
+	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
 
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
 

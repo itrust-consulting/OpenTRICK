@@ -1,12 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
-	<artifactId>TrickService</artifactId>
-	<version>1.5</version>
+	<artifactId>trickservice</artifactId>
+	<version>1.7r2</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.springframework.version>4.1.6.RELEASE</org.springframework.version>
-		<org.springframework.security.version>4.0.1.RELEASE</org.springframework.security.version>
+		<org.springframework.version>4.2.5.RELEASE</org.springframework.version>
+		<org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
@@ -88,6 +89,14 @@
 			<version>${org.springframework.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+
 		<!-- Spring Security -->
 
 		<dependency>
@@ -119,6 +128,21 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<version>${org.springframework.security.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- LDAP -->
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-ldap</artifactId>
+			<version>${org.springframework.security.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
 			<version>3.1</version>
@@ -129,31 +153,40 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>4.3.9.Final</version>
+			<version>5.1.0.Final</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.1-api</artifactId>
 			<version>1.0.0.Final</version>
 		</dependency>
 
-		<!-- Hibernate Validator -->
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jta_1.1_spec</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 
 		<dependency>
-			<groupId>org.jboss.spec.javax.transaction</groupId>
-			<artifactId>jboss-transaction-api_1.2_spec</artifactId>
-			<version>1.0.0.Final</version>
+			<groupId>org.hibernate.common</groupId>
+			<artifactId>hibernate-commons-annotations</artifactId>
+			<version>5.0.1.Final</version>
 		</dependency>
+
+
 		<dependency>
 			<groupId>dom4j</groupId>
 			<artifactId>dom4j</artifactId>
 			<version>1.6.1</version>
 		</dependency>
+
 		<dependency>
-			<groupId>antlr</groupId>
+			<groupId>org.antlr</groupId>
 			<artifactId>antlr</artifactId>
-			<version>2.7.7</version>
+			<version>3.5.2</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
@@ -177,10 +210,6 @@
 			<artifactId>commons-dbcp2</artifactId>
 			<version>2.1</version>
 		</dependency>
-
-		<!-- <dependency> <groupId>commons-dbcp</groupId> <artifactId>commons-dbcp</artifactId> <version>20030825.184428</version> </dependency> <dependency> <groupId>commons-collections</groupId> 
-			<artifactId>commons-collections</artifactId> <version>3.0</version> </dependency> <dependency> <groupId>commons-pool</groupId> <artifactId>commons-pool</artifactId> <version>20030825.183949</version> 
-			</dependency> -->
 
 		<dependency>
 			<groupId>org.xerial</groupId>
@@ -220,37 +249,51 @@
 			<version>1.7</version>
 		</dependency>
 
-
 		<!-- POI (Generate Office document) -->
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.12</version>
+			<version>3.14</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml-schemas</artifactId>
-			<version>3.12</version>
+			<version>3.14</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.12</version>
+			<version>3.14</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-scratchpad</artifactId>
-			<version>3.12</version>
+			<version>3.14</version>
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.minidev</groupId>
+			<artifactId>json-smart</artifactId>
+			<version>2.2.1</version>
+			<!-- <scope>test</scope> -->
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.36</version>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- Email -->
@@ -260,8 +303,58 @@
 			<version>1.7</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-core</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-core-entry</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-protocol-ldap</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-server-jndi</artifactId>
+			<version>1.5.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.directory.shared</groupId>
+			<artifactId>shared-ldap</artifactId>
+			<version>0.9.15</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.7.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.9.6</version>
+			<scope>test</scope>
+		</dependency>
+
+
 	</dependencies>
-	<name>Trick Service</name>
+	<name>trickservice</name>
 	<organization>
 		<name>itrust consulting S.A.R.L</name>
 		<url>www.itrust.lu</url>
@@ -283,11 +376,185 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<suiteXmlFiles>
+						<suiteXmlFile>src/test/resources/scenarios/1.yaml</suiteXmlFile>
+
+					</suiteXmlFiles>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.docx4j</groupId>
 				<artifactId>docx4j</artifactId>
 				<version>2.8.0</version>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<warSourceExcludes>
+						**/WEB-INF/css/main.css,
+						**/WEB-INF/css/datepicker.css,
+						**/WEB-INF/css/select2-bootstrap.css,
+						**/WEB-INF/css/slider.css,
+						**/WEB-INF/js/main.js,
+						**/WEB-INF/js/dom-parser.js,
+						**/WEB-INF/js/jquery.fileDownload.js,
+						**/WEB-INF/js/trickservice/*.js,
+						**/WEB-INF/js/highcharts/themes/*.js,
+						**/WEB-INF/js/bootstrap/bootbox.js,
+						**/WEB-INF/js/bootstrap/bootstrap-*.js,
+						**/WEB-INF/js/bootstrap/locales/*.js,
+						**/WEB-INF/js/bootstrap/stickyTableHeaders.js,
+						**/WEB-INF/js/bootstrap/typeahead.bundle.js,
+					</warSourceExcludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.samaxes.maven</groupId>
+				<artifactId>minify-maven-plugin</artifactId>
+				<version>1.7.4</version>
+				<executions>
+					<execution>
+						<id>minify-default</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<charset>utf-8</charset>
+							<jsEngine>CLOSURE</jsEngine>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+
+							<cssSourceDir>WEB-INF/css</cssSourceDir>
+
+							<cssSourceIncludes>
+								<cssSourceInclude>*.css</cssSourceInclude>
+							</cssSourceIncludes>
+
+							<cssSourceExcludes>
+								<cssSourceExclude>WEB-INF/css/*.min.css</cssSourceExclude>
+							</cssSourceExcludes>
+
+							<jsSourceDir>WEB-INF/js</jsSourceDir>
+
+							<jsSourceExcludes>
+								<jsSourceExclude>WEB-INF/js/*.min.js</jsSourceExclude>
+							</jsSourceExcludes>
+							<jsSourceIncludes>
+								<jsSourceInclude>*.js</jsSourceInclude>
+							</jsSourceIncludes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>minify-js-trickservie</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<charset>utf-8</charset>
+							<jsEngine>CLOSURE</jsEngine>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+
+							<jsSourceDir>WEB-INF/js/trickservice</jsSourceDir>
+
+							<jsSourceIncludes>
+								<jsSourceInclude>*.js</jsSourceInclude>
+							</jsSourceIncludes>
+
+							<jsSourceExcludes>
+								<jsSourceExclude>WEB-INF/js/trickservice/*.min.js</jsSourceExclude>
+							</jsSourceExcludes>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>minify-js-bootstrap</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<charset>utf-8</charset>
+							<jsEngine>CLOSURE</jsEngine>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+
+							<jsSourceDir>WEB-INF/js/bootstrap</jsSourceDir>
+
+							<jsSourceIncludes>
+								<jsSourceInclude>*.js</jsSourceInclude>
+							</jsSourceIncludes>
+
+							<jsSourceExcludes>
+								<jsSourceExclude>WEB-INF/js/bootstrap/*.min.js</jsSourceExclude>
+							</jsSourceExcludes>
+
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>minify-js-bootstrap-locales</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<charset>utf-8</charset>
+							<jsEngine>CLOSURE</jsEngine>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+
+							<jsSourceDir>WEB-INF/js/bootstrap/locales</jsSourceDir>
+
+							<jsSourceIncludes>
+								<jsSourceInclude>*.js</jsSourceInclude>
+							</jsSourceIncludes>
+
+							<jsSourceExcludes>
+								<jsSourceExclude>WEB-INF/js/bootstrap/locales/*.min.js</jsSourceExclude>
+							</jsSourceExcludes>
+
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>minify-js-highcharts-theme</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<charset>utf-8</charset>
+							<jsEngine>CLOSURE</jsEngine>
+							<skipMerge>true</skipMerge>
+							<nosuffix>true</nosuffix>
+
+							<jsSourceDir>WEB-INF/js/highcharts/themes</jsSourceDir>
+
+							<jsSourceIncludes>
+								<jsSourceInclude>*.js</jsSourceInclude>
+							</jsSourceIncludes>
+
+							<jsSourceExcludes>
+								<jsSourceExclude>WEB-INF/js/highcharts/themes/*.min.js</jsSourceExclude>
+							</jsSourceExcludes>
+
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 </project>

@@ -2,15 +2,15 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceAnalysisStandardImpl.java: <br>
@@ -32,13 +32,13 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#get(int)
 	 */
 	
 	@Override
-	public AnalysisStandard get(Integer id) throws Exception {
+	public AnalysisStandard get(Integer id)  {
 		return daoAnalysisStandard.get(id);
 	}
 
@@ -47,13 +47,13 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAll()
 	 */
 	
 	@Override
-	public List<AnalysisStandard> getAll() throws Exception {
+	public List<AnalysisStandard> getAll()  {
 		return daoAnalysisStandard.getAll();
 	}
 
@@ -63,13 +63,13 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @param analysisID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAllFromAnalysis(java.lang.Integer)
 	 */
 	
 	@Override
-	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) throws Exception {
+	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID)  {
 		return this.daoAnalysisStandard.getAllFromAnalysis(analysisID);
 	}
 
@@ -79,13 +79,13 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @param analysisID
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAllFromAnalysis(java.lang.Integer)
 	 */
 	
 	@Override
-	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisID) throws Exception {
+	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisID)  {
 		return this.daoAnalysisStandard.getAllComputableFromAnalysis(analysisID);
 	}
 
@@ -95,13 +95,13 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @param analysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAllFromAnalysis(lu.itrust.business.TS.model.analysis.Analysis)
 	 */
 	
 	@Override
-	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception {
+	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis)  {
 		return daoAnalysisStandard.getAllFromAnalysis(analysis);
 	}
 
@@ -115,7 +115,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 */
 	
 	@Override
-	public List<AnalysisStandard> getAllFromStandard(Standard standard) throws Exception {
+	public List<AnalysisStandard> getAllFromStandard(Standard standard)  {
 		return daoAnalysisStandard.getAllFromStandard(standard);
 	}
 
@@ -124,13 +124,13 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * Description
 	 * 
 	 * @param analysisStandard
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#save(lu.itrust.business.TS.model.standard.AnalysisStandard)
 	 */
 	@Transactional
 	@Override
-	public void save(AnalysisStandard analysisStandard) throws Exception {
+	public void save(AnalysisStandard analysisStandard)  {
 		daoAnalysisStandard.save(analysisStandard);
 
 	}
@@ -140,13 +140,13 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * Description
 	 * 
 	 * @param analysisStandard
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#saveOrUpdate(lu.itrust.business.TS.model.standard.AnalysisStandard)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception {
+	public void saveOrUpdate(AnalysisStandard analysisStandard)  {
 		daoAnalysisStandard.saveOrUpdate(analysisStandard);
 
 	}
@@ -156,20 +156,20 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * Description
 	 * 
 	 * @param analysisStandard
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#delete(lu.itrust.business.TS.model.standard.AnalysisStandard)
 	 */
 	@Transactional
 	@Override
-	public void delete(AnalysisStandard analysisStandard) throws Exception {
+	public void delete(AnalysisStandard analysisStandard)  {
 		daoAnalysisStandard.delete(analysisStandard);
 
 	}
 
 	@Transactional
 	@Override
-	public void deleteAllFromAnalysis(Integer analysisId) throws Exception {
+	public void deleteAllFromAnalysis(Integer analysisId)  {
 		daoAnalysisStandard.deleteAllFromAnalysis(analysisId);
 	}
 

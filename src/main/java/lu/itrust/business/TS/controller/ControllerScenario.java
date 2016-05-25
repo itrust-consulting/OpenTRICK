@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -8,32 +10,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.JsonMessage;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAssessment;
-import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.database.service.ServiceDataValidation;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.assessment.helper.AssessmentManager;
-import lu.itrust.business.TS.model.asset.AssetType;
-import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.model.general.AssetTypeValue;
-import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.TS.model.scenario.ScenarioType;
-import lu.itrust.business.TS.validator.ScenarioValidator;
-import lu.itrust.business.TS.validator.field.ValidatorField;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -48,6 +24,31 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.CustomDelete;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAssessment;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
+import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.model.general.AssetTypeValue;
+import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
+import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.scenario.ScenarioType;
+import lu.itrust.business.TS.validator.ScenarioValidator;
+import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
  * ControllerScenario.java: <br>
@@ -75,19 +76,13 @@ public class ControllerScenario {
 	private ChartGenerator chartGenerator;
 
 	@Autowired
-	private ServiceMeasure serviceMeasure;
-
-	@Autowired
 	private CustomDelete customDelete;
 
 	@Autowired
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceLanguage serviceLanguage;
-
-	@Autowired
-	private AssessmentManager assessmentManager;
+	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -97,9 +92,6 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	/**
 	 * select: <br>
@@ -111,38 +103,25 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
-
 		try {
-
-			Integer analysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha2());
-
 			// retrieve scenario
 			Scenario scenario = serviceScenario.get(elementID);
 			if (scenario == null)
-				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", customLocale != null ? customLocale : locale));
-
+				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
 			// select or unselect scenario
 			if (scenario.isSelected())
-				assessmentManager.unSelectScenario(scenario);
+				assessmentAndRiskProfileManager.unSelectScenario(scenario);
 			else
-				assessmentManager.selectScenario(scenario);
-
+				assessmentAndRiskProfileManager.selectScenario(scenario);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.successfully", null, "Scenario was updated successfully",
-					customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.successfully", null, "Scenario was updated successfully", locale));
 		} catch (Exception e) {
-
-			Integer analysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysis).getAlpha2());
 			// return error message
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -156,7 +135,7 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) throws Exception {
 
@@ -164,41 +143,19 @@ public class ControllerScenario {
 		List<String> errors = new LinkedList<String>();
 
 		try {
-
-			for (Integer id : ids) {
-
-				Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-
-				if (!serviceScenario.belongsToAnalysis(analysisId, id)) {
-					errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_scenario", null, "One of the scenarios does not belong to this analysis!",
-							customLocale != null ? customLocale : locale)));
-					return errors;
-				}
+			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			if (!serviceScenario.belongsToAnalysis(analysisId, ids)) {
+				errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_scenario", null, "One of the scenarios does not belong to this analysis!", locale)));
+				return errors;
 			}
-
-			// parse each scenario id
-			for (Integer id : ids) {
-				Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-				// select elements
-				select(id, principal, customLocale != null ? customLocale : locale, session);
-
-				// return success message
-			}
-
+			assessmentAndRiskProfileManager.toggledScenarios(ids);
 			// return empty errors list (success)
 			return errors;
 
 		} catch (Exception e) {
-			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			// return error message
-			e.printStackTrace();
-			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale)));
+			TrickLogManager.Persist(e);
+			errors.add(JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale)));
 			return errors;
 		}
 	}
@@ -214,25 +171,22 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{idScenario}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{idScenario}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable int idScenario, Principal principal, Locale locale, HttpSession session) throws Exception {
-		Locale customLocale = locale;
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 			// try to delete assessment with this scenario
 			customDelete.deleteScenario(idScenario, idAnalysis);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null, "Scenario was deleted successfully",
-					customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null, "Scenario was deleted successfully", locale));
 		} catch (TrickException e) {
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error message
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.scenario.delete.failed", null, "Scenario cannot be deleted", customLocale != null ? customLocale : locale));
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.scenario.delete.failed", null, "Scenario cannot be deleted", locale));
 		}
 	}
 
@@ -246,26 +200,20 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
-
 		// retrieve analysis id
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (integer == null)
-			return null;
-		Boolean isReadOnly = (Boolean) session.getAttribute(Constant.SELECTED_ANALYSIS_READ_ONLY);
-		if (isReadOnly == null)
-			isReadOnly = false;
-
+		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
-		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
-		model.addAttribute("isEditable", !isReadOnly && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("scenarioALE", AssessmentAndRiskProfileManager.ComputeScenarioALE(scenarios, assessments));
+		model.addAttribute("isEditable", OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(integer).getAlpha2());
+		model.addAttribute("isProfile", serviceAnalysis.isProfile(integer));
 		return "analyses/single/components/scenario/scenario";
 	}
 
@@ -303,39 +251,27 @@ public class ControllerScenario {
 	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-		if (idAnalysis == null)
-			return null;
-
 		if (serviceAnalysis.isAnalysisCssf(idAnalysis))
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
-
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		return "analyses/single/components/scenario/manageScenario";
 	}
 
-	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteDuplicationAssetTypeValue(HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
 			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(analysisId);
 			customDelete.deleteDuplicationAssetTypeValue(scenarios);
-			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null, "Duplication were successfully deleted",
-					customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null, "Duplication were successfully deleted", locale));
 		} catch (Exception e) {
-			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.delete.assettypevalue.duplication", null, "Duplication cannot be deleted", customLocale != null ? customLocale
-					: locale));
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.delete.assettypevalue.duplication", null, "Duplication cannot be deleted", locale));
 		}
 
 	}
@@ -351,7 +287,7 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
 
@@ -359,22 +295,14 @@ public class ControllerScenario {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-
 			// get analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			if (idAnalysis == null) {
-				errors.put("scenario", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
-				return errors;
-			}
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
-			Scenario scenario = null;
+			
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 
-			scenario = buildScenario(errors, assetTypes, value, customLocale != null ? customLocale : locale, serviceAnalysis.isAnalysisCssf(idAnalysis));
+			Scenario scenario = buildScenario(errors, assetTypes, value, locale, analysis.isCssf());
 
 			if (!errors.isEmpty())
 				return errors;
@@ -382,53 +310,38 @@ public class ControllerScenario {
 			if (scenario.getId() > 0) {
 
 				if (!serviceScenario.belongsToAnalysis(idAnalysis, scenario.getId())) {
-					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis",
-							customLocale != null ? customLocale : locale));
+					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis", locale));
 					return errors;
 				}
-
+				
 				serviceScenario.saveOrUpdate(scenario);
-
+				
+				if (scenario.isSelected())
+					assessmentAndRiskProfileManager.selectScenario(scenario);
+				else
+					assessmentAndRiskProfileManager.unSelectScenario(scenario);
+				
 			} else {
 				if (serviceScenario.exist(idAnalysis, scenario.getName())) {
-
-					errors.put(
-							"name",
-							messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
-									String.format("Scenario (%s) already exists", scenario.getName()), customLocale != null ? customLocale : locale));
+					errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() },
+							String.format("Scenario (%s) already exists", scenario.getName()), locale));
 					return errors;
-				} else {
-					Analysis analysis = serviceAnalysis.get(idAnalysis);
-					analysis.addAScenario(scenario);
-					serviceAnalysis.saveOrUpdate(analysis);
 				}
-
 			}
 
-			if (scenario.isSelected())
-				assessmentManager.selectScenario(scenario);
-			else
-				assessmentManager.unSelectScenario(scenario);
-
-			assessmentManager.build(scenario, idAnalysis);
-
+			assessmentAndRiskProfileManager.buildOnly(scenario, analysis);
+			
+			serviceAnalysis.saveOrUpdate(analysis);
+	
 			return errors;
 
 		} catch (TrickException e) {
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			if (idAnalysis != null) {
-				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
-			} else
-				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
 			return errors;
 		} catch (Exception e) {
-			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
-			e.printStackTrace();
+			errors.put("scenario", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return errors;
 		}
 
@@ -444,18 +357,13 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-		if (idAnalysis == null)
-			return null;
-
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
-		return chartGenerator.aleByScenario(idAnalysis, customLocale != null ? customLocale : locale);
+		return chartGenerator.aleByScenario(idAnalysis, locale);
 	}
 
 	/**
@@ -468,16 +376,11 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (idAnalysis == null)
-			return null;
-
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-
-		return chartGenerator.aleByScenarioType(idAnalysis, customLocale != null ? customLocale : locale);
+		return chartGenerator.aleByScenarioType(idAnalysis, locale);
 	}
 
 	/**
@@ -494,6 +397,7 @@ public class ControllerScenario {
 	private Scenario buildScenario(Map<String, String> errors, List<AssetType> assetTypes, String source, Locale locale, boolean cssf) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
+
 			JsonNode jsonNode = mapper.readTree(source);
 
 			int idScenario = jsonNode.get("id").asInt();
@@ -516,6 +420,7 @@ public class ControllerScenario {
 
 			JsonNode node = jsonNode.get("scenarioType");
 			ScenarioType scenarioType = null;
+
 			try {
 
 				Integer i = node.get("id").asInt();
@@ -528,10 +433,10 @@ public class ControllerScenario {
 				returnvalue.setType(scenarioType);
 
 				// set category according to value of scenario type
-				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 1);
+				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenarioType(scenarioType.getName()), 1);
 
 			} catch (TrickException e) {
-				errors.put("scenarioType", messageSource.getMessage(e.getCode(), null, e.getMessage(), locale));
+				errors.put("scenarioType", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			}
 			String description = jsonNode.get("description").asText();
 
@@ -570,11 +475,11 @@ public class ControllerScenario {
 		} catch (TrickException e) {
 			// return error message
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		} catch (Exception e) {
 
-			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			errors.put("scenario",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 		}
 
 		return null;

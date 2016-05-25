@@ -2,10 +2,11 @@ var previous;
 
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
-	$("#tab-container table").stickyTableHeaders({
-		cssTopOffset : ".nav-tab",
-		fixedOffset : application.fixedOffset
-	});
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".nav-tab"),
+		marginTop : application.fixedOffset
+	};
+	fixTableHeader("#tab-container table");
 });
 
 $(function() {
@@ -21,9 +22,9 @@ $(function() {
 function installTrickService() {
 	$.ajax({
 		url : context + "/Install",
-		type : "GET",
+		type : "POST",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["error"] != undefined) {
 				$("#alert-dialog .modal-body").html(response["error"]);
@@ -56,7 +57,7 @@ function switchCustomer(section) {
 					$content.find(".label").remove();
 					$.ajax({
 						url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Customer/" + $content.find("select").val(),
-						type : "get",
+						type : "post",
 						contentType : "application/json;charset=UTF-8",
 						success : function(response, textStatus, jqXHR) {
 							if (response["success"] != undefined) {
@@ -102,14 +103,13 @@ function switchOwner(section) {
 						$content.find(".label").remove();
 						$.ajax({
 							url : context + "/Admin/Analysis/" + idAnalysis + "/Switch/Owner/" + $content.find("select").val(),
-							type : "get",
+							type : "post",
 							contentType : "application/json;charset=UTF-8",
 							success : function(response, textStatus, jqXHR) {
-								if (response["success"] != undefined){
+								if (response["success"] != undefined) {
 									$("#tab_analyses").find("select").change();
 									$content.modal("hide");
-								}
-								else if (response["error"] != undefined)
+								} else if (response["error"] != undefined)
 									$("<label class='label label-danger'>" + response["error"] + "</label>").appendTo($content.find("select").parent());
 								else
 									unknowError();
@@ -128,7 +128,7 @@ function switchOwner(section) {
 }
 
 function manageAnalysisAccess(analysisId, section_analysis) {
-	if (!isProfile("#"+section_analysis))
+	if (!isProfile("#" + section_analysis))
 		return false;
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection(section_analysis);
@@ -212,15 +212,10 @@ function adminCustomerChange(selector) {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var $newSection = $(doc).find("#section_admin_analysis");
+			var $newSection = $("#section_admin_analysis", new DOMParser().parseFromString(response, "text/html"));
 			if ($newSection.length) {
 				$("#section_admin_analysis").replaceWith($newSection);
-				$("#section_admin_analysis table").stickyTableHeaders({
-					cssTopOffset : ".nav-tab",
-					fixedOffset : application.fixedOffset
-				});
+				fixTableHeader($("table", $newSection));
 			} else
 				unknowError();
 		},
@@ -313,13 +308,10 @@ function loadSystemLog() {
 		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
-			if (section.length) {
-				$("#section_log").replaceWith(section);
-				$("#section_log table.table-fixed-header-analysis").stickyTableHeaders({
-					cssTopOffset : ".nav-tab",
-					fixedOffset : application.fixedOffset
-				});
+			var $section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
+			if ($section.length) {
+				$("#section_log").replaceWith($section);
+				fixTableHeader($("table.table-fixed-header-analysis", $section));
 			} else
 				unknowError();
 		},
@@ -357,4 +349,23 @@ function loadSystemLogScrolling() {
 		});
 	}
 	return true;
+}
+
+function updateSetting(idForm, sender) {
+	if ($(sender).is(":checked")) {
+		$.ajax({
+			url : context + "/Admin/TSSetting/Update",
+			async : false,
+			type : "post",
+			data : JSON.stringify($(idForm).serializeJSON()),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response !== true)
+					unknowError();
+				return false;
+			},
+			error : unknowError
+		});
+	}
+	return false;
 }

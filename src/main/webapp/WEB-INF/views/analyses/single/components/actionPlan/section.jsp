@@ -7,19 +7,29 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<fmt:setLocale value="fr" scope="session" />
 <div class="tab-pane" id="tabActionPlan">
 	<div class="section" id="section_actionplans">
 		<spring:eval expression="T(lu.itrust.business.TS.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<spring:message code="label.title.action_plan" />
+					</h3>
+				</div>
+			</div>
+		</div>
 		<ul class="nav nav-pills bordered-bottom" id="menu_actionplan">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
-					onclick="return navToogled('#section_actionplans','#menu_actionplan,#tabOption','${apt}',true);"> <fmt:message key="label.action_plan_type.${fn:toLowerCase(apt)}" />
+					onclick="return navToogled('#section_actionplans','#menu_actionplan,#tabOption','${apt}',true);"> <spring:message code="label.action_plan_type.${fn:toLowerCase(apt)}" />
 				</a></li>
 			</c:forEach>
-			<li style="display: none;" class="dropdown-header"><fmt:message key="label.menu.advanced" /></li>
+			<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 			
 			<c:if test="${!actionplansplitted.isEmpty()}">
-				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action_plan_assets.show" /></a></li>
+				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action_plan_assets.show" /></a></li>
 			</c:if>
 			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message
 						key="label.action.compute" /></a></li>
@@ -31,26 +41,25 @@
 						<table class="table table-hover table-condensed table-fixed-header-analysis" id="actionplantable_${apt}">
 							<thead>
 								<tr>
-									<th style="width:1%;"><fmt:message key="label.table.index" /></th>
-									<th style="width:4%;"><fmt:message key="label.measure.norm" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.reference" /></th>
-									<th><fmt:message key="label.action_plan.todo" /></th>
-									<th style="width:3%;"><fmt:message key="label.action_plan.total_ale" /></th>
-									<th style="width:4%;"><fmt:message key="label.action_plan.delta_ale" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.cost" /></th>
-									<th style="width:3%;"><fmt:message key="label.action_plan.roi" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.iw" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.ew" /></th>
-									<th style="width:3%;"><fmt:message key="label.measure.inv" /></th>
-									<th style="width:3%;"><fmt:message key="label.action_plan.phase" /></th>
+									<th style="width:1%;"><spring:message code="label.table.index" /></th>
+									<th style="width:5%;" title='<spring:message code="label.measure.norm" />' ><spring:message code="label.measure.norm" /></th>
+									<th style="width:5%;" title='<spring:message code="label.reference" />' ><spring:message code="label.reference" /></th>
+									<th title='<spring:message code="label.measure.todo" />' ><spring:message code="label.measure.todo" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.ale" />' ><spring:message code="label.action_plan.total_ale" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.delta_ale" />' ><spring:message code="label.action_plan.delta_ale" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.measure.cost" />' ><spring:message code="label.measure.cost" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.action_plan.roi" />' ><spring:message code="label.action_plan.roi" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.measure.iw" />' ><spring:message code="label.measure.iw" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.measure.ew" />' ><spring:message code="label.measure.ew" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.measure.inv" />' ><spring:message code="label.measure.inv" /></th>
+									<th style="width:2%;" title='<spring:message code="label.title.measure.phase" />' ><spring:message code="label.measure.phase" /></th>
 								</tr>
 							</thead>
 							<tbody>
 								<c:if test="${actionplansplitted.get(apt).size()>0}">
 									<tr>
 										<td>&nbsp;</td>
-										<td colspan="3"><fmt:message key="label.action_plan.current_ale" /></td>
-										<fmt:setLocale value="fr" scope="session" />
+										<td colspan="3"><spring:message code="label.action_plan.current_ale" /></td>
 										<c:set var="totalALE">
 											${fct:round(actionplansplitted.get(apt).get(0).totalALE,2)+ fct:round(actionplansplitted.get(apt).get(0).deltaALE,2)}
 										</c:set>
@@ -101,7 +110,6 @@
 										</td>
 									</tr>
 								</c:forEach>
-								<fmt:setLocale value="${language}" scope="session" />
 							</tbody>
 							<tfoot></tfoot>
 						</table>
@@ -110,7 +118,7 @@
 			</c:when>
 			<c:otherwise>
 				<div style="padding: 20px;">
-					<fmt:message key="info.action_plan.empty" />
+					<spring:message code="info.action_plan.empty" />
 				</div>
 			</c:otherwise>
 		</c:choose>

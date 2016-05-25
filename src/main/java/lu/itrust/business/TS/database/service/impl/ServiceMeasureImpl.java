@@ -2,15 +2,15 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceMeasureImpl.java: <br>
@@ -32,13 +32,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#get(int)
 	 */
 
 	@Override
-	public Measure get(Integer id) throws Exception {
+	public Measure get(Integer id)  {
 		return daoMeasure.get(id);
 	}
 
@@ -49,14 +49,14 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @param id
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getMeasureFromAnalysisIdById(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
 
 	@Override
-	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
+	public Measure getFromAnalysisById(Integer idAnalysis, Integer id)  {
 		return daoMeasure.getFromAnalysisById(idAnalysis, id);
 	}
 
@@ -67,13 +67,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @param assetId
 	 * @param analysisId
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#belongsToAnalysis(int, int)
 	 */
 
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer assetId)  {
 		return daoMeasure.belongsToAnalysis(analysisId, assetId);
 	}
 
@@ -82,13 +82,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getAllMeasures()
 	 */
 
 	@Override
-	public List<Measure> getAll() throws Exception {
+	public List<Measure> getAll()  {
 		return daoMeasure.getAll();
 	}
 
@@ -98,13 +98,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getAllFromAnalysisId(int)
 	 */
 
 	@Override
-	public List<Measure> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Measure> getAllFromAnalysis(Integer idAnalysis)  {
 		return daoMeasure.getAllFromAnalysis(idAnalysis);
 	}
 
@@ -114,13 +114,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getSOAMeasuresFromAnalysis(int)
 	 */
 
 	@Override
-	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis)  {
 		return daoMeasure.getSOAMeasuresFromAnalysis(idAnalysis);
 	}
 
@@ -130,13 +130,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * 
 	 * @param idAnalysis
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getAllMeasuresFromAnalysisIdAndComputable(int)
 	 */
 
 	@Override
-	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis)  {
 		return daoMeasure.getAllComputableFromAnalysis(idAnalysis);
 	}
 
@@ -151,7 +151,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 */
 
 	@Override
-	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) throws Exception {
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard)  {
 		return daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, idStandard);
 	}
 
@@ -166,7 +166,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 */
 
 	@Override
-	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard) throws Exception {
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard)  {
 		return daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
 	}
 
@@ -181,7 +181,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 */
 
 	@Override
-	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard) throws Exception {
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard)  {
 		return daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
 	}
 
@@ -195,7 +195,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 */
 
 	@Override
-	public List<NormalMeasure> getAllNormalMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysis(Integer idAnalysis)  {
 		return daoMeasure.getAllNormalMeasuresFromAnalysis(idAnalysis);
 	}
 
@@ -209,7 +209,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 */
 
 	@Override
-	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception {
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis)  {
 		return daoMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
 	}
 
@@ -222,7 +222,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getAllNotMaturityMeasuresFromAnalysisAndComputable(java.lang.Integer)
 	 */
 	@Override
-	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception {
+	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis)  {
 		return daoMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 	}
 
@@ -237,7 +237,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 */
 
 	@Override
-	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception {
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures)  {
 		return daoMeasure.getAllNormalMeasuresFromAnalysisByMeasureIdList(idAnalysis, measures);
 	}
 
@@ -247,13 +247,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * 
 	 * @param measure
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#save(lu.itrust.business.TS.model.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override
-	public Measure save(Measure measure) throws Exception {
+	public Measure save(Measure measure)  {
 		return daoMeasure.save(measure);
 	}
 
@@ -262,13 +262,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * Description
 	 * 
 	 * @param measure
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#saveOrUpdate(lu.itrust.business.TS.model.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(Measure measure) throws Exception {
+	public void saveOrUpdate(Measure measure)  {
 		daoMeasure.saveOrUpdate(measure);
 
 	}
@@ -279,13 +279,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * 
 	 * @param measure
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#merge(lu.itrust.business.TS.model.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override
-	public Measure merge(Measure measure) throws Exception {
+	public Measure merge(Measure measure)  {
 		return daoMeasure.merge(measure);
 	}
 
@@ -294,13 +294,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * Description
 	 * 
 	 * @param measure
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#delete(lu.itrust.business.TS.model.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override
-	public void delete(Measure measure) throws Exception {
+	public void delete(Measure measure)  {
 		daoMeasure.delete(measure);
 	}
 
@@ -309,13 +309,13 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * Description
 	 * 
 	 * @param id
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#delete(int)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		daoMeasure.delete(id);
 	}
 
@@ -330,7 +330,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 */
 
 	@Override
-	public Measure getFromAnalysisAndStandardAndReference(Integer idAnalysis, Integer idStandard, String reference) throws Exception {
+	public Measure getFromAnalysisAndStandardAndReference(Integer idAnalysis, Integer idStandard, String reference)  {
 		return daoMeasure.getFromAnalysisAndStandardAndReference(idAnalysis, idStandard, reference);
 	}
 }

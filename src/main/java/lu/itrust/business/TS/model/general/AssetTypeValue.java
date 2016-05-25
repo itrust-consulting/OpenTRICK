@@ -5,6 +5,7 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -30,7 +31,7 @@ public class AssetTypeValue implements Cloneable {
 
 	/** assetTypeValue identifier, unsaved value = -1 */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "idAssetTypeValue")
 	private int id = -1;
 
@@ -193,6 +194,10 @@ public class AssetTypeValue implements Cloneable {
 		if (id != other.id && (id != -1 || other.id == -1))
 			return false;
 		return true;
+	}
+	
+	public boolean hasSameType(String type){
+		return assetType == null? (type == null? true : false) : assetType.isSame(type);
 	}
 
 }

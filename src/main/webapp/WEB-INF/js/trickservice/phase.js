@@ -74,7 +74,7 @@ function newPhase() {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			startDate : $("#addPhaseﬁModel #phase_begin_date").prop("value"),
+			startDate : $("#addPhaseﬁModel #phase_begin_date").prop("value")
 		}).on('changeDate', beginDateChanged);
 
 		$("#addPhaseModel #phase_end_date").datepicker({
@@ -83,10 +83,9 @@ function newPhase() {
 			autoclose : true,
 			weekStart : 1,
 			todayHighlight : true,
-			startDate : $("#addPhaseModel #phase_begin_date").prop("value"),
+			startDate : $("#addPhaseModel #phase_begin_date").prop("value")
 		}).on('changeDate', endDateChanged);
-		var lang = $("#nav-container").attr("data-trick-language");
-		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.add", "Add new phase", null, lang));
+		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.add", "Add new phase"));
 		$("#addPhaseModel #phaseid").prop("value", -1);
 		$('#addPhaseModel').modal('show');
 
@@ -148,7 +147,7 @@ function editPhase(phaseid) {
 			weekStart : 1,
 			todayHighlight : true,
 			/* startDate : phasestartlimit != null ? phasestartlimit : '', */
-			endDate : phaseendlimit != null ? phaseendlimit : '',
+			endDate : phaseendlimit != null ? phaseendlimit : ''
 		}).on('changeDate', beginDateChanged);
 
 		$("#addPhaseModel #phase_end_date").datepicker({
@@ -158,13 +157,12 @@ function editPhase(phaseid) {
 			weekStart : 1,
 			todayHighlight : true,
 			/* startDate : $("#addPhaseModel #phase_begin_date").prop("value"), */
-			endDate : phaseendlimit != null ? phaseendlimit : '',
+			endDate : phaseendlimit != null ? phaseendlimit : ''
 		}).on('changeDate', endDateChanged);
 
 		$("#addPhaseModel #phaseid").prop("value", phaseid);
 
-		var lang = $("#nav-container").attr("data-trick-language");
-		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.edit", "Edit phase", null, lang) + " #" + $(currentrow).find("td:eq(1)").text());
+		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.edit", "Edit phase") + " #" + $(currentrow).find("td:eq(1)").text());
 
 		$('#addPhaseModel').modal('show');
 	}
@@ -277,12 +275,13 @@ function deletePhase(idPhase) {
 			return false;
 		idPhase = selectedScenario[0];
 	}
-	var lang = $("#nav-container").attr("data-trick-language");
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase", null, lang));
+	
+	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Analysis/Phase/Delete/" + idPhase,
 			contentType : "application/json;charset=UTF-8",
+			type : 'POST',
 			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {

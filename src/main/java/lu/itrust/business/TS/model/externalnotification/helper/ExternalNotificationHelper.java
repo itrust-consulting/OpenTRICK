@@ -1,13 +1,11 @@
 package lu.itrust.business.TS.model.externalnotification.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.api.ApiExternalNotification;
+import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
+import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
+import lu.itrust.business.expressions.StringExpressionHelper;
 
 /**
  * Provides helper functionality for external notification instances.
@@ -18,9 +16,7 @@ public class ExternalNotificationHelper {
 	/**
 	 * Creates a new database entity for the given external notification.
 	 * @param apiObj The object which has been obtained via an API call.
-	 * @param objScope The database entity representing the notification scope specified in the 'apiObj' parameter.
-	 * This is necessary because 'apiObj' only specified the _label_ of the scope, not the full object.
-	 * The caller of this method must assure that 'objScope' is really the right object - the value of apiObj.getScope() is silently ignored.
+	 * @param userName The user name of the reporting user.
 	 * @return Returns the created entity.
 	 * @throws TrickException
 	 */
@@ -31,67 +27,38 @@ public class ExternalNotificationHelper {
 		modelObj.setTimestamp(apiObj.getT());
 		modelObj.setHalfLife(apiObj.getH());
 		modelObj.setNumber(apiObj.getN());
-		modelObj.setAssertiveness(apiObj.getA());
+		modelObj.setType(ExternalNotificationType.RELATIVE);
 		modelObj.setSeverity(apiObj.getS());
 		modelObj.setSourceUserName(userName);
 		return modelObj;
 	}
 
 	/**
-	 * Converts a list of ExternalNotification entities to an list of exportable API objects. 
-	 * @param list The list of database entities.
-	 * @return Returns a list of API objects.
+	 * Creates a new database entity for the given parameter setter.
+	 * @param apiObj The object which has been obtained via an API call.
+	 * @param userName The user name of the reporting user.
+	 * @return Returns the created entity.
+	 * @throws TrickException
 	 */
-	public static List<ApiExternalNotification> convertList(List<ExternalNotification> list) {
-		ArrayList<ApiExternalNotification> apiList = new ArrayList<ApiExternalNotification>();
-		for (ExternalNotification obj : list) {
-			ApiExternalNotification apiObj = new ApiExternalNotification();
-			// Copy all relevant properties from entity to API object
-			// We silently omit the unique identifier here
-			apiObj.setC(obj.getCategory());
-			apiObj.setT(obj.getTimestamp());
-			apiObj.setH(obj.getHalfLife());
-			apiObj.setN(obj.getNumber());
-			apiObj.setA(obj.getAssertiveness());
-			apiObj.setS(obj.getSeverity());
-			apiList.add(apiObj);
-		}
-		return apiList;
+	public static ExternalNotification createEntityBasedOn(ApiParameterSetter apiObj, String userName) throws TrickException {
+		ExternalNotification modelObj = new ExternalNotification();
+		// Copy all properties from API object to a new entity
+		modelObj.setCategory(apiObj.getC());
+		modelObj.setTimestamp(apiObj.getT());
+		modelObj.setHalfLife(Integer.MAX_VALUE);
+		modelObj.setNumber(1);
+		modelObj.setType(ExternalNotificationType.ABSOLUTE);
+		modelObj.setSeverity(apiObj.getV());
+		modelObj.setSourceUserName(userName);
+		return modelObj;
 	}
-
+	
 	/**
-	 * Gets the probability that an incident of the given severity occurs, given that a respective anomaly has been detected.
-	 * Indeed, an anomaly/intrusion of low severity has a much lower chance to have any impact.
-	 * @param level The severity level of the incident. Must be in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
-	 * @param severityProbabilities A map containing at least the parameters defining the severity probability for all possible levels.
-	 * The keys of the map correspond to the severity level. 
-	 * @return Returns a probability value in the range [0.0, 1.0].
+	 * Deduces the name of the dynamic parameter associated to an external notification.
+	 * @param sourceUserName The user name of the reporting user.
+	 * @param category The category of the external notification.
 	 */
-	public static double getSeverityProbability(int level, Map<Integer, Double> severityProbabilities) {
-		if (level < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY) return 0.0;
-		if (level > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) return 1.0;
-
-		// Find the corresponding parameter
-		Double parameterValue = severityProbabilities.get(level);
-		if (parameterValue != null)
-			return parameterValue;
-
-		// If it cannot be found, use the default value.
-		return getDefaultSeverityProbability(level);
-	}
-
-	/**
-	 * Gets the default severity probability value to initialize the respective parameter with.
-	 * @param level The severity level of the incident. Must be in the range [EXTERNAL_NOTIFICATION_MIN_SEVERITY, EXTERNAL_NOTIFICATION_MAX_SEVERITY].
-	 * @return Returns a probability value in the range [0.0, 1.0].
-	 */
-	public static double getDefaultSeverityProbability(int level) {
-		if (level < Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY) return 0.0;
-		if (level > Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) return 1.0;
-
-		// Use an exponential formula to deduce a probability
-		double prob = Math.exp((level - Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY) * Math.log(2));
-		// Round to 4 decimals
-		return Math.round(prob * 10000.0) / 10000.0;
+	public static String createParameterName(String sourceUserName, String category) {
+		return StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, category));
 	}
 }

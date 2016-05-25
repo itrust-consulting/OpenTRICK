@@ -1,110 +1,98 @@
 // load sections
 function loadPanelBodiesOfSection(section, refreshOnly) {
-
-	var controller = controllerBySection(section, subSection);
-	if (controller == null || controller == undefined)
-		return false;
-
-	$.ajax({
-		url : context + controller,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response,textStatus,jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if (subSection != null && subSection != undefined)
-				section += "_" + subSection;
-			newSection = $(doc).find("*[id = '" + section + "']");
-			var smartUpdate = new SectionSmartUpdate(section, newSection);
-			if (smartUpdate.Update()) {
-				$("#" + section).replaceWith(newSection);
-				var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
-				if (tableFixedHeader.length) {
-					setTimeout(function() {
-						fixedTableHeader(tableFixedHeader);
-					}, 500);
-				}
-			}
-			if (!refreshOnly) {
-				var callback = callbackBySection(section);
-				if ($.isFunction(callback))
-					callback();
-			}
+	if (refreshOnly == "")
+		refreshOnly = undefined
+	var $section = $("#" + section);
+	if ($section.is(":visible")) {
+		var controller = findControllerBySection(section);
+		if (controller == null || controller == undefined)
 			return false;
-		},
-		error : unknowError
-	});
+		$
+				.ajax({
+					url : context + controller,
+					type : "get",
+					async : true,
+					contentType : "application/json;charset=UTF-8",
+					success : function(response, textStatus, jqXHR) {
+						var $newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html")), smartUpdate = new SectionSmartUpdate(section,
+								$newSection);
+						if (smartUpdate.Update())
+							$section.replaceWith($newSection);
+						if (!refreshOnly) {
+							var callback = callbackBySection(section);
+							if ($.isFunction(callback))
+								callback();
+						}
+						return false;
+					},
+					error : unknowError
+				});
+	} else 
+		$section.closest(".tab-tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
 	return false;
 }
 
 // reload sections
 function reloadSection(section, subSection, refreshOnly) {
+	if (subSection == "")
+		subSection = undefined;
+	if (refreshOnly == "")
+		refreshOnly = undefined
 	if (Array.isArray(section)) {
-		for (var int = 0; int < section.length; int++) {
-			if (Array.isArray(section[int]))
-				reloadSection(section[int][0], section[int][1], refreshOnly);
+		for (var i = 0; i < section.length; i++) {
+			if (Array.isArray(section[i]))
+				reloadSection(section[i][0], section[i][1], refreshOnly);
 			else
-				reloadSection(section[int], subSection, refreshOnly);
+				reloadSection(section[i], subSection, refreshOnly);
 		}
-	} else {
-		var controller = controllerBySection(section, subSection);
-		if (controller == null || controller == undefined)
-			return false;
-
-		if (section == "section_standard") {
-			location.reload();
-			return false;
-		}
-
-		$.ajax({
-			url : context + controller,
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response,textStatus,jqXHR) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if (subSection != null && subSection != undefined)
-					section += "_" + subSection;
-				newSection = $(doc).find("*[id = '" + section + "']");
-				if (newSection.length) {
-					var smartUpdate = new SectionSmartUpdate(section, newSection);
-					if (smartUpdate.Update()) {
-						$("#" + section).replaceWith(newSection);
-						var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
-						if (tableFixedHeader.length) {
-							setTimeout(function() {
-								fixedTableHeader(tableFixedHeader);
-							}, 500);
-						}
-						tableFixedHeader = $("#" + section).find("table.table-fixed-header-analysis");
-						if(tableFixedHeader.length){
-							$(tableFixedHeader).stickyTableHeaders({
-								cssTopOffset : ".nav-analysis",
-								fixedOffset : application.fixedOffset
-							});
-						}
-					}
-				} else {
-					var $tabsSection = $(doc).find(".tab-pane");
-					for (var i = 0; i < $tabsSection.length; i++)
-						$("#" + $($tabsSection[i]).attr("id")).html($($tabsSection[i]).html());
-				}
-				if (!refreshOnly) {
-					var callback = callbackBySection(section);
-					if ($.isFunction(callback))
-						callback();
-				}
+	} else if (section == "section_standard")
+		location.reload();
+	else {
+		var $section = $("#" + section);
+		if ($section.is(":visible")) {
+			var controller = findControllerBySection(section, subSection);
+			if (controller == null || controller == undefined)
 				return false;
-			},
-			error : unknowError
-		});
+			$.ajax({
+				url : context + controller,
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				success : function(response, textStatus, jqXHR) {
+					if (subSection != null && subSection != undefined)
+						section += "_" + subSection;
+					$newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html"));
+					if ($newSection.length) {
+						var smartUpdate = new SectionSmartUpdate(section, $newSection);
+						if (smartUpdate.Update()) {
+							$("#" + section).replaceWith($newSection);
+							fixTableHeader($("table.table-fixed-header,table.table-fixed-header-analysis", $newSection));
+						}
+					} else {
+						var $tabsSection = $(doc).find(".tab-pane");
+						for (var i = 0; i < $tabsSection.length; i++)
+							$("#" + $($tabsSection[i]).attr("id")).html($($tabsSection[i]).html());
+					}
+					if (!refreshOnly) {
+						var callback = callbackBySection(section);
+						if ($.isFunction(callback))
+							callback();
+					}
+					return false;
+				},
+				error : unknowError
+			});
+		} else {
+			var $tab = $section.closest(".tab-pane");
+			$tab.attr("data-update-required", true);
+			$tab.attr("data-trigger", 'reloadSection');
+			$tab.attr("data-parameters", [ section, subSection, refreshOnly ]);
+		}
 	}
 	return false;
 }
 
-function controllerBySection(section, subSection) {
+function findControllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Analysis/Asset/Section",
 		"section_parameter" : "/Analysis/Parameter/Section",
@@ -120,7 +108,7 @@ function controllerBySection(section, subSection) {
 		"section_actionplans" : "/Analysis/ActionPlan/Section",
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
-		"section_soa":"/Analysis/Standard/SOA"
+		"section_soa" : "/Analysis/Standard/SOA"
 	};
 
 	if (section.match("^section_standard_"))
@@ -154,6 +142,7 @@ function callbackBySection(section) {
 			compliance('27001');
 			compliance('27002');
 			reloadSection("section_summary");
+			reloadSection("section_soa");
 			return false;
 		},
 		"section_summary" : function() {
@@ -161,21 +150,11 @@ function callbackBySection(section) {
 			return false;
 		},
 		"section_standard" : function() {
-
-			$("#standardmenu a[href^='#anchorMeasure_']").closest("li").remove();
-
-			var text = "";
-
-			$("#" + section + " div[id^='section_standard_']").each(function() {
-				var standard = $(this).attr("data-trick-label");
-				var standardid = $(this).attr("data-trick-id");
-				var link = "#anchorMeasure_" + standardid;
-				text += "<li><a href='" + link + "'>" + standard + "</a></li>";
-			});
-
-			$("#standardmenu").prepend(text);
-
-			$("#" + section + " td.popover-element").popover("hide");
+			$("#" + section + " [data-toggle='popover']").popover('hide').on('show.bs.popover', togglePopever);
+			$("#" + section + " [data-toggle='tooltip']").tooltip("hide");
+		},
+		"section_language" : function() {
+			rebuildMeasureLanguage();
 		}
 
 	};
@@ -204,6 +183,8 @@ SectionSmartUpdate.prototype = {
 		case "section_language":
 		case "section_customer":
 		case "section_profile_analysis":
+		case "section_kb_measure":
+		case "section_soa":
 			return this.__generic_update(this.data, "#" + this.sectionName, -1);
 		default:
 			break;
@@ -212,53 +193,51 @@ SectionSmartUpdate.prototype = {
 	},
 	__generic_update : function(src, dest, indexColnum) {
 		try {
-			var tableDestTrs = $(dest).find("tbody tr");
-			if (!tableDestTrs.length)
+			var $dest = $(dest), $src = $(src), $tableDestTrs = $("tbody>tr", dest);
+			if (!$tableDestTrs.length)
 				throw "tbody cannot be found";
-
-			if ($(tableDestTrs[0]).find("td").length != $(src).find("tbody>tr:first>td").length)
+			if ($("td", $tableDestTrs[0]).length != $("tbody>tr:first>td", $src).length)
 				throw "Table header has been changed";
-
-			for (var i = 0; i < tableDestTrs.length; i++) {
-				var trickId = $(tableDestTrs[i]).attr("data-trick-id");
+			for (var i = 0; i < $tableDestTrs.length; i++) {
+				var trickId = $($tableDestTrs[i]).attr("data-trick-id");
 				if (trickId == undefined)
 					throw "data-trick-id cannot be found";
-				var $check = $(tableDestTrs[i]).find("td:first-child>input:checked");
-				var $tr = $(src).find("tbody tr[data-trick-id='" + trickId + "']");
+				var $check = $("td:first-child>input:checked", $tableDestTrs[i]);
+				var $tr = $("tbody tr[data-trick-id='" + trickId + "']", $src);
 				if ($tr.length) {
 					if ($check.length)
-						$($tr).find("td:first-child>input").prop("checked", true);
-					$(tableDestTrs[i]).replaceWith($tr);
+						$("td:first-child>input", $tr).prop("checked", true);
+					$($tableDestTrs[i]).replaceWith($tr);
 				} else {
 					if ($check.length)
 						$check.attr("checked", false).change();
-					$(tableDestTrs[i]).remove();
+					$($tableDestTrs[i]).remove();
 				}
 			}
-			var $tbody = $(dest).find("tbody");
-			var tableSourceTrs = $(src).find("tbody tr[data-trick-id]");
-			for (var i = 0; i < tableSourceTrs.length; i++) {
-				var trickId = $(tableSourceTrs[i]).attr("data-trick-id");
-				var $tr = $(dest).find("tbody tr[data-trick-id='" + trickId + "']");
+			var $tbody = $("tbody", $dest);
+			var $tableSourceTrs = $("tbody>tr[data-trick-id]", $src);
+			for (var i = 0; i < $tableSourceTrs.length; i++) {
+				var trickId = $($tableSourceTrs[i]).attr("data-trick-id");
+				var $tr = $("tbody>tr[data-trick-id='" + trickId + "']", $dest);
 				if (!$tr.length)
-					$(tableSourceTrs[i]).appendTo($tbody);
+					$($tableSourceTrs[i]).appendTo($tbody);
 			}
 
-			var $tfooter = $(dest).find("tfoot");
+			var $tfooter = $("tfoot", $dest);
 			if ($tfooter.length) {
 				// replaceWith does not work, fix with this following code
 				var $parent = $tfooter.parent();
 				$tfooter.remove();
-				$(src).find("tfoot").appendTo($parent);
+				$("tfoot", $src).appendTo($parent);
 			}
 
-			var checked = $($tbody).find("td:first-child>input:checked");
-			if (checked.length)
-				$(checked).change();
+			var $checked = $("td:first-child>input:checked", $tbody);
+			if ($checked.length)
+				$checked.change();
 			if (indexColnum >= 0) {
-				var tableDestTrs = $(dest).find("tbody tr");
-				for (var i = 0; i < tableDestTrs.length; i++) {
-					var $td = $(tableDestTrs[i]).find("td");
+				var $tableDestTrs = $("tbody>tr", $dest);
+				for (var i = 0; i < $tableDestTrs.length; i++) {
+					var $td = $("td", $tableDestTrs[i]);
 					if (!$td.length || $td.length < indexColnum)
 						throw "Index out of bound";
 					$($td[indexColnum]).html(i + 1);
@@ -266,7 +245,7 @@ SectionSmartUpdate.prototype = {
 			}
 			return false;
 		} catch (e) {
-			console.log("reload error: "+e);
+			console.log("reload error: " + e);
 			return true;
 		}
 	}

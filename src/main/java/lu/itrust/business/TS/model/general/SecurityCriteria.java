@@ -2,10 +2,12 @@ package lu.itrust.business.TS.model.general;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -31,6 +33,8 @@ public abstract class SecurityCriteria implements Cloneable {
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
+
+	protected static Pattern CATEGOTY_PATTERN = Pattern.compile(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
 
 	/** The Scenario Identifier */
 	private int id = -1;
@@ -86,7 +90,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Scenario ID
 	 */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idSecurityCriteria")
 	public int getId() {
 		return id;
@@ -999,7 +1003,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return True if Key is valid; False if Key is not valid
 	 */
 	public static boolean isCategoryKey(String category) {
-		return category != null && category.matches(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
+		return category != null && CATEGOTY_PATTERN.matcher(category).find();
 	}
 
 	/**
@@ -1128,7 +1132,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 */
 	@Transient
 	public boolean hasInfluenceOnCategory(String key) throws TrickException {
-		return isCategoryKey(key) && getCategoryValue(key) != 0;
+		return (categories.containsKey(key) || isCategoryKey(key)) && getCategoryValue(key) != 0;
 	}
 
 	/**
@@ -1149,17 +1153,17 @@ public abstract class SecurityCriteria implements Cloneable {
 	 */
 	@Transient
 	public int getCategoryValue(String category) throws TrickException {
-
-		// check if the category key is valid -> NO
-		if (!isCategoryKey(category))
-			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
-
 		Integer value = categories.get(category);
 
 		// check if category key exists in MAP -> NO
-		if (value == null)
+		if (value == null) {
+			// check if the category key is valid -> NO
+			if (!isCategoryKey(category))
+				throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
+
 			// add category with default value 0 to MAP
 			categories.put(category, value = 0);
+		}
 
 		// return value of Category (At this moment, the Key is valid and
 		// already exists in MAP)
@@ -1184,7 +1188,7 @@ public abstract class SecurityCriteria implements Cloneable {
 		// ***********************************************************************
 		// * Check if Category is valid
 		// ***********************************************************************
-		if (!isCategoryKey(category))
+		if (!(categories.containsKey(category) || isCategoryKey(category)))
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
 
 		// ***********************************************************************

@@ -14,7 +14,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="customer" action="Customer/Create" class="form-horizontal" id="customer_form">
+				<form name="customer" action="Customer/Create?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="customer_form">
 					<fieldset>
 						<legend>
 							<spring:message code='label.contact' text='Contact' />
@@ -138,7 +138,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteCustomerModel-title">
-					<spring:message code="title.action.delete.customer" text="Delete customer" />
+					<spring:message code="title.action.delete" text="Delete" />
 				</h4>
 			</div>
 			<div id="deleteCustomerBody" class="modal-body">Your question here...</div>

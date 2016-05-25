@@ -3,16 +3,15 @@ package lu.itrust.business.TS.database.service.impl;
 import java.util.Collection;
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAORole;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceUserImpl.java: <br>
@@ -28,8 +27,6 @@ public class ServiceUserImpl implements ServiceUser {
 	@Autowired
 	private DAOUser daoUser;
 
-	@Autowired
-	private DAORole daoRole;
 
 	/**
 	 * get: <br>
@@ -37,12 +34,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * 
 	 * @param id
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#get(int)
 	 */
 	@Override
-	public User get(Integer id) throws Exception {
+	public User get(Integer id)  {
 		return daoUser.get(id);
 	}
 
@@ -52,12 +49,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * 
 	 * @param login
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#get(java.lang.String)
 	 */
 	@Override
-	public User get(String login) throws Exception {
+	public User get(String login)  {
 		return daoUser.get(login);
 	}
 
@@ -68,12 +65,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * @param login
 	 * @param password
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#get(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public User get(String login, String password) throws Exception {
+	public User get(String login, String password)  {
 		return daoUser.get(login, password);
 	}
 
@@ -82,13 +79,13 @@ public class ServiceUserImpl implements ServiceUser {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#noUsers()
 	 */
 	@Transactional
 	@Override
-	public boolean noUsers() throws Exception {
+	public boolean noUsers()  {
 		return daoUser.noUsers();
 	}
 
@@ -97,12 +94,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * Description
 	 * 
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllUsers()
 	 */
 	@Override
-	public List<User> getAll() throws Exception {
+	public List<User> getAll()  {
 		return daoUser.getAll();
 	}
 
@@ -112,12 +109,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * 
 	 * @param name
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllByFirstName(java.lang.String)
 	 */
 	@Override
-	public List<User> getAllByFirstName(String name) throws Exception {
+	public List<User> getAllByFirstName(String name)  {
 		return daoUser.getAllByFirstName(name);
 	}
 
@@ -127,12 +124,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * 
 	 * @param name
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllByCountry(java.lang.String)
 	 */
 	@Override
-	public List<User> getAllByCountry(String name) throws Exception {
+	public List<User> getAllByCountry(String name)  {
 		return daoUser.getAllByCountry(name);
 	}
 
@@ -142,12 +139,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * 
 	 * @param customer
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllUsersFromCustomer(int)
 	 */
 	@Override
-	public List<User> getAllFromCustomer(Integer customer) throws Exception {
+	public List<User> getAllFromCustomer(Integer customer)  {
 		return daoUser.getAllFromCustomer(customer);
 	}
 
@@ -157,12 +154,12 @@ public class ServiceUserImpl implements ServiceUser {
 	 * 
 	 * @param customer
 	 * @return
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllUsersFromCustomer(lu.itrust.business.TS.model.general.Customer)
 	 */
 	@Override
-	public List<User> getAllFromCustomer(Customer customer) throws Exception {
+	public List<User> getAllFromCustomer(Customer customer)  {
 		return daoUser.getAllFromCustomer(customer);
 	}
 
@@ -175,7 +172,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllAdministrators()
 	 */
 	@Override
-	public List<User> getAllAdministrators() throws Exception {
+	public List<User> getAllAdministrators()  {
 		return daoUser.getAllAdministrators();
 	}
 	
@@ -189,7 +186,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Transactional
 	@Override
-	public boolean hasRole(User user, Role role) throws Exception {
+	public boolean hasRole(User user, Role role)  {
 		return daoUser.hasRole(user, role);
 	}
 
@@ -198,13 +195,13 @@ public class ServiceUserImpl implements ServiceUser {
 	 * Description
 	 * 
 	 * @param user
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#save(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
-	public void save(User user) throws Exception {
+	public void save(User user)  {
 		daoUser.save(user);
 	}
 
@@ -213,13 +210,13 @@ public class ServiceUserImpl implements ServiceUser {
 	 * Description
 	 * 
 	 * @param user
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#saveOrUpdate(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(User user) throws Exception {
+	public void saveOrUpdate(User user)  {
 		daoUser.saveOrUpdate(user);
 	}
 
@@ -228,13 +225,13 @@ public class ServiceUserImpl implements ServiceUser {
 	 * Description
 	 * 
 	 * @param id
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#delete(int)
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer id) throws Exception {
+	public void delete(Integer id)  {
 		daoUser.delete(id);
 	}
 
@@ -243,13 +240,13 @@ public class ServiceUserImpl implements ServiceUser {
 	 * Description
 	 * 
 	 * @param user
-	 * @throws Exception
+	 * @
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUser#delete(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
-	public void delete(User user) throws Exception {
+	public void delete(User user)  {
 		daoUser.delete(user);
 	}
 

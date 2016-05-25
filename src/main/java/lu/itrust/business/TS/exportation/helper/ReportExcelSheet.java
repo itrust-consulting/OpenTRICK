@@ -73,8 +73,10 @@ public class ReportExcelSheet {
 				return false;
 			this.xssfWorkbook.write(this.packagePart.getOutputStream());
 		} finally {
-			if (file != null && file.exists())
-				file.delete();
+			if (file != null && file.exists()){
+				if(!file.delete())
+					file.deleteOnExit();
+			}
 		}
 
 		return true;

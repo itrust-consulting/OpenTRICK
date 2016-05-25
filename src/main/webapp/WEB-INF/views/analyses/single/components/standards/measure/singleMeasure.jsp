@@ -6,26 +6,59 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<spring:message code="label.measure.status.m" var="statusM" />
+<spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.na" var="statusNA" />
+<spring:message code="label.title.measure.status.m" var="titleStatusM" />
+<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <fmt:setLocale value="fr" scope="session" />
 <c:set var="css">
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
-	<c:if test="${isEditable && (isAnalysisOnly || measure.analysisStandard.standard.computable && measure.analysisStandard.standard.type!='MATURITY' && measure.measureDescription.computable) }">
+	<c:if test="${isEditable and ( isAnalysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>
+<c:set var="todoCSS">
+	<c:choose>
+		<c:when test="${empty measure.toDo && fn:contains(css,'success')}">class="danger"</c:when>
+		<c:otherwise>${css}</c:otherwise>
+	</c:choose>
+</c:set>
+<c:set var="popoverRef">
+	<c:if test="${not(empty measure.measureDescription.reference or empty measureDescriptionText.description)}">
+		data-toggle="tooltip" data-container="body" data-trigger="hover click" data-placement='auto'
+		data-title='<spring:message text="${measureDescriptionText.description}" />'
+	</c:if>
+</c:set>
+<c:set var="popoverDescription">
+	<c:if test="${not(empty measureDescriptionText.domain or empty measureDescriptionText.description)}">
+		class="popover-element" data-toggle="popover" data-container="body" data-trigger="click" data-html="true" data-placement='auto'
+		data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' style='cursor: pointer;'
+	</c:if>
+</c:set>
 <c:choose>
-	<c:when test="${measure.measureDescription.computable==false}">
+	<c:when test="${not measure.measureDescription.computable}">
 		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 			<c:if test="${isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td><spring:message text="${measure.measureDescription.reference}" /></td>
-			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'17':'16'}"><spring:message
-					text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<td lang="${language}" ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
+			<td lang="${language}" ${popoverDescription} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<c:choose>
+				<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
+					<td class='warning' onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
+					<td class='warning' onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+				</c:when>
+				<c:otherwise>
+					<td class='warning' onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+				</c:otherwise>
+			</c:choose>
+			<td></td>
 		</tr>
 	</c:when>
 	<c:otherwise>
@@ -34,21 +67,30 @@
 			<c:if test="${isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
 			</c:if>
-			<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-				data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message
-	text="${measure.measureDescription.reference}" />'
-				${dblclickaction}><spring:message text="${measure.measureDescription.reference}" /></td>
-			<td ${dblclickaction}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-field-type="string" onclick="return editField(this);"><spring:message
-					text="${measure.status}" /></td>
+			<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
+			<td lang="${language}" ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}' data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);">
+				<c:choose>
+					<c:when test="${measure.status=='NA'}">
+						${statusNA}
+					</c:when>
+					<c:when test="${measure.status=='AP'}">
+						${statusAP}
+					</c:when>
+					<c:otherwise>
+						${statusM}
+					</c:otherwise>
+				</c:choose>
+			</td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('MATURITY')}">
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
-							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
+							value="${measure.getImplementationRateValue(expressionParameters)}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:when>
 				<c:otherwise>
 					<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"
+						title="${measure.getImplementationRateValue(expressionParameters)}"
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><spring:message
 							text="${measure.getImplementationRate()}" /></td>
 				</c:otherwise>
@@ -69,7 +111,7 @@
 				data-real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
 					value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
 			<c:choose>
-				<c:when test="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')}">
+				<c:when test="${measure.getImplementationRateValue(expressionParameters)>=100 || measure.getStatus().equals('NA')}">
 					<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
 							value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
 				</c:when>
@@ -83,13 +125,12 @@
 					<c:when test="${measure.phase.number == 0}">NA</c:when>
 					<c:otherwise>${measure.phase.number}</c:otherwise>
 				</c:choose></td>
+			<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
 			<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 				<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 			</c:if>
 			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
-			<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
-			<td ${css} onclick="return editField(this);" data-trick-field="responsible"  data-trick-field-type="string"><spring:message text="${measure.responsible}" /></td>
+			<td ${todoCSS} onclick="return editField(this.firstElementChild);"><pre data-trick-field="toDo" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 		</tr>
 	</c:otherwise>
 </c:choose>
-<fmt:setLocale value="${language}" scope="session" />

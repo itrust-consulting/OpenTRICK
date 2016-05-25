@@ -1,16 +1,11 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import lu.itrust.business.TS.asynchronousWorkers.AsyncResult;
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.messagehandler.MessageHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -20,6 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lu.itrust.business.TS.asynchronousWorkers.AsyncResult;
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
 
 /**
  * ControllerTask.java: <br>
@@ -66,48 +68,43 @@ public class ControllerTask {
 			// load worker of task
 			Worker worker = workersPoolManager.get(id);
 
-			Locale customLocale = null;
 
 			// retrieve last feedback message
 			MessageHandler messageHandler = serviceTaskFeedback.recieveLast(id);
-
-			if (messageHandler != null) {
-				if (messageHandler.getLanguage() != null)
-					customLocale = new Locale(messageHandler.getLanguage());
-			}
+			
 			// set worker status
 
 			if (worker == null) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted", customLocale != null ? customLocale : locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted",locale));
 				asyncResult.setFlag(0);
 			} else if (worker.isCanceled()) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.abort", null, "Aborted", customLocale != null ? customLocale : locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.abort", null, "Aborted",locale));
 				asyncResult.setFlag(1);
 			} else if (worker.getError() != null) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed", customLocale != null ? customLocale : locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed",locale));
 				asyncResult.setFlag(2);
 			} else if (worker.isWorking()) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing", customLocale != null ? customLocale : locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing",locale));
 				asyncResult.setFlag(3);
 			} else if (serviceTaskFeedback.messageCount(id) > 1) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", customLocale != null ? customLocale : locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success",locale));
 				asyncResult.setFlag(4);
 			} else {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", customLocale != null ? customLocale : locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success",locale));
 				asyncResult.setFlag(5);
 			}
 
 			// check if message exists or set null
 			if (messageHandler != null) {
 
-				asyncResult.setMessage(messageSource.getMessage(messageHandler.getCode(), messageHandler.getParameters(), messageHandler.getMessage(), customLocale != null ? customLocale : locale));
+				asyncResult.setMessage(messageSource.getMessage(messageHandler.getCode(), messageHandler.getParameters(), messageHandler.getMessage(),locale));
 				asyncResult.setProgress(messageHandler.getProgress());
 				asyncResult.setTaskName(messageHandler.getTaskName());
 				asyncResult.setAsyncCallback(messageHandler.getAsyncCallback());
 
 				// check if task is already done ansd set data
 				if (messageHandler.getProgress() == 100 || asyncResult.getFlag() == 0 && messageHandler.getException() == null) {
-					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", customLocale != null ? customLocale : locale));
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success",locale));
 					asyncResult.setFlag(5);
 				}
 			} else
@@ -157,14 +154,14 @@ public class ControllerTask {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody List<String> processing(Principal principal) {
 
 		List<String> result = serviceTaskFeedback.tasks(principal.getName());
 
-		if(result == null)
+		if (result == null)
 			result = new ArrayList<String>();
-		
+
 		// get tasks of this user
 		return result;
 	}

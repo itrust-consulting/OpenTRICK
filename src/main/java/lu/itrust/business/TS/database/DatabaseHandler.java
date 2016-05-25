@@ -9,12 +9,13 @@ import java.sql.Savepoint;
 import java.util.List;
 import java.util.Vector;
 
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.analysis.Analysis;
 
 /**
- * DatabaseHandler: 
- * This class handles the creation, closing and queriyng from the databases mysql and sqlite
+ * DatabaseHandler: This class handles the creation, closing and queriyng from
+ * the databases mysql and sqlite
  * 
  * @author itrust consulting s.� r.l. - SME,BJA
  * @version 0.1
@@ -22,23 +23,26 @@ import lu.itrust.business.TS.model.analysis.Analysis;
  */
 public class DatabaseHandler {
 
-    /***********************************************************************************************
-     * Fields declaration
-     **********************************************************************************************/
-	
+	/***********************************************************************************************
+	 * Fields declaration
+	 **********************************************************************************************/
+
 	/** The connection to the Database */
 	private Connection con = null;
 
-	/** PreparedStatment for the prepared statments to query the database (secure query) */
+	/**
+	 * PreparedStatment for the prepared statments to query the database (secure
+	 * query)
+	 */
 	private PreparedStatement st = null;
 
 	/** Savepoint used for a Transaction to Rollback to */
 	private Savepoint sp = null;
 
-    /***********************************************************************************************
-     * Constructor
-     **********************************************************************************************/
-	
+	/***********************************************************************************************
+	 * Constructor
+	 **********************************************************************************************/
+
 	protected DatabaseHandler() {
 	}
 
@@ -48,10 +52,12 @@ public class DatabaseHandler {
 	 * 
 	 * @param database
 	 *            The Database Name OR the Sqlite Filename
-	 *            
-	 * @throws Exception
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * 
+	 * @
 	 */
-	public DatabaseHandler(String database) throws Exception {
+	public DatabaseHandler(String database) throws ClassNotFoundException, SQLException {
 
 		// ****************************************************************
 		// * use JDBC driver
@@ -62,7 +68,7 @@ public class DatabaseHandler {
 		// * create URL for the connection
 		// ****************************************************************
 		String url = "jdbc:sqlite:" + database;
-		
+
 		// ****************************************************************
 		// * create connection using JDBC driver
 		// ****************************************************************
@@ -83,37 +89,40 @@ public class DatabaseHandler {
 	 *            The Server Hostname
 	 * @param port
 	 *            The Server Port
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws SQLException
 	 * 
-	 * @throws Exception
+	 * @
 	 */
 	public DatabaseHandler(String database, String user, String password, String hostname, int port)
-																				  throws Exception {
-		
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+
 		// ****************************************************************
 		// * use JDBC driver
 		// ****************************************************************
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
-		
+
 		// ****************************************************************
 		// * create URL for the database connection
 		// ****************************************************************
 		String url = "jdbc:mysql://" + hostname + ":" + port + "/" + database;
-		
-		
+
 		// ****************************************************************
 		// * create connection using the URL and the JDBC driver
 		// ****************************************************************
 		con = DriverManager.getConnection(url, user, password);
 	}
 
-    /***********************************************************************************************
-     * Methods
-     **********************************************************************************************/
-	
+	/***********************************************************************************************
+	 * Methods
+	 **********************************************************************************************/
+
 	/**
 	 * generateInsertQuery: <br>
-	 * This method builds a INSERT Query with a given number (paramNumber) of place holders to add
-	 * parameters to a given SQL Table.
+	 * This method builds a INSERT Query with a given number (paramNumber) of
+	 * place holders to add parameters to a given SQL Table.
 	 * 
 	 * @param table
 	 *            The MySQL or Sqlite Table
@@ -159,16 +168,17 @@ public class DatabaseHandler {
 		// ****************************************************************
 		return query;
 	}
-	
+
 	/**
 	 * getAssetTypeIdFromLabel: <br>
-	 * Get the AssetTypeID depending of label of the Asset If label belongs to nothing, return -1
+	 * Get the AssetTypeID depending of label of the Asset If label belongs to
+	 * nothing, return -1
 	 * 
 	 * @param analysis
-	 * 			The Analysis Object to retrieve ID fields
+	 *            The Analysis Object to retrieve ID fields
 	 * @param label
 	 *            The Label of the Asset Type
-	 *            
+	 * 
 	 * @throws SQLException
 	 */
 	public int getAssetTypeIDFromLabel(Analysis analysis, String label) throws SQLException {
@@ -202,12 +212,12 @@ public class DatabaseHandler {
 		while (rs.next()) {
 
 			if (label.equalsIgnoreCase(rs.getString(Constant.ASSETTYPE_MYSQL_LABEL))) {
-			
+
 				// ****************************************************************
 				// * store ID
 				// ****************************************************************
 				ID = rs.getInt(Constant.ASSETTYPE_MYSQL_ID);
-				
+
 				// ID was found leave loop
 				break;
 			}
@@ -221,14 +231,14 @@ public class DatabaseHandler {
 		// ****************************************************************
 		return ID;
 	}
-	
+
 	/**
 	 * getScenarioTypeIDFromLabel: <br>
-	 * Get the ScenarioTypeID depending of label of the Scenario If Label belongs to nothing, return
-	 * -1.
+	 * Get the ScenarioTypeID depending of label of the Scenario If Label
+	 * belongs to nothing, return -1.
 	 * 
 	 * @param analysis
-	 * 			The Analysis Object to retrieve ID fields
+	 *            The Analysis Object to retrieve ID fields
 	 * @param label
 	 *            The Label of the Scenario Type
 	 * @throws SQLException
@@ -255,20 +265,20 @@ public class DatabaseHandler {
 		params.add(analysis.getIdentifier());
 		params.add(analysis.getVersion());
 		params.add(analysis.getCreationDate());
-		
+
 		// execute query
 		rs = this.query(query, params);
 
 		// retrieve result
 		while (rs.next()) {
-			
+
 			if (label.equalsIgnoreCase(rs.getString(Constant.SCENARIOTYPE_MYSQL_LABEL))) {
-			
+
 				// ****************************************************************
 				// * store ID
 				// ****************************************************************
 				ID = rs.getInt(Constant.SCENARIOTYPE_MYSQL_ID);
-				
+
 				// ID was found leave loop
 				break;
 			}
@@ -282,67 +292,118 @@ public class DatabaseHandler {
 		// ****************************************************************
 		return ID;
 	}
-	
+
 	/**
 	 * query: <br>
-	 * - Creates a Prepared Statment
-	 * - Uses "params" List to set Query Parameters into Query Place Holders
-	 * - Executes the Query
-	 * - Returns the Query Result
+	 * - Creates a Prepared Statment - Uses "params" List to set Query
+	 * Parameters into Query Place Holders - Executes the Query - Returns the
+	 * Query Result
 	 * 
 	 * @param query
-	 * 			The SQL Structured Query
+	 *            The SQL Structured Query
 	 * @param params
-	 * 			The List of parameters (any Value Type)
+	 *            The List of parameters (any Value Type)
 	 * 
 	 * @return The Result of the executed Query
 	 * 
 	 * @throws SQLException
 	 */
 	public ResultSet query(String query, List<Object> params) throws SQLException {
-		
+
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
 		ResultSet res = null;
 		Boolean queryres = false;
-		
+
 		// ****************************************************************
 		// * create prepared statment of the given query
 		// ****************************************************************
 		st = con.prepareStatement(query);
-		
+
 		// check if params exist -> YES
 		if (params != null) {
 
 			// ****************************************************************
 			// * parse all parameters and add them to the prepared statment
 			// ****************************************************************
-			
+
 			// parse params list
 			for (int i = 1; i < params.size() + 1; i++) {
-				
+
 				// ****************************************************************
 				// * add object type as parameter (type independent)
 				// ****************************************************************
 				st.setObject(i, params.get(i - 1));
 			}
 		}
-		
+
 		// ****************************************************************
 		// * execute prepared statment query
 		// ****************************************************************
 		queryres = st.execute();
-		
+
 		// check if query was successfully executed -> YES
 		if (queryres == true) {
-			
+
 			// ****************************************************************
 			// * set the result in from of resultset
 			// ****************************************************************
 			res = st.getResultSet();
 		}
-		
+
+		// ****************************************************************
+		// * return the result
+		// ****************************************************************
+		return res;
+	}
+
+	/**
+	 * query: <br>
+	 * - Creates a Prepared Statment - Uses "params" List to set Query
+	 * Parameters into Query Place Holders - Executes the Query - Returns the
+	 * Query Result
+	 * 
+	 * @param query
+	 *            The SQL Structured Query
+	 * @param params
+	 *            The List of parameters (any Value Type)
+	 * 
+	 * @return The Result of the executed Query
+	 * 
+	 * @throws SQLException
+	 */
+	public ResultSet query(String query) {
+
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		ResultSet res = null;
+		try {
+			Boolean queryres = false;
+
+			// ****************************************************************
+			// * create prepared statment of the given query
+			// ****************************************************************
+			st = con.prepareStatement(query);
+
+			// ****************************************************************
+			// * execute prepared statment query
+			// ****************************************************************
+			queryres = st.execute();
+
+			// check if query was successfully executed -> YES
+			if (queryres == true) {
+
+				// ****************************************************************
+				// * set the result in from of resultset
+				// ****************************************************************
+				res = st.getResultSet();
+			}
+		} catch (SQLException e) {
+			TrickLogManager.Persist(e);
+		}
+
 		// ****************************************************************
 		// * return the result
 		// ****************************************************************
@@ -356,7 +417,7 @@ public class DatabaseHandler {
 	 * @throws SQLException
 	 */
 	public void close() throws SQLException {
-		
+
 		// ****************************************************************
 		// * close the database connection
 		// ****************************************************************
@@ -372,32 +433,32 @@ public class DatabaseHandler {
 	 * @throws SQLException
 	 */
 	public int getLastInsertId() throws SQLException {
-		
+
 		// ****************************************************************
 		// * initialise the last inserted ID
 		// ****************************************************************
 		int lastid = 0;
-		
+
 		// ****************************************************************
-		// * create prepared statment for the query 
+		// * create prepared statment for the query
 		// ****************************************************************
 		PreparedStatement st1 = con.prepareStatement("SELECT LAST_INSERT_ID()");
-		
+
 		// execute the query
 		ResultSet rs = st1.executeQuery();
-			
+
 		// retrieve the result
 		while (rs.next()) {
-			
+
 			// ****************************************************************
 			// * set the variable with the last ID
 			// ****************************************************************
 			lastid = rs.getInt(1);
 		}
-		
+
 		// close result
 		rs.close();
-		
+
 		// ****************************************************************
 		// * return the result
 		// ****************************************************************
@@ -407,47 +468,46 @@ public class DatabaseHandler {
 	/**
 	 * getLastInsertRowId: <br>
 	 * Retrieve the Last ID that was Inserted into the Database. <br>
-	 * Note: Has to be used with Sqlite (Sqlite does not recognize LAST_INSERT_ID). 
+	 * Note: Has to be used with Sqlite (Sqlite does not recognize
+	 * LAST_INSERT_ID).
 	 * 
 	 * @return The ID that was Inserted in the Last executed INSERT Statment
 	 * 
 	 * @throws SQLException
 	 */
 	public int getLastInsertRowId() throws SQLException {
-		
+
 		// ****************************************************************
 		// * initialise the last inserted ID
 		// ****************************************************************
 		int lastid = 0;
-		
+
 		// ****************************************************************
-		// * create prepared statment for the query 
+		// * create prepared statment for the query
 		// ****************************************************************
 		PreparedStatement st1 = con.prepareStatement("SELECT LAST_INSERT_ROWID()");
-		
+
 		// execute the query
 		ResultSet rs = st1.executeQuery();
-		
-	
-		
+
 		// retrieve the result
 		while (rs.next()) {
-			
+
 			// ****************************************************************
 			// * set the variable with the last ID
 			// ****************************************************************
 			lastid = rs.getInt(1);
 		}
-		
+
 		// close result
 		rs.close();
-		
+
 		// ****************************************************************
 		// * return the result
 		// ****************************************************************
 		return lastid;
 	}
-	
+
 	/**
 	 * beginTransaction: <br>
 	 * Start a MySQL Transaction, set a SavePoint and set Autocommit to False.
@@ -455,57 +515,57 @@ public class DatabaseHandler {
 	 * @return The status if it worked
 	 */
 	public boolean beginTransaction() {
-		
+
 		System.out.println("Begin Transaction...");
-		
+
 		// ****************************************************************
 		// * initialise return value
 		// ****************************************************************
 		boolean res = false;
-		
+
 		try {
-			
+
 			// ****************************************************************
 			// * change the Autocommit to false (to enable transaction)
 			// ****************************************************************
 			con.setAutoCommit(false);
-			
+
 			// ****************************************************************
 			// * create a savepoint to rollback to in case of an error
 			// ****************************************************************
 			sp = con.setSavepoint("savepoint");
-			
+
 			// ****************************************************************
 			// return status if autocommit was really set to false
 			// ****************************************************************
-			
+
 			// check if autocommit is false -> YES
 			if (con.getAutoCommit() == false) {
-				
+
 				// ****************************************************************
 				// * return status
 				// ****************************************************************
-				res= true;
+				res = true;
 			} else {
-				
+
 				// check if autocommit is false -> NO
-				
+
 				// ****************************************************************
 				// * return status
 				// ****************************************************************
-				res= false;
+				res = false;
 			}
-			
+
 			// ****************************************************************
 			// * return result
 			// ****************************************************************
 			return res;
-			
+
 		} catch (Exception e) {
-			
+
 			// error text
 			System.out.println("Erro: Could not create transaction");
-			
+
 			// return false
 			return res;
 		}
@@ -518,41 +578,41 @@ public class DatabaseHandler {
 	 * @return The autocommit status
 	 */
 	public boolean rollback() {
-		
+
 		System.out.println("Rollback Transaction...");
-		
+
 		// ****************************************************************
 		// * initialise return variable
 		// ****************************************************************
 		boolean res = false;
-		
+
 		try {
-			
+
 			// perform a rollback to savepoint
 			con.rollback(sp);
-			
+
 			// release the savepoint
 			con.releaseSavepoint(sp);
-			
+
 			// set autocommit to true (end transaction)
 			con.setAutoCommit(true);
-			
+
 			// return autocommit status
 			if (con.getAutoCommit() == true) {
 				res = true;
 			} else {
 				res = false;
 			}
-			
+
 			// ****************************************************************
 			// * return result
 			// ****************************************************************
 			return res;
 		} catch (Exception e) {
-			
+
 			// error text
 			System.out.println("Error: Could not rollback transaction changes");
-			
+
 			// return false
 			return res;
 		}
@@ -560,46 +620,47 @@ public class DatabaseHandler {
 
 	/**
 	 * commit: <br>
-	 * Performs a Commit at the End of a Transaction and Sets Autocommit to back to True.
+	 * Performs a Commit at the End of a Transaction and Sets Autocommit to back
+	 * to True.
 	 * 
 	 * @return The Autocommit Status
 	 */
 	public boolean commit() {
-		
+
 		System.out.println("Commit Transaction...");
-		
+
 		// ****************************************************************
 		// * initialise return variable
 		// ****************************************************************
 		boolean res = false;
-		
+
 		try {
-			
+
 			// commit a transaction
 			con.commit();
-			
+
 			// release savepoint
 			con.releaseSavepoint(sp);
-			
+
 			// set autocommit to true (end transaction)
 			con.setAutoCommit(true);
-			
+
 			// return autocommit status
 			if (con.getAutoCommit() == true) {
 				res = true;
 			} else {
 				res = false;
 			}
-			
+
 			// ****************************************************************
 			// * return result
 			// ****************************************************************
 			return res;
 		} catch (Exception e) {
-			
+
 			// error text
 			System.out.println("Error: Could not commit transaction changes");
-			
+
 			// return status
 			return res;
 		}

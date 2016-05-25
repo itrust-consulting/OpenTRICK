@@ -13,6 +13,6 @@
 		<td colspan="10">${measureDescriptionText.domain.equals("")==false?measureDescriptionText.domain:"&nbsp;"}</td>
 		<td colspan="10">${measureDescriptionText.description.equals("")==false?measureDescriptionText.description:"&nbsp;"}</td>
 		<td colspan="2" data-trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
-				text="${measureDescription.computable?'Yes','No'}" /></td>
+				text="${measureDescription.computable?'Yes':'No'}" /></td>
 	</tr>
 </c:if>

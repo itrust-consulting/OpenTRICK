@@ -5,16 +5,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
-
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.messagehandler.MessageHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
 
 /**
  * ServiceTaskFeedBackImpl.java: <br>
@@ -167,9 +166,9 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		tasks.remove(id);
 		if (tasks.isEmpty())
 			userTasks.remove(userName);
-		if (messageHandlers.containsKey(id) && !messageHandlers.get(id).isEmpty())
-			messageHandlers.get(id).clear();
-		messageHandlers.remove(id);
+		Queue<MessageHandler> handlers = messageHandlers.remove(id);
+		if (!(handlers == null || handlers.isEmpty()))
+			handlers.clear();
 		workersPoolManager.remove(id);
 	}
 
@@ -301,7 +300,6 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
 	@Override
 	public String findUsernameById(String id) {
-		Optional<String> optional = userTasks.entrySet().stream().filter(entry -> entry.getValue().contains(id)).map(entry -> entry.getKey()).findAny();
-		return optional.isPresent() ? optional.get() : null;
+		return userTasks.entrySet().stream().filter(entry -> entry.getValue().contains(id)).map(entry -> entry.getKey()).findAny().orElse(null);
 	}
 }

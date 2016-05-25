@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.exportation;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
@@ -19,6 +23,8 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
@@ -36,8 +42,6 @@ import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-
-import org.hibernate.Session;
 
 /**
  * ExportAnalysis: <br>
@@ -106,98 +110,102 @@ public class ExportAnalysis {
 
 		try {
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.identifier", "Export identifier", null, 10));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.identifier", "Export identifier", 10));
 
 			// ****************************************************************
 			// * export Identifier
 			// ****************************************************************
 			exportIdentifier();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.history", "Export histories", null, 15));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.history", "Export histories", 15));
 
 			// ****************************************************************
 			// * export History
 			// ****************************************************************
 			exportHistory();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_information", "Export risk information", null, 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_information", "Export risk information", 20));
 
 			// ****************************************************************
 			// * export risk information
 			// ****************************************************************
 			exportRiskInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.item_information", "Export item information", null, 25));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.item_information", "Export item information", 25));
 
 			// ****************************************************************
 			// * export item information
 			// ****************************************************************
 			exportItemInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.parameters", "Export Parameters", null, 30));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.parameters", "Export Parameters", 30));
 
 			// ****************************************************************
 			// * export simple parameters
 			// ****************************************************************
 			exportParameters();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assets", "Export assets", null, 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assets", "Export assets", 40));
 
 			// ****************************************************************
 			// * export assets
 			// ****************************************************************
 			exportAssets();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.scenarios", "Export scenarios", null, 50));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.scenarios", "Export scenarios", 50));
 
 			// ****************************************************************
 			// * export scenarios
 			// ****************************************************************
 			exportScenarios();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assessments", "Export assessments", null, 60));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assessments", "Export assessments", 60));
 
 			// ****************************************************************
 			// * export assessments
 			// ****************************************************************
 			exportAssessments();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.measures", "Export measures", null, 70));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_profile", "Export risk profile", 65));
+
+			exportRiskProfile();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.measures", "Export measures", 70));
 
 			// ****************************************************************
 			// * export all measures
 			// ****************************************************************
 			exportMeasuresAndMaturity();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.phases", "Export phases", null, 75));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.phases", "Export phases", 75));
 
 			// ****************************************************************
 			// * export phase
 			// ****************************************************************
 			exportPhase();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.action_plan", "Export action plans", null, 80));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.action_plan", "Export action plans", 80));
 
 			// ****************************************************************
 			// * export action plans
 			// ****************************************************************
 			exportActionPlans();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.summaries", "Export summaries", null, 85));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.summaries", "Export summaries", 85));
 
 			// ****************************************************************
 			// * export summary
 			// ****************************************************************
 			exportActionPlanSummaries(this.analysis.getSummaries());
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_register", "Export risk registers", null, 90));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_register", "Export risk registers", 90));
 
 			// ****************************************************************
 			// * export Risk Register
 			// ****************************************************************
 			exportRiskRegister();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("success.export.analysis", "Export done successfully", null, 95));
+			serviceTaskFeedback.send(idTask, new MessageHandler("success.export.analysis", "Export done successfully", 95));
 
 			System.out.println("Export Done!");
 
@@ -210,17 +218,92 @@ public class ExportAnalysis {
 			MessageHandler handler = new MessageHandler(e);
 			serviceTaskFeedback.send(idTask, handler);
 			System.out.println(e.getMessage());
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return handler;
 		} catch (Exception e) {
 			// ****************************************************************
 			// * Display error message
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.unknown", "An unknown error occurred while exporting", null, e));
+			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.unknown", "An unknown error occurred while exporting", e));
 			System.out.println("Error while exporting!");
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			return new MessageHandler(e);
 			// set return value exception
+		}
+	}
+
+	private void exportRiskProfile() throws SQLException {
+
+		System.out.println("Export Risk profile");
+
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		List<Object> params = new ArrayList<Object>();
+		String query = "", unionQuery = " UNION Select ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO risk_profile SELECT ? as id_threat,? as id_asset,? as actionPlan,? as treatment,? as strategy,? as exp_impact_fin,"
+						+ "? as exp_impact_leg,? as exp_impact_op,? as exp_impact_rep,? as exp_probability,? as raw_impact_fin,? as raw_impact_leg,? as raw_impact_op,"
+						+ "? as raw_impact_rep,? as raw_probability";
+
+		// ****************************************************************
+		// * Export the Risk Register Item by Item
+		// ****************************************************************
+
+		ExtendedParameter defaultImpact = analysis.findExtendedByTypeAndLevel(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, 0),
+				defaultProbability = analysis.findExtendedByTypeAndLevel(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, 0);
+
+		// parse all Risk Register Entries
+		for (RiskProfile riskProfile : analysis.getRiskProfiles()) {
+			// add parameters for the current Risk Register Item
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 15 > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
+			addRiskProfile(params, defaultImpact, defaultProbability, riskProfile);
+		}
+
+		if (!params.isEmpty()) {
+			sqlite.query(query, params);
+			params.clear();
+		}
+	}
+
+	private void addRiskProfile(List<Object> params, ExtendedParameter defaultImpact, ExtendedParameter defaultProbability, RiskProfile riskProfile) {
+		RiskStrategy riskStrategy;
+		params.add(riskProfile.getScenario().getId());
+		params.add(riskProfile.getAsset().getId());
+		params.add(riskProfile.getActionPlan());
+		params.add(riskProfile.getRiskTreatment());
+		riskStrategy = riskProfile.getRiskStrategy();
+		if (riskStrategy == null)
+			riskStrategy = RiskStrategy.REDUCE;
+		params.add(riskStrategy);
+		if (riskProfile.getExpProbaImpact() == null) {
+			for (int i = 0; i < 4; i++)
+				params.add(defaultImpact.getAcronym());
+			params.add(defaultProbability.getAcronym());
+		} else {
+			params.add(riskProfile.getExpProbaImpact().getImpactFin(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getImpactLeg(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getImpactOp(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getImpactRep(defaultImpact).getAcronym());
+			params.add(riskProfile.getExpProbaImpact().getProbability(defaultProbability).getAcronym());
+		}
+
+		if (riskProfile.getRawProbaImpact() == null) {
+			for (int i = 0; i < 4; i++)
+				params.add(defaultImpact.getAcronym());
+			params.add(defaultProbability.getAcronym());
+		} else {
+			params.add(riskProfile.getRawProbaImpact().getImpactFin(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getImpactLeg(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getImpactOp(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getImpactRep(defaultImpact).getAcronym());
+			params.add(riskProfile.getRawProbaImpact().getProbability(defaultProbability).getAcronym());
 		}
 	}
 
@@ -282,18 +365,18 @@ public class ExportAnalysis {
 
 					// build first query part
 					riskquery = "INSERT INTO threat_source SELECT ? as level,? as name,? as ";
-					riskquery += "type,? as expo,? as comment,? as comment2 UNION";
+					riskquery += "type,? as expo,? as owner,? as comment,? as comment2 UNION";
 
 					// set number of ? -> sqlite ? limit is 999 -> before 999 is
 					// reached, a execute
 					// needs to be done
-					riskcounter = 6;
+					riskcounter = 7;
 				} else {
 
 					// first time query is used ? -> NO
 
 					// check if limit of ? is reached with next query -> YES
-					if (riskcounter + 6 >= 999) {
+					if (riskcounter + 7 >= 999) {
 
 						// remove UNION from query
 						riskquery = riskquery.substring(0, riskquery.length() - 6);
@@ -306,20 +389,20 @@ public class ExportAnalysis {
 
 						// rebuild first query part
 						riskquery = "INSERT INTO threat_source SELECT ? as level,? as name,";
-						riskquery += "? as type,? as expo,? as comment,? as comment2 UNION";
+						riskquery += "? as type,? as expo,? as owner,? as comment,? as comment2 UNION";
 
 						// reset number of ?
-						riskcounter = 6;
+						riskcounter = 7;
 					} else {
 
 						// check if limit of ? is reached -> NO
 
 						// add values to query ( execute 1 query with multiple
 						// rows)
-						riskquery += " SELECT ?,?,?,?,?,? UNION";
+						riskquery += " SELECT ?,?,?,?,?,?,? UNION";
 
 						// add number of ? used
-						riskcounter += 6;
+						riskcounter += 7;
 					}
 				}
 
@@ -328,6 +411,7 @@ public class ExportAnalysis {
 				riskparams.add(information.getLabel());
 				riskparams.add(information.getCategory().split("_")[1]);
 				riskparams.add(information.getExposed());
+				riskparams.add(information.getOwner());
 				riskparams.add(information.getComment());
 				riskparams.add(information.getHiddenComment());
 			}
@@ -349,14 +433,14 @@ public class ExportAnalysis {
 				// first part ? -> YES
 				if (threatquery.equals(Constant.EMPTY_STRING)) {
 					threatquery = "INSERT INTO threat_typology SELECT ? as level,? as name,";
-					threatquery += "? as acro,? as expo,? as comment,? as comment2 UNION";
-					threatcounter = 6;
+					threatquery += "? as acro,? as expo,? as owner,? as comment,? as comment2 UNION";
+					threatcounter = 7;
 				} else {
 
 					// first part ? -> NO
 
 					// limit of ? reached -> YES
-					if (threatcounter + 6 >= 999) {
+					if (threatcounter + 7 >= 999) {
 
 						// execute query
 						threatquery = threatquery.substring(0, threatquery.length() - 6);
@@ -367,20 +451,20 @@ public class ExportAnalysis {
 
 						// reset query
 						threatquery = "INSERT INTO threat_typology SELECT ? as level,? as name";
-						threatquery += ",? as acro,? as expo,? as comment,? as comment2";
+						threatquery += ",? as acro,? as expo,? as owner,? as comment,? as comment2";
 						threatquery += " UNION";
 
 						// reset number of ?
-						threatcounter = 6;
+						threatcounter = 7;
 					} else {
 
 						// limit of ? reached -> NO
 
 						// add value
-						threatquery += " SELECT ?,?,?,?,?,? UNION";
+						threatquery += " SELECT ?,?,?,?,?,?,? UNION";
 
 						// add number of ? used
-						threatcounter += 6;
+						threatcounter += 7;
 					}
 				}
 
@@ -389,6 +473,7 @@ public class ExportAnalysis {
 				threatparams.add(information.getLabel());
 				threatparams.add(information.getAcronym());
 				threatparams.add(information.getExposed());
+				threatparams.add(information.getOwner());
 				threatparams.add(information.getComment());
 				threatparams.add(information.getHiddenComment());
 			}
@@ -412,14 +497,14 @@ public class ExportAnalysis {
 
 					// build query
 					vulquery = "INSERT INTO vulnerabilities SELECT ? as level,? as name,";
-					vulquery += "? as expo,? as comment,? as comment2 UNION";
+					vulquery += "? as expo,? as owner,? as comment,? as comment2 UNION";
 
 					// set number of ? used
-					vulcounter = 5;
+					vulcounter = 6;
 				} else {
 
 					// check if limit is reached -> YES
-					if (vulcounter + 5 >= 999) {
+					if (vulcounter + 6 >= 999) {
 
 						// execute query
 						vulquery = vulquery.substring(0, vulquery.length() - 6);
@@ -430,19 +515,19 @@ public class ExportAnalysis {
 
 						// reset query
 						vulquery = "INSERT INTO vulnerabilities SELECT ? as level,? as name, ";
-						vulquery += "? as expo,? as comment,? as comment2 UNION";
+						vulquery += "? as expo,? as owner,? as comment,? as comment2 UNION";
 
 						// reset number of ?
-						vulcounter = 5;
+						vulcounter = 6;
 					} else {
 
 						// check if limit reached -> NO
 
 						// set values
-						vulquery += " SELECT ?,?,?,?,? UNION";
+						vulquery += " SELECT ?,?,?,?,?,? UNION";
 
 						// add number of ? used
-						vulcounter += 5;
+						vulcounter += 6;
 					}
 				}
 
@@ -450,6 +535,7 @@ public class ExportAnalysis {
 				vulparams.add(information.getChapter());
 				vulparams.add(information.getLabel());
 				vulparams.add(information.getExposed());
+				vulparams.add(information.getOwner());
 				vulparams.add(information.getComment());
 				vulparams.add(information.getHiddenComment());
 			}
@@ -664,13 +750,12 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = DatabaseHandler.generateInsertQuery("identifier", 2);
-
+		query = DatabaseHandler.generateInsertQuery("identifier", 4);
 		// add parameters
-		params.clear();
 		params.add(this.analysis.getIdentifier());
 		params.add(this.analysis.getLabel());
-
+		params.add(this.analysis.isCssf());
+		params.add(this.analysis.isUncertainty());
 		// execute the query
 		sqlite.query(query, params);
 	}
@@ -711,16 +796,14 @@ public class ExportAnalysis {
 
 			// build query
 			query = DatabaseHandler.generateInsertQuery("history", 4);
-
 			// add parameters
-			params.clear();
 			params.add(history.getVersion());
 			params.add(dateFormat.format(history.getDate()));
 			params.add(history.getAuthor());
 			params.add(history.getComment());
-
 			// execute the query
 			sqlite.query(query, params);
+			params.clear();
 		}
 	}
 
@@ -869,9 +952,6 @@ public class ExportAnalysis {
 					break;
 				case Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME:
 					query = DatabaseHandler.generateInsertQuery("potentiality", 7);
-					break;
-				case Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME:
-					query = DatabaseHandler.generateInsertQuery("severity", 7);
 					break;
 			}
 
@@ -1259,7 +1339,10 @@ public class ExportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
-		String query = "";
+		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational,"
+						+ " ? as impact_legal, ? as impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2, ? as owner,"
+						+ "? as total_ALE,? as uncertainty";
 
 		Map<Integer, Double> totalALEs = new HashMap<Integer, Double>();
 
@@ -1274,8 +1357,6 @@ public class ExportAnalysis {
 			totalALEs.put(key, totalALE);
 		}
 
-		int counter = 0;
-
 		// ****************************************************************
 		// * export assessment
 		// ****************************************************************
@@ -1283,53 +1364,14 @@ public class ExportAnalysis {
 		// parse assessment
 		for (int index = 0; index < this.analysis.getAssessments().size(); index++) {
 
-			// ****************************************************************
-			// * export assessment
-			// ****************************************************************
-
-			// check if first part of query -> YES
-			if (query.equals(Constant.EMPTY_STRING)) {
-
-				// build query
-				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
-						+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as "
-						+ "uncertainty UNION";
-
-				// set ? limit
-				counter = 14;
-			} else {
-
-				// check if first part of query -> NO
-
-				// limit reached ? -> YES
-				if (counter + 14 >= 999) {
-
-					// execute query
-					query = query.substring(0, query.length() - 6);
-					sqlite.query(query, params);
-
-					// clean parameters
-					params.clear();
-
-					// reset query
-					// build query
-					query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? "
-							+ "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as "
-							+ "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
-
-					// set ? limit
-					counter = 14;
-				} else {
-
-					// limit reached ? -> NO
-
-					// add data to query
-					query += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
-
-					// increment limit
-					counter += 14;
-				}
-			}
+			if (query.isEmpty())
+				query = baseQuery;
+			else if (params.size() + 15 > 999) {
+				sqlite.query(query, params);
+				query = baseQuery;
+				params.clear();
+			} else
+				query += unionQuery;
 
 			Integer key = this.analysis.getAnAssessment(index).getAsset().getId();
 			// add parameters
@@ -1345,15 +1387,12 @@ public class ExportAnalysis {
 			params.add(this.analysis.getAnAssessment(index).getLikelihoodReal());
 			params.add(this.analysis.getAnAssessment(index).getComment());
 			params.add(this.analysis.getAnAssessment(index).getHiddenComment());
+			params.add(this.analysis.getAnAssessment(index).getOwner());
 			params.add(totalALEs.get(key));
 			params.add(this.analysis.getAnAssessment(index).getUncertainty());
 		}
-
-		if (query.endsWith("UNION"))
-			query = query.substring(0, query.length() - 6);
-
+		// execute the query
 		if (!query.isEmpty())
-			// execute the query
 			sqlite.query(query, params);
 	}
 
@@ -1373,7 +1412,8 @@ public class ExportAnalysis {
 		List<Object> measureparams = new ArrayList<Object>(), specparams = new ArrayList<Object>(), defaultspecparams = new ArrayList<Object>();
 		MaturityStandard maturityStandard = null;
 		MaturityMeasure maturity = null;
-		String measurequery = "" , specdefaultquery = "";;
+		String measurequery = "", specdefaultquery = "";
+		;
 		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
 		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 
@@ -1528,7 +1568,7 @@ public class ExportAnalysis {
 					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
 					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
 					measureparams.add(measureIndex++);
-					//measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
+					// measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
 
 					// ****************************************************************
 					// * export asset type values
@@ -2266,7 +2306,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = DatabaseHandler.generateInsertQuery("risk_register", 14);
+		query = DatabaseHandler.generateInsertQuery("risk_register", 11);
 
 		// parse all Risk Register Entries
 		for (int i = 0; i < this.analysis.getRiskRegisters().size(); i++) {
@@ -2275,18 +2315,15 @@ public class ExportAnalysis {
 			params.clear();
 			params.add(this.analysis.getARiskRegisterEntry(i).getScenario().getId());
 			params.add(this.analysis.getARiskRegisterEntry(i).getAsset().getId());
-			params.add(this.analysis.getARiskRegisterEntry(i).getPosition());
 			params.add(this.analysis.getARiskRegisterEntry(i).getRawEvaluation().getProbability());
 			params.add(this.analysis.getARiskRegisterEntry(i).getRawEvaluation().getImpact());
 			params.add(this.analysis.getARiskRegisterEntry(i).getRawEvaluation().getImportance());
 			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getProbability());
 			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getImpact());
 			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getImportance());
-			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getProbability());
-			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImpact());
-			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImportance());
-			params.add(this.analysis.getARiskRegisterEntry(i).getStrategy());
-			params.add(this.analysis.getARiskRegisterEntry(i).getOwner());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getProbability());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getImpact());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedEvaluation().getImportance());
 
 			// execute query
 			sqlite.query(query, params);

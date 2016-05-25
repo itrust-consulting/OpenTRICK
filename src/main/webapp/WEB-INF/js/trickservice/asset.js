@@ -1,7 +1,6 @@
 /* Asset */
 function serializeAssetForm(formId) {
-	var form = $("#" + formId);
-	var data = form.serializeJSON();
+	var form = $("#" + formId), data = form.serializeJSON();
 	data["assetType"] = {
 		"id" : parseInt(data["assetType"]),
 		"type" : $("#asset_assettype_id option:selected").text()
@@ -22,21 +21,24 @@ function selectAsset(assetId, value) {
 				if (value != selected)
 					requiredUpdate.push(selectedItem[i]);
 			}
-			$.ajax({
-				url : context + "/Analysis/Asset/Select",
-				contentType : "application/json;charset=UTF-8",
-				data : JSON.stringify(requiredUpdate, null, 2),
-				type : 'post',
-				success : function(reponse) {
-					reloadSection('section_asset');
-					return false;
-				},
-				error : unknowError
-			});
+			if (requiredUpdate.length) {
+				$.ajax({
+					url : context + "/Analysis/Asset/Select",
+					contentType : "application/json;charset=UTF-8",
+					data : JSON.stringify(requiredUpdate, null, 2),
+					type : 'post',
+					async : false,
+					success : function(reponse) {
+						reloadSection('section_asset');
+						return false;
+					},
+					error : unknowError
+				});
+			}
 		} else {
 			$.ajax({
 				url : context + "/Analysis/Asset/Select/" + assetId,
-				async : true,
+				async : false,
 				contentType : "application/json;charset=UTF-8",
 				success : function(reponse) {
 					reloadSection("section_asset");
@@ -49,41 +51,38 @@ function selectAsset(assetId, value) {
 	return false;
 }
 
-function deleteAsset(assetId) {
+function deleteAsset() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		if (assetId == null || assetId == undefined) {
-			var selectedScenario = findSelectItemIdBySection(("section_asset"));
-			if (!selectedScenario.length)
-				return false;
-		}
-
-		var lang = $("#nav-container").attr("data-trick-language");
-		if (selectedScenario.length == 1) {
-			var assetname = $("#section_asset tr[data-trick-id='" + assetId + "'] td:nth-child(3)").text();
+		var selectedAsset = findSelectItemIdBySection("section_asset");
+		if (!selectedAsset.length)
+			return false;
+		if (selectedAsset.length == 1) {
+			var assetname = $("#section_asset tr[data-trick-id='" + selectedAsset[0] + "'] td:nth-child(3)").text();
 			$("#confirm-dialog .modal-body").html(
 					MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
-							+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", assetname, lang));
+							+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", assetname));
 		} else
 			$("#confirm-dialog .modal-body")
 					.html(
 							MessageResolver(
 									"confirm.delete.selected.asset",
 									"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
-									assetname, lang));
+									assetname));
 		$("#confirm-dialog .btn-danger").click(function() {
-			while (selectedScenario.length) {
-				rowTrickId = selectedScenario.pop();
+			while (selectedAsset.length) {
+				var assetId = selectedAsset.pop();
 				$.ajax({
-					url : context + "/Analysis/Asset/Delete/" + rowTrickId,
+					url : context + "/Analysis/Asset/Delete/" + assetId,
+					type : "POST",
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined)
 							reloadSection("section_asset");
 						else if (response["error"] != undefined) {
-							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog .modal-body").text(response["error"]);
 							$("#alert-dialog").modal("toggle");
 						} else {
-							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
+							$("#alert-dialog .modal-body").text(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
 							$("#alert-dialog").modal("toggle");
 						}
 						return false;
@@ -138,12 +137,7 @@ function saveAsset(form) {
 		data : serializeAssetForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var alert = $("#addAssetModal .label-danger");
-			if (alert.length)
-				alert.remove();
-			var alert = $("#addAssetModal .alert");
-			if (alert.length)
-				alert.remove();
+			$("#addAssetModal .label-danger,#addAssetModal .alert").remove();
 			for ( var error in response) {
 				if (error != "asset") {
 					var errorElement = document.createElement("label");
@@ -173,22 +167,20 @@ function saveAsset(form) {
 					showError($("#asset_form").parent()[0], response[error]);
 
 			}
-			if (!($("#addAssetModal .label-danger").length || $("#addAssetModal .alert").length)) {
+			if (!$("#addAssetModal .label-danger, #addAssetModal .alert").length) {
 				$("#addAssetModal").modal("hide");
 				reloadSection("section_asset");
 			}
 			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			var alert = $("#addAssetModal .label-danger");
-			if (alert.length)
-				alert.remove();
+			$("#addAssetModal .label-danger").remove();
 			var errorElement = document.createElement("label");
 			errorElement.setAttribute("class", "label label-danger");
 			$(errorElement).text(MessageResolver("error.unknown.add.asset", "An unknown error occurred during adding asset"));
 			$(errorElement).appendTo($("#addAssetModal .modal-body"));
 			return false;
-		},
+		}
 	});
 	return false;
 }

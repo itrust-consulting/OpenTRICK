@@ -15,7 +15,7 @@
 		</ul>
 		<c:choose>
 			<c:when test="${!empty languages}">
-				<table class="table">
+				<table class="table table-hover">
 					<thead>
 						<tr>
 							<th width="1%"></th>
@@ -28,9 +28,9 @@
 						<c:forEach items="${languages}" var="language">
 							<tr data-trick-id="${language.id}" ondblclick="return editSingleLanguage('${language.id}');">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_language','#menu_language');"></td>
-								<td><spring:message text="${language.alpha3}" /></td>
-								<td><spring:message text="${language.name}" /></td>
-								<td><spring:message text="${language.altName}" /></td>
+								<td data-field-name="alpha3" ><spring:message text="${language.alpha3}" /></td>
+								<td data-field-name="name" ><spring:message text="${language.name}" /></td>
+								<td data-field-name="altName"><spring:message text="${language.altName}" /></td>
 							</tr>
 						</c:forEach>
 					</tbody>

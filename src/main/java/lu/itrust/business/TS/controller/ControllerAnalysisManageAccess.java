@@ -8,16 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
-import lu.itrust.business.TS.usermanagement.User;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,9 +16,20 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * ControllerManageAccess.java: <br>
@@ -48,9 +49,6 @@ public class ControllerAnalysisManageAccess {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -93,10 +91,9 @@ public class ControllerAnalysisManageAccess {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Update/{analysisID}")
+	@RequestMapping(value="/Update/{analysisID}", method = RequestMethod.POST)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
-
 		try {
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
@@ -116,8 +113,8 @@ public class ControllerAnalysisManageAccess {
 			return "analyses/all/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors
-			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
+			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
 			return "analyses/all/forms/manageUserAnalysisRights";
 		}
 	}

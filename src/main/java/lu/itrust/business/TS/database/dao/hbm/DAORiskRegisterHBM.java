@@ -5,11 +5,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.database.dao.DAORiskRegister;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
+import lu.itrust.business.TS.database.dao.DAORiskRegister;
+import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 
 /**
  * DAORiskRegisterHBM.java: <br>
@@ -44,7 +44,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#get(int)
 	 */
 	@Override
-	public RiskRegisterItem get(Integer id) throws Exception {
+	public RiskRegisterItem get(Integer id)  {
 		return (RiskRegisterItem) getSession().get(RiskRegisterItem.class, id);
 	}
 
@@ -55,14 +55,14 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
-	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId)  {
 		String query = "Select count(riskregisterItem) From Analysis as analysis inner join analysis.riskRegisters as riskregisterItem where analysis.id = :analysisid and riskregisterItem.id = ";
 		query += ":riskregisterItemId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskregisterItemId", riskregisterItemId).uniqueResult()).intValue() > 0;
 	}
 
 	/*
-	 * @Override public RiskRegisterItem getByScenario(Scenario scenario) throws Exception { return
+	 * @Override public RiskRegisterItem getByScenario(Scenario scenario)  { return
 	 * (RiskRegisterItem)
 	 * getSession().createQuery("From RiskRegister where scenario = :scenario").setParameter
 	 * ("scenario", scenario); }
@@ -75,8 +75,8 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId) throws Exception {
-		String query = "SELECT riskregister FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregister WHERE analysis.id= :analysisID order by riskregister.position, riskregister.netEvaluation.importance desc, riskregister.expectedImportance.importance desc, riskregister.rawEvaluation.importance desc";
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId)  {
+		String query = "SELECT riskregister FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregister WHERE analysis.id= :analysisID order by riskregister.netEvaluation.importance desc, riskregister.expectedEvaluation.importance desc, riskregister.rawEvaluation.importance desc";
 		return (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisId).list();
 	}
 
@@ -87,7 +87,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#save(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void save(RiskRegisterItem riskRegisterItem) throws Exception {
+	public void save(RiskRegisterItem riskRegisterItem)  {
 		getSession().save(riskRegisterItem);
 	}
 
@@ -98,7 +98,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception {
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem)  {
 		getSession().saveOrUpdate(riskRegisterItem);
 	}
 
@@ -109,18 +109,14 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskRegister#delete(lu.itrust.business.TS.model.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void delete(RiskRegisterItem riskRegisterItem) throws Exception {
+	public void delete(RiskRegisterItem riskRegisterItem)  {
 		getSession().delete(riskRegisterItem);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
-		String query = "SELECT riskregisters FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregisters WHERE analysis.id= :analysisID";
-		List<RiskRegisterItem> riskregister = (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
-		for(RiskRegisterItem riskItem : riskregister)
+	public void deleteAllFromAnalysis(Integer analysisID)  {
+		for(RiskRegisterItem riskItem : getAllFromAnalysis(analysisID))
 			getSession().delete(riskItem);
-		
 	}
 
 	@Override

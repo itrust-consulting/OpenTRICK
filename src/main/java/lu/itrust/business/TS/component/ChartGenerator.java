@@ -2,8 +2,7 @@ package lu.itrust.business.TS.component;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,14 +11,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
-import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOParameter;
@@ -53,11 +58,7 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.usermanagement.RoleType;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
+import net.minidev.json.JSONObject;
 
 /**
  * ChartGenerator.java: <br>
@@ -69,9 +70,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ChartGenerator {
-
-	@Autowired
-	private DAOAsset daoAsset;
 
 	@Autowired
 	private DAOActionPlan daoActionPlan;
@@ -108,6 +106,9 @@ public class ChartGenerator {
 
 	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
+
+	@Autowired
+	private DynamicRiskComputer dynamicRiskComputer;
 
 	@Value("${app.settings.ale.chart.content.size}")
 	private int aleChartSize;
@@ -155,11 +156,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_asset", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Asset %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -201,11 +199,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_asset_type", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_asset_type",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Asset Type %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -248,11 +243,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_scenario_type", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario_type",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Scenario Type %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -295,11 +287,8 @@ public class ChartGenerator {
 				List<ALE> aleSubList = ales.subList(i * distribution.getDivisor(), i == (multiplicator - 1) ? ales.size() : (i + 1) * distribution.getDivisor());
 				if (aleSubList.get(0).getValue() == 0)
 					break;
-				result += (result.isEmpty() ? "" : ",")
-						+ generateALEChart(
-								locale,
-								messageSource.getMessage("label.title.chart.part.ale_by_scenario", new Integer[] { i + 1, multiplicator },
-										String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList);
+				result += (result.isEmpty() ? "" : ",") + generateALEChart(locale, messageSource.getMessage("label.title.chart.part.ale_by_scenario",
+						new Integer[] { i + 1, multiplicator }, String.format("ALE by Scenario %d/%d", i + 1, multiplicator), locale), aleSubList);
 			}
 			return String.format("[%s]", result);
 		} finally {
@@ -399,7 +388,8 @@ public class ChartGenerator {
 	 * @param previouscompliences
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase, Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences, List<AcronymParameter> expressionParameters) {
+	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase, Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences,
+			List<AcronymParameter> expressionParameters) {
 		Map<String, Object[]> compliances = previouscompliences;
 
 		for (Measure measure : measures) {
@@ -427,7 +417,7 @@ public class ChartGenerator {
 	 */
 	public String compliance(int idAnalysis, String standard, Locale locale) throws Exception {
 		List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
-		
+
 		List<AcronymParameter> expressionParameters = daoParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, expressionParameters);
@@ -549,15 +539,15 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public String evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) throws Exception {
+	public String evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale)
+			throws Exception {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
 
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
-		String title = "\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null,
-						"Evolution of profitability and ISO compliance for " + actionPlanType, locale) + "\"}";
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null,
+				"Evolution of profitability and ISO compliance for " + actionPlanType, locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -577,6 +567,8 @@ public class ChartGenerator {
 		String ale = "[";
 
 		String riskReduction = "[";
+
+		String costOfMeasures = "[";
 
 		String rosi = "[";
 
@@ -607,6 +599,8 @@ public class ChartGenerator {
 
 		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
 
+		List<String> dataCostOfMeasures = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE);
+
 		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
 
 		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
@@ -616,6 +610,7 @@ public class ChartGenerator {
 		for (int i = 0; i < usesPhases.size(); i++) {
 			ale += dataALEs.get(i) + (size != i ? "," : "]");
 			riskReduction += dataRiskReductions.get(i) + (size != i ? "," : "]");
+			costOfMeasures += dataCostOfMeasures.get(i) + (size != i ? "," : "]");
 			rosi += dataROSIs.get(i) + (size != i ? "," : "]");
 			relatifRosi += dataRelatifROSIs.get(i) + (size != i ? "," : "]");
 
@@ -641,7 +636,7 @@ public class ChartGenerator {
 
 		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k€/y", locale);
 
-		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\""
+		String yAxis = "\"yAxis\": [{ \"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
 				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\""
 				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
@@ -660,8 +655,11 @@ public class ChartGenerator {
 		series += "{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale) + "\", \"data\":" + ale
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale) + "\", \"data\":" + riskReduction
-				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale)
-				+ "\", \"data\":" + rosi + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_AVERAGE_YEARLY_COST_OF_PHASE, null, "Average yearly cost of phase (k€/y)", locale)
+				+ "\", \"data\":" + costOfMeasures + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
@@ -811,8 +809,7 @@ public class ChartGenerator {
 		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
 		if (scenario == null)
 			return null;
-		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
-		return rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
+		return rrfByScenario(scenario, idAnalysis, measures, locale);
 	}
 
 	public String rrfByScenario(Scenario scenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
@@ -892,9 +889,10 @@ public class ChartGenerator {
 
 			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return null;
 	}
@@ -911,9 +909,8 @@ public class ChartGenerator {
 
 		try {
 
-			String title = "\"title\": {\"text\":\""
-					+ messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() }, "RRF by measure ("
-							+ measure.getMeasureDescription().getReference() + ")", locale) + "\"}";
+			String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() },
+					"RRF by measure (" + measure.getMeasureDescription().getReference() + ")", locale) + "\"}";
 
 			String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -978,7 +975,7 @@ public class ChartGenerator {
 		catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 		}
 		return null;
 	}
@@ -1141,22 +1138,22 @@ public class ChartGenerator {
 
 					List<MeasureAssetValue> mavs = assetMeasure.getMeasureAssetValueByAssetType(atv.getAssetType());
 
-					if (mavs.size() == 0)
-						throw new TrickException("error.rrf.assetmeasure.no_assets", "Measure '" + assetMeasure.getMeasureDescription().getReference()
-								+ "' does not have any assets of this asset type!", assetMeasure.getMeasureDescription().getReference());
+					if (!mavs.isEmpty()) {
 
-					for (MeasureAssetValue mav : mavs) {
+						for (MeasureAssetValue mav : mavs) {
 
-						double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
+							double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
 
-						NumberFormat nf = new DecimalFormat();
-						nf.setMaximumFractionDigits(2);
+							NumberFormat nf = new DecimalFormat();
+							nf.setMaximumFractionDigits(2);
 
-						val = Double.valueOf(nf.format(val));
+							val = Double.valueOf(nf.format(val));
 
-						rrfMeasure.setValue(rrfMeasure.getValue() + val);
-					}
-					rrfAssetType.getRrfMeasures().add(rrfMeasure);
+							rrfMeasure.setValue(rrfMeasure.getValue() + val);
+						}
+						rrfAssetType.getRrfMeasures().add(rrfMeasure);
+					} else
+						rrfs.remove(atv.getAssetType().getType());
 				}
 			}
 		}
@@ -1165,7 +1162,9 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * Generates the JSON data configuring a "Highcharts" chart which displays the evolution of the dynamic parameters.
+	 * Generates the JSON data configuring a "Highcharts" chart which displays
+	 * the evolution of the dynamic parameters.
+	 * 
 	 * @param idAnalysis
 	 * @param locale
 	 * @return
@@ -1173,81 +1172,280 @@ public class ChartGenerator {
 	 */
 	public String dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
 		// Find the user names of all sources involved
-		List<String> sourceUserNames = daoUserAnalysisRight
-				.getAllFromAnalysis(idAnalysis).stream()
-				.map(userRight -> userRight.getUser())
-				.filter(user -> user.hasRole(RoleType.ROLE_IDS))
-				.map(user -> user.getLogin())
-				.collect(Collectors.toList());
+		List<String> sourceUserNames = daoUserAnalysisRight.getAllFromAnalysis(idAnalysis).stream().map(userRight -> userRight.getUser())
+				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
 
-		// Find the severity values
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final Map<Integer, Double> severityProbabilities = analysis.getSeverityParameterValuesOrDefault();
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0"));
+		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter
+																						// returns
+																						// -1
+																						// in
+																						// case
+																						// of
+																						// a
+																						// failure
 
 		// Determine time-related stuff
-		final LocalDate lastEndDate = LocalDate.now();
-		final LocalDate firstEndDate = lastEndDate.minusMonths(Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_MONTHS - 1);
+		final long timeUpperBound = Instant.now().getEpochSecond();
+		final long timeLowerBound = timeUpperBound - Constant.CHART_DYNAMIC_PARAMETER_EVOLUTION_HISTORY_IN_SECONDS;
+		long nextTimeIntervalSize = 60; // in seconds
 
-		// Collect parameter name
 		String jsonXAxisValues = "";
 		List<Long> xAxisValues = new ArrayList<>();
 
-		// For each dynamic parameter, construct a series of values (mapping a timestamp to the value back then)
+		// For each dynamic parameter, construct a series of values
 		Map<String, Map<Long, Double>> data = new HashMap<>();
-		for (LocalDate endDate = firstEndDate; endDate.compareTo(lastEndDate) <= 0 /* endDate <= lastEndDate */; endDate = endDate.plusWeeks(1)) {
-			final long endTime = endDate.atStartOfDay().atZone(ZoneId.systemDefault()).toEpochSecond();
-			final long startTime = endTime - 86400 * 7;
-
-			xAxisValues.add(endTime);
+		for (long timeEnd = timeUpperBound - nextTimeIntervalSize; timeEnd - nextTimeIntervalSize >= timeLowerBound; timeEnd -= nextTimeIntervalSize) {
+			// Add x-axis values to a list in reverse order (we use
+			// Collections.reverse() later on)
+			xAxisValues.add(timeEnd);
 			if (!jsonXAxisValues.isEmpty())
-				jsonXAxisValues += ",";
-			jsonXAxisValues += "\"" + endDate.toString() + "\"";
+				jsonXAxisValues = "," + jsonXAxisValues;
+			jsonXAxisValues = "\"" + deltaTimeToString(timeUpperBound - timeEnd) + "\"" + jsonXAxisValues;
 
+			// Fetch data
 			for (String sourceUserName : sourceUserNames) {
-				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(startTime, endTime, sourceUserName, severityProbabilities, minimumProbability);
+				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(timeEnd - nextTimeIntervalSize, timeEnd, sourceUserName,
+						minimumProbability);
 				for (String parameterName : likelihoods.keySet()) {
 					// Store data
 					data.putIfAbsent(parameterName, new HashMap<Long, Double>());
-					data.get(parameterName).put(endTime, likelihoods.get(parameterName));
+					data.get(parameterName).put(timeEnd, likelihoods.get(parameterName));
 				}
 			}
+
+			// Modify interval size
+			if (nextTimeIntervalSize < Constant.CHART_DYNAMIC_PARAMETER_MAX_SIZE_OF_LOGARITHMIC_SCALE)
+				nextTimeIntervalSize = (int) (nextTimeIntervalSize * Constant.CHART_DYNAMIC_PARAMETER_LOGARITHMIC_FACTOR);
 		}
-		
+		Collections.reverse(xAxisValues);
+
 		// Collect data
-		String jsonSeries = "\"series\":[ "; // need space at the end if 'data' is empty map
+		String jsonSeries = "\"series\":[ "; // need space at the end if 'data'
+												// is empty map
 		for (String parameterName : data.keySet()) {
-			String jsonSingleSeries = "[ "; // need space at the end if 'xAxisValues' is empty list
-			for (long endTime : xAxisValues) {
-				jsonSingleSeries += data.get(parameterName).getOrDefault(endTime, 0.0) + ",";
+			String jsonSingleSeries = "[ "; // need space at the end if
+											// 'xAxisValues' is empty list
+			for (long timeEnd : xAxisValues) {
+				jsonSingleSeries += data.get(parameterName).getOrDefault(timeEnd, 0.0) + ",";
 			}
 			jsonSingleSeries = jsonSingleSeries.substring(0, jsonSingleSeries.length() - 1) + "]";
-			jsonSeries += "{\"name\":\"" + jsonEscape(parameterName) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
+			jsonSeries += "{\"name\":\"" + JSONObject.escape(parameterName) + "\", \"data\":" + jsonSingleSeries + ",\"valueDecimals\": 3, \"type\": \"line\",\"yAxis\": 0},";
 		}
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
 		// Build JSON data
 		final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale);
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
-		final String jsonTitle = "\"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
+		final String jsonTitle = "\"title\": {\"text\":\""
+				+ JSONObject.escape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
-		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + jsonEscape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + jsonEscape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + JSONObject.escape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\""
+				+ JSONObject.escape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
-		
-		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", " + exporting + "}").replaceAll("\r|\n", " ");
+
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", "
+				+ exporting + "}").replaceAll("\r|\n", " ");
 	}
 
 	/**
-	 * Escapes the content of a JSON string in a very basic way.
-	 * Does not support escaping of control characters.
-	 * @param text The text to be escaped, which will go between double quotes (the latter must not be specified).
-	 * @return Returns an escaped string which can be used within double quotes.
+	 * Generates the JSON data configuring a "Highcharts" chart which displays
+	 * the ALE evolution of all asset types of an analysis.
+	 * 
+	 * @param idAnalysis
+	 *            The ID of the analysis to generate the graph for.
 	 */
-	private static String jsonEscape(String text) {
-		// Control characters should be escaped as well (using \\uXXXX syntax),
-		// but this is not done for performance reasons.
-		return text.replace("\\", "\\\\").replace("\"", "\\\"");
+	public String aleEvolutionOfAllAssetTypes(int idAnalysis, Locale locale) throws Exception {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final List<Assessment> assessments = analysis.getAssessments();
+		return aleEvolution(analysis, assessments, locale, a -> a.getAsset().getAssetType(), t -> t.getType(),
+				messageSource.getMessage("label.title.chart.aleevolution", null, "ALE Evolution", locale));
+	}
+
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays
+	 * the ALE evolution of all scenarios of a specific asset type of an
+	 * analysis.
+	 * 
+	 * @param idAnalysis
+	 *            The ID of the analysis to generate the graph for.
+	 * @param assetType
+	 *            The asset type to generate the graph for.
+	 */
+	public String aleEvolutionofAllScenarios(int idAnalysis, String assetType, Locale locale) throws Exception {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final List<Assessment> assessments = analysis.getAssessments().stream().filter(a -> a.getAsset().getAssetType().getType().equals(assetType)).collect(Collectors.toList());
+		return aleEvolution(analysis, assessments, locale, a -> a.getScenario(), s -> s.getName(),
+				messageSource.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType }, "ALE Evolution of '{0}' assets", locale));
+	}
+
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays
+	 * the ALE evolution of all scenarios of a specific asset type of an
+	 * analysis.
+	 * 
+	 * @param idAnalysis
+	 *            The ID of the analysis to generate the graph for.
+	 * @param assetType
+	 *            The asset type to generate the graph for.
+	 */
+	public String allAleEvolutionsofAllScenarios(int idAnalysis, Locale locale) throws Exception {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final List<Assessment> assessments = analysis.getAssessments();
+		final Map<AssetType, List<Assessment>> assessmentsByAssetType = new HashMap<>();
+
+		// Split assessments by the type of their asset
+		for (Assessment assessment : assessments) {
+			final AssetType type = assessment.getAsset().getAssetType();
+			List<Assessment> list = assessmentsByAssetType.get(type);
+			if (list == null)
+				assessmentsByAssetType.put(type, list = new ArrayList<>());
+			list.add(assessment);
+		}
+
+		// Create individual graphs
+		final List<String> graphs = new ArrayList<>();
+		for (AssetType assetType : assessmentsByAssetType.keySet())
+			graphs.add(aleEvolution(analysis, assessmentsByAssetType.get(assetType), locale, a -> a.getScenario(), s -> s.getName(), messageSource
+					.getMessage("label.title.chart.aleevolution_of_asset_type", new Object[] { assetType.getType() }, "ALE Evolution of all {0}-type assets", locale)));
+		return "[" + String.join(", ", graphs) + "]";
+	}
+
+	/**
+	 * Generates the JSON data configuring a "Highcharts" chart which displays
+	 * the ALE evolution of all scenarios of a specific asset type of an
+	 * analysis.
+	 * 
+	 * @param idAnalysis
+	 *            The ID of the analysis to generate the graph for.
+	 * @param assetType
+	 *            The asset type to generate the graph for.
+	 */
+	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator,
+			Function<TAggregator, String> axisLabelProvider, String chartTitle) throws Exception {
+		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
+		final List<Parameter> allParameters = analysis.getParameters();
+		final long now = Instant.now().getEpochSecond();
+
+		// Find the user names of all sources involved
+		final List<String> sourceUserNames = daoUserAnalysisRight.getAllFromAnalysis(analysis.getId()).stream().map(userRight -> userRight.getUser())
+				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
+
+		// Fetch ALE evolution data grouped by scenario and time
+		final List<Long> xAxisValues = new ArrayList<>(); // populated within
+															// dynamicRiskComputer.generateAleEvolutionData()
+		final Map<Long, Map<Assessment, Set<String>>> involvedVariables = new HashMap<>(); // dito
+		final Map<Long, Map<String, Double>> expressionParameters = new HashMap<>(); // dito
+		final Map<TAggregator, Map<Long, Double>> data = dynamicRiskComputer.generateAleEvolutionData(assessments, standards, sourceUserNames, allParameters, aggregator,
+				xAxisValues, involvedVariables, expressionParameters);
+
+		// Output data
+		final List<String> jsonSeriesList = new ArrayList<>();
+		for (TAggregator key : data.keySet()) {
+			final List<String> jsonDataList = new ArrayList<>();
+			final List<List<String>> jsonMetaDataList = new ArrayList<>();
+
+			// Collect data/metadata
+			Long lastTimeEnd = null;
+			for (long timeEnd : xAxisValues) {
+				// Store value
+				final double currentAle = data.get(key).get(timeEnd);
+				jsonDataList.add(Double.toString(Math.round(currentAle / 10.) / 100.));
+
+				if (lastTimeEnd != null) {
+					// Find and store explanations of behaviour
+					final Map<String, Double> currentExpressionParameters = expressionParameters.get(timeEnd);
+					final Map<String, Double> lastExpressionParameters = expressionParameters.get(lastTimeEnd);
+					final double lastAle = data.get(key).get(lastTimeEnd);
+					jsonMetaDataList.add(generateNotableEventsJson(aggregator, key, lastTimeEnd, lastAle, currentAle, involvedVariables.get(lastTimeEnd), lastExpressionParameters,
+							currentExpressionParameters));
+				}
+
+				// Update references
+				lastTimeEnd = timeEnd;
+			}
+
+			// Add empty meta data array for last time point (it has none, since
+			// there are no future time points to compare with)
+			jsonMetaDataList.add(new ArrayList<>());
+
+			// Build JSON object
+			final String jsonData = "[" + String.join(",", jsonDataList) + "]";
+			final String jsonMetaData = "[" + String.join(",", jsonMetaDataList.stream().map(x -> "[" + String.join(",", x) + "]").collect(Collectors.toList())) + "]";
+			jsonSeriesList.add("{\"name\":\"" + JSONObject.escape(axisLabelProvider.apply(key)) + "\", \"data\":" + jsonData + ", \"metadata\":" + jsonMetaData
+					+ ", \"valueDecimals\": 2, \"type\": \"line\",\"yAxis\": 0}");
+		}
+		final String jsonSeries = "\"series\":[" + String.join(",", jsonSeriesList) + "]";
+
+		// Build JSON data
+		final String jsonXAxisValues = String.join(",", xAxisValues.stream().map(x -> "\"" + deltaTimeToString(now - x) + "\"").collect(Collectors.toList()));
+		final String unit = messageSource.getMessage("label.metric.keuro_by_year", null, "k\u20AC/y", locale);
+		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
+		final String jsonTitle = "\"title\": {\"text\":\"" + JSONObject.escape(chartTitle) + "\"}";
+		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
+		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
+		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + JSONObject.escape(unit) + "\",\"useHTML\": true}, \"title\": {\"text\":\""
+				+ JSONObject.escape(messageSource.getMessage("report.assessment.ale", null, "ALE (k\u20AC/y)", locale)) + "\"}}]";
+		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
+
+		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", "
+				+ exporting + "}").replaceAll("\r|\n", " ");
+	}
+
+	private <TAggregator> List<String> generateNotableEventsJson(Function<Assessment, TAggregator> aggregator, TAggregator key, long timeEnd, double currentAle, double nextAle,
+			Map<Assessment, Set<String>> involvedVariables, Map<String, Double> currentExpressionParameters, Map<String, Double> nextExpressionParameters) {
+		List<String> result = new ArrayList<>();
+
+		// Check if the ALE in any scenario changes by any considerable amount
+		if (Math.abs(nextAle - currentAle) > Constant.EVOLUTION_MIN_ALE_ABSOLUTE_DIFFERENCE
+				&& Math.abs((nextAle - currentAle) / currentAle) >= Constant.EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE) {
+
+			// Find parameter which changes most (which is responsible,
+			// so-to-speak, for the drastic change in ALE)
+			double maxRelativeDiff = 0.;
+			String selectedDynamicParameterName = null;
+			Double selectedDynamicParameterCurrentValue = null;
+			Double selectedDynamicParameterNextValue = null;
+			for (Assessment assessment : involvedVariables.keySet()) {
+				if (!key.equals(aggregator.apply(assessment)))
+					continue;
+				for (String dynamicParameterName : involvedVariables.get(assessment)) {
+					final double currentValue = currentExpressionParameters.getOrDefault(dynamicParameterName, 0.);
+					final double nextValue = nextExpressionParameters.getOrDefault(dynamicParameterName, 0.);
+					final double relativeDiff = Math.abs((nextValue - currentValue) / currentValue);
+					if (relativeDiff > maxRelativeDiff) {
+						maxRelativeDiff = relativeDiff;
+						selectedDynamicParameterName = dynamicParameterName;
+						selectedDynamicParameterCurrentValue = currentValue;
+						selectedDynamicParameterNextValue = nextValue;
+					}
+				}
+			}
+
+			if (selectedDynamicParameterName != null) {
+				result.add(String.format("{\"dynamicParameter\":\"%s\",\"aleOld\":%.2f,\"aleNew\":%.2f,\"valueOld\":%.5f,\"valueNew\":%.5f}",
+						JSONObject.escape(selectedDynamicParameterName), currentAle, nextAle, selectedDynamicParameterCurrentValue, selectedDynamicParameterNextValue));
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Converts a time difference (in seconds) into a human-readable string.
+	 */
+	public static String deltaTimeToString(long deltaTime) {
+		if (deltaTime < 60)
+			return String.format("%d s", deltaTime);
+		else if (deltaTime < 3600)
+			return String.format("%d m", Math.round(deltaTime / 60.0));
+		else if (deltaTime < 86400)
+			return String.format("%d h", Math.round(deltaTime / 3600.0));
+		else if (deltaTime < 86400 * 7)
+			return String.format("%d d", Math.round(deltaTime / 86400.0));
+		else
+			return String.format("%d w", Math.round(deltaTime / 86400.0 / 7));
 	}
 }

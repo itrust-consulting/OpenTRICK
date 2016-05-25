@@ -5,8 +5,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="section_measure_description" class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
-	<div class="modal-dialog" style="width: 95%;min-width:1170px;">
-		<div class="modal-content" style="padding-bottom:20px">
+	<div class="modal-dialog" style="width: 95%; min-width: 1170px;">
+		<div class="modal-content" style="padding-bottom: 20px">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="measures_header"></h4>
@@ -15,8 +15,8 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewMeasure" data-aria-hidden="true">
-	<div class="modal-dialog">
+<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog"  data-aria-labelledby="addNewMeasure" data-aria-hidden="true">
+	<div class="modal-dialog" style="width: 45%; min-width: 840px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -25,10 +25,10 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="measure" action="/Save" class="form-horizontal" id="measure_form" method="post">
+				<form name="measure" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="measure_form" method="post">
 					<input type="hidden" name="id" value="-1" id="measure_id">
 					<div class="form-group">
-						<label for="reference" class="col-sm-2 control-label"> <spring:message code="label.measure.reference" text="Reference" /></label>
+						<label for="reference" class="col-sm-2 control-label"> <spring:message code="label.reference" text="Reference" /></label>
 						<div class="col-sm-10">
 							<input name="reference" id="measure_reference" class="form-control" type="text" />
 						</div>
@@ -47,10 +47,13 @@
 					</div>
 					<div id="measurelanguages"></div>
 				</form>
+				<div id="save-measure-progress-bar" class="progress progress-striped active" hidden="true" style="margin-bottom: -17px;">
+					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">
-					<spring:message code="label.action.add.norm" text="Add" />
+					<spring:message code="label.action.add" text="Add" />
 				</button>
 			</div>
 		</div>

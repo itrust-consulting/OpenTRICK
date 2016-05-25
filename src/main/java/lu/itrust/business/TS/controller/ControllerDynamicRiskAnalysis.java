@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controller for functionality related to dynamic risk analysis.
+ * 
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jul 1, 2015
  */
@@ -33,9 +34,9 @@ public class ControllerDynamicRiskAnalysis {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
-	@RequestMapping(value = "/Chart/Evolution", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Chart/ParameterEvolution", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String chartEvolution(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String chartParameterEvolution(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
@@ -43,5 +44,29 @@ public class ControllerDynamicRiskAnalysis {
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 
 		return chartGenerator.dynamicParameterEvolution(idAnalysis, customLocale != null ? customLocale : locale);
+	}
+
+	@RequestMapping(value = "/Chart/AleEvolutionByAssetType", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody String chartAleEvolutionByAssetType(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		if (idAnalysis == null)
+			return null;
+
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+
+		return chartGenerator.aleEvolutionOfAllAssetTypes(idAnalysis, customLocale != null ? customLocale : locale);
+	}
+
+	@RequestMapping(value = "/Chart/AleEvolutionByScenario", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody String chartAleEvolutionByScenario(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		if (idAnalysis == null)
+			return null;
+
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
+
+		return chartGenerator.allAleEvolutionsofAllScenarios(idAnalysis, customLocale != null ? customLocale : locale);
 	}
 }

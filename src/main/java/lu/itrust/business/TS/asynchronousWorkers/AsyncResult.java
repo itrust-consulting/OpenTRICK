@@ -21,7 +21,7 @@ public class AsyncResult {
 	private String status;
 
 	private String message;
-	
+
 	private AsyncCallback asyncCallback = null;
 
 	private int progress = 0;
@@ -153,7 +153,8 @@ public class AsyncResult {
 	}
 
 	/**
-	 * @param asyncCallback the asyncCallback to set
+	 * @param asyncCallback
+	 *            the asyncCallback to set
 	 */
 	public void setAsyncCallback(AsyncCallback asyncCallback) {
 		this.asyncCallback = asyncCallback;

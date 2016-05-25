@@ -7,18 +7,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
-import lu.itrust.business.TS.database.service.ServiceTrickService;
-import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.general.Customer;
-
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +16,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerTSInstallation;
+import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.general.Customer;
 
 /**
  * ControllerIntstallation.java: <br>
@@ -43,16 +42,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ControllerIntstallation {
 
 	@Autowired
-	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceTrickService serviceTrickService;
-
-	@Autowired
 	private ServiceCustomer serviceCustomer;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private SessionFactory sessionFactory;
@@ -86,7 +76,7 @@ public class ControllerIntstallation {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Install")
+	@RequestMapping(value="/Install", method= RequestMethod.POST)
 	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -133,7 +123,7 @@ public class ControllerIntstallation {
 			errors.put("installProfileCustomer", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("installProfileCustomer", e.getMessage());
 			return null;
 		}
@@ -164,30 +154,26 @@ public class ControllerIntstallation {
 					return false;
 				}
 			}
-
 			// owner
-
 			if (principal == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
 				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
-
-			Worker worker = new WorkerTSInstallation(version,sessionFactory,serviceTaskFeedback, fileName, customer.getId(), principal.getName());
-			worker.setPoolManager(workersPoolManager);
+			Worker worker = new WorkerTSInstallation(version,workersPoolManager,sessionFactory,serviceTaskFeedback, fileName, customer.getId(), principal.getName());
 			if(!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
 				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 				return false;
 			}
 			executor.execute(worker);
-			errors.put("idTask", String.valueOf(worker.isWorking()));
+			errors.put("idTask", String.valueOf(worker.getId()));
 			return true;
 
 		} catch (TrickException e) {
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			TrickLogManager.Persist(e);
 			errors.put("error", e.getMessage());
 			return false;
 		}

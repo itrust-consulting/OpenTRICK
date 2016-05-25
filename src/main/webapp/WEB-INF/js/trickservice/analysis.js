@@ -2,7 +2,13 @@ var el = null;
 
 var table = null;
 
+var language = { // translated asynchronously below
+		"label.dynamicparameter.evolution": "from {0} to {1}"
+};
+
 $(document).ready(function() {
+	for (var key in language)
+		language[key] = MessageResolver(key, language[key]);
 
 	// ******************************************************************************************************************
 	// * load charts
@@ -13,27 +19,22 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 
 	$("input[type='checkbox']").removeAttr("checked");
-	
-	$("table.table-fixed-header-analysis").stickyTableHeaders({
-		cssTopOffset : ".nav-analysis",
-		fixedOffset : application.fixedOffset
-	});
-	
-	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-		var $target = $(e.currentTarget);
-		if ($target.find("li.active").length && !$target.hasClass("active"))
-			$target.addClass("active");
-	});
+
+	var $tabOption = $("#tabOption");
+
+	application["settings-fixed-header"] = {
+		fixedOffset : $(".nav-analysis"),
+		marginTop : application.fixedOffset,
+		scrollStartFixMulti : 0.99998
+	};
+
+	fixTableHeader("table.table-fixed-header-analysis");
 
 	$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 		disableEditMode();
-		var target = $(e.target).attr("href");
-		if ($(target).attr("data-update-required") == "true") {
-			window[$(target).attr("data-trigger")].apply();
-			$(target).attr("data-update-required", "false");
-		}
-		$("#tabOption").hide();
+		$tabOption.hide();
 	});
+	
 	Highcharts.setOptions({
 		lang : {
 			decimalPoint : ',',
@@ -45,11 +46,73 @@ $(document).ready(function() {
 	window.setInterval(function() {
 		reloadSection("section_asset", undefined, true /* prevent propagation */);
 		reloadSection("section_scenario", undefined, true /* prevent propagation */);
-	}, 10000);
+		loadChartDynamicParameterEvolution();
+		loadChartDynamicAleEvolutionByAssetType();
+		loadChartDynamicAleEvolutionByScenario();
+	}, 30000); // every 30s
 });
 
+$.fn.loadOrUpdateChart = function(parameters) {
+	if (!parameters.tooltip) {
+		$.extend(true, parameters, {
+			tooltip: {
+				formatter: function() {
+					var str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
+					var str = "<span style=\"font-size:80%;\">" + this.x + "</span><br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name + ":</span>   <b>" + str_value + "</b>";
+	
+					if (this.series.options.metadata) {
+						var dataIndex = this.series.xAxis.categories.indexOf(this.x);
+						var metadata = this.series.options.metadata[dataIndex];
+						if (metadata.length > 0)
+							str += "<br/>\u00A0"; // non-breaking space; prevents empty line from being ignored
+						for (var i = 0; i < metadata.length; i++)
+							str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: " + language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
+					}
+					return str;
+				}
+			}
+		});
+	}
+
+	var chart = this.highcharts();
+	if (chart === undefined || parameters.series.length != chart.series.length)
+		return this.highcharts(parameters);
+
+	// Invalidate whole graph if the collection of series changed
+	for (var i = 0; i < chart.series.length; i++) {
+		if (chart.series[i].name != parameters.series[i].name)
+			return this.highcharts(parameters);
+	}
+
+	// Otherwise update only data
+	$.each(chart.series, function (i, series) {
+		series.options.metadata = parameters.series[i].metadata;
+		series.setData(parameters.series[i].data);
+	});
+
+	return this;
+};
+
 function findAnalysisId() {
-	return $("#nav-container").attr("data-trick-id");
+	var id = application['selected-analysis-id'];
+	if (id === undefined) {
+		var el = document.querySelector("#nav-container");
+		if (el == null)
+			return -1;
+		id = application['selected-analysis-id'] = el.getAttribute("data-trick-id");
+	}
+	return id;
+}
+
+function findAnalysisLocale() {
+	var locale = application['selected-analysis-locale'];
+	if (locale === undefined) {
+		var el = document.querySelector("#nav-container");
+		if (el == null)
+			return 'en';
+		locale = application['selected-analysis-locale'] = el.getAttribute("data-trick-language");
+	}
+	return locale;
 }
 
 function isEditable() {
@@ -92,24 +155,30 @@ function updateSettings(element, entryKey) {
 
 // reload measures
 function reloadMeasureRow(idMeasure, standard) {
-	$.ajax({
-		url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var $newData = $("tr" ,$("<div/>").html(response));
-			if (!$newData.length)
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").addClass("danger").attr("title",
-						MessageResolver("error.ui.no.synchronise", "User interface does not update"));
-			else {
-				$(".popover").remove();
-				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith($newData);
-				$("td[data-toggle='popover']",$newData).popover("hide");
-			}
-		},
-		error : unknowError
-	});
+	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']")
+	if (!$currentRow.find("input[type!='checkbox'],select,textarea").length) {
+		$.ajax({
+			url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				var $newRow = $("tr", $("<div/>").html(response));
+				if (!$newRow.length)
+					$currentRow.addClass("warning").attr("title", MessageResolver("error.ui.no.synchronise", "User interface does not update"));
+				else {
+					$("[data-toggle='popover']", $currentRow).popover('destroy');
+					$("[data-toggle='tooltip']", $currentRow).tooltip('destroy');
+					$currentRow.replaceWith($newRow);
+					$("[data-toggle='popover']", $newRow).popover().on('show.bs.popover', togglePopever);
+					$("[data-toggle='tooltip']", $newRow).tooltip();
+				}
+			},
+			error : unknowError
+		});
+	} else
+		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title",
+				MessageResolver("error.ui.update.wait.editing", "Data was saved but user interface was not updated, it will be updated after edition"));
 	return false;
 }
 
@@ -131,10 +200,11 @@ function compliances() {
 				return;
 			var $complianceBody = $("#chart_compliance_body").empty();
 			$.each(response.standards, function(key, data) {
-				if($complianceBody.children().length)
+				if ($complianceBody.children().length)
 					$complianceBody.append("<hr class='col-xs-12' style='margin: 30px 0;'> <div id='chart_compliance_" + key + "'></div>");
-				else $complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
-				$('div[id="chart_compliance_' + key + '"]').highcharts(data[0]);
+				else
+					$complianceBody.append("<div id='chart_compliance_" + key + "'></div>");
+				$('div[id="chart_compliance_' + key + '"]').loadOrUpdateChart(data[0]);
 			});
 		},
 		error : unknowError
@@ -155,7 +225,7 @@ function compliance(standard) {
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
-				$('#chart_compliance_' + standard).highcharts(response);
+				$('#chart_compliance_' + standard).loadOrUpdateChart(response);
 			},
 			error : unknowError
 		});
@@ -177,7 +247,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
-				$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
+				$('#chart_evolution_profitability_compliance_' + actionPlanType).loadOrUpdateChart(response);
 			},
 			error : unknowError
 		});
@@ -199,7 +269,7 @@ function budgetByActionPlanType(actionPlanType) {
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
-				$('#chart_budget_' + actionPlanType).highcharts(response);
+				$('#chart_budget_' + actionPlanType).loadOrUpdateChart(response);
 			},
 			error : unknowError
 		});
@@ -250,25 +320,31 @@ function reloadCharts() {
 	chartALE();
 	compliances();
 	summaryCharts();
-	loadChartDynamic();
+	loadChartDynamicParameterEvolution();
+	loadChartDynamicAleEvolutionByAssetType();
+	loadChartDynamicAleEvolutionByScenario();
 	return false;
 };
 
-function displayChart(id,response) {
+function displayChart(id, response) {
 	var $element = $(id);
-	if($.isArray(response)){
-		$element.empty();
-		for (var i = 0; i < response.length; i++){
-			if(i == 0)
-				$("<div/>").appendTo($element).highcharts(response[i]);
-			else {
-				$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
-				$("<div></div>").appendTo($element).highcharts(response[i]);
+	if ($.isArray(response)) {
+		// First prepare the document structure so that there is exactly one <div> available for each chart
+		if ($element.find(">div").length != response.length) {
+			$element.empty();
+			for (var i = 0; i < response.length; i++) {
+				if (i > 0)
+					$("<hr class='col-xs-12' style='margin: 30px 0;'>").appendTo($element);
+				$("<div/>").appendTo($element)
 			}
 		}
+		// Now load the charts themselves
+		var divSelector = $element.find(">div");
+		for (var i = 0; i < response.length; i++)
+			$(divSelector.get(i)).loadOrUpdateChart(response[i]);
 	}
 	else
-		$element.highcharts(response);
+		$element.loadOrUpdateChart(response);
 }
 
 function loadChartAsset() {
@@ -278,11 +354,9 @@ function loadChartAsset() {
 			$.ajax({
 				url : context + "/Analysis/Asset/Chart/Ale",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
-				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_asset',response);
+					displayChart('#chart_ale_asset', response);
 				},
 				error : unknowError
 			});
@@ -296,7 +370,7 @@ function loadChartAsset() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_asset_type',response);
+					displayChart('#chart_ale_asset_type', response);
 				},
 				error : unknowError
 			});
@@ -311,11 +385,9 @@ function loadChartScenario() {
 			$.ajax({
 				url : context + "/Analysis/Scenario/Chart/Type/Ale",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
-				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_scenario_type',response);
+					displayChart('#chart_ale_scenario_type', response);
 				},
 				error : unknowError
 			});
@@ -330,7 +402,7 @@ function loadChartScenario() {
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_ale_scenario',response);
+					displayChart('#chart_ale_scenario', response);
 				},
 				error : unknowError
 			});
@@ -339,22 +411,60 @@ function loadChartScenario() {
 	}
 }
 
-function loadChartDynamic() {
-	if ($('#chart_dynamic').length) {
-		if ($('#chart_dynamic').is(":visible")) {
+function loadChartDynamicParameterEvolution() {
+	if ($('#chart_parameterevolution').length) {
+		if ($('#chart_parameterevolution').is(":visible")) {
 			$.ajax({
-				url : context + "/Analysis/Dynamic/Chart/Evolution",
+				url : context + "/Analysis/Dynamic/Chart/ParameterEvolution",
 				type : "get",
 				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_dynamic',response);
+					$('#chart_parameterevolution').loadOrUpdateChart(response);
 				},
 				error : unknowError
 			});
 		} else
-			$("#tabChartDynamic").attr("data-update-required", "true");
+			$("#tabChartParameterEvolution").attr("data-update-required", "true");
+	}
+}
+
+function loadChartDynamicAleEvolutionByAssetType() {
+	if ($('#chart_aleevolutionbyassettype').length) {
+		if ($('#chart_aleevolutionbyassettype').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response, textStatus, jqXHR) {
+					displayChart('#chart_aleevolutionbyassettype',response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartAleEvolutionByAssetType").attr("data-update-required", "true");
+	}
+}
+
+function loadChartDynamicAleEvolutionByScenario() {
+	if ($('#chart_aleevolutionbyscenario').length) {
+		if ($('#chart_aleevolutionbyscenario').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response, textStatus, jqXHR) {
+					displayChart('#chart_aleevolutionbyscenario',response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartAleEvolutionByScenario").attr("data-update-required", "true");
 	}
 }
 
@@ -370,25 +480,23 @@ function chartALE() {
 
 // common
 function navToogled(section, parentMenu, navSelected) {
-	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']",parentMenu);
+	var currentMenu = $("li[data-trick-nav-control='" + navSelected + "']", parentMenu);
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	$("li[data-trick-nav-control]",parentMenu).each(function() {
-		var $this = $(this);
-		if ($this.attr("data-trick-nav-control") == navSelected)
-			$this.addClass("disabled");
-		else if($this.hasClass('disabled'))
-			$this.removeClass("disabled");
+	$("li[data-trick-nav-control]", parentMenu).each(function() {
+		if (this.getAttribute("data-trick-nav-control") == navSelected)
+			this.classList.add("disabled");
+		else if (this.classList.contains('disabled'))
+			this.classList.remove("disabled");
 	});
 
-	$("[data-trick-nav-content]",section).each(function() {
+	$("[data-trick-nav-content]", section).each(function() {
 		var $this = $(this);
-		if ($this.attr("data-trick-nav-content") == navSelected)
+		if (this.getAttribute("data-trick-nav-content") == navSelected)
 			$this.show();
-		else if($this.is(":visible"))
+		else if ($this.is(":visible"))
 			$this.hide();
 	});
 	$(window).scroll();
 	return false;
 }
-

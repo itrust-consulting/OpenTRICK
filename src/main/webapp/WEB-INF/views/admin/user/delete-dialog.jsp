@@ -10,7 +10,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
-					<h4 class="col-md-4">
+					<h4 class="col-md-6">
 						<spring:message code="label.title.delete.user" text="Delete user" />
 					</h4>
 					<div class="col-md-6">

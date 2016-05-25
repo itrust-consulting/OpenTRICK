@@ -5,18 +5,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceStandard;
-import lu.itrust.business.TS.database.service.ServiceUser;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceStandard;
 
 /**
  * ControllerKnowledgeBase: <br>
@@ -45,9 +44,6 @@ public class ControllerKnowledgeBase {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@RequestMapping
 	public String displayKnowledgeBase(Map<String, Object> model, Principal principal) throws Exception {

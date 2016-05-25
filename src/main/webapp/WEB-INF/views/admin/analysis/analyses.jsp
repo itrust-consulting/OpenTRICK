@@ -29,7 +29,7 @@
 			<p class="text-center" style="margin-bottom: 0; margin-top: 10px;">
 				<label><spring:message code="label.filter.analysis.customer" text="Analyses filtered by customer" /></label>
 			</p>
-			<form class="col-md-offset-5 col-md-2 form-inline">
+			<form class="col-md-offset-5 col-md-2">
 				<select class="form-control" onchange="return adminCustomerChange(this)" style="margin-bottom: 15px">
 					<c:forEach items="${customers}" var="icustomer">
 						<option value="${icustomer.id}" ${not empty(customer) && icustomer.id == customer? 'selected':'' }>
@@ -39,7 +39,7 @@
 				</select>
 			</form>
 		</div>
-		<table class="table table-hover" style="border-top: 1px solid #dddddd;">
+		<table class="table table-hover" style="border-top: 1px solid #dddddd;" data-fh-scroll-multi="0.995">
 			<thead>
 				<tr>
 					<th width="1%"></th>

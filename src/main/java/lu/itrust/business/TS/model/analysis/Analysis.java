@@ -4,12 +4,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.persistence.Access;
@@ -18,6 +18,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -25,6 +26,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -35,8 +39,9 @@ import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.asset.AssetType;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
@@ -56,9 +61,6 @@ import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /**
  * Analysis: <br>
@@ -90,7 +92,7 @@ public class Analysis implements Cloneable {
 
 	/** Analysis id unsaved value = -1 */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAnalysis")
 	private int id = -1;
 
@@ -211,6 +213,13 @@ public class Analysis implements Cloneable {
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
+	/** List of Assessment */
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
+	private List<RiskProfile> riskProfiles = new ArrayList<RiskProfile>();
+
 	/** List of Standards */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
@@ -245,7 +254,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy("position asc, dtNetEvaluationImportance desc, dtExpEvaluationImportance desc, dtRawEvaluationImportance desc")
+	@OrderBy("dtNetEvaluationImportance desc, dtExpEvaluationImportance desc, dtRawEvaluationImportance desc")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************
@@ -279,7 +288,6 @@ public class Analysis implements Cloneable {
 
 		if (analysis == null)
 			return;
-
 		analysis.getItemInformations().clear();
 		ItemInformation iteminfo;
 		iteminfo = new ItemInformation(Constant.TYPE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
@@ -461,106 +469,21 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * computeCost: <br>
-	 * Returns the Calculated Cost of a Measure. <br>
-	 * Formula used: <br>
-	 * Formula: Cost = ((is * iw) + (es * ew) + in) * ((1 / lt) + (ma / 100))<br>
-	 * With:<br>
-	 * is: The Internal Setup Rate in Euro per Man Day<br>
-	 * iw: The Internal Workload in Man Days<br>
-	 * es: The External Setup Rate in Euro per Man Day<br>
-	 * ew: The External Workload in Man Days<br>
-	 * in: The Investment in Euro<br>
-	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 * ma: The MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE
-	 * 0,00 = 0% and 0,1 = 100%) :: if 0 -> use The Default
-	 * MaintenanceRecurrentInvestment in Percentage (0,00 - 1,00 WHERE 0,00 = 0%
-	 * and 0,1 = 100%)
-	 * 
-	 * @param internalSetup
-	 * 
-	 * @param externalSetup
-	 * 
-	 * @param lifetimeDefault
-	 * 
-	 * @param maintenanceDefault
-	 * 
-	 * @param internalWorkLoad
-	 * 
-	 * @param externalWorkLoad
-	 * 
-	 * @param investment
-	 * 
-	 * @param lifetime
-	 * 
-	 * @param maintenance
-	 * 
-	 * @return The Calculated Cost
-	 */
-	@Deprecated
-	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance,
-			double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
-
-		// ****************************************************************
-		// * variable initialisation
-		// ****************************************************************
-		double cost = 0;
-
-		// internal setup * internal wokload
-		cost = (internalSetup * internalWorkLoad);
-
-		// + external setup * external wokload
-		cost += (externalSetup * externalWorkLoad);
-
-		// + investment
-		cost += investment;
-
-		// check if lifetime is not 0 -> YES: use default lifetime
-		if (lifetime == 0) {
-
-			// check if maintenance is -1 -> YES: use default maintenance
-			if (maintenance == -1) {
-				cost *= ((1. / lifetimeDefault) + (maintenanceDefault / 100.));
-			} else
-
-			// check if maintenance is 0 -> No: use existing maintenance value
-			{
-				cost *= ((1. / lifetimeDefault) + (maintenance / 100.));
-			}
-		} else
-
-		// check if lifetime is 0 -> NO: use existing maintenance
-		{
-			// check if maintenance is -1 -> YES: use default maintenance
-			if (maintenance == -1) {
-				cost *= ((1. / lifetime) + (maintenanceDefault / 100.));
-			} else
-
-			// check if maintenance is 0 -> NO: use existing maintenance value
-			{
-				cost *= ((1. / lifetime) + (maintenance / 100.));
-			}
-		}
-
-		// return calculated cost
-		return cost;
-	}
-
-	/**
-	 * computeCost: <br>
 	 * Returns the Calculated Cost of a Measure. This method does no more need
 	 * the parameter default maintenance, but needs to get the internal and
 	 * external maintenance in md as well as the recurrent investment per year
 	 * in keuro. <br>
 	 * Formula used:<br>
-	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er)
-	 * + ri))<br>
+	 * Cost = ((ir * iw) + (er * ew) + in) * ((1.0 / lt) + ((im * ir) + (em *
+	 * er)+ ri))<br>
 	 * With:<br>
 	 * ir: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
 	 * er: The External Setup Rate in Euro per Man Day<br>
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in kEuro<br>
-	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
+	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years
+	 * <br>
 	 * im: The Internal MaintenanceRecurrentInvestment in Man Days<br>
 	 * em: The External MaintenanceRecurrentInvestment in Man Days<br>
 	 * ri: The recurrent Investment in kEuro<br>
@@ -593,23 +516,12 @@ public class Analysis implements Cloneable {
 		// ****************************************************************
 		// * variable initialisation
 		// ****************************************************************
-		double cost = 0;
-
 		// internal setup * internal wokload + external setup * external
 		// workload
-		cost = (internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad);
-		// + investment
-		cost += investment;
 		// check if lifetime is not 0 -> YES: use default lifetime
-		if (lifetime == 0)
-			cost *= (1. / lifetimeDefault);
-		else
-			cost *= (1. / lifetime);
-
-		cost += ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
-
 		// return calculated cost
-		return cost;
+		return (((internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad) + investment) * (1. / (lifetime == 0 ? lifetimeDefault : lifetime)))
+				+ ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
 	}
 
 	/***********************************************************************************************
@@ -810,12 +722,11 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter
-	 *         was not found
+	 * @return The Value of the Parameter if it exists, or defaultValue if the
+	 *         parameter was not found
 	 */
-	public double getParameter(String name) {
-		Optional<Parameter> optional = parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).findAny();
-		return optional.isPresent() ? optional.get().getValue() : -1;
+	public double getParameter(String type, String name, double defaultValue) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type, name)).map(parameter -> parameter.getValue()).findAny().orElse(defaultValue);
 	}
 
 	/**
@@ -827,24 +738,21 @@ public class Analysis implements Cloneable {
 	 * @return The Value of the Parameter if it exists, or -1 if the parameter
 	 *         was not found
 	 */
-	public Parameter getParameterObject(String parameter) {
+	public double getParameter(String name) {
+		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue()).findAny().orElse(-1.0);
+	}
 
-		// initialise result value
-
-		// parse all parameters
-		for (int i = 0; i < this.getParameters().size(); i++) {
-
-			// check if parameter is the one request -> YES
-			if (this.getAParameter(i).getDescription().equals(parameter)) {
-
-				// ****************************************************************
-				// * set value
-				// ****************************************************************
-				return this.getAParameter(i);
-			}
-		}
-
-		return null;
+	/**
+	 * getParameter: <br>
+	 * Returns the Parameter value of a given Parameter.
+	 * 
+	 * @param parameter
+	 *            The Label of the Parameter
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter
+	 *         was not found
+	 */
+	public Parameter getParameterObject(String description) {
+		return this.getParameters().stream().filter(parameter -> parameter.getDescription().equals(description)).findAny().orElse(null);
 	}
 
 	/**
@@ -1367,7 +1275,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @return The Scenario List Object
 	 */
-	public List<Scenario> getSelectedScenarios() {
+	public List<Scenario> findSelectedScenarios() {
 		List<Scenario> tmpscenarios = new ArrayList<Scenario>();
 		for (Scenario scenario : scenarios)
 			if (scenario.isSelected())
@@ -1459,6 +1367,21 @@ public class Analysis implements Cloneable {
 	 */
 	public void setAssessments(List<Assessment> assessments) {
 		this.assessments = assessments;
+	}
+
+	/**
+	 * @return the riskProfiles
+	 */
+	public List<RiskProfile> getRiskProfiles() {
+		return riskProfiles;
+	}
+
+	/**
+	 * @param riskProfiles
+	 *            the riskProfiles to set
+	 */
+	public void setRiskProfiles(List<RiskProfile> riskProfiles) {
+		this.riskProfiles = riskProfiles;
 	}
 
 	/**
@@ -1792,7 +1715,6 @@ public class Analysis implements Cloneable {
 	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
-
 		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
 		for (int i = 0; i < this.actionPlans.size(); i++) {
 			if (this.actionPlans.get(i).getActionPlanType().getActionPlanMode() == mode) {
@@ -1802,12 +1724,16 @@ public class Analysis implements Cloneable {
 		return ape;
 	}
 
+	/**
+	 * [0] : Simple, [1] : Extended, [2] : Maturity 
+	 * @param parameters
+	 * @return 
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[3];
-		splits[0] = new ArrayList<Parameter>();
-		splits[1] = new ArrayList<ExtendedParameter>();
-		splits[2] = new ArrayList<MaturityParameter>();
+		for (int i = 0; i < splits.length; i++)
+			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
 			if (parameter instanceof ExtendedParameter)
 				((List<ExtendedParameter>) splits[1]).add((ExtendedParameter) parameter);
@@ -1827,38 +1753,48 @@ public class Analysis implements Cloneable {
 		return splits;
 	}
 
+	/**
+	 * [0] : Simple Parameter, [1] : CSSF Parameter, [2] : MAXEFF, [3] : other
+	 * 
+	 * @param parameters
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitSimpleParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[5];
-		splits[0] = new ArrayList<Parameter>();
-		splits[1] = new ArrayList<ExtendedParameter>();
-		splits[2] = new ArrayList<MaturityParameter>();
-		splits[3] = new ArrayList<DynamicParameter>();
+		for (int i = 0; i < splits.length; i++)
+			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
 			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME))
 				((List<Parameter>) splits[0]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_CSSF_NAME))
 				((List<Parameter>) splits[1]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
-				((List<Parameter>) splits[3]).add(parameter);
-			else
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
 				((List<Parameter>) splits[2]).add(parameter);
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
+				((List<Parameter>) splits[4]).add(parameter);
+			else
+				((List<Parameter>) splits[3]).add(parameter);
 		}
 		return (List<Parameter>[]) splits;
 	}
 
+	/**
+	 * [0] IMPACT, [1]: PROBA
+	 * @param parameters
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitExtendedParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[3];
-		splits[0] = new ArrayList<Parameter>();
-		splits[1] = new ArrayList<ExtendedParameter>();
-		splits[2] = new ArrayList<ExtendedParameter>();
+		for (int i = 0; i < splits.length; i++)
+			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
 			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 				((List<Parameter>) splits[0]).add(parameter);
 			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 				((List<Parameter>) splits[1]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME))
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
 				((List<Parameter>) splits[2]).add(parameter);
 		}
 		return (List<Parameter>[]) splits;
@@ -2393,7 +2329,7 @@ public class Analysis implements Cloneable {
 		this.defaultProfile = defaultProfile;
 	}
 
-	public List<Asset> findAssetSelected() {
+	public List<Asset> findSelectedAssets() {
 		List<Asset> selectedAssets = new ArrayList<>();
 		if (assets == null)
 			return selectedAssets;
@@ -2559,9 +2495,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<Asset> findNoAssetSelected() {
-		List<Asset> assets = new ArrayList<Asset>();
-		this.assets.stream().filter(asset -> !asset.isSelected()).forEach(asset -> assets.add(asset));
-		return assets;
+		return this.assets.stream().filter(asset -> !asset.isSelected()).collect(Collectors.toList());
 	}
 
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
@@ -2570,30 +2504,6 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(
 						parameter -> ((DynamicParameter)parameter).getAcronym(),
 						parameter -> (DynamicParameter)parameter));
-	}
-
-	/**
-	 * Gets the values of all parameters of type PARAMETERTYPE_TYPE_SEVERITY_NAME.
-	 * Returns a value for each severity level between EXTERNAL_NOTIFICATION_MIN_SEVERITY and EXTERNAL_NOTIFICATION_MAX_SEVERITY,
-	 * either by retrieving the parameter which exists in the database, or using a default value.
-	 * The default value is determined by {@link lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper#getDefaultSeverityProbability(int)}.
-	 * @param severityParameterType The parameter type which shall be used by the created parameters.
-	 * @return
-	 */
-	public Map<Integer, Double> getSeverityParameterValuesOrDefault() {
-		Map<Integer, Double> severityParameterValues = new HashMap<>();
-		
-		// Load existing parameters
-		for (Parameter parameter : this.parameters)
-			if (parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SEVERITY_NAME))
-				severityParameterValues.put(((ExtendedParameter)parameter).getLevel(), parameter.getValue());
-		
-		// Use default values for those that do not exist
-		for (int severity = Constant.EXTERNAL_NOTIFICATION_MIN_SEVERITY; severity <= Constant.EXTERNAL_NOTIFICATION_MAX_SEVERITY; severity++)
-			if (!severityParameterValues.containsKey(severity))
-				severityParameterValues.put(severity, ExternalNotificationHelper.getDefaultSeverityProbability(severity));
-		
-		return severityParameterValues;
 	}
 
 	public List<Assessment> removeAssessment(Asset asset) {
@@ -2607,5 +2517,184 @@ public class Analysis implements Cloneable {
 		this.assessments.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
 		return assessments;
 	}
+
+	public Parameter findParameterByTypeAndDescription(String typeLabel, String description) {
+		return parameters.stream().filter(p -> p.getType().getLabel().equals(typeLabel) && p.getDescription().equals(description)).findAny().orElse(null);
+	}
+
+	public List<AssetType> distinctAssetType() {
+		return this.assets.stream().map(asset -> asset.getAssetType()).distinct().collect(Collectors.toList());
+	}
+
+	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
+		return this.analysisStandards.stream().filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard && analysisStandard.isAnalysisOnly())
+				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
+	}
+
+	public Map<Scenario, List<Assessment>> getAssessmentByScenario() {
+		Map<Scenario, List<Assessment>> mapping = new LinkedHashMap<>();
+		assessments.forEach(assessment -> {
+			List<Assessment> assessments = mapping.get(assessment.getScenario());
+			if (assessments == null)
+				mapping.put(assessment.getScenario(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
+		return mapping;
+	}
+
+	public Map<Asset, List<Assessment>> getAssessmentByAsset() {
+		Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
+		assessments.forEach(assessment -> {
+			List<Assessment> assessments = mapping.get(assessment.getScenario());
+			if (assessments == null)
+				mapping.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
+		return mapping;
+	}
+
+	public void groupAssessmentByAssetAndScenario(Map<Asset, List<Assessment>> assetAssessments, Map<Scenario, List<Assessment>> scenarioAssessments) {
+		if (assetAssessments == null || scenarioAssessments == null)
+			return;
+		assessments.forEach(assessment -> {
+			List<Assessment> assessments = assetAssessments.get(assessment.getAsset());
+			if (assessments == null)
+				assetAssessments.put(assessment.getAsset(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+			assessments = assetAssessments.get(assessment.getScenario());
+			if (assessments == null)
+				scenarioAssessments.put(assessment.getScenario(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		});
+	}
+
+	public Scenario findScenario(int idScenario) {
+		return scenarios.stream().filter(scenario -> scenario.getId() == idScenario).findAny().orElse(null);
+	}
+
+	public Asset findAsset(int idAsset) {
+		return assets.stream().filter(asset -> asset.getId() == idAsset).findAny().orElse(null);
+	}
+
+	public Assessment findAssessmentByAssetAndScenario(int idAsset, int idScenario) {
+		return assessments.stream().filter(assessment -> assessment.is(idAsset, idScenario)).findAny().orElse(null);
+	}
+
+	public List<Assessment> findSelectedAssessmentByScenario(int idScenario) {
+		return assessments.stream().filter(assessment -> assessment.getScenario().getId() == idScenario).collect(Collectors.toList());
+	}
+
+	public List<Assessment> findSelectedAssessmentByAsset(int idAsset) {
+		return assessments.stream().filter(assessment -> assessment.getAsset().getId() == idAsset).collect(Collectors.toList());
+	}
+
+	public Map<String, Double> mapAcronymToValue() {
+		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
+				.collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
+	}
+
+	public Map<String, ExtendedParameter> mapExtendedParameterByAcronym() {
+		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
+				.collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
+	}
+
+	/**
+	 * Retrieve extended parameters: Impact and Probabilities
+	 * 
+	 * @param probabilities
+	 * @param impacts
+	 */
+	public void groupExtended(List<ExtendedParameter> probabilities, List<ExtendedParameter> impacts) {
+		parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter).forEach(parameter -> {
+			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				impacts.add(parameter);
+			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+				probabilities.add(parameter);
+		});
+	}
+
+	/**
+	 * @see RiskProfile#getKey
+	 * @return map< RiskProfile::getKey,RiskProfile >
+	 */
+	public Map<String, RiskProfile> mapRiskProfile() {
+		return riskProfiles.stream().collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
+	}
+
+	public Map<String, Assessment> mapAssessment() {
+		return assessments.stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+	}
+
+	public RiskProfile findRiskProfileByAssetAndScenario(int idAsset, int idScenario) {
+		return riskProfiles.stream().filter(riskProfile -> riskProfile.is(idAsset, idScenario)).findAny().orElse(null);
+	}
+
+	public RiskRegisterItem findRiskRegisterByAssetAndScenario(int idAsset, int idScenario) {
+		return riskRegisters.stream().filter(riskRegister -> riskRegister.is(idAsset, idScenario)).findAny().orElse(null);
+	}
+
+	public List<RiskProfile> removeRiskProfile(Asset asset) {
+		List<RiskProfile> profiles = new LinkedList<RiskProfile>();
+		riskProfiles.removeIf(riskProfile -> riskProfile.getAsset().equals(asset) && profiles.add(riskProfile));
+		return profiles;
+	}
+
+	public List<RiskProfile> removeRiskProfile(Scenario scenario) {
+		List<RiskProfile> profiles = new LinkedList<RiskProfile>();
+		riskProfiles.removeIf(riskProfile -> riskProfile.getScenario().equals(scenario) && profiles.add(riskProfile));
+		return profiles;
+	}
+
+	public List<RiskProfile> findRiskProfileByAsset(Asset asset) {
+		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().equals(asset)).collect(Collectors.toList());
+	}
+
+	public boolean hasRiskProfile(Asset asset) {
+		return riskProfiles.stream().anyMatch(riskRegister -> riskRegister.getAsset().equals(asset));
+	}
+
+	public boolean hasRiskProfile(Scenario scenario) {
+		return riskProfiles.stream().anyMatch(riskRegister -> riskRegister.getScenario().equals(scenario));
+	}
+
+	public Map<Integer, RiskProfile> findRiskProfileByAssetId(int idAsset) {
+		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().getId() == idAsset)
+				.collect(Collectors.toMap(riskRegister -> riskRegister.getScenario().getId(), Function.identity()));
+	}
+
+	public ExtendedParameter findExtendedByTypeAndLevel(String type, int level) {
+		return (ExtendedParameter) parameters.stream()
+				.filter(parameter -> parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(type) && ((ExtendedParameter) parameter).getLevel() == level)
+				.findAny().orElse(null);
+	}
+
+	public Map<Integer, RiskProfile> findRiskProfileByScenarioId(int idScenario) {
+		return riskProfiles.stream().filter(riskRegister -> riskRegister.getScenario().getId() == idScenario)
+				.collect(Collectors.toMap(riskRegister -> riskRegister.getAsset().getId(), Function.identity()));
+	}
+
+	public List<Parameter> findParametersByType(String type) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
+	}
+
+	public Map<String, Parameter> mapParametersByType(String type) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toMap(Parameter::getDescription, Function.identity()));
+	}
+
+	public boolean hasParameterType(String type) {
+		return parameters.stream().anyMatch(parameter -> parameter.isMatch(type));
+	}
+
+	public Parameter findParameter(String type, String description) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type,description)).findAny().orElse(null);
+	}
+
+	public Map<String, AcronymParameter> mapExpressionParametersByAcronym() {
+		return parameters.stream()
+				.filter(parameter -> parameter instanceof AcronymParameter)
+				.map(parameter -> (AcronymParameter) parameter)
+				.collect(Collectors.toMap(AcronymParameter::getAcronym, Function.identity()));
+	}
+
 }
 
