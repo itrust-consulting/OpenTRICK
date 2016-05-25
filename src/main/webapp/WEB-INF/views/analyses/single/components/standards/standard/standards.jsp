@@ -86,7 +86,7 @@
 					
 					<c:forEach items="${measures.get(standard)}" var="measure">
 						<c:set var="css">
-							<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
+							<c:if test="${not(measure.getImplementationRateValue(expressionParameters)==100 or measure.status=='NA')}">class="success"</c:if>
 						</c:set>
 						<c:set var="todoCSS">
 							<c:choose>
