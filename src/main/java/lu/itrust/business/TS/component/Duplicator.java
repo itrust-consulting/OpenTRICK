@@ -39,6 +39,7 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -155,9 +156,15 @@ public class Duplicator {
 
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
-				Parameter parameter2 = parameter.duplicate();
-				parameters.put(parameter2.getKey(), parameter2);
-				copy.getParameters().add(parameter2);
+				// Do not copy dynamic parameters as they might contain sensitive data.
+				// Note that they might still be referenced in an expression somewhere in the analysis,
+				// but this does not cause any misbehaviour since the expression evaluator will
+				// assume a default value of 0 for all non-existent dynamic parameters.
+				if (!(parameter instanceof DynamicParameter)) {
+					Parameter parameter2 = parameter.duplicate();
+					parameters.put(parameter2.getKey(), parameter2);
+					copy.getParameters().add(parameter2);
+				}
 			}
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", (int) (minProgress + bound * 15)));
@@ -369,7 +376,7 @@ public class Duplicator {
 			NormalMeasure normalMeasure = (NormalMeasure) copy;
 			if (anonymize) {
 				normalMeasure.setToCheck(Constant.EMPTY_STRING);
-				normalMeasure.setImplementationRate(0);
+				normalMeasure.setImplementationRate(0.0);
 				normalMeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
 				normalMeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
 				normalMeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
@@ -395,7 +402,7 @@ public class Duplicator {
 			}
 			if (anonymize) {
 				assetMeasure.setToCheck(Constant.EMPTY_STRING);
-				assetMeasure.setImplementationRate(0);
+				assetMeasure.setImplementationRate(0.0);
 				assetMeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
 				assetMeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
 				assetMeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);

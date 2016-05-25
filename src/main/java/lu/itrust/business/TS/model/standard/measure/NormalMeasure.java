@@ -241,9 +241,9 @@ public class NormalMeasure extends Measure {
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof String))
+		if (!(implementationRate instanceof String) && !(implementationRate instanceof Double))
 			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
-		super.setImplementationRate((String) implementationRate);
+		super.setImplementationRate(implementationRate.toString());
 	}
 
 	/**
