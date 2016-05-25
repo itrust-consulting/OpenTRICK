@@ -221,13 +221,6 @@ public abstract class Measure implements Cloneable {
 	public abstract List<String> getVariablesInvolvedInImplementationRateValue();
 
 	@Transient
-	@Deprecated // this method is used by the UI only
-	@Access(AccessType.FIELD)
-	public double getImplementationRateValue() {
-		return getImplementationRateValue(new HashMap<>());
-	}
-	
-	@Transient
 	public double getImplementationRateValue(List<AcronymParameter> expressionParameters) {
 		// Turn expression parameters into a map { key => value }
 		Map<String, Double> expressionParameterValues = new HashMap<>();

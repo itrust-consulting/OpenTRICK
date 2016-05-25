@@ -188,6 +188,8 @@ public class ControllerAnalysisStandard {
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
+		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
+
 		return "analyses/single/components/standards/standard/standards";
 	}
 
@@ -244,6 +246,8 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
+		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
+		
 		return "analyses/single/components/standards/standard/standards";
 	}
 
@@ -314,6 +318,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
+		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
