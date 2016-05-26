@@ -30,7 +30,7 @@
 				<button class="btn btn-primary" style="display: none;" name="save">
 					<spring:message code="label.action.save" />
 				</button>
-				<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;"><spring:message code="label.action.cancel" /></a>
+				<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;"><spring:message code="label.action.back" /></a>
 				<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
 					<spring:message code="label.action.close" />
 				</button>

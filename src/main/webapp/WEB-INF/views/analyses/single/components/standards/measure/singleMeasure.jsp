@@ -37,7 +37,7 @@
 <c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}"/>
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
-		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" 
+		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" 
 			data-trick-id="${measure.id}" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
@@ -68,7 +68,7 @@
 		</tr>
 	</c:when>
 	<c:otherwise>
-		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
+		<tr data-trick-class="Measure" data-trick-id="${measure.id}" onclick="selectElement(this)" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
 			data-is-linked='${isLinkedToProject and not empty measure.ticket}' >
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">

@@ -99,7 +99,7 @@
 									</tr>
 								</c:if>
 								<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
-									<tr data-trick-class="ActionPlanEntry" data-trick-id="${ape.id}" data-measure-id='${ape.measure.id}' data-is-linked='${isLinkedToProject and not empty ape.measure.ticket}' data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.analysisStandard.standard.id}')">
+									<tr data-trick-class="ActionPlanEntry" onclick="selectElement(this)" data-trick-id="${ape.id}" data-measure-id='${ape.measure.id}' data-is-linked='${isLinkedToProject and not empty ape.measure.ticket}' data-trick-callback="reloadMeasureRow('${ape.measure.id}','${ape.measure.analysisStandard.standard.id}')">
 										<c:if test="${isLinkedToProject && apt=='APPN'}">
 											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox" onchange="return updateMenu(this,'#section_actionplans','#menu_actionplans');"></td>
 										</c:if>

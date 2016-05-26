@@ -31,7 +31,7 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${analyses}" var="analysis">
-					<tr data-trick-id="${analysis.id}" data-trick-rights-id="0" data-empty="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
+					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-empty="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_profile_analysis','#menu_analysis');"></td>
 						<td><spring:message text="${analysis.label}"/></td>
 						<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>

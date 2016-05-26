@@ -39,7 +39,7 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${customers}" var="customer">
-							<tr data-trick-id="${customer.id}" data-trick-is-profile="${not customer.canBeUsed}" ondblclick="return editSingleCustomer('${customer.id}');">
+							<tr data-trick-id="${customer.id}" onclick="selectElement(this)" data-trick-is-profile="${not customer.canBeUsed}" ondblclick="return editSingleCustomer('${customer.id}');">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_customer','#menu_customer');"></td>
 								<td data-trick-name='organisation'><spring:message text="${customer.organisation}" /></td>
 								<td data-trick-name='contactPerson'><spring:message text="${customer.contactPerson}" /></td>

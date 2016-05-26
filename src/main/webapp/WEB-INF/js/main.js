@@ -89,14 +89,12 @@ function toggleToolTip(e) {
 	if (current != undefined) {
 		if (target === current)
 			return e;
-		else 
+		else
 			$(current).tooltip("hide");
 	}
 	application["settings-open-tooltip"] = target;
 	return e;
 }
-
-
 
 $.fn.hasAttr = function(name) {
 	return this[0].hasAttribute(name);
@@ -284,6 +282,13 @@ function canManageAccess() {
 	return $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") == "true" || hasRight("ALL");
 }
 
+function selectElement(element) {
+	var $input = $(element).find("input,textarea,select");
+	if($input.length == 1)
+		$input.filter("input[type='checkbox']:not(:focus)").trigger("click");
+	return false;
+}
+
 /**
  * MessageResolver
  * 
@@ -439,7 +444,8 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 				$liSelected.addClass("disabled");
 			if (singleChecker !== undefined)
 				updateMenuItemState(cachingChecker, $liSelected, singleChecker);
-			else updateMenuItemState(cachingChecker, $liSelected, $liSelected.attr("data-trick-check"));
+			else
+				updateMenuItemState(cachingChecker, $liSelected, $liSelected.attr("data-trick-check"));
 		}
 	} else {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
@@ -626,9 +632,10 @@ function oldversionComparator(version1, version2) {
 		return value1 > value2 ? 1 : -1;
 }
 
-function closeToolTips(){
+function closeToolTips() {
 	if (application["settings-open-tooltip"]) {
-		$(application["settings-open-tooltip"]).tooltip("hide");;
+		$(application["settings-open-tooltip"]).tooltip("hide");
+		;
 		delete application["settings-open-tooltip"];
 	}
 }
@@ -803,12 +810,12 @@ $(document)
 						});
 					}
 
-					 var $toolTips = $('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
-					 
-					 if ($toolTips.length) {
-							$window.keydown(function(e) {
-								if (e.keyCode == 27)
-									closeToolTips();
-							});
-						}
+					var $toolTips = $('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
+
+					if ($toolTips.length) {
+						$window.keydown(function(e) {
+							if (e.keyCode == 27)
+								closeToolTips();
+						});
+					}
 				});

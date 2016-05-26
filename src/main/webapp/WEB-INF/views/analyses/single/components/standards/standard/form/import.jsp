@@ -27,7 +27,7 @@
 				<td style="text-align: center"><spring:message code="label.${standard.computable?'yes':'no'}" /></td>
 				<td style="text-align: center"><spring:message code="label.norm.standard_type.${fn:toLowerCase(standard.type)}" /></td>
 				<td hidden="hidden" style="text-align: center"><spring:message code="label.${standard.analysisOnly?'yes':'no'}" /></td>
-				<td><button class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
+				<td class="text-center"><button class="btn btn-xs btn-primary"><i class="fa fa-plus-circle"></i></button></td>
 			</tr>
 		</c:forEach>
 		<c:if test="${empty availableStandards}">

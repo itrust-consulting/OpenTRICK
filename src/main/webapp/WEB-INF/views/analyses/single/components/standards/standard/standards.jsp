@@ -127,7 +127,7 @@
 						<c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}"/>
 						<c:choose>
 							<c:when test="${not measure.measureDescription.computable}">
-								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" 
+								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" 
 									data-trick-id="${measure.id}" data-is-linked='${hasTicket}'
 									data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
@@ -157,7 +157,7 @@
 								</tr>
 							</c:when>
 							<c:otherwise>
-								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" data-trick-level="${measure.measureDescription.level}" 
+								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)" data-trick-level="${measure.measureDescription.level}" 
 									data-trick-class="Measure" data-is-linked='${hasTicket}'
 									data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">

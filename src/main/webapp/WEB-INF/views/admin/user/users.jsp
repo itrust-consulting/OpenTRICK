@@ -29,7 +29,7 @@
 				</thead>
 				<tbody>
 					<c:forEach items="${users}" var="user">
-						<tr data-trick-id="${user.id}" ondblclick="return editSingleUser(${user.id});">
+						<tr data-trick-id="${user.id}" onclick="selectElement(this)" ondblclick="return editSingleUser(${user.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_user','#menu_user');"></td>
 							<td><spring:message text="${user.login}" /></td>
 							<td><spring:message text="${user.firstName}" /></td>

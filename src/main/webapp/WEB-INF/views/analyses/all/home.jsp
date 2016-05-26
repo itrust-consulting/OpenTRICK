@@ -107,7 +107,7 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${analyses}" var="analysis">
-							<tr data-trick-id="${analysis.id}" data-is-linked='${not empty analysis.project}' data-trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" ondblclick="return editSingleAnalysis(${analysis.id});"
+							<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-is-linked='${not empty analysis.project}' data-trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" ondblclick="return editSingleAnalysis(${analysis.id});"
 								data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><spring:message text="${analysis.label}" /></td>

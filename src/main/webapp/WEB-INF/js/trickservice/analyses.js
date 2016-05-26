@@ -24,18 +24,12 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				var doc = new DOMParser().parseFromString(response, "text/html");
-				var $newSection = $(doc).find("#manageAnalysisAccessModel");
-				$("#manageAnalysisAccessModel").replaceWith($newSection);
-				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-				$("#manageAnalysisAccessModel").modal('toggle');
-				$("#userselect").one('focus', function() {
-					previous = this.value;
-				}).change(function() {
-					$("#user_" + previous).attr("hidden", true);
-					$("#user_" + this.value).removeAttr("hidden");
-					previous = this.value;
-				});
+				var $content = $("#manageAnalysisAccessModel", new DOMParser().parseFromString(response, "text/html"));
+				if ($content.length) {
+					$("#manageAnalysisAccessModel").replaceWith($content);
+					$content.modal("show").find(".modal-footer button[name='save']").one("click", updateAnalysisAccess);
+				} else
+					unknowError();
 			},
 			error : unknowError
 		}).complete(function() {
@@ -47,35 +41,46 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 }
 
-function updatemanageAnalysisAccess(analysisId, userrightsform) {
-	var $progress = $("#loading-indicator").show();
-	$.ajax({
-		url : context + "/Analysis/ManageAccess/Update/" + analysisId,
-		type : "post",
-		data : serializeForm(userrightsform),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var doc = new DOMParser().parseFromString(response, "text/html");
-			var $newSection = $(doc).find(".modal-content");
-			if ($newSection.length) {
-				$("#manageAnalysisAccessModel .modal-content").replaceWith($newSection);
-				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-				$("#userselect").one('focus', function() {
-					previous = this.value;
-				}).change(function() {
-					$("#user_" + previous).attr("hidden", true);
-					$("#user_" + this.value).removeAttr("hidden");
-					previous = this.value;
-				});
-				reloadSection("section_analysis");
-			} else
-				unknowError();
-		},
-		error : unknowError
-	}).complete(function() {
-		$progress.hide();
+function updateAnalysisAccess(e) {
+
+	var $progress = $("#loading-indicator").show(), $modal = $("#manageAnalysisAccessModel"), me = $modal.attr("data-trick-user-id"), data = {
+		analysisId : $modal.attr("data-trick-id"),
+		userRights : {}
+	};
+
+	$modal.find(".form-group[data-trick-id][data-default-value]").each(function() {
+		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
+		if (newRight != oldRight) {
+			data.userRights[$this.attr("data-trick-id")] = {
+				oldRight : oldRight == "" ? undefined : oldRight,
+				newRight : newRight == "" ? undefined : newRight
+			};
+		}
 	});
-	return false;
+
+	if (Object.keys(data.userRights).length) {
+		$.ajax({
+			url : context + "/Analysis/ManageAccess/Update/" + data.analysisId,
+			type : "post",
+			data : JSON.stringify(data),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response.error != undefined)
+					showDialog("#alert-dialog", response.error);
+				else if (response.success != undefined) {
+					if (data.userRights[me] != undefined && data.userRights[me].oldRight != data.userRights[me].newRight)
+						reloadSection("section_analysis");
+					else
+						showDialog("#info-dialog", response.success);
+				} else
+					unknowError();
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	} else
+		$progress.hide();
 }
 
 function findTrickisProfile(element) {
@@ -872,6 +877,7 @@ function selectAnalysis(analysisId, mode) {
 	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
 	if (userCan(analysisId, right))
 		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value + "");
+	return false;
 }
 
 function calculateActionPlan(analysisId) {
