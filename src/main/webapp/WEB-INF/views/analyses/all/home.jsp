@@ -124,7 +124,7 @@
 								</c:if>
 								<td data-trick-version="${analysis.version}">${analysis.version}</td>
 								<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
-								<td><spring:message text="${analysis.lastHistory.author}" /></td>
+								<td><spring:message text="${analysis.owner.firstName} ${analysis.owner.lastName}" /></td>
 								<c:choose>
 									<c:when test="${analysis.basedOnAnalysis == null}">
 										<td><spring:message code="label.analysis.based_on_self" text="None" /></td>

@@ -60,7 +60,7 @@ function updateAnalysisAccess(e) {
 
 	if (Object.keys(data.userRights).length) {
 		$.ajax({
-			url : context + "/Analysis/ManageAccess/Update/" + data.analysisId,
+			url : context + "/Analysis/ManageAccess/Update",
 			type : "post",
 			data : JSON.stringify(data),
 			contentType : "application/json;charset=UTF-8",

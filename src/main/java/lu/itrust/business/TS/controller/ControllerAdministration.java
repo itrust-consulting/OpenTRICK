@@ -50,6 +50,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisRightForm;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
@@ -402,11 +403,11 @@ public class ControllerAdministration {
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 			serviceUser.getAll().forEach(user -> userrights.put(user, null));
 			uars.forEach(uar -> userrights.put(uar.getUser(), uar.getRight()));
-			model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
-			model.addAttribute("analysisRights", AnalysisRight.values());
+			model.addAttribute("ownerId", analysis.getOwner().getId());
+			model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
-			return "analyses/all/forms/manageUserAnalysisRights";
+			return "analyses/all/forms/rights";
 		} else {
 			return "redirect:Administration";
 		}
@@ -422,35 +423,13 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Analysis/{analysisID}/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale)
-			throws Exception {
-
-		try {
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-			int currentUser = jsonNode.get("userselect").asInt();
-			model.addAttribute("currentUser", currentUser);
-			manageAnalysisRight.updateAnalysisRights(principal, analysisID, jsonNode);
-			model.addAttribute("success",
-					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
-			Analysis analysis = serviceAnalysis.get(analysisID);
-			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
-			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
-			serviceUser.getAllOthers(userrights.keySet()).forEach(user -> userrights.put(user, null));
-			model.addAttribute("analysisRights", AnalysisRight.values());
-			model.addAttribute("analysis", analysis);
-			model.addAttribute("userrights", userrights);
-			return "analyses/all/forms/manageUserAnalysisRights";
-		} catch (Exception e) {
-			// return errors
-			model.addAttribute("errors", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
-			return "analyses/all/forms/manageUserAnalysisRights";
-		}
+	@RequestMapping(value="/Analysis/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
+		manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
+		return JsonMessage.Success(messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 	}
-
+	
+	
 	@RequestMapping("/Analysis/{analysisId}/Switch/Customer")
 	public String switchCUstomerForm(@PathVariable("analysisId") int analysisId, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		model.addAttribute("idAnalysis", analysisId);

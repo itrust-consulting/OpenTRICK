@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -2139,8 +2138,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight getRightsforUserString(String login) {
-		Optional<UserAnalysisRight> optional = userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny();
-		return optional.isPresent() ? optional.get() : null;
+		return userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny().orElse(null);
 	}
 
 	public AnalysisRight getRightValue(User user) {
@@ -2166,17 +2164,9 @@ public class Analysis implements Cloneable {
 	 * @param user
 	 * @return
 	 */
-	public boolean removeRights(User user) {
-
+	public UserAnalysisRight removeRights(User user) {
 		UserAnalysisRight userRight = getRightsforUser(user);
-
-		if (userRight != null) {
-			userRights.remove(userRight);
-			return true;
-		} else {
-			return false;
-		}
-
+		return userRight == null ? null : userRights.remove(userRight) ? userRight : null;
 	}
 
 	/**

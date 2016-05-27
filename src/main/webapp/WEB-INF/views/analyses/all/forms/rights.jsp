@@ -5,7 +5,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div class="modal fade" id="manageAnalysisAccessModel" data-trick-id='${analysis.id}' data-trick-user-id='${myId}' tabindex="-1" role="dialog" data-aria-labelledby="manageAnalysisAccessModel" data-aria-hidden="true">
+<div class="modal fade" id="manageAnalysisAccessModel" data-trick-id='${analysis.id}' data-trick-user-id='${myId}' tabindex="-1" role="dialog"
+	data-aria-labelledby="manageAnalysisAccessModel" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -17,8 +18,10 @@
 			<div class="modal-body" style="padding: 0;">
 
 				<div style="padding: 5px 20px;">
-					<h5 style="font-weight: bold;"><spring:message code="label.analysis.anage.access.info" arguments="${analysis.label} , ${analysis.version} , ${analysis.customer.organisation}"
-							text="Analysis: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" /></h5>
+					<h5 style="font-weight: bold;">
+						<spring:message code="label.analysis.anage.access.info" arguments="${analysis.label} , ${analysis.version} , ${analysis.customer.organisation}"
+							text="Analysis: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" />
+					</h5>
 					<div>
 						<h4 class="col-xs-4 bordered-bottom" style="padding-left: 0">
 							<spring:message code='label.name' />
@@ -28,23 +31,49 @@
 						</h4>
 					</div>
 				</div>
+				<spring:message code='label.analysis.right.all' var="rightAll" />
+				<spring:message code="label.analysis.right.export" var="rightExport" />
+				<spring:message code="label.analysis.right.modify" var="rightModify" />
+				<spring:message code="label.analysis.right.none" var="rightNone" />
 				<div class="form-horizontal" style="padding: 5px 20px; height: 380px; overflow-x: hidden; clear: both;">
 					<c:forEach items="${userrights.keySet()}" var="user">
 						<c:set var="userRight" value="${userrights[user]}" />
 						<c:set var='name' value="right_${user.id}" />
-						<div class="form-group" data-default-value='${userRight}' data-trick-id="${user.id}" data-name='${name}' >
+						<div class="form-group" data-default-value='${userRight}' data-trick-id="${user.id}" data-name='${name}'>
 							<div class="col-xs-4">
 								<strong style="vertical-align: middle;"><spring:message text="${user.firstName} ${user.lastName}" /></strong>
 							</div>
 							<div class="col-xs-8 text-center">
-								<div class="btn-group" data-toggle="buttons">
-									<label class="btn btn-sm btn-default ${userRight=='ALL'?'active':''}"><spring:message code='label.analysis.right.all' /><input ${userRight=='ALL'?'checked':''}
-										name="${name}" type="radio" value="ALL"></label> <label class="btn btn-sm btn-default ${userRight=='EXPORT'?'active':''}"><spring:message
-											code="label.analysis.right.export" /><input ${userRight=='EXPORT'?'checked':''} name="${name}" type="radio" value="EXPORT"></label> <label
-										class="btn btn-sm btn-default ${userRight=='MODIFY'?'active':''}"><spring:message code="label.analysis.right.modify" /><input ${userRight=='MODIFY'?'checked':''}
-										name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default ${empty userRight?'active':''}"><spring:message code="label.analysis.right.none" /><input
-										${empty userRight?'checked':''} name="${name}" type="radio" value=""></label>
-								</div>
+								<c:choose>
+									<c:when test="${user.id==ownerId}">
+										<c:choose>
+											<c:when test="${user.id!=myId}">
+												<div class="btn-group" data-toggle="buttons">
+													<label class="btn btn-sm btn-default disabled ${userRight=='ALL'?'active':''}">${rightAll}</label><label class="btn btn-sm btn-default disabled ${userRight=='EXPORT'?'active':''}">${rightExport}</label>
+													<label class="btn btn-sm btn-default disabled ${userRight=='MODIFY'?'active':''}">${rightModify}</label> <label class="btn btn-sm btn-default disabled">${rightNone}</label>
+												</div>
+											</c:when>
+											<c:otherwise>
+												<div class="btn-group" data-toggle="buttons">
+													<label class="btn btn-sm btn-default ${userRight=='ALL'?'active':''}">${rightAll}<input ${userRight=='ALL'?'checked':''} name="${name}" type="radio"
+														value="ALL"></label> <label class="btn btn-sm btn-default ${userRight=='EXPORT'?'active':''}">${rightExport}<input ${userRight=='EXPORT'?'checked':''}
+														name="${name}" type="radio" value="EXPORT"></label> <label class="btn btn-sm btn-default ${userRight=='MODIFY'?'active':''}">${rightModify}<input
+														${userRight=='MODIFY'?'checked':''} name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default disabled">${rightNone}</label>
+												</div>
+											</c:otherwise>
+										</c:choose>
+									</c:when>
+									<c:otherwise>
+										<div class="btn-group" data-toggle="buttons">
+											<label class="btn btn-sm btn-default ${userRight=='ALL'?'active':''}">${rightAll}<input ${userRight=='ALL'?'checked':''} name="${name}" type="radio" value="ALL"></label>
+											<label class="btn btn-sm btn-default ${userRight=='EXPORT'?'active':''}">${rightExport}<input ${userRight=='EXPORT'?'checked':''} name="${name}" type="radio"
+												value="EXPORT"></label> <label class="btn btn-sm btn-default ${userRight=='MODIFY'?'active':''}">${rightModify}<input ${userRight=='MODIFY'?'checked':''}
+												name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default ${empty userRight?'active':''}">${rightNone}<input
+												${empty userRight?'checked':''} name="${name}" type="radio" value="">
+											</label>
+										</div>
+									</c:otherwise>
+								</c:choose>
 							</div>
 						</div>
 					</c:forEach>
