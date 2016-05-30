@@ -126,7 +126,6 @@ public class ControllerActionPlan {
 		// prepare model
 		model.addAttribute("assets", assets);
 		model.addAttribute("actionplans", actionplans);
-		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 
@@ -179,7 +178,6 @@ public class ControllerActionPlan {
 			// prepare model
 			OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 			model.addAttribute("actionplans", actionplans);
-			model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha2());
 			model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(selected) && loadUserSettings(principal, model, null));
 			model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 		} else

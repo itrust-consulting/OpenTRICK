@@ -232,9 +232,6 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		// add language of the analysis
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
-
 		return "analyses/single/components/standards/standard/standards";
 	}
 
@@ -287,9 +284,6 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("measures", measures);
 
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
-
-		// add language of the analysis
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
@@ -355,7 +349,6 @@ public class ControllerAnalysisStandard {
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
@@ -962,7 +955,6 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("impscales", serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
 			model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 			model.addAttribute("showTodo", measureDescription.isComputable());
-			model.addAttribute("language", language.getAlpha2());
 			model.addAttribute("selectedMeasure", measure);
 			model.addAttribute("phases", phases);
 		} catch (Exception e) {
@@ -1097,7 +1089,6 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("measures", measures);
 				model.addAttribute("parameters", parameters);
 				model.addAttribute("tasks", tasks);
-				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/synchronise", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
@@ -1146,7 +1137,6 @@ public class ControllerAnalysisStandard {
 				}
 				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, 0));
 				model.addAttribute("measures", measures);
-				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
@@ -1184,7 +1174,6 @@ public class ControllerAnalysisStandard {
 				List<String> excludes = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
 						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
 				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, startIndex));
-				model.addAttribute("language", analysis.getLanguage().getAlpha2());
 			}
 			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {

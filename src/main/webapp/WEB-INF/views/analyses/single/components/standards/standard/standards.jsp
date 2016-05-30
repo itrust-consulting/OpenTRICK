@@ -6,6 +6,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
+</c:if>
+<c:set var="language" value="${locale.language}" scope="request" />
 <fmt:setLocale value="fr" scope="session" />
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />

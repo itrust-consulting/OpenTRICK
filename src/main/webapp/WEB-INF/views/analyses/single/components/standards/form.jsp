@@ -10,7 +10,7 @@
 </c:if>
 <!DOCTYPE html>
 <html lang="${locale.language}">
-<c:set var="language" value="${analysis.language.alpha2}" scope="request" />
+<c:set var="language" value="${locale.language}" scope="request" />
 <c:set scope="request" var="title" value="label.title.analysis.measure" />
 <jsp:include page="../../../../template/header.jsp" />
 <c:set var="canModify" value="${analysis.profile or analysis.getRightsforUserString(login).right.ordinal()<3}" />

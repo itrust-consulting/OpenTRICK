@@ -281,11 +281,9 @@ public class ControllerAnalysis {
 				model.addAttribute("probabilities", probabilities);
 				break;
 			}
-			model.addAttribute("analysis", analysis);
-			model.addAttribute("language", analysis.getLanguage().getAlpha2());
-			session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
-			model.addAttribute("login", user.getLogin());
 			model.addAttribute("open", mode);
+			model.addAttribute("analysis", analysis);
+			model.addAttribute("login", user.getLogin());
 			loadUserSettings(principal, model, user);
 
 			/**
