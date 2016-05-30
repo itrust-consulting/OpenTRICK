@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="manageAnalysisAccessModel-title">
-					<spring:message code="label.title.analysis.manage.access" text="Manage Analysis Access Rights" />
+					<spring:message code="label.title.analysis.manage.access" text="Manage analysis access rights" />
 				</h4>
 			</div>
 			<div class="modal-body" style="padding: 0;">
@@ -41,7 +41,7 @@
 						<c:set var='name' value="right_${user.id}" />
 						<div class="form-group" data-default-value='${userRight}' data-trick-id="${user.id}" data-name='${name}'>
 							<div class="col-xs-5">
-								<strong style="vertical-align: middle;"><spring:message text="${user.firstName} ${user.lastName}" /></strong>
+								<strong style="vertical-align: middle; text-transform: capitalize;"><spring:message text="${fn:toLowerCase(user.firstName)} ${fn:toLowerCase(user.lastName)}" /></strong>
 							</div>
 							<div class="col-xs-7 text-center">
 								<c:choose>
