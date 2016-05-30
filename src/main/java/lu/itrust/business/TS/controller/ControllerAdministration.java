@@ -425,8 +425,15 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping(value="/Analysis/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
-		manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
-		return JsonMessage.Success(messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+		try {
+			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
+			return JsonMessage.Success(messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			if(e instanceof TrickException)
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
 	}
 	
 	

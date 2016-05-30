@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisRightForm;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
@@ -95,7 +97,14 @@ public class ControllerAnalysisManageAccess {
 	@RequestMapping(value="/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#rightsForm.analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
 	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
-		manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
-		return JsonMessage.Success(messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+		try {
+			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
+			return JsonMessage.Success(messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			if(e instanceof TrickException)
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
 	}
 }
