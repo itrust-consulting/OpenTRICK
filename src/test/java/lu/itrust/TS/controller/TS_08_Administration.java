@@ -33,7 +33,7 @@ import lu.itrust.business.TS.model.general.TSSettingName;
  * @author eomar
  *
  */
-@Test(dependsOnGroups = "Installation", groups = "Administration")
+@Test(dependsOnGroups = "CreateAnalysis", groups = "Administration")
 public class TS_08_Administration extends SpringTestConfiguration {
 
 	private static final String CUSTOMER_TO_DELETE_ID = "customer-to-delete-id";
@@ -71,11 +71,13 @@ public class TS_08_Administration extends SpringTestConfiguration {
 
 	@Test
 	public void test_01_AddCustomer() throws Exception {
-		this.mockMvc.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
-				.content(String.format(
-						"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
-						CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_CITY, CUSTOMER_NAME))
-				.with(httpBasic(USERNAME, PASSWORD))).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
+		this.mockMvc
+				.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+						.content(String.format(
+								"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"ZIPCode\":\"%s\", \"country\":\"%s\"}",
+								CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_CITY, CUSTOMER_NAME))
+						.with(httpBasic(USERNAME, PASSWORD)))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
@@ -96,7 +98,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 				.andExpect(status().isOk()).andExpect(view().name("knowledgebase/customer/customerusers")).andExpect(model().attributeDoesNotExist("errors"));
 	}
 
-	@Test(dependsOnMethods = "test_01_AddCustomer", dependsOnGroups = "CreateAnalysis")
+	@Test(dependsOnMethods = "test_01_AddCustomer")
 	@Transactional(readOnly = true)
 	public void test_03_SwitchCustomer() throws Exception {
 		this.mockMvc
@@ -114,7 +116,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
-	@Test(dependsOnMethods = "test_00_addUser", dependsOnGroups = "CreateAnalysis")
+	@Test(dependsOnMethods = "test_00_addUser")
 	@Transactional(readOnly = true)
 	public void test_05_SwitchOwner() throws Exception {
 		this.mockMvc
@@ -140,17 +142,19 @@ public class TS_08_Administration extends SpringTestConfiguration {
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
-	@Test(dependsOnMethods = "test_00_addUser", dependsOnGroups = "CreateAnalysis")
+	@Test(dependsOnMethods = "test_00_addUser")
 	public void test_08_ManageAnalysisAccessView() throws Exception {
 		this.mockMvc.perform(get(String.format("/Admin/Analysis/%d/ManageAccess", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
-				.with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(view().name("analyses/all/forms/manageUserAnalysisRights"));
+				.with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(view().name("analyses/all/forms/rights"));
 	}
 
 	@Test(dependsOnMethods = "test_08_ManageAnalysisAccessView")
 	public void test_09_ManageAnalysisAccessSave() throws Exception {
-		this.mockMvc.perform(post(String.format("/Admin/Analysis/%d/ManageAccess/Update", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID)))
-				.content(String.format("{\"userselect\" : %d}", getInteger(USER_TO_DELETE_ID))).with(httpBasic(USERNAME, PASSWORD)).with(csrf())
-				.with(httpBasic(USERNAME, PASSWORD))).andExpect(status().isOk()).andExpect(view().name("analyses/all/forms/manageUserAnalysisRights"));
+		this.mockMvc
+				.perform(post("/Admin/Analysis/ManageAccess/Update").content(String.format("{\"analysisId\":\"%d\",\"userRights\":{\"%d\":{\"oldRight\":\"ALL\"}}}",
+						getInteger(SIMPLE_ANALYSIS_V0_0_1_ID), getInteger(USER_TO_DELETE_ID))).contentType(APPLICATION_JSON_CHARSET_UTF_8).with(httpBasic(USERNAME, PASSWORD))
+						.with(csrf()))
+				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Test
