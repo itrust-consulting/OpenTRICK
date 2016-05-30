@@ -285,7 +285,7 @@ function canManageAccess() {
 function selectElement(element) {
 	var $input = $(element).find("input,textarea,select");
 	if($input.length == 1)
-		$input.filter("input[type='checkbox']:not(:focus)").trigger("click");
+		$input.filter("input[type='checkbox']:not(:hover):not(:focus)").trigger("click");
 	return false;
 }
 
