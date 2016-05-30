@@ -403,10 +403,11 @@ public class ControllerAdministration {
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 			serviceUser.getAll().forEach(user -> userrights.put(user, null));
 			uars.forEach(uar -> userrights.put(uar.getUser(), uar.getRight()));
-			model.addAttribute("ownerId", analysis.getOwner().getId());
-			model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
+			model.addAttribute("isAdmin", true);
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
+			model.addAttribute("ownerId", analysis.getOwner().getId());
+			model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
 			return "analyses/all/forms/rights";
 		} else {
 			return "redirect:Administration";
@@ -427,7 +428,7 @@ public class ControllerAdministration {
 	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
 		try {
 			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
-			return JsonMessage.Success(messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			if(e instanceof TrickException)

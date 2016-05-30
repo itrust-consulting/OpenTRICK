@@ -19,14 +19,14 @@
 
 				<div style="padding: 5px 20px;">
 					<h5 style="font-weight: bold;">
-						<spring:message code="label.analysis.anage.access.info" arguments="${analysis.label} , ${analysis.version} , ${analysis.customer.organisation}"
+						<spring:message code="label.analysis.manage.access.info" arguments="${analysis.label} , ${analysis.version} , ${analysis.customer.organisation}"
 							text="Analysis: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" />
 					</h5>
 					<div>
-						<h4 class="col-xs-4 bordered-bottom" style="padding-left: 0">
+						<h4 class="col-xs-5 bordered-bottom" style="padding-left: 0">
 							<spring:message code='label.name' />
 						</h4>
-						<h4 class="col-xs-8 bordered-bottom text-center">
+						<h4 class="col-xs-7 bordered-bottom text-center">
 							<spring:message code='label.analysis.rights' />
 						</h4>
 					</div>
@@ -40,14 +40,14 @@
 						<c:set var="userRight" value="${userrights[user]}" />
 						<c:set var='name' value="right_${user.id}" />
 						<div class="form-group" data-default-value='${userRight}' data-trick-id="${user.id}" data-name='${name}'>
-							<div class="col-xs-4">
+							<div class="col-xs-5">
 								<strong style="vertical-align: middle;"><spring:message text="${user.firstName} ${user.lastName}" /></strong>
 							</div>
-							<div class="col-xs-8 text-center">
+							<div class="col-xs-7 text-center">
 								<c:choose>
 									<c:when test="${user.id==ownerId}">
 										<c:choose>
-											<c:when test="${user.id!=myId}">
+											<c:when test="${not isAdmin and user.id!=myId}">
 												<div class="btn-group" data-toggle="buttons">
 													<label class="btn btn-sm btn-default disabled ${userRight=='ALL'?'active':''}">${rightAll}</label><label class="btn btn-sm btn-default disabled ${userRight=='EXPORT'?'active':''}">${rightExport}</label>
 													<label class="btn btn-sm btn-default disabled ${userRight=='MODIFY'?'active':''}">${rightModify}</label> <label class="btn btn-sm btn-default disabled">${rightNone}</label>

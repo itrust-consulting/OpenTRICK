@@ -102,7 +102,7 @@
 							<th><spring:message code="label.analysis.author" text="Author" /></th>
 							<th><spring:message code="label.analysis.based_on_analysis" text="Based on" /></th>
 							<th><spring:message code="label.analysis.language" text="Language" /></th>
-							<th><spring:message code="label.analysis.rights" text="Access" /></th>
+							<th><spring:message code="label.analysis.right" text="Access" /></th>
 						</tr>
 					</thead>
 					<tbody>
