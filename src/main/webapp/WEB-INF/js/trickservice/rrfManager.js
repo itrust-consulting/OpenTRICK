@@ -77,8 +77,7 @@ function loadRRF() {
 															$("[data-trick-value^='" + level + ".']", $parent)
 																	.each(
 																			function() {
-																				var $this = $(this);
-																				var $formGroup = $("<div class='form-group'><div class='col-md-1'><input style='margin-top:-5px' type='checkbox' class='form-control'></div><label class='col-md-11'></label></div>");
+																				var $this = $(this), $formGroup = $("<div class='form-group'><div class='col-md-1'><input style='margin-top:-5px' type='checkbox' class='form-control'></div><label class='col-md-11'></label></div>");
 																				$("label", $formGroup).text($this.text())
 																				$("input", $formGroup).attr("name", $this.attr("data-trick-id"));
 																				$formGroup.appendTo($form);
@@ -219,7 +218,7 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 					var result = (+$("#control_rrf_scenario #scenario_preventive_value", $modal).val() + +$("#control_rrf_scenario #scenario_detective_value", $modal).val()
 							+ +$("#control_rrf_scenario #scenario_limitative_value", $modal).val() + +$("#control_rrf_scenario #scenario_corrective_value", $modal).val())
 							.toFixed(2);
-					$("#control_rrf_scenario .pdlc", $modal).removeClass("success,danger");
+					$("#control_rrf_scenario .pdlc", $modal).removeClass("success danger");
 					if (result == 1)
 						$("#control_rrf_scenario .pdlc", $modal).addClass("success");
 					else
