@@ -1,11 +1,11 @@
 function rrfError(message) {
 	if (message == undefined)
 		message = MessageResolver("error.unknown.occurred", "An unknown error occurred");
-	$("#rrfEditor #rrf-error .label").remove();
-	var alert = $("<label class='label label-danger'>" + message
-			+ " <a href='#' style='margin-left:10px;color:#fff;'   onclick='return $(this).parent().remove();'>&times;</a></label>").appendTo("#rrfEditor #rrf-error");
+	var $alert = $(
+			"<label class='label label-danger'>" + message + " <a href='#' style='margin-left:10px;color:#fff;'   onclick='return $(this).parent().remove();'>&times;</a></label>")
+			.appendTo($("#rrf-error", "#rrfEditor").empty());
 	setTimeout(function() {
-		alert.remove();
+		$alert.remove();
 	}, 5000);
 	return false;
 }
@@ -104,7 +104,7 @@ function loadRRF() {
 								$rrfUI.modal("show");
 								setTimeout(function() {
 									loadMeasureChart();
-									$('#chart-container-pending',$rrfUI).remove();
+									$('#chart-container-pending', $rrfUI).remove();
 								}, 500);
 							}
 						},
@@ -404,10 +404,10 @@ function loadScenarioChart() {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			$("#chart_rrf",$modal).css("padding-right", "");
+			$("#chart_rrf", $modal).css("padding-right", "");
 			if (response.chart != null && response.chart != undefined) {
-				$("#chart-container",$modal).highcharts(response).highcharts();
-				$("#chart_rrf",$modal).css("padding-right", "14px");
+				$("#chart-container", $modal).highcharts(response).highcharts();
+				$("#chart_rrf", $modal).css("padding-right", "14px");
 			} else
 				rrfError(response.error == undefined ? undefined : response.error);
 			return false;
@@ -422,9 +422,9 @@ function loadScenarioChart() {
 
 function initialiseStandardFilter() {
 	var $modal = $("#rrfEditor");
-	$("#section_rrf [name='chapterselection']",$modal).change(function() {
+	$("#section_rrf [name='chapterselection']", $modal).change(function() {
 		var filter = $("option:selected", this).attr("value");
-		$("#selectable_rrf_measures_chapter_controls [class='list-group'][data-trick-filter-value]",$modal).css("display", "none");
-		$("#selectable_rrf_measures_chapter_controls [class='list-group'][data-trick-filter-value='" + filter + "']",$modal).css("display", "block");
+		$("#selectable_rrf_measures_chapter_controls [class='list-group'][data-trick-filter-value]", $modal).css("display", "none");
+		$("#selectable_rrf_measures_chapter_controls [class='list-group'][data-trick-filter-value='" + filter + "']", $modal).css("display", "block");
 	});
 }
