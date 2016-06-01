@@ -28,7 +28,7 @@
 		</thead>
 		<tbody>
 			<c:forEach items="${currentStandards}" var="standard">
-				<tr ondblclick="return editStandard(this);" data-trick-id="${standard.id}" data-trick-analysisOnly="${standard.analysisOnly}" data-trick-type="${standard.type}"
+				<tr ondblclick="return editStandard(this);" onclick="selectElement(this)" data-trick-id="${standard.id}" data-trick-analysisOnly="${standard.analysisOnly}" data-trick-type="${standard.type}"
 					data-trick-computable="${standard.computable}">
 					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_manage_standards','#menu_manage_standards');"></td>
 					<td><spring:message text="${standard.label}" /></td>

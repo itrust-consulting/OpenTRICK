@@ -1,6 +1,6 @@
 function findDefaultLanguageId() {
-	var $language =  $("#section_kb_measure #languageselect").val();
-	if($.isNumeric($language))
+	var $language = $("#section_kb_measure #languageselect").val();
+	if ($.isNumeric($language))
 		return $language;
 	$language = $("#section_language tbody tr[data-trick-id]:first-child");
 	return $language.length ? $language.attr('data-trick-id') : 1;
@@ -73,20 +73,19 @@ function newMeasure(idStandard) {
 	if (findSelectItemIdBySection("section_kb_measure").length)
 		return false;
 	if (idStandard == null || idStandard == undefined)
-		idStandard = $("#section_kb_measure #idStandard").val();
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
+		idStandard = $("#idStandard", "#section_kb_measure").val();
+	var $modal = $("#addMeasureModel");
+	$(".label-danger", $modal).remove();
 
-	$("#addMeasureModel #addmeasurebutton").prop("disabled", false);
-	$("#addMeasureModel #measure_id").prop("value", "-1");
-	$("#addMeasureModel #measure_reference").prop("value", "");
-	$("#addMeasureModel #measure_level").prop("value", "");
-	$("#addMeasureModel #measure_computable").prop("checked", "false");
+	$("#addmeasurebutton", $modal).prop("disabled", false);
+	$("#measure_id", $modal).prop("value", "-1");
+	$("#measure_reference", $modal).prop("value", "");
+	$("#measure_level", $modal).prop("value", "");
+	$("#measure_computable", $modal).prop("checked", "false");
 
-	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
-	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
-	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.save", "Save"));
+	$("#measure_form", $modal).prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
+	$("#addMeasureModel-title", $modal).text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
+	$("#addmeasurebutton", $modal).text(MessageResolver("label.action.save", "Save"));
 
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Add",
@@ -96,16 +95,16 @@ function newMeasure(idStandard) {
 		success : function(response, textStatus, jqXHR) {
 			var $content = $("#measurelanguageselect", new DOMParser().parseFromString(response, "text/html"));
 			if ($content.length) {
-				var language = $("#measures_body #languageselect").val();
-				$("#addMeasureModel #measurelanguages").html(response);
-				$("#addMeasureModel #measurelanguageselect").change(function() {
+				var language = $("#languageselect", "#measures_body").val();
+				$("#measurelanguages", $modal).html(response);
+				$("#measurelanguageselect", $modal).change(function() {
 					var language = parseInt($(this).find("option:selected").attr("value"));
-					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id!='" + language + "']").css("display", "none");
-					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id='" + language + "']").css("display", "block");
+					$("#measurelanguages div[data-trick-id][data-trick-id!='" + language + "']", $modal).css("display", "none");
+					$("#measurelanguages div[data-trick-id][data-trick-id='" + language + "']", $modal).css("display", "block");
 				});
-				$("#addMeasureModel #measurelanguageselect option[value='" + language + "']").prop("selected", true);
-				$("#addMeasureModel #measurelanguageselect").change();
-				$("#addMeasureModel").modal("show");
+				$("#measurelanguageselect option[value='" + language + "']", $modal).prop("selected", true);
+				$("#measurelanguageselect", $modal).change();
+				$modal.modal("show");
 			} else
 				unknowError();
 			return false;
@@ -120,11 +119,8 @@ function editSingleMeasure(measureId, idStandard) {
 
 	if (idStandard == null || idStandard == undefined)
 		idStandard = $("#section_kb_measure #idStandard").val();
-
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
-
+	var $modal = $("#addMeasureModel");
+	$(".label-danger", $modal).remove();
 	if (measureId == null || measureId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_kb_measure");
 		if (selectedScenario.length != 1)
@@ -133,14 +129,14 @@ function editSingleMeasure(measureId, idStandard) {
 	}
 	var measure = $("#section_kb_measure tbody tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 
-	$("#addMeasureModel #measure_id").prop("value", measureId);
-	$("#addMeasureModel #measure_reference").prop("value", $(measure[1]).text());
-	$("#addMeasureModel #measure_level").prop("value", $(measure[0]).text());
-	$("#addMeasureModel #measure_computable").prop("checked", $(measure[4]).attr("data-trick-computable") == "true");
+	$("#measure_id", $modal).prop("value", measureId);
+	$("#measure_reference", $modal).prop("value", $(measure[1]).text());
+	$("#measure_level", $modal).prop("value", $(measure[0]).text());
+	$("#measure_computable", $modal).prop("checked", $(measure[4]).attr("data-trick-computable") == "true");
 
-	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
-	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
-	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.save", "Save"));
+	$("#measure_form", $modal).prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
+	$("#addMeasureModel-title", $modal).text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
+	$("#addmeasurebutton", $modal).text(MessageResolver("label.action.save", "Save"));
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
 		type : "GET",
@@ -149,15 +145,15 @@ function editSingleMeasure(measureId, idStandard) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
 			if ($(doc).find("#measurelanguageselect").length) {
 				var language = $("#section_kb_measure #languageselect").val();
-				$("#addMeasureModel #measurelanguages").html(response);
-				$("#addMeasureModel #measurelanguageselect").change(function() {
+				$("#measurelanguages", $modal).html(response);
+				$("#measurelanguageselect", $modal).change(function() {
 					var language = parseInt($(this).find("option:selected").attr("value"));
-					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id!='" + language + "']").css("display", "none");
-					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id='" + language + "']").css("display", "block");
+					$("#measurelanguages div[data-trick-id][data-trick-id!='" + language + "']", $modal).css("display", "none");
+					$("#measurelanguages div[data-trick-id][data-trick-id='" + language + "']", $modal).css("display", "block");
 				});
-				$("#addMeasureModel #measurelanguageselect option[value='" + language + "']").prop("selected", true);
-				$("#addMeasureModel #measurelanguageselect").change();
-				$("#addMeasureModel").modal("show");
+				$("#measurelanguageselect option[value='" + language + "']", $modal).prop("selected", true);
+				$("#measurelanguageselect", $modal).change();
+				$modal.modal("show");
 			} else
 				unknowError();
 			return false;
@@ -169,7 +165,7 @@ function editSingleMeasure(measureId, idStandard) {
 }
 
 function saveMeasure() {
-	var $form = $("#addMeasureModel #measure_form"), $progressBar = $("#addMeasureModel #save-measure-progress-bar"), $buttonSubmit = $("#addMeasureModel #addmeasurebutton");
+	var $modal = $("#addMeasureModel"), $form = $("#measure_form", $modal), $progressBar = $("#save-measure-progress-bar", $modal), $buttonSubmit = $("#addmeasurebutton", $modal);
 	$buttonSubmit.prop("disabled", true);
 	$progressBar.show();
 	$.ajax({
@@ -178,41 +174,34 @@ function saveMeasure() {
 		data : serializeForm($form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var alert = $("#addMeasureModel").find(".label-danger");
-			if (alert.length)
-				alert.remove();
-			var languages = $form.find("select option");
-			var languageDataValidation = {};
+			$modal.find(".label-danger").remove();
+			var languages = $form.find("select option"), languageDataValidation = {};
 			for (var i = 0; i < languages.length; i++) {
 				var idLanguage = $(languages[i]).val();
 				languageDataValidation["measureDescriptionText.domain_" + idLanguage] = "#measure_domain_" + idLanguage;
 				languageDataValidation["measureDescriptionText.description_" + idLanguage] = "#measure_description_" + idLanguage;
 			}
 			for ( var error in response) {
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
-				$(errorElement).text(response[error]);
-				var languageData = languageDataValidation[error];
+				var $errorElement = $("<label class='label label-danger' />").text(response[error]), languageData = languageDataValidation[error];
 				if (languageData != undefined) {
-					$(errorElement).appendTo($form.find(languageData).parent());
+					$errorElement.appendTo($form.find(languageData).parent());
 					continue;
 				}
 				switch (error) {
 				case "measuredescription.reference":
-					$(errorElement).appendTo($form.find("#measure_reference").parent());
+					$errorElement.appendTo($form.find("#measure_reference").parent());
 					break;
 				case "measuredescription.level":
-					$(errorElement).appendTo($form.find("#measure_level").parent());
+					$errorElement.appendTo($form.find("#measure_level").parent());
 					break;
 				case "measureDescription":
-					$(errorElement).appendTo($form.parent());
+					$errorElement.appendTo($form.parent());
 					break;
 				}
 			}
-			if (!$("#addMeasureModel").find(".label-danger").length) {
-				$("#addMeasureModel").modal("hide");
-				var language = $("#section_kb_measure #languageselect").val();
-				var idStandard = $("#section_kb_measure #idStandard").val();
+			if (!$modal.find(".label-danger").length) {
+				$modal.modal("hide");
+				var language = $("#section_kb_measure #languageselect").val(), idStandard = $("#section_kb_measure #idStandard").val();
 				showMeasures(idStandard, language, $("#measure_id", $form).val() < 1);
 			} else
 				$("#progress-dialog").modal("hide");
@@ -229,11 +218,7 @@ function saveMeasure() {
 }
 
 function deleteMeasure(measureId, reference, standard) {
-
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
-
+	$(".label-danger","#addMeasureModel").remove();
 	if (measureId == null || measureId == undefined) {
 		var selectedMeasure = findSelectItemIdBySection("section_kb_measure");
 		if (selectedMeasure.length != 1)
@@ -285,11 +270,7 @@ function deleteMeasure(measureId, reference, standard) {
 }
 
 function forceDeleteMeasure(measureId, reference, standard) {
-
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
-
+	$(".label-danger","#addMeasureModel").remove();
 	if (measureId == null || measureId == undefined) {
 		var selectedMeasure = findSelectItemIdBySection("section_kb_measure");
 		if (selectedMeasure.length != 1)

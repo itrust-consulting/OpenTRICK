@@ -61,8 +61,8 @@
 				<li class="pull-right"><a href="#" onclick="return displayActionPlanAssets();"><span class="glyphicon glyphicon-new-window"></span> <spring:message
 							code="label.action_plan_assets.show" /></a></li>
 			</c:if>
-			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message
-						key="label.action.compute" /></a></li>
+			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <spring:message
+						code="label.action.compute" /></a></li>
 		</ul>
 		<c:choose>
 			<c:when test="${not empty actionplansplitted}">
