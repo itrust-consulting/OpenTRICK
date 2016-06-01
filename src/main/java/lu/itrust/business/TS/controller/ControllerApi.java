@@ -2,6 +2,7 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.constants.Constant;
@@ -39,11 +38,11 @@ import lu.itrust.business.TS.model.api.ApiNotifyRequest;
 import lu.itrust.business.TS.model.api.ApiParameterSetter;
 import lu.itrust.business.TS.model.api.ApiResult;
 import lu.itrust.business.TS.model.api.ApiSetParameterRequest;
-import lu.itrust.business.TS.model.api.model.ApiAsset;
-import lu.itrust.business.TS.model.api.model.ApiMeasure;
-import lu.itrust.business.TS.model.api.model.ApiNamable;
-import lu.itrust.business.TS.model.api.model.ApiRRF;
-import lu.itrust.business.TS.model.api.model.ApiStandard;
+import lu.itrust.business.TS.model.api.basic.ApiAsset;
+import lu.itrust.business.TS.model.api.basic.ApiMeasure;
+import lu.itrust.business.TS.model.api.basic.ApiNamable;
+import lu.itrust.business.TS.model.api.basic.ApiRRF;
+import lu.itrust.business.TS.model.api.basic.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
@@ -179,9 +178,9 @@ public class ControllerApi {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/load-rrf", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
-	public void loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
-			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String standard, Principal principal, HttpServletResponse response)
-			throws Exception {
+	public @ResponseBody Object loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
+			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String standard, Principal principal, HttpServletResponse response,
+			Locale locale) throws Exception {
 		String[] standardNames = standard.split(",");
 		if (standardNames.length == 0)
 			throw new TrickException("error.standards.empty", "Standard cannot be empty");
@@ -208,15 +207,12 @@ public class ControllerApi {
 				throw new TrickException("error.standard.not_found", "Standard cannot be found");
 			ApiStandard apiStandard = new ApiStandard(analysisStandard.getStandard().getId(), analysisStandard.getStandard().getLabel());
 			analysisStandard.getMeasures().stream().filter(measure -> measure.getMeasureDescription().isComputable()).forEach(measure -> {
-				apiStandard.getMeasures().add(new ApiMeasure(measure.getId(), measure.getMeasureDescription().getReference(),
+				apiStandard.getMeasures().add(new ApiMeasure(measure.getId(), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain(),
 						(int) measure.getImplementationRateValue(dynamicParameters), measure.getCost(), RRF.calculateRRF(assessment, rrfTuning, measure)));
 			});
 			apiRRF.getStandards().add(apiStandard);
 		}
-		response.setContentType("json");
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"rrf.json\"");
-		new ObjectMapper().writeValue(response.getOutputStream(), apiRRF);
-
+		return apiRRF;
+	
 	}
 }

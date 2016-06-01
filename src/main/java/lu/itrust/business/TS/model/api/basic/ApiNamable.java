@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.api.model;
+package lu.itrust.business.TS.model.api.basic;
 
 /**
  * @author eomar
