@@ -284,7 +284,7 @@ function canManageAccess() {
 
 function selectElement(element) {
 	var $input = $(element).find("input,textarea,select");
-	if($input.length == 1)
+	if ($input.length == 1)
 		$input.filter("input[type='checkbox']:not(:hover):not(:focus)").trigger("click");
 	return false;
 }
@@ -575,12 +575,11 @@ function post(url, data, refraich) {
 }
 
 function findSelectItemIdBySection(section, modal) {
-	var selectedItem = [];
-	var $item = (modal == null || modal == undefined) ? $("#" + section + " tbody :checked") : $(modal).find("tbody :checked");
-	for (var i = 0; i < $item.length; i++) {
-		trickId = findTrickID($($item[i])[0]);
+	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("#" + section + " tbody :checked") : $("tbody :checked", modal);
+	for (var i = 0; i < $items.length; i++) {
+		trickId = findTrickID($items[i]);
 		if (trickId == null || trickId == undefined)
-			return false;
+			return undefined;
 		selectedItem.push(trickId);
 	}
 	return selectedItem;
@@ -589,10 +588,7 @@ function findSelectItemIdBySection(section, modal) {
 function findTrickID(element) {
 	if ($(element).attr("data-trick-id") != undefined)
 		return $(element).attr("data-trick-id");
-	else if ($(element).parent().prop("tagName") != "BODY")
-		return findTrickID($(element).parent());
-	else
-		return null;
+	return $(element).closest("[data-trick-id]").attr("data-trick-id");
 }
 
 function versionComparator(version1, version2) {

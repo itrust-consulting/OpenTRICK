@@ -29,7 +29,7 @@
 		</c:if>
 		<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 			<li class="disabled pull-right" data-trick-selectable="true" title='<spring:message code="label.action.force.delete" text="Force delete"/>'><a href="#" class="text-danger"
-				onclick="return forceDeleteMeasure();"><span class="glyphicon glyphicon-remove-circle"></span> <spring:message code="label.action.force.delete" text="Force delete" /> </a></li>
+				onclick="return deleteMeasure(true)"><span class="glyphicon glyphicon-remove-circle"></span> <spring:message code="label.action.force.delete" text="Force delete" /> </a></li>
 		</sec:authorize>
 		<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-trash"></span>
 				<spring:message code="label.menu.delete.norm" text="Delete" /> </a></li>
