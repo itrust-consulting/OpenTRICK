@@ -127,8 +127,8 @@ function editSingleMeasure(measureId, idStandard) {
 			return false;
 		measureId = selectedScenario[0];
 	}
+	
 	var $progress = $("#loading-indicator").show(), measure = $("tbody tr[data-trick-id='" + measureId + "'] td:not(:first-child)", "#section_kb_measure");
-
 	$("#measure_id", $modal).prop("value", measureId);
 	$("#measure_reference", $modal).prop("value", $(measure[1]).text());
 	$("#measure_level", $modal).prop("value", $(measure[0]).text());
