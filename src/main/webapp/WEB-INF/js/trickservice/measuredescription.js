@@ -159,7 +159,7 @@ function editSingleMeasure(measureId, idStandard) {
 		},
 		error : unknowError
 	}).complete(function() {
-		$progressBar.hide();
+		$progress.hide();
 	});
 
 	return false;
