@@ -94,6 +94,7 @@
 	<!--
 		application.openMode = OPEN_MODE.valueOf('${open}');
 		application.isLinkedToProject = ${isLinkedToProject};
+		application.hasMaturity = ${hasMaturity};
 		-->
 	</script>
 </body>

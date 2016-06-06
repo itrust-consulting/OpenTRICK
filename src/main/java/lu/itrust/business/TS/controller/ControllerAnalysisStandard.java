@@ -215,16 +215,27 @@ public class ControllerAnalysisStandard {
 
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
-		List<Standard> standards = new ArrayList<Standard>();
+		List<Standard> standards = new ArrayList<>(analysisStandards.size());
 
-		for (AnalysisStandard astandard : analysisStandards)
-			standards.add(astandard.getStandard());
+		Map<String, List<Measure>> measures = new LinkedHashMap<>(analysisStandards.size());
 
-		model.addAttribute("hasMaturity", analysisStandards.stream().anyMatch(analysisStandard -> analysisStandard.getStandard().getType() == StandardType.MATURITY));
+		analysisStandards.forEach(analysisStandard -> {
+			standards.add(analysisStandard.getStandard());
+			measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
+		});
+
+		boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
+
+		if (hasMaturity)
+			model.addAttribute("effectImpl27002",
+					MeasureManager.ComputeEffectiveImplementationRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY), serviceParameter
+							.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)));
+
+		model.addAttribute("hasMaturity", hasMaturity);
 
 		model.addAttribute("standards", standards);
 
-		model.addAttribute("measures", mapMeasures(null, analysisStandards));
+		model.addAttribute("measures", measures);
 
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
@@ -251,24 +262,22 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
-
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-
 		AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, standardid);
-
 		if (analysisStandard == null)
 			return null;
-
 		List<Standard> standards = new ArrayList<Standard>(1);
 		Map<String, List<Measure>> measures = new HashMap<>(1);
-
 		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
 			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
 			if (maturityStandard != null && maturityStandard.getStandard().isComputable()) {
-
+				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+						Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+				model.addAttribute("effectImpl27002",
+						MeasureManager.ComputeEffectiveImplementationRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters));
 			}
 		}
-
+		
 		standards.add(analysisStandard.getStandard());
 
 		measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
@@ -282,25 +291,6 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		return "analyses/single/components/standards/standard/standards";
-	}
-
-	/**
-	 * mapMeasures: <br>
-	 * Description
-	 * 
-	 * @param standardlabel
-	 * @param standards
-	 * @return
-	 */
-	private Map<String, List<Measure>> mapMeasures(String standardlabel, List<AnalysisStandard> standards) {
-		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
-		for (AnalysisStandard standard : standards) {
-			if (standardlabel == null)
-				measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
-			else if (standard.getStandard().getLabel().equals(standardlabel))
-				measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
-		}
-		return measuresmap;
 	}
 
 	/**

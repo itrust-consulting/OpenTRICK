@@ -1429,10 +1429,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<Standard> getStandards() {
-		List<Standard> standards = new ArrayList<Standard>();
-		for (AnalysisStandard standard : analysisStandards)
-			standards.add(standard.getStandard());
-		return standards;
+		return analysisStandards.stream().map(AnalysisStandard::getStandard).collect(Collectors.toList());
 
 	}
 

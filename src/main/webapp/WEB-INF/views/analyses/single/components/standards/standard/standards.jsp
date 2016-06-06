@@ -77,9 +77,19 @@
 							<th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')"></th>
 						</c:if>
 						<th width="2%" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
-						<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
-						<th width="2%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
-						<th width="2%" title='<spring:message code="label.title.measure.ir" />' ><spring:message code="label.measure.ir" /></th>
+						<c:choose>
+							<c:when test="${hasMaturity and standard.equals('27002') }">
+								<th width="8%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+								<th width="2%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
+								<th width="2%" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir" /></th>
+								<th width="2%" title='<spring:message code="label.title.measure.effective.ir" text="Effective implementation rate"/>'><spring:message code="label.measure.effective.ir" text='IF (%)'/></th>
+							</c:when>
+							<c:otherwise>
+								<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+								<th width="2%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
+								<th width="2%" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir" /></th>
+							</c:otherwise>
+						</c:choose>
 						<th width="2%" title='<spring:message code="label.title.measure.iw" />' ><spring:message code="label.measure.iw" /></th>
 						<th width="2%" title='<spring:message code="label.title.measure.ew" />' ><spring:message code="label.measure.ew" /></th>
 						<th width="2%" title='<spring:message code="label.title.measure.inv" />' ><spring:message code="label.measure.inv" /></th>
@@ -147,7 +157,14 @@
 										<c:otherwise><spring:message text="${measure.measureDescription.reference}" /></c:otherwise>
 									</c:choose>
 									</td>
-									<td ${popoverRef} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+									<c:choose>
+										<c:when test="${hasMaturity and standard.equals('27002') }">
+											<td ${popoverRef} colspan="14"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+										</c:when>
+										<c:otherwise>
+											<td ${popoverRef} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+										</c:otherwise>
+									</c:choose>
 									<c:choose>
 										<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 											<td class="warning" onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
@@ -200,6 +217,12 @@
 											<td ${css} data-trick-field="implementationRate" data-trick-field-type="double" data-trick-max-value="100" data-trick-min-value="0" data-trick-step-value='1'
 												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
+											<c:if test="${hasMaturity and standard.equals('27002') }">
+												<td><c:choose>
+														<c:when test="${empty effectImpl27002[measure.measureDescription.reference]}">0</c:when>
+														<c:otherwise><fmt:formatNumber value="${effectImpl27002[measure.measureDescription.reference]}" maxFractionDigits="0" minFractionDigits="0" /></c:otherwise>
+													</c:choose></td>
+											</c:if>
 										</c:otherwise>
 									</c:choose>
 									<td ${css} data-trick-field="internalWL" data-trick-field-type="double" onclick="return editField(this);" data-trick-min-value='0' ><fmt:formatNumber value="${measure.internalWL}"

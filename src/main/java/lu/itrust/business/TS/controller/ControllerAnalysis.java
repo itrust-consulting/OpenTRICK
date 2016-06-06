@@ -110,6 +110,7 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.ticketing.TicketingProject;
 import lu.itrust.business.TS.model.ticketing.builder.Client;
@@ -256,18 +257,21 @@ public class ControllerAnalysis {
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
+				boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
-				model.addAttribute("soa", measures.get("27002"));
+				model.addAttribute("soa", measures.get(Constant.STANDARD_27002));
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("standards", analysis.getStandards());
-				model.addAttribute("hasMaturity",
-						analysis.getAnalysisStandards().stream().anyMatch(analysisStandard -> analysisStandard.getStandard().getType() == StandardType.MATURITY));
+				model.addAttribute("hasMaturity", hasMaturity);
 				if (analysis.isCssf()) {
 					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
 					model.addAttribute("estimationMapping", analysis.mapAssessment());
 				}
+				if (hasMaturity)
+					model.addAttribute("effectImpl27002", MeasureManager.ComputeEffectiveImplementationRate(measures.get(Constant.STANDARD_27002),
+							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters()));
 				break;
 			case EDIT_MEASURE:
 				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));

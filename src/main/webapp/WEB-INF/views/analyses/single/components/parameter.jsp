@@ -277,10 +277,9 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
+						<tr data-trick-class="Parameter" data-trick-min-value='0' data-trick-max-value='100' data-trick-field="value" data-trick-field-type="double" >
 							<c:forEach items="${simpleParameters[2]}" var="parameter">
-								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
-									data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+								<td  data-trick-id="${parameter.id}"  class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
 						</tr>
 					</tbody>

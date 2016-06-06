@@ -3,11 +3,13 @@ package lu.itrust.business.TS.model.standard.measure.helper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.ImportRRFForm;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -47,6 +50,7 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureReferance;
 
 /**
@@ -252,8 +256,8 @@ public class MeasureManager {
 			astandard.getMeasures().add(measure);
 			daoAnalysisStandard.saveOrUpdate(astandard);
 		}
-		
-		if(measureDescription.getId()<1)
+
+		if (measureDescription.getId() < 1)
 			daoMeasureDescription.saveOrUpdate(measureDescription);
 	}
 
@@ -351,4 +355,64 @@ public class MeasureManager {
 		measure.setAnalysisStandard(analysisStandard);
 		return measure;
 	}
+
+	/**
+	 * Compute effective implementation rate for 27002
+	 * 
+	 * @param measures27002
+	 * @param maturityMeasures
+	 * @param parameters
+	 *            : require Maturity parameters + SMT parameters
+	 * @return Map<27002 Reference, Effective Implementation Rate>
+	 */
+	public static Map<String, Double> ComputeEffectiveImplementationRate(List<Measure> measures27002, List<Measure> maturityMeasures, List<Parameter> parameters) {
+		Map<String, Double> effectiveImpelementationRate = new HashMap<>();
+
+		if (measures27002 == null || maturityMeasures == null || parameters == null)
+			return effectiveImpelementationRate;
+
+		Map<String, MaturityMeasure> mappedMaturityMeasures = maturityMeasures.stream().map(measure -> (MaturityMeasure) measure)
+				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference().replace("M.", ""), measure -> measure));
+		Map<String, MaturityParameter> mappedMaturityParameters = new HashMap<>(23);
+		Map<String, Parameter> impelementationRates = new HashMap<>(6);
+		parameters.forEach(parameter -> {
+			if (parameter instanceof MaturityParameter)
+				mappedMaturityParameters.put(parameter.getDescription(), (MaturityParameter) parameter);
+			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
+				impelementationRates.put(parameter.getDescription(), parameter);
+		});
+
+		if (mappedMaturityMeasures.isEmpty() || impelementationRates.isEmpty())
+			return effectiveImpelementationRate;
+
+		for (Measure measure : measures27002) {
+			MaturityMeasure maturityMeasure = mappedMaturityMeasures.get(measure.getMeasureDescription().getReference());
+			if (maturityMeasure == null)
+				continue;
+			MeasureDescriptionText measureDescriptionText = maturityMeasure.getMeasureDescription().findByAlph3("eng");
+			if (measureDescriptionText == null || !mappedMaturityParameters.containsKey(measureDescriptionText.getDomain()))
+				continue;
+			MaturityParameter maturityParameter = mappedMaturityParameters.get(measureDescriptionText.getDomain());
+			if (maturityParameter == null)
+				continue;
+			Parameter parameter = null;
+			double implementationRate = maturityMeasure.getImplementationRateValue();
+			System.out.println(Math.abs(implementationRate - maturityParameter.getSMLLevel5()));
+			if (Math.abs(implementationRate - maturityParameter.getSMLLevel5()) < 1E-4)
+				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML5);
+			else if (implementationRate >= maturityParameter.getSMLLevel4())
+				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML4);
+			else if (implementationRate >= maturityParameter.getSMLLevel3())
+				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML3);
+			else if (implementationRate >= maturityParameter.getSMLLevel2())
+				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML2);
+			else if (implementationRate >= maturityParameter.getSMLLevel1())
+				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML1);
+			else
+				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML0);
+			effectiveImpelementationRate.put(measure.getMeasureDescription().getReference(), (measure.getImplementationRateValue() * parameter.getValue()) * 0.01);
+		}
+		return effectiveImpelementationRate;
+	}
+
 }
