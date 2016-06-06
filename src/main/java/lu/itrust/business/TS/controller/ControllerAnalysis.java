@@ -107,6 +107,7 @@ import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformat
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
@@ -132,7 +133,6 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
-	
 	@Autowired
 	private ServiceUser serviceUser;
 
@@ -262,6 +262,8 @@ public class ControllerAnalysis {
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("standards", analysis.getStandards());
+				model.addAttribute("hasMaturity",
+						analysis.getAnalysisStandards().stream().anyMatch(analysisStandard -> analysisStandard.getStandard().getType() == StandardType.MATURITY));
 				if (analysis.isCssf()) {
 					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
 					model.addAttribute("estimationMapping", analysis.mapAssessment());
@@ -406,7 +408,7 @@ public class ControllerAnalysis {
 			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
 					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
-			if (model != null && allowedTicketing){
+			if (model != null && allowedTicketing) {
 				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
 				model.addAttribute(TICKETING_URL, url.getString());
 			}
@@ -453,7 +455,7 @@ public class ControllerAnalysis {
 		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
-		
+
 		return "analyses/all/home";
 	}
 
@@ -1011,7 +1013,8 @@ public class ControllerAnalysis {
 			}
 		});
 		return JsonMessage.Success(ids.size() > 1
-				? messageSource.getMessage("sucess.analyses.unlink.from.project", new String[] { name }, String.format("Analyses has been successfully unlinked from %s", name), locale)
+				? messageSource.getMessage("sucess.analyses.unlink.from.project", new String[] { name }, String.format("Analyses has been successfully unlinked from %s", name),
+						locale)
 				: messageSource.getMessage("sucess.analysis.unlink.from.project", new String[] { name }, String.format("Analysis has been successfully unlinked from %s", name),
 						locale));
 	}

@@ -192,4 +192,9 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	public String getStandardNameById(int idAnalysisStandard) {
 		return daoAnalysisStandard.getStandardNameById(idAnalysisStandard);
 	}
+
+	@Override
+	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String name) {
+		return daoAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis,name);
+	}
 }

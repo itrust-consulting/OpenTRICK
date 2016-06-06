@@ -373,4 +373,8 @@ public class Standard implements Cloneable {
 		return label.equals(standard.label);
 	}
 
+	public Boolean is(String type) {
+		return label.equals(type);
+	}
+
 }

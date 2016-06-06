@@ -8,8 +8,6 @@ import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -222,11 +220,11 @@ public class ControllerAnalysisStandard {
 		for (AnalysisStandard astandard : analysisStandards)
 			standards.add(astandard.getStandard());
 
+		model.addAttribute("hasMaturity", analysisStandards.stream().anyMatch(analysisStandard -> analysisStandard.getStandard().getType() == StandardType.MATURITY));
+
 		model.addAttribute("standards", standards);
 
-		Map<String, List<Measure>> measures = mapMeasures(null, analysisStandards);
-
-		model.addAttribute("measures", measures);
+		model.addAttribute("measures", mapMeasures(null, analysisStandards));
 
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
@@ -256,30 +254,26 @@ public class ControllerAnalysisStandard {
 
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 
-		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
+		AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, standardid);
 
-		Integer realstandardid = null;
+		if (analysisStandard == null)
+			return null;
 
-		String standardlabel = null;
+		List<Standard> standards = new ArrayList<Standard>(1);
+		Map<String, List<Measure>> measures = new HashMap<>(1);
 
-		List<Standard> standards = new ArrayList<Standard>();
+		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
+			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
+			if (maturityStandard != null && maturityStandard.getStandard().isComputable()) {
 
-		for (AnalysisStandard standard : analysisStandards) {
-			standards.add(standard.getStandard());
-			if (standard.getStandard().getId() == standardid) {
-				realstandardid = standardid;
-				standardlabel = standard.getStandard().getLabel();
 			}
 		}
 
-		if (realstandardid == null)
-			return null;
+		standards.add(analysisStandard.getStandard());
+
+		measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
 
 		model.addAttribute("standards", standards);
-
-		// add measures of the analysis
-
-		Map<String, List<Measure>> measures = mapMeasures(standardlabel, analysisStandards);
 
 		model.addAttribute("measures", measures);
 
@@ -299,36 +293,13 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 */
 	private Map<String, List<Measure>> mapMeasures(String standardlabel, List<AnalysisStandard> standards) {
-
 		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
-
 		for (AnalysisStandard standard : standards) {
-
-			if (standardlabel == null) {
-				List<Measure> measures = standard.getMeasures();
-				Comparator<Measure> cmp = new Comparator<Measure>() {
-					public int compare(Measure o1, Measure o2) {
-						return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
-					}
-				};
-				Collections.sort(measures, cmp);
-				measuresmap.put(standard.getStandard().getLabel(), measures);
-			} else {
-				if (standard.getStandard().getLabel().equals(standardlabel)) {
-					List<Measure> measures = standard.getMeasures();
-					Comparator<Measure> cmp = new Comparator<Measure>() {
-						public int compare(Measure o1, Measure o2) {
-							return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
-						}
-					};
-					Collections.sort(measures, cmp);
-					measuresmap.put(standard.getStandard().getLabel(), measures);
-
-				}
-			}
-
+			if (standardlabel == null)
+				measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
+			else if (standard.getStandard().getLabel().equals(standardlabel))
+				measuresmap.put(standard.getStandard().getLabel(), standard.getMeasures());
 		}
-
 		return measuresmap;
 	}
 

@@ -186,26 +186,12 @@ public class ActionPlanComputation {
 		// selected,
 		// if no: select 27002
 		for (AnalysisStandard analysisStandard : this.standards) {
-
 			if (analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable()) {
-
-				this.maturitycomputation = true;
-
-				boolean found = false;
-
-				for (AnalysisStandard checkStandard : this.standards) {
-					if (checkStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
-						found = true;
-						break;
-					}
-				}
-
-				if (!found) {
+				this.maturitycomputation = tmp27002standard != null;
+				if (this.maturitycomputation && !this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002)))
 					this.standards.add(tmp27002standard);
-				}
 				break;
 			}
-
 		}
 		this.uncertainty = uncertainty;
 	}
@@ -251,7 +237,7 @@ public class ActionPlanComputation {
 		System.out.println("Computing Action Plans...");
 
 		try {
-			
+
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
 			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
@@ -308,8 +294,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - optimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPO);
@@ -324,8 +309,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPP);
@@ -407,8 +391,8 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * create summary for pessimistic phase action plan summary
 				// ****************************************************************
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase",
-						"Create summary for pessimistic phase action plan summary", progress));
+				serviceTaskFeedback.send(idTask,
+						new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPP);
