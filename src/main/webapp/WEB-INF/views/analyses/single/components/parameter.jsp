@@ -132,10 +132,9 @@
 					<tfoot></tfoot>
 					<tbody>
 						<c:forEach items="${parametersSplited[2]}" var="parameter">
-							<tr data-trick-class="MaturityParameter" data-trick-id="${parameter.id}">
+							<tr data-trick-class="MaturityParameter" data-trick-id="${parameter.id}" data-trick-callback="updateMeasureEffience()">
 								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" /></td>
 								<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" /></td>
-
 								<td class="success textaligncenter" data-trick-field="SMLLevel0" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
 									onclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel0*100}" maxFractionDigits="0" /></td>
 								<td class="success textaligncenter" data-trick-field="SMLLevel1" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
@@ -277,9 +276,9 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr data-trick-class="Parameter" data-trick-min-value='0' data-trick-max-value='100' data-trick-field="value" data-trick-field-type="double" >
+						<tr data-trick-class="Parameter" data-trick-min-value='0' data-trick-max-value='100' data-trick-callback="updateMeasureEffience()">
 							<c:forEach items="${simpleParameters[2]}" var="parameter">
-								<td  data-trick-id="${parameter.id}"  class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+								<td data-trick-field="value" data-trick-field-type="double"  data-trick-id="${parameter.id}"  class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
 						</tr>
 					</tbody>

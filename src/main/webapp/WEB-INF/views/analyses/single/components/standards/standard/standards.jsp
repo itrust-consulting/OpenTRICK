@@ -209,8 +209,9 @@
 										</c:choose></td>
 									<c:choose>
 										<c:when test="${standardType.name.equals('MATURITY')}">
+											<c:set var="reference27002" value="${fn:replace(measure.measureDescription.reference,'M.','')}"/>
 											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
-												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
+												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${reference27002}');" onclick="return editField(this);"><fmt:formatNumber
 													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 										</c:when>
 										<c:otherwise>
@@ -218,9 +219,11 @@
 												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 											<c:if test="${hasMaturity and standard.equals('27002') }">
-												<td><c:choose>
+												<td data-trick-reference='${measure.measureDescription.reference}'><c:choose>
 														<c:when test="${empty effectImpl27002[measure.measureDescription.reference]}">0</c:when>
-														<c:otherwise><fmt:formatNumber value="${effectImpl27002[measure.measureDescription.reference]}" maxFractionDigits="0" minFractionDigits="0" /></c:otherwise>
+														<c:otherwise>
+															<fmt:formatNumber value="${effectImpl27002[measure.measureDescription.reference]}" maxFractionDigits="0" minFractionDigits="0" />
+														</c:otherwise>
 													</c:choose></td>
 											</c:if>
 										</c:otherwise>

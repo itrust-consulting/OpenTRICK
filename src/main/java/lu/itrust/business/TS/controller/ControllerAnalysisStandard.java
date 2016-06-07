@@ -78,6 +78,7 @@ import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
@@ -227,9 +228,9 @@ public class ControllerAnalysisStandard {
 		boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
 
 		if (hasMaturity)
-			model.addAttribute("effectImpl27002",
-					MeasureManager.ComputeEffectiveImplementationRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY), serviceParameter
-							.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)));
+			model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
+					serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME),
+					true));
 
 		model.addAttribute("hasMaturity", hasMaturity);
 
@@ -273,11 +274,10 @@ public class ControllerAnalysisStandard {
 			if (maturityStandard != null && maturityStandard.getStandard().isComputable()) {
 				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 						Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-				model.addAttribute("effectImpl27002",
-						MeasureManager.ComputeEffectiveImplementationRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters));
+				model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true));
 			}
 		}
-		
+
 		standards.add(analysisStandard.getStandard());
 
 		measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
@@ -311,6 +311,7 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		model.addAttribute("measure", measure);
+		loadEfficience(model, idAnalysis, measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
@@ -319,6 +320,43 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 		return "analyses/single/components/standards/measure/singleMeasure";
+	}
+
+	@RequestMapping(value = "/Compute-efficience",method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object computeEfficience(@RequestBody List<Integer> ids, HttpSession session, Principal principal) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		List<Measure> measures = serviceMeasure.getByIdAnalysisAndIds(idAnalysis, ids);
+		List<String> maturityReferences = measures.stream().filter(measure -> measure.getMeasureDescription().getStandard().getLabel().equals(Constant.STANDARD_27002))
+				.map(measure -> "M." + measure.getMeasureDescription().getReference()).collect(Collectors.toList());
+		List<Measure> maturities = serviceMeasure.getByAnalysisAndStandardAndReferences(idAnalysis, Constant.STANDARD_MATURITY, maturityReferences);
+		List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+				Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+		return MeasureManager.ComputeEfficiencyRate(measures, maturities, parameters, false);
+	}
+
+	private void loadEfficience(Model model, Integer idAnalysis, Measure measure) {
+		try {
+			if (!measure.getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
+				return;
+			if (measure.getMeasureDescription().isComputable()) {
+				MaturityMeasure maturity = (MaturityMeasure) serviceMeasure.getByAnalysisAndStandardAndReference(idAnalysis, Constant.STANDARD_MATURITY,
+						"M." + measure.getMeasureDescription().getReference());
+				if (maturity == null)
+					return;
+				model.addAttribute("hasMaturity", true);
+				MeasureDescriptionText descriptionText = maturity.getMeasureDescription().findByAlph3("eng");
+				MaturityParameter maturityParameter = (MaturityParameter) serviceParameter.getFromAnalysisByTypeAndDescription(idAnalysis,
+						Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, descriptionText.getDomain());
+				Map<String, Parameter> efficiencyRates = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME).stream()
+						.collect(Collectors.toMap(Parameter::getDescription, Function.identity()));
+				model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(measure, maturity, maturityParameter, efficiencyRates));
+			} else
+				model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+
 	}
 
 	/**

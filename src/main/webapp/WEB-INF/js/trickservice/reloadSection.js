@@ -28,7 +28,7 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 					error : unknowError
 				});
 	} else
-		$section.closest(".tab-tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
+		$section.closest(".tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
 	return false;
 }
 

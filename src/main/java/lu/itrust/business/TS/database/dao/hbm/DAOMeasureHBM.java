@@ -408,4 +408,21 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and measure.id in :ids order by measure.id")
 				.setInteger("idAnalysis", idAnalysis).setParameterList("ids", ids).list();
 	}
+
+	@Override
+	public Measure getByAnalysisAndStandardAndReference(Integer idAnalysis, String standard, String reference) {
+		return (Measure) getSession()
+				.createQuery(
+						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference = :reference")
+				.setInteger("idAnalysis", idAnalysis).setString("standard", standard).setString("reference", reference).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> getByAnalysisAndStandardAndReferences(Integer idAnalysis, String standard, List<String> references) {
+		return getSession()
+				.createQuery(
+						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference in :references")
+				.setInteger("idAnalysis", idAnalysis).setString("standard", standard).setParameterList("references", references).list();
+	}
 }

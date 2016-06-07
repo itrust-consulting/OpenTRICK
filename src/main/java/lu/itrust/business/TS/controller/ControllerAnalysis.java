@@ -107,7 +107,6 @@ import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformat
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
@@ -270,8 +269,8 @@ public class ControllerAnalysis {
 					model.addAttribute("estimationMapping", analysis.mapAssessment());
 				}
 				if (hasMaturity)
-					model.addAttribute("effectImpl27002", MeasureManager.ComputeEffectiveImplementationRate(measures.get(Constant.STANDARD_27002),
-							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters()));
+					model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(measures.get(Constant.STANDARD_27002),
+							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(),true));
 				break;
 			case EDIT_MEASURE:
 				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));

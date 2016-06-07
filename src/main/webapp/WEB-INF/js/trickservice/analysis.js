@@ -1,4 +1,5 @@
-var el = null, table = null, taskController = function() {};
+var el = null, table = null, taskController = function() {
+};
 
 $(document).ready(function() {
 
@@ -128,6 +129,42 @@ function reloadMeasureRow(idMeasure, standard) {
 function reloadMeasureAndCompliance(standard, idMeasure) {
 	reloadMeasureRow(idMeasure, standard);
 	compliance(standard);
+	return false;
+}
+
+function updateMeasureEffience(reference) {
+	if (!application.hasMaturity)
+		return;
+	var $standard27002 = $("div[id^='section_standard_'][data-trick-label='27002']");
+	if (!$standard27002.length)
+		return;
+	var $tabPane = $standard27002.closest(".tab-pane"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
+	if (updateRequired && (triggerName == "reloadSection" || triggerName == "updateMeasureEffience"))
+		return;
+	var data = [], $selector;
+	if (reference != undefined)
+		$selector = $standard27002.find("tr[data-trick-id] td[data-trick-reference='" + reference + "']").parent();
+	else
+		$selector = $standard27002.find("tr[data-trick-id][data-trick-computable='true']");
+	if (!$selector.length)
+		return;
+	$selector.each(function() {
+		data.push(this.getAttribute('data-trick-id'))
+	});
+	$.ajax({
+		url : context + "/Analysis/Standard/Compute-efficience",
+		type : "post",
+		data : JSON.stringify(data),
+		contentType : "application/json;charset=UTF-8",
+		success : function(response, textStatus, jqXHR) {
+			if (typeof response === 'object') {
+				for ( var id in response)
+					$standard27002.find("tr[data-trick-id='" + id + "'][data-trick-computable='true'] td[data-trick-reference]").text(parseInt(response[id], 10));
+			} else
+				unknowError();
+		},
+		error : unknowError
+	});
 	return false;
 }
 
@@ -670,7 +707,7 @@ function generateTickets(section) {
 
 	if (measures.updates.length) {
 		var $confirm = $("#confirm-dialog"), $question = measures.updates.length == 1 ? MessageResolver("confirm.update.ticket", "Are you sure, you want to update measure task")
-				: MessageResolver("confirm.update.tickets", "Are you sure, you want to update " + measures.updates.length + " measures tasks", [measures.updates.length]);
+				: MessageResolver("confirm.update.tickets", "Are you sure, you want to update " + measures.updates.length + " measures tasks", [ measures.updates.length ]);
 		$confirm.find(".modal-body").text($question);
 		$(".btn-danger", $confirm).click(function() {
 			$confirm.modal("hide");

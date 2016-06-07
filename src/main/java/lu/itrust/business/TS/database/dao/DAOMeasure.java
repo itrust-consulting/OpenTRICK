@@ -68,4 +68,8 @@ public interface DAOMeasure {
 	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int idAnalysis, String standard, ActionPlanMode appn);
 
 	public List<Measure> getByIdAnalysisAndIds(Integer idAnalysis, List<Integer> ids);
+
+	public Measure getByAnalysisAndStandardAndReference(Integer idAnalysis, String standard, String reference);
+
+	public List<Measure> getByAnalysisAndStandardAndReferences(Integer idAnalysis, String standard, List<String> references);
 }

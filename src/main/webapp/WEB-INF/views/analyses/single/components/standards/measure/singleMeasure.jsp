@@ -58,7 +58,7 @@
 					</c:otherwise>
 				</c:choose>
 			</td>
-			<td ${popoverRef} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<td ${popoverRef} colspan="${selectedStandard.label=='27002' and hasMaturity? '14' : '13' }"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 					<td class='warning' onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
@@ -106,14 +106,23 @@
 			</td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('MATURITY')}">
+					<c:set var="reference27002" value="${fn:replace(measure.measureDescription.reference,'M.','')}"/>
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
-						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
+						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${reference27002}');" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:when>
 				<c:otherwise>
 					<td ${css} data-trick-field="implementationRate" data-trick-field-type="double" data-trick-max-value="100" data-trick-min-value="0" data-trick-step-value='1'
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
+					<c:if test="${selectedStandard.label=='27002' and hasMaturity}">
+						<td data-trick-reference='${measure.measureDescription.reference}' ><c:choose>
+								<c:when test="${empty effectImpl27002}">0</c:when>
+								<c:otherwise>
+									<fmt:formatNumber value="${effectImpl27002}" maxFractionDigits="0" minFractionDigits="0" />
+								</c:otherwise>
+							</c:choose></td>
+					</c:if>
 				</c:otherwise>
 			</c:choose>
 			<td ${css} data-trick-field="internalWL" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}" maxFractionDigits="2" /></td>

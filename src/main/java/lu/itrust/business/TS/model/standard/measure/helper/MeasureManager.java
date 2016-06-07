@@ -357,16 +357,17 @@ public class MeasureManager {
 	}
 
 	/**
-	 * Compute effective implementation rate for 27002
+	 * Compute efficiency Rate for 27002
 	 * 
 	 * @param measures27002
 	 * @param maturityMeasures
 	 * @param parameters
-	 *            : require Maturity parameters + SMT parameters
-	 * @return Map<27002 Reference, Effective Implementation Rate>
+	 *            : require Maturity parameters + maximal efficiency parameters
+	 *  @param reference: mapped by reference
+	 * @return Map<27002 Reference or id, efficiency implementation Rate>
 	 */
-	public static Map<String, Double> ComputeEffectiveImplementationRate(List<Measure> measures27002, List<Measure> maturityMeasures, List<Parameter> parameters) {
-		Map<String, Double> effectiveImpelementationRate = new HashMap<>();
+	public static Map<Object, Double> ComputeEfficiencyRate(List<Measure> measures27002, List<Measure> maturityMeasures, List<Parameter> parameters, boolean reference) {
+		Map<Object, Double> effectiveImpelementationRate = new HashMap<>();
 
 		if (measures27002 == null || maturityMeasures == null || parameters == null)
 			return effectiveImpelementationRate;
@@ -374,45 +375,49 @@ public class MeasureManager {
 		Map<String, MaturityMeasure> mappedMaturityMeasures = maturityMeasures.stream().map(measure -> (MaturityMeasure) measure)
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference().replace("M.", ""), measure -> measure));
 		Map<String, MaturityParameter> mappedMaturityParameters = new HashMap<>(23);
-		Map<String, Parameter> impelementationRates = new HashMap<>(6);
+		Map<String, Parameter> efficiencyRates = new HashMap<>(6);
 		parameters.forEach(parameter -> {
 			if (parameter instanceof MaturityParameter)
 				mappedMaturityParameters.put(parameter.getDescription(), (MaturityParameter) parameter);
 			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
-				impelementationRates.put(parameter.getDescription(), parameter);
+				efficiencyRates.put(parameter.getDescription(), parameter);
 		});
 
-		if (mappedMaturityMeasures.isEmpty() || impelementationRates.isEmpty())
+		if (mappedMaturityMeasures.isEmpty() || efficiencyRates.isEmpty())
 			return effectiveImpelementationRate;
 
 		for (Measure measure : measures27002) {
-			MaturityMeasure maturityMeasure = mappedMaturityMeasures.get(measure.getMeasureDescription().getReference());
-			if (maturityMeasure == null)
+			MaturityMeasure maturity = mappedMaturityMeasures.get(measure.getMeasureDescription().getReference());
+			if (maturity == null)
 				continue;
-			MeasureDescriptionText measureDescriptionText = maturityMeasure.getMeasureDescription().findByAlph3("eng");
+			MeasureDescriptionText measureDescriptionText = maturity.getMeasureDescription().findByAlph3("eng");
 			if (measureDescriptionText == null || !mappedMaturityParameters.containsKey(measureDescriptionText.getDomain()))
 				continue;
 			MaturityParameter maturityParameter = mappedMaturityParameters.get(measureDescriptionText.getDomain());
 			if (maturityParameter == null)
 				continue;
-			Parameter parameter = null;
-			double implementationRate = maturityMeasure.getImplementationRateValue();
-			System.out.println(Math.abs(implementationRate - maturityParameter.getSMLLevel5()));
-			if (Math.abs(implementationRate - maturityParameter.getSMLLevel5()) < 1E-4)
-				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML5);
-			else if (implementationRate >= maturityParameter.getSMLLevel4())
-				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML4);
-			else if (implementationRate >= maturityParameter.getSMLLevel3())
-				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML3);
-			else if (implementationRate >= maturityParameter.getSMLLevel2())
-				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML2);
-			else if (implementationRate >= maturityParameter.getSMLLevel1())
-				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML1);
-			else
-				parameter = impelementationRates.get(Constant.MATURITY_LEVEL_SML0);
-			effectiveImpelementationRate.put(measure.getMeasureDescription().getReference(), (measure.getImplementationRateValue() * parameter.getValue()) * 0.01);
+			effectiveImpelementationRate.put(reference ? measure.getMeasureDescription().getReference() : measure.getId(),
+					ComputeEfficiencyRate(measure, maturity, maturityParameter, efficiencyRates));
 		}
 		return effectiveImpelementationRate;
+	}
+
+	public static double ComputeEfficiencyRate(Measure measure, MaturityMeasure maturity, MaturityParameter maturityParameter, Map<String, Parameter> efficiencyRates) {
+		Parameter parameter = null;
+		double implementationRate = maturity.getImplementationRateValue() * 0.01;
+		if (implementationRate == maturityParameter.getSMLLevel5())
+			parameter = efficiencyRates.get(Constant.MATURITY_LEVEL_SML5);
+		else if (implementationRate >= maturityParameter.getSMLLevel4())
+			parameter = efficiencyRates.get(Constant.MATURITY_LEVEL_SML4);
+		else if (implementationRate >= maturityParameter.getSMLLevel3())
+			parameter = efficiencyRates.get(Constant.MATURITY_LEVEL_SML3);
+		else if (implementationRate >= maturityParameter.getSMLLevel2())
+			parameter = efficiencyRates.get(Constant.MATURITY_LEVEL_SML2);
+		else if (implementationRate >= maturityParameter.getSMLLevel1())
+			parameter = efficiencyRates.get(Constant.MATURITY_LEVEL_SML1);
+		else
+			parameter = efficiencyRates.get(Constant.MATURITY_LEVEL_SML0);
+		return (measure.getImplementationRateValue() * parameter.getValue()) * 0.01;
 	}
 
 }

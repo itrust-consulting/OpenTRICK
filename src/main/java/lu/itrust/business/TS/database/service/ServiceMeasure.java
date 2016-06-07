@@ -56,4 +56,8 @@ public interface ServiceMeasure {
 	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) ;
 
 	public List<Measure> getByIdAnalysisAndIds(Integer idAnalysis, List<Integer> measureIds);
+
+	public Measure getByAnalysisAndStandardAndReference(Integer idAnalysis, String standard, String reference);
+
+	public List<Measure> getByAnalysisAndStandardAndReferences(Integer idAnalysis, String standard, List<String> references);
 }
