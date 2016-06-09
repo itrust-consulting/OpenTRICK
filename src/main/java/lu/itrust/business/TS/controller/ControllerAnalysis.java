@@ -262,14 +262,14 @@ public class ControllerAnalysis {
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
-				model.addAttribute("standards", analysis.getStandards());
+				model.addAttribute("standards",analysis.getStandards() );
 				model.addAttribute("hasMaturity", hasMaturity);
 				if (analysis.isCssf()) {
 					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
 					model.addAttribute("estimationMapping", analysis.mapAssessment());
 				}
 				if (hasMaturity)
-					model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(measures.get(Constant.STANDARD_27002),
+					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002),
 							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(),true));
 				break;
 			case EDIT_MEASURE:

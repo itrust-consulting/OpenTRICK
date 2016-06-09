@@ -82,7 +82,7 @@
 								<th width="8%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
 								<th width="2%" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
 								<th width="2%" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir" /></th>
-								<th width="2%" title='<spring:message code="label.title.measure.effective.ir" text="Effective implementation rate"/>'><spring:message code="label.measure.effective.ir" text='IF (%)'/></th>
+								<th width="2%" title='<spring:message code="label.title.measure.mer"/>'><spring:message code="label.measure.mer"/></th>
 							</c:when>
 							<c:otherwise>
 								<th width="10%" title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
@@ -141,7 +141,7 @@
 						<c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}"/>
 						<c:choose>
 							<c:when test="${not measure.measureDescription.computable}">
-								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" 
+								<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" 
 									data-trick-id="${measure.id}" data-is-linked='${hasTicket}'
 									data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
@@ -209,9 +209,8 @@
 										</c:choose></td>
 									<c:choose>
 										<c:when test="${standardType.name.equals('MATURITY')}">
-											<c:set var="reference27002" value="${fn:replace(measure.measureDescription.reference,'M.','')}"/>
 											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
-												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${reference27002}');" onclick="return editField(this);"><fmt:formatNumber
+												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${measure.measureDescription.reference}');" onclick="return editField(this);"><fmt:formatNumber
 													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 										</c:when>
 										<c:otherwise>
@@ -219,7 +218,7 @@
 												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 											<c:if test="${hasMaturity and standard.equals('27002') }">
-												<td data-trick-reference='${measure.measureDescription.reference}'><c:choose>
+												<td class="text-center" data-trick-field='mer' ><c:choose>
 														<c:when test="${empty effectImpl27002[measure.measureDescription.reference]}">0</c:when>
 														<c:otherwise>
 															<fmt:formatNumber value="${effectImpl27002[measure.measureDescription.reference]}" maxFractionDigits="0" minFractionDigits="0" />

@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -424,5 +425,30 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 				.createQuery(
 						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference in :references")
 				.setInteger("idAnalysis", idAnalysis).setString("standard", standard).setParameterList("references", references).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> getReferenceStartWith(Integer idAnalysis, String standard, String reference) {
+		return getSession()
+				.createQuery(
+						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.measureDescription.reference like :reference")
+				.setInteger("idAnalysis", idAnalysis).setString("standard", standard).setParameter("reference", reference + "%").list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> getByAnalysisIdStandardAndChapters(Integer idAnalysis, String standard, List<String> chapters) {
+		String request = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and analysisStandard.standard.label = :standard",
+				subSql = "";
+		for (int i = 0; i < chapters.size(); i++)
+			subSql += (subSql.isEmpty() ? "" : " or ") + "measure.measureDescription.reference like :reference" + i;
+		if (!subSql.isEmpty())
+			request += " and (" + subSql + ")";
+		Query query = getSession().createQuery(request).setInteger("idAnalysis", idAnalysis).setString("standard", standard);
+		for (int i = 0; i < chapters.size(); i++)
+			query.setString("reference" + i, chapters.get(i) + "%");
+		return query.list();
+
 	}
 }

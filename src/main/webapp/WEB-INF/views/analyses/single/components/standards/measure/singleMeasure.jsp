@@ -72,7 +72,7 @@
 		</tr>
 	</c:when>
 	<c:otherwise>
-		<tr data-trick-class="Measure" data-trick-id="${measure.id}" onclick="selectElement(this)" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
+		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
 			data-is-linked='${isLinkedToProject and not empty measure.ticket}' >
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
@@ -106,9 +106,8 @@
 			</td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('MATURITY')}">
-					<c:set var="reference27002" value="${fn:replace(measure.measureDescription.reference,'M.','')}"/>
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
-						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${reference27002}');" onclick="return editField(this);"><fmt:formatNumber
+						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${measure.measureDescription.reference}');" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:when>
 				<c:otherwise>
@@ -116,7 +115,7 @@
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 					<c:if test="${selectedStandard.label=='27002' and hasMaturity}">
-						<td data-trick-reference='${measure.measureDescription.reference}' ><c:choose>
+						<td data-trick-field='mer' ><c:choose>
 								<c:when test="${empty effectImpl27002}">0</c:when>
 								<c:otherwise>
 									<fmt:formatNumber value="${effectImpl27002}" maxFractionDigits="0" minFractionDigits="0" />

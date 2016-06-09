@@ -60,4 +60,8 @@ public interface ServiceMeasure {
 	public Measure getByAnalysisAndStandardAndReference(Integer idAnalysis, String standard, String reference);
 
 	public List<Measure> getByAnalysisAndStandardAndReferences(Integer idAnalysis, String standard, List<String> references);
+
+	public List<Measure> getReferenceStartWith(Integer idAnalysis, String standard, String reference);
+
+	public List<Measure> getByAnalysisIdStandardAndChapters(Integer idAnalysis, String standard27002, List<String> chapters);
 }

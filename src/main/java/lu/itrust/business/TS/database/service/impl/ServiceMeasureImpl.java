@@ -348,4 +348,14 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	public List<Measure> getByAnalysisAndStandardAndReferences(Integer idAnalysis, String standard, List<String> references) {
 		return daoMeasure.getByAnalysisAndStandardAndReferences(idAnalysis,standard,references);
 	}
+
+	@Override
+	public List<Measure> getReferenceStartWith(Integer idAnalysis, String standard, String reference) {
+		return daoMeasure.getReferenceStartWith(idAnalysis,standard,reference);
+	}
+
+	@Override
+	public List<Measure> getByAnalysisIdStandardAndChapters(Integer idAnalysis, String standard, List<String> chapters) {
+		return daoMeasure.getByAnalysisIdStandardAndChapters(idAnalysis,standard,chapters);
+	}
 }

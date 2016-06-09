@@ -78,7 +78,6 @@ import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
@@ -228,7 +227,7 @@ public class ControllerAnalysisStandard {
 		boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
 
 		if (hasMaturity)
-			model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
+			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
 					serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME),
 					true));
 
@@ -274,7 +273,8 @@ public class ControllerAnalysisStandard {
 			if (maturityStandard != null && maturityStandard.getStandard().isComputable()) {
 				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 						Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-				model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true));
+				model.addAttribute("effectImpl27002",
+						MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true));
 			}
 		}
 
@@ -322,35 +322,41 @@ public class ControllerAnalysisStandard {
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
-	@RequestMapping(value = "/Compute-efficience",method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Compute-efficience", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Object computeEfficience(@RequestBody List<Integer> ids, HttpSession session, Principal principal) {
+	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session, Principal principal) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<Measure> measures = serviceMeasure.getByIdAnalysisAndIds(idAnalysis, ids);
-		List<String> maturityReferences = measures.stream().filter(measure -> measure.getMeasureDescription().getStandard().getLabel().equals(Constant.STANDARD_27002))
-				.map(measure -> "M." + measure.getMeasureDescription().getReference()).collect(Collectors.toList());
-		List<Measure> maturities = serviceMeasure.getByAnalysisAndStandardAndReferences(idAnalysis, Constant.STANDARD_MATURITY, maturityReferences);
+		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002, chapters);
+		List<Measure> maturities = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_MATURITY,
+				chapters.stream().map(reference -> "M." + reference).collect(Collectors.toList()));
 		List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 				Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-		return MeasureManager.ComputeEfficiencyRate(measures, maturities, parameters, false);
+		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, parameters, false);
 	}
 
+	/**
+	 * Compute Maturity-based Effectiveness Rate
+	 * 
+	 * @param model
+	 * @param idAnalysis
+	 * @param measure
+	 */
 	private void loadEfficience(Model model, Integer idAnalysis, Measure measure) {
 		try {
 			if (!measure.getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
 				return;
 			if (measure.getMeasureDescription().isComputable()) {
-				MaturityMeasure maturity = (MaturityMeasure) serviceMeasure.getByAnalysisAndStandardAndReference(idAnalysis, Constant.STANDARD_MATURITY,
-						"M." + measure.getMeasureDescription().getReference());
-				if (maturity == null)
-					return;
-				model.addAttribute("hasMaturity", true);
-				MeasureDescriptionText descriptionText = maturity.getMeasureDescription().findByAlph3("eng");
-				MaturityParameter maturityParameter = (MaturityParameter) serviceParameter.getFromAnalysisByTypeAndDescription(idAnalysis,
-						Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, descriptionText.getDomain());
-				Map<String, Parameter> efficiencyRates = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME).stream()
-						.collect(Collectors.toMap(Parameter::getDescription, Function.identity()));
-				model.addAttribute("effectImpl27002", MeasureManager.ComputeEfficiencyRate(measure, maturity, maturityParameter, efficiencyRates));
+				String chapter = measure.getMeasureDescription().getReference().split("[.]", 2)[0];
+				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY, "M." + chapter);
+				if (!measures.isEmpty())
+					model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
+				else {
+					model.addAttribute("hasMaturity", true);
+					List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+							Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, parameters).get(chapter);
+					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue() * maturity * 0.01);
+				}
 			} else
 				model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
 		} catch (Exception e) {
