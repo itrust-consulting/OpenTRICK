@@ -47,12 +47,12 @@ function switchCustomer(section) {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#switchCustomerModal");
+			var $content = $("#switchCustomerModal", new DOMParser().parseFromString(response, "text/html"));
 			if ($content.length) {
 				if ($("#switchCustomerModal").length)
 					$("#switchCustomerModal").replaceWith($content);
 				else
-					$content.appendTo($("#widget"));
+					$content.appendTo("#widget");
 				$content.find(".modal-footer>button[name='save']").on("click", function() {
 					$content.find(".label").remove();
 					$.ajax({
@@ -64,14 +64,14 @@ function switchCustomer(section) {
 								adminCustomerChange($("#tab_analyses").find("select"));
 								$content.modal("hide");
 							} else if (response["error"] != undefined)
-								$("<label class='label label-danger'>" + response["error"] + "</label>").appendTo($content.find("select").parent());
+								$("<label class='label label-danger' />").text(response["error"]).appendTo($content.find("select").parent());
 							else
 								unknowError();
 						},
 						error : unknowError
 					});
 				});
-				new Modal($content).Show();
+				$content.modal("show");
 			} else
 				unknowError();
 		},
@@ -117,7 +117,7 @@ function switchOwner(section) {
 							error : unknowError
 						});
 					});
-					new Modal($content).Show();
+					$content.modal("show");
 				} else
 					unknowError();
 			}
@@ -136,7 +136,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			return false;
 		analysisId = selectedAnalysis[0];
 	}
-	
+
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Admin/Analysis/" + analysisId + "/ManageAccess",
@@ -319,7 +319,7 @@ function loadSystemLog() {
 		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
+			var $section = $("#section_log",new DOMParser().parseFromString(response, "text/html"));
 			if ($section.length) {
 				$("#section_log").replaceWith($section);
 				fixTableHeader($("table.table-fixed-header-analysis", $section));
