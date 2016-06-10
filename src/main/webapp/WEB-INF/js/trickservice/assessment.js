@@ -1,9 +1,7 @@
 function displayParameters(name, title) {
-	var view = new Modal();
-	view.Intialise();
+	var view = new Modal().Intialise();
 	$(view.modal_footer).remove();
-	view.setTitle(title);
-	view.setBody($(name).find(".panel-body").html());
+	view.setTitle(title).setBody($(name).find(".panel-body").html());
 	$(view.modal_body).find("td").removeAttributes();
 	view.Show();
 	return false;

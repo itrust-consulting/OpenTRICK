@@ -141,7 +141,7 @@ function updateMeasureEffience(reference) {
 	var $tabPane = $standard27002.closest(".tab-pane"), updateRequired = $tabPane.attr("data-update-required"), triggerName = $tabPane.attr('data-trigger');
 	if (updateRequired && triggerName == "reloadSection")
 		return;
-	var data = [], $selector, chapters = application["parameter-27002-efficience"];
+	var data = [], chapters = application["parameter-27002-efficience"];
 	if ($standard27002.is(":visible")) {
 		if (Array.isArray(chapters)) {
 			data = chapters;
@@ -155,19 +155,20 @@ function updateMeasureEffience(reference) {
 		if (reference == undefined)
 			delete application["parameter-27002-efficience"];
 		else {
-			var chapter = reference.split(".", 3)[1], parameters = application["parameter-27002-efficience"];
-			$selector = $standard27002.find("tr[data-trick-computable='false'][data-trick-level='1'][data-trick-reference='" + chapter + "']");
+			var chapter = reference.split(".", 3)[1], parameters = application["parameter-27002-efficience"], $selector = $standard27002
+					.find("tr[data-trick-computable='false'][data-trick-level='1'][data-trick-reference='" + chapter + "']");
 			if ($selector.length) {
 				if (updateRequired && triggerName == 'updateMeasureEffience') {
-					if (parameters && !parameters.contains(chapter))
+					if (parameters && parameters.indexOf(chapter) == -1)
 						parameters.push(chapter);
+					console.log(parameters);
 				} else
 					application["parameter-27002-efficience"] = [ chapter ];
 			} else
 				$tabPane.attr("data-update-required", updateRequired).attr("data-trigger", triggerName);
 		}
 	}
-	
+
 	if (!data.length)
 		return;
 	var $progress = $("#loading-indicator").show();
@@ -179,7 +180,7 @@ function updateMeasureEffience(reference) {
 		success : function(response, textStatus, jqXHR) {
 			if (typeof response === 'object') {
 				for ( var id in response)
-					$("tr[data-trick-id='" + id + "'][data-trick-computable='true'] td[data-trick-field='MER']", $standard27002).text(parseInt(response[id], 10));
+					$("tr[data-trick-id='" + id + "'][data-trick-computable='true'] td[data-trick-field='mer']", $standard27002).text(parseInt(response[id], 10));
 			} else
 				showDialog("#alert-dialog", MessageResolver("error.measure.mer.update", "Maturity-based effectiveness rate cannot be updated"));
 		},

@@ -322,7 +322,7 @@ public class ControllerAnalysisStandard {
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
-	@RequestMapping(value = "/Compute-efficience", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Compute-efficiency", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session, Principal principal) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -348,7 +348,7 @@ public class ControllerAnalysisStandard {
 			if (measure.getMeasureDescription().isComputable()) {
 				String chapter = measure.getMeasureDescription().getReference().split("[.]", 2)[0];
 				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY, "M." + chapter);
-				if (!measures.isEmpty())
+				if (measures.isEmpty())
 					model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
 				else {
 					model.addAttribute("hasMaturity", true);

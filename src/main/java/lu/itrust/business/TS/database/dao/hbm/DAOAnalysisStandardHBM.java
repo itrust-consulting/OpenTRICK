@@ -59,7 +59,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAll() {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard").list();
+		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard order by standard.label").list();
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) {
 		return (List<AnalysisStandard>) getSession()
-				.createQuery("SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis = :analysis")
+				.createQuery("SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis = :analysis order by analysisStandard.standard.label")
 				.setParameter("analysis", analysis).list();
 	}
 

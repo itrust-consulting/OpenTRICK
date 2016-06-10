@@ -107,6 +107,8 @@ import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformat
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.helper.StandardComparator;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
@@ -246,6 +248,8 @@ public class ControllerAnalysis {
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
 		Boolean readOnly = OpenMode.isReadOnly(mode);
+		List<Standard> standards = null;
+		boolean hasMaturity = false;
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
@@ -255,14 +259,16 @@ public class ControllerAnalysis {
 			case EDIT:
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
+				standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
+						.collect(Collectors.toList());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
-				boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
+				hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
 				model.addAttribute("soa", measures.get(Constant.STANDARD_27002));
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
-				model.addAttribute("standards",analysis.getStandards() );
+				model.addAttribute("standards", standards);
 				model.addAttribute("hasMaturity", hasMaturity);
 				if (analysis.isCssf()) {
 					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
@@ -270,11 +276,15 @@ public class ControllerAnalysis {
 				}
 				if (hasMaturity)
 					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002),
-							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(),true));
+							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(), true));
 				break;
 			case EDIT_MEASURE:
-				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));
-				model.addAttribute("standards", analysis.getStandards());
+				standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty())
+						.map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator()).collect(Collectors.toList());
+				Map<String, Map<String, List<Measure>>> measuresByChapter = spliteMeasureByChapter(analysis.getAnalysisStandards());
+				hasMaturity = measuresByChapter.containsKey(Constant.STANDARD_MATURITY);
+				model.addAttribute("standardChapters", measuresByChapter);
+				model.addAttribute("standards", standards);
 				break;
 			case EDIT_ESTIMATION:
 			case READ_ESTIMATION:
@@ -310,7 +320,7 @@ public class ControllerAnalysis {
 	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(List<AnalysisStandard> analysisStandards) {
 		Comparator<Measure> comparator = new MeasureComparator();
 		Map<String, Map<String, List<Measure>>> mapper = new LinkedHashMap<>();
-		analysisStandards.forEach(analysisStandard -> {
+		analysisStandards.stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty()).forEach(analysisStandard -> {
 			Map<String, List<Measure>> chapters = new LinkedHashMap<>();
 			Collections.sort(analysisStandard.getMeasures(), comparator);
 			analysisStandard.getMeasures().forEach(measure -> {
