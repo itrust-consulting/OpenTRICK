@@ -106,18 +106,17 @@ function deleteUser(userId, name) {
 						$("#deleteUserModal").replaceWith($deleteUserDialog);
 					else
 						$deleteUserDialog.appendTo("#dialog-body");
-					var $form = $deleteUserDialog.find("form");
-					var $progress = $deleteUserDialog.find(".progress");
-					var $submitInput = $deleteUserDialog.find("input[type='submit']");
-					var $deleteButton = $deleteUserDialog.find("button[name='delete']").click(function() {
-						$submitInput.click();
-					});
-
+					var $form = $deleteUserDialog.find("form"), $progress = $deleteUserDialog.find(".progress"), $submitInput = $deleteUserDialog.find("input[type='submit']"), $deleteButton;
+					
 					$progress.hide();
 
 					function fadeOutComplete() {
 						return $(this).remove();
 					}
+					
+					$deleteButton = $("button[name='delete']",$deleteUserDialog).click(function() {
+						$submitInput.click();
+					});
 
 					$form.on("submit", function() {
 						$deleteUserDialog.find(".label").remove();
@@ -208,7 +207,7 @@ function newUser() {
 			$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
 			$("#addUserbutton").text(MessageResolver("label.action.save", "save"));
 			$("#user_form").prop("action", "/Save");
-			$("#addUserModel").modal('toggle');
+			$("#addUserModel").modal('show');
 		},
 		error : unknowError
 	});
@@ -217,7 +216,7 @@ function newUser() {
 
 function editSingleUser(userId) {
 	if (userId == null || userId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_user"));
+		var selectedScenario = findSelectItemIdBySection("section_user");
 		if (selectedScenario.length != 1)
 			return false;
 		userId = selectedScenario[0];
@@ -242,7 +241,7 @@ function editSingleUser(userId) {
 			$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
 			$("#addUserbutton").text(MessageResolver("label.action.save", "Save"));
 			$("#user_form").prop("action", "/Save");
-			$("#addUserModel").modal('toggle');
+			$("#addUserModel").modal('show');
 		},
 		error : unknowError
 	});
