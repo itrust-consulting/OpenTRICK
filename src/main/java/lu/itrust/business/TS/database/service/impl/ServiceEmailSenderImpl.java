@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -11,8 +12,6 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.exception.VelocityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -21,8 +20,13 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.velocity.VelocityEngineUtils;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
+import freemarker.core.ParseException;
+import freemarker.template.Configuration;
+import freemarker.template.MalformedTemplateNameException;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateNotFoundException;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
@@ -43,14 +47,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	private MessageSource messageSource;
 
 	@Autowired
-	private VelocityEngine velocityEngine;
+	private Configuration freemarkerConfiguration;
 
 	@Value("${app.settings.smtp.host}")
 	private String mailserver;
-	
-	@Value("${app.settings.email.template}")
-	private  String ressourceFolder = "../data/email/template/";
-
 
 	/**
 	 * sendRegistrationMail: <br>
@@ -62,7 +62,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	 *      java.lang.String)
 	 */
 	@Override
-	public void sendRegistrationMail(final List<User> recipients, final User user)  {
+	public void sendRegistrationMail(final List<User> recipients, final User user) {
 		MimeMessagePreparator preparator;
 
 		JavaMailSenderImpl sender = new JavaMailSenderImpl();
@@ -74,7 +74,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 		try {
 			preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException  {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
@@ -82,8 +83,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					model.put("user", user);
-					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, ressourceFolder
-						+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
+					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
+							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.ftl" : "new-user-info-en.ftl"), "UTF-8"),
+							model), true);
 					message.setTo(user.getEmail());
 				}
 			};
@@ -96,7 +98,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			for (final User admin : recipients) {
 				try {
 					preparator = new MimeMessagePreparator() {
-						public void prepare(MimeMessage mimeMessage) throws VelocityException, MissingResourceException, MessagingException  {
+						public void prepare(MimeMessage mimeMessage) throws MissingResourceException, MessagingException, TemplateNotFoundException, MalformedTemplateNameException,
+								ParseException, IOException, TemplateException {
 							Locale locale = admin.getLocaleObject();
 							MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 							message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
@@ -105,8 +108,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
 							model.put("admin", admin);
 							model.put("user", user);
-							message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, ressourceFolder
-								+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8", model), true);
+							message.setText(
+									FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
+											.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8"), model),
+									true);
 							message.setTo(admin.getEmail());
 						}
 					};
@@ -130,7 +135,8 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws MessagingException  {
+				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
+						MissingResourceException, IOException, TemplateException {
 					Locale locale = password.getUser().getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
@@ -139,8 +145,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 					model.put("hostname", hotname);
 					model.put("username", password.getUser().getLogin());
-					message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, ressourceFolder
-						+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.vm" : "reset-password-en.vm"), "UTF-8", model), true);
+					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
+							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.vm" : "reset-password-en.vm"), "UTF-8"),
+							model), true);
 					message.setTo(password.getUser().getEmail());
 				}
 			};
@@ -150,5 +157,4 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 		}
 	}
 
-	
 }
