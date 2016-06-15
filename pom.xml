@@ -6,18 +6,18 @@
 	<packaging>war</packaging>
 	<properties>
 		<org.springframework.version>4.2.6.RELEASE</org.springframework.version>
-		<org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
+		<org.springframework.security.version>4.1.0.RELEASE</org.springframework.security.version>
 		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
 		<org.apache.poi.version>3.14</org.apache.poi.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
 
-		<dependency>
+	<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
-			<scope>provided</scope>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -90,16 +90,8 @@
 			<version>${org.springframework.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${org.springframework.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-
 		<!-- Spring Security -->
-
+		
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
@@ -128,25 +120,12 @@
 			<version>${org.springframework.security.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<version>${org.springframework.security.version}</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- LDAP -->
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-ldap</artifactId>
 			<version>${org.springframework.security.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>3.2.2</version>
 		</dependency>
 
 		<!-- Hibernate dependencies -->
@@ -158,32 +137,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.1-api</artifactId>
-			<version>1.0.0.Final</version>
-		</dependency>
-
-		<!-- <dependency> <groupId>org.apache.geronimo.specs</groupId> <artifactId>geronimo-jta_1.1_spec</artifactId> <version>1.1.1</version> </dependency> -->
-
-		<dependency>
 			<groupId>org.hibernate.common</groupId>
 			<artifactId>hibernate-commons-annotations</artifactId>
 			<version>5.0.1.Final</version>
-		</dependency>
-
-
-	<!-- <dependency> <groupId>dom4j</groupId> <artifactId>dom4j</artifactId> <version>1.6.1</version> </dependency> -->
-		
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr</artifactId>
-			<version>3.5.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.20.0-GA</version>
 		</dependency>
 
 		<dependency>
@@ -236,7 +192,6 @@
 			<version>1.2.17</version>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-core</artifactId> <version>2.6</version> </dependency> -->
 		<dependency>
 			<groupId>net.logstash.log4j</groupId>
 			<artifactId>jsonevent-layout</artifactId>
@@ -270,8 +225,7 @@
 		</dependency>
 
 		<!-- Email -->
-		<!-- <dependency> <groupId>org.apache.velocity</groupId> <artifactId>velocity</artifactId> <version>1.7</version> </dependency> -->
-
+		
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
@@ -322,6 +276,30 @@
 		</dependency>
 
 		<!-- Unit testing -->
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<version>${org.springframework.security.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>test</scope>
+		</dependency>
+		
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
