@@ -29,7 +29,6 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.officeDocument.x2006.customProperties.CTProperty;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
@@ -276,11 +275,11 @@ public class ExportAnalysisReport {
 		document.enforceUpdateFields();
 	}
 
-	private XWPFParagraph findParagraphByText(String text) {
-		List<XWPFParagraph> paragraphs = document.getParagraphs();
-		for (XWPFParagraph paragraph : paragraphs) {
-			if (paragraph.getParagraphText().equals(text))
-				return paragraph;
+	private XWPFParagraph findTableAnchor(String text) {
+		Optional<XWPFParagraph> result = document.getParagraphs().stream().filter(paragraph -> paragraph.getParagraphText().equals(text)).findAny();
+		if (result.isPresent()) {
+			result.get().setStyle("Figure");
+			return result.get();
 		}
 		return null;
 	}
@@ -306,7 +305,7 @@ public class ExportAnalysisReport {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<ActionPlan>");
+		paragraph = findTableAnchor("<ActionPlan>");
 
 		// run = paragraph.getRuns().get(0);
 
@@ -352,7 +351,7 @@ public class ExportAnalysisReport {
 				row.getCell(1).setText(entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
-				addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + (locale == Locale.FRENCH ? " : " : ": "));
+				addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + (locale == Locale.FRENCH ? "\u00A0:" : ":"));
 				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
 					for (XWPFRun run : paragraph2.getRuns())
 						run.setBold(true);
@@ -378,7 +377,7 @@ public class ExportAnalysisReport {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<Summary>");
+		paragraph = findTableAnchor("<Summary>");
 
 		if (paragraph == null)
 			return;
@@ -782,7 +781,7 @@ public class ExportAnalysisReport {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraphOrigin = findParagraphByText("<Assessment>");
+		paragraphOrigin = findTableAnchor("<Assessment>");
 
 		List<Assessment> assessments = analysis.getSelectedAssessments();
 
@@ -830,42 +829,26 @@ public class ExportAnalysisReport {
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
 				paragraph.createRun().setText(ale.getAssetName());
 				paragraph.setStyle("TSEstimationTitle");
-
 				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-
 				run = paragraph.createRun();
-
 				run.setText(getMessage("report.assessment.total.ale.for.asset", null, "Total ALE of asset", locale));
-
 				paragraph.createRun().addTab();
-
 				run = paragraph.createRun();
-
 				run.setText(String.format("%s k€", kEuroFormat.format(ale.getValue() * 0.001)));
-
 				run.setBold(true);
-
 				paragraph.setStyle("TSAssessmentTotalALEByAsset");
-
-				document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-
-				table = document.insertNewTbl(paragraphOrigin.getCTP().newCursor());
-
+				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
+				table = document.insertNewTbl(paragraph.getCTP().newCursor());
 				table.setStyleID("TableTSAssessment");
-
 				row = table.getRow(0);
-
 				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
-
 				row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
 				setCellText(row.getCell(1), getMessage("report.assessment.impact.financial", null, "Fin.", locale), ParagraphAlignment.CENTER);
 				setCellText(row.getCell(2), getMessage("report.assessment.probability", null, "P.", locale), ParagraphAlignment.CENTER);
-				row.getCell(2).setVerticalAlignment(XWPFVertAlign.CENTER);
 				row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
 				row.getCell(4).setText(getMessage("report.assessment.owner", null, "Owner", locale));
 				row.getCell(5).setText(getMessage("report.assessment.comment", null, "Comment", locale));
-
 				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
 				for (Assessment assessment : assessmentsofasset) {
 					row = table.createRow();
@@ -878,6 +861,11 @@ public class ExportAnalysisReport {
 					addCellParagraph(row.getCell(4), assessment.getOwner());
 					addCellParagraph(row.getCell(5), assessment.getComment());
 				}
+				paragraph.setStyle("Figure");
+				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
+				paragraph.createRun().setText(getMessage("report.assessment.table.caption", new Object[] { ale.getAssetName() },
+						String.format("Risk estimation for the asset %s", ale.getAssetName()), locale));
+				paragraph.setStyle("CaptionTab");
 			}
 			assessementsmap.clear();
 			ales.clear();
@@ -899,7 +887,7 @@ public class ExportAnalysisReport {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText(name);
+		paragraph = findTableAnchor(name);
 
 		if (paragraph != null) {
 
@@ -1140,7 +1128,7 @@ public class ExportAnalysisReport {
 		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 			parmetertype = "Proba";
 
-		paragraph = findParagraphByText("<" + parmetertype + ">");
+		paragraph = findTableAnchor("<" + parmetertype + ">");
 
 		List<Parameter> parameters = analysis.getParameters();
 
@@ -1279,7 +1267,7 @@ public class ExportAnalysisReport {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<Scope>");
+		paragraph = findTableAnchor("<Scope>");
 
 		List<ItemInformation> iteminformations = analysis.getItemInformations();
 
@@ -1321,7 +1309,7 @@ public class ExportAnalysisReport {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<Measures>");
+		paragraph = findTableAnchor("<Measures>");
 
 		// run = paragraph.getRuns().get(0);
 
@@ -1353,6 +1341,8 @@ public class ExportAnalysisReport {
 				paragraph.createRun().setText(analysisStandard.getStandard().getLabel());
 
 				paragraph = document.createParagraph();
+				
+				paragraph.setStyle("Figure");
 
 				paragraph.setIndentationLeft(0);
 
@@ -1454,7 +1444,7 @@ public class ExportAnalysisReport {
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<Scenario>");
+		paragraph = findTableAnchor("<Scenario>");
 
 		List<Scenario> scenarios = analysis.findSelectedScenarios();
 
@@ -1504,7 +1494,7 @@ public class ExportAnalysisReport {
 
 		for (String key : riskmapping.keySet()) {
 
-			paragraph = findParagraphByText("<" + key + ">");
+			paragraph = findTableAnchor("<" + key + ">");
 
 			List<RiskInformation> elements = riskmapping.get(key);
 
@@ -1559,9 +1549,14 @@ public class ExportAnalysisReport {
 							null, riskinfo.getLabel(), locale));
 					chapter = riskinfo.getChapter().matches("\\d(\\.0){2}");
 					if (riskinfo.getCategory().equals("Threat")) {
-						for (int i = 0; i < 3; i++)
-							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
-						row.getCell(2).setText(riskinfo.getAcronym());
+						if (chapter) {
+							row.getCell(0).setColor(HEADER_COLOR);
+							MergeCell(row, 1, 2, HEADER_COLOR);
+						} else {
+							for (int i = 0; i < 3; i++)
+								row.getCell(i).setColor(SUB_HEADER_COLOR);
+							row.getCell(2).setText(riskinfo.getAcronym());
+						}
 						setCellText(row.getCell(3), riskinfo.getExposed(), ParagraphAlignment.CENTER);
 						row.getCell(4).setText(getValueOrEmpty(riskinfo.getOwner()));
 						addCellParagraph(row.getCell(5), riskinfo.getComment());
