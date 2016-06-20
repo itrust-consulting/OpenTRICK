@@ -67,8 +67,8 @@ public class RiskInformation implements Cloneable {
 	@Column(name = "dtAcronym", nullable = false, length = 15)
 	private String acronym;
 	
-	@Column(name = "dtOwner")
-	private String owner;
+	@Column(name = "dtOwner",nullable=false)
+	private String owner = "";
 
 	/***********************************************************************************************
 	 * Getters and Setters

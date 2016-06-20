@@ -47,7 +47,6 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureReferance;
 
 /**
  * MeasureManager.java: <br>
@@ -127,7 +126,7 @@ public class MeasureManager {
 	 */
 	public static Map<String, List<Measure>> SplitByStandard(List<Measure> measures) {
 		Map<String, List<Measure>> mappingMeasures = new LinkedHashMap<>();
-		Collections.sort(measures, new ComparatorMeasureReferance());
+		Collections.sort(measures, new MeasureComparator());
 		for (Measure measure : measures) {
 			Standard standard = measure.getAnalysisStandard().getStandard();
 			List<Measure> measures2 = mappingMeasures.get(standard.getLabel());
