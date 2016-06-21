@@ -737,7 +737,7 @@ public class Analysis implements Cloneable {
 	 *         was not found
 	 */
 	public double getParameter(String name) {
-		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue()).findAny().orElse(-1.0);
+		return getParameter(name, -1D);
 	}
 
 	/**
@@ -2635,6 +2635,10 @@ public class Analysis implements Cloneable {
 
 	public Parameter findParameter(String type, String description) {
 		return parameters.stream().filter(parameter -> parameter.isMatch(type,description)).findAny().orElse(null);
+	}
+
+	public double getParameter(String name, double defaultValue) {
+		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue()).findAny().orElse(defaultValue);
 	}
 
 }
