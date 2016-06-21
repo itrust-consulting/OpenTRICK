@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,7 +30,11 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeDynamicParameters;
 import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
+import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -45,6 +51,7 @@ import lu.itrust.business.TS.model.api.basic.ApiRRF;
 import lu.itrust.business.TS.model.api.basic.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
+import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.RRF;
@@ -81,6 +88,18 @@ public class ControllerApi {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceCustomer serviceCustomer;
+
+	@Autowired
+	private ServiceAsset serviceAsset;
+
+	@Autowired
+	private ServiceScenario serviceScenario;
+
+	@Autowired
+	private ServiceStandard serviceStandard;
 
 	/**
 	 * Method is called whenever an exception of type TrickException is thrown
@@ -166,6 +185,52 @@ public class ControllerApi {
 		return new ApiResult(0);
 	}
 
+	@RequestMapping(value = "/customers", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	public @ResponseBody Object loadUserCustomer(Principal principal, Locale locale) throws Exception {
+		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream().map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
+				.collect(Collectors.toList());
+	}
+
+	@RequestMapping(value = "/analysis/all", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	public @ResponseBody Object loadAnalyses(@RequestParam(name = "customerId") Integer idCustomer, Principal principal, Locale locale) {
+		if (idCustomer == null)
+			throw new TrickException("error.custmer.null", "Customer id cannot be empty");
+		return serviceAnalysis.getIdentifierAndNameByUserAndCustomer(principal.getName(), idCustomer).stream().map(analysis -> new ApiNamable(analysis[0], analysis[1].toString()))
+				.collect(Collectors.toList());
+	}
+
+	@RequestMapping(value = "/analysis/versions", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	public @ResponseBody Object loadAnalysesVersion(@RequestParam(name = "customerId") Integer idCustomer, @RequestParam(name = "identifier") String identifier,
+			Principal principal, Locale locale) {
+		if (idCustomer == null)
+			throw new TrickException("error.custmer.null", "Customer id cannot be empty");
+		if (identifier == null)
+			throw new TrickException("error.analysis.identifier", "Identifier cannot be empty");
+		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), idCustomer);
+		if (customer == null)
+			throw new TrickException("error.custmer.not_found", "Customer cannot be found");
+		return serviceAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier, idCustomer, principal.getName()).stream()
+				.map(version -> new ApiNamable(version[0], version[1].toString())).collect(Collectors.toList());
+	}
+
+	@RequestMapping(value = "/analysis/{idAnalysis}/assets", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object loadAnalysisAssets(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
+		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> new ApiAsset(asset.getId(), asset.getName(), asset.getValue())).collect(Collectors.toList());
+	}
+
+	@RequestMapping(value = "/analysis/{idAnalysis}/scenarios", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object loadAnalysisScenarios(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
+		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> new ApiNamable(scenario.getId(), scenario.getName())).collect(Collectors.toList());
+	}
+
+	@RequestMapping(value = "/analysis/{idAnalysis}/standards", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
+		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getLabel())).collect(Collectors.toList());
+	}
+
 	/**
 	 * Load RRF for a set of measure
 	 * 
@@ -213,6 +278,6 @@ public class ControllerApi {
 			apiRRF.getStandards().add(apiStandard);
 		}
 		return apiRRF;
-	
+
 	}
 }

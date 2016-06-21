@@ -174,4 +174,21 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
 
+	/**
+	 * Only analysis user can export.
+	 * @param name
+	 * @param idCustomer
+	 * @return Object[2],  [0]=identifier, [1] = name
+	 */
+	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer);
+
+	/**
+	 * Only analysis user can export.
+	 * @param identifier
+	 * @param idCustomer
+	 * @param username
+	 * @return Object[2],  [0]=id, [1] = version
+	 */
+	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username);
+
 }

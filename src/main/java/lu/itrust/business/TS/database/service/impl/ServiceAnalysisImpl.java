@@ -674,4 +674,27 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public Analysis getByUsernameAndId(String username, Integer analysisId) {
 		return daoAnalysis.getByUsernameAndId(username, analysisId);
 	}
+
+	/**
+	 * Only analysis user can export.
+	 * @param name
+	 * @param idCustomer
+	 * @return Object[2],  [0]=identifier, [1] = name
+	 */
+	@Override
+	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer) {
+		return daoAnalysis.getIdentifierAndNameByUserAndCustomer(username,idCustomer);
+	}
+
+	/**
+	 * Only analysis user can export.
+	 * @param identifier
+	 * @param idCustomer
+	 * @param username
+	 * @return Object[2],  [0]=id, [1] = version
+	 */
+	@Override
+	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username) {
+		return daoAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier,idCustomer,username);
+	}
 }
