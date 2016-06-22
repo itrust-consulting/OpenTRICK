@@ -4,6 +4,7 @@
 	<parameter name="baseurl" value="http://localhost:8080" />
 	<parameter name="driver.type" value="REMOTE" />
 	<parameter name="driver.path" value="http://localhost:32768/wd/hub" />
+	<parameter name="debug" value="true" />
 	<test name="FirstInstallation">
 		<parameter name="username" value="deimos"></parameter>
 		<parameter name="password" value="Qwertz12"></parameter>
