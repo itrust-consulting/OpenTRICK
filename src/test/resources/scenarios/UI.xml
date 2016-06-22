@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+	<parameter name="baseurl" value="http://localhost:8080" />
+	<parameter name="driver.type" value="REMOTE" />
+	<parameter name="driver.path" value="http://localhost:32768/wd/hub" />
+	<test name="FirstInstallation">
+		<parameter name="username" value="deimos"></parameter>
+		<parameter name="password" value="Qwertz12"></parameter>
+		<parameter name="repeatPassword" value="Qwertz12"></parameter>
+		<parameter name="firstname" value="deimos"></parameter>
+		<parameter name="lastname" value="alpha"></parameter>
+		<parameter name="email" value="deimos@test.de"></parameter>
+		<parameter name="language" value="en"></parameter>
+		<groups>
+			<define name="FIRSTINSTALLATION">
+				<include name="registerFirst" />
+				<include name="loginFirst" />
+				<include name="firstInstallation" />
+			</define>
+			<run>
+				<include name="FIRSTINSTALLATION" />
+			</run>
+			<dependencies>
+				<group depends-on="registerFirst" name="loginFirst"></group>
+				<group depends-on="loginFirst" name="firstInstallation"></group>
+			</dependencies>
+		</groups>
+		<packages>
+			<package name="lu.itrust.TS.ui.*"></package>
+		</packages>
+	</test>
+
+	<test name="AdministrationSettingCheckIfItWorks">
+		<parameter name="username" value="deimos"></parameter>
+		<parameter name="password" value="Qwertz12"></parameter>
+
+		<groups>
+			<define name="TESTSETTINGS">
+				<include name="testToogleTicketsSetting" />
+				<include name="testToogleSignUpSetting" />
+				<include name="testChangeSettingsReset" />
+			</define>
+
+			<run>
+				<include name="TESTSETTINGS" />
+			</run>
+		</groups>
+		<packages>
+			<package name="lu.itrust.TS.ui.*"></package>
+		</packages>
+	</test>
+
+
+	<test name="CustomerAddEditDeleete">
+		<parameter name="username" value="deimos"></parameter>
+		<parameter name="password" value="Qwertz12"></parameter>
+
+		<parameter name="organisation" value="iTrust"></parameter>
+		<parameter name="contactPerson" value="mr tester"></parameter>
+		<parameter name="phoneNumber" value="1234"></parameter>
+		<parameter name="email" value="tes.t@ya.de"></parameter>
+		<parameter name="ZIPCode" value="d"></parameter>
+		<parameter name="city" value="gf"></parameter>
+		<parameter name="country" value="d"></parameter>
+		<parameter name="address" value="12 route"></parameter>
+
+		<parameter name="editOrganisation" value="iTrusta"></parameter>
+		<parameter name="editContactPerson" value="mr testera"></parameter>
+		<parameter name="editPhoneNumber" value="1234"></parameter>
+		<parameter name="editEmail" value="tes.t@ya.de"></parameter>
+		<parameter name="editZIPCode" value="d"></parameter>
+		<parameter name="editCity" value="gf"></parameter>
+		<parameter name="editCountry" value="d"></parameter>
+		<parameter name="editAddress" value="12 route"></parameter>
+
+		<groups>
+			<define name="CUSTOMERADDEDITDELETE">
+				<include name="login" />
+				<include name="customerAddEditDelete" />
+			</define>
+
+			<run>
+				<include name="CUSTOMERADDEDITDELETE" />
+			</run>
+			<dependencies>
+				<group depends-on="login" name="customerAddEditDelete"></group>
+			</dependencies>
+		</groups>
+		<packages>
+			<package name="lu.itrust.TS.ui.*"></package>
+		</packages>
+
+	</test>
+
+
+
+	<test name="LanguageAddEditDeleete">
+		<parameter name="username" value="deimos"></parameter>
+		<parameter name="password" value="Qwertz12"></parameter>
+
+		<parameter name="alpha3" value="GER"></parameter>
+		<parameter name="name" value="German"></parameter>
+		<parameter name="altName" value="Deutsch"></parameter>
+
+		<parameter name="editAlpha3" value="JPS"></parameter>
+		<parameter name="editName" value="Japanese"></parameter>
+		<parameter name="editAltName" value="Nippon"></parameter>
+
+		<groups>
+			<define name="LANGUAGEADDEDITDELETE">
+				<include name="login" />
+				<include name="languageAddEditDelete" />
+			</define>
+
+			<run>
+				<include name="LANGUAGEADDEDITDELETE" />
+			</run>
+			<dependencies>
+				<group depends-on="login" name="languageAddEditDelete"></group>
+			</dependencies>
+		</groups>
+		<packages>
+			<package name="lu.itrust.TS.ui.*"></package>
+		</packages>
+
+	</test>
+
+
+
+	<test name="MeasuresAddEditDelete">
+		<parameter name="username" value="deimos"></parameter>
+		<parameter name="password" value="Qwertz12"></parameter>
+
+		<parameter name="label" value="Test"></parameter>
+		<parameter name="version" value="1"></parameter>
+		<parameter name="description" value="This is a test!"></parameter>
+		<parameter name="isComputable" value="True"></parameter>
+		<parameter name="standardTypeValue" value="NORMAL"></parameter>
+
+
+		<parameter name="reference" value="Test"></parameter>
+		<parameter name="level" value="1"></parameter>
+		<parameter name="computable" value="True"></parameter>
+		<parameter name="domain" value="Test"></parameter>
+		<parameter name="measureDescription" value="Testa"></parameter>
+
+		<parameter name="editReference" value="Testa"></parameter>
+		<parameter name="editLevel" value="1"></parameter>
+		<parameter name="editComputable" value="This is a testa!"></parameter>
+		<parameter name="editDomain" value="a"></parameter>
+		<parameter name="editMeasureDescription" value="asasasdds"></parameter>
+
+
+		<groups>
+			<define name="MEASURESADDEDITDELETE">
+				<include name="login" />
+				<include name="addStandard" />
+				<include name="testMeasures" />
+			</define>
+			<run>
+				<include name="MEASURESADDEDITDELETE" />
+			</run>
+			<dependencies>
+				<group depends-on="login" name="addStandard"></group>
+				<group depends-on="addStandard" name="testMeasures"></group>
+			</dependencies>
+		</groups>
+		<packages>
+			<package name="lu.itrust.TS.ui.*"></package>
+		</packages>
+	</test>
+
+	<test name="AnalysisProfiles" parallel="false" thread-count="1">
+		<parameter name="username" value="deimos"></parameter>
+		<parameter name="password" value="Qwertz12"></parameter>
+
+		<groups>
+			<define name="ANALYSEPROFILE">
+				<include name="login" />
+				<include name="analyseProfile" />
+			</define>
+			<run>
+				<include name="ANALYSEPROFILE" />
+			</run>
+			<dependencies>
+				<group depends-on="login" name="analyseProfile"></group>
+			</dependencies>
+		</groups>
+		<packages>
+			<package name="lu.itrust.TS.ui.*"></package>
+		</packages>
+	</test>
+
+	<test name="Analyse">
+		<parameter name="username" value="deimos"></parameter>
+		<parameter name="password" value="Qwertz12"></parameter>
+
+
+
+		<groups>
+			<define name="ANALYSE">
+				<include name="login" />
+				<include name="analyse" />
+			</define>
+			<run>
+				<include name="ANALYSE" />
+			</run>
+			<dependencies>
+				<group depends-on="login" name="analyse"></group>
+			</dependencies>
+		</groups>
+		<packages>
+			<package name="lu.itrust.TS.ui.*"></package>
+		</packages>
+	</test>
+</suite>
+
