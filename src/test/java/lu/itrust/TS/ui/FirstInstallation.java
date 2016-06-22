@@ -9,7 +9,7 @@ public class FirstInstallation extends BaseUnitTesting {
 	@Test(groups = { "firstInstallation" })
 	public void firstInstallation() throws Exception {
 		// reinstall trickservice
-		click(By.xpath("//a[@href='/trickservice/Admin']"));
+		click(By.xpath("//a[@href='/Admin']"));
 		click(By.xpath("//a[@onclick='return installTrickService();']"));
 
 		Thread.sleep(1500);
