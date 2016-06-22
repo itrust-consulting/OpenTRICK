@@ -65,8 +65,8 @@ public class BaseUnitTesting {
 	@BeforeTest(alwaysRun = true)
 	@AfterSuite(alwaysRun = true)
 	public void closeDriver() throws InterruptedException {
-		if (driverType != null)
-			DriverBuilder.getInstanceDriver(driverType).close();
+		/*if (driverType != null)
+			DriverBuilder.getInstanceDriver(driverType).close();*/
 	}
 
 	@AfterMethod(alwaysRun = true)
