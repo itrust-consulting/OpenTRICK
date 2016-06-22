@@ -93,6 +93,8 @@ public class ActionPlanComputation {
 
 	private MessageSource messageSource;
 
+	private double soa = 100;
+
 	private MaintenanceRecurrentInvestment preImplementedMeasures;
 
 	private List<Phase> phases = new ArrayList<Phase>();
@@ -352,6 +354,8 @@ public class ActionPlanComputation {
 			parameterInternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
 			parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+
+			soa = this.analysis.getParameter(Constant.SOA_THRESHOLD, 100);
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -2663,7 +2667,6 @@ public class ActionPlanComputation {
 		tmpval.measureCount = 0;
 		tmpval.relativeROSI = 0;
 		tmpval.ROSI = 0;
-		// tmpval.totalALE = 0;
 		tmpval.totalCost = 0;
 	}
 
@@ -2822,6 +2825,9 @@ public class ActionPlanComputation {
 			isFirstValidPhase = START_P0.equals(tmpval.previousStage.getStage());
 		} else
 			tmpval.measureCount = 0;
+		
+		tmpval.notCompliantMeasure27001Count = 0;
+		tmpval.notCompliantMeasure27002Count = 0;
 
 		for (String key : tmpval.conformanceHelper.keySet()) {
 
@@ -2841,6 +2847,17 @@ public class ActionPlanComputation {
 						tmpval.measureCount++;
 					}
 					denominator++;
+					if (imprate < soa && measure.getPhase().getNumber() > phasenumber && measure instanceof NormalMeasure) {
+						switch (helper.standard.getStandard().getLabel()) {
+						case Constant.STANDARD_27001:
+							tmpval.notCompliantMeasure27001Count++;
+							break;
+						case Constant.STANDARD_27002:
+							tmpval.notCompliantMeasure27002Count++;
+							break;
+						}
+					}
+
 				}
 			}
 
@@ -2883,7 +2900,6 @@ public class ActionPlanComputation {
 			aStage.setMeasureCount(tmpval.measureCount);
 		aStage.setImplementedMeasuresCount(tmpval.implementedCount);
 		aStage.setTotalALE(tmpval.totalALE);
-
 		aStage.setDeltaALE(tmpval.deltaALE);
 		aStage.setCostOfMeasures(tmpval.measureCost);
 		aStage.setROSI(tmpval.ROSI);
@@ -2891,6 +2907,8 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
+		aStage.setNotCompliantMeasure27001Count(tmpval.notCompliantMeasure27001Count);
+		aStage.setNotCompliantMeasure27002Count(tmpval.notCompliantMeasure27002Count);
 
 		if (isFirstValidPhase) {
 			aStage.setInternalMaintenance((preImplementedMeasures.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime);

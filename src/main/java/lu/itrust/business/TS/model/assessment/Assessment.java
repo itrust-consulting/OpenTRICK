@@ -61,7 +61,7 @@ public class Assessment implements Cloneable {
 	private String hiddenComment = "";
 
 	/** hidden assessment comment */
-	@Column(name = "dtOwner", nullable = false)
+	@Column(name = "dtOwner")
 	private String owner = "";
 
 	/** The impactFin value of this assessment */

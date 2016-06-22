@@ -9,8 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Hibernate;
-
 import lu.itrust.business.TS.model.actionplan.ActionPlanType;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
@@ -40,6 +38,8 @@ public class ActionPlanSummaryManager {
 	public static final String LABEL_PROFITABILITY = "label.profitability";
 	public static final String LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED = "label.characteristic.count.measure.implemented";
 	public static final String LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE = "label.characteristic.count.measure.phase";
+	public static final String LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27001 = "label.characteristic.count.not_compliant_measure_27001";
+	public static final String LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27002 = "label.characteristic.count.not_compliant_measure_27002";
 	public static final String LABEL_CHARACTERISTIC_COMPLIANCE = "label.characteristic.compliance";
 	public static final String LABEL_PHASE_END_DATE = "label.phase.end.date";
 	public static final String LABEL_PHASE_BEGIN_DATE = "label.phase.begin.date";
@@ -61,7 +61,6 @@ public class ActionPlanSummaryManager {
 		phaseStages.put("Start(P0)", tmpphase);
 
 		for (Phase phase : phases) {
-			Hibernate.initialize(phase);
 			String stage = "Phase " + phase.getNumber();
 			if (extractedPhases.contains(stage))
 				phaseStages.put(stage, phase);
@@ -147,6 +146,12 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 			summary.add(index, summaryStage.getImplementedMeasuresCount() + "");
+			
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27001);
+			summary.add(index, summaryStage.getNotCompliantMeasure27001Count() + "");
+			
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27002);
+			summary.add(index, summaryStage.getNotCompliantMeasure27002Count() + "");
 
 			summary = summaries.get(LABEL_PROFITABILITY_ALE_UNTIL_END);
 			summary.add(index, Math.floor(summaryStage.getTotalALE() * 0.001) + "");
@@ -249,9 +254,15 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 			summary.add(index, summaryStage.getMeasureCount());
-
+			
 			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 			summary.add(index, summaryStage.getImplementedMeasuresCount());
+			
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27001);
+			summary.add(index, summaryStage.getNotCompliantMeasure27001Count());
+			
+			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27002);
+			summary.add(index, summaryStage.getNotCompliantMeasure27002Count());
 
 			summary = summaries.get(LABEL_PROFITABILITY_ALE_UNTIL_END);
 			summary.add(index, summaryStage.getTotalALE());
@@ -299,17 +310,10 @@ public class ActionPlanSummaryManager {
 	}
 
 	public static Map<ActionPlanType, Map<String, Map<Integer, Object>>> getRows(List<SummaryStage> summaryStages, List<Phase> phases) {
-
 		Map<ActionPlanType, Map<String, Map<Integer, Object>>> result = new LinkedHashMap<ActionPlanType, Map<String, Map<Integer, Object>>>();
-
 		Map<ActionPlanType, List<SummaryStage>> summariesByActionPlanType = SplitByActionPlanType(summaryStages);
-
-		for (ActionPlanType apt : summariesByActionPlanType.keySet()) {
-
+		for (ActionPlanType apt : summariesByActionPlanType.keySet())
 			result.put(apt, generateRowsForActionPlanType(summariesByActionPlanType.get(apt), phases));
-
-		}
-
 		return result;
 	}
 
@@ -354,6 +358,8 @@ public class ActionPlanSummaryManager {
 			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
+		rows.add(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27001);
+		rows.add(LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27002);
 		rows.add(LABEL_PROFITABILITY);
 		rows.add(LABEL_PROFITABILITY_ALE_UNTIL_END);
 		rows.add(LABEL_PROFITABILITY_RISK_REDUCTION);
@@ -429,6 +435,12 @@ public class ActionPlanSummaryManager {
 			break;
 		case LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED:
 			value.put(colnumber, stage.getImplementedMeasuresCount());
+			break;
+		case LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27001:
+			value.put(colnumber, stage.getNotCompliantMeasure27001Count());
+			break;
+		case LABEL_CHARACTERISTIC_COUNT_NOT_COMPLIANT_MEASURE_27002:
+			value.put(colnumber, stage.getNotCompliantMeasure27002Count());
 			break;
 		case LABEL_PROFITABILITY:
 			value.put(colnumber, null);

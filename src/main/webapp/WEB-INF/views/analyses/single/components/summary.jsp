@@ -51,6 +51,8 @@
 						<c:set var="enddates" value="${summaryStages.get('label.phase.end.date')}"></c:set>
 						<c:set var="measurecounts" value="${summaryStages.get('label.characteristic.count.measure.phase')}"></c:set>
 						<c:set var="implementedcounts" value="${summaryStages.get('label.characteristic.count.measure.implemented')}"></c:set>
+						<c:set var="nonCompliantMeasure27001" value="${summaryStages.get('label.characteristic.count.not_compliant_measure_27001')}"></c:set>
+						<c:set var="nonCompliantMeasure27002" value="${summaryStages.get('label.characteristic.count.not_compliant_measure_27002')}"></c:set>
 						<c:set var="totalales" value="${summaryStages.get('label.profitability.ale.until.end')}"></c:set>
 						<c:set var="deltaales" value="${summaryStages.get('label.profitability.risk.reduction')}"></c:set>
 						<c:set var="costOfMeasures" value="${summaryStages.get('label.profitability.average_yearly_cost_of_phase')}"></c:set>
@@ -91,6 +93,24 @@
 								</tr>
 							</c:if>
 						</c:forEach>
+						
+						<tr>
+							<td><spring:message code="label.characteristic.count.not_compliant_measure_27001" /></td>
+							<c:forEach var="i" begin="0" end="${columncount-1}">
+								<fmt:formatNumber value="${nonCompliantMeasure27001[i]}" maxFractionDigits="0" var="value" />
+								<td class="text-right"><spring:message text="${value}" /></td>
+							</c:forEach>
+						</tr>
+						
+						
+						<tr>
+							<td><spring:message code="label.characteristic.count.not_compliant_measure_27002" /></td>
+							<c:forEach var="i" begin="0" end="${columncount-1}">
+								<fmt:formatNumber value="${nonCompliantMeasure27002[i]}" maxFractionDigits="0" var="value" />
+								<td class="text-right"><spring:message text="${value}" /></td>
+							</c:forEach>
+						</tr>
+						
 						<tr>
 							<td><spring:message code="label.characteristic.count.measure.phase" /></td>
 							<c:forEach var="i" begin="0" end="${columncount-1}">
@@ -105,6 +125,7 @@
 								<td class="text-right"><spring:message text="${value}" /></td>
 							</c:forEach>
 						</tr>
+				
 						<tr class="active">
 							<td colspan="${columncount+5}">1. <spring:message code="label.profitability" /></td>
 						</tr>

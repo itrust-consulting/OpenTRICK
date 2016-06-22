@@ -3,15 +3,14 @@
  */
 package lu.itrust.business.TS.model.cssf.helper;
 
-import java.util.Comparator;
-
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 
 /**
  * @author eomar
  *
  */
-public class RiskRegisterExportComparator implements Comparator<RiskProfile> {
+public class RiskSheetExportComparator implements NaturalOrderComparator<RiskProfile> {
 
 	@Override
 	public int compare(RiskProfile o1, RiskProfile o2) {
@@ -21,6 +20,6 @@ public class RiskRegisterExportComparator implements Comparator<RiskProfile> {
 			return -1;
 		} else if (o2.getIdentifier() == null)
 			return 1;
-		return o1.getIdentifier().compareTo(o2.getIdentifier());
+		return compareTo(o1.getIdentifier(), o2.getIdentifier());
 	}
 }
