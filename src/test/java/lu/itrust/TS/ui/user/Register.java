@@ -28,7 +28,7 @@ public class Register extends BaseUnitTesting {
 
 		new Select(findElement(By.id("locale"))).selectByValue(language);
 		click(By.cssSelector("button.btn.btn-primary"));
-
+		Thread.sleep(1000);
 		assert !isElementPresent(By.cssSelector("label.label.label-danger"));
 		assert isElementPresent(By.id("login_form"));
 		assert isElementPresent(By.id("success"));

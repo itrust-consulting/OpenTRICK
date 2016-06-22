@@ -32,7 +32,7 @@
 		</packages>
 	</test>
 
-	<test name="AdministrationSettingCheckIfItWorks">
+	<!-- <test name="AdministrationSettingCheckIfItWorks">
 		<parameter name="username" value="deimos"></parameter>
 		<parameter name="password" value="Qwertz12"></parameter>
 
@@ -214,6 +214,6 @@
 		<packages>
 			<package name="lu.itrust.TS.ui.*"></package>
 		</packages>
-	</test>
+	</test> -->
 </suite>
 
