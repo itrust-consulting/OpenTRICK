@@ -118,7 +118,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		assertFalse((String) mvcResult.getFlashMap().get("error"), mvcResult.getFlashMap().containsKey("error"));
 		Worker worker = null;
 
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
@@ -129,7 +129,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 				}
 			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}
@@ -165,7 +165,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 						post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 								.content(String.format("{\"id\":%d}", idAnalysis))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
@@ -176,7 +176,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 				}
 			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}
@@ -195,7 +195,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 						post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis)
 								.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
@@ -206,7 +206,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 				}
 			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}
@@ -358,7 +358,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		this.mockMvc.perform(get("/Analysis/Export/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
@@ -369,7 +369,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 				}
 			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}
@@ -415,7 +415,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		this.mockMvc.perform(get("/Analysis/Export/Report/" + idAnalysis).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
@@ -426,7 +426,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 				}
 			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}
