@@ -3,7 +3,6 @@ package lu.itrust.TS.ui.driver;
 public class DriverBuilder {
 
 	public static Driver getInstanceDriver(DriverType type) {
-		System.out.println(type);
 		switch (type) {
 		case LOCAL:
 			return LocalDriver.getInstance();

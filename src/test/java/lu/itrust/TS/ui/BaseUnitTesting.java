@@ -72,19 +72,18 @@ public class BaseUnitTesting {
 	@AfterMethod(alwaysRun = true)
 	public void screenshot(ITestResult testResult) throws IOException, InterruptedException {
 		if ((testResult.getStatus() == ITestResult.FAILURE) || (testResult.getStatus() == ITestResult.SKIP)) {
-
 			if (debug) {
 				File scrFile = ((TakesScreenshot) getDriver()).getScreenshotAs(OutputType.FILE);
-				String failureImageFileName = new SimpleDateFormat("MM-dd-yyyy_HH-ss")
-						.format(new GregorianCalendar().getTime()) + ".png";
-				String destDir = System.getProperty("user.dir") + "/" + "test-output/screenshots/"
-						+ testResult.getMethod().getMethodName();
+				String failureImageFileName = new SimpleDateFormat("MM-dd-yyyy_HH-ss").format(new GregorianCalendar().getTime()) + ".png";
+				String destDir = System.getProperty("user.dir") + "/target/surefire-reports/screenshots/" + testResult.getMethod().getMethodName();
 				new File(destDir).mkdirs();
 				Files.copy(scrFile, new File(destDir + "/" + failureImageFileName));
 			}
-			
 			closeDriver();
 		}
+
+		System.out.println(
+				String.format("Class : %s, test: %s, status: %s", testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(), testResult.getStatus()));
 	}
 
 	@AfterClass(alwaysRun = true)
@@ -290,7 +289,5 @@ public class BaseUnitTesting {
 	public boolean isDebug() {
 		return debug;
 	}
-	
-	
 
 }
