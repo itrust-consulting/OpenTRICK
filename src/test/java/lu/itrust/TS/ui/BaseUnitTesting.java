@@ -65,8 +65,8 @@ public class BaseUnitTesting {
 	@BeforeTest(alwaysRun = true)
 	@AfterSuite(alwaysRun = true)
 	public void closeDriver() throws InterruptedException {
-		/*if (driverType != null)
-			DriverBuilder.getInstanceDriver(driverType).close();*/
+		if (driverType != null)
+			DriverBuilder.getInstanceDriver(driverType).close();
 	}
 
 	@AfterMethod(alwaysRun = true)
@@ -82,10 +82,12 @@ public class BaseUnitTesting {
 			closeDriver();
 		}
 
-		System.out.println(String.format("Class : %s, test: %s, status: %s", testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(),
-				testResult.getStatus() == ITestResult.SUCCESS ? "SUCCESS"
-						: testResult.getStatus() == ITestResult.FAILURE ? "FAILURE"
-								: testResult.getStatus() == ITestResult.SKIP ? "SKIP" : testResult.getStatus() == ITestResult.STARTED ? "STARTED" : "SUCCESS_PERCENTAGE_FAILURE"));
+		if (debug)
+			System.out.println(String.format("Class : %s, test: %s, status: %s", testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(),
+					testResult.getStatus() == ITestResult.SUCCESS ? "SUCCESS"
+							: testResult.getStatus() == ITestResult.FAILURE ? "FAILURE"
+									: testResult.getStatus() == ITestResult.SKIP ? "SKIP"
+											: testResult.getStatus() == ITestResult.STARTED ? "STARTED" : "SUCCESS_PERCENTAGE_FAILURE"));
 	}
 
 	@AfterClass(alwaysRun = true)

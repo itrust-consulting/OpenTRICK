@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Suite">
-	<parameter name="baseurl" value="http://ts:8080" />
+	<parameter name="baseurl" value="http://localhost:8080" />
 	<parameter name="driver.type" value="REMOTE" />
 	<parameter name="driver.path" value="http://localhost:32768/wd/hub" />
 	<parameter name="debug" value="true" />
@@ -32,7 +32,7 @@
 		</packages>
 	</test>
 
-	<!-- <test name="AdministrationSettingCheckIfItWorks">
+	<test name="AdministrationSettingCheckIfItWorks">
 		<parameter name="username" value="deimos"></parameter>
 		<parameter name="password" value="Qwertz12"></parameter>
 
@@ -214,6 +214,6 @@
 		<packages>
 			<package name="lu.itrust.TS.ui.*"></package>
 		</packages>
-	</test> -->
+	</test>
 </suite>
 
