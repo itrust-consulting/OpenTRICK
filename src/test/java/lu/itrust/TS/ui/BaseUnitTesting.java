@@ -82,8 +82,10 @@ public class BaseUnitTesting {
 			closeDriver();
 		}
 
-		System.out.println(
-				String.format("Class : %s, test: %s, status: %s", testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(), testResult.getStatus()));
+		System.out.println(String.format("Class : %s, test: %s, status: %s", testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(),
+				testResult.getStatus() == ITestResult.SUCCESS ? "SUCCESS"
+						: testResult.getStatus() == ITestResult.FAILURE ? "FAILURE"
+								: testResult.getStatus() == ITestResult.SKIP ? "SKIP" : testResult.getStatus() == ITestResult.STARTED ? "STARTED" : "SUCCESS_PERCENTAGE_FAILURE"));
 	}
 
 	@AfterClass(alwaysRun = true)
