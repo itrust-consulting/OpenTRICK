@@ -294,6 +294,14 @@
 			<version>1.7.7</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.2</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- Unit testing -->
 
@@ -360,6 +368,8 @@
 			<version>2.53.0</version>
 			<scope>test</scope>
 		</dependency>
+		
+		
 
 	</dependencies>
 	<name>trickservice</name>
