@@ -60,6 +60,13 @@
 					<div class="input-group" align="right">
 						<spring:message text="${assessment.likelihood}" var="likelihood" />
 						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name="probaScale">${probaUnit}</button></span>
+						<input name="likelihood" class="form-control" value="${likelihood}" list="likelihoodList" placeholder="${likelihood}" data-trick-type='string'>
+						<datalist id="likelihoodList">
+							<c:forEach items="${probabilities}" var="parameter">
+								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" />${probaUnit}"><spring:message text="${parameter.acronym}" /></option>
+							</c:forEach>
+						</datalist>
+						<!--
 						<select class="form-control" name="likelihood" data-trick-type='string' data-trick-value='${likelihood}'>
 							<option value="NA" title='0 ${probaUnit}'><spring:message code="label.na" text="NA" /></option>
 							<c:forEach items="${probabilities}" var="parameter">
@@ -67,6 +74,7 @@
 									title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" />${probaUnit}">${parameter.acronym}</option>
 							</c:forEach>
 						</select>
+						-->
 					</div>
 				</td>
 				<spring:message text="${assessment.owner}" var="owner" />

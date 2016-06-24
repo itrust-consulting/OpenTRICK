@@ -119,7 +119,7 @@
 					<thead>
 						<tr>
 							<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
-							<th class="textaligncenter"><spring:message code="label.parameter.value" /> <spring:message code="label.assessment.likelihood.unit" /></th>
+							<th class="textaligncenter"><spring:message code="label.parameter.value" /></th>
 						</tr>
 					</thead>
 					<tbody>

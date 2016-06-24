@@ -1176,14 +1176,7 @@ public class ChartGenerator {
 				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
 
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter
-																						// returns
-																						// -1
-																						// in
-																						// case
-																						// of
-																						// a
-																						// failure
+		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter returns -1 in case of a failure
 
 		// Determine time-related stuff
 		final long timeUpperBound = Instant.now().getEpochSecond();
@@ -1235,15 +1228,15 @@ public class ChartGenerator {
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
 		// Build JSON data
-		final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale);
+		//final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale); // use with JSONObject.escape(unitPerYear)
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
 		final String jsonTitle = "\"title\": {\"text\":\""
 				+ JSONObject.escape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
 		final String jsonPane = "\"pane\": {\"size\": \"100%\"}";
 		final String jsonLegend = "\"legend\": {\"align\": \"right\", \"verticalAlign\": \"top\", \"y\": 70, \"layout\": \"vertical\"}";
 		final String jsonPlotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}}";
-		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + JSONObject.escape(unitPerYear) + "\",\"useHTML\": true}, \"title\": {\"text\":\""
-				+ JSONObject.escape(messageSource.getMessage("label.assessment.likelihood", null, "Pro. (/y)", locale)) + "\"}}]";
+		final String jsonYAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value}\",\"useHTML\": true}, \"title\": {\"text\":\""
+				+ JSONObject.escape(messageSource.getMessage("label.parameter.value", null, "Value", locale)) + "\"}}]";
 		final String jsonXAxis = "\"xAxis\":{\"categories\":[" + jsonXAxisValues + "], \"labels\":{\"rotation\":-90}}";
 
 		return ("{" + jsonChart + "," + jsonTitle + "," + jsonLegend + "," + jsonPane + "," + jsonPlotOptions + "," + jsonXAxis + "," + jsonYAxis + "," + jsonSeries + ", "
