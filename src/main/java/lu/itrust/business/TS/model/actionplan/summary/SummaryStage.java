@@ -70,7 +70,15 @@ public class SummaryStage {
 	/** Number of Implemented Measures in this Stage */
 	@Column(name = "dtImplementedMeasureCount", nullable = false)
 	private int implementedMeasuresCount = 0;
-
+	
+	/** Number of no compliant measure 27001 */
+	@Column(name = "dtNotCompliantMeasure27001Count", nullable = false)
+	private int notCompliantMeasure27001Count = 0;
+	
+	/** Number of no compliant measure 27002 */
+	@Column(name = "dtNotCompliantMeasure27002Count", nullable = false)
+	private int notCompliantMeasure27002Count = 0;
+	
 	/** Total ALE for this Stage */
 	@Column(name = "dtCurrentTotalALE", nullable = false)
 	private double totalALE = 0;
@@ -637,5 +645,33 @@ public class SummaryStage {
 
 	public void setImplementCostOfPhase(double implementCostOfPhase) {
 		this.implementCostOfPhase = implementCostOfPhase;
+	}
+
+	/**
+	 * @return the notCompliantMeasure27002Count
+	 */
+	public int getNotCompliantMeasure27002Count() {
+		return notCompliantMeasure27002Count;
+	}
+
+	/**
+	 * @param notCompliantMeasure27002Count the notCompliantMeasure27002Count to set
+	 */
+	public void setNotCompliantMeasure27002Count(int notCompliantMeasure27002Count) {
+		this.notCompliantMeasure27002Count = notCompliantMeasure27002Count;
+	}
+
+	/**
+	 * @return the notCompliantMeasure27001Count
+	 */
+	public int getNotCompliantMeasure27001Count() {
+		return notCompliantMeasure27001Count;
+	}
+
+	/**
+	 * @param notCompliantMeasure27001Count the notCompliantMeasure27001Count to set
+	 */
+	public void setNotCompliantMeasure27001Count(int notCompliantMeasure27001Count) {
+		this.notCompliantMeasure27001Count = notCompliantMeasure27001Count;
 	}
 }

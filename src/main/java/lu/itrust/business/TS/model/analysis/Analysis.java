@@ -78,7 +78,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * </ul>
  * 
  * 
- * @author itrust consulting s.a r.l. - SME,BJA,SMU
+ * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
@@ -739,7 +739,7 @@ public class Analysis implements Cloneable {
 	 *         was not found
 	 */
 	public double getParameter(String name) {
-		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue()).findAny().orElse(-1.0);
+		return getParameter(name, -1D);
 	}
 
 	/**
@@ -1096,28 +1096,6 @@ public class Analysis implements Cloneable {
 	 */
 	public List<Parameter> getParameters() {
 		return parameters;
-	}
-
-	/**
-	 * Gets the list of all parameters that shall be taken into consideration
-	 * whenever an expression (e.g. for likelihood) is evaluated.
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
-	 */
-	public List<AcronymParameter> getExpressionParameters() {
-		// We assume that all parameters that have an acronym can be used in an
-		// expression
-		// Maybe we want to change this in the future (checking parameter.type);
-		// then this is the place to act.
-		// In that case, we must update
-		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
-		// so in particular
-		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
-		List<AcronymParameter> expressionParameters = new ArrayList<>();
-		for (Parameter parameter : this.parameters)
-			if (parameter instanceof AcronymParameter)
-				expressionParameters.add((AcronymParameter) parameter);
-		return expressionParameters;
 	}
 
 	/**
@@ -2012,23 +1990,6 @@ public class Analysis implements Cloneable {
 		return extendedParameters;
 	}
 
-	/**
-	 * Gets a list of all parameters that are considered to be used as variable
-	 * when evaluating an arithmetic expression. The parameter acronym is then
-	 * replaced by the value of the respective parameter.
-	 * 
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @since Jun 10, 2015
-	 */
-	public List<AcronymParameter> findExpressionParametersByAnalysis() {
-		List<AcronymParameter> acronymParameters = new ArrayList<>();
-		for (Parameter parameter : parameters) {
-			if (parameter instanceof AcronymParameter)
-				acronymParameters.add((AcronymParameter) parameter);
-		}
-		return acronymParameters;
-	}
-
 	public Map<Integer, List<Assessment>> findAssessmentByAssetAndSelected() {
 		Map<Integer, List<Assessment>> assessmentSorted = new LinkedHashMap<Integer, List<Assessment>>();
 		for (Assessment assessment : assessments) {
@@ -2503,11 +2464,6 @@ public class Analysis implements Cloneable {
 		return this.assets.stream().filter(asset -> !asset.isSelected()).collect(Collectors.toList());
 	}
 
-	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
-		return parameters.stream().filter(parameter -> parameter instanceof DynamicParameter)
-				.collect(Collectors.toMap(parameter -> ((DynamicParameter) parameter).getAcronym(), parameter -> (DynamicParameter) parameter));
-	}
-
 	public List<Assessment> removeAssessment(Asset asset) {
 		List<Assessment> assessments = new LinkedList<Assessment>();
 		this.assessments.removeIf(assessment -> assessment.getAsset().equals(asset) && assessments.add(assessment));
@@ -2518,10 +2474,6 @@ public class Analysis implements Cloneable {
 		List<Assessment> assessments = new LinkedList<Assessment>();
 		this.assessments.removeIf(assessment -> assessment.getScenario().equals(scenario) && assessments.add(assessment));
 		return assessments;
-	}
-
-	public Parameter findParameterByTypeAndDescription(String typeLabel, String description) {
-		return parameters.stream().filter(p -> p.getType().getLabel().equals(typeLabel) && p.getDescription().equals(description)).findAny().orElse(null);
 	}
 
 	public List<AssetType> distinctAssetType() {
@@ -2691,11 +2643,63 @@ public class Analysis implements Cloneable {
 		return parameters.stream().filter(parameter -> parameter.isMatch(type,description)).findAny().orElse(null);
 	}
 
+	public double getParameter(String name, double defaultValue) {
+		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue()).findAny().orElse(defaultValue);
+	}
+
+	/**
+	 * Gets the list of all parameters that shall be taken into consideration
+	 * whenever an expression (e.g. for likelihood) is evaluated.
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
+	 */
+	public List<AcronymParameter> getExpressionParameters() {
+		// We assume that all parameters that have an acronym can be used in an
+		// expression
+		// Maybe we want to change this in the future (checking parameter.type);
+		// then this is the place to act.
+		// In that case, we must update
+		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
+		// so in particular
+		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
+		List<AcronymParameter> expressionParameters = new ArrayList<>();
+		for (Parameter parameter : this.parameters)
+			if (parameter instanceof AcronymParameter)
+				expressionParameters.add((AcronymParameter) parameter);
+		return expressionParameters;
+	}
+
+	/**
+	 * Gets a list of all parameters that are considered to be used as variable
+	 * when evaluating an arithmetic expression. The parameter acronym is then
+	 * replaced by the value of the respective parameter.
+	 * 
+	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @since Jun 10, 2015
+	 */
+	public List<AcronymParameter> findExpressionParametersByAnalysis() {
+		List<AcronymParameter> acronymParameters = new ArrayList<>();
+		for (Parameter parameter : parameters) {
+			if (parameter instanceof AcronymParameter)
+				acronymParameters.add((AcronymParameter) parameter);
+		}
+		return acronymParameters;
+	}
+
+	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
+		return parameters.stream().filter(parameter -> parameter instanceof DynamicParameter)
+				.collect(Collectors.toMap(parameter -> ((DynamicParameter) parameter).getAcronym(), parameter -> (DynamicParameter) parameter));
+	}
+
 	public Map<String, AcronymParameter> mapExpressionParametersByAcronym() {
 		return parameters.stream()
 				.filter(parameter -> parameter instanceof AcronymParameter)
 				.map(parameter -> (AcronymParameter) parameter)
 				.collect(Collectors.toMap(AcronymParameter::getAcronym, Function.identity()));
+	}
+
+	public Parameter findParameterByTypeAndDescription(String typeLabel, String description) {
+		return parameters.stream().filter(p -> p.getType().getLabel().equals(typeLabel) && p.getDescription().equals(description)).findAny().orElse(null);
 	}
 
 	public boolean isUserAuthorized(String username, AnalysisRight right) {

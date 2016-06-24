@@ -48,6 +48,7 @@ import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
+import lu.itrust.business.TS.model.cssf.helper.RiskSheetExportComparator;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
@@ -225,6 +226,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 				}
 			} else
 				analysis.getRiskRegisters().forEach(current -> riskProfiles.add(riskProfilesMap.get(RiskProfile.key(current.getAsset(), current.getScenario()))));
+			
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
@@ -242,6 +244,7 @@ public class WorkerExportRiskSheet extends WorkerImpl implements Worker {
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
 			size = riskProfiles.size();
 			boolean isFirst = true;
+			riskProfiles.sort(new RiskSheetExportComparator());
 			for (RiskProfile riskProfile : riskProfiles) {
 				Assessment assessment = assessments.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()));
 				if (assessment == null)
