@@ -169,7 +169,7 @@ public class ControllerAnalysisStandard {
 			return null;
 
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-	
+
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
 		List<Standard> standards = new ArrayList<Standard>();
@@ -309,7 +309,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
-		model.addAttribute("isEditable",!OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
@@ -699,7 +699,7 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			
+
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
@@ -1013,6 +1013,41 @@ public class ControllerAnalysisStandard {
 		}
 		return "analyses/single/components/standards/measure";
 
+	}
+
+	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateCost(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		Iterator<Parameter> iterator = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
+		while (iterator.hasNext()) {
+			Parameter parameter = iterator.next();
+			switch (parameter.getDescription()) {
+			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
+				internalSetupValue = parameter.getValue();
+				break;
+			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
+				externalSetupValue = parameter.getValue();
+				break;
+			case Constant.PARAMETER_LIFETIME_DEFAULT:
+				lifetimeDefault = parameter.getValue();
+				break;
+			}
+		}
+		updateMeasureCost(externalSetupValue, internalSetupValue, lifetimeDefault, analysis);
+		serviceAnalysis.saveOrUpdate(analysis);
+		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null, "Measure cost has been successfully updated", locale));
+	}
+
+	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault, Analysis analysis) {
+		analysis.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
+			double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+					measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+			measure.setCost(cost >= 0D ? cost : 0D);
+		});
+		
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)

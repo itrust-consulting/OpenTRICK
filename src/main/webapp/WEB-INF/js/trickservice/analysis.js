@@ -28,7 +28,7 @@ $(document).ready(function() {
 		disableEditMode();
 		$tabOption.hide();
 	});
-	
+
 	Highcharts.setOptions({
 		lang : {
 			decimalPoint : ',',
@@ -94,6 +94,28 @@ function updateSettings(element, entryKey) {
 		},
 		error : unknowError
 	});
+	return false;
+}
+
+function updateMeasuresCost() {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Update/Cost",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response.success == undefined)
+					unknowError()
+				else {
+					$("div[id^='section_standard_']").each(function() {
+						reloadSection(this.id);
+					});
+				}
+			},
+			error : unknowError
+		});
+	} else
+		permissionError();
 	return false;
 }
 

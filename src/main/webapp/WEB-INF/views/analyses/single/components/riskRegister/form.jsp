@@ -18,13 +18,15 @@
 				<spring:message code='label.all' var="all" />
 				<spring:message code='label.compliant' var="compliant" />
 				<form class='form form-horizontal' name='filter'>
+					<input value="${type}" name="type" hidden="hidden">
 					<div class='form-group'>
 						<c:set value="${parameters['cssfImpactThreshold']}" var="cssfImpactThreshold" />
 						<label class='label-control col-xs-offset-1 col-xs-6'><spring:message code="label.parameter.simple.cssf.impact_threshold" /></label>
 						<div class='col-xs-3'>
-							<select name="impact" class="form-control">
+							<select name="filter.impact" class="form-control">
 								<c:forEach items="${impacts}" var="impact">
-									<option value="${impact.value}" ${impact.level==cssfImpactThreshold.value?'selected':''}><spring:message code='label.level.index' arguments="${impact.level}" /></option>
+									<option value="${type == 'RAW'? impact.level :  impact.value}" ${impact.level==cssfImpactThreshold.value?'selected':''}><spring:message code='label.level.index'
+											arguments="${impact.level}" /></option>
 								</c:forEach>
 							</select>
 						</div>
@@ -33,9 +35,10 @@
 						<c:set value="${parameters['cssfProbabilityThreshold']}" var="cssfProbabilityThreshold" />
 						<label class='label-control col-xs-offset-1 col-xs-6'><spring:message code="label.parameter.simple.cssf.probability_threshold" /></label>
 						<div class='col-xs-3'>
-							<select name="probability" class="form-control">
+							<select name="filter.probability" class="form-control">
 								<c:forEach items="${probabilities}" var="probability">
-									<option value="${probability.value}" ${probability.level==cssfProbabilityThreshold.value?'selected':''}><spring:message code='label.level.index' arguments="${probability.level}" /></option>
+									<option value="${type == 'RAW'? probability.level : probability.value}" ${probability.level==cssfProbabilityThreshold.value?'selected':''}><spring:message
+											code='label.level.index' arguments="${probability.level}" /></option>
 								</c:forEach>
 							</select>
 						</div>
@@ -44,7 +47,7 @@
 						<label class='label-control col-xs-offset-1 col-xs-6'><spring:message code="label.parameter.simple.cssf.direct_size" /></label>
 						<c:set value="${parameters['cssfDirectSize']}" var="cssfDirectSize" />
 						<div class='col-xs-3'>
-							<select name="direct" class="form-control">
+							<select name="filter.direct" class="form-control">
 								<option value="-2" ${cssfDirectSize.value==-2?'selected':''}>${nil}</option>
 								<option value="-1" ${cssfDirectSize.value==-1?'selected':''}>${all}</option>
 								<option value="0" ${cssfDirectSize.value==0?'selected':''}>${compliant}</option>
@@ -58,7 +61,7 @@
 						<c:set value="${parameters['cssfIndirectSize']}" var="cssfIndirectSize" />
 						<label class='label-control col-xs-offset-1 col-xs-6'><spring:message code="label.parameter.simple.cssf.indirect_size" /></label>
 						<div class='col-xs-3'>
-							<select name="indirect" class="form-control">
+							<select name="filter.indirect" class="form-control">
 								<option value="-2" ${cssfIndirectSize.value==-2?'selected':''}>${nil}</option>
 								<option value="-1" ${cssfIndirectSize.value==-1?'selected':''}>${all}</option>
 								<option value="0" ${cssfIndirectSize.value==0?'selected':''}>${compliant}</option>
@@ -72,12 +75,12 @@
 						<c:set value="${parameters['cssfCIASize']}" var="cssfCIASize" />
 						<label class='label-control col-xs-offset-1 col-xs-6'><spring:message code="label.parameter.simple.cssf.cia_size" /></label>
 						<div class='col-xs-3'>
-							<select name="cia" class="form-control">
+							<select name="filter.cia" class="form-control">
 								<option value="-2" ${cssfCIASize.value==-2?'selected':''}>${nil}</option>
 								<option value="-1" ${cssfCIASize.value==-1?'selected':''}>${all}</option>
 								<option value="0" ${cssfCIASize.value==0?'selected':''}>${compliant}</option>
 								<c:forEach begin="5" end="1000" step="5" var="cssfCount">
-									<option value="${cssfCount}" ${cssfCIASize.value==cssfCount?'selected':''} >${cssfCount}</option>
+									<option value="${cssfCount}" ${cssfCIASize.value==cssfCount?'selected':''}>${cssfCount}</option>
 								</c:forEach>
 							</select>
 						</div>
