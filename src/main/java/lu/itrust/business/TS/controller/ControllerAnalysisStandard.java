@@ -968,7 +968,7 @@ public class ControllerAnalysisStandard {
 		return "analyses/single/components/standards/measure";
 
 	}
-
+	
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String generateTickets(@RequestBody TicketingForm form, Principal principal, HttpSession session, Locale locale) {
@@ -1277,12 +1277,44 @@ public class ControllerAnalysisStandard {
 			}
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-
 		} finally {
 			if (model != null)
 				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
 		}
 		return allowedTicketing;
+	}
+	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateCost(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		Iterator<Parameter> iterator = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
+		while (iterator.hasNext()) {
+			Parameter parameter = iterator.next();
+			switch (parameter.getDescription()) {
+			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
+				internalSetupValue = parameter.getValue();
+				break;
+			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
+				externalSetupValue = parameter.getValue();
+				break;
+			case Constant.PARAMETER_LIFETIME_DEFAULT:
+				lifetimeDefault = parameter.getValue();
+				break;
+			}
+		}
+		updateMeasureCost(externalSetupValue, internalSetupValue, lifetimeDefault, analysis);
+		serviceAnalysis.saveOrUpdate(analysis);
+		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null, "Measure cost has been successfully updated", locale));
+	}
+
+	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault, Analysis analysis) {
+		analysis.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
+			double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+					measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+			measure.setCost(cost >= 0D ? cost : 0D);
+		});
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)

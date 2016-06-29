@@ -109,7 +109,9 @@
 					<c:if test="${show_cssf}">
 					<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
 						</a></li>
-						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}')"> <spring:message code="label.risk_sheet" />
+						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />
+						</a></li>
+						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','RAW')"> <spring:message code="label.raw_risk_sheet" />
 						</a></li>
 					</c:if>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>

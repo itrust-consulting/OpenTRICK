@@ -172,25 +172,25 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
+						<tr data-trick-class="Parameter"  class='success'>
 							<c:forEach items="${simpleParameters[0]}" var="parameter">
 								<c:choose>
 									<c:when test="${parameter.description=='max_rrf' or parameter.description=='soaThreshold'}">
-										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
+										<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter"
 											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
 												pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description== 'lifetime_default'}">
-										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='1e-19' class="success textaligncenter" data-trick-field="value"
+										<td data-trick-id="${parameter.id}" data-trick-min-value='1e-19' class="textaligncenter" data-trick-field="value" data-trick-callback='updateMeasuresCost()'
 											data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:when>
 									<c:when test="${parameter.description=='mandatoryPhase'}">
-										<td data-trick-class="Parameter" data-trick-callback-pre="extractPhase(this,true)" data-trick-id="${parameter.id}" class="success textaligncenter"
+										<td data-trick-id="${parameter.id}" data-trick-callback-pre="extractPhase(this,true)" class="textaligncenter"
 											data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
 												pattern="#" /></td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double"
+										<td data-trick-id="${parameter.id}" class="textaligncenter" data-trick-field="value" data-trick-field-type="double" data-trick-callback='updateMeasuresCost()'
 											onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 									</c:otherwise>
 								</c:choose>

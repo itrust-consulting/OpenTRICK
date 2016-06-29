@@ -96,6 +96,28 @@ function updateSettings(element, entryKey) {
 	return false;
 }
 
+function updateMeasuresCost() {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Update/Cost",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response.success == undefined)
+					unknowError()
+				else {
+					$("div[id^='section_standard_']").each(function() {
+						reloadSection(this.id);
+					});
+				}
+			},
+			error : unknowError
+		});
+	} else
+		permissionError();
+	return false;
+}
+
 // reload measures
 function reloadMeasureRow(idMeasure, standard) {
 	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']")

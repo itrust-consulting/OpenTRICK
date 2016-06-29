@@ -87,6 +87,8 @@ public class RiskInformation implements Cloneable {
 	 *            the owner to set
 	 */
 	public void setOwner(String owner) {
+		if (owner == null)
+			owner = "";
 		this.owner = owner;
 	}
 

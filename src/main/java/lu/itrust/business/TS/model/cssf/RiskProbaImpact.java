@@ -40,6 +40,33 @@ public class RiskProbaImpact implements Cloneable {
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private ExtendedParameter impactFin;
+	
+	
+
+	/**
+	 * 
+	 */
+	public RiskProbaImpact() {
+	}
+	
+	
+
+	/**
+	 * @param probability
+	 * @param impactFin
+	 * @param impactLeg
+	 * @param impactOp
+	 * @param impactRep
+	 */
+	public RiskProbaImpact(ExtendedParameter probability, ExtendedParameter impactFin, ExtendedParameter impactLeg, ExtendedParameter impactOp, ExtendedParameter impactRep) {
+		this.probability = probability;
+		this.impactFin = impactFin;
+		this.impactLeg = impactLeg;
+		this.impactOp = impactOp;
+		this.impactRep = impactRep;
+	}
+
+
 
 	/**
 	 * @return the probability

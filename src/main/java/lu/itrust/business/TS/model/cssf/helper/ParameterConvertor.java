@@ -4,7 +4,7 @@
 package lu.itrust.business.TS.model.cssf.helper;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -14,7 +14,6 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.ExtendedParameterComparator;
 
 /**
  * @author eomar
@@ -47,8 +46,12 @@ public class ParameterConvertor {
 					impactsParameters.add(extendedParameter);
 			}
 		}
-		Collections.sort(impactsParameters, new ExtendedParameterComparator());
-		Collections.sort(probabilityParameters, new ExtendedParameterComparator());
+		impactsParameters.sort(Comporator());
+		probabilityParameters.sort(Comporator());
+	}
+
+	private Comparator<? super ExtendedParameter> Comporator() {
+		return (P1, P2) -> Integer.compare(P1.getLevel(), P2.getLevel());
 	}
 
 	public List<ExtendedParameter> getImpactsParameters() {
