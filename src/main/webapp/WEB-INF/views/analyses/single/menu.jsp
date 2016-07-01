@@ -90,7 +90,7 @@
 				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
 			</ul></li>
 	</c:if>
-	<li class="pull-right"><a href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted" title='<spring:message code="label.action.close.analysis" />'
+	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted" title='<spring:message code="label.action.close.analysis" />'
 		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-sign-out fa-2x"></i></a></li>
 	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle text-muted" data-toggle="dropdown" title='<spring:message code="label.actions" />'
 		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-cog fa-2x"></i></a>
