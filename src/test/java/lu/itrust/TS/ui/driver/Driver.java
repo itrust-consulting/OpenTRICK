@@ -4,7 +4,11 @@ import org.openqa.selenium.WebDriver;
 
 public interface Driver {
 
+	void close() throws InterruptedException;
+
 	WebDriver getDriver(String path);
 
-	void close() throws InterruptedException;
+	boolean isSkipTests();
+
+	void setSkipTests(boolean skipTests);
 }

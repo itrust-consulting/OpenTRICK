@@ -1,11 +1,14 @@
 package lu.itrust.TS.ui.driver;
 
-public class DriverBuilder {
+import org.testng.annotations.Parameters;
 
-	public static Driver getInstanceDriver(DriverType type) {
+public class DriverBuilder {
+	
+	
+	@Parameters(value = {"driver.type"})
+	public synchronized static Driver getInstanceDriver(DriverType type) {
+		assert type != null;
 		switch (type) {
-		case LOCAL:
-			return LocalDriver.getInstance();
 		case REMOTE:
 			return RemoteDriver.getInstance();
 		default:

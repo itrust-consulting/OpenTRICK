@@ -30,8 +30,8 @@
 						<c:when test="${fn:startsWith(tsSetting.name,'TICKETING_SYSTEM_NAME')}">
 							<div class="col-sm-offset-3 col-sm-4">
 								<select name="value" class="form-control" onchange="updateSetting('#${tsSetting.name}',this)" >
-									<option disabled="disabled"><spring:message code='label.select.ticketing.system' text='Please select your ticketing system'/></option>
-									<option value='jira' ${tsSetting.value=='jira'?'selected':''}>JIRA</option>
+									<option value='' ${empty tsSetting.value?'selected':''} ><spring:message code='label.select.ticketing.system' text='Please select your ticketing system'/></option>
+									<option value='jira' ${tsSetting.value=='jira'?'selected':''} >JIRA</option>
 									<option value='redmine' ${tsSetting.value=='redmine'?'selected':''} disabled="disabled">REDMINE</option>
 								</select>
 								

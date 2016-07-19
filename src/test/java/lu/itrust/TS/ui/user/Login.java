@@ -1,24 +1,29 @@
 package lu.itrust.TS.ui.user;
 
 import org.openqa.selenium.By;
-import org.testng.annotations.Parameters;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 
-import lu.itrust.TS.ui.BaseUnitTesting;
+import lu.itrust.TS.ui.data.DataProviderSource;
+import lu.itrust.TS.ui.tools.BaseUnitTesting;
 
 public class Login extends BaseUnitTesting {
 
-	@Parameters(value = { "username", "password" })
-	@Test(groups = { "login", "loginFirst" })
+
+	@Test(groups = { "login", "loginFirst" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	public void testLogin(String username, String password) throws InterruptedException {
 		getDriver().get(getBaseUrl() + "/Login");
-		assert isElementPresent(By.id("login_signin_button"));
+		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("login_signin_button")));
 		sendKeys(findElement(By.id("username")), username);
 		sendKeys(findElement(By.name("password")), password);
 		click(By.id("login_signin_button"));
-
-		assert !isElementPresent(By.id("login"));
-		getDriver().get(getBaseUrl());
+		
+		Thread.sleep(600);
+		if (findElement(By.id("wrap"))!=null){
+			getDriver().get(getBaseUrl());
+		}
+		
 	}
 
 }

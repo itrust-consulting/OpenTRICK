@@ -57,6 +57,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 			String iv = user.removeSetting(Constant.USER_TICKETING_SYSTEM_IV);
 			if (!StringUtils.isEmpty(iv)) {
 				String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+				System.out.println(PasswordEncryptionHelper.decrypt(password, username, iv));
 				user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, PasswordEncryptionHelper.decrypt(password, username, iv));
 			}
 		} catch (Exception e) {

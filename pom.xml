@@ -284,7 +284,6 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>19.0</version>
-			<scope>provided</scope>
 		</dependency>
 
 
@@ -292,7 +291,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.7</version>
-			<scope>provided</scope>
 		</dependency>
 		
 		
@@ -300,7 +298,6 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.2</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Unit testing -->

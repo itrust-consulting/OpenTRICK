@@ -1,50 +1,29 @@
-package lu.itrust.TS.ui;
+package lu.itrust.TS.ui.user;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 
+import lu.itrust.TS.ui.data.DataProviderSource;
+import lu.itrust.TS.ui.tools.BaseUnitTesting;
+
 public class FirstInstallation extends BaseUnitTesting {
+
 	@Test(groups = { "firstInstallation" })
 	public void firstInstallation() throws Exception {
-		// reinstall trickservice
-		click(By.xpath("//a[@href='/Admin']"));
+		goToAdministration();
 		click(By.xpath("//a[@onclick='return installTrickService();']"));
-
-		Thread.sleep(1500);
-
-		//
-		WebDriverWait wait = new WebDriverWait(getDriver(), 60);
-
-		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//ul[@id='task-manager']")));
-
-		assert !isElementPresent(By.xpath("//ul[@id='task-manager']"));
-
-		click(By.xpath("//a[@href='#tab_user']"));
-
-		// Add a user (consultation)
-		String[] roles = new String[1];
-		roles[0] = "ROLE_CONSULTANT";
-
-		addUser("deimosa", "Qwertz12", "deimos", "alpha", "deimos.aplha@test.de", roles);
-
-		// Add a user (user)
-		roles[0] = "ROLE_USER";
-
-		addUser("deimosb", "Qwertz12", "deimos", "beta", "deimos.beta@test.de", roles);
-		// Add a user (supervisor)
-		roles[0] = "ROLE_SUPERVISOR";
-
-		addUser("deimosc", "Qwertz12", "deimos", "creos", "deimos.creos@test.de", roles);
-		// Add a customer
-		click(By.xpath("//a[@href='#tab_customer']"));
-		addCustomer("a", "Test a", "1234", "123@test.de", "123", "lux", "1234", "Luxembourg");
+		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("task-manager")));
+		new WebDriverWait(getDriver(), 60).until(ExpectedConditions.invisibilityOfElementLocated(By.id("task-manager")));
 	}
 
+	@Test(groups = {
+			"firstInstallationAddCustomer" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	private void addCustomer(String company, String contactPerson, String phoneNumber, String emailAddress,
 			String address, String city, String zipCode, String country) throws InterruptedException {
-
+		goToAdministration();
+		click(By.xpath("//a[@href='#tab_customer']"));
 		click(By.xpath("//a[@onclick='return newCustomer();']"));
 
 		sendKeys(findElement(By.id("customer_organisation")), company);
@@ -57,11 +36,14 @@ public class FirstInstallation extends BaseUnitTesting {
 		sendKeys(findElement(By.id("customer_country")), country);
 
 		click(By.id("addcustomerbutton"));
-
 	}
 
+	@Test(groups = {
+			"firstInstallationAddUser" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	private void addUser(String username, String password, String firstName, String lastName, String emailAddress,
 			String[] roles) throws Exception {
+		goToAdministration();
+		click(By.xpath("//a[@href='#tab_user']"));
 		click(By.xpath("//a[@onclick='return newUser();']"));
 
 		WebDriverWait wait = new WebDriverWait(getDriver(), 1);
@@ -79,4 +61,9 @@ public class FirstInstallation extends BaseUnitTesting {
 		click(By.id("addUserbutton"));
 		click(By.className("close"));
 	}
+
+	private void goToAdministration() throws InterruptedException {
+		click(By.xpath("//a[substring-before(@href,'/Admin')]"));
+	}
+
 }

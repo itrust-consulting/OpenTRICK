@@ -269,7 +269,11 @@ public class ControllerAdministration {
 				setting = tsSetting;
 			else
 				setting.setValue(tsSetting.getValue());
-			serviceTSSetting.saveOrUpdate(setting);
+			if (StringUtils.isEmpty(setting.getValue())) {
+				if (!setting.equals(tsSetting))
+					serviceTSSetting.delete(tsSetting.getName().name());
+			} else
+				serviceTSSetting.saveOrUpdate(setting);
 			return true;
 		} finally {
 			String settingName = messageSource.getMessage("label." + tsSetting.getNameLower(), null, tsSetting.getNameLower(), Locale.ENGLISH);
@@ -424,20 +428,19 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/Analysis/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Analysis/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
 		try {
 			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
 			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			if(e instanceof TrickException)
+			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
-	
-	
+
 	@RequestMapping("/Analysis/{analysisId}/Switch/Customer")
 	public String switchCUstomerForm(@PathVariable("analysisId") int analysisId, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		model.addAttribute("idAnalysis", analysisId);
