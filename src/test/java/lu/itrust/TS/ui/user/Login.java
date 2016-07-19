@@ -12,17 +12,14 @@ public class Login extends BaseUnitTesting {
 
 	@Test(groups = { "login", "loginFirst" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	public void testLogin(String username, String password) throws InterruptedException {
-		getDriver().get(getBaseUrl() + "/Login");
+		getDriver().get(getBaseUrl() + "/Home");
 		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("login_signin_button")));
 		sendKeys(findElement(By.id("username")), username);
 		sendKeys(findElement(By.name("password")), password);
 		click(By.id("login_signin_button"));
-
-		Thread.sleep(600);
-		if (findElement(By.id("wrap")) != null) {
-			getDriver().get(getBaseUrl());
-		}
-
+		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.invisibilityOfElementLocated(By.id("login_signin_button")));
+		if (!getDriver().getCurrentUrl().endsWith("/Home"))
+			getDriver().get(getBaseUrl() + "/Home");
 	}
 
 }

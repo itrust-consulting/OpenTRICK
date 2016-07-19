@@ -116,7 +116,7 @@
 				<group depends-on="addStandard" name="addMeasure" />
 				<group depends-on="addMeasure" name="updateMeasure" />
 				<group depends-on="updateMeasure" name="deleteMeasure" />
-				<group depends-on="addStandard" name="deleteStandard" />
+				<group depends-on="deleteMeasure" name="deleteStandard" />
 			</dependencies>
 		</groups>
 		<packages>
@@ -170,7 +170,7 @@
 				<group depends-on="login" name="addCustomer" />
 				<group depends-on="login" name="newProfile" />
 				<group depends-on="newProfile addLanguage addCustomer" name="addAnalysis" />
-				<group depends-on="login" name="analyse" />
+				<group depends-on="addAnalysis" name="analyse" />
 				<group depends-on="analyse" name="deleteAnalysis" />
 				<group depends-on="analyse" name="deleteLanguage" />
 				<group depends-on="analyse" name="deleteProfile" />
@@ -247,11 +247,12 @@
 	<test name="detailsProfilTest">
 		<groups>
 			<define name="DETAILSPROFILE">
-				<include name="deleteLanguage" />
+				<include name="detailsProfile" />
 			</define>
 
 			<define name="CLEAN">
 				<include name="deleteCustomer" />
+				<include name="deleteLanguage" />
 			</define>
 			<run>
 				<include name="DETAILSPROFILE" />
@@ -264,6 +265,7 @@
 				<group depends-on="newProfile" name="detailsProfile" />
 				<group depends-on="detailsProfile" name="deleteProfile" />
 				<group depends-on="deleteProfile" name="deleteCustomer" />
+				<group depends-on="detailsProfile" name="deleteLanguage" />
 			</dependencies>
 		</groups>
 		<packages>
