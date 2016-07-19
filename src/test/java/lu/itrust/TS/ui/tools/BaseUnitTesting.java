@@ -83,8 +83,7 @@ public class BaseUnitTesting {
 			if (debug) {
 
 				File scrFile = ((TakesScreenshot) getDriver()).getScreenshotAs(OutputType.FILE);
-				String failureImageFileName = new SimpleDateFormat("MM-dd-yyyy_HH-ss")
-						.format(new GregorianCalendar().getTime()) + ".png";
+				String failureImageFileName = new SimpleDateFormat("MM-dd-yyyy_HH-ss").format(new GregorianCalendar().getTime()) + ".png";
 				String destDir = ctx.getOutputDirectory() + "/screenshots/" + testResult.getMethod().getMethodName();
 				System.out.println(ctx.getOutputDirectory() + "/screenshots/" + testResult.getMethod().getMethodName());
 				new File(destDir).mkdirs();
@@ -95,13 +94,10 @@ public class BaseUnitTesting {
 				DriverBuilder.getInstanceDriver(driverType).setSkipTests(true);
 			}
 		}
-		System.out.println(String.format("Class : %s, test: %s, status: %s",
-				testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(),
+		System.out.println(String.format("Class : %s, test: %s, status: %s", testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(),
 				testResult.getStatus() == ITestResult.SUCCESS ? "SUCCESS"
 						: testResult.getStatus() == ITestResult.FAILURE ? "FAILURE"
-								: testResult.getStatus() == ITestResult.SKIP ? "SKIP"
-										: testResult.getStatus() == ITestResult.STARTED ? "STARTED"
-												: "SUCCESS_PERCENTAGE_FAILURE"));
+								: testResult.getStatus() == ITestResult.SKIP ? "SKIP" : testResult.getStatus() == ITestResult.STARTED ? "STARTED" : "SUCCESS_PERCENTAGE_FAILURE"));
 	}
 
 	/**
@@ -188,10 +184,8 @@ public class BaseUnitTesting {
 			System.err.println("Error");
 			assert !waitClick(by);
 		}
-		new WebDriverWait(getDriver(), 30)
-				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
-		new WebDriverWait(getDriver(), 5)
-		.until(ExpectedConditions.elementToBeClickable(by));
+		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
+		new WebDriverWait(getDriver(), 5).until(ExpectedConditions.elementToBeClickable(by));
 
 		findElement(by).click();
 	}
@@ -227,7 +221,7 @@ public class BaseUnitTesting {
 		return inputPattern;
 	}
 
-	protected void goToAllAnalysis(String companyName,String analyseName) throws InterruptedException {
+	protected void goToAllAnalysis(String companyName, String analyseName) throws InterruptedException {
 		getDriver().get(baseUrl + "/Analysis/All");
 		System.out.println("Company : " + companyName);
 		new Select(findElement(By.id("customerSelectorFilter"))).selectByVisibleText(companyName);
@@ -256,8 +250,7 @@ public class BaseUnitTesting {
 	}
 
 	protected void selectAnalysis(String analyseName) throws InterruptedException {
-		selectCheckBox(true, By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName
-				+ "']/..//input[@type='checkbox']"));
+		selectCheckBox(true, By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']/..//input[@type='checkbox']"));
 	}
 
 	protected void selectCheckBox(boolean stateToBecome, By by) throws InterruptedException {
@@ -306,8 +299,7 @@ public class BaseUnitTesting {
 	}
 
 	protected void waitLoadingIndicator() {
-		new WebDriverWait(getDriver(), 30)
-				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
+		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
 		assert !isElementPresent(By.id("#loading-indicator"));
 	}
 }

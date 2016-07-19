@@ -18,21 +18,15 @@ public class DataProviderSource {
 		case "firstInstallation":
 			switch (methodName) {
 			case "testRegister":
-				return new Object[][] {
-						{ "deimos", "Qwertz12", "Qwertz12", "deimos", "alpha", "deimos@test.de", "en" } };
+				return new Object[][] { { "deimos", "Qwertz12", "Qwertz12", "deimos", "alpha", "deimos@test.de", "en" } };
 			case "testLogin":
 				return new Object[][] { { "deimos", "Qwertz12" } };
 			case "addUser":
-				return new Object[][] {
-						{ "deimosa", "Qwertz12", "deimos", "alpha", "deimos.aplha@test.de",
-								new String[] { "ROLE_CONSULTANT" } },
-						{ "deimosb", "Qwertz12", "deimos", "beta", "deimos.beta@test.de",
-								new String[] { "ROLE_USER" } },
-						{ "deimosc", "Qwertz12", "deimos", "creos", "deimos.creos@test.de",
-								new String[] { "ROLE_SUPERVISOR" } } };
+				return new Object[][] { { "deimosa", "Qwertz12", "deimos", "alpha", "deimos.aplha@test.de", new String[] { "ROLE_CONSULTANT" } },
+						{ "deimosb", "Qwertz12", "deimos", "beta", "deimos.beta@test.de", new String[] { "ROLE_USER" } },
+						{ "deimosc", "Qwertz12", "deimos", "creos", "deimos.creos@test.de", new String[] { "ROLE_SUPERVISOR" } } };
 			case "addCustomer":
-				return new Object[][] {
-						{ "iTrust", "Mr D", "26123456", "itrust@test.de", "123, route", "lux", "1234", "Luxembourg" } };
+				return new Object[][] { { "iTrust", "Mr D", "26123456", "itrust@test.de", "123, route", "lux", "1234", "Luxembourg" } };
 			default:
 				throw new RuntimeException("Test (" + testName + ") with method " + methodName + " is not supported");
 			}
@@ -43,8 +37,7 @@ public class DataProviderSource {
 			case "addCustomer":
 				return new Object[][] { { "iTrusta", "mr tester", "1234", "tes.t@ya.de", "d", "gf", "d", "12 route" } };
 			case "updateCustomer":
-				return new Object[][] {
-						{ "iTrusta", "TrustB", "mr tester", "1234", "tes.t@ya.de", "d", "gf", "d", "12 route" } };
+				return new Object[][] { { "iTrusta", "TrustB", "mr tester", "1234", "tes.t@ya.de", "d", "gf", "d", "12 route" } };
 			case "deleteCustomer":
 				return new Object[][] { { "TrustB" } };
 			default:
@@ -92,8 +85,7 @@ public class DataProviderSource {
 		case "AnalysisProfiles":
 			switch (methodName) {
 			case "addCustomer":
-				return new Object[][] { { "testeranaprofile", "Mr D", "26123456", "itrust@test.de", "1234", "lux",
-						"lux", "1234 route" } };
+				return new Object[][] { { "testeranaprofile", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
 			case "newProfile":
 				return new Object[][] { { "testeranaprofile", "Profile 1" } };
 			case "analyseProfilesOpenProfile":
@@ -110,13 +102,11 @@ public class DataProviderSource {
 			case "addLanguage":
 				return new Object[][] { { "TES", "asdf", "as" } };
 			case "addCustomer":
-				return new Object[][] {
-						{ "tester", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
+				return new Object[][] { { "tester", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
 			case "newProfile":
 				return new Object[][] { { "tester", "profile1" } };
 			case "addAnalysis":
-				return new Object[][] {
-						{ "tester", "asdf", "profile1", "Deimos Chan", "0.0.2", "Analyse 1", "Tester", true, false } };
+				return new Object[][] { { "tester", "asdf", "profile1", "Deimos Chan", "0.0.2", "Analyse 1", "Tester", true, false } };
 			case "testReadOnlyAnalysis":
 			case "testAnalyse":
 				return new Object[][] { { "tester", "Analyse 1" } };
@@ -135,8 +125,7 @@ public class DataProviderSource {
 		case "checkingProfile":
 			switch (methodName) {
 			case "addCustomer":
-				return new Object[][] {
-						{ "testerasdfgbf", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
+				return new Object[][] { { "testerasdfgbf", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
 			case "newProfile":
 				return new Object[][] { { "testerasdfgbf", "profile1" }, { "testerasdfgbf", "profile2" } };
 			case "defaultsChecking":
@@ -153,8 +142,7 @@ public class DataProviderSource {
 			case "addLanguage":
 				return new Object[][] { { "TES", "asdf", "as" } };
 			case "addCustomer":
-				return new Object[][] {
-						{ "testerasdfghf", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
+				return new Object[][] { { "testerasdfghf", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
 			case "deleteLanguage":
 				return new Object[][] { { "TES" } };
 			case "newProfile":
@@ -173,25 +161,23 @@ public class DataProviderSource {
 			case "addLanguage":
 				return new Object[][] { { "ABC", "japadsv", "lol" }, { "DEF", "kolasas", "qewdsds" } };
 			case "addCustomer":
-				return new Object[][] {
-						{ "testeralp", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" },
+				return new Object[][] { { "testeralp", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" },
 						{ "testeralpp", "Mr D", "26123456", "itruast@test.de", "1234", "lux", "lux", "1234 route" } };
 			case "newProfile":
 				return new Object[][] { { "testeralp", "profile2" } };
 			case "addAnalysis":
-				return new Object[][] { { "testeralp", "japadsv", "profile2", "Deimos Chan", "0.0.1", "Analyse 10",
-						"Tester", true, false } };
+				return new Object[][] { { "testeralp", "japadsv", "profile2", "Deimos Chan", "0.0.1", "Analyse 10", "Tester", true, false } };
 
 			case "editAnalysis":
-				return new Object[][] { { "testeralp", "Analyse 10", "LOL 10", "testeralpp","kolasas",true,false } };
+				return new Object[][] { { "testeralp", "Analyse 10", "LOL 10", "testeralpp", "kolasas", true, false } };
 
 			case "deleteAnalysis":
 				return new Object[][] { { "testeralpp", "LOL 10" } };
 
 			case "deleteLanguage":
-				return new Object[][] { { "ABC" } , {"DEF"} };
+				return new Object[][] { { "ABC" }, { "DEF" } };
 			case "deleteCustomer":
-				return new Object[][] { { "testeralp" },{ "testeralpp" } };
+				return new Object[][] { { "testeralp" }, { "testeralpp" } };
 			case "deleteProfile":
 				return new Object[][] { { true, "profile2" } };
 			default:

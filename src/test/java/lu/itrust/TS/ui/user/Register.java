@@ -14,10 +14,9 @@ import lu.itrust.TS.ui.tools.BaseUnitTesting;
 
 public class Register extends BaseUnitTesting {
 
-	@Test(groups = { "register",
-			"registerFirst" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
-	public void testRegister(String username, String password, String repeatPassword, String firstname, String lastname,
-			String email, String language) throws InterruptedException {
+	@Test(groups = { "register", "registerFirst" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
+	public void testRegister(String username, String password, String repeatPassword, String firstname, String lastname, String email, String language)
+			throws InterruptedException {
 
 		getDriver().get(getBaseUrl() + "/Register");
 		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("registerform")));

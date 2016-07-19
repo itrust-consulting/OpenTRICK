@@ -70,7 +70,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format("{\"id\":%d}", ANALYSIS_ID))).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
@@ -81,7 +81,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 				}
 			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}
@@ -118,7 +118,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);
 			notEmpty(tasks, "No background task found");
 			for (String workerId : tasks) {
@@ -129,7 +129,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 				}
 			}
 			if (worker == null)
-				wait(1000);
+				wait(10);
 			else
 				break;
 		}

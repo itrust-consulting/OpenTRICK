@@ -10,7 +10,6 @@ import lu.itrust.TS.ui.tools.BaseUnitTesting;
 
 public class ChangeAdministrationSettings extends BaseUnitTesting {
 
-
 	@Test(groups = { "testChangeSettingsReset" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	public void testChangeSettingsReset(String username, String password) throws Exception {
 		// settings
@@ -29,7 +28,7 @@ public class ChangeAdministrationSettings extends BaseUnitTesting {
 		// settings
 		String selector = "#SETTING_ALLOWED_TICKETING_SYSTEM_LINK";
 		String searchCssState = selector + " .btn-group :not(.active) input";
-		
+
 		click(By.xpath("//a[substring-before(@href,'/Admin')]"));
 		click(By.xpath("//a[@href='#tab_tsSetting']"));
 
@@ -41,8 +40,7 @@ public class ChangeAdministrationSettings extends BaseUnitTesting {
 
 	}
 
-	private void testSettings(String username, String password, String xpathState, String toogleSelector)
-			throws InterruptedException {
+	private void testSettings(String username, String password, String xpathState, String toogleSelector) throws InterruptedException {
 		signOut();
 		String searchXpathState = xpathState;
 		getDriver().get(getBaseUrl() + "/Login");
@@ -51,9 +49,9 @@ public class ChangeAdministrationSettings extends BaseUnitTesting {
 		String selector = toogleSelector;
 
 		click(By.xpath("//a[substring-before(@href,'/Admin')]"));
-		
+
 		click(By.xpath("//a[contains(@href,'tab_tsSetting')]"));
-		
+
 		click(By.cssSelector(selector + " .btn-group label:not(.active)"));
 
 		signOut();

@@ -18,10 +18,9 @@ public class FirstInstallation extends BaseUnitTesting {
 		new WebDriverWait(getDriver(), 60).until(ExpectedConditions.invisibilityOfElementLocated(By.id("task-manager")));
 	}
 
-	@Test(groups = {
-			"firstInstallationAddCustomer" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
-	private void addCustomer(String company, String contactPerson, String phoneNumber, String emailAddress,
-			String address, String city, String zipCode, String country) throws InterruptedException {
+	@Test(groups = { "firstInstallationAddCustomer" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
+	private void addCustomer(String company, String contactPerson, String phoneNumber, String emailAddress, String address, String city, String zipCode, String country)
+			throws InterruptedException {
 		goToAdministration();
 		click(By.xpath("//a[@href='#tab_customer']"));
 		click(By.xpath("//a[@onclick='return newCustomer();']"));
@@ -38,10 +37,8 @@ public class FirstInstallation extends BaseUnitTesting {
 		click(By.id("addcustomerbutton"));
 	}
 
-	@Test(groups = {
-			"firstInstallationAddUser" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
-	private void addUser(String username, String password, String firstName, String lastName, String emailAddress,
-			String[] roles) throws Exception {
+	@Test(groups = { "firstInstallationAddUser" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
+	private void addUser(String username, String password, String firstName, String lastName, String emailAddress, String[] roles) throws Exception {
 		goToAdministration();
 		click(By.xpath("//a[@href='#tab_user']"));
 		click(By.xpath("//a[@onclick='return newUser();']"));

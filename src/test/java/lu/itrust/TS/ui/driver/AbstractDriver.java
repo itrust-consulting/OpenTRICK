@@ -41,8 +41,7 @@ public abstract class AbstractDriver implements Driver {
 					return build(path);
 			}
 		}
-		new WebDriverWait(driver, 30).until((ExpectedCondition<Boolean>) wd -> ((JavascriptExecutor) wd)
-				.executeScript("return document.readyState").equals("complete"));
+		new WebDriverWait(driver, 30).until((ExpectedCondition<Boolean>) wd -> ((JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
 		return driver;
 	}
 
@@ -70,8 +69,7 @@ public abstract class AbstractDriver implements Driver {
 		capabilities.setCapability("network.http.use-cache", false);
 		capabilities.setCapability("nativeEvents", false);
 		capabilities.setCapability("marionette", false);
-		
-		
+
 		WebDriver driver = createInstance(capabilities, path);
 		driver.manage().deleteAllCookies();
 		driver.manage().window().maximize();

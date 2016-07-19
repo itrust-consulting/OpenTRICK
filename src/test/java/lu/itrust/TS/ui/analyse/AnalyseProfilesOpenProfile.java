@@ -12,7 +12,6 @@ import lu.itrust.TS.ui.data.DataProviderSource;
 
 public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 
-
 	/**
 	 * @param profileName
 	 * @throws Exception
@@ -23,7 +22,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		openProfile(profileName);
 
 		chooseElementInsideDropdown("//a[@href='#tabParameterImpactProba']");
-		
+
 		testEditablePage(true, "tabParameterImpactProba");
 
 		chooseElementInsideDropdown("//a[@href='#tabParameterOther']");
@@ -33,29 +32,27 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		chooseElementInsideDropdown("//a[@href='#tabScenario']");
 
 		// add
-		addScenario("Testb", "Confidentiality", "This is a test profile", true, new String[] { "Busi", "Compl" }, 0.25,
-				0.25, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0);
-		addScenario("Testc", "Confidentiality", "This is a test profile", true, new String[] { "Busi", "Compl" }, 0.25,
-				0.25, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0);
-		
+		addScenario("Testb", "Confidentiality", "This is a test profile", true, new String[] { "Busi", "Compl" }, 0.25, 0.25, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0);
+		addScenario("Testc", "Confidentiality", "This is a test profile", true, new String[] { "Busi", "Compl" }, 0.25, 0.25, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0);
+
 		Thread.sleep(600);
 
-		selectionCheck("section_scenario","selectScenario", false, "Testb", false, "Testc",false);
-		selectionCheck("section_scenario","selectScenario", false, "Testb", false, "Testc",true);
-		selectionCheck("section_scenario","selectScenario", false, "Testb", true, "Testc",false);
-		selectionCheck("section_scenario","selectScenario", true, "Testb", false, "Testc",false);
-		selectionCheck("section_scenario","selectScenario", true, "Testb", true, "Testc",false);
-		
-		selectionCheck("section_scenario","selectScenario", false, "Testb", true, "Testc",true);
-		selectionCheck("section_scenario","selectScenario", true, "Testb", true, "Testc",true);
-		
-		selectionCheck("section_scenario","selectScenario", true, "Testb", false, "Testc",true);
-		
+		selectionCheck("section_scenario", "selectScenario", false, "Testb", false, "Testc", false);
+		selectionCheck("section_scenario", "selectScenario", false, "Testb", false, "Testc", true);
+		selectionCheck("section_scenario", "selectScenario", false, "Testb", true, "Testc", false);
+		selectionCheck("section_scenario", "selectScenario", true, "Testb", false, "Testc", false);
+		selectionCheck("section_scenario", "selectScenario", true, "Testb", true, "Testc", false);
+
+		selectionCheck("section_scenario", "selectScenario", false, "Testb", true, "Testc", true);
+		selectionCheck("section_scenario", "selectScenario", true, "Testb", true, "Testc", true);
+
+		selectionCheck("section_scenario", "selectScenario", true, "Testb", false, "Testc", true);
+
 		click(By.xpath("//a[@onclick='return editScenario();']"));
-		fillScenario("Testc", "Integrity", "Test",0.3,0.2,0.2,0.3,1.0,1.0,0.0,1.0);
+		fillScenario("Testc", "Integrity", "Test", 0.3, 0.2, 0.2, 0.3, 1.0, 1.0, 0.0, 1.0);
 		click(By.xpath("//button[contains(@onclick,'saveScenario')]"));
-		
-		selectionCheck("section_scenario","selectScenario", false, "Testb", true, "Testc",true);
+
+		selectionCheck("section_scenario", "selectScenario", false, "Testb", true, "Testc", true);
 		click(By.xpath("//div[@id='section_scenario']//a[contains(@onclick,'deleteScenario')]"));
 		click(By.xpath("//button[@name='yes']"));
 		// Risk treatment / Compliance
@@ -68,8 +65,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		click(By.xpath("//a[@role='add']"));
 		fillStandard("Testa", "This is a test.", true, "NORMAL");
 		click(By.name("save"));
-		
-		
+
 		click(By.xpath("//a[@role='add']"));
 		fillStandard("Testc", "This is a test.", true, "NORMAL");
 		click(By.name("save"));
@@ -77,17 +73,13 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		click(By.xpath("//a[@role='edit']"));
 		fillStandard("Testc", "This is a testa.", true, null);
 		click(By.xpath("//div[@id='standardModal']//button[@name='save']"));
-		
+
 		selectCheckBox(true, By.xpath("//div[@id='standardModal']//tr/td[2] [text() = 'Testc']//..//input"));
 		click(By.xpath("//a[contains(@onclick,'removeStandard')]"));
 		click(By.xpath("//button[@id='deletestandardbuttonYes']"));
 
-		int idStandardAssetMeasure = Integer
-				.valueOf(findElement(By.xpath("//div[@id='standardModal']//tbody//tr/td[2 and text() ='Test']/.."))
-						.getAttribute("data-trick-id"));
-		int idStandardNormalMeasure = Integer
-				.valueOf(findElement(By.xpath("//div[@id='standardModal']//tbody//tr/td[2 and text() ='Testa']/.."))
-						.getAttribute("data-trick-id"));
+		int idStandardAssetMeasure = Integer.valueOf(findElement(By.xpath("//div[@id='standardModal']//tbody//tr/td[2 and text() ='Test']/..")).getAttribute("data-trick-id"));
+		int idStandardNormalMeasure = Integer.valueOf(findElement(By.xpath("//div[@id='standardModal']//tbody//tr/td[2 and text() ='Testa']/..")).getAttribute("data-trick-id"));
 
 		click(By.xpath("//div[@id='standardModal']//button[@data-dismiss='modal']"));
 
@@ -109,8 +101,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		goToProfile();
 		// get id of the current standard profile
 		String xpathStandard = "//div[@id='section_profile_analysis']//tbody/tr[1]";
-		String defaultProfileName = findElement(By.xpath("//div[@id='section_profile_analysis']//tbody/tr[1]/td[2]"))
-				.getText();
+		String defaultProfileName = findElement(By.xpath("//div[@id='section_profile_analysis']//tbody/tr[1]/td[2]")).getText();
 
 		// check if those profiles exist
 		String xpathElement1 = getProfileRow(profileName1);
@@ -155,13 +146,11 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		click(By.id("deleteanalysisbuttonYes"));
 		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("deleteanalysisbuttonYes")));
 		getDriver().navigate().refresh();
-		assert (findElement(By.xpath(getProfileRow(profileName))) == null && shouldDelete)
-				|| (findElement(By.xpath(getProfileRow(profileName))) != null && !shouldDelete);
+		assert (findElement(By.xpath(getProfileRow(profileName))) == null && shouldDelete) || (findElement(By.xpath(getProfileRow(profileName))) != null && !shouldDelete);
 	}
 
 	@Test(groups = { "detailsProfile" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
-	public void detailsProfile(String profileName, String newProfileName, String newLanguage)
-			throws InterruptedException {
+	public void detailsProfile(String profileName, String newProfileName, String newLanguage) throws InterruptedException {
 		goToProfile();
 		selectCheckBox(true, By.xpath(getProfileRow(profileName) + "//input"));
 		click(By.xpath("//a[contains(@onclick,'editSingleAnalysis')]"));
@@ -188,14 +177,13 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 	}
 
 	@Test(groups = { "newProfile" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
-	public void newProfile(String companyName,String profileName) throws InterruptedException {
-		goToAllAnalysis(companyName,null);
+	public void newProfile(String companyName, String profileName) throws InterruptedException {
+		goToAllAnalysis(companyName, null);
 		// random string
 		String analyseName;
 		do {
 			analyseName = UUID.randomUUID().toString();
-		} while (isElementPresent(
-				By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")));
+		} while (isElementPresent(By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")));
 		// new analyse
 		addAnalysis(companyName, null, null, "123", "0.1", analyseName, "1", false, false);
 		// select it
@@ -211,8 +199,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		click(By.xpath("//div[@id='analysisProfileModal']//button[contains(@onclick,'saveAnalysisProfile')]"));
 
 		WebDriverWait wait = new WebDriverWait(getDriver(), 30);
-		wait.until(ExpectedConditions.invisibilityOfElementLocated(
-				By.xpath("//div[@id='analysisProfileModal']//button[contains(@onclick,'saveAnalysisProfile')]")));
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='analysisProfileModal']//button[contains(@onclick,'saveAnalysisProfile')]")));
 
 		// delete analyse
 		deleteAnalysis(companyName, analyseName);
@@ -220,15 +207,13 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		goToKnowledgeBase();
 		click(By.xpath("//a[@hreF='#tab_analyses']"));
 
-		assert findElement(By.xpath(
-				"(//div[@id='section_profile_analysis']//tbody/tr/td[2])/.[text() ='" + profileName + "']")) != null;
+		assert findElement(By.xpath("(//div[@id='section_profile_analysis']//tbody/tr/td[2])/.[text() ='" + profileName + "']")) != null;
 	}
 
 	public void openProfile(String profileName) throws InterruptedException {
 		goToProfile();
 
-		selectCheckBox(true, By.xpath(
-				"//div[@id='section_profile_analysis']//tbody/tr/td[2][text() = '" + profileName + "']/..//input"));
+		selectCheckBox(true, By.xpath("//div[@id='section_profile_analysis']//tbody/tr/td[2][text() = '" + profileName + "']/..//input"));
 
 		click(By.xpath("//a[contains(@onclick,'selectAnalysis')]"));
 	}

@@ -60,9 +60,8 @@ public class BaseAnalyse extends BaseUnitTesting {
 	 * @param externalThreat
 	 * @throws InterruptedException
 	 */
-	public void fillScenario(String name, String type, String description, Double preventive, Double detective,
-			Double limitative, Double reactive, Double intentional, Double accidental, Double internalThreat,
-			Double externalThreat) throws InterruptedException {
+	public void fillScenario(String name, String type, String description, Double preventive, Double detective, Double limitative, Double reactive, Double intentional,
+			Double accidental, Double internalThreat, Double externalThreat) throws InterruptedException {
 		assert canBeClicked(findElement(By.id("scenario_name")));
 		sendKeys(findElement(By.id("scenario_name")), name);
 
@@ -84,22 +83,18 @@ public class BaseAnalyse extends BaseUnitTesting {
 		moveSlider("scenario_externalThreat", externalThreat);
 	}
 
-	private boolean checkSelection(boolean stateCheckBox, boolean shouldSelect, boolean beforeState,
-			boolean afterState) {
-		return (stateCheckBox && shouldSelect && !afterState) || (stateCheckBox && !shouldSelect && afterState)
-				|| (!stateCheckBox && shouldSelect && beforeState == afterState)
+	private boolean checkSelection(boolean stateCheckBox, boolean shouldSelect, boolean beforeState, boolean afterState) {
+		return (stateCheckBox && shouldSelect && !afterState) || (stateCheckBox && !shouldSelect && afterState) || (!stateCheckBox && shouldSelect && beforeState == afterState)
 				|| (!stateCheckBox && !shouldSelect && beforeState == afterState);
 	}
 
-	private String dataFromRandom(NeverStaleWebElement fieldParameter, Interpreter interpreter,
-			ArrayList<String> acronyms, String xpathInput, NeverStaleWebElement input) {
+	private String dataFromRandom(NeverStaleWebElement fieldParameter, Interpreter interpreter, ArrayList<String> acronyms, String xpathInput, NeverStaleWebElement input) {
 		String oldvalue = input.getAttribute("value"), newValue = oldvalue;
 		if (input.getTagName().equals("select")) {
 			do {
-				newValue = new Select(input).getOptions()
-						.get(new Random().nextInt(new Select(input).getOptions().size())).getAttribute("value");
-			} while (fieldParameter.getAttribute("data-trick-field-type").equals("string")
-					&& new Select(input).getOptions().size() > 1 && (newValue.isEmpty() || newValue.equals(oldvalue)));
+				newValue = new Select(input).getOptions().get(new Random().nextInt(new Select(input).getOptions().size())).getAttribute("value");
+			} while (fieldParameter.getAttribute("data-trick-field-type").equals("string") && new Select(input).getOptions().size() > 1
+					&& (newValue.isEmpty() || newValue.equals(oldvalue)));
 
 		} else if (fieldParameter.getAttribute("data-trick-field-type").equals("double")) {
 			// TODO minvalue=1, wait until have attribute data-trick-min-value
@@ -116,8 +111,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 						maxValue = Integer.MAX_VALUE;
 					}
 				} else {
-					interpreter.eval("result = "
-							+ fieldParameter.findElement(By.xpath("..")).getAttribute("data-trick-min-value"));
+					interpreter.eval("result = " + fieldParameter.findElement(By.xpath("..")).getAttribute("data-trick-min-value"));
 					minValue = (int) interpreter.get("result");
 					if (fieldParameter.getAttribute("data-trick-max-value") != null) {
 						interpreter.eval("result = " + fieldParameter.getAttribute("data-trick-max-value"));
@@ -153,8 +147,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 		return newValue;
 	}
 
-	private void fillAnalyse(String company, String language, String profile, String description, String name,
-			boolean isUncertainty, boolean isCSSF) throws InterruptedException {
+	private void fillAnalyse(String company, String language, String profile, String description, String name, boolean isUncertainty, boolean isCSSF) throws InterruptedException {
 		if (company == null) {
 			selectComboboxByIndex(By.name("customer"), 1);
 		} else
@@ -178,21 +171,18 @@ public class BaseAnalyse extends BaseUnitTesting {
 		selectCheckBox(isCSSF, By.id("cssf"));
 	}
 
-	private void fillAsset(String name, String type, int value, Boolean isSelected, String comment,
-			String hiddenComment) throws InterruptedException {
+	private void fillAsset(String name, String type, int value, Boolean isSelected, String comment, String hiddenComment) throws InterruptedException {
 
 		sendKeys(findElement(By.xpath("//div[@id='addAssetModal']//input[@id='asset_name']")), name);
 
-		new Select(findElement(By.xpath("//div[@id='addAssetModal']//select[@id='asset_assettype_id']")))
-				.selectByVisibleText(type);
+		new Select(findElement(By.xpath("//div[@id='addAssetModal']//select[@id='asset_assettype_id']"))).selectByVisibleText(type);
 		;
 		sendKeys(findElement(By.xpath("//div[@id='addAssetModal']//input[@id='asset_value']")), value + "");
 
 		selectCheckBox(isSelected, By.xpath("//div[@id='addAssetModal']//input[@id='asset_selected']"));
 
 		sendKeys(findElement(By.xpath("//div[@id='addAssetModal']//textarea[@id='asset_comment']")), comment);
-		sendKeys(findElement(By.xpath("//div[@id='addAssetModal']//textarea[@id='asset_hiddenComment']")),
-				hiddenComment);
+		sendKeys(findElement(By.xpath("//div[@id='addAssetModal']//textarea[@id='asset_hiddenComment']")), hiddenComment);
 
 	}
 
@@ -211,8 +201,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 
 	// tools
 	private void moveSlider(String idSlider, double percentage) {
-		WebElement slider = getDriver()
-				.findElement(By.xpath("//input[@id='" + idSlider + "']/../div[@class='slider slider-vertical']"));
+		WebElement slider = getDriver().findElement(By.xpath("//input[@id='" + idSlider + "']/../div[@class='slider slider-vertical']"));
 
 		WebElement bullet = slider.findElement(By.className("slider-handle"));
 
@@ -222,14 +211,11 @@ public class BaseAnalyse extends BaseUnitTesting {
 		move.perform();
 	}
 
-	private void sendData(String newValue, NeverStaleWebElement fieldParameter, NeverStaleWebElement input)
-			throws XPathExpressionException, InterruptedException {
+	private void sendData(String newValue, NeverStaleWebElement fieldParameter, NeverStaleWebElement input) throws XPathExpressionException, InterruptedException {
 		if (input.getTagName().equals("select")) {
 			System.out.println("select");
-			selectComboboxByIndex(input.getFoundBy(), Integer.parseInt(
-					input.findElement(By.xpath("//option[@value='" + newValue + "']")).getAttribute("index")));
-		} else if ((fieldParameter.getAttribute("data-trick-field-type").equals("double"))
-				|| (fieldParameter.getAttribute("data-trick-field-type").equals("string"))) {
+			selectComboboxByIndex(input.getFoundBy(), Integer.parseInt(input.findElement(By.xpath("//option[@value='" + newValue + "']")).getAttribute("index")));
+		} else if ((fieldParameter.getAttribute("data-trick-field-type").equals("double")) || (fieldParameter.getAttribute("data-trick-field-type").equals("string"))) {
 			System.out.println("sendkeys");
 			sendKeys(input.getElement(), newValue);
 		} else {
@@ -237,8 +223,8 @@ public class BaseAnalyse extends BaseUnitTesting {
 		}
 	}
 
-	protected void addAnalysis(String company, String language, String profile, String author, String version,
-			String name, String description, boolean isUncertainty, boolean isCSSF) throws InterruptedException {
+	protected void addAnalysis(String company, String language, String profile, String author, String version, String name, String description, boolean isUncertainty,
+			boolean isCSSF) throws InterruptedException {
 		System.out.println(company);
 		goToAllAnalysis(company, null);
 		click(By.xpath("//a[contains(@onclick,'customAnalysis(this)')]"));
@@ -254,8 +240,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 	}
 
 	// asset
-	protected void addAsset(String name, String type, int value, Boolean isSelected, String comment,
-			String hiddenComment) throws InterruptedException {
+	protected void addAsset(String name, String type, int value, Boolean isSelected, String comment, String hiddenComment) throws InterruptedException {
 		click(By.xpath("//a[@onclick='return editAsset(undefined,true);']"));
 		assert !findElement(By.xpath("//div[@id='addAssetModal']//input[@id='asset_selected']")).isSelected();
 
@@ -265,14 +250,12 @@ public class BaseAnalyse extends BaseUnitTesting {
 	}
 
 	// scenario
-	protected void addScenario(String name, String type, String description, Boolean isSelected,
-			String[] applicablesAssetTypes, Double preventive, Double detective, Double limitative, Double reactive,
-			Double intentional, Double accidental, Double environmental, Double internalThreat, Double externalThreat)
+	protected void addScenario(String name, String type, String description, Boolean isSelected, String[] applicablesAssetTypes, Double preventive, Double detective,
+			Double limitative, Double reactive, Double intentional, Double accidental, Double environmental, Double internalThreat, Double externalThreat)
 			throws InterruptedException {
 		click(By.xpath("//a[contains(@onclick,'editScenario(undefined,true)')]"));
 
-		fillScenario(name, type, description, preventive, detective, limitative, reactive, intentional, accidental,
-				internalThreat, externalThreat);
+		fillScenario(name, type, description, preventive, detective, limitative, reactive, intentional, accidental, internalThreat, externalThreat);
 
 		click(By.xpath("//button[contains(@onclick,'saveScenario')]"));
 	}
@@ -284,16 +267,13 @@ public class BaseAnalyse extends BaseUnitTesting {
 		click(By.id("deleteanalysisbuttonYes"));
 
 		WebDriverWait wait = new WebDriverWait(getDriver(), 30);
-		wait.until(ExpectedConditions.invisibilityOfElementLocated(
-				By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")));
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")));
 
-		assert findElement(
-				By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")) == null;
+		assert findElement(By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']")) == null;
 	}
 
 	// standard
-	protected void fillStandard(String label, String description, Boolean isComputable, String standardTypeValue)
-			throws InterruptedException {
+	protected void fillStandard(String label, String description, Boolean isComputable, String standardTypeValue) throws InterruptedException {
 		sendKeys(findElement(By.id("standard_label")), label);
 		sendKeys(findElement(By.id("standard_description")), description);
 
@@ -308,33 +288,28 @@ public class BaseAnalyse extends BaseUnitTesting {
 		click(By.xpath("//a[@href='#tab_analyses']"));
 	}
 
-	protected void selectionCheck(String tab, String actionId, boolean shouldSelect, String textA, boolean stateA,
-			String textB, Boolean stateB) throws InterruptedException {
+	protected void selectionCheck(String tab, String actionId, boolean shouldSelect, String textA, boolean stateA, String textB, Boolean stateB) throws InterruptedException {
 		// checkbox a
-		selectCheckBox(stateA, By.xpath(
-				"//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textA + "']/..//input[@type='checkbox']"));
+		selectCheckBox(stateA, By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textA + "']/..//input[@type='checkbox']"));
 
 		// checkbox b
-		selectCheckBox(stateB, By.xpath(
-				"//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textB + "']/..//input[@type='checkbox']"));
+		selectCheckBox(stateB, By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textB + "']/..//input[@type='checkbox']"));
 
 		// save states from element a and b
-		boolean beforeStateA = findElement(By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textA
-				+ "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null;
-		boolean beforeStateB = findElement(By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textB
-				+ "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null;
+		boolean beforeStateA = findElement(
+				By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textA + "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null;
+		boolean beforeStateB = findElement(
+				By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textB + "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null;
 
 		// click select or unselect depends on shouldSelect variable
-		click(By.xpath(
-				"//li[contains(@data-trick-single-check,'isSelected') or contains(@data-trick-check,'isSelected')]//a[contains(@onclick,'"
-						+ actionId + "') and contains(@onclick,'" + (shouldSelect ? "true" : "false") + "')]"));
+		click(By.xpath("//li[contains(@data-trick-single-check,'isSelected') or contains(@data-trick-check,'isSelected')]//a[contains(@onclick,'" + actionId
+				+ "') and contains(@onclick,'" + (shouldSelect ? "true" : "false") + "')]"));
 		// verify if state had changed successfully
 		assert checkSelection(stateA, shouldSelect, beforeStateA,
-				findElement(By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textA
-						+ "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null)
-				&& checkSelection(stateB, shouldSelect, beforeStateB,
-						findElement(By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textB
-								+ "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null);
+				findElement(
+						By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textA + "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null)
+				&& checkSelection(stateB, shouldSelect, beforeStateB, findElement(
+						By.xpath("//div[@id='" + tab + "']//tbody//tr/td[2 and text() ='" + textB + "']/../.[contains(@class,'warning') or contains(@class,'success')]")) == null);
 	}
 
 	// TODO data from dataprovider
@@ -347,17 +322,14 @@ public class BaseAnalyse extends BaseUnitTesting {
 			List<String> values = getData(section);
 			System.out.println(values);
 
-			WebElement impactScale = findElement(By.xpath("//div[@id='" + section
-					+ "']//a[contains(@onclick,'displayParameters') and contains(@onclick,'Scale_Impact')]"));
+			WebElement impactScale = findElement(By.xpath("//div[@id='" + section + "']//a[contains(@onclick,'displayParameters') and contains(@onclick,'Scale_Impact')]"));
 			ArrayList<String> acronyms = new ArrayList<>();
 			if (impactScale != null) {
 				WebDriverWait wait = new WebDriverWait(getDriver(), 30);
 				wait.until(ExpectedConditions.visibilityOf(impactScale));
-				click(By.xpath("//div[@id='" + section
-						+ "']//a[contains(@onclick,'displayParameters') and contains(@onclick,'Scale_Impact')]"));
+				click(By.xpath("//div[@id='" + section + "']//a[contains(@onclick,'displayParameters') and contains(@onclick,'Scale_Impact')]"));
 				waitClick(By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ExtendedParameter']/td[2]"));
-				for (WebElement acronymElement : getDriver().findElements(
-						By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ExtendedParameter']/td[2]"))) {
+				for (WebElement acronymElement : getDriver().findElements(By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ExtendedParameter']/td[2]"))) {
 					acronyms.add(acronymElement.getText());
 				}
 				click(By.xpath("//div[@id='modalBox']//*[@data-dismiss='modal']"));
@@ -373,8 +345,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 			// explorer les champs
 			ArrayList<String> xpathCurrents = new ArrayList<>();
 
-			List<WebElement> elements = getDriver()
-					.findElements(By.xpath("//div[@id='" + section + "']//td[contains(@onclick,'editField')]/.."));
+			List<WebElement> elements = getDriver().findElements(By.xpath("//div[@id='" + section + "']//td[contains(@onclick,'editField')]/.."));
 			int size = elements.size();
 
 			for (int index = 0; index < size; index++) {
@@ -387,8 +358,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 				if (currentElement.getAttribute("data-trick-id") != null) {
 					// tr
 					for (int j = 1; j <= editFieldSize; j++) {
-						xpathCurrent = "(//div[@id='" + section + "']//tr[@data-trick-id='"
-								+ currentElement.getAttribute("data-trick-id")
+						xpathCurrent = "(//div[@id='" + section + "']//tr[@data-trick-id='" + currentElement.getAttribute("data-trick-id")
 								+ "']/td[contains(@onclick,'editField')])[" + j + "]";
 						xpathCurrents.add(xpathCurrent);
 					}
@@ -396,10 +366,8 @@ public class BaseAnalyse extends BaseUnitTesting {
 				} else {
 					// td
 					for (int j = 0; j < editFieldSize; j++) {
-						xpathCurrent = "//div[@id='" + section
-								+ "']//td[contains(@onclick,'editField') and @data-trick-id='"
-								+ currentElement.findElements(By.cssSelector("td")).get(j).getAttribute("data-trick-id")
-								+ "']";
+						xpathCurrent = "//div[@id='" + section + "']//td[contains(@onclick,'editField') and @data-trick-id='"
+								+ currentElement.findElements(By.cssSelector("td")).get(j).getAttribute("data-trick-id") + "']";
 						xpathCurrents.add(xpathCurrent);
 					}
 				}
@@ -411,16 +379,14 @@ public class BaseAnalyse extends BaseUnitTesting {
 				// cliquer un champs
 				JavascriptExecutor js = (JavascriptExecutor) getDriver();
 				try {
-					js.executeScript(
-							"window.scrollTo(" + 0 + "," + (possibleInput.getElement().getLocation().y - 400) + ");");
+					js.executeScript("window.scrollTo(" + 0 + "," + (possibleInput.getElement().getLocation().y - 400) + ");");
 				} catch (Exception e) {
 					printError(e);
 				}
 				possibleInput.click();
 				// verify
 
-				WebElement activeElement = possibleInput
-						.findElement(By.cssSelector("select.form-control,textarea.form-control,input.form-control"));
+				WebElement activeElement = possibleInput.findElement(By.cssSelector("select.form-control,textarea.form-control,input.form-control"));
 				if (activeElement != null) {
 					String tagnameActiveElement = activeElement.getTagName();
 					assert (shouldEdit == true && getInputPattern().matcher(tagnameActiveElement).matches()
@@ -431,8 +397,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 					System.out.println(xpathInput);
 					if (shouldEdit) {
 						String newValue = "";
-						NeverStaleWebElement fieldParameter = new NeverStaleWebElement(getDriver(),
-								By.xpath(xpathInput + "//ancestor-or-self::*[@data-trick-field-type]"));
+						NeverStaleWebElement fieldParameter = new NeverStaleWebElement(getDriver(), By.xpath(xpathInput + "//ancestor-or-self::*[@data-trick-field-type]"));
 
 						try {
 							newValue = values.get(currentValuesIndex);
@@ -445,8 +410,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 						sendData(newValue, fieldParameter, input);
 						// lost focus
 
-						((JavascriptExecutor) getDriver()).executeScript(
-								"arguments[0].focus(); arguments[0].blur(); return true", input.getElement());
+						((JavascriptExecutor) getDriver()).executeScript("arguments[0].focus(); arguments[0].blur(); return true", input.getElement());
 						new WebDriverWait(getDriver(), 2).until(ExpectedConditions.stalenessOf(input.getElement()));
 						assert possibleInput.getText().equals(newValue);
 
