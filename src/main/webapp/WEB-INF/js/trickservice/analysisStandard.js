@@ -29,9 +29,8 @@ function isAnalysisOnlyStandard(section) {
 		return false;
 }
 /**
- * rewritten by
- * 
- * @eomar 24/05/2016
+ * @author eomar
+ * @since 24/05/2016
  * @see importStandard, editStandard, addStandard, saveStandard and
  *      removeStandard
  * @returns {Boolean}
