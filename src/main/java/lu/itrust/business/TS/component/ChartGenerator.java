@@ -1096,9 +1096,7 @@ public class ChartGenerator {
 
 					NormalMeasure normalMeasure = (NormalMeasure) measure;
 
-					AssetTypeValue matv = normalMeasure.getAssetTypeValueByAssetType(atv.getAssetType());
-
-					double val = RRF.calculateNormalMeasureRRF(scenario, matv.getAssetType(), parameter, normalMeasure);
+					double val = RRF.calculateNormalMeasureRRF(scenario, atv.getAssetType(), parameter, normalMeasure);
 
 					NumberFormat nf = new DecimalFormat();
 
