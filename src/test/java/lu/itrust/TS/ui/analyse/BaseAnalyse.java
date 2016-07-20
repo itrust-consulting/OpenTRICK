@@ -187,7 +187,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 	}
 
 	private List<String> getData(String section) throws XPathExpressionException {
-		Document doc = getDocument(System.getProperty("user.dir") + "/src/test/resources/testValues/data.xml");
+		Document doc = getDocument(System.getProperty("user.dir") + "/src/test/resources/data/input-test.xml");
 		XPath xpath = XPathFactory.newInstance().newXPath();
 
 		NodeList nodes = (NodeList) xpath.evaluate("//tab[@id='" + section + "']//value", doc, XPathConstants.NODESET);
