@@ -65,27 +65,27 @@ public class Analyse extends BaseAnalyse {
 
 		testEditablePage(true, "tabHistory");
 
-		chooseElementInsideDropdown("//a[@href='#tabScope']");
+		chooseElementInsideDropdown("//a[@href='#tabScope']", false);
 
 		testEditablePage(true, "tabScope");
 
-		chooseElementInsideDropdown("//a[@href='#tabParameterImpactProba']");
+		chooseElementInsideDropdown("//a[@href='#tabParameterImpactProba']", false);
 
 		testEditablePage(true, "tabParameterImpactProba");
 
-		chooseElementInsideDropdown("//a[@href='#tabParameterOther']");
+		chooseElementInsideDropdown("//a[@href='#tabParameterOther']", false);
 
 		testEditablePage(true, "tabParameterOther");
 
-		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Threat']");
+		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Threat']", false);
 
 		testEditablePage(true, "tabRiskInformation_Threat");
 
-		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Vul']");
+		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Vul']", false);
 
 		testEditablePage(true, "tabRiskInformation_Vul");
 
-		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Risk']");
+		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Risk']", false);
 		testEditablePage(true, "tabRiskInformation_Risk");
 
 		// -----------------------------------------------------------------------------------
@@ -107,8 +107,9 @@ public class Analyse extends BaseAnalyse {
 		// back to analysis
 		// ------------------------------------------------------------------
 		goToAllAnalysis(companyName, analyseName);
+		click(By.xpath("//li[contains(@data-trick-check,\"hasRight('MODIFY')\")]/a[contains(@onclick,'selectAnalysis')]"));
 
-		chooseElementInsideDropdown("//a[@href='#tabAsset']");
+		chooseElementInsideDropdown("//a[@href='#tabAsset']", false);
 		// add asset
 		// TODO add/edit/delete asset
 
@@ -144,7 +145,7 @@ public class Analyse extends BaseAnalyse {
 		click(By.xpath("//a[contains(@onclick,'switchTab') and	 contains(@onclick,'tabAsset')]"));
 
 		// scenario
-		chooseElementInsideDropdown("//a[@href='#tabScenario']");
+		chooseElementInsideDropdown("//a[@href='#tabScenario']", false);
 
 		// TODO add/edit/delete scenario, already done analyseprofileopenprofile
 
@@ -153,7 +154,7 @@ public class Analyse extends BaseAnalyse {
 		addScenario("Testb", "Confidentiality", "This is a test profile", true, new String[] { "HW" }, 0.15, 0.25, 0.3, 0.3, 1.0, 0.1, 1.0, 0.1, 1.0);
 
 		// estimation
-		chooseElementInsideDropdown("//a[@href='?open=edit-estimation']");
+		chooseElementInsideDropdown("//a[@href='?open=edit-estimation']", false);
 		click(By.xpath("//div[@role='left-menu']//div[@class='list-group']//a[contains(@class,'active')]/following-sibling::a[1]"));
 
 		// edit description
@@ -211,7 +212,7 @@ public class Analyse extends BaseAnalyse {
 
 		// finish estimation
 		click(By.xpath("//a[@data-base-ul='?open=edit']"));
-		chooseElementInsideDropdown("//a[contains(@onclick,'manageStandard')]");
+		chooseElementInsideDropdown("//a[contains(@onclick,'manageStandard')]", false);
 		// get all standard id
 		ArrayList<String> standardids = new ArrayList<>();
 		findElements(By.xpath("//div[@id='standardModal']//tbody/tr")).forEach((element) -> {
@@ -222,14 +223,14 @@ public class Analyse extends BaseAnalyse {
 		// standard fill
 		for (int i = 0; i < standardids.size(); i++) {
 			String standardId = "tabStandard_" + standardids.get(i);
-			chooseElementInsideDropdown("//a[@href='#" + standardId + "']");
+			chooseElementInsideDropdown("//a[@href='#" + standardId + "']", false);
 			testEditablePage(true, standardId);
 		}
 
 		// TODO Phases add/edit/delete
 
 		// action plan compute
-		chooseElementInsideDropdown("//a[@href='#tabActionPlan']");
+		chooseElementInsideDropdown("//a[@href='#tabActionPlan']", false);
 		click(By.xpath("//ul[@id='menu_actionplans']//a[contains(@onclick,'displayActionPlanOptions')]"));
 		click(By.xpath("//button[@id='computeActionPlanButton']"));
 		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//span[@id='task-counter' and text()='1']")));
@@ -239,13 +240,13 @@ public class Analyse extends BaseAnalyse {
 				&& findElements(By.xpath("//div[@id='tabActionPlan']//tbody/tr")).size() == findElements(By.xpath("//div[@id='tabActionPlan']//tbody/tr")).size();
 
 		//
-		chooseElementInsideDropdown("//a[@href='#tabSOA']");
+		chooseElementInsideDropdown("//a[@href='#tabSOA']", false);
 		testEditablePage(true, "tabSOA");
-		chooseElementInsideDropdown("//a[@href='#tabSummary']");
+		chooseElementInsideDropdown("//a[@href='#tabSummary']", false);
 
 		assert findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size() == findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size()
 				&& findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size() == findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size();
-		chooseElementInsideDropdown("//a[contains(@onclick,'return loadRRF();')]");
+		chooseElementInsideDropdown("//a[contains(@onclick,'return loadRRF();')]", false);
 	}
 
 	public void testReadOnlyAnalysis(String companyName, String analyseName) throws Exception {
@@ -253,27 +254,27 @@ public class Analyse extends BaseAnalyse {
 		click(By.xpath("//li[contains(@data-trick-check,\"hasRight('READ')\")]/a[contains(@onclick,'selectAnalysis')]"));
 		// testEditablePage(false, "tabHistory");
 
-		chooseElementInsideDropdown("//a[@href='#tabScope']");
+		chooseElementInsideDropdown("//a[@href='#tabScope']", false);
 
 		testEditablePage(false, "tabScope");
 
-		chooseElementInsideDropdown("//a[@href='#tabParameterImpactProba']");
+		chooseElementInsideDropdown("//a[@href='#tabParameterImpactProba']", false);
 
 		testEditablePage(false, "tabParameterImpactProba");
 
-		chooseElementInsideDropdown("//a[@href='#tabParameterOther']");
+		chooseElementInsideDropdown("//a[@href='#tabParameterOther']", false);
 
 		testEditablePage(false, "tabParameterOther");
 
-		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Threat']");
+		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Threat']", false);
 
 		testEditablePage(false, "tabRiskInformation_Threat");
 
-		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Vul']");
+		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Vul']", false);
 
 		testEditablePage(false, "tabRiskInformation_Vul");
 
-		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Risk']");
+		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Risk']", false);
 		testEditablePage(false, "tabRiskInformation_Risk");
 	}
 }

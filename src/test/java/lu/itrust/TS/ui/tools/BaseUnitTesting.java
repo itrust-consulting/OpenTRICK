@@ -173,9 +173,14 @@ public class BaseUnitTesting {
 	 * } }
 	 */
 
-	protected void chooseElementInsideDropdown(String dropdownMenuItemXpath) throws InterruptedException {
+	protected void chooseElementInsideDropdown(String dropdownMenuItemXpath, boolean skipError) throws InterruptedException {
+		try{
 		click(By.xpath(dropdownMenuItemXpath + "//ancestor::*[contains(@class,'dropdown-submenu')]"));
 		click(By.xpath(dropdownMenuItemXpath));
+		} catch (TimeoutException e){
+			if (!skipError)
+				throw e; 
+		}
 	}
 
 	protected void click(By by) throws InterruptedException {
@@ -282,8 +287,7 @@ public class BaseUnitTesting {
 	protected void signOut() throws InterruptedException {
 		try {
 			getDriver().get(baseUrl);
-			new WebDriverWait(getDriver(), 5).until(ExpectedConditions.elementToBeClickable(By.id("main_menu_logout")));
-			getDriver().findElement(By.id("main_menu_logout")).click();
+			click(By.id("main_menu_logout"));
 		} catch (Exception e) {
 			printError(e);
 		}

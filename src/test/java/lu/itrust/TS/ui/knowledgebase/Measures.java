@@ -92,7 +92,7 @@ public class Measures extends BaseUnitTesting {
 
 	private void goToStandard() throws InterruptedException {
 		goToKnowledgeBase();
-		chooseElementInsideDropdown("//a[@href='#tab_standard']");
+		chooseElementInsideDropdown("//a[@href='#tab_standard']", false);
 	}
 
 	private void selectMeasure(String reference) throws InterruptedException {

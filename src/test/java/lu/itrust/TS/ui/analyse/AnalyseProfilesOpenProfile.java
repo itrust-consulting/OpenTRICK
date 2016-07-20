@@ -21,15 +21,15 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 
 		openProfile(profileName);
 
-		chooseElementInsideDropdown("//a[@href='#tabParameterImpactProba']");
+		chooseElementInsideDropdown("//a[@href='#tabParameterImpactProba']", false);
 
 		testEditablePage(true, "tabParameterImpactProba");
 
-		chooseElementInsideDropdown("//a[@href='#tabParameterOther']");
+		chooseElementInsideDropdown("//a[@href='#tabParameterOther']", false);
 		testEditablePage(true, "tabParameterOther");
 
 		// Risk analysis - Scenarios
-		chooseElementInsideDropdown("//a[@href='#tabScenario']");
+		chooseElementInsideDropdown("//a[@href='#tabScenario']", false);
 
 		// add
 		addScenario("Testb", "Confidentiality", "This is a test profile", true, new String[] { "Busi", "Compl" }, 0.25, 0.25, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0);
@@ -56,7 +56,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		click(By.xpath("//div[@id='section_scenario']//a[contains(@onclick,'deleteScenario')]"));
 		click(By.xpath("//button[@name='yes']"));
 		// Risk treatment / Compliance
-		chooseElementInsideDropdown("//a[contains(@onclick,'manageStandard')]");
+		chooseElementInsideDropdown("//a[contains(@onclick,'manageStandard')]", false);
 
 		click(By.xpath("//a[@role='add']"));
 		fillStandard("Test", "This is a test.", true, "ASSET");
@@ -84,15 +84,15 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		click(By.xpath("//div[@id='standardModal']//button[@data-dismiss='modal']"));
 
 		// normal measure
-		chooseElementInsideDropdown("//a[@href='#tabStandard_" + idStandardNormalMeasure + "']");
+		chooseElementInsideDropdown("//a[@href='#tabStandard_" + idStandardNormalMeasure + "']", false);
 		testEditablePage(true, "tabStandard_" + idStandardNormalMeasure);
 
 		// asset measure
-		chooseElementInsideDropdown("//a[@href='#tabStandard_" + idStandardAssetMeasure + "']");
+		chooseElementInsideDropdown("//a[@href='#tabStandard_" + idStandardAssetMeasure + "']", false);
 		testEditablePage(true, "tabStandard_" + idStandardAssetMeasure);
 
 		// standard
-		chooseElementInsideDropdown("//a[@href='#tabStandard_" + 1 + "']");
+		chooseElementInsideDropdown("//a[@href='#tabStandard_" + 1 + "']", false);
 		testEditablePage(true, "tabStandard_" + 1);
 	}
 

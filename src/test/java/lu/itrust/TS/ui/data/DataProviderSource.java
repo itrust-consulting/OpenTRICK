@@ -127,11 +127,11 @@ public class DataProviderSource {
 			case "addCustomer":
 				return new Object[][] { { "testerasdfgbf", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
 			case "newProfile":
-				return new Object[][] { { "testerasdfgbf", "profile1" }, { "testerasdfgbf", "profile2" } };
+				return new Object[][] { { "testerasdfgbf", "profileA" }, { "testerasdfgbf", "profileB" } };
 			case "defaultsChecking":
-				return new Object[][] { { "profile1", "profile2" } };
+				return new Object[][] { { "profileA", "profileB" } };
 			case "deleteProfile":
-				return new Object[][] { { true, "profile1" }, { true, "profile2" } };
+				return new Object[][] { { true, "profileA" }, { true, "profileB" } };
 			case "deleteCustomer":
 				return new Object[][] { { "testerasdfgbf" } };
 			default:
@@ -146,11 +146,11 @@ public class DataProviderSource {
 			case "deleteLanguage":
 				return new Object[][] { { "TES" } };
 			case "newProfile":
-				return new Object[][] { { "testerasdfghf", "profile1" } };
+				return new Object[][] { { "testerasdfghf", "profileAlpha" } };
 			case "detailsProfile":
-				return new Object[][] { { "profile1", "123", "asdf" } };
+				return new Object[][] { { "profileAlpha", "123", "asdf" } };
 			case "deleteProfile":
-				return new Object[][] { { true, "123" } };
+				return new Object[][] { { true, "profileAlpha" } };
 			case "deleteCustomer":
 				return new Object[][] { { "testerasdfghf" } };
 			default:

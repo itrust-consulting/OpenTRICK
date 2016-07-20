@@ -315,7 +315,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 	// TODO data from dataprovider
 	protected synchronized void testEditablePage(Boolean shouldEdit, String section) throws Exception {
 		try {
-			chooseElementInsideDropdown("//a[contains(@onclick,'reloadCharts')]");
+			chooseElementInsideDropdown("//a[contains(@onclick,'reloadCharts')]",true);
 			Interpreter interpreter = new Interpreter();
 
 			int currentValuesIndex = 0;
