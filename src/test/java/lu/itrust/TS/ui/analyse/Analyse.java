@@ -115,7 +115,7 @@ public class Analyse extends BaseAnalyse {
 
 		addAsset("Testa", "HW", 0, true, "This is a test", "this test commentis hidden");
 		addAsset("Testb", "SW", 0, false, "This is a test", "this test comment is hidden");
-		addAsset("Testd", "HW", 0, true, "This is a test", "this test comment	 is hidden");
+		addAsset("Testd", "HW", 0, true, "This is a test", "this test comment is hidden");
 
 		selectionCheck("tabAsset", "selectAsset", false, "Testa", false, "Testb", false);
 		selectionCheck("tabAsset", "selectAsset", false, "Testa", false, "Testb", true);

@@ -1,16 +1,18 @@
 package lu.itrust.TS.ui.analyse;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -18,9 +20,6 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import bsh.Interpreter;
 import lu.itrust.TS.ui.tools.BaseUnitTesting;
@@ -30,15 +29,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 
 	private static Document getDocument(String filename) {
 		try {
-
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-			factory.setIgnoringComments(true);
-			factory.setIgnoringElementContentWhitespace(true);
-			factory.setValidating(false);
-
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			return builder.parse(new InputSource(filename));
+	        return new SAXReader().read(new File(filename));
 		} catch (Exception e) {
 			System.out.println("Error reading configuration file:");
 			System.out.println(e.getMessage());
@@ -186,17 +177,10 @@ public class BaseAnalyse extends BaseUnitTesting {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<String> getData(String section) throws XPathExpressionException {
-		Document doc = getDocument(System.getProperty("user.dir") + "/src/test/resources/data/input-test.xml");
-		XPath xpath = XPathFactory.newInstance().newXPath();
-
-		NodeList nodes = (NodeList) xpath.evaluate("//tab[@id='" + section + "']//value", doc, XPathConstants.NODESET);
-		List<String> values = new ArrayList<>();
-
-		for (int index = 0; index < nodes.getLength(); index++) {
-			values.add(nodes.item(index).getFirstChild().getNodeValue());
-		}
-		return values;
+		Document document = getDocument(System.getProperty("user.dir") + "/src/test/resources/data/input-test.xml");
+		return document.selectNodes("//tab[@id='" + section + "']//value/text()");
 	}
 
 	// tools

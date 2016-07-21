@@ -139,12 +139,11 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 
 	@Test(groups = { "deleteProfile" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	public void deleteProfile(boolean shouldDelete, String profileName) throws InterruptedException {
-		WebDriverWait wait = new WebDriverWait(getDriver(), 30);
 		goToProfile();
 		selectCheckBox(true, By.xpath(getProfileRow(profileName) + "//input"));
 		click(By.xpath("//a[contains(@onclick,'deleteAnalysis')]"));
 		click(By.id("deleteanalysisbuttonYes"));
-		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("deleteanalysisbuttonYes")));
+		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.id("deleteanalysisbuttonYes")));
 		getDriver().navigate().refresh();
 		assert (findElement(By.xpath(getProfileRow(profileName))) == null && shouldDelete) || (findElement(By.xpath(getProfileRow(profileName))) != null && !shouldDelete);
 	}
