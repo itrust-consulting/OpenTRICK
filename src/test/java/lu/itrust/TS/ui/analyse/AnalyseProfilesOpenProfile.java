@@ -191,10 +191,6 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		click(By.xpath("//a[contains(@onclick,'createAnalysisProfile')]"));
 		sendKeys(findElement(By.id("name")), profileName);
 
-		// TODO choose standards
-		// List<WebElement> standards =
-		// findElements(By.xpath("//div[@id='analysisProfileModal']//ul[@class='list-group']"));
-
 		click(By.xpath("//div[@id='analysisProfileModal']//button[contains(@onclick,'saveAnalysisProfile')]"));
 
 		WebDriverWait wait = new WebDriverWait(getDriver(), 30);
