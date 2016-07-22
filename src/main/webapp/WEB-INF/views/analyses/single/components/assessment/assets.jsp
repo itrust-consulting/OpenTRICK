@@ -148,7 +148,7 @@
 							</c:otherwise>
 						</c:choose>
 						<c:if test="${show_uncertainty}">
-							<td data-trick-field="uncertainty" data-trick-field-type="double" class="success"
+							<td data-trick-field="uncertainty" data-trick-field-type="double" class="success" data-trick-min-value="1.0000000000001"
 								data-real-value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />' onclick="return editField(this);"><fmt:formatNumber
 									value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
