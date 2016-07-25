@@ -1,6 +1,16 @@
 /**
  * Main.js
  */
+var application = new Application();
+
+function Application() {
+	this.modal = {};
+	this.data = {};
+	this.rights = {}
+	this.localesMessages = {};
+	this.fixedOffset = 0
+}
+
 if (!String.prototype.capitalize) {
 	String.prototype.capitalize = function() {
 		return this.charAt(0).toUpperCase() + this.slice(1);
@@ -23,16 +33,6 @@ if (!String.prototype.endsWith) {
 		var lastIndex = subjectString.indexOf(searchString, position);
 		return lastIndex !== -1 && lastIndex === position;
 	};
-}
-
-var application = new Application();
-
-function Application() {
-	this.modal = {};
-	this.data = {};
-	this.rights = {}
-	this.localesMessages = {};
-	this.fixedOffset = 0
 }
 
 function checkExtention(value, extention, button) {

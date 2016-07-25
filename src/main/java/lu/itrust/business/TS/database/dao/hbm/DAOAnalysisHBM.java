@@ -764,4 +764,13 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<String> getAllProjectIds() {
 		return getSession().createQuery("Select distinct project From Analysis where project IS NOT NULL").list();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids) {
+		return getSession()
+				.createQuery(
+						"Select analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis as analysis where userAnalysisRight.user.login = :username and analysis.id in :ids")
+				.setString("username", username).setParameterList("ids", ids).list();
+	}
 }

@@ -14,7 +14,7 @@ public class ComparatorHistoryVersion implements NaturalOrderComparator<History>
 
 	@Override
 	public int compare(History o1, History o2) {
-		return compareTo(o1.getVersion(), o2.getVersion());
+		return NaturalOrderComparator.compareTo(o1.getVersion(), o2.getVersion());
 	}
 
 }

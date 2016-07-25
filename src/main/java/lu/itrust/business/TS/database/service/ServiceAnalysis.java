@@ -153,4 +153,7 @@ public interface ServiceAnalysis {
 
 	public List<String> getAllProjectIds();
 
+	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids);
+
+
 }

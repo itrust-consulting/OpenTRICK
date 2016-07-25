@@ -654,4 +654,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<String> getAllProjectIds() {
 		return daoAnalysis.getAllProjectIds();
 	}
+
+	@Override
+	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids) {
+		return daoAnalysis.getByUsernameAndIds(username,ids);
+	}
 }

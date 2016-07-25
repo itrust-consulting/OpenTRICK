@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 
-import lu.itrust.business.TS.component.GeneralComperator;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.DatabaseHandler;
@@ -556,7 +556,7 @@ public class ImportAnalysis {
 		Comparator<String> comparator = new Comparator<String>() {
 			@Override
 			public int compare(String o1, String o2) {
-				return GeneralComperator.VersionComparator(o1, o2);
+				return NaturalOrderComparator.compareTo(o1, o2);
 			}
 		};
 

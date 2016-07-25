@@ -17,61 +17,57 @@
 			<jsp:include page="../../template/menu.jsp" />
 			<!-- ################################################################### Content #################################################################### -->
 			<div class="content" id="content" style="margin-top: 10px;">
-				<div class="col-lg-3">
-					<div class='panel' style="border: none;">
-						<div class="list-group">
-							<a class="list-group-item active" id="headingGeneral" role='tab' role='button'>
-								<spring:message code='label.title.general' text="General" />
-							</a>
-						</div>
-						<div class="panel-collapse collapse in" id="collapseGeneral" role="tabpanel" aria-labelledby="headingGeneral">
-							<div class='panel-body'>
-								<div class='form form-horizontal'>
-									<div class='form-group'>
-										<label><spring:message code='label.customer' text="Customer" /></label> <select class='form-control' name='customer'>
-											<option><spring:message code='label.choose' text='Choose...'></spring:message></option>
-											<c:forEach var="customer" items="${customers}">
-												<option value="${customer.id}"><spring:message text='${customer.organisation}' /></option>
-											</c:forEach>
-										</select>
-									</div>
-									<c:forEach var="index" begin="1" end="2" step="1">
-										<hr>
-										<div class='form-group'>
-											<label class='label-control col-sm-4'><spring:message code='label.analysis' text="Analysis" /> ${index}</label>
-											<div class='col-sm-8'>
-												<select class='form-control' name='analysis'>
-												</select>
-											</div>
-										</div>
-										<div class='form-group'>
-											<label class='label-control col-sm-4'><spring:message code='label.analysis.version' text="Version" /> ${index}</label>
-											<div class='col-sm-8'>
-												<select class='form-control' name='analysis'></select>
-											</div>
-										</div>
+				<fieldset class="col-lg-3" style="margin-top: 18px;">
+					<legend>
+						<spring:message code='label.title.general' text="General" />
+					</legend>
+					<div class='form form-horizontal'>
+						<div class='form-group'>
+							<label class='label-control col-sm-4'><spring:message code='label.customer' text="Customer" /></label>
+							<div class='col-sm-8'>
+								<select class='form-control' name='customer' id='customer-selector'>
+									<c:forEach var="currentCustomer" items="${customers}">
+										<option value="${currentCustomer.id}" ${not empty customer and currentCustomer.id == customer?'selected': ''}><spring:message
+												text='${currentCustomer.organisation}' /></option>
 									</c:forEach>
+								</select>
+							</div>
+						</div>
+						<c:forEach var="index" begin="1" end="2" step="1">
+							<hr>
+							<div class='form-group' id='analysis_${index}'>
+								<label class='label-control col-sm-4'><spring:message code='label.analysis' text="Analysis" /> ${index}</label>
+								<div class='col-sm-8'>
+									<select class='form-control' name='analysis' id='analysis-selector-${index}' data-parent='#customer-selector' data-target='#analysis-version-selector-${index}'
+										data-index='${index}'>
+										<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
+										<c:forEach items="${analyses}" var="analysis">
+											<option value='<spring:message text="${analysis.identifier}"/>'><spring:message text="${analysis.label}" /></option>
+										</c:forEach>
+									</select>
 								</div>
 							</div>
-						</div>
-						<div class="panel-collapse collapse" id="collapseTotalALE" role="tabpanel" aria-labelledby="headingTotalALE">
-							<div class='panel-body'>
-								<h4>Total ALE</h4>
+							<div class='form-group' id='analysis_${index}'>
+								<label class='label-control col-sm-4'><spring:message code='label.analysis.version' text="Version" /> ${index}</label>
+								<div class='col-sm-8'>
+									<select class='form-control' name='version' data-parent='#analysis-selector-${index}' id='analysis-version-selector-${index}' data-index='${index}'>
+										<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class='clearfix'></div>
+						</c:forEach>
 					</div>
-				</div>
-
+					<div class='clearfix'></div>
+				</fieldset>
 				<div class="col-lg-9">
-					<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
+					<ul class="nav nav-tabs affix affix-top col-lg-12 nav-tab">
 						<li class='active'><a id="headingTotalALE" role='tab' role='button' data-toggle='tab' href="#tabTotalALE"> <spring:message code='label.title.total_ale'
 									text="Total ALE" />
 						</a></li>
-						<li><a id="headingAleByScenario" role='tab' role='button' data-toggle='tab' href="#tabByScenario"> <spring:message code='label.title.ale_by_scenario'
+						<li><a id="headingAleByScenario" role='tab' role='button' data-toggle='tab' href="#tabAleByScenario"> <spring:message code='label.title.ale_by_scenario'
 									text="ALE By Scenario" />
 						</a></li>
-						<li><a id="headingAleByScenarioType" role='tab' role='button' data-toggle='tab' href="#tabByScenarioType"> <spring:message code='label.title.ale_by_scenario_type'
+						<li><a id="headingAleByScenarioType" role='tab' role='button' data-toggle='tab' href="#tabAleByScenarioType"> <spring:message code='label.title.ale_by_scenario_type'
 									text="ALE by scenario type" />
 						</a></li>
 						<li><a id="headingAleByAsset" role='tab' role='button' data-toggle='tab' href="#tabAleByAsset"> <spring:message code='label.title.ale_by_asset' text="ALE by asset" />
@@ -80,6 +76,13 @@
 						</a></li>
 						<li>
 					</ul>
+					<div class='tab-content'>
+						<div id='tabTotalALE' class='tab-pane active' style="padding-top:20px"></div>
+						<div id='tabAleByScenario' class='tab-pane' style="padding-top:20px"></div>
+						<div id='tabAleByScenarioType' class='tab-pane' style="padding-top:20px"></div>
+						<div id='tabAleByAsset' class='tab-pane' style="padding-top:20px"></div>
+						<div id='tabAleByAssetType' class='tab-pane' style="padding-top:20px"></div>
+					</div>
 					<div class='clearfix'></div>
 				</div>
 			</div>
@@ -88,6 +91,9 @@
 		<jsp:include page="../../template/footer.jsp" />
 		<!-- ################################################################ End Container ################################################################# -->
 		<jsp:include page="../../template/scripts.jsp" />
+		<script src="<spring:url value="/js/trickservice/risk-evolution.js" />"></script>
+		<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
+		<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

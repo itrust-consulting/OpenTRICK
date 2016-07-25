@@ -278,7 +278,7 @@ public class ChartGenerator {
 		}
 	}
 
-	private String generateALEChart(Locale locale, String chartitle, List<ALE> ales) {
+	public String generateALEChart(Locale locale, String chartitle, List<ALE> ales) {
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + chartitle + "\"}";
@@ -348,11 +348,6 @@ public class ChartGenerator {
 					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
 					compliance[0] = (Integer) compliance[0] + 1;
 				}
-
-				/*
-				 * else compliance[1] = (Double) compliance[1] +
-				 * Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE;
-				 */
 			}
 		}
 		return compliances;

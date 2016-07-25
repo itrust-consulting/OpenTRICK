@@ -71,8 +71,8 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
-import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -371,7 +371,7 @@ public class ControllerAnalysis {
 		if (customer == null || nameFilter == null) {
 			user = serviceUser.get(principal.getName());
 			if (user == null)
-				return "redirect:/Logout";
+				throw new AccessDeniedException("Access denied");
 			if (customer == null) {
 				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
 				// check if the current customer is set -> no
@@ -773,7 +773,7 @@ public class ControllerAnalysis {
 			Comparator<String> comparator = new Comparator<String>() {
 				@Override
 				public int compare(String o1, String o2) {
-					return GeneralComperator.VersionComparator(o1, o2);
+					return NaturalOrderComparator.compareTo(o1, o2);
 				}
 			};
 
@@ -808,7 +808,7 @@ public class ControllerAnalysis {
 			if (error != null)
 				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-				if (GeneralComperator.VersionComparator(lastVersion, version) >= 0)
+				if (NaturalOrderComparator.compareTo(lastVersion, version) >= 0)
 					errors.put("version", messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
 							String.format("Version has to be bigger than last %s", lastVersion), locale));
 				else

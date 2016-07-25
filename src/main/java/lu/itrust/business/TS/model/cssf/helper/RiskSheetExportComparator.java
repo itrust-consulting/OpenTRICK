@@ -20,6 +20,6 @@ public class RiskSheetExportComparator implements NaturalOrderComparator<RiskPro
 			return -1;
 		} else if (o2.getIdentifier() == null)
 			return 1;
-		return compareTo(o1.getIdentifier(), o2.getIdentifier());
+		return NaturalOrderComparator.compareTo(o1.getIdentifier(), o2.getIdentifier());
 	}
 }
