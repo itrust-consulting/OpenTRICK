@@ -383,11 +383,11 @@ public class BaseAnalyse extends BaseUnitTesting {
 			JavascriptExecutor js = (JavascriptExecutor) getDriver();
 			try {
 				js.executeScript(
-						"window.scrollTo(" + 0 + "," + (possibleInput.getElement().getLocation().y - 400) + ");");
+						"window.scrollTo(" + 0 + "," + (possibleInput.getElement().getLocation().y - 350) + ");");
 			} catch (Exception e) {
 				printError(e);
 			}
-			possibleInput.click();
+			click(By.xpath(xpathCurrent));
 			// verify
 
 			WebElement activeElement = possibleInput
@@ -418,6 +418,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 					((JavascriptExecutor) getDriver()).executeScript(
 							"arguments[0].focus(); arguments[0].blur(); return true", input.getElement());
 					
+					// TODO stalement
 					new WebDriverWait(getDriver(), 10).until(ExpectedConditions.not(ExpectedConditions.visibilityOfNestedElementsLocatedBy(possibleInput.getElement(), By.className("form-control"))));
 					
 					assert possibleInput.getText().equals(newValue);

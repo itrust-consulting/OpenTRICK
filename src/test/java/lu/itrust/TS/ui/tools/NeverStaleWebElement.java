@@ -38,15 +38,11 @@ public class NeverStaleWebElement implements WebElement {
 
 	@Override
 	public void click() {
-		try {
-			element.sendKeys(Keys.RETURN);
-			element.click();
-		} catch (StaleElementReferenceException e) {
-			element = driver.findElement(foundBy);
-			new WebDriverWait(driver, 2).until(ExpectedConditions.visibilityOf(element));
-			element.sendKeys(Keys.RETURN);
-			element.click();
-		}
+			try {
+				new BaseUnitTesting().click(foundBy);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 	}
 
 	@Override

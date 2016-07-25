@@ -15,6 +15,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -30,6 +31,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
 
 import com.google.common.io.Files;
+import com.google.common.base.Function;
 
 import lu.itrust.TS.ui.driver.DriverBuilder;
 import lu.itrust.TS.ui.driver.DriverType;
@@ -83,7 +85,8 @@ public class BaseUnitTesting {
 			if (debug) {
 
 				File scrFile = ((TakesScreenshot) getDriver()).getScreenshotAs(OutputType.FILE);
-				String failureImageFileName = new SimpleDateFormat("MM-dd-yyyy_HH-ss").format(new GregorianCalendar().getTime()) + ".png";
+				String failureImageFileName = new SimpleDateFormat("MM-dd-yyyy_HH-ss")
+						.format(new GregorianCalendar().getTime()) + ".png";
 				String destDir = ctx.getOutputDirectory() + "/screenshots/" + testResult.getMethod().getMethodName();
 				System.out.println(ctx.getOutputDirectory() + "/screenshots/" + testResult.getMethod().getMethodName());
 				new File(destDir).mkdirs();
@@ -94,10 +97,13 @@ public class BaseUnitTesting {
 				DriverBuilder.getInstanceDriver(driverType).setSkipTests(true);
 			}
 		}
-		System.out.println(String.format("Class : %s, test: %s, status: %s", testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(),
+		System.out.println(String.format("Class : %s, test: %s, status: %s",
+				testResult.getMethod().getRealClass().getName(), testResult.getMethod().getMethodName(),
 				testResult.getStatus() == ITestResult.SUCCESS ? "SUCCESS"
 						: testResult.getStatus() == ITestResult.FAILURE ? "FAILURE"
-								: testResult.getStatus() == ITestResult.SKIP ? "SKIP" : testResult.getStatus() == ITestResult.STARTED ? "STARTED" : "SUCCESS_PERCENTAGE_FAILURE"));
+								: testResult.getStatus() == ITestResult.SKIP ? "SKIP"
+										: testResult.getStatus() == ITestResult.STARTED ? "STARTED"
+												: "SUCCESS_PERCENTAGE_FAILURE"));
 	}
 
 	/**
@@ -173,13 +179,14 @@ public class BaseUnitTesting {
 	 * } }
 	 */
 
-	protected void chooseElementInsideDropdown(String dropdownMenuItemXpath, boolean skipError) throws InterruptedException {
-		try{
-		click(By.xpath(dropdownMenuItemXpath + "//ancestor::*[contains(@class,'dropdown-submenu')]"));
-		click(By.xpath(dropdownMenuItemXpath));
-		} catch (TimeoutException e){
+	protected void chooseElementInsideDropdown(String dropdownMenuItemXpath, boolean skipError)
+			throws InterruptedException {
+		try {
+			click(By.xpath(dropdownMenuItemXpath + "//ancestor::*[contains(@class,'dropdown-submenu')]"));
+			click(By.xpath(dropdownMenuItemXpath));
+		} catch (TimeoutException e) {
 			if (!skipError)
-				throw e; 
+				throw e;
 		}
 	}
 
@@ -189,10 +196,20 @@ public class BaseUnitTesting {
 			System.err.println("Error");
 			assert !waitClick(by);
 		}
-		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
+		new WebDriverWait(getDriver(), 30)
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
 		new WebDriverWait(getDriver(), 5).until(ExpectedConditions.elementToBeClickable(by));
 
-		findElement(by).click();
+		new WebDriverWait(getDriver(), 10).until(new Function<WebDriver, Boolean>() {
+			public Boolean apply(WebDriver driver) throws TimeoutException {
+				try {
+					driver.findElement(by).click();
+					return true;
+				} catch (WebDriverException webDriverException) {
+					return false;
+				}
+			}
+		});
 	}
 
 	// private functions
@@ -239,7 +256,8 @@ public class BaseUnitTesting {
 	protected void goToKnowledgeBase() throws InterruptedException {
 		getDriver().get(baseUrl + "/KnowledgeBase");
 
-		new WebDriverWait(getDriver(), 2).until(ExpectedConditions.presenceOfElementLocated(By.id("section_profile_analysis")));
+		new WebDriverWait(getDriver(), 2)
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("section_profile_analysis")));
 	}
 
 	protected boolean isElementPresent(By by) {
@@ -255,7 +273,8 @@ public class BaseUnitTesting {
 	}
 
 	protected void selectAnalysis(String analyseName) throws InterruptedException {
-		selectCheckBox(true, By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName + "']/..//input[@type='checkbox']"));
+		selectCheckBox(true, By.xpath("//div[@id='section_analysis']//tbody//td[2 and string() = '" + analyseName
+				+ "']/..//input[@type='checkbox']"));
 	}
 
 	protected void selectCheckBox(boolean stateToBecome, By by) throws InterruptedException {
@@ -303,7 +322,8 @@ public class BaseUnitTesting {
 	}
 
 	protected void waitLoadingIndicator() {
-		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
+		new WebDriverWait(getDriver(), 30)
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
 		assert !isElementPresent(By.id("#loading-indicator"));
 	}
 }
