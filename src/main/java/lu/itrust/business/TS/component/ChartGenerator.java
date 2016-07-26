@@ -279,36 +279,44 @@ public class ChartGenerator {
 	}
 
 	public String generateALEChart(Locale locale, String chartitle, List<ALE> ales) {
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
+		return generateALEChart(locale, chartitle, new ALEChart(ales));
+	}
 
-		String title = "\"title\": {\"text\":\"" + chartitle + "\"}";
+	public String generateALEChart(Locale locale, String chartitle, ALEChart... aleCharts) {
 
-		String pane = "\"pane\": {\"size\": \"100%\"}";
+		try {
+			JsonChart chart = new JsonChart("\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}",
+					"\"title\": {\"text\":\"" + chartitle + "\"}", "\"pane\": {\"size\": \"100%\"}",
+					"\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}");
 
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
+			chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
 
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+			chart.setTooltip("\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }");
+			
+			if (aleCharts.length == 1)
+				buildSingleALEChart(chart, aleCharts[0]);
+			else if (aleCharts.length > 0) {
 
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }";
+			}
+			return chart.toString();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}
+	}
 
-		if (ales.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
+	private void buildSingleALEChart(JsonChart chart, ALEChart data) {
+		
+		double max = data.getAles().stream().mapToDouble(ALE::getValue).max().orElse(0d);
 
-		ALE assetMax = ales.get(0);
-
-		double max = assetMax.getValue();
-
-		String xAxis = "";
-
-		String series = "";
+		int count = data.getAles().size();
 
 		String categories = "[";
 
 		String dataALEs = "[";
 
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
-
-		for (ALE ale : ales) {
+		for (ALE ale : data.getAles()) {
 			categories += "\"" + ale.getAssetName() + "\",";
 			dataALEs += ale.getValue() + ",";
 		}
@@ -320,12 +328,12 @@ public class ChartGenerator {
 		categories += "]";
 		dataALEs += "]";
 
-		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales.size() - 1) + "\"}";
+		chart.setxAxis("\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (count - 1) + "\"}");
 
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
+		chart.setSeries("\"series\":[{ \"name\":\"" + data.getName() + "\",\"data\":" + dataALEs + "}]");
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}")
-				.replaceAll("\r|\n", " ");
+		chart.setyAxis("\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}");
+
 	}
 
 	/**

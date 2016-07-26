@@ -809,7 +809,7 @@ function addHistory(analysisId) {
 		oldVersion = $("#section_analysis tr[data-trick-id='" + analysisId + "']>td:nth-child(6)").text();
 	}
 
-	if (canCreateNewVersion(analysisId)) {
+	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/" + analysisId + "/NewVersion",

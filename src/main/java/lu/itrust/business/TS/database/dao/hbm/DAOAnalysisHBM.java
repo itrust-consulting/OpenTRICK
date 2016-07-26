@@ -470,7 +470,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name, List<AnalysisRight> rights) {
 		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
 		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and (userRight.right in :rights or analysis.owner = userRight.user) and analysis.data = true and ";
-		query += "analysis.customer.id = :customer group by analysis.identifier order by analysis.identifier";
+		query += "analysis.customer.id = :customer group by analysis.identifier order by analysis.label";
 		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameterList("rights", rights).setParameter("customer", id)
 				.list();
 		for (Analysis analysis : analyses)
@@ -772,5 +772,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.createQuery(
 						"Select analysis From UserAnalysisRight userAnalysisRight inner join userAnalysisRight.analysis as analysis where userAnalysisRight.user.login = :username and analysis.id in :ids")
 				.setString("username", username).setParameterList("ids", ids).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId) {
+		return getSession()
+		.createQuery(
+				"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label asc, analysis.identifier asc, analysis.version desc")
+		.setParameter("username", username).setParameter("customer", customerId).list();
 	}
 }

@@ -659,4 +659,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids) {
 		return daoAnalysis.getByUsernameAndIds(username,ids);
 	}
+
+	@Override
+	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId) {
+		return daoAnalysis.getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(username,customerId);
+	}
 }

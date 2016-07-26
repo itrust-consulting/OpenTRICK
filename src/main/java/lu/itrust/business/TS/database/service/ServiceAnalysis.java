@@ -155,5 +155,7 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids);
 
+	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId);
+
 
 }
