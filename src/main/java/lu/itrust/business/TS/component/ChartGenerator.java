@@ -9,6 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -283,31 +286,62 @@ public class ChartGenerator {
 	}
 
 	public String generateALEChart(Locale locale, String chartitle, ALEChart... aleCharts) {
+		JsonChart chart = new JsonChart("\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}",
+				"\"title\": {\"text\":\"" + chartitle + "\"}", "\"pane\": {\"size\": \"100%\"}",
+				"\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}");
+		
+		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
+		chart.setTooltip("\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }");
+		if (aleCharts.length == 1)
+			buildSingleALESerie(chart, aleCharts[0]);
+		else if (aleCharts.length > 0)
+			buildMulitALESeries(chart, aleCharts);
+		return chart.toString();
 
-		try {
-			JsonChart chart = new JsonChart("\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}",
-					"\"title\": {\"text\":\"" + chartitle + "\"}", "\"pane\": {\"size\": \"100%\"}",
-					"\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}");
-
-			chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
-
-			chart.setTooltip("\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }");
-			
-			if (aleCharts.length == 1)
-				buildSingleALEChart(chart, aleCharts[0]);
-			else if (aleCharts.length > 0) {
-
-			}
-			return chart.toString();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw e;
-		}
 	}
 
-	private void buildSingleALEChart(JsonChart chart, ALEChart data) {
+	private void buildMulitALESeries(JsonChart chart, ALEChart... aleCharts) {
 		
+		Map<String, Map<String, ALE>> aleChartMapper = new LinkedHashMap<>();
+
+		aleChartMapper.put(aleCharts[0].getName(), aleCharts[0].getAles().stream().collect(Collectors.toMap(ALE::getAssetName, Function.identity())));
+
+		Map<String, ALE> references = aleChartMapper.get(aleCharts[0].getName());
+
+		for (int i = 1; i < aleCharts.length; i++) {
+			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream().filter(ale -> references.containsKey(ale.getAssetName()))
+					.collect(Collectors.toMap(ALE::getAssetName, Function.identity()));
+			if (!aleMapper.isEmpty())
+				aleChartMapper.put(aleCharts[i].getName(), aleMapper);
+		}
+
+		double max = aleChartMapper.values().stream().flatMap(aleMapper -> aleMapper.values().stream()).mapToDouble(ALE::getValue).max().orElse(0d);
+		
+		int count = references.size();
+
+		String categories = "", series = "";
+
+		for (String category : references.keySet())
+			categories += String.format("%s\"%s\"", categories.isEmpty() ? "" : ",", category);
+
+		for (Entry<String, Map<String, ALE>> entry : aleChartMapper.entrySet()) {
+			String dataALEs = "";
+			for (String category : references.keySet()) {
+				ALE ale = entry.getValue().get(category);
+				dataALEs += String.format("%s%f", dataALEs.isEmpty() ? "" : ",", ale == null ? 0d : ale.getValue());
+			}
+			series += String.format("%s{ \"name\":\"%s\",\"data\":[%s]}", series.isEmpty() ? "" : ",", entry.getKey(), dataALEs);
+		}
+
+		chart.setSeries("\"series\":[" + series + "]");
+
+		chart.setxAxis("\"xAxis\":{\"categories\":[" + categories + "], \"min\":\"0\", \"max\":\"" + (count - 1) + "\"}");
+
+		chart.setyAxis("\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}");
+	}
+
+	private void buildSingleALESerie(JsonChart chart, ALEChart data) {
+
 		double max = data.getAles().stream().mapToDouble(ALE::getValue).max().orElse(0d);
 
 		int count = data.getAles().size();

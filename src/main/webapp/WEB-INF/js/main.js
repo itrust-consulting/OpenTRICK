@@ -9,6 +9,7 @@ function Application() {
 	this.rights = {}
 	this.localesMessages = {};
 	this.fixedOffset = 0
+	this.shownScrollTop = true;
 }
 
 if (!String.prototype.capitalize) {
@@ -771,11 +772,15 @@ $(document)
 						}
 
 						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+							
 							closeToolTips();
-							$bodyHtml.animate({
-								scrollTop : 0
-							}, 20);
-
+							
+							if (application.shownScrollTop) {
+								$bodyHtml.animate({
+									scrollTop : 0
+								}, 20);
+							}
+							
 							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
 							if (window[callback] != undefined) {
 								var data = $target.attr("data-callback-data");

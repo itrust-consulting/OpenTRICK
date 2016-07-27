@@ -11,13 +11,13 @@
 <jsp:include page="../../template/header.jsp" />
 <!-- ############################################################### Start Container ################################################################ -->
 <body>
-	<div id="wrap" class='wrap'>
-		<div class="container">
-			<!-- ################################################################### Nav Menu ################################################################### -->
-			<jsp:include page="../../template/menu.jsp" />
-			<!-- ################################################################### Content #################################################################### -->
-			<div class="content" id="content">
-				<fieldset class="col-lg-3" style="margin-top: 18px;">
+	<div id="wrap">
+		<!-- ################################################################### Nav Menu ################################################################### -->
+		<jsp:include page="../../template/menu.jsp" />
+		<!-- ################################################################### Content #################################################################### -->
+		<div class="container trick-container max-height">
+			<div class="col-lg-3 max-height" style="margin-top: 18px;">
+				<fieldset class="affixNav" style="overflow-x: hidden;" role="left-menu">
 					<legend>
 						<spring:message code='label.title.general' text="General" />
 					</legend>
@@ -33,62 +33,66 @@
 								</select>
 							</div>
 						</div>
-						<c:forEach var="index" begin="1" end="6" step="1">
-							<hr>
-							<div class='form-group' id='analysis_${index}'>
-								<label class='label-control col-sm-4'><spring:message code='label.analysis' text="Analysis" /></label>
-								<div class='col-sm-8'>
-									<select class='form-control' name='analysis' id='analysis-selector-${index}' data-parent='#customer-selector' data-target='#analysis-version-selector-${index}'
-										data-index='${index}'>
-										<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
-										<c:forEach items="${analyses}" var="analysis">
-											<option value='<spring:message text="${analysis.identifier}"/>'><spring:message text="${analysis.label}" /></option>
-										</c:forEach>
-									</select>
+						<c:forEach var="index" begin="1" end="15" step="1">
+							<div data-role='form-container' ${index>1? 'hidden' : ''}>
+								<hr>
+								<div class='form-group' id='analysis_${index}'>
+									<label class='label-control col-sm-4'><spring:message code='label.analysis' text="Analysis" /></label>
+									<div class='col-sm-8'>
+										<select class='form-control' name='analysis' id='analysis-selector-${index}' data-parent='#customer-selector'
+											data-target='#analysis-version-selector-${index}' data-index='${index}'>
+											<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
+											<c:forEach items="${analyses}" var="analysis">
+												<option value='<spring:message text="${analysis.identifier}"/>'><spring:message text="${analysis.label}" /></option>
+											</c:forEach>
+										</select>
+									</div>
 								</div>
-							</div>
-							<div class='form-group' id='analysis_${index}'>
-								<label class='label-control col-sm-4'><spring:message code='label.analysis.version' text="Version" /></label>
-								<div class='col-sm-8'>
-									<select class='form-control' name='version' data-parent='#analysis-selector-${index}' id='analysis-version-selector-${index}' data-index='${index}'>
-										<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
-									</select>
+								<div class='form-group' id='analysis_${index}'>
+									<label class='label-control col-sm-4'><spring:message code='label.analysis.version' text="Version" /></label>
+									<div class='col-sm-8'>
+										<select class='form-control'name='version' data-parent='#analysis-selector-${index}' id='analysis-version-selector-${index}'
+											data-index='${index}'>
+											<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
+										</select>
+									</div>
 								</div>
 							</div>
 						</c:forEach>
 					</div>
 					<div class='clearfix'></div>
 				</fieldset>
-				<div class="col-lg-9">
-					<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
-						<li class='active'><a id="headingTotalALE" role='tab' role='button' data-toggle='tab' href="#tabTotalALE"> <spring:message code='label.title.total_ale'
-									text="Total ALE" />
-						</a></li>
-						<li><a id="headingAleByScenarioType" role='tab' role='button' data-toggle='tab' href="#tabAleByScenarioType"> <spring:message code='label.title.ale_by_scenario_type'
-									text="ALE by scenario type" />
-						</a></li>
-						
-						<li><a id="headingAleByAssetType" role='tab' role='button' data-toggle='tab' href="#tabAleByAssetType"> <spring:message code='label.title.ale_by_asset_type' text="ALE by asset type" />
-						</a></li>
-						
-						<li><a id="headingAleByScenario" role='tab' role='button' data-toggle='tab' href="#tabAleByScenario"> <spring:message code='label.title.ale_by_scenario'
-									text="ALE By Scenario" />
-						</a></li>
-						
-						<li><a id="headingAleByAsset" role='tab' role='button' data-toggle='tab' href="#tabAleByAsset"> <spring:message code='label.title.ale_by_asset' text="ALE by asset" />
-						</a></li>
-						
-						<li>
-					</ul>
-					<div class='tab-content'>
-						<div id='tabTotalALE' class='tab-pane active' style="padding-top:70px"></div>
-						<div id='tabAleByScenarioType' class='tab-pane' style="padding-top:70px"></div>
-						<div id='tabAleByAssetType' class='tab-pane' style="padding-top:70px"></div>
-						<div id='tabAleByScenario' class='tab-pane' style="padding-top:70px"></div>
-						<div id='tabAleByAsset' class='tab-pane' style="padding-top:70px"></div>
-					</div>
-					<div class='clearfix'></div>
+			</div>
+			<div class="col-lg-9 max-height">
+				<ul class="nav nav-tabs col-xs-12 nav-tab" role='nav-tabs'>
+					<li class='active'><a id="headingTotalALE" role='tab' role='button' data-toggle='tab' href="#tabTotalALE"> <spring:message code='label.title.total_ale'
+								text="Total ALE" />
+					</a></li>
+					<li><a id="headingAleByScenarioType" role='tab' role='button' data-toggle='tab' href="#tabAleByScenarioType"> <spring:message code='label.title.ale_by_scenario_type'
+								text="ALE by scenario type" />
+					</a></li>
+
+					<li><a id="headingAleByAssetType" role='tab' role='button' data-toggle='tab' href="#tabAleByAssetType"> <spring:message code='label.title.ale_by_asset_type'
+								text="ALE by asset type" />
+					</a></li>
+
+					<li><a id="headingAleByScenario" role='tab' role='button' data-toggle='tab' href="#tabAleByScenario"> <spring:message code='label.title.ale_by_scenario'
+								text="ALE By Scenario" />
+					</a></li>
+
+					<li><a id="headingAleByAsset" role='tab' role='button' data-toggle='tab' href="#tabAleByAsset"> <spring:message code='label.title.ale_by_asset' text="ALE by asset" />
+					</a></li>
+
+					<li>
+				</ul>
+				<div class='tab-content max-height' style="padding-bottom: 30px;">
+					<div id='tabTotalALE' class='tab-pane active max-height' style="padding-top: 70px"></div>
+					<div id='tabAleByScenarioType' class='tab-pane max-height' style="padding-top: 70px"></div>
+					<div id='tabAleByAssetType' class='tab-pane max-height' style="padding-top: 70px"></div>
+					<div id='tabAleByScenario' class='tab-pane max-height' style="padding-top: 70px"></div>
+					<div id='tabAleByAsset' class='tab-pane max-height' style="padding-top: 70px"></div>
 				</div>
+				<div class='clearfix'></div>
 			</div>
 			<!-- ################################################################ Include Footer ################################################################ -->
 		</div>
