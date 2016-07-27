@@ -150,7 +150,7 @@ public class DataProviderSource {
 			case "detailsProfile":
 				return new Object[][] { { "profileAlpha", "123", "asdf" } };
 			case "deleteProfile":
-				return new Object[][] { { true, "profileAlpha" } };
+				return new Object[][] { { true, "123" } };
 			case "deleteCustomer":
 				return new Object[][] { { "testerasdfghf" } };
 			default:

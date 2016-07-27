@@ -221,22 +221,13 @@
 			<define name="NEWPROFILE">
 				<include name="defaultsChecking" />
 			</define>
-
-			<define name="CLEAN">
-				<include name="deleteCustomer" />
-			</define>
-
 			<run>
 				<include name="NEWPROFILE" />
-				<include name="CLEAN" />
 			</run>
 			<dependencies>
 				<group depends-on="login" name="addCustomer" />
 				<group depends-on="addCustomer" name="newProfile" />
 				<group depends-on="newProfile" name="defaultsChecking" />
-
-				<group depends-on="defaultsChecking" name="deleteProfile" />
-				<group depends-on="deleteProfile" name="deleteCustomer" />
 			</dependencies>
 		</groups>
 		<packages>
@@ -261,11 +252,11 @@
 			<dependencies>
 				<group depends-on="login" name="addLanguage" />
 				<group depends-on="login" name="addCustomer" />
-				<group depends-on="addCustomer" name="newProfile" />
+				<group depends-on="addCustomer addLanguage" name="newProfile" />
 				<group depends-on="newProfile" name="detailsProfile" />
 				<group depends-on="detailsProfile" name="deleteProfile" />
 				<group depends-on="deleteProfile" name="deleteCustomer" />
-				<group depends-on="detailsProfile" name="deleteLanguage" />
+				<group depends-on="deleteProfile" name="deleteLanguage" />
 			</dependencies>
 		</groups>
 		<packages>

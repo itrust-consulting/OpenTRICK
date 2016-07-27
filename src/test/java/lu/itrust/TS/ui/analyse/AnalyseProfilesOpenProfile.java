@@ -157,8 +157,7 @@ public class AnalyseProfilesOpenProfile extends BaseAnalyse {
 		assert !sendKeys(findElement(By.id("analysis_identifier")), "123");
 		assert !sendKeys(findElement(By.id("analysis_creationDate")), "123");
 		assert !sendKeys(findElement(By.id("analysis_owner")), "123");
-
-		new Select(findElement(By.name("analysislanguage"))).selectByVisibleText(newLanguage);
+		new Select(findElement(By.xpath("//select[@name='analysislanguage']"))).selectByVisibleText(newLanguage);
 		assert sendKeys(findElement(By.name("comment")), newProfileName);
 		// TODO language change
 		click(By.id("editAnalysisButton"));

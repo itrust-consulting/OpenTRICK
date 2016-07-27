@@ -107,6 +107,11 @@ public class Analyse extends BaseAnalyse {
 		// back to analysis
 		// ------------------------------------------------------------------
 		goToAllAnalysis(companyName, analyseName);
+		selectCheckBox(true, By.xpath("//*[@id='section_analysis']/table/tbody/tr[not(@data-trick-id='" + oldId + "')]//input"));
+		click(By.xpath("//a[contains(@onclick,'deleteAnalysis')]"));
+		click(By.id("deleteanalysisbuttonYes"));
+		
+		selectCheckBox(true, By.xpath("//*[@id='section_analysis']/table/tbody/tr[@data-trick-id='" + oldId + "']//input"));
 		click(By.xpath("//li[contains(@data-trick-check,\"hasRight('MODIFY')\")]/a[contains(@onclick,'selectAnalysis')]"));
 
 		chooseElementInsideDropdown("//a[@href='#tabAsset']", false);
@@ -221,7 +226,7 @@ public class Analyse extends BaseAnalyse {
 		click(By.xpath("//div[@id='standardModal']//button[@name='cancel']"));
 
 		// standard fill
-		for (int i = 0; i < standardids.size(); i++) {
+		for (int i = 0; i < 1; i++) {
 			String standardId = "tabStandard_" + standardids.get(i);
 			chooseElementInsideDropdown("//a[@href='#" + standardId + "']", false);
 			testEditablePage(true, standardId);
