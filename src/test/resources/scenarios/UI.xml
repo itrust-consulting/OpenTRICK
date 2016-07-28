@@ -5,150 +5,150 @@
 	<parameter name="driver.type" value="REMOTE" />
 	<parameter name="driver.path" value="http://192.168.1.42:4444/wd/hub" />
 	<parameter name="debug" value="true" />
-	<test name="firstInstallation">
-		<groups>
-			<define name="FIRSTINSTALLATION">
-				<include name="firstInstallationAddCustomer" />
-				<include name="firstInstallationAddUser" />
-			</define>
-			<run>
-				<include name="FIRSTINSTALLATION" />
-			</run>
-			<dependencies>
-				<group depends-on="registerFirst" name="loginFirst" />
-				<group depends-on="loginFirst" name="firstInstallation" />
-				<group depends-on="firstInstallation" name="firstInstallationAddUser" />
-				<group depends-on="firstInstallation" name="firstInstallationAddCustomer" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 	<test name="firstInstallation"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="FIRSTINSTALLATION"> -->
+<!-- 				<include name="firstInstallationAddCustomer" /> -->
+<!-- 				<include name="firstInstallationAddUser" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="FIRSTINSTALLATION" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="registerFirst" name="loginFirst" /> -->
+<!-- 				<group depends-on="loginFirst" name="firstInstallation" /> -->
+<!-- 				<group depends-on="firstInstallation" name="firstInstallationAddUser" /> -->
+<!-- 				<group depends-on="firstInstallation" name="firstInstallationAddCustomer" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
-	<test name="AdministrationSettingCheckIfItWorks">
-		<groups>
-			<define name="TESTSETTINGS">
-				<include name="testToogleTicketsSetting" />
-				<include name="testToogleSignUpSetting" />
-				<include name="testChangeSettingsReset" />
-			</define>
-			<run>
-				<include name="TESTSETTINGS" />
-			</run>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 	<test name="AdministrationSettingCheckIfItWorks"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="TESTSETTINGS"> -->
+<!-- 				<include name="testToogleTicketsSetting" /> -->
+<!-- 				<include name="testToogleSignUpSetting" /> -->
+<!-- 				<include name="testChangeSettingsReset" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="TESTSETTINGS" /> -->
+<!-- 			</run> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
-	<test name="CustomerAddEditDeleete">
-		<groups>
-			<define name="CUSTOMERADDEDITDELETE">
-				<include name="deleteCustomer" />
-			</define>
-			<run>
-				<include name="CUSTOMERADDEDITDELETE" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addCustomer" />
-				<group depends-on="addCustomer" name="updateCustomer" />
-				<group depends-on="updateCustomer" name="deleteCustomer" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 	<test name="CustomerAddEditDeleete"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="CUSTOMERADDEDITDELETE"> -->
+<!-- 				<include name="deleteCustomer" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="CUSTOMERADDEDITDELETE" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addCustomer" /> -->
+<!-- 				<group depends-on="addCustomer" name="updateCustomer" /> -->
+<!-- 				<group depends-on="updateCustomer" name="deleteCustomer" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
-	<test name="languageAddEditDelete">
-		<groups>
-			<define name="LANGUAGEADDEDITDELETE">
-				<include name="deleteLanguage" />
-			</define>
-			<run>
-				<include name="LANGUAGEADDEDITDELETE" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addLanguage" />
-				<group depends-on="addLanguage" name="updateLanguage" />
-				<group depends-on="updateLanguage" name="deleteLanguage" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 	<test name="languageAddEditDelete"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="LANGUAGEADDEDITDELETE"> -->
+<!-- 				<include name="deleteLanguage" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="LANGUAGEADDEDITDELETE" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addLanguage" /> -->
+<!-- 				<group depends-on="addLanguage" name="updateLanguage" /> -->
+<!-- 				<group depends-on="updateLanguage" name="deleteLanguage" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
-	<test name="standardsAddEditDelete">
-		<groups>
-			<define name="STANDARDSADDEDITDELETE">
-				<include name="deleteStandard" />
-			</define>
-			<run>
-				<include name="STANDARDSADDEDITDELETE" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addStandard" />
-				<group depends-on="addStandard" name="updateStandard" />
-				<group depends-on="updateStandard" name="deleteStandard" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 	<test name="standardsAddEditDelete"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="STANDARDSADDEDITDELETE"> -->
+<!-- 				<include name="deleteStandard" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="STANDARDSADDEDITDELETE" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addStandard" /> -->
+<!-- 				<group depends-on="addStandard" name="updateStandard" /> -->
+<!-- 				<group depends-on="updateStandard" name="deleteStandard" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
-	<test name="measuresAddEditDelete">
-		<groups>
-			<define name="MEASURESADDEDITDELETE">
-				<include name="deleteMeasure" />
-			</define>
-			<define name="CLEAN">
-				<include name="deleteStandard" />
-			</define>
-			<run>
-				<include name="MEASURESADDEDITDELETE" />
-				<include name="CLEAN" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addStandard" />
-				<group depends-on="addStandard" name="addMeasure" />
-				<group depends-on="addMeasure" name="updateMeasure" />
-				<group depends-on="updateMeasure" name="deleteMeasure" />
-				<group depends-on="deleteMeasure" name="deleteStandard" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 	<test name="measuresAddEditDelete"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="MEASURESADDEDITDELETE"> -->
+<!-- 				<include name="deleteMeasure" /> -->
+<!-- 			</define> -->
+<!-- 			<define name="CLEAN"> -->
+<!-- 				<include name="deleteStandard" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="MEASURESADDEDITDELETE" /> -->
+<!-- 				<include name="CLEAN" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addStandard" /> -->
+<!-- 				<group depends-on="addStandard" name="addMeasure" /> -->
+<!-- 				<group depends-on="addMeasure" name="updateMeasure" /> -->
+<!-- 				<group depends-on="updateMeasure" name="deleteMeasure" /> -->
+<!-- 				<group depends-on="deleteMeasure" name="deleteStandard" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
-	<test name="AnalysisProfiles" parallel="false" thread-count="1">
-		<groups>
-			<define name="ANALYSEPROFILE">
-				<include name="analyseProfile" />
-			</define>
+<!-- 	<test name="AnalysisProfiles" parallel="false" thread-count="1"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="ANALYSEPROFILE"> -->
+<!-- 				<include name="analyseProfile" /> -->
+<!-- 			</define> -->
 
-			<define name="CLEAN">
-				<include name="deleteCustomer" />
-			</define>
-			<run>
-				<include name="ANALYSEPROFILE" />
-				<include name="CLEAN" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addCustomer" />
-				<group depends-on="addCustomer" name="newProfile" />
-				<group depends-on="newProfile" name="analyseProfile" />
-				<group depends-on="analyseProfile" name="deleteProfile" />
-				<group depends-on="deleteProfile" name="deleteCustomer" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 			<define name="CLEAN"> -->
+<!-- 				<include name="deleteCustomer" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="ANALYSEPROFILE" /> -->
+<!-- 				<include name="CLEAN" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addCustomer" /> -->
+<!-- 				<group depends-on="addCustomer" name="newProfile" /> -->
+<!-- 				<group depends-on="newProfile" name="analyseProfile" /> -->
+<!-- 				<group depends-on="analyseProfile" name="deleteProfile" /> -->
+<!-- 				<group depends-on="deleteProfile" name="deleteCustomer" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
 	<test name="Analyse">
 		<groups>
@@ -163,18 +163,18 @@
 			</define>
 			<run>
 				<include name="ANALYSE" />
-				<include name="CLEAN" />
+<!-- 				<include name="CLEAN" /> -->
 			</run>
 			<dependencies>
 				<group depends-on="login" name="addLanguage" />
 				<group depends-on="login" name="addCustomer" />
 				<group depends-on="addCustomer" name="newProfile" />
 				<group depends-on="newProfile addLanguage addCustomer" name="addAnalysis" />
-				<group depends-on="addAnalysis" name="analyse" />
-				<group depends-on="analyse" name="deleteAnalysis" />
-				<group depends-on="analyse" name="deleteLanguage" />
-				<group depends-on="analyse" name="deleteProfile" />
-				<group depends-on="deleteProfile" name="deleteCustomer" />
+				<group depends-on="login" name="analyse" />
+<!-- 				<group depends-on="analyse" name="deleteAnalysis" /> -->
+<!-- 				<group depends-on="analyse" name="deleteLanguage" /> -->
+<!-- 				<group depends-on="analyse" name="deleteProfile" /> -->
+<!-- 				<group depends-on="deleteProfile" name="deleteCustomer" /> -->
 			</dependencies>
 		</groups>
 		<packages>
@@ -182,86 +182,86 @@
 		</packages>
 	</test>
 
-	<test name="detailsAnalyseTest">
-		<groups>
-			<define name="DETAILSANALYSE">
-				<include name="editAnalysis" />
-			</define>
+<!-- 	<test name="detailsAnalyseTest"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="DETAILSANALYSE"> -->
+<!-- 				<include name="editAnalysis" /> -->
+<!-- 			</define> -->
 
-			<define name="CLEAN">
-				<include name="deleteAnalysis" />
-				<include name="deleteLanguage" />
-				<include name="deleteCustomer" />
-			</define>
-			<run>
-				<include name="DETAILSANALYSE" />
-				<include name="CLEAN" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addLanguage" />
-				<group depends-on="login" name="addCustomer" />
-				<group depends-on="addCustomer" name="newProfile" />
-				<group depends-on="newProfile addLanguage addCustomer" name="addAnalysis" />
-				<group depends-on="addAnalysis" name="editAnalysis" />
+<!-- 			<define name="CLEAN"> -->
+<!-- 				<include name="deleteAnalysis" /> -->
+<!-- 				<include name="deleteLanguage" /> -->
+<!-- 				<include name="deleteCustomer" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="DETAILSANALYSE" /> -->
+<!-- 				<include name="CLEAN" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addLanguage" /> -->
+<!-- 				<group depends-on="login" name="addCustomer" /> -->
+<!-- 				<group depends-on="addCustomer" name="newProfile" /> -->
+<!-- 				<group depends-on="newProfile addLanguage addCustomer" name="addAnalysis" /> -->
+<!-- 				<group depends-on="addAnalysis" name="editAnalysis" /> -->
 
-				<group depends-on="editAnalysis" name="deleteAnalysis" />
-				<group depends-on="deleteAnalysis" name="deleteLanguage" />
-				<group depends-on="deleteAnalysis" name="deleteProfile" />
-				<group depends-on="deleteProfile" name="deleteCustomer" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 				<group depends-on="editAnalysis" name="deleteAnalysis" /> -->
+<!-- 				<group depends-on="deleteAnalysis" name="deleteLanguage" /> -->
+<!-- 				<group depends-on="deleteAnalysis" name="deleteProfile" /> -->
+<!-- 				<group depends-on="deleteProfile" name="deleteCustomer" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
 
-	<test name="checkingProfile">
-		<groups>
-			<define name="NEWPROFILE">
-				<include name="defaultsChecking" />
-			</define>
-			<run>
-				<include name="NEWPROFILE" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addCustomer" />
-				<group depends-on="addCustomer" name="newProfile" />
-				<group depends-on="newProfile" name="defaultsChecking" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 	<test name="checkingProfile"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="NEWPROFILE"> -->
+<!-- 				<include name="defaultsChecking" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="NEWPROFILE" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addCustomer" /> -->
+<!-- 				<group depends-on="addCustomer" name="newProfile" /> -->
+<!-- 				<group depends-on="newProfile" name="defaultsChecking" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 
-	<test name="detailsProfilTest">
-		<groups>
-			<define name="DETAILSPROFILE">
-				<include name="detailsProfile" />
-			</define>
+<!-- 	<test name="detailsProfilTest"> -->
+<!-- 		<groups> -->
+<!-- 			<define name="DETAILSPROFILE"> -->
+<!-- 				<include name="detailsProfile" /> -->
+<!-- 			</define> -->
 
-			<define name="CLEAN">
-				<include name="deleteCustomer" />
-				<include name="deleteLanguage" />
-			</define>
-			<run>
-				<include name="DETAILSPROFILE" />
-				<include name="CLEAN" />
-			</run>
-			<dependencies>
-				<group depends-on="login" name="addLanguage" />
-				<group depends-on="login" name="addCustomer" />
-				<group depends-on="addCustomer addLanguage" name="newProfile" />
-				<group depends-on="newProfile" name="detailsProfile" />
-				<group depends-on="detailsProfile" name="deleteProfile" />
-				<group depends-on="deleteProfile" name="deleteCustomer" />
-				<group depends-on="deleteProfile" name="deleteLanguage" />
-			</dependencies>
-		</groups>
-		<packages>
-			<package name="lu.itrust.TS.ui.*" />
-		</packages>
-	</test>
+<!-- 			<define name="CLEAN"> -->
+<!-- 				<include name="deleteCustomer" /> -->
+<!-- 				<include name="deleteLanguage" /> -->
+<!-- 			</define> -->
+<!-- 			<run> -->
+<!-- 				<include name="DETAILSPROFILE" /> -->
+<!-- 				<include name="CLEAN" /> -->
+<!-- 			</run> -->
+<!-- 			<dependencies> -->
+<!-- 				<group depends-on="login" name="addLanguage" /> -->
+<!-- 				<group depends-on="login" name="addCustomer" /> -->
+<!-- 				<group depends-on="addCustomer addLanguage" name="newProfile" /> -->
+<!-- 				<group depends-on="newProfile" name="detailsProfile" /> -->
+<!-- 				<group depends-on="detailsProfile" name="deleteProfile" /> -->
+<!-- 				<group depends-on="deleteProfile" name="deleteCustomer" /> -->
+<!-- 				<group depends-on="deleteProfile" name="deleteLanguage" /> -->
+<!-- 			</dependencies> -->
+<!-- 		</groups> -->
+<!-- 		<packages> -->
+<!-- 			<package name="lu.itrust.TS.ui.*" /> -->
+<!-- 		</packages> -->
+<!-- 	</test> -->
 </suite>
 

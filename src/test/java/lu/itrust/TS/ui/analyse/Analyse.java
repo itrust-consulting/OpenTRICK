@@ -17,8 +17,8 @@ public class Analyse extends BaseAnalyse {
 
 	@Test(groups = { "addAnalysis" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	@Override
-	public void addAnalysis(String company, String language, String profile, String author, String version, String name, String description, boolean isUncertainty, boolean isCSSF)
-			throws InterruptedException {
+	public void addAnalysis(String company, String language, String profile, String author, String version, String name,
+			String description, boolean isUncertainty, boolean isCSSF) throws InterruptedException {
 		super.addAnalysis(company, language, profile, author, version, name, description, isUncertainty, isCSSF);
 	}
 
@@ -29,8 +29,8 @@ public class Analyse extends BaseAnalyse {
 	}
 
 	@Test(groups = { "editAnalysis" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
-	public void editAnalysis(String defaultCompanyName, String defaultAnalyseName, String newAnalyseName, String newCompanyName, String language, boolean isUncertainty,
-			boolean isCSSF) throws InterruptedException {
+	public void editAnalysis(String defaultCompanyName, String defaultAnalyseName, String newAnalyseName,
+			String newCompanyName, String language, boolean isUncertainty, boolean isCSSF) throws InterruptedException {
 		goToAllAnalysis(defaultCompanyName, defaultAnalyseName);
 		click(By.xpath("//a[contains(@onclick,'editSingleAnalysis')]"));
 
@@ -40,8 +40,10 @@ public class Analyse extends BaseAnalyse {
 		assert !sendKeys(findElement(By.id("analysis_owner")), "");
 		assert !findElement(By.id("analysis_hasData")).isEnabled();
 
-		new Select(findElement(By.xpath("//div[@id='analysiscustomercontainer']//select"))).selectByVisibleText(newCompanyName);
-		new Select(findElement(By.xpath("//div[@id='analysislanguagecontainer']//select"))).selectByVisibleText(language);
+		new Select(findElement(By.xpath("//div[@id='analysiscustomercontainer']//select")))
+				.selectByVisibleText(newCompanyName);
+		new Select(findElement(By.xpath("//div[@id='analysislanguagecontainer']//select")))
+				.selectByVisibleText(language);
 
 		sendKeys(findElement(By.xpath("//input[contains(@name,'comment')]")), newAnalyseName);
 
@@ -61,7 +63,8 @@ public class Analyse extends BaseAnalyse {
 		goToAllAnalysis(companyName, analyseName);
 
 		// edit
-		click(By.xpath("//li[contains(@data-trick-check,\"hasRight('MODIFY')\")]/a[contains(@onclick,'selectAnalysis')]"));
+		click(By.xpath(
+				"//li[contains(@data-trick-check,\"hasRight('MODIFY')\")]/a[contains(@onclick,'selectAnalysis')]"));
 
 		testEditablePage(true, "tabHistory");
 
@@ -88,10 +91,10 @@ public class Analyse extends BaseAnalyse {
 		chooseElementInsideDropdown("//a[@href='#tabRiskInformation_Risk']", false);
 		testEditablePage(true, "tabRiskInformation_Risk");
 
-		// -----------------------------------------------------------------------------------
 		// version
 		goToAllAnalysis(companyName, analyseName);
-		String oldId = findElement(By.xpath("//*[@id='section_analysis']/table/tbody/tr[1]")).getAttribute("data-trick-id");
+		String oldId = findElement(By.xpath("//*[@id='section_analysis']/table/tbody/tr[1]"))
+				.getAttribute("data-trick-id");
 
 		click(By.xpath("//a[contains(@onclick,'addHistory')]"));
 		sendKeys(findElement(By.id("history_author")), "Deimos Chan");
@@ -99,20 +102,25 @@ public class Analyse extends BaseAnalyse {
 		sendKeys(findElement(By.id("history_version")), "0.0.2");
 		sendKeys(findElement(By.id("history_comment")), "Bla bla nium");
 		click(By.id("history_submit_button"));
-		new WebDriverWait(getDriver(), 20).until(ExpectedConditions.invisibilityOfElementLocated(By.id("history_submit_button")));
+		new WebDriverWait(getDriver(), 20)
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("history_submit_button")));
 
-		selectCheckBox(true, By.xpath("//*[@id='section_analysis']/table/tbody/tr[not(@data-trick-id='" + oldId + "')]//input"));
+		selectCheckBox(true,
+				By.xpath("//*[@id='section_analysis']/table/tbody/tr[not(@data-trick-id='" + oldId + "')]//input"));
 		// read only
 		testReadOnlyAnalysis(companyName, analyseName);
 		// back to analysis
 		// ------------------------------------------------------------------
 		goToAllAnalysis(companyName, analyseName);
-		selectCheckBox(true, By.xpath("//*[@id='section_analysis']/table/tbody/tr[not(@data-trick-id='" + oldId + "')]//input"));
+		selectCheckBox(true,
+				By.xpath("//*[@id='section_analysis']/table/tbody/tr[not(@data-trick-id='" + oldId + "')]//input"));
 		click(By.xpath("//a[contains(@onclick,'deleteAnalysis')]"));
 		click(By.id("deleteanalysisbuttonYes"));
-		
-		selectCheckBox(true, By.xpath("//*[@id='section_analysis']/table/tbody/tr[@data-trick-id='" + oldId + "']//input"));
-		click(By.xpath("//li[contains(@data-trick-check,\"hasRight('MODIFY')\")]/a[contains(@onclick,'selectAnalysis')]"));
+
+		selectCheckBox(true,
+				By.xpath("//*[@id='section_analysis']/table/tbody/tr[@data-trick-id='" + oldId + "']//input"));
+		click(By.xpath(
+				"//li[contains(@data-trick-check,\"hasRight('MODIFY')\")]/a[contains(@onclick,'selectAnalysis')]"));
 
 		chooseElementInsideDropdown("//a[@href='#tabAsset']", false);
 		// add asset
@@ -147,20 +155,24 @@ public class Analyse extends BaseAnalyse {
 		click(By.xpath("//a[contains(@onclick,'showEstimation')]"));
 		testEditablePage(true, "tabEstimationAsset");
 
-		click(By.xpath("//a[contains(@onclick,'switchTab') and	 contains(@onclick,'tabAsset')]"));
+		click(By.xpath("//a[contains(@onclick,'switchTab') and contains(@onclick,'tabAsset')]"));
 
 		// scenario
 		chooseElementInsideDropdown("//a[@href='#tabScenario']", false);
 
-		// TODO add/edit/delete scenario, already done analyseprofileopenprofile
+		// TODO add/edit/delete scenario, already done
 
-		addScenario("Test", "Confidentiality", "This is a test profile", true, new String[] { "SW", "HW" }, 0.25, 0.25, 0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0);
-		addScenario("Testa", "Confidentiality", "This is a test profile", true, new String[] { "SW" }, 0.15, 0.25, 0.3, 0.3, 1.0, 0.1, 1.0, 0.1, 1.0);
-		addScenario("Testb", "Confidentiality", "This is a test profile", true, new String[] { "HW" }, 0.15, 0.25, 0.3, 0.3, 1.0, 0.1, 1.0, 0.1, 1.0);
+		addScenario("Test", "Confidentiality", "This is a test profile", true, new String[] { "SW", "HW" }, 0.25, 0.25,
+				0.25, 0.25, 1.0, 1.0, 1.0, 1.0, 1.0);
+		addScenario("Testa", "Confidentiality", "This is a test profile", true, new String[] { "SW" }, 0.15, 0.25, 0.3,
+				0.3, 1.0, 0.1, 1.0, 0.1, 1.0);
+		addScenario("Testb", "Confidentiality", "This is a test profile", true, new String[] { "HW" }, 0.15, 0.25, 0.3,
+				0.3, 1.0, 0.1, 1.0, 0.1, 1.0);
 
 		// estimation
 		chooseElementInsideDropdown("//a[@href='?open=edit-estimation']", false);
-		click(By.xpath("//div[@role='left-menu']//div[@class='list-group']//a[contains(@class,'active')]/following-sibling::a[1]"));
+		click(By.xpath(
+				"//div[@role='left-menu']//div[@class='list-group']//a[contains(@class,'active')]/following-sibling::a[1]"));
 
 		// edit description
 		click(By.xpath("//div[@id='estimation-ui']//i[contains(@class,'fa')]"));
@@ -183,7 +195,8 @@ public class Analyse extends BaseAnalyse {
 
 		newValue = acronyms.get(new Random().nextInt(acronyms.size()));
 		sendKeys(findElement(By.name("impactFin")), newValue);
-		((JavascriptExecutor) getDriver()).executeScript("arguments[0].focus();arguments[0].blur(); return true", findElement(By.name("impactFin")));
+		((JavascriptExecutor) getDriver()).executeScript("arguments[0].focus();arguments[0].blur();return true",
+				findElement(By.name("impactFin")));
 
 		assert !isElementPresent(By.xpath("//input[@name='impactFin']/..[contains(@class,'has-error')]"));
 
@@ -220,43 +233,68 @@ public class Analyse extends BaseAnalyse {
 		chooseElementInsideDropdown("//a[contains(@onclick,'manageStandard')]", false);
 		// get all standard id
 		ArrayList<String> standardids = new ArrayList<>();
-		findElements(By.xpath("//div[@id='standardModal']//tbody/tr")).forEach((element) -> {
-			standardids.add(element.getAttribute("data-trick-id"));
-		});
-		click(By.xpath("//div[@id='standardModal']//button[@name='cancel']"));
-
-		// standard fill
-		for (int i = 0; i < 1; i++) {
-			String standardId = "tabStandard_" + standardids.get(i);
-			chooseElementInsideDropdown("//a[@href='#" + standardId + "']", false);
-			testEditablePage(true, standardId);
+		findElements(By.xpath("//div[@id='standardModal']//table[@id='table_current_standard']//tbody/tr"))
+				.forEach((element) -> {
+					standardids.add(element.getAttribute("data-trick-id"));
+				});
+		for (int i = 1; i < standardids.size(); i++) {
+			selectCheckBox(true,
+					By.xpath("//div[@id='standardModal']//tr[@data-trick-id='" + standardids.get(i) + "']//input"));
+			click(By.xpath("//a[contains(@onclick,'removeStandard')]"));
+			click(By.xpath("//button[@id='deletestandardbuttonYes']"));
 		}
+
+		click(By.xpath("//div[@id='standardModal']//button[@name='cancel']"));
+		chooseElementInsideDropdown("//a[@href='#" + "tabStandard_" + standardids.get(0) + "']", false);
+		testEditablePage(true, "tabStandard_" + standardids.get(0));
+		// standard fill
 
 		// TODO Phases add/edit/delete
 
 		// action plan compute
-		chooseElementInsideDropdown("//a[@href='#tabActionPlan']", false);
-		click(By.xpath("//ul[@id='menu_actionplans']//a[contains(@onclick,'displayActionPlanOptions')]"));
-		click(By.xpath("//button[@id='computeActionPlanButton']"));
-		new WebDriverWait(getDriver(), 30).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//span[@id='task-counter' and text()='1']")));
-		waitLoadingIndicator();
-
-		assert findElements(By.xpath("//div[@id='tabActionPlan']//tbody/tr")).size() == findElements(By.xpath("//div[@id='tabActionPlan']//tbody/tr")).size()
-				&& findElements(By.xpath("//div[@id='tabActionPlan']//tbody/tr")).size() == findElements(By.xpath("//div[@id='tabActionPlan']//tbody/tr")).size();
-
+		// chooseElementInsideDropdown("//a[@href='#tabActionPlan']", false);
+		// click(By.xpath("//ul[@id='menu_actionplans']//a[contains(@onclick,'displayActionPlanOptions')]"));
+		// click(By.xpath("//button[@id='computeActionPlanButton']"));
+		// new WebDriverWait(getDriver(), 30).until(
+		// ExpectedConditions.invisibilityOfElementLocated(By.xpath("//span[@id='task-counter'
+		// and text()='1']")));
+		// waitLoadingIndicator();
 		//
-		chooseElementInsideDropdown("//a[@href='#tabSOA']", false);
-		testEditablePage(true, "tabSOA");
+		//
+		// //
+		// if (findElement(By.xpath("//a[contains(@href,'#tabStandard_') and
+		// text()='27002']")) != null) {
+		// chooseElementInsideDropdown("//a[@href='#tabSOA']", false);
+		// testEditablePage(true, "tabSOA");
+		// }
 		chooseElementInsideDropdown("//a[@href='#tabSummary']", false);
 
-		assert findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size() == findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size()
-				&& findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size() == findElements(By.xpath("//div[@id='tabSummary']//tbody/tr")).size();
 		chooseElementInsideDropdown("//a[contains(@onclick,'return loadRRF();')]", false);
+
+		// get all scenarios
+		String xpathScenario = "//div[@id='selectable_rrf_scenario_controls']//a[@data-trick-class]";
+		for (int i = 1; i <= findElements(By.xpath(xpathScenario)).size(); i++) {
+			// get the current scenario
+			By byScenario = By.xpath("(" + xpathScenario + ")[" + i + "]");
+			// get the class of the scenario
+			// String scenarioType =
+			// findElement(byScenario).getAttribute("data-trick-class");
+			// click on the actual scenarios
+			click(byScenario);
+
+			// exploring chapters
+			for (int chapterIndex = 0; chapterIndex < new Select(findElement(By.name("chapterselection"))).getOptions()
+					.size(); chapterIndex++) {
+				selectComboboxByIndex(By.name("chapterselection"), chapterIndex);
+				// have fun with the measures xD
+			}
+		}
 	}
 
 	public void testReadOnlyAnalysis(String companyName, String analyseName) throws Exception {
 
-		click(By.xpath("//li[contains(@data-trick-check,\"hasRight('READ')\")]/a[contains(@onclick,'selectAnalysis')]"));
+		click(By.xpath(
+				"//li[contains(@data-trick-check,\"hasRight('READ')\")]/a[contains(@onclick,'selectAnalysis')]"));
 		// testEditablePage(false, "tabHistory");
 
 		chooseElementInsideDropdown("//a[@href='#tabScope']", false);

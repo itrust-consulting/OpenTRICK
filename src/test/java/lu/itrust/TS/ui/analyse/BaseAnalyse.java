@@ -347,6 +347,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 		List<WebElement> elements = getDriver()
 				.findElements(By.xpath("//div[@id='" + section + "']//td[contains(@onclick,'editField')]/.."));
 		int size = elements.size();
+		System.out.println("//div[@id='" + section + "']//td[contains(@onclick,'editField')]/..");
 
 		for (int index = 0; index < size; index++) {
 			System.out.println("Xpath generate :  " + index + "/" + (size - 1));
