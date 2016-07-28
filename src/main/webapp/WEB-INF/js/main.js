@@ -56,6 +56,31 @@ function unknowError(jqXHR, textStatus, errorThrown) {
 	return true;
 }
 
+function getScrollbarWidth() {
+    var outer = document.createElement("div");
+    outer.style.visibility = "hidden";
+    outer.style.width = "100px";
+    outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+    document.body.appendChild(outer);
+
+    var widthNoScroll = outer.offsetWidth;
+    // force scrollbars
+    outer.style.overflow = "scroll";
+
+    // add innerdiv
+    var inner = document.createElement("div");
+    inner.style.width = "100%";
+    outer.appendChild(inner);        
+
+    var widthWithScroll = inner.offsetWidth;
+
+    // remove divs
+    outer.parentNode.removeChild(outer);
+
+    return widthNoScroll - widthWithScroll;
+}
+
 function downloadWordReport(id) {
 	window.location = context + '/Profile/Report/' + id + "/Download";
 	return false;
@@ -97,9 +122,17 @@ function toggleToolTip(e) {
 	return e;
 }
 
+function hasScrollBar(element) {
+	return element.get(0).scrollHeight > element.get(0).clientHeight;
+}
+
 $.fn.hasAttr = function(name) {
 	return this[0].hasAttribute(name);
 };
+
+$.fn.hasScrollBar = function() {
+	return this.get(0).scrollHeight > this.get(0).clientHeight;
+}
 
 $.fn.removeAttributes = function(only, except) {
 	if (only) {
@@ -143,40 +176,37 @@ $.fn.removeAttributes = function(only, except) {
  * 
  * @param $
  */
-(function($) {
 
-	$.fn.serializeJSON = function() {
-		var json = {};
-		var form = $(this);
-		form.find('input, select, textarea').each(function() {
-			var val;
-			if (!this.name)
+$.fn.serializeJSON = function() {
+	var json = {};
+	var form = $(this);
+	form.find('input, select, textarea').each(function() {
+		var val;
+		if (!this.name)
+			return;
+
+		if ('radio' === this.type) {
+			if (json[this.name]) {
 				return;
+			}
 
-			if ('radio' === this.type) {
-				if (json[this.name]) {
-					return;
-				}
+			json[this.name] = this.checked ? this.value : '';
+		} else if ('checkbox' === this.type) {
+			val = json[this.name];
 
-				json[this.name] = this.checked ? this.value : '';
-			} else if ('checkbox' === this.type) {
-				val = json[this.name];
-
-				if (!this.checked) {
-					if (!val) {
-						json[this.name] = '';
-					}
-				} else {
-					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+			if (!this.checked) {
+				if (!val) {
+					json[this.name] = '';
 				}
 			} else {
-				json[this.name] = this.value;
+				json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
 			}
-		});
-		return json;
-	};
-
-})(jQuery);
+		} else {
+			json[this.name] = this.value;
+		}
+	});
+	return json;
+};
 
 /**
  * Analysis rights / user permissions
@@ -772,15 +802,15 @@ $(document)
 						}
 
 						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
-							
+
 							closeToolTips();
-							
+
 							if (application.shownScrollTop) {
 								$bodyHtml.animate({
 									scrollTop : 0
 								}, 20);
 							}
-							
+
 							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
 							if (window[callback] != undefined) {
 								var data = $target.attr("data-callback-data");

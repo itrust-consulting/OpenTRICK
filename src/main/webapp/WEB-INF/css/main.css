@@ -515,15 +515,15 @@ datalist {
 	.max-height {
 		height: 100%;
 	}
-	div[role='left-menu'],div[role='nav-tabs'] {
+	*[role='left-menu'],*[role='nav-tabs'] {
 		position: fixed;
 	}
-	div[role='left-menu']+div[class*='col-'] {
+	*[role='left-menu']+*[class*='col-'] {
 		float: right;
 	}
 	
 	.affixNav {
-		height: 95%;
+		height: 88%;
 	}
 	
 	@media ( min-height :400px) {

@@ -170,4 +170,6 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId);
 
+	public Analysis getByUsernameAndId(String username, Integer analysisId);
+
 }

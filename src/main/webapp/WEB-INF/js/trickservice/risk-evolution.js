@@ -11,6 +11,10 @@ $(document).ready(function() {
 
 	application.shownScrollTop = false;
 
+	application.sataticPadding = 2;
+
+	application.scrollBarWith = getScrollbarWidth() + application.sataticPadding + "px";
+
 	$customer.on("change", function(e) {
 		var $progress = $("#loading-indicator").show(), value = $customer.val();
 		$.ajax({
@@ -19,8 +23,6 @@ $(document).ready(function() {
 			success : function(response, textStatus, jqXHR) {
 				$versions.find("option[value!='-']").remove();
 				$analyses.find("option[value!='-']").remove();
-				$versions.filter("[data-index!='1']").prop("disabled", true);
-				$analyses.filter("[data-index!='1']").prop("disabled", true);
 				application["risk-evolution"].analyses = [];
 				for (var i = 0; i < response.length; i++) {
 					for (var j = 0; j < $analyses.length; j++)
@@ -38,6 +40,25 @@ $(document).ready(function() {
 	$analyses.on("change", onAnalysesChange);
 
 	$versions.on("change", onVersionChange);
+
+	$(".affixNav").mouseenter(function() {
+		var $this = $(this);
+		if ($this.hasScrollBar()) {
+			application.scrollBarWith = ((this.offsetWidth - this.clientWidth) + application.sataticPadding) + "px";
+			$this.css({
+				"padding-right" : application.sataticPadding + "px"
+			});
+		}
+	}).mouseleave(function() {
+		var $this = $(this);
+		if ($this.css("padding-right") == (application.sataticPadding + "px")) {
+			$this.css({
+				"padding-right" : application.scrollBarWith
+			});
+		}
+	}).css({
+		"padding-right" : application.scrollBarWith
+	});
 
 });
 
@@ -58,32 +79,44 @@ function onAnalysesChange() {
 		}).complete(function() {
 			$progress.hide();
 		});
-	} else $version.trigger("change");
+	} else
+		$version.trigger("change");
 }
 
 function onVersionChange(e) {
-	var analyses = application["risk-evolution"].analyses = [], $target = $(e.currentTarget), index = parseInt($target.attr("data-index")), currentValue = $target.val();
-	
-	if (currentValue == "-") {
-		$analyses.filter(":visible").filter(function() {
-			return this.getAttribute("data-index") > index;
-		}).closest("[data-role='form-container']").hide();
-	} else {
-		$analyses.filter("[data-index='" + (index + 1) + "']").closest("[data-role='form-container']").show();
-		$versions.filter("[data-index='" + (index + 1) + "']")
+	var analyses = application["risk-evolution"].analyses = [], $target = $(e.currentTarget), index = parseInt($target.attr("data-index")), currentValue = $target.val(), update = true;
+	if ($target.is(":visible")) {
+		if (currentValue == "-") {
+			$analyses.filter(":visible").filter(function() {
+				return this.getAttribute("data-index") > index;
+			}).closest("[data-role='form-container']").hide();
+		} else {
+			$analyses.filter("[data-index='" + (index + 1) + "']").closest("[data-role='form-container']").show();
+			var $nextVersion = $versions.filter("[data-index='" + (index + 1) + "']");
+			if ($nextVersion.length && $nextVersion.val() != "-") {
+				$nextVersion.trigger('change');
+				update = false;
+
+			}
+		}
+
+		console.log(update)
+
+		if (update) {
+
+			$versions.each(function() {
+				var $this = $(this), value = $this.val();
+				if ($this.is(":visible") && value != "-" && analyses.indexOf(value) == -1)
+					analyses.push(value);
+			});
+
+			loadTotalALE();
+			loadAleByAsset();
+			loadAleByScenario();
+			loadAleByAssetType();
+			loadAleByScenarioType();
+		}
 	}
-	
-	$versions.each(function() {
-		var $this = $(this), value = $this.val();
-		if ($this.is(":visible") && !(value == "-" || analyses.includes(value)))
-			analyses.push(value);
-	});
-
-	
-
-	loadTotalALE();
-	loadAleByScenario();
-	loadAleByAssetType();
 }
 
 function loadTotalALE() {
@@ -135,9 +168,36 @@ function loadAleByAssetType() {
 }
 
 function loadAleByScenario() {
-	var $tab = $("#tabAleByScenarioType");
+	var $tab = $("#tabAleByScenario").empty();
 	if (!$tab.is(":visible"))
 		$tab.attr("data-update-required", true).attr("data-trigger", 'loadAleByScenario');
+	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Risk-evolution/Chart/ALE-by-scenario",
+			data : {
+				"customerId" : application["risk-evolution"].customer,
+				"analyses" : (application["risk-evolution"].analyses + "").replace("=[]", "")
+			},
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (Array.isArray(response)) {
+					for (var i = 0; i < response.length; i++)
+						$("<div />").appendTo($tab).highcharts(response[i]);
+				} else
+					$("<div class='max-height' />").appendTo($tab).highcharts(response);
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	}
+}
+
+function loadAleByScenarioType() {
+	var $tab = $("#tabAleByScenarioType");
+	if (!$tab.is(":visible"))
+		$tab.attr("data-update-required", true).attr("data-trigger", 'loadAleByScenarioType');
 	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
@@ -158,10 +218,29 @@ function loadAleByScenario() {
 	}
 }
 
-function loadAleByScenarioType() {
-
-}
-
 function loadAleByAsset() {
-
+	var $tab = $("#tabAleByAsset").empty();
+	if (!$tab.is(":visible"))
+		$tab.attr("data-update-required", true).attr("data-trigger", 'loadAleByAsset');
+	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Risk-evolution/Chart/ALE-by-asset",
+			data : {
+				"customerId" : application["risk-evolution"].customer,
+				"analyses" : (application["risk-evolution"].analyses + "").replace("=[]", "")
+			},
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (Array.isArray(response)) {
+					for (var i = 0; i < response.length; i++)
+						$("<div />").appendTo($tab).highcharts(response[i]);
+				} else
+					$("<div class='max-height' />").appendTo($tab).highcharts(response);
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	}
 }

@@ -6,6 +6,7 @@
 <!-- ############################################################### Set Page Title ################################################################# -->
 <spring:message var="title" scope="request" code='label.title.risk_evolution' text="Risk evolution" />
 <!-- #################################################################### HTML ###################################################################### -->
+<!DOCTYPE html>
 <html>
 <!-- ################################################################ Include Header ################################################################ -->
 <jsp:include page="../../template/header.jsp" />
@@ -16,31 +17,31 @@
 		<jsp:include page="../../template/menu.jsp" />
 		<!-- ################################################################### Content #################################################################### -->
 		<div class="container trick-container max-height">
-			<div class="col-lg-3 max-height" style="margin-top: 18px;">
-				<fieldset class="affixNav" style="overflow-x: hidden;" role="left-menu">
-					<legend>
-						<spring:message code='label.title.general' text="General" />
-					</legend>
-					<div class='form form-horizontal'>
-						<div class='form-group'>
-							<label class='label-control col-sm-4'><spring:message code='label.customer' text="Customer" /></label>
-							<div class='col-sm-8'>
-								<select class='form-control' name='customer' id='customer-selector'>
-									<c:forEach var="currentCustomer" items="${customers}">
-										<option value="${currentCustomer.id}" ${not empty customer and currentCustomer.id == customer?'selected': ''}><spring:message
-												text='${currentCustomer.organisation}' /></option>
-									</c:forEach>
-								</select>
-							</div>
+			<fieldset class="col-lg-3 max-height affixNav " style="overflow-x: hidden; padding-right: 16px; margin-top: 17px;" role="left-menu">
+				<legend>
+					<spring:message code='label.title.general' text="General" />
+				</legend>
+				<div class='form form-horizontal'>
+					<div class='form-group'>
+						<label class='label-control col-sm-4'><spring:message code='label.customer' text="Customer" /></label>
+						<div class='col-sm-8'>
+							<select class='form-control' name='customer' id='customer-selector'>
+								<c:forEach var="currentCustomer" items="${customers}">
+									<option value="${currentCustomer.id}" ${not empty customer and currentCustomer.id == customer?'selected': ''}><spring:message
+											text='${currentCustomer.organisation}' /></option>
+								</c:forEach>
+							</select>
 						</div>
-						<c:forEach var="index" begin="1" end="15" step="1">
-							<div data-role='form-container' ${index>1? 'hidden' : ''}>
-								<hr>
+					</div>
+					<hr>
+					<c:forEach var="index" begin="1" end="10" step="1">
+						<div data-role='form-container' ${index>1? 'hidden class="panel panel-info"' : 'class="panel panel-primary"'}>
+							<div class='panel-heading'>
 								<div class='form-group' id='analysis_${index}'>
 									<label class='label-control col-sm-4'><spring:message code='label.analysis' text="Analysis" /></label>
 									<div class='col-sm-8'>
-										<select class='form-control' name='analysis' id='analysis-selector-${index}' data-parent='#customer-selector'
-											data-target='#analysis-version-selector-${index}' data-index='${index}'>
+										<select class='form-control' name='analysis' id='analysis-selector-${index}' data-parent='#customer-selector' data-target='#analysis-version-selector-${index}'
+											data-index='${index}'>
 											<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
 											<c:forEach items="${analyses}" var="analysis">
 												<option value='<spring:message text="${analysis.identifier}"/>'><spring:message text="${analysis.label}" /></option>
@@ -51,18 +52,17 @@
 								<div class='form-group' id='analysis_${index}'>
 									<label class='label-control col-sm-4'><spring:message code='label.analysis.version' text="Version" /></label>
 									<div class='col-sm-8'>
-										<select class='form-control'name='version' data-parent='#analysis-selector-${index}' id='analysis-version-selector-${index}'
-											data-index='${index}'>
+										<select class='form-control' name='version' data-parent='#analysis-selector-${index}' id='analysis-version-selector-${index}' data-index='${index}'>
 											<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
 										</select>
 									</div>
 								</div>
 							</div>
-						</c:forEach>
-					</div>
-					<div class='clearfix'></div>
-				</fieldset>
-			</div>
+						</div>
+					</c:forEach>
+				</div>
+				<div class='clearfix'></div>
+			</fieldset>
 			<div class="col-lg-9 max-height">
 				<ul class="nav nav-tabs col-xs-12 nav-tab" role='nav-tabs'>
 					<li class='active'><a id="headingTotalALE" role='tab' role='button' data-toggle='tab' href="#tabTotalALE"> <spring:message code='label.title.total_ale'

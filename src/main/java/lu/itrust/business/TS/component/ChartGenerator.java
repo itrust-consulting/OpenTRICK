@@ -289,7 +289,7 @@ public class ChartGenerator {
 		JsonChart chart = new JsonChart("\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}",
 				"\"title\": {\"text\":\"" + chartitle + "\"}", "\"pane\": {\"size\": \"100%\"}",
 				"\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}");
-		
+
 		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
 		chart.setTooltip("\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }");
 		if (aleCharts.length == 1)
@@ -301,12 +301,14 @@ public class ChartGenerator {
 	}
 
 	private void buildMulitALESeries(JsonChart chart, ALEChart... aleCharts) {
-		
+
 		Map<String, Map<String, ALE>> aleChartMapper = new LinkedHashMap<>();
 
-		aleChartMapper.put(aleCharts[0].getName(), aleCharts[0].getAles().stream().collect(Collectors.toMap(ALE::getAssetName, Function.identity())));
+		Map<String, ALE> references = new LinkedHashMap<>(aleCharts[0].getAles().size());
 
-		Map<String, ALE> references = aleChartMapper.get(aleCharts[0].getName());
+		aleCharts[0].getAles().forEach(ale -> references.put(ale.getAssetName(), ale));
+		
+		aleChartMapper.put(aleCharts[0].getName(), references);
 
 		for (int i = 1; i < aleCharts.length; i++) {
 			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream().filter(ale -> references.containsKey(ale.getAssetName()))
@@ -316,7 +318,7 @@ public class ChartGenerator {
 		}
 
 		double max = aleChartMapper.values().stream().flatMap(aleMapper -> aleMapper.values().stream()).mapToDouble(ALE::getValue).max().orElse(0d);
-		
+
 		int count = references.size();
 
 		String categories = "", series = "";
