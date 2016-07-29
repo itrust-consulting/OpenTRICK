@@ -116,10 +116,6 @@ public class BaseUnitTesting {
 		int cIndex = Integer.parseInt(new Select(findElement(by)).getFirstSelectedOption().getAttribute("index"));
 		NeverStaleWebElement element = new NeverStaleWebElement(getDriver(), by);
 		while (tries < 9999 && cIndex != index) {
-			System.out.println("----");
-			System.out.println(cIndex);
-			System.out.println(index);
-
 			if (cIndex < index) {
 				for (int i = 0; i < index - cIndex; i++) {
 					element.sendKeys(Keys.ARROW_DOWN);

@@ -140,11 +140,11 @@ public class DataProviderSource {
 		case "detailsProfilTest":
 			switch (methodName) {
 			case "addLanguage":
-				return new Object[][] { { "TES", "asdf", "as" } };
+				return new Object[][] { { "RSG", "asdf", "as" } };
 			case "addCustomer":
 				return new Object[][] { { "testerasdfghf", "Mr D", "26123456", "itrust@test.de", "1234", "lux", "lux", "1234 route" } };
 			case "deleteLanguage":
-				return new Object[][] { { "TES" } };
+				return new Object[][] { { "RSG" } };
 			case "newProfile":
 				return new Object[][] { { "testerasdfghf", "profileAlpha" } };
 			case "detailsProfile":

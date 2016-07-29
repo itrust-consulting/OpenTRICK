@@ -318,7 +318,7 @@ public class Analyse extends BaseAnalyse {
 
 	public void testDefaultEditable(boolean editable) throws InterruptedException, Exception {
 
-		if (!editable) {
+		if (editable) {
 			testEditablePage(editable, "tabHistory");
 		}
 
