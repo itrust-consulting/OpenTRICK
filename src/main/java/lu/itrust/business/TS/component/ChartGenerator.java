@@ -497,13 +497,9 @@ public class ChartGenerator {
 
 		List<Phase> phases = daoPhase.getAllFromAnalysisActionPlan(idAnalysis);
 
-		// Hibernate.initialize(phases);
-
 		if (!actionPlanMeasures.isEmpty()) {
 
 			for (Phase phase : phases) {
-
-				// Hibernate.initialize(phase);
 
 				if (phase.getNumber() == Constant.PHASE_NOT_USABLE)
 					continue;

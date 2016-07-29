@@ -28,6 +28,7 @@ $(document).ready(function() {
 					for (var j = 0; j < $analyses.length; j++)
 						$("<option />").attr("value", response[i].identifier).text(response[i].label).appendTo($($analyses[j]));
 				}
+				$versions.first().trigger("change");
 				application["risk-evolution"].customer = value;
 			},
 			error : unknowError
@@ -96,18 +97,28 @@ function onVersionChange(e) {
 			if ($nextVersion.length && $nextVersion.val() != "-") {
 				$nextVersion.trigger('change');
 				update = false;
-
 			}
+
+			$versions.each(function(i) {
+				var value = this.value, index = this.getAttribute("data-index");
+				if (value != '-') {
+					$versions.filter(function() {
+						return this.value == value && this.getAttribute("data-index") > index;
+					}).val("-");
+				}
+			});
 		}
 
-		console.log(update)
-
 		if (update) {
-
-			$versions.each(function() {
-				var $this = $(this), value = $this.val();
-				if ($this.is(":visible") && value != "-" && analyses.indexOf(value) == -1)
-					analyses.push(value);
+			$versions.find("option:hidden").prop("hidden", false);
+			var $visibleVersions = $versions.filter(":visible")
+			$visibleVersions.each(function() {
+				var value = this.value, index = this.getAttribute("data-index");
+				if (value != "-") {
+					if (analyses.indexOf(value) == -1)
+						analyses.push(value);
+					$visibleVersions.filter("[data-index!='" + index + "']").find("option[value='" + value + "']").prop("hidden", true);
+				}
 			});
 
 			loadTotalALE();
@@ -119,128 +130,49 @@ function onVersionChange(e) {
 	}
 }
 
-function loadTotalALE() {
-	var $tab = $("#tabTotalALE");
+function loadALEChart(tab, trigger, url) {
+	var $tab = $(tab).empty();
 	if (!$tab.is(":visible"))
-		$tab.attr("data-update-required", true).attr("data-trigger", 'loadTotalALE');
+		$tab.attr("data-update-required", true).attr("data-trigger", trigger);
 	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
-			url : context + "/Analysis/Risk-evolution/Chart/Total-ALE",
+			url : context + url,
 			data : {
 				"customerId" : application["risk-evolution"].customer,
 				"analyses" : (application["risk-evolution"].analyses + "").replace("=[]", "")
 			},
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				// response.chart.height = "700";
-				$("<div class='max-height' />").appendTo($tab.empty()).highcharts(response);
+				if (Array.isArray(response)) {
+					for (var i = 0; i < response.length; i++)
+						$("<div />").appendTo($tab).highcharts(response[i]);
+				} else
+					$("<div class='max-height' />").appendTo($tab).highcharts(response);
 			},
 			error : unknowError
 		}).complete(function() {
 			$progress.hide();
 		});
 	}
+}
+
+function loadTotalALE() {
+	loadALEChart("#tabTotalALE", 'loadTotalALE', "/Analysis/Risk-evolution/Chart/Total-ALE");
 }
 
 function loadAleByAssetType() {
-	var $tab = $("#tabAleByAssetType");
-	if (!$tab.is(":visible"))
-		$tab.attr("data-update-required", true).attr("data-trigger", 'loadAleByAssetType');
-	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url : context + "/Analysis/Risk-evolution/Chart/ALE-by-asset-type",
-			data : {
-				"customerId" : application["risk-evolution"].customer,
-				"analyses" : (application["risk-evolution"].analyses + "").replace("=[]", "")
-			},
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				// response.chart.height = "700";
-				$("<div class='max-height' />").appendTo($tab.empty()).highcharts(response);
-			},
-			error : unknowError
-		}).complete(function() {
-			$progress.hide();
-		});
-	}
+	loadALEChart("#tabAleByAssetType", 'loadAleByAssetType', "/Analysis/Risk-evolution/Chart/ALE-by-asset-type");
 }
 
 function loadAleByScenario() {
-	var $tab = $("#tabAleByScenario").empty();
-	if (!$tab.is(":visible"))
-		$tab.attr("data-update-required", true).attr("data-trigger", 'loadAleByScenario');
-	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url : context + "/Analysis/Risk-evolution/Chart/ALE-by-scenario",
-			data : {
-				"customerId" : application["risk-evolution"].customer,
-				"analyses" : (application["risk-evolution"].analyses + "").replace("=[]", "")
-			},
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				if (Array.isArray(response)) {
-					for (var i = 0; i < response.length; i++)
-						$("<div />").appendTo($tab).highcharts(response[i]);
-				} else
-					$("<div class='max-height' />").appendTo($tab).highcharts(response);
-			},
-			error : unknowError
-		}).complete(function() {
-			$progress.hide();
-		});
-	}
+	loadALEChart("#tabAleByScenario", 'loadAleByScenario', "/Analysis/Risk-evolution/Chart/ALE-by-scenario");
 }
 
 function loadAleByScenarioType() {
-	var $tab = $("#tabAleByScenarioType");
-	if (!$tab.is(":visible"))
-		$tab.attr("data-update-required", true).attr("data-trigger", 'loadAleByScenarioType');
-	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url : context + "/Analysis/Risk-evolution/Chart/ALE-by-scenario-type",
-			data : {
-				"customerId" : application["risk-evolution"].customer,
-				"analyses" : (application["risk-evolution"].analyses + "").replace("=[]", "")
-			},
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				// response.chart.height = "700";
-				$("<div class='max-height' />").appendTo($tab.empty()).highcharts(response);
-			},
-			error : unknowError
-		}).complete(function() {
-			$progress.hide();
-		});
-	}
+	loadALEChart("#tabAleByScenarioType", 'loadAleByScenarioType', "/Analysis/Risk-evolution/Chart/ALE-by-scenario-type");
 }
 
 function loadAleByAsset() {
-	var $tab = $("#tabAleByAsset").empty();
-	if (!$tab.is(":visible"))
-		$tab.attr("data-update-required", true).attr("data-trigger", 'loadAleByAsset');
-	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url : context + "/Analysis/Risk-evolution/Chart/ALE-by-asset",
-			data : {
-				"customerId" : application["risk-evolution"].customer,
-				"analyses" : (application["risk-evolution"].analyses + "").replace("=[]", "")
-			},
-			contentType : "application/json;charset=UTF-8",
-			success : function(response, textStatus, jqXHR) {
-				if (Array.isArray(response)) {
-					for (var i = 0; i < response.length; i++)
-						$("<div />").appendTo($tab).highcharts(response[i]);
-				} else
-					$("<div class='max-height' />").appendTo($tab).highcharts(response);
-			},
-			error : unknowError
-		}).complete(function() {
-			$progress.hide();
-		});
-	}
+	loadALEChart("#tabAleByAsset", 'loadAleByAsset', "/Analysis/Risk-evolution/Chart/ALE-by-asset");
 }
