@@ -196,9 +196,9 @@ public class BaseUnitTesting {
 			System.err.println("Error");
 			assert !waitClick(by);
 		}
-		new WebDriverWait(getDriver(), 30)
-				.until(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")));
-		new WebDriverWait(getDriver(), 5).until(ExpectedConditions.elementToBeClickable(by));
+		new WebDriverWait(getDriver(), 40).until(
+				ExpectedConditions.and(ExpectedConditions.invisibilityOfElementLocated(By.id("#loading-indicator")),
+						ExpectedConditions.elementToBeClickable(by)));
 
 		new WebDriverWait(getDriver(), 10).until(new Function<WebDriver, Boolean>() {
 			public Boolean apply(WebDriver driver) throws TimeoutException {
@@ -288,9 +288,7 @@ public class BaseUnitTesting {
 			int count = 0;
 			new WebDriverWait(getDriver(), 10).until(ExpectedConditions.not(ExpectedConditions.stalenessOf(element)));
 			while (count < 10 && !getTextFromTextareaInput(element).equals(msg)) {
-
 				continueClearingUntilClear(element);
-
 				element.sendKeys(msg);
 				count++;
 			}

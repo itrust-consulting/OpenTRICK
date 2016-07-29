@@ -25,40 +25,40 @@ public class ChangeAdministrationSettings extends BaseUnitTesting {
 	@Test(groups = { "testToogleTicketsSetting" }, dataProvider = "dataProvider", dataProviderClass = DataProviderSource.class)
 	public void testToogleTicketsSetting(String username, String password) throws Exception {
 		login(username, password);
-		// settings
-		String selector = "#SETTING_ALLOWED_TICKETING_SYSTEM_LINK";
-		String searchCssState = selector + " .btn-group :not(.active) input";
+		// init xpath variables
+		String xpathCheckboxesId = "#SETTING_ALLOWED_TICKETING_SYSTEM_LINK";
+		By byCheckboxInput = By.cssSelector(xpathCheckboxesId + " .btn-group :not(.active) input");
 
 		click(By.xpath("//a[substring-before(@href,'/Admin')]"));
 		click(By.xpath("//a[@href='#tab_tsSetting']"));
 
-		String stateBefore = findElement(By.cssSelector(searchCssState)).getAttribute("value");
+		String stateBefore = findElement(byCheckboxInput).getAttribute("value");
 
-		click(By.cssSelector(selector + " .btn-group label:not(.active)"));
+		click(By.cssSelector(xpathCheckboxesId + " .btn-group label:not(.active)"));
+		
+		getDriver().navigate().refresh();
 
-		assert !findElement(By.cssSelector(searchCssState)).getAttribute("value").equals(stateBefore);
+		assert !findElement(byCheckboxInput).getAttribute("value").equals(stateBefore);
 
 	}
 
 	private void testSettings(String username, String password, String xpathState, String toogleSelector) throws InterruptedException {
 		signOut();
-		String searchXpathState = xpathState;
 		getDriver().get(getBaseUrl() + "/Login");
-		boolean state = isElementPresent(By.xpath(searchXpathState));
+		boolean state = isElementPresent(By.xpath(xpathState));
 		login(username, password);
-		String selector = toogleSelector;
 
 		click(By.xpath("//a[substring-before(@href,'/Admin')]"));
 
 		click(By.xpath("//a[contains(@href,'tab_tsSetting')]"));
 
-		click(By.cssSelector(selector + " .btn-group label:not(.active)"));
+		click(By.cssSelector(toogleSelector + " .btn-group label:not(.active)"));
 
 		signOut();
 
 		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.presenceOfElementLocated(By.id("login_form")));
 
-		assert isElementPresent(By.xpath(searchXpathState)) != state;
+		assert isElementPresent(By.xpath(xpathState)) != state;
 	}
 
 }
