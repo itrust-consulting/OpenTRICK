@@ -170,7 +170,7 @@
 				<group depends-on="login" name="addCustomer" />
 				<group depends-on="addCustomer" name="newProfile" />
 				<group depends-on="newProfile addLanguage addCustomer" name="addAnalysis" />
-				<group depends-on="login" name="analyse" />
+				<group depends-on="addAnalysis" name="analyse" />
 				<group depends-on="analyse" name="deleteAnalysis" />
 				<group depends-on="analyse" name="deleteLanguage" />
 				<group depends-on="analyse" name="deleteProfile" />
