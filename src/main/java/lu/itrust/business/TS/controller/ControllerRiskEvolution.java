@@ -9,6 +9,7 @@ import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.component.ALEChart;
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.ComplianceChartData;
 import lu.itrust.business.TS.component.Distribution;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
@@ -43,6 +45,7 @@ import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -118,7 +121,7 @@ public class ControllerRiskEvolution {
 
 	private List<Analysis> loadAnalyses(Principal principal, int customerId, List<Integer> analysisIds) {
 		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
-		List<Analysis> analyses = new LinkedList<>();
+		List<Analysis> analyses = new ArrayList<>(analysisIds.size());
 		for (Integer analysisId : analysisIds) {
 			Analysis analysis = serviceAnalysis.getByUsernameAndId(principal.getName(), analysisId);
 			if (analysis == null || !analysis.hasData() || !analysis.getCustomer().equals(customer))
@@ -256,6 +259,36 @@ public class ControllerRiskEvolution {
 			}
 			return "[" + assetCharts + "]";
 		}
+	}
+
+	@RequestMapping(value = "/Chart/Compliance", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object compliance(Principal principal, @RequestParam(name = "customerId") int customerId, @RequestParam(name = "analyses") List<Integer> analysisIds,
+			Locale locale) {
+		List<Analysis> analyses = loadAnalyses(principal, customerId, analysisIds);
+		if (analyses.isEmpty())
+			return chartGenerator.compliance(locale, new ComplianceChartData("27001", ""));
+		Map<String, List<ComplianceChartData>> complianceCharts = new LinkedHashMap<>(analyses.get(0).getAnalysisStandards().size());
+		String analysisName = analyses.get(0).getLabel() + " " + analyses.get(0).getVersion();
+		analyses.get(0).getAnalysisStandards().forEach(analysisStandard -> {
+			List<ComplianceChartData> charts = new LinkedList<>();
+			charts.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(),analysisName, analysisStandard.getMeasures()));
+			complianceCharts.put(analysisStandard.getStandard().getLabel(), charts);
+
+		});
+
+		for (int i = 1; i < analyses.size(); i++) {
+			Analysis analysis = analyses.get(i);
+			String name = analysis.getLabel() + " " + analysis.getVersion();
+			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+				List<ComplianceChartData> charts = complianceCharts.get(analysisStandard.getStandard().getLabel());
+				if (charts != null)
+					charts.add(new ComplianceChartData(analysisStandard.getStandard().getLabel(),name, analysisStandard.getMeasures()));
+			}
+		}
+		String charts = "";
+		for (List<ComplianceChartData> chartDatas : complianceCharts.values())
+			charts += (charts.isEmpty() ? "" : ",") + chartGenerator.compliance(locale, chartDatas.toArray(new ComplianceChartData[chartDatas.size()]) );
+		return complianceCharts.size() > 1 ? "[" + charts + "]" : charts;
 	}
 
 	private String computeTotalALE(List<Analysis> analyses, Locale locale) {

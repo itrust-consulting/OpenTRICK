@@ -3,6 +3,7 @@ package lu.itrust.business.TS.component;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -307,7 +308,7 @@ public class ChartGenerator {
 		Map<String, ALE> references = new LinkedHashMap<>(aleCharts[0].getAles().size());
 
 		aleCharts[0].getAles().forEach(ale -> references.put(ale.getAssetName(), ale));
-		
+
 		aleChartMapper.put(aleCharts[0].getName(), references);
 
 		for (int i = 1; i < aleCharts.length; i++) {
@@ -395,6 +396,68 @@ public class ChartGenerator {
 			}
 		}
 		return compliances;
+	}
+
+	/**
+	 * compliance: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param standard
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	public String compliance(Locale locale, ComplianceChartData... measureChartDatas)  {
+
+		ComplianceChartData reference = measureChartDatas[0];
+
+		Map<String, Object[]> compliances = ComputeComplianceBefore(reference.getMeasures());
+
+		JsonChart chart = new JsonChart("\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}",
+				"\"title\": { \"marginLeft\": -50, \"text\":\""
+						+ messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { reference.getStandard() }, reference + " measure compliance", locale)
+						+ "\"}",
+				"\"pane\": {\"size\": \"100%\"}", "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\",\"layout\": \"vertical\",  \"y\": 70 }");
+
+		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
+
+		if (measureChartDatas.length > 0) {
+
+			chart.setyAxis(
+					"\"yAxis\": {\"gridLineInterpolation\": \"polygon\" , \"lineWidth\":0,\"min\":0,\"max\":100, \"tickInterval\": 20, \"labels\":{ \"format\": \"{value}%\"} }");
+
+			String series = "";
+			String categories = "";
+			String data = "";
+			for (String key : compliances.keySet()) {
+				Object[] compliance = compliances.get(key);
+				data += (data.isEmpty() ? "" : ",") + (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
+				categories += (categories.isEmpty() ? "" : ",") + "\""+key+"\"";
+			}
+			
+			series += (series.isEmpty() ? "" : ",") + "{\"name\":\"" + reference.getAnalysis() + "\", \"data\":[" + data + "],\"valueDecimals\": 0}";
+			
+			if (measureChartDatas.length > 1) {
+				Collection<String> keys = compliances.keySet();
+				for (int i = 1; i < measureChartDatas.length; i++) {
+					compliances = ComputeComplianceBefore(measureChartDatas[i].getMeasures());
+					data = "";
+					for (String key : keys) {
+						Object[] compliance = compliances.get(key);
+						if (compliance == null)
+							data += (data.isEmpty() ? "0" : ",0");
+						else
+							data += (data.isEmpty() ? "" : ",") + (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
+					}
+					series += (series.isEmpty() ? "" : ",") + "{\"name\":\"" + measureChartDatas[i].getAnalysis() + "\", \"data\":[" + data + "],\"valueDecimals\": 0}";
+				}
+			}
+			chart.setxAxis(String.format("\"xAxis\":{\"categories\":[%s]}", categories));
+			chart.setSeries(String.format("\"series\":[%s]", series));
+		}
+		
+		return chart.toString();
 	}
 
 	/**

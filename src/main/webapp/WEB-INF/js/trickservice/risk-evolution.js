@@ -91,6 +91,7 @@ function onVersionChange(e) {
 			$analyses.filter(":visible").filter(function() {
 				return this.getAttribute("data-index") > index;
 			}).closest("[data-role='form-container']").hide();
+			update = false;
 		} else {
 			$analyses.filter("[data-index='" + (index + 1) + "']").closest("[data-role='form-container']").show();
 			var $nextVersion = $versions.filter("[data-index='" + (index + 1) + "']");
@@ -126,6 +127,7 @@ function onVersionChange(e) {
 			loadAleByScenario();
 			loadAleByAssetType();
 			loadAleByScenarioType();
+			loadCompliance();
 		}
 	}
 }
@@ -175,4 +177,8 @@ function loadAleByScenarioType() {
 
 function loadAleByAsset() {
 	loadALEChart("#tabAleByAsset", 'loadAleByAsset', "/Analysis/Risk-evolution/Chart/ALE-by-asset");
+}
+
+function loadCompliance() {
+	loadALEChart("#tabCompliance", 'loadCompliance', "/Analysis/Risk-evolution/Chart/Compliance");
 }

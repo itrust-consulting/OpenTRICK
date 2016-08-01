@@ -36,7 +36,11 @@
 					<hr>
 					<c:forEach var="index" begin="1" end="10" step="1">
 						<div data-role='form-container' ${index>1? 'hidden class="panel panel-info"' : 'class="panel panel-primary"'}>
-							<div class='panel-heading'>
+							<div class='panel-heading' ${index>1?'style="padding-top:20px;"' :''}>
+								<c:if test="${index>1}">
+									<button class="pull-right btn btn-xs btn-danger" style="margin-top: -19px; margin-right: -14px; margin-bottom: 3px;"><i class="fa fa-times" aria-hidden="true"></i>
+</button>
+								</c:if>
 								<div class='form-group' id='analysis_${index}'>
 									<label class='label-control col-sm-4'><spring:message code='label.analysis' text="Analysis" /></label>
 									<div class='col-sm-8'>
@@ -83,7 +87,10 @@
 					<li><a id="headingAleByAsset" role='tab' role='button' data-toggle='tab' href="#tabAleByAsset"> <spring:message code='label.title.ale_by_asset' text="ALE by asset" />
 					</a></li>
 
-					<li>
+
+					<li><a id="headingCompliance" role='tab' role='button' data-toggle='tab' href="#tabCompliance"> <spring:message code='label.title.compliance' text="Compliance" />
+					</a></li>
+
 				</ul>
 				<div class='tab-content max-height' style="padding-bottom: 30px;">
 					<div id='tabTotalALE' class='tab-pane active max-height' style="padding-top: 70px"></div>
@@ -91,6 +98,7 @@
 					<div id='tabAleByAssetType' class='tab-pane max-height' style="padding-top: 70px"></div>
 					<div id='tabAleByScenario' class='tab-pane max-height' style="padding-top: 70px"></div>
 					<div id='tabAleByAsset' class='tab-pane max-height' style="padding-top: 70px"></div>
+					<div id='tabCompliance' class='tab-pane max-height' style="padding-top: 70px"></div>
 				</div>
 				<div class='clearfix'></div>
 			</div>
