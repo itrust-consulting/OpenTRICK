@@ -26,6 +26,7 @@ public class NeverStaleWebElement implements WebElement {
 	@Override
 	public void clear() {
 		try {
+			element.submit();
 			element.clear();
 		} catch (StaleElementReferenceException e) {
 			element = driver.findElement(foundBy);

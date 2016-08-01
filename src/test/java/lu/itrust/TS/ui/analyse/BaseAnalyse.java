@@ -14,6 +14,7 @@ import org.dom4j.Text;
 import org.dom4j.io.SAXReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -220,7 +221,8 @@ public class BaseAnalyse extends BaseUnitTesting {
 
 		click(By.xpath("//div[@id='buildAnalysisModal']//button[@name='save']"));
 
-	 new WebDriverWait(getDriver(), 60).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='buildAnalysisModal']")));
+		new WebDriverWait(getDriver(), 60)
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@id='buildAnalysisModal']")));
 
 		assert !isElementPresent(By.xpath("//div[@id='buildAnalysisModal']"));
 	}
@@ -355,9 +357,10 @@ public class BaseAnalyse extends BaseUnitTesting {
 					// lost focus
 					((JavascriptExecutor) getDriver()).executeScript(
 							"arguments[0].focus(); arguments[0].blur(); return true", input.getElement());
+
 					new WebDriverWait(getDriver(), 10)
-							.until(ExpectedConditions.not(ExpectedConditions.visibilityOfNestedElementsLocatedBy(
-									possibleInput.getElement(), By.className("form-control"))));
+							.until(ExpectedConditions.not(ExpectedConditions.visibilityOfElementLocated(
+									By.xpath(xpathCurrent + "//*[contains(@class,'form-control')]"))));
 
 					assert possibleInput.getText().equals(newValue);
 
