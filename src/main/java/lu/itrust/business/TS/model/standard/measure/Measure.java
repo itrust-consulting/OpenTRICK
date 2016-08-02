@@ -16,7 +16,6 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -633,10 +632,6 @@ public abstract class Measure implements Cloneable {
 			measure.setMeasureDescription(desc);
 		}
 		return measure;
-	}
-
-	public static int compare(String reference, String reference2) {
-		return GeneralComperator.VersionComparator(reference, reference2);
 	}
 
 	@Column(name = "dtResponsible")

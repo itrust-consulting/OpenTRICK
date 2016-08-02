@@ -27,10 +27,32 @@
 						<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}><a href="${pageContext.request.contextPath}/KnowledgeBase"  id='main_menu_knowledgebase' > <spring:message
 									code="label.menu.analysis.knowledgebase" text="Knowledge base" /></a></li>
 					</sec:authorize>
-					<li ${menu.startsWith('Analysis') && !menu.startsWith('Analysis/Import')?'class="active"':''}><a href="${pageContext.request.contextPath}/Analysis"  id='main_menu_analysis'> <spring:message
-								code="label.menu.analysis.all" text="Analysis" /></a></li>
-					<li ${menu.startsWith('Analysis/Import')?'class="active"':''}><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message
-								code="label.menu.import.analysis" text="Import" /></a></li>
+					<c:choose>
+						<c:when test="${not menu.startsWith('Analysis')}">
+							<li><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
+							<li><a href="${pageContext.request.contextPath}/Analysis/Risk-evolution" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
+										text="Risk evolution" /></a></li>
+							<li><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis" text="Import" /></a></li>
+						</c:when>
+						<c:when test="${menu.startsWith('Analysis/Risk-evolution')}">
+							<li><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
+							<li class='active'><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
+										text="Risk evolution" /></a></li>
+							<li><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis" text="Import" /></a></li>
+						</c:when>
+						<c:when test="${menu.startsWith('Analysis/Import')}">
+							<li><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
+							<li><a href="${pageContext.request.contextPath}/Analysis/Risk-evolution" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
+										text="Risk evolution" /></a></li>
+							<li class='active'><a href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis" text="Import" /></a></li>
+						</c:when>
+						<c:otherwise>
+							<li class="active"><a href="${pageContext.request.contextPath}/Analysis" id='main_menu_analysis'> <spring:message code="label.menu.analysis.all" text="Analysis" /></a></li>
+							<li><a href="${pageContext.request.contextPath}/Analysis/Risk-evolution" id='main_menu_risk_evelotion'> <spring:message code="label.menu.analysis.risk_evolution"
+										text="Risk evolution" /></a></li>
+							<li><a  href="${pageContext.request.contextPath}/Analysis/Import" id='main_menu_analysis_import'> <spring:message code="label.menu.import.analysis" text="Import" /></a></li>
+						</c:otherwise>
+					</c:choose>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="taskmanager" style="padding: 16px" id='main_menu_task' ><spring:message code="label.background.task" /> <span id="task-counter" class="fa badge">0</span></a>

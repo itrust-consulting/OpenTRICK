@@ -65,15 +65,13 @@ body {
 	padding-top: 5px;
 }
 
-.nav.bordered-bottom{
+.nav.bordered-bottom {
 	padding-bottom: 5px;
 }
 
 .nav.bordered-bottom, .bordered-bottom {
 	border-bottom: 1px solid #dddddd;
 }
-
-
 
 .navbar-custom {
 	margin-top: 50px;
@@ -431,11 +429,11 @@ ul#task-manager>li>li {
 	text-align: right;
 }
 
-.nav-chapter {
+.nav-chapter, .affixNav {
 	overflow: hidden;
 }
 
-.nav-chapter:HOVER {
+.nav-chapter:HOVER, .affixNav:HOVER {
 	overflow: auto;
 }
 
@@ -473,30 +471,33 @@ datalist {
 	display: none;
 }
 
-.editable>a[data-controller]{
-	font-size:10px;
-	margin-left: -13px; margin-right:3px;
+.editable>a[data-controller] {
+	font-size: 10px;
+	margin-left: -13px;
+	margin-right: 3px;
 }
 
-.editable:HOVER>a[data-controller]{
-	position:relative;
-	font-size:15px;
-	margin-left: -18px; margin-right:3px;
+.editable:HOVER>a[data-controller] {
+	position: relative;
+	font-size: 15px;
+	margin-left: -18px;
+	margin-right: 3px;
 }
 
 #control_rrf_measure .slider.slider-vertical, #control_rrf_scenario .slider.slider-vertical {
-    height: 164px;
+	height: 164px;
 }
 
-.sceneario-sliders{
-	height: 568.5px; overflow: hidden;
+.sceneario-sliders {
+	height: 568.5px;
+	overflow: hidden;
 }
 
 .sceneario-sliders:HOVER {
 	overflow: auto;
 }
 
-.sceneario-sliders .slider.slider-vertical{
+.sceneario-sliders .slider.slider-vertical {
 	height: 445px;
 }
 
@@ -504,6 +505,7 @@ datalist {
 	li.back-btn-bottom {
 		display: none;
 	}
+	
 	.back-btn-top {
 		margin-top: 10px;
 		display: block;
@@ -513,17 +515,22 @@ datalist {
 	.max-height {
 		height: 100%;
 	}
-	div[role='left-menu'] {
+	*[role='left-menu'],*[role='nav-tabs'] {
 		position: fixed;
 	}
-	div[role='left-menu']+div[class*='col-'] {
+	*[role='left-menu']+*[class*='col-'] {
 		float: right;
+	}
+	
+	.affixNav {
+		height: 88%;
 	}
 	
 	@media ( min-height :400px) {
 		.nav-chapter {
 			height: 36%;
 		}
+		
 	}
 	
 	@media ( min-height :500px) {
@@ -533,7 +540,6 @@ datalist {
 	}
 	
 	@media ( min-height :600px) {
-		
 		.nav-chapter {
 			height: 50%;
 		}
@@ -543,7 +549,6 @@ datalist {
 				height: 54%;
 			}
 		}
-		
 		@media ( min-width : 1400px) {
 			.nav-chapter {
 				height: 64%;
@@ -552,7 +557,6 @@ datalist {
 	}
 	
 	@media ( min-height :766px) {
-		
 		.nav-chapter {
 			height: 60%;
 		}
@@ -563,20 +567,16 @@ datalist {
 			}
 		}
 	}
-	
 	@media ( min-height :900px) {
-	
 		.nav-chapter {
 			height: 66%;
 		}
-		
 		@media ( min-width : 1600px) {
 			.nav-chapter {
 				height: 72%;
 			}
 		}
 	}
-
 	@media ( min-height :1200px) {
 		.nav-chapter {
 			height: 78%;

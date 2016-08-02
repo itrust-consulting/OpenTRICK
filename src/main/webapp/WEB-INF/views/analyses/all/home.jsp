@@ -37,7 +37,7 @@
 								class="glyphicon glyphicon-scissors"></span> <spring:message code="label.menu.unlink.project" arguments="${ticketingName}" text="Unlink from ${ticketingName}" /></a></li>
 					</c:if>
 
-					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRoleToCreateVersion()"><a href="#" onclick="return addHistory()"> <span
+					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')"><a href="#" onclick="return addHistory()"> <span
 							class="glyphicon glyphicon-duplicate"></span> <spring:message code="label.menu.create.analysis.new_version" text="New version" /></a></li>
 
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();"

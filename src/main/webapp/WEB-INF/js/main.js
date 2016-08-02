@@ -1,6 +1,17 @@
 /**
  * Main.js
  */
+var application = new Application();
+
+function Application() {
+	this.modal = {};
+	this.data = {};
+	this.rights = {}
+	this.localesMessages = {};
+	this.fixedOffset = 0
+	this.shownScrollTop = true;
+}
+
 if (!String.prototype.capitalize) {
 	String.prototype.capitalize = function() {
 		return this.charAt(0).toUpperCase() + this.slice(1);
@@ -25,16 +36,6 @@ if (!String.prototype.endsWith) {
 	};
 }
 
-var application = new Application();
-
-function Application() {
-	this.modal = {};
-	this.data = {};
-	this.rights = {}
-	this.localesMessages = {};
-	this.fixedOffset = 0
-}
-
 function checkExtention(value, extention, button) {
 	var extentions = extention.split(","), match = false;
 	for (var i = 0; i < extentions.length; i++)
@@ -49,10 +50,49 @@ function showDialog(dialog, message) {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
-	if (typeof exception != 'undefined' && exception === 'abort' || application["isReloading"])
+	if (typeof textStatus != 'undefined' && textStatus === 'abort' || application["isReloading"])
 		return false;
-	showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	if (jqXHR != undefined) {
+		if (textStatus == "timeout" || textStatus == "error" && jqXHR.readyState == 0)
+			showDialog("#alert-dialog", MessageResolver("error.timeout", "The server may be down, overloaded, or there may be too much net traffic."));
+		else if (jqXHR.readyState == 4 && textStatus == "error") {
+			switch (errorThrown) {
+			case "Forbidden":
+				showDialog("#alert-dialog", MessageResolver("error.forbidden", "Action is not allowed, no analysis selected or you are no longer logged in"));
+				break;
+			default:
+				showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+			}
+		} else
+			showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	} else
+		showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 	return true;
+}
+
+function getScrollbarWidth() {
+	var outer = document.createElement("div");
+	outer.style.visibility = "hidden";
+	outer.style.width = "100px";
+	outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+	document.body.appendChild(outer);
+
+	var widthNoScroll = outer.offsetWidth;
+	// force scrollbars
+	outer.style.overflow = "scroll";
+
+	// add innerdiv
+	var inner = document.createElement("div");
+	inner.style.width = "100%";
+	outer.appendChild(inner);
+
+	var widthWithScroll = inner.offsetWidth;
+
+	// remove divs
+	outer.parentNode.removeChild(outer);
+
+	return widthNoScroll - widthWithScroll;
 }
 
 function downloadWordReport(id) {
@@ -96,9 +136,17 @@ function toggleToolTip(e) {
 	return e;
 }
 
+function hasScrollBar(element) {
+	return element.get(0).scrollHeight > element.get(0).clientHeight;
+}
+
 $.fn.hasAttr = function(name) {
 	return this[0].hasAttribute(name);
 };
+
+$.fn.hasScrollBar = function() {
+	return this.get(0).scrollHeight > this.get(0).clientHeight;
+}
 
 $.fn.removeAttributes = function(only, except) {
 	if (only) {
@@ -142,40 +190,37 @@ $.fn.removeAttributes = function(only, except) {
  * 
  * @param $
  */
-(function($) {
 
-	$.fn.serializeJSON = function() {
-		var json = {};
-		var form = $(this);
-		form.find('input, select, textarea').each(function() {
-			var val;
-			if (!this.name)
+$.fn.serializeJSON = function() {
+	var json = {};
+	var form = $(this);
+	form.find('input, select, textarea').each(function() {
+		var val;
+		if (!this.name)
+			return;
+
+		if ('radio' === this.type) {
+			if (json[this.name]) {
 				return;
+			}
 
-			if ('radio' === this.type) {
-				if (json[this.name]) {
-					return;
-				}
+			json[this.name] = this.checked ? this.value : '';
+		} else if ('checkbox' === this.type) {
+			val = json[this.name];
 
-				json[this.name] = this.checked ? this.value : '';
-			} else if ('checkbox' === this.type) {
-				val = json[this.name];
-
-				if (!this.checked) {
-					if (!val) {
-						json[this.name] = '';
-					}
-				} else {
-					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+			if (!this.checked) {
+				if (!val) {
+					json[this.name] = '';
 				}
 			} else {
-				json[this.name] = this.value;
+				json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
 			}
-		});
-		return json;
-	};
-
-})(jQuery);
+		} else {
+			json[this.name] = this.value;
+		}
+	});
+	return json;
+};
 
 /**
  * Analysis rights / user permissions
@@ -270,14 +315,6 @@ function hasRight(action) {
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
-function hasRoleToCreateVersion() {
-	return canCreateNewVersion($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"));
-}
-
-function canCreateNewVersion(idAnalysis) {
-	return hasRight("ALL") || $("div[data-trick-id='" + idAnalysis + "'][data-analysis-owner='true']").length;
-}
-
 function canManageAccess() {
 	return $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") == "true" || hasRight("ALL");
 }
@@ -287,6 +324,14 @@ function selectElement(element) {
 	if ($input.length == 1)
 		$input.filter("input[type='checkbox']:not(:hover):not(:focus)").trigger("click");
 	return false;
+}
+
+function generateMessageUniqueCode(code, params) {
+	return "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+}
+
+function resolveMessage(code, text, params) {
+	application.localesMessages[generateMessageUniqueCode(code, params)] = text;
 }
 
 /**
@@ -299,7 +344,8 @@ function selectElement(element) {
  */
 function MessageResolver(code, defaulttext, params) {
 
-	var uniqueCode = "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	var uniqueCode = generateMessageUniqueCode(code, params);
+
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
 	else
@@ -779,10 +825,14 @@ $(document)
 						}
 
 						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+
 							closeToolTips();
-							$bodyHtml.animate({
-								scrollTop : 0
-							}, 20);
+
+							if (application.shownScrollTop) {
+								$bodyHtml.animate({
+									scrollTop : 0
+								}, 20);
+							}
 
 							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
 							if (window[callback] != undefined) {

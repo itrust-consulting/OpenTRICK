@@ -7,7 +7,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="manageAnalysisAccessModel" data-trick-id='${analysis.id}' data-trick-user-id='${myId}' tabindex="-1" role="dialog"
 	data-aria-labelledby="manageAnalysisAccessModel" data-aria-hidden="true">
-	<div class="modal-dialog">
+	<div class="modal-dialog" style="width: 705px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -34,8 +34,9 @@
 				<spring:message code='label.analysis.right.all' var="rightAll" />
 				<spring:message code="label.analysis.right.export" var="rightExport" />
 				<spring:message code="label.analysis.right.modify" var="rightModify" />
+				<spring:message code="label.analysis.right.read" var="rightRead" />
 				<spring:message code="label.analysis.right.none" var="rightNone" />
-				<div class="form-horizontal" style="padding: 5px 20px; height: 380px; overflow-x: hidden; clear: both;">
+				<div class="form-horizontal" style="padding: 5px 20px; height: 500px; overflow-x: hidden; clear: both;">
 					<c:forEach items="${userrights.keySet()}" var="user">
 						<c:set var="userRight" value="${userrights[user]}" />
 						<c:set var='name' value="right_${user.id}" />
@@ -50,7 +51,7 @@
 											<c:when test="${not isAdmin and user.id!=myId}">
 												<div class="btn-group" data-toggle="buttons">
 													<label class="btn btn-sm btn-default disabled ${userRight=='ALL'?'active':''}">${rightAll}</label><label class="btn btn-sm btn-default disabled ${userRight=='EXPORT'?'active':''}">${rightExport}</label>
-													<label class="btn btn-sm btn-default disabled ${userRight=='MODIFY'?'active':''}">${rightModify}</label> <label class="btn btn-sm btn-default disabled">${rightNone}</label>
+													<label class="btn btn-sm btn-default disabled ${userRight=='MODIFY'?'active':''}">${rightModify}</label> <label class="btn btn-sm btn-default disabled ${userRight=='READ'?'active':''}">${rightRead}</label> <label class="btn btn-sm btn-default disabled">${rightNone}</label>
 												</div>
 											</c:when>
 											<c:otherwise>
@@ -58,7 +59,8 @@
 													<label class="btn btn-sm btn-default ${userRight=='ALL'?'active':''}">${rightAll}<input ${userRight=='ALL'?'checked':''} name="${name}" type="radio"
 														value="ALL"></label> <label class="btn btn-sm btn-default ${userRight=='EXPORT'?'active':''}">${rightExport}<input ${userRight=='EXPORT'?'checked':''}
 														name="${name}" type="radio" value="EXPORT"></label> <label class="btn btn-sm btn-default ${userRight=='MODIFY'?'active':''}">${rightModify}<input
-														${userRight=='MODIFY'?'checked':''} name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default disabled">${rightNone}</label>
+														${userRight=='MODIFY'?'checked':''} name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default ${userRight=='READ'?'active':''}">${rightRead}<input
+														${userRight=='READ'?'checked':''} name="${name}" type="radio" value="READ"></label> <label class="btn btn-sm btn-default disabled">${rightNone}</label>
 												</div>
 											</c:otherwise>
 										</c:choose>
@@ -68,7 +70,8 @@
 											<label class="btn btn-sm btn-default ${userRight=='ALL'?'active':''}">${rightAll}<input ${userRight=='ALL'?'checked':''} name="${name}" type="radio" value="ALL"></label>
 											<label class="btn btn-sm btn-default ${userRight=='EXPORT'?'active':''}">${rightExport}<input ${userRight=='EXPORT'?'checked':''} name="${name}" type="radio"
 												value="EXPORT"></label> <label class="btn btn-sm btn-default ${userRight=='MODIFY'?'active':''}">${rightModify}<input ${userRight=='MODIFY'?'checked':''}
-												name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default ${empty userRight?'active':''}">${rightNone}<input
+												name="${name}" type="radio" value="MODIFY"></label> <label class="btn btn-sm btn-default ${userRight=='READ'?'active':''}">${rightRead}<input ${userRight=='READ'?'checked':''}
+												name="${name}" type="radio" value="READ"></label> <label class="btn btn-sm btn-default ${empty userRight?'active':''}">${rightNone}<input
 												${empty userRight?'checked':''} name="${name}" type="radio" value="">
 											</label>
 										</div>
