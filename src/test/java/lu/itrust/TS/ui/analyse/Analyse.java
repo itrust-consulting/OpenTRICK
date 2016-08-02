@@ -224,17 +224,20 @@ public class Analyse extends BaseAnalyse {
 		selectCheckBox(true, By.xpath(
 				"//div[@id='tabScenario']//table[@id='scenariotable']//tbody/tr/td[3 and text() = 'Test']/..//input"));
 		click(By.xpath("//div[@id='tabScenario']//a[contains(@onclick,'showEstimation')]"));
-		testEditablePage(true, "section_scenario_assessment");
+		testEditablePage(true, "tabEstimationScenario");
 
+		chooseElementInsideDropdown("//a[@href='#tabScenario']", false);
 		selectCheckBox(true, By.xpath(
 				"//div[@id='tabScenario']//table[@id='scenariotable']//tbody/tr/td[3 and text() = 'Testa']/..//input"));
 		click(By.xpath("//div[@id='tabScenario']//a[contains(@onclick,'showEstimation')]"));
-		testEditablePage(true, "section_scenario_assessment");
+		testEditablePage(true, "tabEstimationScenario");
 
+		chooseElementInsideDropdown("//a[@href='#tabScenario']", false);
 		selectCheckBox(true, By.xpath(
 				"//div[@id='tabScenario']//table[@id='scenariotable']//tbody/tr/td[3 and text() = 'Testb']/..//input"));
 		click(By.xpath("//div[@id='tabScenario']//a[contains(@onclick,'showEstimation')]"));
-		testEditablePage(true, "section_scenario_assessment");
+		testEditablePage(true, "tabEstimationScenario");
+		chooseElementInsideDropdown("//a[@href='#tabScenario']", false);
 	}
 
 	private void testAsset() throws InterruptedException, Exception {

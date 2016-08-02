@@ -1,10 +1,10 @@
 package lu.itrust.TS.model;
+import org.junit.Assert;
+import org.junit.Test;
+
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * 

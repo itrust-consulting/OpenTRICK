@@ -14,7 +14,6 @@ import org.dom4j.Text;
 import org.dom4j.io.SAXReader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -359,9 +358,7 @@ public class BaseAnalyse extends BaseUnitTesting {
 							"arguments[0].focus(); arguments[0].blur(); return true", input.getElement());
 
 					new WebDriverWait(getDriver(), 10)
-							.until(ExpectedConditions.not(ExpectedConditions.visibilityOfElementLocated(
-									By.xpath(xpathCurrent + "//*[contains(@class,'form-control')]"))));
-
+							.until(ExpectedConditions.stalenessOf(input.getElement()));
 					assert possibleInput.getText().equals(newValue);
 
 				} else {
