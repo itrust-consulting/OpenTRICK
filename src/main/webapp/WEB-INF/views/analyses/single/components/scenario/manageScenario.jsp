@@ -16,7 +16,7 @@
 			</div>
 			<div class="modal-body" style="padding-bottom: 5px; padding-top: 5px;">
 				<ul id="scenario_form_tabs" class="nav nav-tabs">
-					<li class="active"><a href="#tab_scenario_general" data-toggle="tab"><spring:message code="label.menu.gerneral" text="General" /></a></li>
+					<li class="active"><a href="#tab_scenario_general" data-toggle="tab"><spring:message code="label.menu.general" text="General" /></a></li>
 					<li><a href="#tab_scenario_properties" data-toggle="tab"><spring:message code="label.menu.properties" text="Properties" /></a></li>
 					<li id="error_scenario_container" style="padding-top: 10px; padding-left: 10px"></li>
 				</ul>

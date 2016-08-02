@@ -23,6 +23,9 @@
 	<script src="<spring:url value="/js/trickservice/profile.js" />"></script>
 	<script type="text/javascript">
 	<!--
+		resolveMessage('error.timeout', '<spring:message code="error.timeout" />');
+		resolveMessage('error.forbidden', '<spring:message code="error.forbidden" />');
+		resolveMessage('error.unknown.occurred', '<spring:message code="error.unknown.occurred" />');
 		application['taskManager'] = new TaskManager().Start();
 		-->
 	</script>

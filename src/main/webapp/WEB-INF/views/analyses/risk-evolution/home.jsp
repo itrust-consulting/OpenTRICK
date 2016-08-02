@@ -19,7 +19,7 @@
 		<div class="container trick-container max-height">
 			<fieldset class="col-lg-3 max-height affixNav " style="overflow-x: hidden; padding-right: 16px; margin-top: 17px;" role="left-menu">
 				<legend>
-					<spring:message code='label.title.general' text="General" />
+					<spring:message code='label.menu.general' text="General" />
 				</legend>
 				<div class='form form-horizontal'>
 					<div class='form-group'>
@@ -36,17 +36,16 @@
 					<hr>
 					<c:forEach var="index" begin="1" end="10" step="1">
 						<div data-role='form-container' ${index>1? 'hidden class="panel panel-info"' : 'class="panel panel-primary"'}>
-							<div class='panel-heading' ${index>1?'style="padding-top:20px;"' :''}>
-								<c:if test="${index>1}">
-									<button class="pull-right btn btn-xs btn-danger" style="margin-top: -19px; margin-right: -14px; margin-bottom: 3px;"><i class="fa fa-times" aria-hidden="true"></i>
-</button>
-								</c:if>
+							<div class='panel-heading' style="padding-top: 20px;">
+								<button data-control="${index}" title="<spring:message code='label.action.clear' text='Clear'/>" class="pull-right btn btn-xs btn-${index == 1? 'primary':'info'}" disabled="disabled" style="margin-top: -19px; margin-right: -14px; margin-bottom: 5px;">
+									<i class="fa fa-eraser" aria-hidden="true"></i>
+								</button>
 								<div class='form-group' id='analysis_${index}'>
 									<label class='label-control col-sm-4'><spring:message code='label.analysis' text="Analysis" /></label>
 									<div class='col-sm-8'>
 										<select class='form-control' name='analysis' id='analysis-selector-${index}' data-parent='#customer-selector' data-target='#analysis-version-selector-${index}'
 											data-index='${index}'>
-											<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
+											<option value="-"><spring:message code='label.action.choose' text='Choose...' /></option>
 											<c:forEach items="${analyses}" var="analysis">
 												<option value='<spring:message text="${analysis.identifier}"/>'><spring:message text="${analysis.label}" /></option>
 											</c:forEach>
@@ -57,7 +56,7 @@
 									<label class='label-control col-sm-4'><spring:message code='label.analysis.version' text="Version" /></label>
 									<div class='col-sm-8'>
 										<select class='form-control' name='version' data-parent='#analysis-selector-${index}' id='analysis-version-selector-${index}' data-index='${index}'>
-											<option value="-"><spring:message code='label.choose' text='Choose...' /></option>
+											<option value="-"><spring:message code='label.action.choose' text='Choose...' /></option>
 										</select>
 									</div>
 								</div>

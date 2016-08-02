@@ -21,15 +21,19 @@ $(document).ready(function() {
 			url : context + "/Analysis/Risk-evolution/Customer/" + value,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				$versions.find("option[value!='-']").remove();
-				$analyses.find("option[value!='-']").remove();
-				application["risk-evolution"].analyses = [];
-				for (var i = 0; i < response.length; i++) {
-					for (var j = 0; j < $analyses.length; j++)
-						$("<option />").attr("value", response[i].identifier).text(response[i].label).appendTo($($analyses[j]));
+				if (!Array.isArray(response))
+					unknowError();
+				else {
+					$versions.find("option[value!='-']").remove();
+					$analyses.find("option[value!='-']").remove();
+					application["risk-evolution"].analyses = [];
+					for (var i = 0; i < response.length; i++) {
+						for (var j = 0; j < $analyses.length; j++)
+							$("<option />").attr("value", response[i].identifier).text(response[i].label).appendTo($($analyses[j]));
+					}
+					$versions.first().trigger("change");
+					application["risk-evolution"].customer = value;
 				}
-				$versions.first().trigger("change");
-				application["risk-evolution"].customer = value;
 			},
 			error : unknowError
 		}).complete(function() {
@@ -61,6 +65,13 @@ $(document).ready(function() {
 		"padding-right" : application.scrollBarWith
 	});
 
+	$("button[data-control]").on("click", function() {
+		$analyses.filter("[data-index='" + (this.getAttribute("data-control")) + "']").val("-").change();
+		$versions.filter(":visible").filter(function() {
+			return this.value != '-';
+		}).trigger("change");
+	});
+
 });
 
 function onAnalysesChange() {
@@ -72,9 +83,13 @@ function onAnalysesChange() {
 			url : context + "/Analysis/Risk-evolution/Customer/" + $customer.val() + "/Identifier/" + value,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				for (var i = 0; i < response.length; i++)
-					$("<option />").attr("value", response[i].id).text(response[i].version).appendTo($version);
-				$version.trigger("change");
+				if (!Array.isArray(response))
+					unknowError();
+				else {
+					for (var i = 0; i < response.length; i++)
+						$("<option />").attr("value", response[i].id).text(response[i].version).appendTo($version);
+					$version.trigger("change");
+				}
 			},
 			error : unknowError
 		}).complete(function() {
@@ -85,21 +100,21 @@ function onAnalysesChange() {
 }
 
 function onVersionChange(e) {
-	var analyses = application["risk-evolution"].analyses = [], $target = $(e.currentTarget), index = parseInt($target.attr("data-index")), currentValue = $target.val(), update = true;
+	var analyses = application["risk-evolution"].analyses = [], $target = $(e.currentTarget), index = parseInt($target.attr("data-index")), currentValue = $target.val(), updateChart = true;
 	if ($target.is(":visible")) {
 		if (currentValue == "-") {
 			$analyses.filter(":visible").filter(function() {
 				return this.getAttribute("data-index") > index;
-			}).closest("[data-role='form-container']").hide();
-			update = false;
+			}).closest("[data-role='form-container']").hide().find("button[data-control]").prop("disabled", true);
+			updateChart = false;
 		} else {
 			$analyses.filter("[data-index='" + (index + 1) + "']").closest("[data-role='form-container']").show();
 			var $nextVersion = $versions.filter("[data-index='" + (index + 1) + "']");
 			if ($nextVersion.length && $nextVersion.val() != "-") {
 				$nextVersion.trigger('change');
-				update = false;
+				updateChart = false;
 			}
-
+			
 			$versions.each(function(i) {
 				var value = this.value, index = this.getAttribute("data-index");
 				if (value != '-') {
@@ -110,18 +125,20 @@ function onVersionChange(e) {
 			});
 		}
 
-		if (update) {
-			$versions.find("option:hidden").prop("hidden", false);
-			var $visibleVersions = $versions.filter(":visible")
-			$visibleVersions.each(function() {
-				var value = this.value, index = this.getAttribute("data-index");
-				if (value != "-") {
-					if (analyses.indexOf(value) == -1)
-						analyses.push(value);
-					$visibleVersions.filter("[data-index!='" + index + "']").find("option[value='" + value + "']").prop("hidden", true);
-				}
-			});
+		$versions.find("option:hidden").prop("hidden", false);
+		var $visibleVersions = $versions.filter(":visible");
+		$visibleVersions.filter(":visible").each(function(i) {
+			var value = this.value, index = this.getAttribute("data-index");
+			if (value != "-") {
+				if (updateChart && analyses.indexOf(value) == -1)
+					analyses.push(value);
+				$versions.filter("[data-index!='" + index + "']").find("option[value='" + value + "']").prop("hidden", true);
+				$("button[data-control='" + index + "']").prop("disabled", false);
+			} else
+				$("button[data-control='" + index + "']").prop("disabled", true);
+		});
 
+		if (updateChart) {
 			loadTotalALE();
 			loadAleByAsset();
 			loadAleByScenario();

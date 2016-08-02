@@ -9,7 +9,6 @@ import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -109,7 +108,6 @@ public class ControllerRiskEvolution {
 			model.addAttribute("customer", customer);
 			model.addAttribute("analyses", serviceAnalysis.getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(principal.getName(), customer));
 		}
-
 		model.addAttribute("customers", customers);
 	}
 
@@ -291,14 +289,6 @@ public class ControllerRiskEvolution {
 		return complianceCharts.size() > 1 ? "[" + charts + "]" : charts;
 	}
 
-	private String computeTotalALE(List<Analysis> analyses, Locale locale) {
-		List<ALE> ales = new ArrayList<>(analyses.size());
-		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + "<br />" + analysis.getVersion(),
-				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
-		ales.sort(ALE.Comparator().reversed());
-		return chartGenerator.generateALEChart(locale, "Total ALE", ales);
-	}
-
 	@RequestMapping(value = "/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable Integer id, Principal principal) {
 		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.READ));
@@ -307,6 +297,14 @@ public class ControllerRiskEvolution {
 	@RequestMapping(value = "/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable Integer id, @PathVariable String identifier, Principal principal) {
 		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, AnalysisRight.highRightFrom(AnalysisRight.READ));
+	}
+	
+	private String computeTotalALE(List<Analysis> analyses, Locale locale) {
+		List<ALE> ales = new ArrayList<>(analyses.size());
+		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + "<br />" + analysis.getVersion(),
+				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
+		ales.sort(ALE.Comparator().reversed());
+		return chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale) , ales);
 	}
 
 }

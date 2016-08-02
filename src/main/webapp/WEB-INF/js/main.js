@@ -50,35 +50,49 @@ function showDialog(dialog, message) {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
-	if (typeof exception != 'undefined' && exception === 'abort' || application["isReloading"])
+	if (typeof textStatus != 'undefined' && textStatus === 'abort' || application["isReloading"])
 		return false;
-	showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	if (jqXHR != undefined) {
+		if (textStatus == "timeout" || textStatus == "error" && jqXHR.readyState == 0)
+			showDialog("#alert-dialog", MessageResolver("error.timeout", "The server may be down, overloaded, or there may be too much net traffic."));
+		else if (jqXHR.readyState == 4 && textStatus == "error") {
+			switch (errorThrown) {
+			case "Forbidden":
+				showDialog("#alert-dialog", MessageResolver("error.forbidden", "Action is not allowed, no analysis selected or you are no longer logged in"));
+				break;
+			default:
+				showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+			}
+		} else
+			showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	} else
+		showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 	return true;
 }
 
 function getScrollbarWidth() {
-    var outer = document.createElement("div");
-    outer.style.visibility = "hidden";
-    outer.style.width = "100px";
-    outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+	var outer = document.createElement("div");
+	outer.style.visibility = "hidden";
+	outer.style.width = "100px";
+	outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
 
-    document.body.appendChild(outer);
+	document.body.appendChild(outer);
 
-    var widthNoScroll = outer.offsetWidth;
-    // force scrollbars
-    outer.style.overflow = "scroll";
+	var widthNoScroll = outer.offsetWidth;
+	// force scrollbars
+	outer.style.overflow = "scroll";
 
-    // add innerdiv
-    var inner = document.createElement("div");
-    inner.style.width = "100%";
-    outer.appendChild(inner);        
+	// add innerdiv
+	var inner = document.createElement("div");
+	inner.style.width = "100%";
+	outer.appendChild(inner);
 
-    var widthWithScroll = inner.offsetWidth;
+	var widthWithScroll = inner.offsetWidth;
 
-    // remove divs
-    outer.parentNode.removeChild(outer);
+	// remove divs
+	outer.parentNode.removeChild(outer);
 
-    return widthNoScroll - widthWithScroll;
+	return widthNoScroll - widthWithScroll;
 }
 
 function downloadWordReport(id) {
@@ -312,6 +326,14 @@ function selectElement(element) {
 	return false;
 }
 
+function generateMessageUniqueCode(code, params) {
+	return "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+}
+
+function resolveMessage(code, text, params) {
+	application.localesMessages[generateMessageUniqueCode(code, params)] = text;
+}
+
 /**
  * MessageResolver
  * 
@@ -322,7 +344,8 @@ function selectElement(element) {
  */
 function MessageResolver(code, defaulttext, params) {
 
-	var uniqueCode = "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	var uniqueCode = generateMessageUniqueCode(code, params);
+
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
 	else
