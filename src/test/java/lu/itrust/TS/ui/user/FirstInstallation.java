@@ -43,8 +43,7 @@ public class FirstInstallation extends BaseUnitTesting {
 		click(By.xpath("//a[@href='#tab_user']"));
 		click(By.xpath("//a[@onclick='return newUser();']"));
 
-		WebDriverWait wait = new WebDriverWait(getDriver(), 1);
-		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user_login")));
+		new WebDriverWait(getDriver(), 10).until(ExpectedConditions.visibilityOfElementLocated(By.id("user_login")));
 
 		sendKeys(findElement(By.id("user_login")), username);
 		sendKeys(findElement(By.id("user_password")), password);

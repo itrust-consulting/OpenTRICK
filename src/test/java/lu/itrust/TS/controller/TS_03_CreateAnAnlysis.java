@@ -1,9 +1,10 @@
-/**
- * 
- */
 package lu.itrust.TS.controller;
 
-import static lu.itrust.TS.helper.TestConstant.*;
+import static lu.itrust.TS.helper.TestConstant.SIMPLE_ANALYSIS_NAME;
+import static lu.itrust.TS.helper.TestConstant.SIMPLE_ANALYSIS_V0_0_1_ID;
+import static lu.itrust.TS.helper.TestConstant.SIMPLE_ANALYSIS_VERSION;
+import static lu.itrust.TS.helper.TestSharingData.getInteger;
+import static lu.itrust.TS.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -18,10 +19,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.notNull;
-import static lu.itrust.TS.helper.TestSharingData.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.constants.Constant;
@@ -43,12 +49,6 @@ import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.scenario.Scenario;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author eomar

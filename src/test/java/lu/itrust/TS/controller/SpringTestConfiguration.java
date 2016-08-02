@@ -1,10 +1,6 @@
-/**
- * 
- */
 package lu.itrust.TS.controller;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import lu.itrust.business.TS.database.service.ServiceTrickService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.FilterChainProxy;
@@ -23,6 +19,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import lu.itrust.business.TS.database.service.ServiceTrickService;
 
 /**
  * @author eomar
