@@ -4,8 +4,6 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.TS.constants.Constant.CURRENT_CUSTOMER;
-import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -20,7 +18,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,7 +34,6 @@ import lu.itrust.business.TS.component.Distribution;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
-import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -45,7 +41,6 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
-import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -58,9 +53,6 @@ public class ControllerRiskEvolution {
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
-
-	@Autowired
-	private ServiceUser serviceUser;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -87,28 +79,7 @@ public class ControllerRiskEvolution {
 	}
 
 	private void LoadUserAnalyses(HttpSession session, Principal principal, Model model) throws Exception {
-		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
-		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
-		User user = null;
-		if (customer == null) {
-			user = serviceUser.get(principal.getName());
-			if (user == null)
-				throw new AccessDeniedException("Access denied");
-			customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
-			// check if the current customer is set -> no
-			if (customer == null && !customers.isEmpty()) {
-				// use first customer as selected customer
-				user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
-				serviceUser.saveOrUpdate(user);
-			}
-			session.setAttribute(CURRENT_CUSTOMER, customer);
-		}
-
-		if (customer != null) {
-			model.addAttribute("customer", customer);
-			model.addAttribute("analyses", serviceAnalysis.getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(principal.getName(), customer));
-		}
-		model.addAttribute("customers", customers);
+		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 	}
 
 	@RequestMapping(value = "/Chart/Total-ALE", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -303,7 +274,6 @@ public class ControllerRiskEvolution {
 		List<ALE> ales = new ArrayList<>(analyses.size());
 		analyses.forEach(analysis -> ales.add(new ALE(analysis.getLabel() + "<br />" + analysis.getVersion(),
 				analysis.getAssessments().stream().filter(Assessment::isSelected).mapToDouble(Assessment::getALE).sum())));
-		ales.sort(ALE.Comparator().reversed());
 		return chartGenerator.generateALEChart(locale, messageSource.getMessage("label.title.chart.total_ale", null, "Total ALE", locale) , ales);
 	}
 

@@ -66,10 +66,22 @@ $(document).ready(function() {
 	});
 
 	$("button[data-control]").on("click", function() {
-		$analyses.filter("[data-index='" + (this.getAttribute("data-control")) + "']").val("-").change();
-		$versions.filter(":visible").filter(function() {
+		var index = this.getAttribute("data-control");
+		$analyses.filter("[data-index='" + index + "']").val("-").change();
+		$analyses.filter(function(){
+			return this.getAttribute("data-index")>index;
+		}).val("-");
+		
+		$versions.filter(function(){
+			return this.getAttribute("data-index")>index;
+		}).val("-");
+		
+		var length = $versions.filter(":visible").filter(function() {
 			return this.value != '-';
-		}).trigger("change");
+		}).last().trigger("change").length;
+		
+		if (!length)
+			$(".tab-pane").empty();
 	});
 
 });
@@ -114,7 +126,7 @@ function onVersionChange(e) {
 				$nextVersion.trigger('change');
 				updateChart = false;
 			}
-			
+
 			$versions.each(function(i) {
 				var value = this.value, index = this.getAttribute("data-index");
 				if (value != '-') {
@@ -145,12 +157,15 @@ function onVersionChange(e) {
 			loadAleByAssetType();
 			loadAleByScenarioType();
 			loadCompliance();
+			if (!analyses.length)
+				$(".tab-pane").empty();
 		}
+
 	}
 }
 
 function loadALEChart(tab, trigger, url) {
-	var $tab = $(tab).empty();
+	var $tab = $(tab);
 	if (!$tab.is(":visible"))
 		$tab.attr("data-update-required", true).attr("data-trigger", trigger);
 	else if (application["risk-evolution"].analyses && application["risk-evolution"].analyses.length) {
@@ -163,6 +178,7 @@ function loadALEChart(tab, trigger, url) {
 			},
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
+				$tab.empty();
 				if (Array.isArray(response)) {
 					for (var i = 0; i < response.length; i++)
 						$("<div />").appendTo($tab).highcharts(response[i]);
