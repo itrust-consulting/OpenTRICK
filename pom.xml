@@ -373,6 +373,13 @@
 			<scope>test</scope>
 		</dependency>
 		
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
+			<scope>test</scope>
+		</dependency>
+		
 	</dependencies>
 
 	<name>trickservice</name>
