@@ -95,7 +95,7 @@ function reloadSection(section, subSection, refreshOnly) {
 function findControllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Analysis/Asset/Section",
-		"section_parameter" : "/Analysis/Parameter/Section",
+		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
 		"section_scenario" : "/Analysis/Scenario/Section",
 		"section_phase" : "/Analysis/Phase/Section",
 		"section_analysis" : "/Analysis/Section",

@@ -34,7 +34,7 @@
 					<jsp:include page="./components/itemInformation.jsp" />
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
-				<jsp:include page="./components/parameter.jsp" />
+				<jsp:include page="./components/parameters/home.jsp" />
 				<c:if test="${!isProfile}">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />

@@ -275,11 +275,11 @@ function showTabEstimation(name) {
 
 function computeAssessment(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update",
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
@@ -295,6 +295,8 @@ function computeAssessment(silent) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -305,11 +307,11 @@ function refreshAssessment() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
 		$("#confirm-dialog .btn-danger").click(function() {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Assessment/Refresh",
 				type : "POST",
 				contentType : "application/json;charset=UTF-8",
-				async : true,
 				success : function(response, textStatus, jqXHR) {
 					if (response['error'] != undefined) {
 						$("#info-dialog .modal-body").text(response['error']);
@@ -323,6 +325,8 @@ function refreshAssessment() {
 					return false;
 				},
 				error : unknowError
+			}).complete(function(){
+				$progress.hide();
 			});
 		});
 		$("#confirm-dialog").modal("show");
@@ -333,11 +337,11 @@ function refreshAssessment() {
 
 function updateAssessmentAle(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update/ALE",
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
@@ -352,6 +356,8 @@ function updateAssessmentAle(silent) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();

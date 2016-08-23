@@ -421,10 +421,16 @@ function ExtendedFieldEditor(element) {
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							var computeAle = that.fieldName == "value" || that.fieldName == "acronym";
-							that.UpdateUI();
-							reloadSection("section_parameter");
-							if (computeAle)
-								updateAssessmentAle(true);
+							try {
+								that.UpdateUI();
+							} finally {
+								if (computeAle) {
+									updateAssessmentAle(true);
+									reloadSection("section_parameter_extended");
+									if (that.fieldName == "value")
+										reloadSection([ "section_asset", "section_scenario" ]);
+								}
+							}
 						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");

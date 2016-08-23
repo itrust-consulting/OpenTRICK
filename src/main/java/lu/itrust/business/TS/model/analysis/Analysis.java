@@ -1779,7 +1779,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Parameter>[] SplitExtendedParameters(List<Parameter> parameters) {
+	public static List<Parameter>[] SplitExtendedParameters(List< ? extends Parameter> parameters) {
 		List<?>[] splits = new List<?>[2];
 		for (int i = 0; i < splits.length; i++)
 			splits[i] = new ArrayList<>();
