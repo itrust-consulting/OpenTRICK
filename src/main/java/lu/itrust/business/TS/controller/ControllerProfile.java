@@ -9,7 +9,9 @@ import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_DIRCT
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SORT_KEY;
 import static lu.itrust.business.TS.constants.Constant.FILTER_CONTROL_SQLITE;
 
+import java.io.IOException;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -42,17 +44,24 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.general.ReportType;
 import lu.itrust.business.TS.model.general.UserSQLite;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.model.general.helper.TrickFilter;
+import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
@@ -91,6 +100,9 @@ public class ControllerProfile {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
 	/**
 	 * profile: <br>
 	 * Description
@@ -111,10 +123,12 @@ public class ControllerProfile {
 		user.setPassword(EMPTY_STRING);
 		// add profile to model
 		model.addAttribute("user", user);
+		model.addAttribute("allowedTicketing", serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
 		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
 		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
 		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
+
 		return "user/home";
 	}
 
@@ -285,11 +299,11 @@ public class ControllerProfile {
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
 		// set response contenttype to sqlite
-		response.setContentType("docm");
+		response.setContentType(ReportType.getExtension(wordReport.getType()));
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + String.format("%s_%s_V%s.docm", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion()) + "\"");
+				"attachment; filename=\"" + String.format("%s_%s_V%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), response.getContentType()) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());
@@ -298,12 +312,12 @@ public class ControllerProfile {
 		// creates on the
 		// client side the sqlite file)
 		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
-
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store.report.download",
-				String.format("Analysis: %s, version: %s, exported at: %s, type: report", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated()),
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store." + ReportType.getCodeName(wordReport.getType()) + ".download",
+				String.format("Analysis: %s, version: %s, exported at: %s, type: %s", wordReport.getIdentifier(), wordReport.getVersion(), wordReport.getCreated(),
+						ReportType.getDisplayName(wordReport.getType())),
 				principal.getName(), LogAction.DOWNLOAD, wordReport.getIdentifier(), wordReport.getVersion(), String.valueOf(wordReport.getCreated()));
 
 		// return
@@ -379,6 +393,7 @@ public class ControllerProfile {
 				else if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
 					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
 			}
+
 			if (!errors.containsKey("currentPassword")) {
 				if (!StringUtils.isEmpty(password)) {
 					if (user.getConnexionType() == User.LADP_CONNEXION)
@@ -395,8 +410,25 @@ public class ControllerProfile {
 							user.setPassword(oldPassword);
 							errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
 						} else {
-
 							user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+						}
+					}
+				}
+
+				if (serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK)) {
+					String ticketingUsername = readStringValue(jsonNode, "ticketingUsername"), ticketingPassword = readStringValue(jsonNode, "ticketingPassword");
+					if (StringUtils.isEmpty(ticketingUsername)) {
+						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
+						user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+					} else {
+						user.setSetting(Constant.USER_TICKETING_SYSTEM_USERNAME, ticketingUsername);
+						if (!StringUtils.isEmpty(ticketingPassword))
+							user.setSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD, ticketingPassword);
+						if (!isConnected(user)) {
+							errors.put("ticketingUsername", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
+							errors.put("ticketingPassword", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
+							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_USERNAME);
+							user.getUserSettings().remove(Constant.USER_TICKETING_SYSTEM_PASSWORD);
 						}
 					}
 				}
@@ -440,6 +472,32 @@ public class ControllerProfile {
 
 		return errors.isEmpty();
 
+	}
+
+	private Boolean isConnected(User user) {
+		Client client = null;
+		try {
+			TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+			TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
+			if (urlSetting == null || nameSetting == null)
+				throw new TrickException("error.load.setting", "Setting cannot be loaded");
+			Map<String, Object> settings = new HashMap<>(3);
+			settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
+			settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+			settings.put("url", urlSetting.getValue());
+			return (client = ClientBuilder.Build(nameSetting.getString())).connect(settings);
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return false;
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+		}
 	}
 
 	private String readStringValue(JsonNode jsonNode, String fieldName) {

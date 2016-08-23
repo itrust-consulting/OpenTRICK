@@ -97,7 +97,7 @@ function newLanguage() {
 	$("#language_name").prop("value", "");
 	$("#language_altName").prop("value", "");
 	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.language.add", "Add a new Language"));
-	$("#addlanguagebutton").text(MessageResolver("label.action.add", "Add"));
+	$("#addlanguagebutton").text(MessageResolver("label.action.save", "Save"));
 	$("#language_form").prop("action", "Language/Save");
 	$("#addLanguageModel").modal('toggle');
 	return false;
@@ -118,7 +118,7 @@ function editSingleLanguage(languageId) {
 	$("#language_name").prop("value", $(rows[1]).text());
 	$("#language_altName").prop("value", $(rows[2]).text());
 	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.language.update", "Update a Language"));
-	$("#addlanguagebutton").text(MessageResolver("label.action.edit", "Edit"));
+	$("#addlanguagebutton").text(MessageResolver("label.action.save", "Save"));
 	$("#language_form").prop("action", "Language/Edit/" + languageId);
 	$("#addLanguageModel").modal('toggle');
 	return false;

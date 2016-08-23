@@ -11,6 +11,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,6 +27,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.general.Customer;
+import lu.itrust.business.TS.usermanagement.listner.UserEncryptListner;
 
 /**
  * User: <br>
@@ -37,6 +39,7 @@ import lu.itrust.business.TS.model.general.Customer;
  */
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = "dtEmail"), @UniqueConstraint(columnNames = "dtLogin") })
+@EntityListeners(UserEncryptListner.class)
 public class User implements Serializable {
 
 	@Transient
@@ -603,6 +606,10 @@ public class User implements Serializable {
 
 	public boolean hasRole(Role role) {
 		return role == null || roles == null || roles.isEmpty() ? false : roles.contains(role);
+	}
+
+	public String removeSetting(String name) {
+		return userSettings.remove(name);
 	}
 
 }

@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
 
@@ -128,7 +126,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllFromAnalysis(Integer analysisId)  {
-		return getSession().createQuery("Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId")
+		return getSession().createQuery("Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId order by analysisStandard.standard.label")
 				.setParameter("analysisId", analysisId).list();
 	}
 
@@ -140,10 +138,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 */
 	@Override
 	public List<Standard> getAllFromAnalysis(Analysis analysis)  {
-		List<Standard> standards = new ArrayList<Standard>();
-		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
-			standards.add(analysisStandard.getStandard());
-		return standards;
+		return analysis.getStandards();
 	}
 
 	/**
@@ -157,8 +152,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis)  {
-		String query = "Select standard From Standard standard where standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId)";
-
+		String query = "Select standard From Standard standard where standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId) order by standard.label";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
 
@@ -212,10 +206,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllNotBoundToAnalysis()  {
-
-		List<Standard> standards = getSession().createQuery("SELECT standard From Standard standard where standard.analysisOnly=false").list();
-
-		return standards;
+		return getSession().createQuery("SELECT standard From Standard standard where standard.analysisOnly=false order by standard.label").list();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -223,7 +214,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID)  {
 		return (List<Standard>) getSession()
 				.createQuery(
-						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true")
+						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true order by analysisStandard.standard.label")
 				.setParameter("analysisId", analsisID).list();
 	}
 
@@ -232,7 +223,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId)  {
 		return getSession()
 				.createQuery(
-						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysisOnly=false and analysis.id = :analysisId")
+						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysisOnly=false and analysis.id = :analysisId order by analysisStandard.standard.label")
 				.setParameter("analysisId", analysisId).list();
 	}
 

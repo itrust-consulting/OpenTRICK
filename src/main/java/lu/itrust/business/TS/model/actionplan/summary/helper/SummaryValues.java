@@ -61,6 +61,12 @@ public class SummaryValues {
 
 	/** Cost of Measures to the End of Stage (SUM) */
 	public double measureCost = 0;
+	
+	/** Number of no compliant measure 27001 */
+	public int notCompliantMeasure27001Count = 0;
+	
+	/** Number of no compliant measure 27002 */
+	public int notCompliantMeasure27002Count = 0;
 
 	/** ROSI at the Last Stage Entry */
 	public double ROSI = 0;

@@ -1,4 +1,5 @@
 function calculateRiskRegister() {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/RiskRegister/Compute",
 		type : "post",
@@ -13,6 +14,8 @@ function calculateRiskRegister() {
 				unknowError()
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
 }

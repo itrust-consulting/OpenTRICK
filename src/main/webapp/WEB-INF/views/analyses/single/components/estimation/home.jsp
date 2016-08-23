@@ -23,6 +23,8 @@
 		<spring:message code='label.title.assets' var="assetText" />
 		<spring:message code="label.title.scenario" var="scenarioText" />
 		<div class="container trick-container max-height ">
+			<a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close.analysis" />' class="text-danger pull-right back-btn-top"><i
+				class="fa fa-2x fa-sign-out"></i> </a>
 			<div class="max-height" style="padding-top: 15px;">
 				<div class="col-lg-2 max-height" style="z-index: 1" role="left-menu">
 					<div class="affixMenu max-height">
@@ -80,12 +82,12 @@
 
 						<spring:url value="?open=${open.readOnly?'read-only' : 'edit'}"  var="returnUrl"/>
 						<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-estimation'>
-							<li><a  accesskey="A" href='${returnUrl}' data-base-ul='${returnUrl}' title='<spring:message code="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
+							<li><a  accesskey="A" href='${returnUrl}' data-base-ul='${returnUrl}' title='<spring:message code="label.action.close.view"/>' class="text-danger"><i class="fa fa-sign-in fa-rotate-180"></i> </a></li>
 							<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
 							<li><a accesskey="F" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
 							<li><a accesskey="H" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
 							<li><a accesskey="G" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
-							<li><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
+							<li class="back-btn-bottom"><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close.analysis" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
 						</ul>
 					</div>
 				</div>
@@ -199,12 +201,6 @@
 					</div>
 				</div>
 			</div>
-
-
-
-
-
-
 		</div>
 	</div>
 	<jsp:include page="../../../../template/scripts.jsp" />

@@ -29,7 +29,7 @@
 		</c:if>
 		<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 			<li class="disabled pull-right" data-trick-selectable="true" title='<spring:message code="label.action.force.delete" text="Force delete"/>'><a href="#" class="text-danger"
-				onclick="return forceDeleteMeasure();"><span class="glyphicon glyphicon-remove-circle"></span> <spring:message code="label.action.force.delete" text="Force delete" /> </a></li>
+				onclick="return deleteMeasure(true)"><span class="glyphicon glyphicon-remove-circle"></span> <spring:message code="label.action.force.delete" text="Force delete" /> </a></li>
 		</sec:authorize>
 		<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-trash"></span>
 				<spring:message code="label.menu.delete.norm" text="Delete" /> </a></li>
@@ -47,7 +47,7 @@
 		</thead>
 		<tbody>
 			<c:forEach items="${measureDescriptions}" var="measureDescription">
-				<tr data-trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
+				<tr data-trick-id="${measureDescription.id}" onclick="selectElement(this)" ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
 					<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_measure','#menu_measure_description');"></td>
 					<td>${measureDescription.level}</td>
 					<td><spring:message text='${measureDescription.reference}' /></td>

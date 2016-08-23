@@ -21,6 +21,7 @@ public class CSSFFilter {
 	private double impact;
 
 	private double probability;
+	
 
 	/**
 	 * 
@@ -140,6 +141,14 @@ public class CSSFFilter {
 	 */
 	public void setProbability(double probability) {
 		this.probability = probability;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CSSFFilter [direct=" + direct + ", indirect=" + indirect + ", cia=" + cia + ", impact=" + impact + ", probability=" + probability;
 	}
 
 }

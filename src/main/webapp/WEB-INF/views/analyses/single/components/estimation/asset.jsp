@@ -48,10 +48,9 @@
 					</tr>
 				</thead>
 				<tbody>
-					<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).Sort(assessments)" var="sortedAssessments" />
-					<c:forEach items="${sortedAssessments}" var="assessment">
+					<c:forEach items="${assessments}" var="assessment">
 						<tr data-trick-id="${assessment.id}">
-							<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
+							<td><spring:message text="${assessment.scenario.name}" /></td>
 							<c:if test="${show_cssf}">
 								<c:choose>
 									<c:when test="${parameters.containsKey(assessment.impactRep)}">
@@ -192,8 +191,11 @@
 				<legend>
 					<spring:message text='${scenario.name}' />
 				</legend>
-				<div id="description" class='well well-sm' 
-				style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 40px;"><spring:message text="${fn:trim(scenario.description)}" /></div>
+				<div class="form-group editable">
+					<a class="pull-right text-danger" data-controller="description" href="#"><i class="fa fa-lock" aria-hidden="true"></i></a>
+					<spring:message text="${fn:trim(scenario.description)}" var="description" />
+					<textarea class="form-control" id='description' style="resize: vertical;" name="scenario.description" readonly="readonly" placeholder="${description}">${description}</textarea>
+				</div>
 			</fieldset>
 			<c:choose>
 				<c:when test="${show_cssf}">

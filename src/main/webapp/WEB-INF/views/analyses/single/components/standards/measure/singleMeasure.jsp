@@ -6,6 +6,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
+</c:if>
+<c:set var="language" value="${locale.language}" scope="request" />
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />
 <spring:message code="label.measure.status.na" var="statusNA" />
@@ -18,7 +22,7 @@
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
-	<c:if test="${isEditable and ( analysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
+	<c:if test="${isEditable and ( isAnalysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 		ondblclick="return editMeasure(this,${standardid},${measure.id});"
 	</c:if>
 </c:set>
@@ -30,25 +34,31 @@
 </c:set>
 <c:set var="popoverRef">
 	<c:if test="${not(empty measure.measureDescription.reference or empty measureDescriptionText.description)}">
-		data-toggle="tooltip" data-container="body" data-trigger="hover click" data-placement='auto'
-		data-title='<spring:message text="${measureDescriptionText.description}" />'
+		data-toggle="tooltip" data-container="body" data-trigger="click" data-placement='auto'
+		data-title='<spring:message text="${measureDescriptionText.description}" />' style='cursor: pointer;'
 	</c:if>
 </c:set>
-<c:set var="popoverDescription">
-	<c:if test="${not(empty measureDescriptionText.domain or empty measureDescriptionText.description)}">
-		class="popover-element" data-toggle="popover" data-container="body" data-trigger="click" data-html="true" data-placement='auto'
-		data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measureDescriptionText.domain}" />' style='cursor: pointer;'
-	</c:if>
-</c:set>
+<c:set var="hasTicket" value="${isLinkedToProject and not empty measure.ticket}"/>
 <c:choose>
 	<c:when test="${not measure.measureDescription.computable}">
-		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" data-trick-class="Measure" style="background-color: #F8F8F8;" data-trick-id="${measure.id}"
+		<tr data-trick-computable="false" data-trick-level="${measure.measureDescription.level}" onclick="selectElement(this)" data-trick-class="Measure" style="background-color: #F8F8F8;" 
+			data-trick-id="${measure.id}" data-is-linked='${isLinkedToProject and not empty measure.ticket}'
 			data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
-			<c:if test="${isAnalysisOnly and isEditable}">
+			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td lang="${language}" ${popoverRef} ><spring:message text="${measure.measureDescription.reference}" /></td>
-			<td lang="${language}" ${popoverDescription} colspan="13"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<td>
+				<c:choose>
+					<c:when test="${hasTicket}">
+						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
+						<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+					</c:when>
+					<c:otherwise>
+						<spring:message text="${measure.measureDescription.reference}" />
+					</c:otherwise>
+				</c:choose>
+			</td>
+			<td ${popoverRef} colspan="${selectedStandard.label=='27002' and hasMaturity? '14' : '13' }"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 					<td class='warning' onclick="return editField(this.firstElementChild);"><pre data-trick-field="toCheck" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
@@ -62,13 +72,25 @@
 		</tr>
 	</c:when>
 	<c:otherwise>
-		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
+		<tr data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
+			data-is-linked='${isLinkedToProject and not empty measure.ticket}' >
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-			<c:if test="${isAnalysisOnly and isEditable}">
-				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
+			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
+				<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
+					onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td lang="${language}" ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
-			<td lang="${language}" ${popoverDescription} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			<td ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}>
+				<c:choose>
+					<c:when test="${hasTicket}">
+						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
+						<a href="${ticketLink}" target="_titck_ts" class="btn btn-default btn-xs"><spring:message text="${measure.measureDescription.reference}" /></a>
+					</c:when>
+					<c:otherwise>
+						<spring:message text="${measure.measureDescription.reference}" />
+					</c:otherwise>
+				</c:choose>
+			</td>
+			<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}' data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);">
 				<c:choose>
 					<c:when test="${measure.status=='NA'}">
@@ -85,13 +107,21 @@
 			<c:choose>
 				<c:when test="${standardType.name.equals('MATURITY')}">
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
-						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
+						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${measure.measureDescription.reference}');" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:when>
 				<c:otherwise>
 					<td ${css} data-trick-field="implementationRate" data-trick-field-type="double" data-trick-max-value="100" data-trick-min-value="0" data-trick-step-value='1'
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
+					<c:if test="${selectedStandard.label=='27002' and hasMaturity}">
+						<td data-trick-field='mer' ><c:choose>
+								<c:when test="${empty effectImpl27002}">0</c:when>
+								<c:otherwise>
+									<fmt:formatNumber value="${effectImpl27002}" maxFractionDigits="0" minFractionDigits="0" />
+								</c:otherwise>
+							</c:choose></td>
+					</c:if>
 				</c:otherwise>
 			</c:choose>
 			<td ${css} data-trick-field="internalWL" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}" maxFractionDigits="2" /></td>

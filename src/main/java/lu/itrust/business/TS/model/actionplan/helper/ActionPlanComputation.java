@@ -93,6 +93,8 @@ public class ActionPlanComputation {
 
 	private MessageSource messageSource;
 
+	private double soa = 100;
+
 	private MaintenanceRecurrentInvestment preImplementedMeasures;
 
 	private List<Phase> phases = new ArrayList<Phase>();
@@ -186,26 +188,12 @@ public class ActionPlanComputation {
 		// selected,
 		// if no: select 27002
 		for (AnalysisStandard analysisStandard : this.standards) {
-
 			if (analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable()) {
-
-				this.maturitycomputation = true;
-
-				boolean found = false;
-
-				for (AnalysisStandard checkStandard : this.standards) {
-					if (checkStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
-						found = true;
-						break;
-					}
-				}
-
-				if (!found) {
+				this.maturitycomputation = tmp27002standard != null;
+				if (this.maturitycomputation && !this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002)))
 					this.standards.add(tmp27002standard);
-				}
 				break;
 			}
-
 		}
 		this.uncertainty = uncertainty;
 	}
@@ -251,7 +239,7 @@ public class ActionPlanComputation {
 		System.out.println("Computing Action Plans...");
 
 		try {
-			
+
 			preImplementedMeasures = new MaintenanceRecurrentInvestment();
 
 			this.standards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
@@ -308,8 +296,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - optimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPO);
@@ -324,8 +311,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPP);
@@ -369,6 +355,8 @@ public class ActionPlanComputation {
 
 			parameterExternalSetupRate = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
+			soa = this.analysis.getParameter(Constant.SOA_THRESHOLD, 100);
+
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
 				if (uncertainty) {
@@ -407,8 +395,8 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * create summary for pessimistic phase action plan summary
 				// ****************************************************************
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase",
-						"Create summary for pessimistic phase action plan summary", progress));
+				serviceTaskFeedback.send(idTask,
+						new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPP);
@@ -2679,7 +2667,6 @@ public class ActionPlanComputation {
 		tmpval.measureCount = 0;
 		tmpval.relativeROSI = 0;
 		tmpval.ROSI = 0;
-		// tmpval.totalALE = 0;
 		tmpval.totalCost = 0;
 	}
 
@@ -2838,6 +2825,9 @@ public class ActionPlanComputation {
 			isFirstValidPhase = START_P0.equals(tmpval.previousStage.getStage());
 		} else
 			tmpval.measureCount = 0;
+		
+		tmpval.notCompliantMeasure27001Count = 0;
+		tmpval.notCompliantMeasure27002Count = 0;
 
 		for (String key : tmpval.conformanceHelper.keySet()) {
 
@@ -2857,6 +2847,17 @@ public class ActionPlanComputation {
 						tmpval.measureCount++;
 					}
 					denominator++;
+					if (imprate < soa && measure.getPhase().getNumber() > phasenumber && measure instanceof NormalMeasure) {
+						switch (helper.standard.getStandard().getLabel()) {
+						case Constant.STANDARD_27001:
+							tmpval.notCompliantMeasure27001Count++;
+							break;
+						case Constant.STANDARD_27002:
+							tmpval.notCompliantMeasure27002Count++;
+							break;
+						}
+					}
+
 				}
 			}
 
@@ -2899,7 +2900,6 @@ public class ActionPlanComputation {
 			aStage.setMeasureCount(tmpval.measureCount);
 		aStage.setImplementedMeasuresCount(tmpval.implementedCount);
 		aStage.setTotalALE(tmpval.totalALE);
-
 		aStage.setDeltaALE(tmpval.deltaALE);
 		aStage.setCostOfMeasures(tmpval.measureCost);
 		aStage.setROSI(tmpval.ROSI);
@@ -2907,6 +2907,8 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
+		aStage.setNotCompliantMeasure27001Count(tmpval.notCompliantMeasure27001Count);
+		aStage.setNotCompliantMeasure27002Count(tmpval.notCompliantMeasure27002Count);
 
 		if (isFirstValidPhase) {
 			aStage.setInternalMaintenance((preImplementedMeasures.getInternalMaintenance() + maintenanceRecurrentInvestment.getInternalMaintenance()) * phasetime);

@@ -151,7 +151,7 @@ function newCustomer() {
 	if ($("#customer_canBeUsed").length)
 		$("#customer_canBeUsed").prop("checked", false);
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Add", "Add a new Customer"));
-	$("#addcustomerbutton").text(MessageResolver("label.action.add", "Add"));
+	$("#addcustomerbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#customer_form").prop("action", "Customer/Create");
 	$("#addCustomerModel").modal('show');
 	return false;
@@ -174,7 +174,7 @@ function editSingleCustomer(customerId) {
 	});
 	$("#customer_id").prop("value", customerId);
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Update", "Update a Customer"));
-	$("#addcustomerbutton").text(MessageResolver("label.action.edit", "Edit"));
+	$("#addcustomerbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#customer_form").prop("action", "Customer/Edit/" + customerId);
 	$("#addCustomerModel").modal('show');
 	return false;

@@ -3,20 +3,18 @@
  */
 package lu.itrust.business.TS.model.standard.measuredescription.helper;
 
-import java.util.Comparator;
-
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
 /**
  * @author eomar
  *
  */
-public class ComparatorMeasureDescription implements Comparator<MeasureDescription> {
+public class ComparatorMeasureDescription implements NaturalOrderComparator<MeasureDescription> {
 
 	@Override
 	public int compare(MeasureDescription o1, MeasureDescription o2) {
-		//return Compare(o1.getReference(), o2.getReference());
-		return o1.compareTo(o2);
+		return NaturalOrderComparator.compareTo(o1.getReference(), o2.getReference());
 	}
 	
 	public static int Compare(String reference1, String reference2){

@@ -149,6 +149,8 @@ public class ControllerEditField {
 
 	private Pattern riskProfileNoFieldPattern = Pattern.compile("^*\\.id$|^\\*.asset\\.*$|^*.scenario\\.*");
 
+	private Pattern smlPatten = Pattern.compile("^SMLLevel[0-5]{1}$");
+
 	/**
 	 * itemInformation: <br>
 	 * Description
@@ -389,6 +391,8 @@ public class ControllerEditField {
 			throws Exception {
 
 		try {
+			if (!smlPatten.matcher(fieldEditor.getFieldName()).matches())
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get parameter object
@@ -403,26 +407,16 @@ public class ControllerEditField {
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
-
 			// create field
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
-
 			// set value /100 to save as values between 0 and 1
-			Double val = Double.valueOf(((String) fieldEditor.getValue())) / 100;
-
-			fieldEditor.setValue(String.valueOf(val));
-
 			// set field data
-			if (SetFieldData(field, parameter, fieldEditor)) {
-
+			if (SetFieldValue(parameter, field, (Double) value * 0.01)) {
 				// update field
-
 				serviceParameter.saveOrUpdate(parameter);
-
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
 			} else
-
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
@@ -487,7 +481,14 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and @permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Result estimation(@RequestBody FieldEditor fieldEditor, @RequestParam("asset") int idAsset, @RequestParam("scenario") int idScenario, HttpSession session,
 			Locale locale, Principal principal) {
-		if (fieldEditor.getFieldName().startsWith("riskProfile."))
+		if (fieldEditor.getFieldName().equals("scenario.description")) {
+			Scenario scenario = serviceScenario.getFromAnalysisById((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idScenario);
+			if (scenario == null)
+				return Result.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
+			scenario.setDescription(fieldEditor.getValue().toString().trim());
+			serviceScenario.saveOrUpdate(scenario);
+			return Result.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", locale));
+		} else if (fieldEditor.getFieldName().startsWith("riskProfile."))
 			return updateRiskProfile(fieldEditor, idAsset, idScenario, session, locale);
 		else
 			return updateAssessment(fieldEditor, idAsset, idScenario, session, locale);
@@ -1367,13 +1368,19 @@ public class ControllerEditField {
 			// get the field type and return value in casted form
 			if (fieldEditor.getType().equalsIgnoreCase("string"))
 				return (String) fieldEditor.getValue();
-			else if (fieldEditor.getType().equalsIgnoreCase("integer"))
+			else if (fieldEditor.getType().equalsIgnoreCase("integer")) {
+				if (fieldEditor.getValue() instanceof Integer)
+					return (Integer) fieldEditor.getValue();
 				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).intValue();
-			else if (fieldEditor.getType().equalsIgnoreCase("double")) {
+			} else if (fieldEditor.getType().equalsIgnoreCase("double")) {
+				if (fieldEditor.getValue() instanceof Double)
+					return (Double) fieldEditor.getValue();
 				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue();
-			} else if (fieldEditor.getType().equalsIgnoreCase("float"))
+			} else if (fieldEditor.getType().equalsIgnoreCase("float")) {
+				if (fieldEditor.getValue() instanceof Float)
+					return (Float) fieldEditor.getValue();
 				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).floatValue();
-			else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
+			} else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
 				return Boolean.parseBoolean(fieldEditor.getValue().toString());
 			else if (fieldEditor.getType().equalsIgnoreCase("date")) {
 				DateFormat format = new SimpleDateFormat(pattern == null ? "yyyy-MM-dd hh:mm:ss" : pattern);

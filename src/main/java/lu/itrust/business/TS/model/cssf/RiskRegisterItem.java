@@ -287,7 +287,7 @@ public class RiskRegisterItem {
 		return asset.getName() + "^NAME-'RISK_REGISTER'-NAME^" + scenario.getName();
 	}
 
-	public boolean isConformed(double impact, double probability) {
+	public boolean isCompliant(double impact, double probability) {
 		return netEvaluation.getImpact() >= impact && netEvaluation.getProbability() >= probability;
 	}
 }

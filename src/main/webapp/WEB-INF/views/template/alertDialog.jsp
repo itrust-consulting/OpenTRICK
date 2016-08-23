@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="dialog-body">
+	<img src='<spring:url value="/images/loading.gif" />' id="loading-indicator" style="display:none" align="middle" />
 	<div id="progress-dialog" class="bootbox modal fade" role="dialog" tabindex="-1" style="display: none; z-index: 5000;" data-aria-hidden="false">
 		<div class="modal-dialog" style="width: 0px; top: 50%;">
 			<div class="modal-content" style="border: none;">

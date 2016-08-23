@@ -41,7 +41,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="addlanguagebutton" type="button" class="btn btn-primary" onclick="saveLanguage('language_form')">
-					<spring:message code="label.action.add.language" text="Add" />
+					<spring:message code="label.action.add" text="Add" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />
@@ -56,7 +56,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteLanguageModel-title">
-					<spring:message code="label.title.delete.language" text="Delete a language" />
+					<spring:message code="label.title.delete" text="Delete" />
 				</h4>
 			</div>
 			<div id="deleteLanguageBody" class="modal-body">Your question here...</div>

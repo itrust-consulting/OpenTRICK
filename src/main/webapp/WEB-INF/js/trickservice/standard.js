@@ -58,7 +58,9 @@ function deleteStandard(idStandard, name) {
 		name = $("#section_kb_standard tbody tr[data-trick-id='" + (idStandard = selectedScenario[0]) + "']>td:nth-child(2)").text();
 	}
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
-	$("#deletestandardbuttonYes").click(function() {
+	$("#deletestandardbuttonYes").one("click", function() {
+		$("#deleteStandardModel").modal('hide');
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/KnowledgeBase/Standard/Delete/" + idStandard,
 			type : "POST",
@@ -72,18 +74,19 @@ function deleteStandard(idStandard, name) {
 				return false;
 			},
 			error : unknowError
-		});
-		$("#deletestandardbuttonYes").unbind("click");
-		$("#deleteStandardModel").modal('toggle');
+		}).complete(function() {
+			$progress.hide();
+		})
 		return false;
 	});
-	$("#deleteStandardModel").modal('toggle');
+	$("#deleteStandardModel").modal('show');
 	return false;
 }
 
 function uploadImportStandardFile() {
 	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/Upload",
 		async : true,
@@ -103,7 +106,9 @@ function uploadImportStandardFile() {
 			return false;
 		},
 		error : unknowError
-	});
+	}).complete(function() {
+		$progress.hide();
+	})
 	return false;
 }
 
@@ -184,7 +189,7 @@ function newStandard() {
 	$("#addStandardModel input[name='type'][value='NORMAL']").prop("checked", true);
 	$("#standard_computable").prop("checked", false);
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.add", "Add a new Standard"));
-	$("#addstandardbutton").text(MessageResolver("label.action.add", "Add"));
+	$("#addstandardbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#standard_form").prop("action", "/Save");
 	$("#addStandardModel").modal('toggle');
 	return false;
@@ -208,7 +213,7 @@ function editSingleStandard(idStandard) {
 	$("#addStandardModel input[name='type'][value='" + standardtype + "']").prop("checked", "checked");
 	$("#standard_computable").prop("checked", $(rows[4]).attr("data-trick-computable") == 'Yes' ? "checked" : "");
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.update", "Update a Standard"));
-	$("#addstandardbutton").text(MessageResolver("label.action.edit", "Edit"));
+	$("#addstandardbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#standard_form").prop("action", "/Save");
 	$("#addStandardModel").modal('toggle');
 	return false;

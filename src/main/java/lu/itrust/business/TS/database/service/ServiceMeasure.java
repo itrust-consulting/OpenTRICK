@@ -54,4 +54,14 @@ public interface ServiceMeasure {
 	public void delete(Measure measure) ;
 
 	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) ;
+
+	public List<Measure> getByIdAnalysisAndIds(Integer idAnalysis, List<Integer> measureIds);
+
+	public Measure getByAnalysisAndStandardAndReference(Integer idAnalysis, String standard, String reference);
+
+	public List<Measure> getByAnalysisAndStandardAndReferences(Integer idAnalysis, String standard, List<String> references);
+
+	public List<Measure> getReferenceStartWith(Integer idAnalysis, String standard, String reference);
+
+	public List<Measure> getByAnalysisIdStandardAndChapters(Integer idAnalysis, String standard27002, List<String> chapters);
 }

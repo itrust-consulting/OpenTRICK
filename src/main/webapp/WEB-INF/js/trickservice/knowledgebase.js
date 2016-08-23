@@ -3,9 +3,9 @@ $(document).ready(function() {
 		fixedOffset : $(".nav-tab"),
 		marginTop : application.fixedOffset
 	};
-	
+
 	fixTableHeader("#tab-container table");
-	
+
 	$("input[type='checkbox']").removeAttr("checked");
 	$("#section_kb_measure #languageselect").change(function() {
 		showMeasures($("#section_kb_measure").attr("data-standard-id"), $(this).val());
@@ -64,20 +64,13 @@ function setAsDefaultProfile(analysisId) {
 }
 
 function selectAnalysis(analysisId) {
-
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
 	}
-
-	var element = document.createElement("a");
-	element.setAttribute("href", context + "/Analysis/" + analysisId + "/Select");
-	$(element).appendTo("body");
-	element.click();
-
-	return false;
+	window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + OPEN_MODE.EDIT.value + "");
 }
 
 function saveAnalysis(form, reloadaction) {

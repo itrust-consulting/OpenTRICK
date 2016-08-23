@@ -42,4 +42,8 @@ public interface ServiceAnalysisStandard {
 	public Standard getStandardById(int idAnalysisStandard);
 
 	public String getStandardNameById(int idAnalysisStandard);
+
+	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String standard);
+
+	public Boolean hasStandard(Integer idAnalysis, String standard);
 }

@@ -233,14 +233,14 @@
 			</td>
 			<c:choose>
 				<c:when test="${empty netModelling }">
-					<td style="border-left: 2px solid window;" ${computeNextImportance==0?'':'class="has-error"'} ><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+					<td style="border-left: 2px solid window;"><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"></td>
 					<td><input name="netImpact" disabled="disabled" class="form-control numeric"></td>
 					<td><input name="netImportance" disabled="disabled" class="form-control numeric"></td>
 				</c:when>
 				<c:otherwise>
 					<fmt:formatNumber value="${netModelling.importance}" maxFractionDigits="0" var='netImportance'/>
-					<td style="border-left: 2px solid window;" ${computeNextImportance==netModelling.importance?'':'class="has-error"'} ><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
+					<td style="border-left: 2px solid window;"><input name="computedNextImportance" disabled="disabled" value="${computeNextImportance}" class="form-control numeric"></td>
 					<td style="border-left: 2px solid window;"><input name="netProbability" disabled="disabled" class="form-control numeric"
 						value='<fmt:formatNumber value="${netModelling.probability}" maxFractionDigits="0"/>'></td>
 					<td><input name="netImpact" disabled="disabled" class="form-control numeric" value='<fmt:formatNumber value="${netModelling.impact}" maxFractionDigits="0" />'></td>
@@ -384,25 +384,26 @@
 
 <table class='table'>
 	<thead>
-
 		<c:choose>
 			<c:when test="${show_uncertainty}">
 				<tr>
-					<th width="14.28%" style="text-align: center;"><spring:message code="label.title.risk_identifier" /></th>
-					<th width="14.28%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
-					<th width="14.28%" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
-					<th width="14.28%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-					<th width="14.28%" title='<spring:message code="label.title.alep" />' style="text-align: center;"><spring:message code="label.pessimistic" text='Pessimistic' /></th>
-					<th width="14.28%" title='<spring:message code="label.title.ale" />' style="text-align: center;"><spring:message code="label.ale.normal" text='ALE Normal' /></th>
-					<th width="14.28%" title='<spring:message code="label.title.aleo" />' style="text-align: center;"><spring:message code="label.optimistic" text='Optimistic' /></th>
+					<th width="12.5%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
+					<th width="12.5%" style="text-align: center;"><spring:message code="label.title.risk_identifier" /></th>
+					<th width="12.5%" style="text-align: center;"><spring:message code="label.title.uncertainty" /></th>
+					<th width="12.5%" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
+					<th width="12.5%" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+					<th width="12.5%" title='<spring:message code="label.title.alep" />' style="text-align: center;"><spring:message code="label.pessimistic" text='Pessimistic' /></th>
+					<th width="12.5%" title='<spring:message code="label.title.ale" />' style="text-align: center;"><spring:message code="label.ale.normal" text='ALE Normal' /></th>
+					<th width="12.5%" title='<spring:message code="label.title.aleo" />' style="text-align: center;"><spring:message code="label.optimistic" text='Optimistic' /></th>
 				</tr>
 			</c:when>
 			<c:otherwise>
 				<tr>
-					<th width="25%" style="text-align: center;"><spring:message code="label.title.risk_identifier" /></th>
-					<th width="25" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
-					<th width="25" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
-					<th width="25%" style="text-align: center;"><spring:message code="label.title.ale" /></th>
+					<th width="20%" style="text-align: center;"><spring:message code="label.risk_register.category" /></th>
+					<th width="20%" style="text-align: center;"><spring:message code="label.title.risk_identifier" /></th>
+					<th width="20" style="text-align: center;"><spring:message code="label.risk_register.strategy" /></th>
+					<th width="20" style="text-align: center;"><spring:message code="label.title.owner" text="Owner" /></th>
+					<th width="20%" style="text-align: center;"><spring:message code="label.title.ale" /></th>
 				</tr>
 			</c:otherwise>
 		</c:choose>
@@ -411,10 +412,12 @@
 		<tr>
 			<spring:message text="${assessment.owner}" var="owner" />
 			<spring:message text="${riskProfile.identifier}" var="identifier"/>
+			<c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}"/>
 			<c:choose>
 				<c:when test="${show_uncertainty}">
 					<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
-					<td style="border-right: 2px solid #ddd;"><input name="identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
+					<td class="text-center"><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}"/></strong></td>
+					<td style="border-right: 2px solid #ddd;"><input name="riskProfile.identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
 					<td style="border-right: 2px solid #ddd;"><input name="uncertainty" class="form-control numeric" value='${uncertainty}' placeholder="${uncertainty}"
 						data-trick-type='double'></td>
 					<td>${strategyForm}</td>
@@ -439,7 +442,8 @@
 					</td>
 				</c:when>
 				<c:otherwise>
-					<td><input name="identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
+					<td class="text-center"><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}"/></strong></td>
+					<td><input name="riskProfile.identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'></td>
 					<td>${strategyForm}</td>
 					<td><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 					<td>

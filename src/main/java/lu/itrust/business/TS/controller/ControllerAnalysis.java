@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
 import static lu.itrust.business.TS.constants.Constant.ANALYSIS_TASK_ID;
 import static lu.itrust.business.TS.constants.Constant.CURRENT_CUSTOMER;
 import static lu.itrust.business.TS.constants.Constant.FILTER_ANALYSIS_NAME;
@@ -12,6 +13,8 @@ import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS_LANGUAGE;
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,13 +22,17 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -64,14 +71,16 @@ import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.CustomerManager;
-import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceRole;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -90,15 +99,23 @@ import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.OpenMode;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.Standard;
+import lu.itrust.business.TS.model.standard.helper.StandardComparator;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.model.ticketing.TicketingProject;
+import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.HistoryValidator;
@@ -162,6 +179,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private CustomDelete customDelete;
+
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
 
 	@Value("${app.settings.report.french.template.name}")
 	private String frenchReportName;
@@ -228,6 +248,8 @@ public class ControllerAnalysis {
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
 		Boolean readOnly = OpenMode.isReadOnly(mode);
+		List<Standard> standards = null;
+		boolean hasMaturity = false;
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
 				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
 		if (hasPermission) {
@@ -237,21 +259,32 @@ public class ControllerAnalysis {
 			case EDIT:
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
+				standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
+						.collect(Collectors.toList());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
+				hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
-				model.addAttribute("soa", measures.get("27002"));
+				model.addAttribute("soa", measures.get(Constant.STANDARD_27002));
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
-				model.addAttribute("standards", analysis.getStandards());
+				model.addAttribute("standards", standards);
+				model.addAttribute("hasMaturity", hasMaturity);
 				if (analysis.isCssf()) {
 					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
 					model.addAttribute("estimationMapping", analysis.mapAssessment());
 				}
+				if (hasMaturity)
+					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002),
+							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(), true));
 				break;
 			case EDIT_MEASURE:
-				model.addAttribute("standardChapters", spliteMeasureByChapter(analysis.getAnalysisStandards()));
-				model.addAttribute("standards", analysis.getStandards());
+				standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty())
+						.map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator()).collect(Collectors.toList());
+				Map<String, Map<String, List<Measure>>> measuresByChapter = spliteMeasureByChapter(analysis.getAnalysisStandards());
+				hasMaturity = measuresByChapter.containsKey(Constant.STANDARD_MATURITY);
+				model.addAttribute("standardChapters", measuresByChapter);
+				model.addAttribute("standards", standards);
 				break;
 			case EDIT_ESTIMATION:
 			case READ_ESTIMATION:
@@ -263,11 +296,10 @@ public class ControllerAnalysis {
 				model.addAttribute("probabilities", probabilities);
 				break;
 			}
-			model.addAttribute("analysis", analysis);
-			model.addAttribute("language", analysis.getLanguage().getAlpha2());
-			session.setAttribute(SELECTED_ANALYSIS_LANGUAGE, analysis.getLanguage().getAlpha2());
-			model.addAttribute("login", user.getLogin());
 			model.addAttribute("open", mode);
+			model.addAttribute("analysis", analysis);
+			model.addAttribute("login", user.getLogin());
+			loadUserSettings(principal, model, user);
 
 			/**
 			 * Log
@@ -288,7 +320,7 @@ public class ControllerAnalysis {
 	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(List<AnalysisStandard> analysisStandards) {
 		Comparator<Measure> comparator = new MeasureComparator();
 		Map<String, Map<String, List<Measure>>> mapper = new LinkedHashMap<>();
-		analysisStandards.forEach(analysisStandard -> {
+		analysisStandards.stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty()).forEach(analysisStandard -> {
 			Map<String, List<Measure>> chapters = new LinkedHashMap<>();
 			Collections.sort(analysisStandard.getMeasures(), comparator);
 			analysisStandard.getMeasures().forEach(measure -> {
@@ -335,10 +367,11 @@ public class ControllerAnalysis {
 		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		String nameFilter = (String) session.getAttribute(FILTER_ANALYSIS_NAME);
+		User user = null;
 		if (customer == null || nameFilter == null) {
-			User user = serviceUser.get(principal.getName());
+			user = serviceUser.get(principal.getName());
 			if (user == null)
-				return "redirect:/Logout";
+				throw new AccessDeniedException("Access denied");
 			if (customer == null) {
 				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
 				// check if the current customer is set -> no
@@ -370,12 +403,35 @@ public class ControllerAnalysis {
 			else
 				model.addAttribute("analyses", serviceAnalysis.getAllByUserAndCustomerAndNameAndNotEmpty(principal.getName(), customer, nameFilter));
 		}
+		loadUserSettings(principal, model, user);
 		model.addAttribute("names", names);
 		model.addAttribute("analysisSelectedName", nameFilter);
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
 		return "analyses/all/home";
+	}
+
+	private boolean loadUserSettings(Principal principal, @Nullable Model model, @Nullable User user) {
+		boolean allowedTicketing = false;
+		try {
+			if (user == null)
+				user = serviceUser.get(principal.getName());
+			TSSetting name = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME), url = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
+					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
+			if (model != null && allowedTicketing) {
+				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
+				model.addAttribute(TICKETING_URL, url.getString());
+			}
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		} finally {
+			if (model != null)
+				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
+		}
+		return allowedTicketing;
 	}
 
 	/**
@@ -408,9 +464,11 @@ public class ControllerAnalysis {
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
 			return "redirect:/Logout";
+		loadUserSettings(principal, model, user);
 		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
+
 		return "analyses/all/home";
 	}
 
@@ -674,20 +732,12 @@ public class ControllerAnalysis {
 	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
-
 		// retrieve user
 		User user = serviceUser.get(principal.getName());
-
-		// retrieve version
-		String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
-
-		String author = user.getFirstName() + " " + user.getLastName();
-
 		// add data to model
-		model.put("oldVersion", version);
+		model.put("oldVersion", serviceAnalysis.getVersionOfAnalysis(analysisId));
 		model.put("analysisId", analysisId);
-		model.put("author", author);
-
+		model.put("author", user.getFirstName() + " " + user.getLastName());
 		return "analyses/all/forms/newVersion";
 	}
 
@@ -723,7 +773,7 @@ public class ControllerAnalysis {
 			Comparator<String> comparator = new Comparator<String>() {
 				@Override
 				public int compare(String o1, String o2) {
-					return GeneralComperator.VersionComparator(o1, o2);
+					return NaturalOrderComparator.compareTo(o1, o2);
 				}
 			};
 
@@ -758,7 +808,7 @@ public class ControllerAnalysis {
 			if (error != null)
 				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-				if (GeneralComperator.VersionComparator(lastVersion, version) >= 0)
+				if (NaturalOrderComparator.compareTo(lastVersion, version) >= 0)
 					errors.put("version", messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
 							String.format("Version has to be bigger than last %s", lastVersion), locale));
 				else
@@ -869,7 +919,7 @@ public class ControllerAnalysis {
 		file.transferTo(importFile);
 
 		// create worker
-		Worker worker = new WorkerAnalysisImport(workersPoolManager,sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
+		Worker worker = new WorkerAnalysisImport(workersPoolManager, sessionFactory, serviceTaskFeedback, importFile, customer.getId(), principal.getName());
 
 		// register worker to tasklist
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
@@ -960,6 +1010,87 @@ public class ControllerAnalysis {
 	public void exportRawActionPlan(@PathVariable Integer idAnalysis, Principal principal, HttpServletResponse response) throws Exception {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		exportRawActionPlan(response, analysis, principal.getName(), new Locale(analysis.getLanguage().getAlpha2()));
+	}
+
+	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String unlinkToProject(@RequestBody List<Integer> ids, Model model, Principal principal, Locale locale) {
+		User user = serviceUser.get(principal.getName());
+		if (!loadUserSettings(principal, model, user))
+			throw new ResourceNotFoundException();
+		String name = (String) model.asMap().get(TICKETING_NAME);
+		ids.forEach(idAnalysis -> {
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			if (analysis != null && analysis.hasProject() && analysis.isUserAuthorized(user, AnalysisRight.ALL)) {
+				analysis.setProject(null);
+				serviceAnalysis.saveOrUpdate(analysis);
+			}
+		});
+		return JsonMessage.Success(ids.size() > 1
+				? messageSource.getMessage("sucess.analyses.unlink.from.project", new String[] { name }, String.format("Analyses has been successfully unlinked from %s", name),
+						locale)
+				: messageSource.getMessage("sucess.analysis.unlink.from.project", new String[] { name }, String.format("Analysis has been successfully unlinked from %s", name),
+						locale));
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	@RequestMapping(value = "/{idAnalysis}/Ticketing/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String loadProject(@PathVariable Integer idAnalysis, Model model, Principal principal, RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
+			client = buildClient(principal.getName());
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			String idProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
+			List<TicketingProject> projects = null;
+			if (idProject != null) {
+				TicketingProject project = client.findProjectById(idProject);
+				if (project != null)
+					(projects = new LinkedList<>()).add(project);
+			} else {
+				Map<String, Boolean> mapper = serviceAnalysis.getAllProjectIds().stream().collect(Collectors.toMap(Function.identity(), key -> true));
+				(projects = client.findProjects()).removeIf(id -> mapper.containsKey(id.getId()));
+			}
+			model.addAttribute("projects", projects);
+			model.addAttribute("analysis", analysis);
+			return String.format("analyses/all/forms/ticketing_%s_link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return "redirect:/Error";
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	@RequestMapping(value = "/{idAnalysis}/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String linkToProject(@PathVariable Integer idAnalysis, @RequestBody String idProject, Principal principal, Locale locale) {
+		if (!loadUserSettings(principal, null, null))
+			throw new ResourceNotFoundException();
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		if (StringUtils.isEmpty(idProject))
+			return JsonMessage.Error(messageSource.getMessage("error.project.not_found", null, "Project cannot be found", locale));
+		String OldProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
+		if (!(OldProject == null || OldProject.equals(idProject)))
+			return JsonMessage.Error(
+					messageSource.getMessage("error.analysis.linked.to.another.project", null, "Another project is already linked to another version of this analysis", locale));
+		analysis.setProject(idProject);
+		serviceAnalysis.saveOrUpdate(analysis);
+		return JsonMessage.Success(messageSource.getMessage("success.link.analysis.project", null, "Analysis has been successfully linked to project", locale));
+
 	}
 
 	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, String username, Locale locale) throws IOException {
@@ -1155,5 +1286,36 @@ public class ControllerAnalysis {
 			TrickLogManager.Persist(e);
 		}
 		return false;
+	}
+
+	private Client buildClient(String username) {
+		User user = serviceUser.get(username);
+		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+		TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
+		if (urlSetting == null || nameSetting == null)
+			throw new TrickException("error.load.setting", "Setting cannot be loaded");
+		Map<String, Object> settings = new HashMap<>(3);
+		settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
+		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		settings.put("url", urlSetting.getValue());
+		Client client = null;
+		boolean isConnected = false;
+		try {
+			client = ClientBuilder.Build(nameSetting.getString());
+			isConnected = client.connect(settings);
+		} catch (TrickException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new TrickException("error.ticket_system.connexion.failed", "Unable to connect to your ticketing system", e);
+		} finally {
+			if (!(client == null || isConnected)) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+		}
+		return client;
 	}
 }

@@ -7,7 +7,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.component.GeneralComperator;
+import lu.itrust.business.TS.component.NaturalOrderComparator;
 import lu.itrust.business.TS.database.dao.DAOHistory;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.history.History;
@@ -200,7 +200,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	public void save(Integer analysisId, History history)  {
 		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisId);
 		Hibernate.initialize(analysis.getHistories());
-		if (GeneralComperator.VersionComparator(history.getVersion(), analysis.getVersion()) == 1) {
+		if (NaturalOrderComparator.compareTo(history.getVersion(), analysis.getVersion()) == 1) {
 			getSession().save(history);
 			analysis.addAHistory(history);
 			analysis.setVersion(history.getVersion());

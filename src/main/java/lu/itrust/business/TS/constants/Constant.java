@@ -589,6 +589,16 @@ public class Constant {
 	public static final String MATURITY_RATE = "rate";
 	public static final String MATURITY_DOMAIN = "domain";
 	public static final String VALUE_SPEC = "value_spec";
+	
+	/** SML LEVEL **/
+	public static final String MATURITY_LEVEL_SML5 = "SML5";
+	public static final String MATURITY_LEVEL_SML4 = "SML4";
+	public static final String MATURITY_LEVEL_SML3 = "SML3";
+	public static final String MATURITY_LEVEL_SML2 = "SML2";
+	public static final String MATURITY_LEVEL_SML1 = "SML1";
+	public static final String MATURITY_LEVEL_SML0 = "SML0";
+	
+	
 
 	/** List of Constants for the Sqlite Table "maturity_phase" */
 	public final static String MATURITYPHASE_ID = "phase";
@@ -786,6 +796,18 @@ public class Constant {
 
 	public static final String CURRENT_CUSTOMER = "currentCustomer";
 
+	public static final String ALLOWED_TICKETING = "allowedTicketing";
+
+	public static final String TICKETING_NAME = "ticketingName";
+	
+	public static final String TICKETING_URL = "ticketingURL";
+
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
+
+	public static final String USER_TICKETING_SYSTEM_USERNAME = "user-titcketing-credential-username";
+
+	public static final String USER_TICKETING_SYSTEM_PASSWORD = "user-titcketing-credential-password";
+
+	public static final String USER_TICKETING_SYSTEM_IV = "user-titcketing-credential-iv";
 
 }

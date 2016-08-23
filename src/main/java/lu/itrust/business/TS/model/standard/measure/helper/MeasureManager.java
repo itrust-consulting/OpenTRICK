@@ -3,6 +3,7 @@ package lu.itrust.business.TS.model.standard.measure.helper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -32,6 +33,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.ImportRRFForm;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -47,7 +49,9 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-import lu.itrust.business.TS.model.standard.measuredescription.helper.ComparatorMeasureReferance;
+
+import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+
 
 /**
  * MeasureManager.java: <br>
@@ -127,7 +131,7 @@ public class MeasureManager {
 	 */
 	public static Map<String, List<Measure>> SplitByStandard(List<Measure> measures) {
 		Map<String, List<Measure>> mappingMeasures = new LinkedHashMap<>();
-		Collections.sort(measures, new ComparatorMeasureReferance());
+		Collections.sort(measures, new MeasureComparator());
 		for (Measure measure : measures) {
 			Standard standard = measure.getAnalysisStandard().getStandard();
 			List<Measure> measures2 = mappingMeasures.get(standard.getLabel());
@@ -157,12 +161,11 @@ public class MeasureManager {
 	 * @return
 	 */
 	public static String extractMainChapter(String chapter) {
-
 		if ((chapter.toUpperCase().startsWith("A.")) || (chapter.toUpperCase().startsWith("M."))) {
-			String[] chapters = chapter.split("[.]");
+			String[] chapters = chapter.split("[.]", 3);
 			return chapters[0] + "." + chapters[1];
 		} else {
-			return (chapter.contains(".") ? chapter.split("[.]")[0] : chapter);
+			return (chapter.contains(".") ? chapter.split("[.]", 2)[0] : chapter);
 		}
 
 	}
@@ -252,8 +255,8 @@ public class MeasureManager {
 			astandard.getMeasures().add(measure);
 			daoAnalysisStandard.saveOrUpdate(astandard);
 		}
-		
-		if(measureDescription.getId()<1)
+
+		if (measureDescription.getId() < 1)
 			daoMeasureDescription.saveOrUpdate(measureDescription);
 	}
 
@@ -351,4 +354,100 @@ public class MeasureManager {
 		measure.setAnalysisStandard(analysisStandard);
 		return measure;
 	}
+
+	/**
+	 * Compute Maturity-based Effectiveness Rate for 27002
+	 * 
+	 * @param measures27002
+	 * @param maturityMeasures
+	 * @param parameters
+	 *            : require Maturity parameters + {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
+	 * @param reference:
+	 *            mapped by reference
+	 * @return Map<27002 Reference or id, efficiency implementation Rate>
+	 */
+	public static Map<Object, Double> ComputeMaturiyEfficiencyRate(List<Measure> measures27002, List<Measure> maturityMeasures, List<Parameter> parameters, boolean reference) {
+		Map<Object, Double> effectiveImpelementationRate = new HashMap<>();
+		if (measures27002 == null || maturityMeasures == null || parameters == null)
+			return effectiveImpelementationRate;
+		Map<String, Double> maturities = ComputeMaturityByChapter(maturityMeasures, parameters);
+		if (maturities.isEmpty())
+			return effectiveImpelementationRate;
+		for (Measure measure : measures27002) {
+			if (measure.getMeasureDescription().isComputable()) {
+				Double maturity = maturities.get(measure.getMeasureDescription().getReference().split("[.]", 2)[0]);
+				if (maturity != null)
+					effectiveImpelementationRate.put(reference ? measure.getMeasureDescription().getReference() : measure.getId(),
+							measure.getImplementationRateValue() * maturity * 0.01);
+			}
+		}
+		return effectiveImpelementationRate;
+	}
+
+	/**
+	 * Compute Maturity by Chapter
+	 * @param maturityMeasures
+	 * @param parameters :  MaturityParameter + {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
+	 * @return Map<Chapter, Maturity rate>
+	 */
+	public static Map<String, Double> ComputeMaturityByChapter(List<Measure> maturityMeasures, List<Parameter> parameters) {
+		Map<String, Double> maturities = new HashMap<>();
+		Map<String, MaturityParameter> mappedMaturityParameters = new HashMap<>(23);
+		Map<String, Parameter> efficiencyRates = new HashMap<>(6);
+		parameters.forEach(parameter -> {
+			if (parameter instanceof MaturityParameter)
+				mappedMaturityParameters.put(parameter.getDescription(), (MaturityParameter) parameter);
+			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
+				efficiencyRates.put(parameter.getDescription(), parameter);
+		});
+
+		Map<String, Boolean[]> smls = new HashMap<>();
+		for (Measure measure : maturityMeasures) {
+			if (!(measure instanceof MaturityMeasure))
+				continue;
+			String[] chapters = measure.getMeasureDescription().getReference().replace("M.", "").split("[.]");
+			Boolean[] complainces = smls.get(chapters[0]);
+			if (complainces == null)
+				smls.put(chapters[0], complainces = new Boolean[] { true, true, true, true, true });
+			if (!measure.getMeasureDescription().isComputable() || chapters.length != 3)
+				continue;
+			MeasureDescriptionText descriptionText = measure.getMeasureDescription().findByAlph3("eng");
+			if (descriptionText == null || !mappedMaturityParameters.containsKey(descriptionText.getDomain()))
+				continue;
+			MaturityParameter maturityMeasure = mappedMaturityParameters.get(descriptionText.getDomain());
+			double implementation = measure.getImplementationRateValue() * 0.01;
+			switch (chapters[1]) {
+			case "1":
+				complainces[0] &= implementation >= maturityMeasure.getSMLLevel1();
+				break;
+			case "2":
+				complainces[1] &= implementation >= maturityMeasure.getSMLLevel2();
+				break;
+			case "3":
+				complainces[2] &= implementation >= maturityMeasure.getSMLLevel3();
+				break;
+			case "4":
+				complainces[3] &= implementation >= maturityMeasure.getSMLLevel5();
+				break;
+			case "5":
+				complainces[4] &= implementation >= maturityMeasure.getSMLLevel5();
+				break;
+			}
+		}
+
+		smls.forEach((chapter, complainces) -> {
+			String sml = "SML0";
+			for (int i = 0; i < complainces.length; i++) {
+				if (complainces[i])
+					sml = "SML" + (i + 1);
+				else
+					break;
+			}
+			Parameter parameter = efficiencyRates.get(sml);
+			if (parameter != null)
+				maturities.put(chapter, parameter.getValue());
+		});
+		return maturities;
+	}
+
 }

@@ -40,6 +40,33 @@ public class RiskProbaImpact implements Cloneable {
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private ExtendedParameter impactFin;
+	
+	
+
+	/**
+	 * 
+	 */
+	public RiskProbaImpact() {
+	}
+	
+	
+
+	/**
+	 * @param probability
+	 * @param impactFin
+	 * @param impactLeg
+	 * @param impactOp
+	 * @param impactRep
+	 */
+	public RiskProbaImpact(ExtendedParameter probability, ExtendedParameter impactFin, ExtendedParameter impactLeg, ExtendedParameter impactOp, ExtendedParameter impactRep) {
+		this.probability = probability;
+		this.impactFin = impactFin;
+		this.impactLeg = impactLeg;
+		this.impactOp = impactOp;
+		this.impactRep = impactRep;
+	}
+
+
 
 	/**
 	 * @return the probability
@@ -117,10 +144,13 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	public int getImportance() {
-		return getMaxImpact() * (probability == null ? 0 : probability.getLevel());
+		return getImpactLevel() * getProbabilityLevel();
 	}
 
-	private int getMaxImpact() {
+	/**
+	 * @return Max of impact level
+	 */
+	public int getImpactLevel() {
 		int max = impactFin == null ? 0 : impactFin.getLevel();
 		if (impactRep != null)
 			max = Math.max(max, impactRep.getLevel());
@@ -129,6 +159,10 @@ public class RiskProbaImpact implements Cloneable {
 		if (impactLeg != null)
 			max = Math.max(max, impactLeg.getLevel());
 		return max;
+	}
+
+	public int getProbabilityLevel() {
+		return probability == null ? 0 : probability.getLevel();
 	}
 
 	/*

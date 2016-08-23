@@ -1,9 +1,7 @@
 function displayParameters(name, title) {
-	var view = new Modal();
-	view.Intialise();
+	var view = new Modal().Intialise();
 	$(view.modal_footer).remove();
-	view.setTitle(title);
-	view.setBody($(name).find(".panel-body").html());
+	view.setTitle(title).setBody($(name).find(".panel-body").html());
 	$(view.modal_body).find("td").removeAttributes();
 	view.Show();
 	return false;
@@ -145,6 +143,7 @@ EstimationHelper.prototype = {
 	},
 	load : function() {
 		var instance = this;
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : instance.loadUrl(),
 			contentType : "application/json;charset=UTF-8",
@@ -153,6 +152,8 @@ EstimationHelper.prototype = {
 				return instance.updateContent(reponse);
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 		return this;
 	},
@@ -160,15 +161,17 @@ EstimationHelper.prototype = {
 		if (this.isReadOnly)
 			return this.load();
 		var instance = this;
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : instance.updateUrl(),
 			contentType : "application/json;charset=UTF-8",
 			type : "post",
-			async : false,
 			success : function(reponse) {
 				return instance.updateContent(reponse);
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 		return this;
 
@@ -272,11 +275,11 @@ function showTabEstimation(name) {
 
 function computeAssessment(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update",
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
@@ -292,6 +295,8 @@ function computeAssessment(silent) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -302,11 +307,11 @@ function refreshAssessment() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
 		$("#confirm-dialog .btn-danger").click(function() {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Assessment/Refresh",
 				type : "POST",
 				contentType : "application/json;charset=UTF-8",
-				async : true,
 				success : function(response, textStatus, jqXHR) {
 					if (response['error'] != undefined) {
 						$("#info-dialog .modal-body").text(response['error']);
@@ -320,6 +325,8 @@ function refreshAssessment() {
 					return false;
 				},
 				error : unknowError
+			}).complete(function(){
+				$progress.hide();
 			});
 		});
 		$("#confirm-dialog").modal("show");
@@ -330,11 +337,11 @@ function refreshAssessment() {
 
 function updateAssessmentAle(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Assessment/Update/ALE",
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response['error'] != undefined) {
 					$("#info-dialog .modal-body").text(response['error']);
@@ -349,6 +356,8 @@ function updateAssessmentAle(silent) {
 				return false;
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();

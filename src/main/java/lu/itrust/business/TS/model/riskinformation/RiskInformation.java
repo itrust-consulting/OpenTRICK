@@ -31,7 +31,7 @@ public class RiskInformation implements Cloneable {
 
 	/** Risk Information id */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idRiskInformation")
 	private int id = -1;
 
@@ -66,9 +66,10 @@ public class RiskInformation implements Cloneable {
 	/** The Risk Information Acronym */
 	@Column(name = "dtAcronym", nullable = false, length = 15)
 	private String acronym;
-	
-	@Column(name = "dtOwner")
-	private String owner;
+
+	@Column(name = "dtOwner",nullable=false)
+	private String owner = "";
+
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -82,12 +83,15 @@ public class RiskInformation implements Cloneable {
 	}
 
 	/**
-	 * @param owner the owner to set
+	 * @param owner
+	 *            the owner to set
 	 */
 	public void setOwner(String owner) {
+		if (owner == null)
+			owner = "";
 		this.owner = owner;
 	}
-	
+
 	/**
 	 * getAcronym: <br>
 	 * Returns the "acronym" field value
@@ -306,6 +310,21 @@ public class RiskInformation implements Cloneable {
 		this.editable = editable;
 	}
 
-	
+	/**
+	 * reset owner, comment, exposed, hiddenComment, id
+	 * @return duplicate
+	 */
+	public RiskInformation anonymise() {
+		try {
+			RiskInformation riskInformation = this.duplicate();
+			riskInformation.owner = "";
+			riskInformation.comment = "";
+			riskInformation.exposed = "";
+			riskInformation.hiddenComment = "";
+			return riskInformation;
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }

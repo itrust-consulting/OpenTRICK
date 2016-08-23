@@ -5,6 +5,10 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
+</c:if>
+<c:set var="language" value="${locale.language}" scope="request" />
 <c:if test="${!empty(soa)}">
 	<div id="tabSOA" class="tab-pane">
 		<div class="section" id="section_soa" style="z-index: 3">
@@ -34,7 +38,7 @@
 					<c:forEach items="${soa}" var="measure">
 						<c:choose>
 							<c:when test="${not measure.measureDescription.computable}">
-								<tr style="background-color: #F8F8F8;">
+								<tr style="background-color: #F8F8F8;" data-trick-id='${measure.id}'>
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 									<td><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
@@ -42,7 +46,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:set var="css">
-									<c:if test="${measure.implementationRateValue<100 and measure.implementationRateValue < soaThreshold}">class="success"</c:if>
+									<c:if test="${measure.implementationRateValue < 100 and measure.implementationRateValue < soaThreshold}">class="success"</c:if>
 								</c:set>
 								<tr data-trick-class="SOA" data-trick-id="${measure.id}">
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />

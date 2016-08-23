@@ -1,6 +1,17 @@
 /**
  * Main.js
  */
+var application = new Application();
+
+function Application() {
+	this.modal = {};
+	this.data = {};
+	this.rights = {}
+	this.localesMessages = {};
+	this.fixedOffset = 0
+	this.shownScrollTop = true;
+}
+
 if (!String.prototype.capitalize) {
 	String.prototype.capitalize = function() {
 		return this.charAt(0).toUpperCase() + this.slice(1);
@@ -25,16 +36,6 @@ if (!String.prototype.endsWith) {
 	};
 }
 
-var application = new Application();
-
-function Application() {
-	this.modal = {};
-	this.data = {};
-	this.rights = {}
-	this.localesMessages = {};
-	this.fixedOffset = 0
-}
-
 function checkExtention(value, extention, button) {
 	var extentions = extention.split(","), match = false;
 	for (var i = 0; i < extentions.length; i++)
@@ -49,10 +50,49 @@ function showDialog(dialog, message) {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
-	if (typeof exception != 'undefined' && exception === 'abort' || application["isReloading"])
+	if (typeof textStatus != 'undefined' && textStatus === 'abort' || application["isReloading"])
 		return false;
-	showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	if (jqXHR != undefined) {
+		if (textStatus == "timeout" || textStatus == "error" && jqXHR.readyState == 0)
+			showDialog("#alert-dialog", MessageResolver("error.timeout", "The server may be down, overloaded, or there may be too much net traffic."));
+		else if (jqXHR.readyState == 4 && textStatus == "error") {
+			switch (errorThrown) {
+			case "Forbidden":
+				showDialog("#alert-dialog", MessageResolver("error.forbidden", "Action is not allowed, no analysis selected or you are no longer logged in"));
+				break;
+			default:
+				showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+			}
+		} else
+			showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	} else
+		showDialog("#alert-dialog", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 	return true;
+}
+
+function getScrollbarWidth() {
+	var outer = document.createElement("div");
+	outer.style.visibility = "hidden";
+	outer.style.width = "100px";
+	outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+	document.body.appendChild(outer);
+
+	var widthNoScroll = outer.offsetWidth;
+	// force scrollbars
+	outer.style.overflow = "scroll";
+
+	// add innerdiv
+	var inner = document.createElement("div");
+	inner.style.width = "100%";
+	outer.appendChild(inner);
+
+	var widthWithScroll = inner.offsetWidth;
+
+	// remove divs
+	outer.parentNode.removeChild(outer);
+
+	return widthNoScroll - widthWithScroll;
 }
 
 function downloadWordReport(id) {
@@ -84,9 +124,29 @@ function togglePopever(e) {
 	return e;
 }
 
+function toggleToolTip(e) {
+	var target = e.target, current = application["settings-open-tooltip"];
+	if (current != undefined) {
+		if (target === current)
+			return e;
+		else
+			$(current).tooltip("hide");
+	}
+	application["settings-open-tooltip"] = target;
+	return e;
+}
+
+function hasScrollBar(element) {
+	return element.get(0).scrollHeight > element.get(0).clientHeight;
+}
+
 $.fn.hasAttr = function(name) {
 	return this[0].hasAttribute(name);
 };
+
+$.fn.hasScrollBar = function() {
+	return this.get(0).scrollHeight > this.get(0).clientHeight;
+}
 
 $.fn.removeAttributes = function(only, except) {
 	if (only) {
@@ -130,40 +190,37 @@ $.fn.removeAttributes = function(only, except) {
  * 
  * @param $
  */
-(function($) {
 
-	$.fn.serializeJSON = function() {
-		var json = {};
-		var form = $(this);
-		form.find('input, select, textarea').each(function() {
-			var val;
-			if (!this.name)
+$.fn.serializeJSON = function() {
+	var json = {};
+	var form = $(this);
+	form.find('input, select, textarea').each(function() {
+		var val;
+		if (!this.name)
+			return;
+
+		if ('radio' === this.type) {
+			if (json[this.name]) {
 				return;
+			}
 
-			if ('radio' === this.type) {
-				if (json[this.name]) {
-					return;
-				}
+			json[this.name] = this.checked ? this.value : '';
+		} else if ('checkbox' === this.type) {
+			val = json[this.name];
 
-				json[this.name] = this.checked ? this.value : '';
-			} else if ('checkbox' === this.type) {
-				val = json[this.name];
-
-				if (!this.checked) {
-					if (!val) {
-						json[this.name] = '';
-					}
-				} else {
-					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+			if (!this.checked) {
+				if (!val) {
+					json[this.name] = '';
 				}
 			} else {
-				json[this.name] = this.value;
+				json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
 			}
-		});
-		return json;
-	};
-
-})(jQuery);
+		} else {
+			json[this.name] = this.value;
+		}
+	});
+	return json;
+};
 
 /**
  * Analysis rights / user permissions
@@ -258,16 +315,23 @@ function hasRight(action) {
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
-function hasRoleToCreateVersion() {
-	return canCreateNewVersion($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"));
-}
-
-function canCreateNewVersion(idAnalysis) {
-	return hasRight("ALL") || $("div[data-trick-id='" + idAnalysis + "'][data-analysis-owner='true']").length;
-}
-
 function canManageAccess() {
 	return $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") == "true" || hasRight("ALL");
+}
+
+function selectElement(element) {
+	var $input = $(element).find("input,textarea,select");
+	if ($input.length == 1)
+		$input.filter("input[type='checkbox']:not(:hover):not(:focus)").trigger("click");
+	return false;
+}
+
+function generateMessageUniqueCode(code, params) {
+	return "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+}
+
+function resolveMessage(code, text, params) {
+	application.localesMessages[generateMessageUniqueCode(code, params)] = text;
 }
 
 /**
@@ -280,7 +344,8 @@ function canManageAccess() {
  */
 function MessageResolver(code, defaulttext, params) {
 
-	var uniqueCode = "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	var uniqueCode = generateMessageUniqueCode(code, params);
+
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
 	else
@@ -362,8 +427,8 @@ function isSelected(sectionName) {
 }
 
 function checkControlChange(checkbox, sectionName, appModalVar) {
-	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
-			"tbody tr td:first-child input");
+	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(
+			application[appModalVar].modal).find("tbody tr td:first-child input");
 	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(
 			application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0, $checkbox = $(checkbox);
 	if (!multiSelectAllowed) {
@@ -387,7 +452,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	if (sender) {
 		var $sender = $(sender);
 		if ($sender.is(":checked")) {
-			$sender.parent().parent().addClass("info")
+			$sender.closest("tr").addClass("info")
 			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $("li[data-trick-selectable='multi']", idMenu) : $(idMenu
 					+ " li[data-trick-selectable='multi']", application[appModalVar].modal)).length == 0;
 			if (multiSelectNotAllowed) {
@@ -397,14 +462,14 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 					if (sender == $item[0])
 						continue;
 					$item.prop("checked", false);
-					$item.parent().parent().removeClass("info");
+					$item.closest("tr").removeClass("info");
 				}
 			}
 		} else
-			$sender.parent().parent().removeClass("info")
+			$sender.closest("tr").removeClass("info")
 	}
 
-	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length;
+	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length, cachingChecker = {};
 	if (checkedCount > 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
@@ -413,31 +478,29 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
-			if (!$liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$liSelected.addClass("disabled");
+			updateMenuItemState(cachingChecker, $liSelected, checker);
 		}
 	} else if (checkedCount == 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+			var $liSelected = $($lis[i]), singleChecker = $liSelected.attr("data-trick-single-check");
 			if ($liSelected.attr("data-trick-selectable") != undefined)
 				$liSelected.removeClass("disabled");
 			else
 				$liSelected.addClass("disabled");
-			if (!$liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$liSelected.addClass("disabled");
+			if (singleChecker !== undefined)
+				updateMenuItemState(cachingChecker, $liSelected, singleChecker);
+			else
+				updateMenuItemState(cachingChecker, $liSelected, $liSelected.attr("data-trick-check"));
 		}
 	} else {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+			var $liSelected = $($lis[i]);
 			if ($liSelected.attr("data-trick-selectable") != undefined)
 				$liSelected.addClass("disabled");
 			else
 				$liSelected.removeClass("disabled");
-
-			if ($liSelected.hasClass("disabled") && !(checker == undefined || eval(checker)))
-				$liSelected.addClass("disabled");
 		}
 	}
 
@@ -452,6 +515,17 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 		}
 	}
 	return false;
+}
+
+function updateMenuItemState(cachingChecker, $liSelected, checker) {
+	if (checker === undefined)
+		return;
+	if (!$liSelected.hasClass("disabled")) {
+		if (cachingChecker[checker] == undefined)
+			cachingChecker[checker] = eval(checker);
+		if (!cachingChecker[checker])
+			$liSelected.addClass("disabled");
+	}
 }
 
 /**
@@ -511,8 +585,7 @@ function serializeForm(form) {
 	var $form = $(form);
 	if (!$form.length)
 		$form = $("#" + form);
-	var data = $form.serializeJSON();
-	return JSON.stringify(data);
+	return JSON.stringify($form.serializeJSON());
 }
 
 function parseJson(data) {
@@ -548,12 +621,11 @@ function post(url, data, refraich) {
 }
 
 function findSelectItemIdBySection(section, modal) {
-	var selectedItem = [];
-	var $item = (modal == null || modal == undefined) ? $("#" + section + " tbody :checked") : $(modal).find("tbody :checked");
-	for (var i = 0; i < $item.length; i++) {
-		trickId = findTrickID($($item[i])[0]);
+	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("#" + section + " tbody :checked") : $("tbody :checked", modal);
+	for (var i = 0; i < $items.length; i++) {
+		trickId = findTrickID($items[i]);
 		if (trickId == null || trickId == undefined)
-			return false;
+			return undefined;
 		selectedItem.push(trickId);
 	}
 	return selectedItem;
@@ -562,10 +634,7 @@ function findSelectItemIdBySection(section, modal) {
 function findTrickID(element) {
 	if ($(element).attr("data-trick-id") != undefined)
 		return $(element).attr("data-trick-id");
-	else if ($(element).parent().prop("tagName") != "BODY")
-		return findTrickID($(element).parent());
-	else
-		return null;
+	return $(element).closest("[data-trick-id]").attr("data-trick-id");
 }
 
 function versionComparator(version1, version2) {
@@ -605,6 +674,14 @@ function oldversionComparator(version1, version2) {
 		return value1 > value2 ? 1 : -1;
 }
 
+function closeToolTips() {
+	if (application["settings-open-tooltip"]) {
+		$(application["settings-open-tooltip"]).tooltip("hide");
+		;
+		delete application["settings-open-tooltip"];
+	}
+}
+
 function closePopover() {
 	if (application["settings-open-popover"]) {
 		if (application["settings-open-popover"].hasAttribute("aria-describedby"))
@@ -613,174 +690,178 @@ function closePopover() {
 	}
 }
 
-$(document).ready(function() {
-	var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
-	$(document).ajaxSend(function(e, xhr, options) {
-		xhr.setRequestHeader(header, token);
-	});
-
-	// prevent perform click while a menu is disabled
-	$("ul.nav li>a").on("click", function(e) {
-		if ($(e.currentTarget).parent().hasClass("disabled"))
-			e.preventDefault();
-	});
-
-	// prevent perform click while a menu is disabled
-	$("ul.nav li").on("click", function(e) {
-		if ($(e.currentTarget).hasClass("disabled"))
-			e.stopPropagation();
-	});
-
-	// prevent unknown error modal display
-	$window.bind("beforeunload", function() {
-		application["isReloading"] = true;
-	});
-
-	$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
-		var $target = $(e.currentTarget);
-		if ($target.find("li.active").length && !$target.hasClass("active"))
-			$target.addClass("active");
-	});
-
-	$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
-		var $parent = $(e.target).closest("li.dropdown-submenu");
-		if (!$parent.hasClass("active"))
-			$parent.addClass("active");
-	});
-
-	$("a[data-toggle='taskmanager']").on("click", function(e) { // task
-		// manager
-		var taksmanager = application['taskManager'];
-		if (taksmanager.isEmpty())
-			return false;
-		var $target = $(e.currentTarget), $parent = $target.parent();
-		if ($parent.hasClass("open"))
-			taksmanager.Hide();
-		else
-			taksmanager.Show();
-	});
-
-	$('#confirm-dialog').on('hidden.bs.modal', function() {
-		$("#confirm-dialog .btn-danger").unbind("click");
-	});
-
-	$('#alert-dialog').on('hidden.bs.modal', function() {
-		$("#alert-dialog .btn-danger").unbind("click");
-	});
-
-	if ($tabNav.length) {
-
-		var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabNav.find("#tabOption");
-		$window.on("resize.window", function() {
-			$tabContainer.css({
-				"margin-top" : $tabNav.height() + 12
-			// default margin-top is 50px and default $tabNav
-			// size is 38px
-			});
-		});
-
-		if ($option.length) {
-			var updateOption = function() {
-				var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills");
-				var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
-				if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
-					$option.fadeOut(function() {
-						$option.hide();
+$(document)
+		.ready(
+				function() {
+					var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
+					$(document).ajaxSend(function(e, xhr, options) {
+						xhr.setRequestHeader(header, token);
 					});
-				else {
-					if (!$option.find("#" + optionMenu.prop("id")).length) {
-						$option.find("ul").remove();
-						var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
-						$("li[data-role='title']", cloneOption).remove()
-						cloneOption.removeAttr("style");
-						if ($subMenu.length) {
-							$subMenu.each(function() {
-								var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
-								$this.removeClass();
-								if ($this.closest("li").length)
-									$this.before("<li class='divider'></li>");
-								$lis.appendTo(cloneOption);
-								$this.text(text);
-								$this.addClass("dropdown-header");
+
+					// prevent perform click while a menu is disabled
+					$("ul.nav li>a").on("click", function(e) {
+						if ($(e.currentTarget).parent().hasClass("disabled"))
+							e.preventDefault();
+					});
+
+					// prevent perform click while a menu is disabled
+					$("ul.nav li").on("click", function(e) {
+						if ($(e.currentTarget).hasClass("disabled"))
+							e.stopPropagation();
+					});
+
+					// prevent unknown error modal display
+					$window.bind("beforeunload", function() {
+						application["isReloading"] = true;
+					});
+
+					$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
+						var $target = $(e.currentTarget);
+						if ($target.find("li.active").length && !$target.hasClass("active"))
+							$target.addClass("active");
+					});
+
+					$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+						var $parent = $(e.target).closest("li.dropdown-submenu");
+						if (!$parent.hasClass("active"))
+							$parent.addClass("active");
+					});
+
+					$("a[data-toggle='taskmanager']").on("click", function(e) { // task
+						// manager
+						var taksmanager = application['taskManager'];
+						if (taksmanager.isEmpty())
+							return false;
+						var $target = $(e.currentTarget), $parent = $target.parent();
+						if ($parent.hasClass("open"))
+							taksmanager.Hide();
+						else
+							taksmanager.Show();
+					});
+
+					$('#confirm-dialog').on('hidden.bs.modal', function() {
+						$("#confirm-dialog .btn-danger").unbind("click");
+					});
+
+					$('#alert-dialog').on('hidden.bs.modal', function() {
+						$("#alert-dialog .btn-danger").unbind("click");
+					});
+
+					if ($tabNav.length) {
+
+						var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabNav.find("#tabOption");
+						$window.on("resize.window", function() {
+							$tabContainer.css({
+								"margin-top" : $tabNav.height() + 12
+							// default margin-top is 50px and default $tabNav
+							// size is 38px
 							});
-						} else {
-							$("li.dropdown-header", cloneOption).each(function() {
-								var $this = $(this), $closestli = $this.closest("li");
-								if ($closestli.length && !$closestli.hasClass("divider"))
-									$this.before("<li class='divider'></li>");
-								$this.show();
+						});
+
+						if ($option.length) {
+							var updateOption = function() {
+								var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills");
+								var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
+								if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
+									$option.fadeOut(function() {
+										$option.hide();
+									});
+								else {
+									if (!$option.find("#" + optionMenu.prop("id")).length) {
+										$option.find("ul").remove();
+										var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
+										$("li[data-role='title']", cloneOption).remove()
+										cloneOption.removeAttr("style");
+										if ($subMenu.length) {
+											$subMenu.each(function() {
+												var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
+												$this.removeClass();
+												if ($this.closest("li").length)
+													$this.before("<li class='divider'></li>");
+												$lis.appendTo(cloneOption);
+												$this.text(text);
+												$this.addClass("dropdown-header");
+											});
+										} else {
+											$("li.dropdown-header", cloneOption).each(function() {
+												var $this = $(this), $closestli = $this.closest("li");
+												if ($closestli.length && !$closestli.hasClass("divider"))
+													$this.before("<li class='divider'></li>");
+												$this.show();
+											});
+										}
+										$("li.divider", cloneOption).show();
+										cloneOption.appendTo($option);
+										cloneOption.removeClass();
+										cloneOption.find("li").removeClass("pull-right")
+										cloneOption.addClass("dropdown-menu")
+									}
+
+									if (!$option.is(":visible")) {
+										$option.fadeIn(function() {
+											$option.show();
+										});
+									}
+								}
+							}
+
+							$window.on("scroll.window", function() {
+								setTimeout(updateOption, 100);
 							});
 						}
-						$("li.divider", cloneOption).show();
-						cloneOption.appendTo($option);
-						cloneOption.removeClass();
-						cloneOption.find("li").removeClass("pull-right")
-						cloneOption.addClass("dropdown-menu")
-					}
 
-					if (!$option.is(":visible")) {
-						$option.fadeIn(function() {
-							$option.show();
+						$window.on('hashchange', function() {
+							var hash = window.location.hash;
+							application["no-update-hash"] = true;
+							switchTab(hash ? hash.split('#')[1] : hash);
+							application["no-update-hash"] = false;
+						});
+
+						if (window.location.hash) {
+							$window.trigger("hashchange");
+							$bodyHtml.animate({
+								scrollTop : 0
+							}, 20);
+						}
+
+						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
+
+							closeToolTips();
+
+							if (application.shownScrollTop) {
+								$bodyHtml.animate({
+									scrollTop : 0
+								}, 20);
+							}
+
+							var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
+							if (window[callback] != undefined) {
+								var data = $target.attr("data-callback-data");
+								if (data == undefined)
+									window[callback].apply();
+								else
+									window[callback].apply(null, data.split(","));
+							}
+							if ($target.attr("data-update-required") == "true") {
+								var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
+								if (parameters == undefined)
+									window[trigger].apply();
+								else
+									window[trigger].apply(null, parameters.split(","));
+								$target.attr("data-update-required", "false");
+							}
+
+							if (!application["no-update-hash"])
+								window.location.hash = $target.attr("id");
 						});
 					}
-				}
-			}
-			
-			$window.on("scroll.window", function() {
-				setTimeout(updateOption, 100);
-			});
-		}
 
-		$window.on('hashchange', function() {
-			var hash = window.location.hash;
-			application["no-update-hash"] = true;
-			switchTab(hash ? hash.split('#')[1] : hash);
-			application["no-update-hash"] = false;
-		});
+					var $toolTips = $('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
 
-		if (window.location.hash) {
-			$window.trigger("hashchange");
-			$bodyHtml.animate({
-				scrollTop : 0
-			}, 20);
-		}
-
-		$('a[data-toggle="tab"]', $tabNav).on('show.bs.tab', closePopover).on('shown.bs.tab', function(e) {
-			
-			$bodyHtml.animate({
-				scrollTop : 0
-			}, 20);
-			
-			var hash = e.target.getAttribute("href"), $target = $(hash), callback = $target.attr("data-callback");
-			if (window[callback] != undefined) {
-				var data = $target.attr("data-callback-data");
-				if (data == undefined)
-					window[callback].apply();
-				else
-					window[callback].apply(null, data.split(","));
-			}
-			if ($target.attr("data-update-required") == "true") {
-				var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
-				if (parameters == undefined)
-					window[trigger].apply();
-				else
-					window[trigger].apply(null, parameters.split(","));
-				$target.attr("data-update-required", "false");
-			}
-
-			if (!application["no-update-hash"])
-				window.location.hash = $target.attr("id");
-		});
-	}
-
-	$('[data-toggle="tooltip"]').tooltip();
-
-	$popevers = $("[data-toggle=popover]").popover().on('show.bs.popover', togglePopever);
-
-	if ($popevers.length) {
-		$window.keydown(function(e) {
-			if (e.keyCode == 27)
-				closePopover();
-		});
-	}
-});
+					if ($toolTips.length) {
+						$window.keydown(function(e) {
+							if (e.keyCode == 27)
+								closeToolTips();
+						});
+					}
+				});

@@ -227,7 +227,7 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * Description
 	 * 
 	 * @param idAnalysis
-	 * @param type
+	 * @param types
 	 * @return
 	 * @
 	 * 
@@ -235,8 +235,8 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type)  {
-		return daoParameter.getAllFromAnalysisByType(idAnalysis, type);
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String... types)  {
+		return daoParameter.getAllFromAnalysisByType(idAnalysis, types);
 	}
 
 	/**

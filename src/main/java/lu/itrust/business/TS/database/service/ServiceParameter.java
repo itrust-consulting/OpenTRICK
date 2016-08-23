@@ -39,7 +39,7 @@ public interface ServiceParameter {
 
 	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, Integer idType) ;
 
-	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type) ;
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String... types) ;
 
 	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type) ;
 

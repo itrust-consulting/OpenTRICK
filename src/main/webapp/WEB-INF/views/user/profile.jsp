@@ -9,7 +9,7 @@
 	<div class="section" id="section_profile">
 		<span id="profileInfo" hidden="hidden"></span>
 		<div style="margin: 0 auto; max-width: 650px;">
-			<form id="updateprofileform" name="updateprofileform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/Update">
+			<form id="updateprofileform" name="updateprofileform" onsubmit="return updateProfile('updateprofileform');" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/Update">
 				<div class="page-header">
 					<h3>
 						<spring:message code="label.user.title.login_information" text="Login Information" />
@@ -27,21 +27,43 @@
 						<label for="oldPassword" class="col-sm-3 control-label"> <spring:message code="label.user.current_password" text="Current Password" />
 						</label>
 						<div class="col-sm-9">
-							<input type="password" id="currentPassword" name="currentPassword" class="form-control" required="required" />
+							<input type="password" id="currentPassword" name="currentPassword" class="form-control" required="required"/>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="password" class="col-sm-3 control-label"> <spring:message code="label.user.password" text="Password" />
 						</label>
 						<div class="col-sm-9">
-							<input type="password" id="password" name="password" class="form-control" required="required" />
+							<input type="password" id="password" name="password" class="form-control" />
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="repeatPassword" class="col-sm-3 control-label"> <spring:message code="label.user.repeat_password" text="Repeat password" />
 						</label>
 						<div class="col-sm-9">
-							<input type="password" id="repeatPassword" name="repeatPassword" class="form-control" required="required" />
+							<input type="password" id="repeatPassword" name="repeatPassword" class="form-control"/>
+						</div>
+					</div>
+				</c:if>
+				<c:if test="${allowedTicketing}">
+					<div class="page-header">
+						<h3>
+							<spring:message code="label.user.title.ticketing.system.credential" text="Ticketing system credential" />
+						</h3>
+					</div>
+					<div class="form-group">
+						<label for="ticketingUsername" class="col-sm-3 control-label"> <spring:message
+								code="label.user.login" text="Username" />
+						</label>
+						<div class="col-sm-9">
+							<input class="form-control" id='ticketingUsername' name="ticketingUsername" value="${user.userSettings['user-titcketing-credential-username']}" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="ticketingPassword" class="col-sm-3 control-label"> <spring:message code="label.user.password" text="Password" />
+						</label>
+						<div class="col-sm-9">
+							<input type="password" id="ticketingPassword" name="ticketingPassword" class="form-control"/>
 						</div>
 					</div>
 				</c:if>
@@ -68,20 +90,21 @@
 					<label for="email" class="col-sm-3 control-label"> <spring:message code="label.user.email" text="Email address" />
 					</label>
 					<div class="col-sm-9">
-						<input type="text" id="email" name="email" class="form-control" ${user.connexionType==1?'disabled="disabled" readonly="readonly"':''} required
-							pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' value="${user.email}" />
+						<input type="email" id="email" name="email" class="form-control" ${user.connexionType==1?'disabled="disabled" readonly="readonly"':''} required value="${user.email}" />
 					</div>
 				</div>
 				<div class="form-group">
-						<label for="connexionType" class="col-sm-3 control-label"><spring:message code="label.user.connexion.type" text="Authentication type" /></label>
-						<div class="col-sm-9">
-							<div class="btn-group" data-toggle="buttons" id="radioConnexionType">
-								<label class="btn ${user.connexionType==-1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.standard" text="Standard" /><input name="connexionType" type="radio" readonly="readonly" value="-1"></label> <label
-									class="btn ${user.connexionType==0?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.both" text="Both" /><input name="connexionType" type="radio" readonly="readonly" value="0" checked="checked"></label>
-								<label class="btn ${user.connexionType==1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.ldap" text="LDAP" /><input name="connexionType" type="radio" readonly="readonly" value="1"></label>
-							</div>
+					<label for="connexionType" class="col-sm-3 control-label"><spring:message code="label.user.connexion.type" text="Authentication type" /></label>
+					<div class="col-sm-9">
+						<div class="btn-group" data-toggle="buttons" id="radioConnexionType">
+							<label class="btn ${user.connexionType==-1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.standard" text="Standard" /><input
+								name="connexionType" type="radio" readonly="readonly" value="-1"></label> <label class="btn ${user.connexionType==0?'btn-primary':'btn-default'} disabled"><spring:message
+									code="label.user.connexion.both" text="Both" /><input name="connexionType" type="radio" readonly="readonly" value="0" checked="checked"></label> <label
+								class="btn ${user.connexionType==1?'btn-primary':'btn-default'} disabled"><spring:message code="label.user.connexion.ldap" text="LDAP" /><input
+								name="connexionType" type="radio" readonly="readonly" value="1"></label>
 						</div>
 					</div>
+				</div>
 				<div class="form-group">
 					<c:if test="${user.roles.size()>1}">
 						<label for="roles" class="col-sm-3 control-label"> <spring:message code="label.user.account.roles" text="Roles" />
@@ -120,8 +143,8 @@
 				</div>
 				<div class="form-group">
 					<div class="col-sm-12" style="text-align: center;">
-						<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
-							<spring:message code="label.user.update" text="Update" />
+						<button class="btn btn-primary" type="submit">
+							<spring:message code="label.action.save" text="Save" />
 						</button>
 					</div>
 				</div>

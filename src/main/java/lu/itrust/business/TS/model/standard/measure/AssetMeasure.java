@@ -2,6 +2,7 @@ package lu.itrust.business.TS.model.standard.measure;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -81,8 +82,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * getAssetTypeValue: <br>
-	 * Returns the Asset Type value at position "index" of the Asset Type Value List
-	 * ("assetTypeValues" field)
+	 * Returns the Asset Type value at position "index" of the Asset Type Value
+	 * List ("assetTypeValues" field)
 	 * 
 	 * @param index
 	 *            The index of the element position to retrieve from the list
@@ -96,8 +97,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * getAssetTypeValue: <br>
-	 * Returns the Asset Type value at position "index" of the Asset Type Value List
-	 * ("assetTypeValues" field)
+	 * Returns the Asset Type value at position "index" of the Asset Type Value
+	 * List ("assetTypeValues" field)
 	 * 
 	 * @param index
 	 *            The index of the element position to retrieve from the list
@@ -112,24 +113,21 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * getAssetTypeValue: <br>
-	 * Returns the Asset Type value at position "index" of the Asset Type Value List
-	 * ("assetTypeValues" field)
+	 * Returns the Asset Type value at position "index" of the Asset Type Value
+	 * List ("assetTypeValues" field)
 	 * 
 	 * @param index
 	 *            The index of the element position to retrieve from the list
 	 * @return AssetTypeValue The Asset Type Value object at position "index"
 	 */
 	public List<MeasureAssetValue> getMeasureAssetValueByAssetType(AssetType assetType) {
-		List<MeasureAssetValue> mavs = new ArrayList<MeasureAssetValue>();
-		for (MeasureAssetValue value : measureAssetValues)
-			if (value.getAsset().getAssetType().equals(assetType))
-				mavs.add(value);
-		return mavs;
+		return measureAssetValues.stream().filter(measureAssetValue -> measureAssetValue.getAsset().getAssetType().equals(assetType)).collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * getAssetTypeValueList: <br>
-	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue" field)
+	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue"
+	 * field)
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
@@ -154,7 +152,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * addAnAssetTypeValue: <br>
-	 * Adds a new Asset Type Value object to the list of Asset Type Values ("assetTypeValue" field)
+	 * Adds a new Asset Type Value object to the list of Asset Type Values
+	 * ("assetTypeValue" field)
 	 * 
 	 * @param assettypevalue
 	 *            The Asset Type Value object to add to list
@@ -184,7 +183,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * getImplementationRateValue: <br>
-	 * Returns the Implementation Rate value using the getImplementationRate method.
+	 * Returns the Implementation Rate value using the getImplementationRate
+	 * method.
 	 * 
 	 * @return Implementation Rate Value
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRateValue()
@@ -231,7 +231,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The To Check Value
 	 */
-	@Column(name = "dtToCheck", nullable = false, length=1024)
+	@Column(name = "dtToCheck", nullable = false, length = 1024)
 	public String getToCheck() {
 		return this.toCheck;
 	}

@@ -16,10 +16,12 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
+import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -37,6 +39,7 @@ public class ManageAnalysisRight {
 
 	private DAOUser daoUser;
 
+	@Deprecated
 	public void switchAnalysisToReadOnly(String identifier, int idAnalysis) throws Exception {
 		List<UserAnalysisRight> userAnalysisRights = daoUserAnalysisRight.getAllFromIdenfierExceptAnalysisIdAndRightNotRead(identifier, idAnalysis);
 		for (UserAnalysisRight userAnalysisRight : userAnalysisRights) {
@@ -102,10 +105,7 @@ public class ManageAnalysisRight {
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogType.ANALYSIS, "log.give.analysis.access.right",
-							String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(),
-									user.getLogin()),
-							principal.getName(), LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar.getRight().name().toLowerCase(), user.getLogin());
+
 				}
 
 			}
@@ -127,6 +127,68 @@ public class ManageAnalysisRight {
 	@Autowired
 	public void setDaoUser(DAOUser daoUser) {
 		this.daoUser = daoUser;
+	}
+
+	public void updateAnalysisRights(Principal principal, AnalysisRightForm rightsForm) {
+		Analysis analysis = daoAnalysis.get(rightsForm.getAnalysisId());
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+		rightsForm.getUserRights().forEach((userId, rightForm) -> {
+			User user = daoUser.get(userId);
+			if (user != null) {
+				if (rightForm.getNewRight() == null)
+					removeRight(principal, analysis, user);
+				else {
+					UserAnalysisRight userRight = analysis.getRightsforUser(user);
+					if (userRight == null)
+						giveAccess(principal, analysis, rightForm, user);
+					else
+						grantAccess(principal, analysis, rightForm, user, userRight);
+				}
+			}
+		});
+		daoAnalysis.saveOrUpdate(analysis);
+	}
+
+	private void grantAccess(Principal principal, Analysis analysis, RightForm rightForm, User user, UserAnalysisRight userRight) {
+		userRight.setRight(rightForm.getNewRight());
+		if (user.getLogin().equals(principal.getName()))
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.auto.grant.analysis.access.right",
+					String.format("Analysis: %s, version: %s, access: %s", analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower()), principal.getName(),
+					LogAction.AUTO_GRANT, analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower());
+		else
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
+					String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(),
+							user.getLogin()),
+					principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(), user.getLogin());
+	}
+
+	private void giveAccess(Principal principal, Analysis analysis, RightForm rightForm, User user) {
+		analysis.addUserRight(user, rightForm.getNewRight());
+		if (!user.containsCustomer(analysis.getCustomer())) {
+			user.addCustomer(analysis.getCustomer());
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
+					String.format("Customer: %s, target: %s", analysis.getCustomer().getOrganisation(), user.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
+					analysis.getCustomer().getOrganisation(), user.getLogin());
+		}
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.give.analysis.access.right",
+				String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), rightForm.getNewRight().name().toLowerCase(),
+						user.getLogin()),
+				principal.getName(), LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), rightForm.getNewRight().name().toLowerCase(), user.getLogin());
+	}
+
+	private void removeRight(Principal principal, Analysis analysis, User user) {
+		if (analysis.getOwner().equals(user))
+			return;
+		UserAnalysisRight userRight = analysis.removeRights(user);
+		if (userRight == null)
+			return;
+		daoUserAnalysisRight.delete(userRight);
+		TrickLogManager.Persist(LogType.ANALYSIS, "log.remove.analysis.access.right",
+				String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(),
+						user.getLogin()),
+				principal.getName(), LogAction.REMOVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(), user.getLogin());
+
 	}
 
 }

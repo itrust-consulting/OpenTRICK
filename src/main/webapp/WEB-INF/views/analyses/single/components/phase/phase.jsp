@@ -40,7 +40,7 @@
 			<tbody>
 				<c:forEach items="${phases}" var="phase">
 					<c:if test="${phase.number>0}">
-						<tr data-trick-id='${phase.id}' data-trick-class="Phase" ${not empty previousEndDate and phase.beginDate < previousEndDate? "class='warning'":"class='success'"}>
+						<tr data-trick-id='${phase.id}' onclick="selectElement(this)" data-trick-class="Phase" ${not empty previousEndDate and phase.beginDate < previousEndDate? "class='warning'":"class='success'"}>
 							<c:if test="${isEditable}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_phase','#menu_phase');"></td>
 							</c:if>

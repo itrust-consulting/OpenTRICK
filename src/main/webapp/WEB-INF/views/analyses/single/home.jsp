@@ -18,13 +18,13 @@
 <body>
 	<div id="wrap" class="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
+		<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request"/>
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="menu.jsp" />
 			<jsp:include page="../../template/successErrors.jsp" />
 			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis"
-				data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}" data-trick-language="${language}">
-
+				data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}" data-trick-language="${locale.language}">
 				<c:if test="${!isProfile}">
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />
@@ -34,7 +34,7 @@
 					<jsp:include page="./components/itemInformation.jsp" />
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
-				<jsp:include page="./components/parameter.jsp" />
+				<jsp:include page="./components/parameters/home.jsp" />
 				<c:if test="${!isProfile}">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
@@ -58,7 +58,7 @@
 					<jsp:include page="./components/summary.jsp" />
 					<c:if test="${show_cssf}">
 						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
-						<jsp:include page="./components/riskregister.jsp" />
+						<jsp:include page="./components/riskRegister/home.jsp" />
 					</c:if>
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
@@ -68,6 +68,8 @@
 		<jsp:include page="../../template/footer.jsp" />
 	</div>
 	<jsp:include page="../../template/scripts.jsp" />
+	<script src="<spring:url value="/js/bootstrap/bootstrap-slider.min.js" />"></script>
+	<script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js" />"></script>
 	<script src="<spring:url value="/js/trickservice/analysis.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
@@ -91,6 +93,8 @@
 	<script type="text/javascript">
 	<!--
 		application.openMode = OPEN_MODE.valueOf('${open}');
+		application.isLinkedToProject = ${isLinkedToProject};
+		application.hasMaturity = ${hasMaturity};
 		-->
 	</script>
 </body>

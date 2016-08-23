@@ -26,7 +26,7 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${languages}" var="language">
-							<tr data-trick-id="${language.id}" ondblclick="return editSingleLanguage('${language.id}');">
+							<tr data-trick-id="${language.id}" onclick="selectElement(this)" ondblclick="return editSingleLanguage('${language.id}');">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_language','#menu_language');"></td>
 								<td data-field-name="alpha3" ><spring:message text="${language.alpha3}" /></td>
 								<td data-field-name="name" ><spring:message text="${language.name}" /></td>

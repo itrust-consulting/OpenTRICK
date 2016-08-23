@@ -12,7 +12,13 @@
 		<c:set var="rowSize" value="${isMaturity? 10 : 5}" />
 		<fieldset style="display: block; width: 100%; clear: left;">
 			<legend>
-				<spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' />
+				<c:choose>
+					<c:when test="${isLinkedToProject and not empty selectedMeasure.ticket}">
+						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,selectedMeasure.ticket)" var="ticketLink" />
+						<a href="${ticketLink}" target="_titck_ts" class='btn-link'><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' />  <i class="fa fa-external-link" aria-hidden="true"></i></a>
+					</c:when>
+					<c:otherwise><spring:message text='${measureDescription.reference} - ${measureDescriptionText.domain}' /></c:otherwise>
+				</c:choose>
 			</legend>
 			<spring:message text="${fn:trim(measureDescriptionText.description)}" var="description" />
 			<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">${description}</div>

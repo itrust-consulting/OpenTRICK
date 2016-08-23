@@ -27,8 +27,8 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 					},
 					error : unknowError
 				});
-	} else 
-		$section.closest(".tab-tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
+	} else
+		$section.closest(".tab-pane").attr("data-update-required", true).attr("data-trigger", 'loadPanelBodiesOfSection').attr("data-parameters", [ section, refreshOnly ]);
 	return false;
 }
 
@@ -95,7 +95,7 @@ function reloadSection(section, subSection, refreshOnly) {
 function findControllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Analysis/Asset/Section",
-		"section_parameter" : "/Analysis/Parameter/Section",
+		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
 		"section_scenario" : "/Analysis/Scenario/Section",
 		"section_phase" : "/Analysis/Phase/Section",
 		"section_analysis" : "/Analysis/Section",
@@ -111,9 +111,11 @@ function findControllerBySection(section, subSection) {
 		"section_soa" : "/Analysis/Standard/SOA"
 	};
 
-	if (section.match("^section_standard_"))
+	if (section.match("^section_standard_")) {
+		$("[data-toggle='tooltip']", "#" + section).tooltip('destroy');
 		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
-
+	}
+	
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
 	else
@@ -142,6 +144,7 @@ function callbackBySection(section) {
 			compliance('27001');
 			compliance('27002');
 			reloadSection("section_summary");
+			reloadSection("section_soa");
 			return false;
 		},
 		"section_summary" : function() {
@@ -149,8 +152,7 @@ function callbackBySection(section) {
 			return false;
 		},
 		"section_standard" : function() {
-			$("#" + section + " [data-toggle='popover']").popover('hide').on('show.bs.popover', togglePopever);
-			$("#" + section + " [data-toggle='tooltip']").tooltip("hide");
+			$("[data-toggle='tooltip']", "#" + section).tooltip().on('show.bs.tooltip', toggleToolTip)
 		},
 		"section_language" : function() {
 			rebuildMeasureLanguage();
@@ -159,7 +161,7 @@ function callbackBySection(section) {
 	};
 
 	if (section.match("^section_standard_"))
-		$("#" + section + " td.popover-element").popover('hide');
+		$("[data-toggle='tooltip']", "#" + section).tooltip().on('show.bs.tooltip', toggleToolTip);
 
 	return callbacks[section];
 }
@@ -177,14 +179,18 @@ SectionSmartUpdate.prototype = {
 		case "section_scenario":
 		case "section_phase":
 			return this.__generic_update(this.data, "#" + this.sectionName, 1);
+		case "section_analysis":
 		case "section_user":
 		case "section_standard":
 		case "section_language":
 		case "section_customer":
 		case "section_profile_analysis":
 		case "section_kb_measure":
+		case "section_soa":
 			return this.__generic_update(this.data, "#" + this.sectionName, -1);
 		default:
+			if (this.sectionName.match("^section_standard_"))
+				return this.__generic_update(this.data, "#" + this.sectionName, -1);
 			break;
 		}
 		return true;

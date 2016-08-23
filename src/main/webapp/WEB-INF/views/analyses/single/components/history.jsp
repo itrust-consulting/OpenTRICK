@@ -7,6 +7,15 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane active" id="tabHistory">
 	<div class="section" id="section_history">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<spring:message code='format.analysis.name' arguments="${analysis.customer.organisation}, ${analysis.label}, ${analysis.version}" text="${analysis.customer.organisation}: ${analysis.label} - v${analysis.version}" />
+					</h3>
+				</div>
+			</div>
+		</div>
 		<table class="table table-hover table-fixed-header-analysis table-condensed"  data-fh-scroll-multi="1.09">
 			<thead>
 				<tr>

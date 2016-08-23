@@ -45,4 +45,8 @@ public interface DAOAnalysisStandard {
 	public Standard getStandardById(int idAnalysisStandard);
 
 	public String getStandardNameById(int idAnalysisStandard);
+
+	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String name);
+
+	public Boolean hasStandard(Integer idAnalysis, String standard);
 }

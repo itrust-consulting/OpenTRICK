@@ -50,6 +50,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.TrickService;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisRightForm;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
@@ -183,8 +184,20 @@ public class ControllerAdministration {
 		List<TSSetting> tsSettings = new LinkedList<TSSetting>();
 		for (TSSettingName name : TSSettingName.values()) {
 			TSSetting tsSetting = serviceTSSetting.get(name);
-			if (tsSetting == null)
-				tsSetting = new TSSetting(name, true);
+			if (tsSetting == null) {
+				switch (name) {
+				case SETTING_ALLOWED_RESET_PASSWORD:
+				case SETTING_ALLOWED_SIGNUP:
+					tsSetting = new TSSetting(name, true);
+					break;
+				case TICKETING_SYSTEM_NAME:
+				case TICKETING_SYSTEM_URL:
+					tsSetting = new TSSetting(name, null);
+				case SETTING_ALLOWED_TICKETING_SYSTEM_LINK:
+					tsSetting = new TSSetting(name, false);
+					break;
+				}
+			}
 			tsSettings.add(tsSetting);
 		}
 
@@ -256,7 +269,11 @@ public class ControllerAdministration {
 				setting = tsSetting;
 			else
 				setting.setValue(tsSetting.getValue());
-			serviceTSSetting.saveOrUpdate(setting);
+			if (StringUtils.isEmpty(setting.getValue())) {
+				if (!setting.equals(tsSetting))
+					serviceTSSetting.delete(tsSetting.getName().name());
+			} else
+				serviceTSSetting.saveOrUpdate(setting);
 			return true;
 		} finally {
 			String settingName = messageSource.getMessage("label." + tsSetting.getNameLower(), null, tsSetting.getNameLower(), Locale.ENGLISH);
@@ -390,11 +407,12 @@ public class ControllerAdministration {
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 			serviceUser.getAll().forEach(user -> userrights.put(user, null));
 			uars.forEach(uar -> userrights.put(uar.getUser(), uar.getRight()));
-			model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
-			model.addAttribute("analysisRights", AnalysisRight.values());
+			model.addAttribute("isAdmin", true);
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
-			return "analyses/all/forms/manageUserAnalysisRights";
+			model.addAttribute("ownerId", analysis.getOwner().getId());
+			model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
+			return "analyses/all/forms/rights";
 		} else {
 			return "redirect:Administration";
 		}
@@ -410,32 +428,16 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Analysis/{analysisID}/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale)
-			throws Exception {
-
+	@RequestMapping(value = "/Analysis/ManageAccess/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
 		try {
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-			int currentUser = jsonNode.get("userselect").asInt();
-			model.addAttribute("currentUser", currentUser);
-			manageAnalysisRight.updateAnalysisRights(principal, analysisID, jsonNode);
-			model.addAttribute("success",
-					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
-			Analysis analysis = serviceAnalysis.get(analysisID);
-			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
-			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
-			serviceUser.getAllOthers(userrights.keySet()).forEach(user -> userrights.put(user, null));
-			model.addAttribute("analysisRights", AnalysisRight.values());
-			model.addAttribute("analysis", analysis);
-			model.addAttribute("userrights", userrights);
-			return "analyses/all/forms/manageUserAnalysisRights";
+			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
+			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
-			// return errors
-			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
-			return "analyses/all/forms/manageUserAnalysisRights";
+			if (e instanceof TrickException)
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -570,7 +572,7 @@ public class ControllerAdministration {
 			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 		}
 		return errors;
@@ -734,7 +736,7 @@ public class ControllerAdministration {
 			TrickLogManager.Persist(e);
 			return null;
 		} catch (Exception e) {
-			errors.put("user",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
 			return null;
 		}
