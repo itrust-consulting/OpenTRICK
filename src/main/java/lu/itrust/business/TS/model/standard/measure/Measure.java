@@ -502,6 +502,7 @@ public abstract class Measure implements Cloneable {
 	 * TicketingTask id
 	 * @return the ticket
 	 */
+	@Column(name = "dtTicket")
 	public String getTicket() {
 		return ticket;
 	}
