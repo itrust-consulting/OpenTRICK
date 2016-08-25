@@ -746,7 +746,7 @@ public class Constant {
 	public static final String ASSET_ID_TYPE_ASSET = "id_type_asset";
 	public static final String ASSET_ID_ASSET = "id_asset";
 
-	public static final String SCOPE_EXCLUDE = "security_requirement_organism,key_information_organism,composants_organism,soaThreshold,mandatoryPhase,importanceThreshold,internal_setup_rate,external_setup_rate,lifetime_default,maintenance_default,max_rrf";
+	public static final String SCOPE_EXCLUDE = "security_requirement_organism,key_information_organism,composants_organism,soaThreshold,mandatoryPhase,importanceThreshold,internal_setup_rate,external_setup_rate,lifetime_default,maintenance_default,max_rrf,cssfImpactThreshold,cssfProbabilityThreshold,cssfDirectSize,cssfIndirectSize,cssfCIASize";
 
 	/** List of Constants for the Sqlite Table "asset_types" */
 	public static final String ASSET_TYPE_LABEL = "name_type_asset";
