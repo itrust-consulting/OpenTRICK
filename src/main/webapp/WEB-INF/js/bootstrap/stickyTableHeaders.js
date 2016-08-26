@@ -175,7 +175,7 @@
 			};
 		};
 
-		base.toggleHeaders = base.debounce(function (e) {
+		base.toggleHeaders =  base.debounce(function (e) {
 			if (base.$el) {
 				base.$el.each(function () {
 					var $this = base.$el, topPosition = (base.topPosition == null || !base.cacheHeaderHeight || e.type=='resize'? base.topPosition = (isNaN(base.options.fixedOffset) ? 
@@ -193,33 +193,41 @@
 					if (scrolledPastTop && notScrolledPastBottom) {
 						base.topOffset = newTopOffset;
 						base.leftOffset = offset.left - scrollLeft + base.options.leftOffset;
-						base.$originalHeader.css({
-							'position': 'fixed',
-							'margin-top': base.options.marginTop,
-							'left': base.leftOffset,
-							'z-index': base.options.zindex, // #18: opacity bug
-							'background-color' : base.options.backgroundColor
-						});
-						base.setPositionValues();
+						var state = base.isSticky;
+						
 						if (!base.isSticky) {
 							base.isSticky = true;
 							// make sure the width is correct: the user might have resized the browser while in static mode
 							base.updateWidth();
-							$this.trigger('enabledStickiness.' + name);
+							base.$originalHeader.css({
+								'position': 'fixed',
+								'margin-top': base.options.marginTop,
+								'left': base.leftOffset,
+								'z-index': base.options.zindex, // #18: opacity bug
+								'background-color' : base.options.backgroundColor,
+							});
 						}
-						base.$clonedHeader.css('display', '');
+						
+						if(state!=base.isSticky){
+							$this.trigger('enabledStickiness.' + name);
+							base.$clonedHeader.css('display', '');
+						}
+						
+						base.setPositionValues();
+						
 					} else if (base.isSticky) {
 						base.$originalHeader.css('position', 'static');
 						base.$clonedHeader.css('display', 'none');
 						base.isSticky = false;
 						base.resetWidth($('td,th', base.$clonedHeader), $('td,th', base.$originalHeader));
 						$this.trigger('disabledStickiness.' + name);
+						
 					}
 				});
 			}
-		}, 0);
+		},0);
 
-		base.setPositionValues = base.debounce(function () {
+		base.setPositionValues = function () {
 			var winScrollTop = base.$window.scrollTop(),
 				winScrollLeft = base.$window.scrollLeft();
 			if (!base.isSticky ||
@@ -231,7 +239,7 @@
 				'top': base.topOffset - (base.isWindowScrolling ? 0 : winScrollTop),
 				'left': base.leftOffset - (base.isWindowScrolling ? 0 : winScrollLeft)
 			});
-		}, 0);
+		};
 		
 		base.updateWidth = base.debounce(function () {
 			if (!base.isSticky) {
@@ -247,11 +255,11 @@
 			base.setWidth( base.getWidth(base.$clonedHeaderCells), base.$clonedHeaderCells, base.$originalHeaderCells);
 
 			// Copy row width from whole table
-			//base.$originalHeader.css('width', base.$clonedHeader.width());
+			base.$originalHeader.css('width',  base.$el.width());
 
 			// If we're caching the height, we need to update the cached value when the width changes
 			if (base.options.cacheHeaderHeight) {
-				base.cachedHeaderHeight = base.$clonedHeader.height();
+				base.cachedHeaderHeight = base.$originalHeader.height();
 			}
 		}, 0);
 
