@@ -95,7 +95,7 @@
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../template/footer.jsp" />
-		<script src="<spring:url value="/js/jquery-2.1.4.min.js" />"></script>
+		<script src="<spring:url value="/js/jquery-2.2.4.min.js" />"></script>
 		<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
 		<script src="<spring:url value="/js/trickservice/register.js" />"></script>
 	</div>
