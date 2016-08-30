@@ -204,7 +204,7 @@
 								'margin-top': base.options.marginTop,
 								'left': base.leftOffset,
 								'z-index': base.options.zindex, // #18: opacity bug
-								'background-color' : base.options.backgroundColor,
+								'background-color' : base.options.backgroundColor
 							});
 						}
 						

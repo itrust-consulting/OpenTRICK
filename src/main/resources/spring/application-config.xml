@@ -19,11 +19,17 @@
 
 	<context:component-scan base-package="lu.itrust.business" />
 
-	<util:properties id="propertyConfigurer" location="classpath:application.properties" />
+	<util:properties id="propertyConfigurer" location="classpath:application.properties,classpath:deployment.properties,classpath:deployment-ldap.properties" />
 
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
 		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
+		<property name="waitForTasksToCompleteOnShutdown" value="true" />
+	</bean>
+	
+	<bean id="emailTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
 		<property name="waitForTasksToCompleteOnShutdown" value="true" />
 	</bean>
 

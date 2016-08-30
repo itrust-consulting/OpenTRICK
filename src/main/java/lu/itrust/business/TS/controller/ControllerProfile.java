@@ -297,13 +297,15 @@ public class ControllerProfile {
 
 		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		
+		String extension = ReportType.getExtension(wordReport.getType());
 
 		// set response contenttype to sqlite
-		response.setContentType(ReportType.getExtension(wordReport.getType()));
+		response.setContentType(extension);
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition",
-				"attachment; filename=\"" + String.format("%s_%s_V%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), response.getContentType()) + "\"");
+				"attachment; filename=\"" + String.format("%s_%s_V%s.%s", wordReport.getType(), wordReport.getLabel(), wordReport.getVersion(), extension) + "\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) wordReport.getSize());

@@ -15,6 +15,7 @@ import javax.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -51,6 +52,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Value("${app.settings.smtp.host}")
 	private String mailserver;
+	
+	@Autowired
+	private TaskExecutor emailTaskExecutor;
 
 	/**
 	 * sendRegistrationMail: <br>
@@ -63,7 +67,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	 */
 	@Override
 	public void sendRegistrationMail(final List<User> recipients, final User user) {
-		MimeMessagePreparator preparator;
+		
 
 		JavaMailSenderImpl sender = new JavaMailSenderImpl();
 		Properties p = new Properties();
@@ -73,7 +77,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 		sender.setSession(con);
 
 		try {
-			preparator = new MimeMessagePreparator() {
+			MimeMessagePreparator preparator= new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
@@ -89,15 +93,16 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setTo(user.getEmail());
 				}
 			};
-
-			sender.send(preparator);
+			
+			emailTaskExecutor.execute(() -> sender.send(preparator));
+			
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 		if (!(recipients == null || recipients.isEmpty())) {
 			for (final User admin : recipients) {
 				try {
-					preparator = new MimeMessagePreparator() {
+					MimeMessagePreparator preparator= new MimeMessagePreparator() {
 						public void prepare(MimeMessage mimeMessage) throws MissingResourceException, MessagingException, TemplateNotFoundException, MalformedTemplateNameException,
 								ParseException, IOException, TemplateException {
 							Locale locale = admin.getLocaleObject();
@@ -115,7 +120,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							message.setTo(admin.getEmail());
 						}
 					};
-					sender.send(preparator);
+					emailTaskExecutor.execute(() -> sender.send(preparator));
 				} catch (Exception e) {
 					TrickLogManager.Persist(e);
 				}
@@ -151,7 +156,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setTo(password.getUser().getEmail());
 				}
 			};
-			sender.send(preparator);
+			emailTaskExecutor.execute(() -> sender.send(preparator));
 		} catch (MailException e) {
 			TrickLogManager.Persist(e);
 		}
