@@ -421,10 +421,17 @@ function ExtendedFieldEditor(element) {
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
 							var computeAle = that.fieldName == "value" || that.fieldName == "acronym";
-							that.UpdateUI();
-							reloadSection("section_parameter");
-							if (computeAle)
-								updateAssessmentAle(true);
+							try {
+								that.UpdateUI();
+								reloadSection("section_parameter");
+							} finally {
+								if (computeAle) {
+									updateAssessmentAle(true);
+									reloadSection("section_parameter_extended");
+									if (that.fieldName == "value")
+										reloadSection([ "section_asset", "section_scenario" ]);
+								}
+							}
 						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");
@@ -747,7 +754,7 @@ function disableEditMode() {
 	if (application.editMode) {
 		try {
 			application.editMode = false
-			var $waittingPop = $("#progress-dialog").modal("show");
+			var $progress = $("#loading-indicator").show();
 			setTimeout(function() {
 				try {
 					$("li[role='enterEditMode']").removeClass("disabled");
@@ -756,11 +763,11 @@ function disableEditMode() {
 						this.Save(this);
 					});
 				} finally {
-					$waittingPop.modal("hide")
+					$progress.hide();
 				}
 			}, 250);
 		} catch (e) {
-			$waittingPop.modal("hide");
+			$progress.hide();
 		}
 	}
 	return false;
@@ -770,7 +777,7 @@ function enableEditMode() {
 	if (!application.editMode) {
 		try {
 			application.editMode = true;
-			var $waittingPop = $("#progress-dialog").modal("show");
+			var $progress = $("#loading-indicator").show();
 			setTimeout(function() {
 				try {
 					$("li[role='leaveEditMode']").removeClass("disabled");
@@ -783,11 +790,11 @@ function enableEditMode() {
 							application.fieldEditors.push(fieldEditor);
 					});
 				} finally {
-					$waittingPop.modal("hide")
+					$progress.hide()
 				}
 			}, 250);
 		} catch (e) {
-			$waittingPop.modal("hide");
+			$progress.hide()
 		}
 	}
 	return false;

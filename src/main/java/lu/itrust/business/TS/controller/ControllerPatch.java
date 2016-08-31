@@ -181,6 +181,8 @@ public class ControllerPatch {
 			Analysis profile = serviceAnalysis.getDefaultProfile();
 			if (profile == null)
 				return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+			if(profile.getItemInformations().isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.default.profile.no_item_information", null, "Default profile does not contain item information", locale));
 			List<Analysis> analyses = serviceAnalysis.getAllNotEmptyNoItemInformationAndRiskInformation(1, 30);
 			while (!analyses.isEmpty()) {
 				Analysis analysis = analyses.remove(0);

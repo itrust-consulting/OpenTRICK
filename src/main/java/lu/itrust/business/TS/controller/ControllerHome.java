@@ -85,7 +85,7 @@ public class ControllerHome {
 		try {
 			TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP), resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
 			model.addAttribute("allowRegister", register == null || register.getBoolean());
-			model.addAttribute("resetPassword", register == null || resetPassword.getBoolean());
+			model.addAttribute("resetPassword", resetPassword == null || resetPassword.getBoolean());
 		} catch (GenericJDBCException e) {
 			model.addAttribute("error", messageSource.getMessage("error.database.connection_failed", null, "No connection to the database...", locale));
 		} catch (Exception e) {

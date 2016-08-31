@@ -1,12 +1,9 @@
-/**
- * 
- */
 package lu.itrust.TS.helper;
+
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
-
-import static org.springframework.test.util.AssertionErrors.*;
 
 /**
  * @author eomar

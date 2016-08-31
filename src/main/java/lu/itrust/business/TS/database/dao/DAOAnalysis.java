@@ -158,6 +158,20 @@ public interface DAOAnalysis {
 
 	public List<Analysis> getAllNotEmptyNoItemInformationAndRiskInformation(int pageIndex, int pageSize);
 
+	public String getProjectIdById(Integer idAnalysis);
+
+	public boolean hasProject(int idAnalysis);
+
+	public String getProjectIdByIdentifier(String identifier);
+
+	public List<String> getAllProjectIds();
+
+	public List<Analysis> getByUsernameAndIds(String username, List<Integer> ids);
+
+	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId);
+
+	public Analysis getByUsernameAndId(String username, Integer analysisId);
+
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights);
 
 }

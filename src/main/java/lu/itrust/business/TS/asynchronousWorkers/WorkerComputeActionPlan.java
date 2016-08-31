@@ -41,7 +41,7 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
  * @author eomar
  * 
  */
-public class WorkerComputeActionPlan extends WorkerImpl implements Worker {
+public class WorkerComputeActionPlan extends WorkerImpl {
 
 	private boolean reloadSection = false;
 

@@ -2,6 +2,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.hibernate.Session;
@@ -26,7 +27,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @author eom
  * 
  */
-public class WorkerAnalysisImport extends WorkerImpl implements Worker {
+public class WorkerAnalysisImport extends WorkerImpl {
 
 	private boolean canDeleteFile = true;
 
@@ -197,6 +198,7 @@ public class WorkerAnalysisImport extends WorkerImpl implements Worker {
 	@Override
 	public void run() {
 		Session session = null;
+		DatabaseHandler DatabaseHandler = null;
 		try {
 			synchronized (this) {
 				if (getPoolManager() != null && !getPoolManager().exist(getId()))
@@ -207,7 +209,7 @@ public class WorkerAnalysisImport extends WorkerImpl implements Worker {
 				OnStarted();
 			}
 			setStarted(new Timestamp(System.currentTimeMillis()));
-			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
+			DatabaseHandler = new DatabaseHandler(fileName);
 			session = getSessionFactory().openSession();
 			User user = new DAOUserHBM(session).get(username);
 			if (user == null)
@@ -257,7 +259,13 @@ public class WorkerAnalysisImport extends WorkerImpl implements Worker {
 						}
 					}
 				}
-
+				
+				try {
+					if(DatabaseHandler!=null)
+						DatabaseHandler.close();
+				} catch (SQLException e) {
+				}
+			
 				if (canDeleteFile) {
 					File file = new File(fileName);
 					if (file.exists()) {

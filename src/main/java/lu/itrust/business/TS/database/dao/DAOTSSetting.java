@@ -27,4 +27,8 @@ public interface DAOTSSetting {
 	void delete(TSSetting tsSetting);
 
 	void delete(String name);
+
+	boolean isAllowed(TSSettingName name);
+
+	boolean isAllowed(TSSettingName name, boolean defaultValue);
 }

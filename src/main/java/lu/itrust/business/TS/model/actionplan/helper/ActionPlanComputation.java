@@ -189,26 +189,12 @@ public class ActionPlanComputation {
 		// selected,
 		// if no: select 27002
 		for (AnalysisStandard analysisStandard : this.standards) {
-
 			if (analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable()) {
-
-				this.maturitycomputation = true;
-
-				boolean found = false;
-
-				for (AnalysisStandard checkStandard : this.standards) {
-					if (checkStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
-						found = true;
-						break;
-					}
-				}
-
-				if (!found) {
+				this.maturitycomputation = tmp27002standard != null;
+				if (this.maturitycomputation && !this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002)))
 					this.standards.add(tmp27002standard);
-				}
 				break;
 			}
-
 		}
 		this.uncertainty = uncertainty;
 	}
@@ -2397,11 +2383,13 @@ public class ActionPlanComputation {
 	 */
 	private static void addAMaturtiyChapterToUsedMeasures(Analysis analysis, List<Measure> usedMeasures, MaturityStandard maturityStandard, MaturityMeasure measure) {
 
+		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
+		
 		// extract chapter number from level 1 measure
 		String chapterValue = measure.getMeasureDescription().getReference().substring(2, measure.getMeasureDescription().getReference().length());
 
 		// check if measure has to be added -> YES
-		if ((isMaturityChapterTotalCostBiggerThanZero(maturityStandard, measure, analysis.getExpressionParameters())) && (hasUsable27002MeasuresInMaturityChapter(analysis, chapterValue))) {
+		if ((isMaturityChapterTotalCostBiggerThanZero(maturityStandard, measure, expressionParameters)) && (hasUsable27002MeasuresInMaturityChapter(analysis, chapterValue))) {
 
 			// add measure to list of used measures
 			usedMeasures.add(measure);
@@ -2841,7 +2829,7 @@ public class ActionPlanComputation {
 					phasetime = Analysis.getYearsDifferenceBetweenTwoDates(phase.getBeginDate(), phase.getEndDate());
 			}
 		}
-
+		
 		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 
 		// check if first stage -> YES

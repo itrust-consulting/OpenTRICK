@@ -31,7 +31,7 @@ public class ItemInformation implements Cloneable {
 
 	/** id unsaved value = -1 */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idItemInformation")
 	private int id = -1;
 
@@ -131,7 +131,8 @@ public class ItemInformation implements Cloneable {
 	 * Sets the "type" field with a value
 	 * 
 	 * @param type
-	 *            The value to set the Item Information Type (Scope or Organisation)
+	 *            The value to set the Item Information Type (Scope or
+	 *            Organisation)
 	 * @throws TrickException
 	 */
 	public void setType(String type) throws TrickException {
@@ -185,6 +186,21 @@ public class ItemInformation implements Cloneable {
 		ItemInformation itemInformation = (ItemInformation) super.clone();
 		itemInformation.id = -1;
 		return itemInformation;
+	}
+
+	/**
+	 * reset value + id
+	 * @return duplicate
+	 */
+	public ItemInformation anonymise() {
+		try {
+			ItemInformation itemInformation = duplicate();
+			itemInformation.value = "";
+			return itemInformation;
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 }

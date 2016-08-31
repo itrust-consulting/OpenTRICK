@@ -25,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
@@ -39,7 +40,9 @@ import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.general.helper.ExportType;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 
@@ -160,7 +163,7 @@ public class ControllerRiskRegister {
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/RiskSheet/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String exportFrom(HttpSession session, Model model, HttpServletRequest request, Principal principal) {
+	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request, Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<ExtendedParameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
 		serviceParameter.getAllExtendedFromAnalysis(analysisId).forEach(parameter -> {
@@ -172,8 +175,10 @@ public class ControllerRiskRegister {
 
 		model.addAttribute("parameters", serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_CSSF).stream()
 				.collect(Collectors.toMap(Parameter::getDescription, Function.identity())));
-
+		
 		model.addAttribute("owners", serviceAssessment.getDistinctOwnerByIdAnalysis(analysisId));
+		
+		model.addAttribute("type", type);
 
 		model.addAttribute("impacts", impacts);
 
@@ -184,24 +189,30 @@ public class ControllerRiskRegister {
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/RiskSheet/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object export(@RequestBody CSSFFilter cssfFilter, HttpSession session, HttpServletRequest request, Principal principal, Locale locale) {
+	public @ResponseBody Object export(@RequestBody CSSFExportForm cssfExportForm, HttpSession session, HttpServletRequest request, Principal principal, Locale locale) {
 		Map<String, String> errors = new HashMap<>();
-		if (cssfFilter.getImpact() < 0 || cssfFilter.getImpact() > Constant.DOUBLE_MAX_VALUE)
-			errors.put("impact", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
-		if (cssfFilter.getProbability() < 0 || cssfFilter.getProbability() > Constant.DOUBLE_MAX_VALUE)
-			errors.put("probability", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
-		if (cssfFilter.getDirect() < -2)
-			errors.put("direct", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
-		if (cssfFilter.getIndirect() < -2)
-			errors.put("indirect", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
-		if (cssfFilter.getCia() < -2)
-			errors.put("cia", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+		if (cssfExportForm.getFilter() == null)
+			errors.put("filter", messageSource.getMessage("error.invalid.filter", null, "Filter cannot be load", locale));
+		else {
+			CSSFFilter cssfFilter = cssfExportForm.getFilter();
+			if (cssfFilter.getImpact() < 0 || cssfFilter.getImpact() > Constant.DOUBLE_MAX_VALUE)
+				errors.put("filter.impact", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+			if (cssfFilter.getProbability() < 0 || cssfFilter.getProbability() > Constant.DOUBLE_MAX_VALUE)
+				errors.put("filter.probability", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+			if (cssfFilter.getDirect() < -2)
+				errors.put("filter.direct", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+			if (cssfFilter.getIndirect() < -2)
+				errors.put("filter.indirect", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+			if (cssfFilter.getCia() < -2)
+				errors.put("filter.cia", messageSource.getMessage("error.invalid.value", null, "Invalid value", locale));
+		}
+
 		if (!errors.isEmpty())
 			return errors;
 
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		Worker worker = new WorkerExportRiskSheet(cssfFilter, workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"),
+		Worker worker = new WorkerExportRiskSheet(cssfExportForm, workersPoolManager, sessionFactory, serviceTaskFeedback, request.getServletContext().getRealPath("/WEB-INF"),
 				analysisId, principal.getName(), messageSource);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));

@@ -38,7 +38,9 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
+import lu.itrust.business.TS.model.assessment.helper.AssessmentAssetComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
+import lu.itrust.business.TS.model.assessment.helper.AssessmentScenarioComparator;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.EvaluationResult;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
@@ -135,7 +137,7 @@ public class ControllerAssessment {
 			ALE alep = new ALE(asset.getName(), 0);
 			List<Assessment> assessments = analysis.findSelectedAssessmentByAsset(idAsset);
 			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
-			Collections.sort(assessments, new AssessmentComparator());
+			assessments.sort(new AssessmentScenarioComparator());
 			model.addAttribute("ale", ale);
 			model.addAttribute("aleo", aleo);
 			model.addAttribute("alep", alep);
@@ -178,7 +180,7 @@ public class ControllerAssessment {
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
 			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
-			Collections.sort(assessments, new AssessmentComparator());
+			assessments.sort(new AssessmentAssetComparator().reversed());
 			model.addAttribute("assessments", assessments);
 		} else {
 			Asset asset = analysis.findAsset(idAsset);

@@ -47,12 +47,12 @@ function switchCustomer(section) {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#switchCustomerModal");
+			var $content = $("#switchCustomerModal", new DOMParser().parseFromString(response, "text/html"));
 			if ($content.length) {
 				if ($("#switchCustomerModal").length)
 					$("#switchCustomerModal").replaceWith($content);
 				else
-					$content.appendTo($("#widget"));
+					$content.appendTo("#widget");
 				$content.find(".modal-footer>button[name='save']").on("click", function() {
 					$content.find(".label").remove();
 					$.ajax({
@@ -64,14 +64,14 @@ function switchCustomer(section) {
 								adminCustomerChange($("#tab_analyses").find("select"));
 								$content.modal("hide");
 							} else if (response["error"] != undefined)
-								$("<label class='label label-danger'>" + response["error"] + "</label>").appendTo($content.find("select").parent());
+								$("<label class='label label-danger' />").text(response["error"]).appendTo($content.find("select").parent());
 							else
 								unknowError();
 						},
 						error : unknowError
 					});
 				});
-				new Modal($content).Show();
+				$content.modal("show");
 			} else
 				unknowError();
 		},
@@ -117,7 +117,7 @@ function switchOwner(section) {
 							error : unknowError
 						});
 					});
-					new Modal($content).Show();
+					$content.modal("show");
 				} else
 					unknowError();
 			}
@@ -137,56 +137,67 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		analysisId = selectedAnalysis[0];
 	}
 
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Admin/Analysis/" + analysisId + "/ManageAccess",
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $newSection = $(new DOMParser().parseFromString(response, "text/html")).find("#manageAnalysisAccessModel");
-			if ($newSection.length) {
-				$("#manageAnalysisAccessModel").replaceWith($newSection);
-				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-				$("#manageAnalysisAccessModel").modal('toggle');
-				$("#userselect").one('focus', function() {
-					previous = this.value;
-				}).change(function() {
-					$("#user_" + previous).attr("hidden", true);
-					$("#user_" + this.value).removeAttr("hidden");
-					previous = this.value;
-				});
+			var $content = $("#manageAnalysisAccessModel", new DOMParser().parseFromString(response, "text/html"));
+			if ($content.length) {
+				$("#manageAnalysisAccessModel").replaceWith($content);
+				$content.modal("show").find(".modal-footer button[name='save']").one("click", updateAnalysisAccess);
 			} else
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
+
 }
 
-function updatemanageAnalysisAccess(analysisId, userrightsform) {
-	$.ajax({
-		url : context + "/Admin/Analysis/" + analysisId + "/ManageAccess/Update",
-		type : "post",
-		data : serializeForm(userrightsform),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var $newSection = $(doc).find(".modal-content");
-			if ($newSection.length) {
-				$("#manageAnalysisAccessModel .modal-content").replaceWith($newSection);
-				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-				$("#userselect").one('focus', function() {
-					previous = this.value;
-				}).change(function() {
-					$("#user_" + previous).attr("hidden", true);
-					$("#user_" + this.value).removeAttr("hidden");
-					previous = this.value;
-				});
-			} else
-				unknowError();
-		},
-		error : unknowError
+function updateAnalysisAccess(e) {
+
+	var $progress = $("#loading-indicator").show(), $modal = $("#manageAnalysisAccessModel"), me = $modal.attr("data-trick-user-id"), data = {
+		analysisId : $modal.attr("data-trick-id"),
+		userRights : {}
+	};
+
+	$modal.find(".form-group[data-trick-id][data-default-value]").each(function() {
+		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
+		if (newRight != oldRight) {
+			data.userRights[$this.attr("data-trick-id")] = {
+				oldRight : oldRight == "" ? undefined : oldRight,
+				newRight : newRight == "" ? undefined : newRight
+			};
+		}
 	});
+
+	if (Object.keys(data.userRights).length) {
+		$.ajax({
+			url : context + "/Admin/Analysis/ManageAccess/Update",
+			type : "post",
+			data : JSON.stringify(data),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response.error != undefined)
+					showDialog("#alert-dialog", response.error);
+				else if (response.success != undefined) {
+					if (data.userRights[me] != undefined && data.userRights[me].oldRight != data.userRights[me].newRight)
+						reloadSection("section_analysis");
+					else
+						showDialog("#info-dialog", response.success);
+				} else
+					unknowError();
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	} else
+		$progress.hide();
 }
 
 function findTrickisProfile(element) {
@@ -308,7 +319,7 @@ function loadSystemLog() {
 		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $section = $(new DOMParser().parseFromString(response, "text/html")).find("#section_log");
+			var $section = $("#section_log",new DOMParser().parseFromString(response, "text/html"));
 			if ($section.length) {
 				$("#section_log").replaceWith($section);
 				fixTableHeader($("table.table-fixed-header-analysis", $section));
@@ -352,7 +363,9 @@ function loadSystemLogScrolling() {
 }
 
 function updateSetting(idForm, sender) {
-	if ($(sender).is(":checked")) {
+	var $sender = $(sender);
+	if ($sender.attr("type") != "radio" || $sender.is(":checked")) {
+		$sender.parent().removeClass("has-success");
 		$.ajax({
 			url : context + "/Admin/TSSetting/Update",
 			async : false,
@@ -362,6 +375,8 @@ function updateSetting(idForm, sender) {
 			success : function(response, textStatus, jqXHR) {
 				if (response !== true)
 					unknowError();
+				else if ($sender.attr("type") != "radio")
+					$sender.parent().addClass("has-success");
 				return false;
 			},
 			error : unknowError

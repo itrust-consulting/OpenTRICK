@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="modalMeasureForm" tabindex="-1" role="dialog" data-aria-labelledby="measureForm" style="z-index: 1042" data-aria-hidden="true">
-	<div class="modal-dialog" style="width: 50%;">
+	<div class="modal-dialog" style="min-width: 50%;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -22,17 +22,17 @@
 
 				</h4>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="padding-top: 5px;">
 				<ul id="measure_form_tabs" class="nav nav-tabs">
 					<c:if test="${not empty(isAnalysisOnly) and isAnalysisOnly}">
-						<li class="active"><a href="#tab_general" data-toggle="tab"><spring:message code="label.menu.assetmeasure.gerneral" text="General" /></a></li>
+						<li class="active"><a href="#tab_general" data-toggle="tab"><spring:message code="label.menu.general" text="General" /></a></li>
 						<c:if test="${measureForm.type == 'ASSET' }">
-							<li><a href="#tab_asset" data-toggle="tab"><spring:message code="label.menu.assetmeasure.assets" text="Assets" /></a></li>
+							<li><a href="#tab_asset" data-toggle="tab"><spring:message code="label.menu.assets" text="Assets" /></a></li>
 						</c:if>
 					</c:if>
 					<c:if test="${isComputable or not isAnalysisOnly}">
 						<li ${empty(isAnalysisOnly) or not isAnalysisOnly ?'class="active"':''}><a href="#tab_properties" data-toggle="tab"><spring:message
-									code="label.menu.assetmeasure.properties" text="Properties" /></a></li>
+									code="label.menu.properties" text="Properties" /></a></li>
 					</c:if>
 					<li id="error_container" style="padding-top: 10px"></li>
 				</ul>
@@ -143,7 +143,7 @@
 											<th class="warning"><spring:message code="label.rrf.measure.strength_measure" /></th>
 											<th class="warning"><spring:message code="label.rrf.measure.strength_sectoral" /></th>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
-												<th class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
+												<th class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
 														key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 											</c:forEach>
 											<th class="success"><spring:message code="label.rrf.measure.preventive" /></th>
@@ -170,7 +170,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr id="sliders">
+										<tr id="sliders" style="text-align: center;" >
 											<td class="warning" data-trick-class="MeasureProperties"><input type="text" class="slider" id="fmeasure" value="${measureForm.properties.getFMeasure()}"
 												data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="${measureForm.properties.getFMeasure()}" name="fmeasure"
 												data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
@@ -178,9 +178,9 @@
 												data-slider-min="0" data-slider-max="4" data-slider-step="1" data-slider-value="${measureForm.properties.getFSectoral()}" name="fsectoral"
 												data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category">
-												<td class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-													id="${fn:replace(category,'.','_')}" value="${measureForm.properties.categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-													data-slider-value="${measureForm.properties.categories.get(category)}" name=<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />
+												<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
+													id="${fn:replace(category,'.','_')}" value="${measureForm.properties.getCategoryValue(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+													data-slider-value="${measureForm.properties.getCategoryValue(category)}" name=<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />
 													data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 											</c:forEach>
 											<td class="success"><input type="text" id="preventive" class="slider" value="${measureForm.properties.preventive}" data-slider-min="0" data-slider-max="4"
@@ -230,44 +230,44 @@
 											</c:choose>
 										</tr>
 										<tr id="values">
-											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="fvalue"
+											<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center; min-width: 40px" readonly="readonly" class="form-control" id="fvalue"
 												value="${measureForm.properties.getFMeasure()}" name="fmeasure"></td>
-											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="fsectoral_value"
+											<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="fsectoral_value"
 												value="${measureForm.properties.getFSectoral()}" name="fsectoral"></td>
 											<c:forEach items="${measureForm.properties.categories.keySet()}" var="category" varStatus="catStatus">
-												<td class="info" data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
-													id='<spring:message text="${category}"/>_value' readonly="readonly" class="form-control" value="${measureForm.properties.categories.get(category)}"
+												<td class="info" ${not empty cssfExcludes[category]? 'hidden="hidden"' :''} data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
+													style="text-align: center;" id='<spring:message text="${category}"/>_value' readonly="readonly" class="form-control" value="${measureForm.properties.getCategoryValue(category)}"
 													name="<spring:message text="${fn:replace(fn:toLowerCase(category),'.','')}" />"></td>
 											</c:forEach>
-											<td class="success" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="preventive_value"
+											<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="preventive_value"
 												value='<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.preventive}</fmt:formatNumber>' name="preventive"></td>
-											<td class="success" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="detective_value"
+											<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="detective_value"
 												value="<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.detective}</fmt:formatNumber>" name="detective"></td>
-											<td class="success" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="limitative_value"
+											<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="limitative_value"
 												value="<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.limitative}</fmt:formatNumber>" name="limitative"></td>
-											<td class="success" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="corrective_value"
+											<td class="success" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="corrective_value"
 												value="<fmt:formatNumber maxFractionDigits="0">${measureForm.properties.corrective}</fmt:formatNumber>" name="corrective"></td>
-											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="intentional_value"
+											<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="intentional_value"
 												value="${measureForm.properties.intentional}" name="intentional"></td>
-											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="accidental_value"
+											<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="accidental_value"
 												value="${measureForm.properties.accidental}" name="accidental"></td>
-											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="environmental_value"
+											<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="environmental_value"
 												value="${measureForm.properties.environmental}" name="environmental"></td>
-											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="internalThreat_value"
+											<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="internalThreat_value"
 												value="${measureForm.properties.internalThreat}" name="internalThreat"></td>
-											<td class="warning" data-trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="externalThreat_value"
+											<td class="warning" data-trick-class="MeasureProperties"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="externalThreat_value"
 												value="${measureForm.properties.externalThreat}" name="externalThreat"></td>
 											<c:choose>
 												<c:when test="${measureForm.type == 'ASSET' }">
 													<c:forEach items="${measureForm.assetValues}" var="assetValue">
-														<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="text"
+														<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="text" style="text-align: center;"
 															id='property_asset_<spring:message text="${assetValue.id}"/>_value' style="min-width: 50px;" readonly="readonly" class="form-control" value="${assetValue.value}"
 															name="<spring:message text="${assetValue.id}" />"></td>
 													</c:forEach>
 												</c:when>
 												<c:when test="${measureForm.type == 'NORMAL' }">
 													<c:forEach items="${measureForm.assetValues}" var="assetValue">
-														<td ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><input type="text"
+														<td ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><input type="text" style="text-align: center;"
 															id='property_asset_type_<spring:message text="${assetValue.id}"/>_value' style="min-width: 50px;" readonly="readonly" class="form-control"
 															value="${assetValue.value}" name="<spring:message text="${assetValue.id}" />"></td>
 													</c:forEach>

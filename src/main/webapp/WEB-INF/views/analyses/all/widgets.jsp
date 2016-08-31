@@ -8,5 +8,5 @@
 <div id="widget">
 	<jsp:include page="forms/analysis.jsp" />
 	<jsp:include page="forms/newVersion.jsp" />
-	<jsp:include page="forms/manageUserAnalysisRights.jsp" />
+	<jsp:include page="forms/rights.jsp" />
 </div>

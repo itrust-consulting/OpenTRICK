@@ -19,7 +19,6 @@
 			<li><a href="#tabParameterImpactProba" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
 			<li><a href="#tabParameterOther" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.various" /></a></li>
 		</ul></li>
-
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_analysis" /> <span class="caret"></span></a>
 		<ul class="dropdown-menu">
 			<c:if test="${!isProfile}">
@@ -94,7 +93,7 @@
 				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
 			</ul></li>
 	</c:if>
-	<li class="pull-right"><a href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted" title='<spring:message code="label.action.close.analysis" />'
+	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted" title='<spring:message code="label.action.close.analysis" />'
 		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-sign-out fa-2x"></i></a></li>
 	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle text-muted" data-toggle="dropdown" title='<spring:message code="label.actions" />'
 		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-cog fa-2x"></i></a>
@@ -113,7 +112,9 @@
 					<c:if test="${show_cssf}">
 					<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
 						</a></li>
-						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}')"> <spring:message code="label.risk_sheet" />
+						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />
+						</a></li>
+						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','RAW')"> <spring:message code="label.raw_risk_sheet" />
 						</a></li>
 					</c:if>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>

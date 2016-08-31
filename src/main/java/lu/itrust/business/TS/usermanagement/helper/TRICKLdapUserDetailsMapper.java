@@ -192,8 +192,10 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 		for (GrantedAuthority grantedAuthority : essence.getGrantedAuthorities()) {
 			Role role = daoRole.getByName(grantedAuthority.getAuthority());
-			if (role == null)
+			if (role == null){
 				role = new Role(RoleType.valueOf(grantedAuthority.getAuthority()));
+				daoRole.saveOrUpdate(role);
+			}
 			user.addRole(role);
 		}
 		daoUser.saveOrUpdate(user);

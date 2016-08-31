@@ -421,7 +421,6 @@ public class ControllerEditField {
 			// create field
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 			// set value /100 to save as values between 0 and 1
-
 			// set field data
 			if (SetFieldValue(parameter, field, (Double) value * 0.01)) {
 				// update field
@@ -493,7 +492,14 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and @permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Result estimation(@RequestBody FieldEditor fieldEditor, @RequestParam("asset") int idAsset, @RequestParam("scenario") int idScenario, HttpSession session,
 			Locale locale, Principal principal) {
-		if (fieldEditor.getFieldName().startsWith("riskProfile."))
+		if (fieldEditor.getFieldName().equals("scenario.description")) {
+			Scenario scenario = serviceScenario.getFromAnalysisById((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idScenario);
+			if (scenario == null)
+				return Result.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
+			scenario.setDescription(fieldEditor.getValue().toString().trim());
+			serviceScenario.saveOrUpdate(scenario);
+			return Result.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", locale));
+		} else if (fieldEditor.getFieldName().startsWith("riskProfile."))
 			return updateRiskProfile(fieldEditor, idAsset, idScenario, session, locale);
 		else
 			return updateAssessment(fieldEditor, idAsset, idScenario, session, locale);

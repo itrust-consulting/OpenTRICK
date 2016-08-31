@@ -20,7 +20,6 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -97,6 +96,9 @@ public abstract class Measure implements Cloneable {
 	private String toDo = "";
 
 	private String responsible = "";
+	
+	/** ticket id for ticketing system */
+	private String ticket;
 
 	/** The Phase object for this measure */
 	private Phase phase = null;
@@ -513,6 +515,24 @@ public abstract class Measure implements Cloneable {
 	public void setRecurrentInvestment(double recurrentInvestment) {
 		this.recurrentInvestment = recurrentInvestment;
 	}
+	
+	/**
+	 * TicketingTask id
+	 * @return the ticket
+	 */
+	@Column(name = "dtTicket")
+	public String getTicket() {
+		return ticket;
+	}
+
+	/**
+	 * TicketingTask id
+	 * @param ticket the ticket to set
+	 */
+	public void setTicket(String ticket) {
+		this.ticket = ticket;
+	}
+
 
 	/**
 	 * hashCode:<br>
@@ -633,10 +653,6 @@ public abstract class Measure implements Cloneable {
 		return measure;
 	}
 
-	public static int compare(String reference, String reference2) {
-		return GeneralComperator.VersionComparator(reference, reference2);
-	}
-
 	@Column(name = "dtResponsible")
 	public String getResponsible() {
 		return responsible;
@@ -645,6 +661,4 @@ public abstract class Measure implements Cloneable {
 	public void setResponsible(String responsible) {
 		this.responsible = responsible;
 	}
-
-	
 }

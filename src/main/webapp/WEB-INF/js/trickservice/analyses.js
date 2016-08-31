@@ -18,25 +18,22 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 	}
 
 	if (canManageAccess()) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/ManageAccess/" + analysisId,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
-				var doc = new DOMParser().parseFromString(response, "text/html");
-				var $newSection = $(doc).find("#manageAnalysisAccessModel");
-				$("#manageAnalysisAccessModel").replaceWith($newSection);
-				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-				$("#manageAnalysisAccessModel").modal('toggle');
-				$("#userselect").one('focus', function() {
-					previous = this.value;
-				}).change(function() {
-					$("#user_" + previous).attr("hidden", true);
-					$("#user_" + this.value).removeAttr("hidden");
-					previous = this.value;
-				});
+				var $content = $("#manageAnalysisAccessModel", new DOMParser().parseFromString(response, "text/html"));
+				if ($content.length) {
+					$("#manageAnalysisAccessModel").replaceWith($content);
+					$content.modal("show").find(".modal-footer button[name='save']").one("click", updateAnalysisAccess);
+				} else
+					unknowError();
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -44,31 +41,46 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 }
 
-function updatemanageAnalysisAccess(analysisId, userrightsform) {
-	$.ajax({
-		url : context + "/Analysis/ManageAccess/Update/" + analysisId,
-		type : "post",
-		data : serializeForm(userrightsform),
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var doc = new DOMParser().parseFromString(response, "text/html");
-			var $newSection = $(doc).find(".modal-content");
-			if ($newSection.length) {
-				$("#manageAnalysisAccessModel .modal-content").replaceWith($newSection);
-				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-				$("#userselect").one('focus', function() {
-					previous = this.value;
-				}).change(function() {
-					$("#user_" + previous).attr("hidden", true);
-					$("#user_" + this.value).removeAttr("hidden");
-					previous = this.value;
-				});
-				reloadSection("section_analysis");
-			} else
-				unknowError();
-		},
-		error : unknowError
+function updateAnalysisAccess(e) {
+
+	var $progress = $("#loading-indicator").show(), $modal = $("#manageAnalysisAccessModel"), me = $modal.attr("data-trick-user-id"), data = {
+		analysisId : $modal.attr("data-trick-id"),
+		userRights : {}
+	};
+
+	$modal.find(".form-group[data-trick-id][data-default-value]").each(function() {
+		var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
+		if (newRight != oldRight) {
+			data.userRights[$this.attr("data-trick-id")] = {
+				oldRight : oldRight == "" ? undefined : oldRight,
+				newRight : newRight == "" ? undefined : newRight
+			};
+		}
 	});
+
+	if (Object.keys(data.userRights).length) {
+		$.ajax({
+			url : context + "/Analysis/ManageAccess/Update",
+			type : "post",
+			data : JSON.stringify(data),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response.error != undefined)
+					showDialog("#alert-dialog", response.error);
+				else if (response.success != undefined) {
+					if (data.userRights[me] != undefined && data.userRights[me].oldRight != data.userRights[me].newRight)
+						reloadSection("section_analysis");
+					else
+						showDialog("#info-dialog", response.success);
+				} else
+					unknowError();
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	} else
+		$progress.hide();
 }
 
 function findTrickisProfile(element) {
@@ -170,9 +182,8 @@ function deleteAnalysis(analysisId) {
 			$("#deleteAnalysisModel .btn").unbind();
 			$("#deleteAnalysisModel").modal("hide");
 		});
-		$("#deleteanalysisbuttonYes").click(function() {
+		$("#deleteanalysisbuttonYes").one("click", function() {
 			$("#deleteprogressbar").show();
-			$("#deleteAnalysisModel .btn").unbind();
 			$("#deleteAnalysisModel .btn").prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
@@ -180,7 +191,6 @@ function deleteAnalysis(analysisId) {
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					$("#deleteprogressbar").hide();
-					$("#deleteanalysisbuttonYes").prop("disabled", false);
 					$("#deleteAnalysisModel").modal('hide');
 					if (response.success != undefined) {
 						reloadSection("section_analysis");
@@ -191,11 +201,11 @@ function deleteAnalysis(analysisId) {
 					return false;
 				},
 				error : unknowError
+			}).complete(function() {
+				$("#deleteanalysisbuttonYes").prop("disabled", false);
 			});
-
 			return false;
 		});
-		$("#deleteAnalysisModel .btn").prop("disabled", false);
 		$("#deleteAnalysisModel").modal('show');
 	} else
 		permissionError();
@@ -210,6 +220,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 		analysisId = selectedAnalysis[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.READ)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/AnalysisProfile/Add/" + analysisId,
 			type : "get",
@@ -248,6 +259,8 @@ function createAnalysisProfile(analysisId, section_analysis) {
 
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	}
 	return false;
@@ -275,14 +288,13 @@ function saveAnalysisProfile(form) {
 
 	});
 
-	var jsonarray = JSON.stringify(data);
+	var $progress = $("#loading-indicator").show();
 
 	$.ajax({
 		url : context + "/AnalysisProfile/Save",
 		type : "post",
-		data : jsonarray,
+		data : JSON.stringify(data),
 		contentType : "application/json;charset=UTF-8",
-		aync : true,
 		success : function(response, textStatus, jqXHR) {
 
 			var alert = $("#analysisProfileform .label-danger");
@@ -334,6 +346,8 @@ function saveAnalysisProfile(form) {
 
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
 }
@@ -341,428 +355,446 @@ function saveAnalysisProfile(form) {
 function customAnalysis(element) {
 	if ($(element).parent().hasClass("disabled"))
 		return false;
+	var $progress = $("#loading-indicator").show();
 	$
-			.ajax({
-				url : context + "/Analysis/Build",
-				type : "get",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response, textStatus, jqXHR) {
-					var $modalContent = $("#buildAnalysisModal", new DOMParser().parseFromString(response, "text/html"));
-					if (!$modalContent.length)
-						unknowError();
-					else {
-						var $old = $("#buildAnalysisModal");
-						if ($old.length)
-							$old.replaceWith($modalContent);
-						else
-							$modalContent.appendTo("#widget");
-						var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
-						var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
-						var $removeText = MessageResolver("label.action.delete", "Delete");
-						var $lockText = MessageResolver("label.action.lock", "Lock");
-						// load data from database and manage caching
-						
-						analysesCaching = {
-							versions : {},
-							identifiers : {},
-							customers : {},
-							cloneWidth : undefined,
-							assessmentDisable : true,
-							cssfChecked : false,
-							saveVersions : function(identifier, data) {
-								for (var i = 0; i < data.length; i++)
-									this.versions[data[i].id] = data[i];
-								this.identifiers[identifier] = data;
-								return this;
-							},
-							saveIdentifier : function(idCustomer, data) {
-								if (!this.cloneWidth)
-									this.cloneWidth = this.cloneWidth = $("#analysis-build-standards").width();
-								this.customers[idCustomer] = data;
-								return this;
-							},
-							updateAnalysisVersions : function(idCustomer, identifier) {
-								if (this.identifiers[identifier] == undefined)
-									this.loadByCustomerIdAndIdentifier(idCustomer, identifier);
+			.ajax(
+					{
+						url : context + "/Analysis/Build",
+						type : "get",
+						contentType : "application/json;charset=UTF-8",
+						success : function(response, textStatus, jqXHR) {
+							var $modalContent = $("#buildAnalysisModal", new DOMParser().parseFromString(response, "text/html"));
+							if (!$modalContent.length)
+								unknowError();
+							else {
+								var $old = $("#buildAnalysisModal");
+								if ($old.length)
+									$old.replaceWith($modalContent);
 								else
-									this.updateVersionSelector(identifier);
-								return this;
-							},
-							updateAnalysisIdentifiers : function(idCustomer) {
-								if (this.customers[idCustomer] == undefined)
-									this.loadByCustomerId(idCustomer);
-								else
-									this.updateAnalysisSelector(idCustomer);
-								return this;
-							},
-							findAnalysisById : function(idAnalysis) {
-								return this.versions[idAnalysis];
-							},
-							loadByCustomerIdAndIdentifier : function(idCustomer, identifier) {
-								var instance = this;
-								$.ajax({
-									url : context + "/Analysis/Build/Customer/" + idCustomer + "/Identifier/" + identifier,
-									type : "get",
-									contentType : "application/json;charset=UTF-8",
-									success : function(response, textStatus, jqXHR) {
-										if (typeof response == 'object')
-											instance.saveVersions(identifier, response).updateVersionSelector(identifier);
-										else
-											unknowError();
-									}
-								});
-							},
-							loadByCustomerId : function(idCustomer) {
-								var instance = this;
-								$.ajax({
-									url : context + "/Analysis/Build/Customer/" + idCustomer,
-									type : "get",
-									contentType : "application/json;charset=UTF-8",
-									success : function(response, textStatus, jqXHR) {
-										if (typeof response == 'object')
-											instance.saveIdentifier(idCustomer, response).updateAnalysisIdentifiers(idCustomer);
-										else
-											unknowError();
-									}
-								});
-							},
-							updateVersionSelector : function(identifier) {
-								var instance = this;
-								var versions = this.identifiers[identifier];
-								var $analysisVersions = $("#analysis-versions", $modalBody);
-								for (var i = 0; i < versions.length; i++) {
-									var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' title='" + versions[i].label + " v." + versions[i].version
-											+ "'>" + versions[i].version + "</li>");
-									$li.appendTo($analysisVersions);
-								}
+									$modalContent.appendTo("#widget");
+								var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
+								var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
+								var $removeText = MessageResolver("label.action.delete", "Delete");
+								var $lockText = MessageResolver("label.action.lock", "Lock");
+								// load data from database and manage caching
 
-								$("#analysis-versions li", $modalBody).hover(function() {
-									$(this).css('cursor', 'move');
-								}).draggable({
-									helper : "clone",
-									cancel : "span.glyphicon-remove-sign",
-									revert : "invalid",
-									containment : "#group_2",
-									accept : "*[dropzone='true']",
-									cursor : "move",
-									start : function(e, ui) {
-										$(ui.helper).css({
-											'z-index' : '1385',
-											'min-width' : instance.cloneWidth,
-											'border-radius' : "5px"
+								analysesCaching = {
+									versions : {},
+									identifiers : {},
+									customers : {},
+									cloneWidth : undefined,
+									assessmentDisable : true,
+									cssfChecked : false,
+									saveVersions : function(identifier, data) {
+										for (var i = 0; i < data.length; i++)
+											this.versions[data[i].id] = data[i];
+										this.identifiers[identifier] = data;
+										return this;
+									},
+									saveIdentifier : function(idCustomer, data) {
+										if (!this.cloneWidth)
+											this.cloneWidth = this.cloneWidth = $("#analysis-build-standards").width();
+										this.customers[idCustomer] = data;
+										return this;
+									},
+									updateAnalysisVersions : function(idCustomer, identifier) {
+										if (this.identifiers[identifier] == undefined)
+											this.loadByCustomerIdAndIdentifier(idCustomer, identifier);
+										else
+											this.updateVersionSelector(identifier);
+										return this;
+									},
+									updateAnalysisIdentifiers : function(idCustomer) {
+										if (this.customers[idCustomer] == undefined)
+											this.loadByCustomerId(idCustomer);
+										else
+											this.updateAnalysisSelector(idCustomer);
+										return this;
+									},
+									findAnalysisById : function(idAnalysis) {
+										return this.versions[idAnalysis];
+									},
+									loadByCustomerIdAndIdentifier : function(idCustomer, identifier) {
+										var instance = this;
+										$progress.show();
+										$.ajax({
+											url : context + "/Analysis/Build/Customer/" + idCustomer + "/Identifier/" + identifier,
+											type : "get",
+											contentType : "application/json;charset=UTF-8",
+											success : function(response, textStatus, jqXHR) {
+												if (typeof response == 'object')
+													instance.saveVersions(identifier, response).updateVersionSelector(identifier);
+												else
+													unknowError();
+											}
+										}).complete(function() {
+											$progress.hide();
 										});
-									}
-								});
-								return this;
-							},
-							updateAnalysisSelector : function(idCustomer) {
-								var identifiers = this.customers[idCustomer];
-								var $analysisSelector = $("#selector-analysis");
-								for (var i = 0; i < identifiers.length; i++)
-									$("<option value='" + identifiers[i].identifier + "'>" + identifiers[i].label + "</option>").appendTo($analysisSelector);
-								return this;
-							},
+									},
+									loadByCustomerId : function(idCustomer) {
+										var instance = this;
+										$progress.show();
+										$.ajax({
+											url : context + "/Analysis/Build/Customer/" + idCustomer,
+											type : "get",
+											contentType : "application/json;charset=UTF-8",
+											success : function(response, textStatus, jqXHR) {
+												if (typeof response == 'object')
+													instance.saveIdentifier(idCustomer, response).updateAnalysisIdentifiers(idCustomer);
+												else
+													unknowError();
+											}
+										}).complete(function() {
+											$progress.hide();
+										});
+									},
+									updateVersionSelector : function(identifier) {
+										var instance = this;
+										var versions = this.identifiers[identifier];
+										var $analysisVersions = $("#analysis-versions", $modalBody);
+										for (var i = 0; i < versions.length; i++) {
+											var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' title='" + versions[i].label + " v."
+													+ versions[i].version + "'>" + versions[i].version + "</li>");
+											$li.appendTo($analysisVersions);
+										}
 
-							applyCallback : function(callback) {
-								if (callback == undefined)
-									return;
-								if ($.isArray(callback)) {
-									for (var i = 0; i < callback.length; i++)
-										eval(callback[i]);
-								} else
-									eval(callback);
-								return this;
-							},
-							checkPhase : function() {
-								var $phaseInput = $("input[name='phase']", $modalBody), $standards = $("#analysis-build-standards>div>label");
-								if (!$standards.length) {
-									$phaseInput.prop("disabled", true);
-									$phaseInput.prop("checked", false);
-								} else {
-									$phaseInput.prop("disabled", false);
-									var idAnalysis = -1;
-									for (var i = 0; i < $standards.length; i++) {
-										var currentIdAnalysis = $($standards[i]).attr("data-trick-id");
-										if (i == 0)
-											idAnalysis = currentIdAnalysis;
-										else if (currentIdAnalysis != idAnalysis) {
+										$("#analysis-versions li", $modalBody).hover(function() {
+											$(this).css('cursor', 'move');
+										}).draggable({
+											helper : "clone",
+											cancel : "span.glyphicon-remove-sign",
+											revert : "invalid",
+											containment : "#group_2",
+											accept : "*[dropzone='true']",
+											cursor : "move",
+											start : function(e, ui) {
+												$(ui.helper).css({
+													'z-index' : '1385',
+													'min-width' : instance.cloneWidth,
+													'border-radius' : "5px"
+												});
+											}
+										});
+										return this;
+									},
+									updateAnalysisSelector : function(idCustomer) {
+										var identifiers = this.customers[idCustomer];
+										var $analysisSelector = $("#selector-analysis");
+										for (var i = 0; i < identifiers.length; i++)
+											$("<option value='" + identifiers[i].identifier + "'>" + identifiers[i].label + "</option>").appendTo($analysisSelector);
+										return this;
+									},
+
+									applyCallback : function(callback) {
+										if (callback == undefined)
+											return;
+										if ($.isArray(callback)) {
+											for (var i = 0; i < callback.length; i++)
+												eval(callback[i]);
+										} else
+											eval(callback);
+										return this;
+									},
+									checkPhase : function() {
+										var $phaseInput = $("input[name='phase']", $modalBody), $standards = $("#analysis-build-standards>div>label");
+										if (!$standards.length) {
 											$phaseInput.prop("disabled", true);
 											$phaseInput.prop("checked", false);
-											break;
-										}
-									}
-								}
-								return this;
-							},
-							checkRiskDependancies : function() {
-								var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well").attr(
-										"data-trick-id"), estimation = trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
-								$modalBody.find("input[name='assessment']").prop("disabled", this.assessmentDisable = estimation).prop("checked", false);
-								return this.checkProfile();
-							},
-							checkProfile : function() {
-								$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled", this.assessmentDisable || !this.cssfChecked);
-								return this;
-							},
-							checkAssetStandard : function() {
-								var analysisAsset = $("#analysis-build-assets input").val();
-								if (analysisAsset == -1)
-									return this;
-								var $parent = $("#analysis-build-standards"), $label = $("#analysis-build-standards label[data-trick-type='ASSET'][data-trick-id!='"
-										+ analysisAsset + "']");
-								$label.each(function() {
-									var $this = $(this);
-									$("[data-trick-id='" + $this.attr("data-trick-id") + "'][data-trick-owner-id='" + $this.attr("data-trick-owner-id") + "']", $parent).remove();
-								});
-								if ($label.length)
-									this.nameAnalysisStandard();
-								return this;
-							},
-							nameAnalysisStandard : function() {
-								$("#analysis-build-standards label").each(
-										function(i) {
-											var $this = $(this);
-											$(
-													"#analysis-build-standards input[data-trick-id='" + $this.attr("data-trick-id") + "'][data-trick-owner-id='"
-															+ $this.attr("data-trick-owner-id") + "']").each(function() {
-												var $input = $(this), fieldName = $input.attr('data-trick-field');
-												$input.attr("name", "standards[" + i + "]." + fieldName);
-												switch (fieldName) {
-												case "idAnalysis":
-													$input.val($this.attr("data-trick-id"));
+										} else {
+											$phaseInput.prop("disabled", false);
+											var idAnalysis = -1;
+											for (var i = 0; i < $standards.length; i++) {
+												var currentIdAnalysis = $($standards[i]).attr("data-trick-id");
+												if (i == 0)
+													idAnalysis = currentIdAnalysis;
+												else if (currentIdAnalysis != idAnalysis) {
+													$phaseInput.prop("disabled", true);
+													$phaseInput.prop("checked", false);
 													break;
-												case "idAnalysisStandard":
-													$input.val($this.attr("data-trick-owner-id"));
-													break;
-												default:
-													$input.val($this.attr("data-trick-" + fieldName));
 												}
-											});
+											}
+										}
+										return this;
+									},
+									checkRiskDependancies : function() {
+										var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well")
+												.attr("data-trick-id"), estimation = trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
+										$modalBody.find("input[name='assessment']").prop("disabled", this.assessmentDisable = estimation).prop("checked", false);
+										return this.checkProfile();
+									},
+									checkProfile : function() {
+										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled", this.assessmentDisable || !this.cssfChecked);
+										return this;
+									},
+									checkAssetStandard : function() {
+										var analysisAsset = $("#analysis-build-assets input").val();
+										if (analysisAsset == -1)
+											return this;
+										var $parent = $("#analysis-build-standards"), $label = $("#analysis-build-standards label[data-trick-type='ASSET'][data-trick-id!='"
+												+ analysisAsset + "']");
+										$label.each(function() {
+											var $this = $(this);
+											$("[data-trick-id='" + $this.attr("data-trick-id") + "'][data-trick-owner-id='" + $this.attr("data-trick-owner-id") + "']", $parent)
+													.remove();
 										});
-							}
-						};
-
-						var $locker = $("<a href='#' style='margin-right:3px;' class='pull-right' title='" + $lockText
-								+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $cssf = $("#cssf");
-
-						// Event user select a customer
-						$("#selector-customer").on("change", function(e) {
-							$("#selector-analysis option[value!=-1]").remove();
-							$("#analysis-versions li[class!='disabled']").remove();
-							var idCustomer = $(e.target).val();
-							if (idCustomer < 0)
-								$("#selector-analysis option[value=-1]").prop("selected", true);
-							else
-								analysesCaching.updateAnalysisIdentifiers(idCustomer);
-						});
-
-						$("#selector-analysis").on("change", function(e) {
-							$("#analysis-versions li[class!='disabled']", $modalBody).remove();
-							var identifier = $(e.target).val();
-							if (identifier != -1)
-								analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
-						});
-
-						$cssf.on("change", function(e) {
-							analysesCaching.cssfChecked = $cssf.is(":checked");
-							analysesCaching.checkProfile();
-						});
-						
-						
-						$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
-						$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkRiskDependancies().checkAssetStandard()");
-						$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
-
-						$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
-								{
-									accept : "li.list-group-item",
-									activeClass : "warning",
-									drop : function(event, ui) {
-										var $this = $(this), $parent = $this.parent();
-										$this.attr("data-trick-id", ui.draggable.attr("data-trick-id"));
-										$this.attr("title", ui.draggable.attr("title"));
-										$this.text(ui.draggable.attr("title"));
-										$this.addClass("success");
-										$parent.find('input[name]').attr("value", ui.draggable.attr("data-trick-id"));
-										var callback = $parent.attr("data-trick-callback");
-										$(
-												"<a href='#' class='pull-right text-danger' title='" + $removeText
-														+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(function() {
-											var $newParent = $(this).parent();
-											$newParent.removeAttr("data-trick-id");
-											$newParent.removeAttr("title");
-											$newParent.removeClass("success");
-											$newParent.text($emptyText);
-											$newParent.parent().find('input[name]').attr("value", '-1');
-											analysesCaching.applyCallback(callback);
-											return false;
-										});
-
-										analysesCaching.applyCallback(callback);
+										if ($label.length)
+											this.nameAnalysisStandard();
+										return this;
+									},
+									nameAnalysisStandard : function() {
+										$("#analysis-build-standards label").each(
+												function(i) {
+													var $this = $(this);
+													$(
+															"#analysis-build-standards input[data-trick-id='" + $this.attr("data-trick-id") + "'][data-trick-owner-id='"
+																	+ $this.attr("data-trick-owner-id") + "']").each(function() {
+														var $input = $(this), fieldName = $input.attr('data-trick-field');
+														$input.attr("name", "standards[" + i + "]." + fieldName);
+														switch (fieldName) {
+														case "idAnalysis":
+															$input.val($this.attr("data-trick-id"));
+															break;
+														case "idAnalysisStandard":
+															$input.val($this.attr("data-trick-owner-id"));
+															break;
+														default:
+															$input.val($this.attr("data-trick-" + fieldName));
+														}
+													});
+												});
 									}
+								};
+
+								var $locker = $("<a href='#' style='margin-right:3px;' class='pull-right' title='" + $lockText
+										+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $cssf = $("#cssf");
+
+								// Event user select a customer
+								$("#selector-customer").on("change", function(e) {
+									$("#selector-analysis option[value!=-1]").remove();
+									$("#analysis-versions li[class!='disabled']").remove();
+									var idCustomer = $(e.target).val();
+									if (idCustomer < 0)
+										$("#selector-analysis option[value=-1]").prop("selected", true);
+									else
+										analysesCaching.updateAnalysisIdentifiers(idCustomer);
 								});
 
-						$("#analysis-build-standards div")
-								.droppable(
+								$("#selector-analysis").on("change", function(e) {
+									$("#analysis-versions li[class!='disabled']", $modalBody).remove();
+									var identifier = $(e.target).val();
+									if (identifier != -1)
+										analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
+								});
+
+								$cssf.on("change", function(e) {
+									analysesCaching.cssfChecked = $cssf.is(":checked");
+									analysesCaching.checkProfile();
+								});
+
+								$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
+								$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkRiskDependancies().checkAssetStandard()");
+								$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
+
+								$modalBody.find("*[dropzone='true'][id!='analysis-build-standards']>div").droppable(
 										{
 											accept : "li.list-group-item",
 											activeClass : "warning",
 											drop : function(event, ui) {
 												var $this = $(this), $parent = $this.parent();
-												var isEmpty = $("input[data-trick-field]", $parent).length;
+												$this.attr("data-trick-id", ui.draggable.attr("data-trick-id"));
+												$this.attr("title", ui.draggable.attr("title"));
+												$this.text(ui.draggable.attr("title"));
+												$this.addClass("success");
+												$parent.find('input[name]').attr("value", ui.draggable.attr("data-trick-id"));
 												var callback = $parent.attr("data-trick-callback");
-												if (!isEmpty) {
-													$this.empty();
-													$this.addClass("success");
-												}
-												$(analysesCaching.findAnalysisById(ui.draggable.attr("data-trick-id")).analysisStandardBaseInfo)
-														.each(
-																function() {
+												$(
+														"<a href='#' class='pull-right text-danger' title='" + $removeText
+																+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(
+														function() {
+															var $newParent = $(this).parent();
+															$newParent.removeAttr("data-trick-id");
+															$newParent.removeAttr("title");
+															$newParent.removeClass("success");
+															$newParent.text($emptyText);
+															$newParent.parent().find('input[name]').attr("value", '-1');
+															analysesCaching.applyCallback(callback);
+															return false;
+														});
 
-																	var $selector = $("label[data-trick-id='" + this.idAnalysis + "'][data-trick-owner-id='"
-																			+ this.idAnalysisStandard + "']", $this), $locked = $("label[data-trick-name='" + this.name
-																			+ "'] input:checked", $this);
-
-																	if ($selector.length || $locked.length)
-																		return this;
-
-																	var data = this, $current = $("label[data-trick-name='" + data.name + "']", $this), $content = $("<label style='width:100%'></label>"), $inputs = $("<input data-trick-field='idAnalysis' hidden>"
-																			+ "<input data-trick-field='idAnalysisStandard' hidden>"
-																			+ "<input data-trick-field='name' hidden>"
-																			+ "<input data-trick-field='version' hidden>" + "<input data-trick-field='type' hidden>");
-																	$content.attr("data-trick-name", data.name).attr("data-trick-version", data.version);
-																	$content.attr("data-trick-id", data.idAnalysis).attr("data-trick-type", data.type);
-																	$content.attr("data-trick-owner-id", data.idAnalysisStandard).text(
-																			ui.draggable.attr("title") + " - " + data.name + " v" + data.version);
-																	$inputs.attr("data-trick-id", data.idAnalysis).attr("data-trick-owner-id", data.idAnalysisStandard).appendTo(
-																			$parent);
-																	if ($current.length) {
-																		$(
-																				"input[data-trick-id='" + $current.attr('data-trick-id') + "']" + "[data-trick-owner-id='"
-																						+ $current.attr('data-trick-owner-id') + "']", $parent).remove();
-																		$current.replaceWith($content)
-																	} else
-																		$content.appendTo($this);
-																	$(
-																			"<a href='#' class='pull-right text-danger' title='" + $removeText
-																					+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
-																			.appendTo($content).click(
-																					function() {
-																						$(
-																								"[data-trick-id='" + data.idAnalysis + "'][data-trick-owner-id='"
-																										+ data.idAnalysisStandard + "']", $parent).remove();
-																						if (!$("input:hidden", $parent).length) {
-																							$this.text($emptyText)
-																							$this.removeClass("success");
-																						}
-
-																						analysesCaching.applyCallback(callback).nameAnalysisStandard();
-
-																						return false;
-																					});
-																	$locker.clone().appendTo($content).on("click", function(e) {
-																		var $this = $(e.currentTarget), $input = $("input", $this), $flag = $(".fa", $this);
-																		if ($input.is(":checked")) {
-																			$flag.removeClass('fa-lock');
-																			$flag.addClass("fa-unlock");
-																			$input.prop("checked", false);
-																		} else {
-																			$flag.removeClass('fa-unlock');
-																			$flag.addClass("fa-lock");
-																			$input.prop("checked", true);
-																		}
-																		return false;
-																	});
-
-																});
-												analysesCaching.applyCallback(callback).nameAnalysisStandard();
+												analysesCaching.applyCallback(callback);
 											}
 										});
 
-						var $saveButton = $(modal.modal_footer).find("button[name='save']");
-						var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
-						var $progress_bar = $modalBody.find(".progress");
-						$cancelButton.click(function() {
-							if (!$cancelButton.is(":disabled"))
-								modal.Destroy();
-							return false;
-						});
+								$("#analysis-build-standards div")
+										.droppable(
+												{
+													accept : "li.list-group-item",
+													activeClass : "warning",
+													drop : function(event, ui) {
+														var $this = $(this), $parent = $this.parent();
+														var isEmpty = $("input[data-trick-field]", $parent).length;
+														var callback = $parent.attr("data-trick-callback");
+														if (!isEmpty) {
+															$this.empty();
+															$this.addClass("success");
+														}
+														$(analysesCaching.findAnalysisById(ui.draggable.attr("data-trick-id")).analysisStandardBaseInfo)
+																.each(
+																		function() {
 
-						$saveButton.click(function() {
-							$(modal.modal).find(".label-danger, .alert").remove();
-							$(modal.modal_dialog).find("button").prop("disabled", true);
-							$progress_bar.show();
-							$.ajax({
-								url : context + "/Analysis/Build/Save",
-								type : "post",
-								data : $("form", $modalBody).serialize(),
-								contentType : "application/x-www-form-urlencoded;charset=UTF-8",
-								async : false,
-								success : function(data, textStatus, jqXHR) {
-									var response = parseJson(data);
-									if (typeof response == 'object') {
-										if (response.error != undefined)
-											$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
-												'margin-bottom' : '0',
-												'padding' : '6px 10px'
-											});
-										else if (response.success != undefined) {
-											$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
-												'margin-bottom' : '0',
-												'padding' : '6px 10px'
-											});
-											setTimeout(function() {
-												modal.Destroy();
-												reloadSection("section_analysis");
-											}, 3000);
-											$saveButton.unbind();
-										} else {
-											var errorContainer = document.getElementById("build-analysis-modal-error");
-											for ( var error in response) {
-												var errorElement = document.createElement("label");
-												errorElement.setAttribute("class", "label label-danger");
-												$(errorElement).text(response[error]);
-												switch (error) {
-												case "customer":
-												case "language":
-												case "comment":
-												case "author":
-												case "version":
-												case "assessment":
-												case "profile":
-												case "name":
-													$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent());
-													break;
-												case "riskInformation":
-												case "scope":
-												case "asset":
-												case "scenario":
-												case "standards":
-												case "parameter":
-													$(errorElement).appendTo($("[data-trick-name='" + error + "']", $modalBody));
-													break;
-												default:
-													$(showError(errorContainer, response[error])).css({
+																			var $selector = $("label[data-trick-id='" + this.idAnalysis + "'][data-trick-owner-id='"
+																					+ this.idAnalysisStandard + "']", $this), $locked = $("label[data-trick-name='" + this.name
+																					+ "'] input:checked", $this);
+
+																			if ($selector.length || $locked.length)
+																				return this;
+
+																			var data = this, $current = $("label[data-trick-name='" + data.name + "']", $this), $content = $("<label style='width:100%'></label>"), $inputs = $("<input data-trick-field='idAnalysis' hidden>"
+																					+ "<input data-trick-field='idAnalysisStandard' hidden>"
+																					+ "<input data-trick-field='name' hidden>"
+																					+ "<input data-trick-field='version' hidden>"
+																					+ "<input data-trick-field='type' hidden>");
+																			$content.attr("data-trick-name", data.name).attr("data-trick-version", data.version);
+																			$content.attr("data-trick-id", data.idAnalysis).attr("data-trick-type", data.type);
+																			$content.attr("data-trick-owner-id", data.idAnalysisStandard).text(
+																					ui.draggable.attr("title") + " - " + data.name + " v" + data.version);
+																			$inputs.attr("data-trick-id", data.idAnalysis).attr("data-trick-owner-id", data.idAnalysisStandard)
+																					.appendTo($parent);
+																			if ($current.length) {
+																				$(
+																						"input[data-trick-id='" + $current.attr('data-trick-id') + "']" + "[data-trick-owner-id='"
+																								+ $current.attr('data-trick-owner-id') + "']", $parent).remove();
+																				$current.replaceWith($content)
+																			} else
+																				$content.appendTo($this);
+																			$(
+																					"<a href='#' class='pull-right text-danger' title='"
+																							+ $removeText
+																							+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
+																					.appendTo($content).click(
+																							function() {
+																								$(
+																										"[data-trick-id='" + data.idAnalysis + "'][data-trick-owner-id='"
+																												+ data.idAnalysisStandard + "']", $parent).remove();
+																								if (!$("input:hidden", $parent).length) {
+																									$this.text($emptyText)
+																									$this.removeClass("success");
+																								}
+
+																								analysesCaching.applyCallback(callback).nameAnalysisStandard();
+
+																								return false;
+																							});
+																			$locker.clone().appendTo($content).on("click", function(e) {
+																				var $this = $(e.currentTarget), $input = $("input", $this), $flag = $(".fa", $this);
+																				if ($input.is(":checked")) {
+																					$flag.removeClass('fa-lock');
+																					$flag.addClass("fa-unlock");
+																					$input.prop("checked", false);
+																				} else {
+																					$flag.removeClass('fa-unlock');
+																					$flag.addClass("fa-lock");
+																					$input.prop("checked", true);
+																				}
+																				return false;
+																			});
+
+																		});
+														analysesCaching.applyCallback(callback).nameAnalysisStandard();
+													}
+												});
+
+								var $saveButton = $(modal.modal_footer).find("button[name='save']");
+								var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
+								var $progress_bar = $modalBody.find(".progress");
+								$cancelButton.click(function() {
+									if (!$cancelButton.is(":disabled"))
+										modal.Destroy();
+									return false;
+								});
+
+								$saveButton.click(function() {
+									$(modal.modal).find(".label-danger, .alert").remove();
+									$(modal.modal_dialog).find("button").prop("disabled", true);
+									$progress_bar.show();
+									$.ajax({
+										url : context + "/Analysis/Build/Save",
+										type : "post",
+										data : $("form", $modalBody).serialize(),
+										contentType : "application/x-www-form-urlencoded;charset=UTF-8",
+										async : false,
+										success : function(data, textStatus, jqXHR) {
+											var response = parseJson(data);
+											if (typeof response == 'object') {
+												if (response.error != undefined)
+													$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});
-												}
-											}
-										}
-									} else
-										unknowError();
-								},
-								error : unknowError
-							});
-							$(modal.modal_dialog).find("button").prop("disabled", false);
-							$progress_bar.hide();
-						});
+												else if (response.success != undefined) {
+													$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
+														'margin-bottom' : '0',
+														'padding' : '6px 10px'
+													});
+													setTimeout(function() {
+														modal.Destroy();
+														reloadSection("section_analysis");
+													}, 3000);
+													$saveButton.unbind();
+												} else {
+													var errorContainer = document.getElementById("build-analysis-modal-error");
+													for ( var error in response) {
+														var errorElement = document.createElement("label");
+														errorElement.setAttribute("class", "label label-danger");
+														$(errorElement).text(response[error]);
+														switch (error) {
+														case "customer":
+														case "language":
+														case "comment":
+														case "author":
+														case "version":
+														case "assessment":
+														case "profile":
+														case "name":
+															$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent());
+															break;
+														case "riskInformation":
+														case "scope":
+														case "asset":
+														case "scenario":
+														case "standards":
+														case "parameter":
+															$(errorElement).appendTo($("[data-trick-name='" + error + "']", $modalBody));
+															break;
+														default:
+															$(showError(errorContainer, response[error])).css({
+																'margin-bottom' : '0',
+																'padding' : '6px 10px'
+															});
+														}
+													}
 
-						modal.Show();
-					}
-					return false;
-				},
-				error : unknowError
+													if ($("#group_1:hidden .label-danger", $modalContent).length)
+														$("a[href='#group_1']", $modalContent).tab("show");
+													else if ($("#group_2:hidden  .label-danger", $modalContent).length)
+														$("a[href='#group_2']", $modalContent).tab("show");
+												}
+											} else
+												unknowError();
+										},
+										error : unknowError
+									});
+									$(modal.modal_dialog).find("button").prop("disabled", false);
+									$progress_bar.hide();
+								});
+
+								modal.Show();
+							}
+							return false;
+						},
+						error : unknowError
+					}).complete(function() {
+				$progress.hide();
 			});
 	return false;
 }
@@ -770,14 +802,15 @@ function customAnalysis(element) {
 /* History */
 function addHistory(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
-		var selectedAnalysis = findSelectItemIdBySection(("section_analysis"));
+		var selectedAnalysis = findSelectItemIdBySection("section_analysis");
 		if (selectedAnalysis.length != 1)
 			return false;
 		analysisId = selectedAnalysis[0];
 		oldVersion = $("#section_analysis tr[data-trick-id='" + analysisId + "']>td:nth-child(6)").text();
 	}
 
-	if (canCreateNewVersion(analysisId)) {
+	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/" + analysisId + "/NewVersion",
 			type : "get",
@@ -791,6 +824,8 @@ function addHistory(analysisId) {
 					unknowError();
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -842,6 +877,7 @@ function selectAnalysis(analysisId, mode) {
 	var open = OPEN_MODE.valueOf(mode), right = open === OPEN_MODE.READ ? ANALYSIS_RIGHT.READ : ANALYSIS_RIGHT.MODIFY;
 	if (userCan(analysisId, right))
 		window.location.replace(context + "/Analysis/" + analysisId + "/Select?open=" + open.value + "");
+	return false;
 }
 
 function calculateActionPlan(analysisId) {
@@ -1021,6 +1057,7 @@ function duplicateAnalysis(form, analyisId) {
 }
 
 function customerChange(customer, nameFilter) {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/DisplayByCustomer/" + $(customer).val(),
 		type : "post",
@@ -1041,6 +1078,100 @@ function customerChange(customer, nameFilter) {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
+}
+
+function linkToProject() {
+	var idAnalysis = findSelectItemIdBySection("section_analysis")
+	if (idAnalysis.length != 1)
+		return false;
+	if (userCan(idAnalysis[0], ANALYSIS_RIGHT.ALL)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/" + idAnalysis[0] + "/Ticketing/Load",
+			type : "GET",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				var $modal = $("#modal-ticketing-project-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+				if (!$modal.length)
+					unknowError();
+				else {
+					$modal.appendTo("#widget").modal("show").on("hidden.bs.modal", function() {
+						if (updateRequired)
+							reloadSection("section_analysis");
+						$modal.remove();
+					});
+
+					var $selector = $modal.find("select[name='project']");
+					$modal.find("button[name='save']").on("click", function() {
+						var project = $selector.val();
+						if (project != undefined && project.length) {
+							$.ajax({
+								url : context + "/Analysis/" + idAnalysis[0] + "/Ticketing/Link",
+								type : "POST",
+								async : false,
+								data : $selector.val(),
+								contentType : "application/json;charset=UTF-8",
+								success : function(response, textStatus, jqXHR) {
+									if (response.error)
+										showDialog("#alert-dialog", response.error);
+									else if (response.success) {
+										reloadSection("section_analysis");
+										$modal.modal("hide");
+									} else
+										unknowError();
+								},
+								error : unknowError
+							});
+						}
+						return false;
+					})
+				}
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	} else
+		permissionError();
+	return false;
+}
+
+function unLinkToProject() {
+	var analyses = [];
+
+	$("tbody>tr input:checked", "#section_analysis").closest("tr").each(function() {
+		var idAnalysis = this.getAttribute("data-trick-id");
+		if (this.getAttribute("data-is-linked") === "true" && userCan(idAnalysis, ANALYSIS_RIGHT.ALL))
+			analyses.push(idAnalysis);
+	});
+	if (analyses.length) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Ticketing/UnLink",
+			type : "POST",
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(analyses),
+			success : function(response, textStatus, jqXHR) {
+				if (response.error)
+					showDialog("#alert-dialog", response.error);
+				else if (response.success) {
+					reloadSection("section_analysis");
+					showDialog("#info-dialog", response.success);
+				} else
+					unknowError();
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	}
+	return false;
+}
+
+function isLinked() {
+	return $("tbody>tr input:checked", "#section_analysis").closest("tr").attr("data-is-linked") === "true";
 }

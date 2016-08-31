@@ -67,7 +67,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AssetType> getAll()  {
-		return (List<AssetType>) getSession().createQuery("From AssetType").list();
+		return (List<AssetType>) getSession().createQuery("From AssetType order by type").list();
 	}
 
 	/**

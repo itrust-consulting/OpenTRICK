@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 public interface NaturalOrderComparator<T> extends Comparator<T>
 {
-    public static int compareRight(String a, String b)
+    static int compareRight(String a, String b)
     {
         int bias = 0;
         int ia = 0;
@@ -76,7 +76,15 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
         }
     }
 
-    default int compareTo(String a, String b)
+    /* (non-Javadoc)
+	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	 */
+	@Override
+	default int compare(T o1, T o2) {
+		return compareTo(o1.toString(), o2.toString());
+	}
+
+	static int compareTo(String a, String b)
     {
         int ia = 0, ib = 0;
         int nza = 0, nzb = 0;
@@ -152,7 +160,7 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
         }
     }
 
-    public static char charAt(String s, int i)
+    static char charAt(String s, int i)
     {
         if (i >= s.length())
         {

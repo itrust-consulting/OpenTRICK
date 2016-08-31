@@ -26,6 +26,15 @@ public class TrickException extends RuntimeException {
 		super(message);
 		this.code = code;
 	}
+	
+	/**
+	 * @param code
+	 * @param message
+	 */
+	public TrickException(String code, String message, Exception e) {
+		super(message,e);
+		this.code = code;
+	}
 
 	/**
 	 * @param code

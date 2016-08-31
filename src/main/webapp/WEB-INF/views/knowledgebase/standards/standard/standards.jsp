@@ -37,7 +37,7 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${standards}" var="standard">
-							<tr data-trick-id="${standard.id}" ondblclick="return editSingleStandard('${standard.id}');">
+							<tr data-trick-id="${standard.id}" onclick="selectElement(this)" ondblclick="return editSingleStandard('${standard.id}');">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_standard','#menu_standard',null,'showTabMeasure(${standard.id})');"></td>
 								<td><spring:message text="${standard.label}" /></td>
 								<td><spring:message text="${standard.version}" /></td>

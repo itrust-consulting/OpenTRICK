@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -298,37 +300,78 @@ public class ChartGenerator {
 		}
 	}
 
-	private String generateALEChart(Locale locale, String chartitle, List<ALE> ales) {
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
+	public String generateALEChart(Locale locale, String chartitle, List<ALE> ales) {
+		return generateALEChart(locale, chartitle, new ALEChart(ales));
+	}
 
-		String title = "\"title\": {\"text\":\"" + chartitle + "\"}";
+	public String generateALEChart(Locale locale, String chartitle, ALEChart... aleCharts) {
+		JsonChart chart = new JsonChart("\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}",
+				"\"title\": {\"text\":\"" + chartitle + "\"}", "\"pane\": {\"size\": \"100%\"}",
+				"\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}");
 
-		String pane = "\"pane\": {\"size\": \"100%\"}";
+		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
+		chart.setTooltip("\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }");
+		if (aleCharts.length == 1)
+			buildSingleALESerie(chart, aleCharts[0]);
+		else if (aleCharts.length > 0)
+			buildMulitALESeries(chart, aleCharts);
+		return chart.toString();
 
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
+	}
 
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+	private void buildMulitALESeries(JsonChart chart, ALEChart... aleCharts) {
 
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }";
+		Map<String, Map<String, ALE>> aleChartMapper = new LinkedHashMap<>();
 
-		if (ales.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
+		Map<String, ALE> references = new LinkedHashMap<>(aleCharts[0].getAles().size());
 
-		ALE assetMax = ales.get(0);
+		aleCharts[0].getAles().forEach(ale -> references.put(ale.getAssetName(), ale));
 
-		double max = assetMax.getValue();
+		aleChartMapper.put(aleCharts[0].getName(), references);
 
-		String xAxis = "";
+		for (int i = 1; i < aleCharts.length; i++) {
+			Map<String, ALE> aleMapper = aleCharts[i].getAles().stream().filter(ale -> references.containsKey(ale.getAssetName()))
+					.collect(Collectors.toMap(ALE::getAssetName, Function.identity()));
+			if (!aleMapper.isEmpty())
+				aleChartMapper.put(aleCharts[i].getName(), aleMapper);
+		}
 
-		String series = "";
+		double max = aleChartMapper.values().stream().flatMap(aleMapper -> aleMapper.values().stream()).mapToDouble(ALE::getValue).max().orElse(0d);
+
+		int count = references.size();
+
+		String categories = "", series = "";
+
+		for (String category : references.keySet())
+			categories += String.format("%s\"%s\"", categories.isEmpty() ? "" : ",", category);
+
+		for (Entry<String, Map<String, ALE>> entry : aleChartMapper.entrySet()) {
+			String dataALEs = "";
+			for (String category : references.keySet()) {
+				ALE ale = entry.getValue().get(category);
+				dataALEs += String.format("%s%f", dataALEs.isEmpty() ? "" : ",", ale == null ? 0d : ale.getValue());
+			}
+			series += String.format("%s{ \"name\":\"%s\",\"data\":[%s]}", series.isEmpty() ? "" : ",", entry.getKey(), dataALEs);
+		}
+
+		chart.setSeries("\"series\":[" + series + "]");
+
+		chart.setxAxis("\"xAxis\":{\"categories\":[" + categories + "], \"min\":\"0\", \"max\":\"" + (count - 1) + "\"}");
+
+		chart.setyAxis("\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}");
+	}
+
+	private void buildSingleALESerie(JsonChart chart, ALEChart data) {
+
+		double max = data.getAles().stream().mapToDouble(ALE::getValue).max().orElse(0d);
+
+		int count = data.getAles().size();
 
 		String categories = "[";
 
 		String dataALEs = "[";
 
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
-
-		for (ALE ale : ales) {
+		for (ALE ale : data.getAles()) {
 			categories += "\"" + ale.getAssetName() + "\",";
 			dataALEs += ale.getValue() + ",";
 		}
@@ -340,12 +383,12 @@ public class ChartGenerator {
 		categories += "]";
 		dataALEs += "]";
 
-		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales.size() - 1) + "\"}";
+		chart.setxAxis("\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (count - 1) + "\"}");
 
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
+		chart.setSeries("\"series\":[{ \"name\":\"" + data.getName() + "\",\"data\":" + dataALEs + "}]");
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}")
-				.replaceAll("\r|\n", " ");
+		chart.setyAxis("\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}");
+
 	}
 
 	/**
@@ -368,14 +411,71 @@ public class ChartGenerator {
 					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue(expressionParameters);
 					compliance[0] = (Integer) compliance[0] + 1;
 				}
-
-				/*
-				 * else compliance[1] = (Double) compliance[1] +
-				 * Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE;
-				 */
 			}
 		}
 		return compliances;
+	}
+
+	/**
+	 * compliance: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param standard
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	public String compliance(Locale locale, ComplianceChartData... measureChartDatas)  {
+
+		ComplianceChartData reference = measureChartDatas[0];
+
+		Map<String, Object[]> compliances = ComputeComplianceBefore(reference.getMeasures(), reference.getAnalysisExpressionParameters());
+
+		JsonChart chart = new JsonChart("\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}",
+				"\"title\": { \"marginLeft\": -50, \"text\":\""
+						+ messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { reference.getStandard() }, reference + " measure compliance", locale)
+						+ "\"}",
+				"\"pane\": {\"size\": \"100%\"}", "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\",\"layout\": \"vertical\",  \"y\": 70 }");
+
+		chart.setPlotOptions("\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}");
+
+		if (measureChartDatas.length > 0) {
+
+			chart.setyAxis(
+					"\"yAxis\": {\"gridLineInterpolation\": \"polygon\" , \"lineWidth\":0,\"min\":0,\"max\":100, \"tickInterval\": 20, \"labels\":{ \"format\": \"{value}%\"} }");
+
+			String series = "";
+			String categories = "";
+			String data = "";
+			for (String key : compliances.keySet()) {
+				Object[] compliance = compliances.get(key);
+				data += (data.isEmpty() ? "" : ",") + (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
+				categories += (categories.isEmpty() ? "" : ",") + "\""+key+"\"";
+			}
+			
+			series += (series.isEmpty() ? "" : ",") + "{\"name\":\"" + reference.getAnalysisKey() + "\", \"data\":[" + data + "],\"valueDecimals\": 0}";
+			
+			if (measureChartDatas.length > 1) {
+				Collection<String> keys = compliances.keySet();
+				for (int i = 1; i < measureChartDatas.length; i++) {
+					compliances = ComputeComplianceBefore(measureChartDatas[i].getMeasures(), measureChartDatas[i].getAnalysisExpressionParameters());
+					data = "";
+					for (String key : keys) {
+						Object[] compliance = compliances.get(key);
+						if (compliance == null)
+							data += (data.isEmpty() ? "0" : ",0");
+						else
+							data += (data.isEmpty() ? "" : ",") + (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
+					}
+					series += (series.isEmpty() ? "" : ",") + "{\"name\":\"" + measureChartDatas[i].getAnalysisKey() + "\", \"data\":[" + data + "],\"valueDecimals\": 0}";
+				}
+			}
+			chart.setxAxis(String.format("\"xAxis\":{\"categories\":[%s]}", categories));
+			chart.setSeries(String.format("\"series\":[%s]", series));
+		}
+		
+		return chart.toString();
 	}
 
 	/**
@@ -480,13 +580,9 @@ public class ChartGenerator {
 
 		List<Phase> phases = daoPhase.getAllFromAnalysisActionPlan(idAnalysis);
 
-		// Hibernate.initialize(phases);
-
 		if (!actionPlanMeasures.isEmpty()) {
 
 			for (Phase phase : phases) {
-
-				// Hibernate.initialize(phase);
 
 				if (phase.getNumber() == Constant.PHASE_NOT_USABLE)
 					continue;
@@ -1118,9 +1214,7 @@ public class ChartGenerator {
 
 					NormalMeasure normalMeasure = (NormalMeasure) measure;
 
-					AssetTypeValue matv = normalMeasure.getAssetTypeValueByAssetType(atv.getAssetType());
-
-					double val = RRF.calculateNormalMeasureRRF(scenario, matv.getAssetType(), parameter, normalMeasure);
+					double val = RRF.calculateNormalMeasureRRF(scenario, atv.getAssetType(), parameter, normalMeasure);
 
 					NumberFormat nf = new DecimalFormat();
 

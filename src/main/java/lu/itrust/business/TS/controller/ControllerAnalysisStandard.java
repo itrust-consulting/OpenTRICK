@@ -1,34 +1,48 @@
 package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.TS.constants.Constant.ALLOWED_TICKETING;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_NAME;
+import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerGenerateTickets;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -46,7 +60,12 @@ import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceStandard;
+import lu.itrust.business.TS.database.service.ServiceTSSetting;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -57,6 +76,9 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.general.TSSetting;
+import lu.itrust.business.TS.model.general.TSSettingName;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
@@ -75,6 +97,12 @@ import lu.itrust.business.TS.model.standard.measure.helper.MeasureForm;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.model.ticketing.TicketingTask;
+import lu.itrust.business.TS.model.ticketing.builder.Client;
+import lu.itrust.business.TS.model.ticketing.builder.ClientBuilder;
+import lu.itrust.business.TS.model.ticketing.helper.LinkForm;
+import lu.itrust.business.TS.model.ticketing.helper.TicketingForm;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
 import lu.itrust.business.TS.validator.StandardValidator;
@@ -144,6 +172,24 @@ public class ControllerAnalysisStandard {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private ServiceUser serviceUser;
+
+	@Autowired
+	private ServiceTSSetting serviceTSSetting;
+
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+
+	@Autowired
+	private TaskExecutor executor;
+
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get
 	 * compliances)
@@ -165,30 +211,40 @@ public class ControllerAnalysisStandard {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (idAnalysis == null)
-			return null;
 
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-	
+
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
-		List<Standard> standards = new ArrayList<Standard>();
+		List<Standard> standards = new ArrayList<>(analysisStandards.size());
 
-		for (AnalysisStandard astandard : analysisStandards)
-			standards.add(astandard.getStandard());
+		Map<String, List<Measure>> measures = new LinkedHashMap<>(analysisStandards.size());
+
+		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+		
+		analysisStandards.forEach(analysisStandard -> {
+			standards.add(analysisStandard.getStandard());
+			measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
+		});
+
+		boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
+
+		if (hasMaturity)
+			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
+					serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME),
+					true, expressionParameters));
+
+		model.addAttribute("hasMaturity", hasMaturity);
 
 		model.addAttribute("standards", standards);
 
-		Map<String, List<Measure>> measures = mapMeasures(null, analysisStandards);
-
 		model.addAttribute("measures", measures);
+
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		// add language of the analysis
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
-
-		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
+		model.addAttribute("expressionParameters", expressionParameters);
 
 		return "analyses/single/components/standards/standard/standards";
 	}
@@ -211,86 +267,38 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return null;
-
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-
-		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
-
-		Integer realstandardid = null;
-
-		String standardlabel = null;
-
-		List<Standard> standards = new ArrayList<Standard>();
-
-		for (AnalysisStandard standard : analysisStandards) {
-			standards.add(standard.getStandard());
-			if (standard.getStandard().getId() == standardid) {
-				realstandardid = standardid;
-				standardlabel = standard.getStandard().getLabel();
+		AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, standardid);
+		if (analysisStandard == null)
+			return null;
+		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+		List<Standard> standards = new ArrayList<Standard>(1);
+		Map<String, List<Measure>> measures = new HashMap<>(1);
+		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
+			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
+			if (maturityStandard != null && maturityStandard.getStandard().isComputable()) {
+				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+						Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+				model.addAttribute("effectImpl27002",
+						MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true, expressionParameters));
 			}
 		}
 
-		if (realstandardid == null)
-			return null;
+		standards.add(analysisStandard.getStandard());
+
+		measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
 
 		model.addAttribute("standards", standards);
 
-		// add measures of the analysis
-
-		Map<String, List<Measure>> measures = mapMeasures(standardlabel, analysisStandards);
-
 		model.addAttribute("measures", measures);
 
-		// add language of the analysis
-		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha2());
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
-		
+		model.addAttribute("expressionParameters", expressionParameters);
+
 		return "analyses/single/components/standards/standard/standards";
-	}
-
-	/**
-	 * mapMeasures: <br>
-	 * Description
-	 * 
-	 * @param standardlabel
-	 * @param standards
-	 * @return
-	 */
-	private Map<String, List<Measure>> mapMeasures(String standardlabel, List<AnalysisStandard> standards) {
-
-		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
-
-		for (AnalysisStandard standard : standards) {
-
-			if (standardlabel == null) {
-				List<Measure> measures = standard.getMeasures();
-				Comparator<Measure> cmp = new Comparator<Measure>() {
-					public int compare(Measure o1, Measure o2) {
-						return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
-					}
-				};
-				Collections.sort(measures, cmp);
-				measuresmap.put(standard.getStandard().getLabel(), measures);
-			} else {
-				if (standard.getStandard().getLabel().equals(standardlabel)) {
-					List<Measure> measures = standard.getMeasures();
-					Comparator<Measure> cmp = new Comparator<Measure>() {
-						public int compare(Measure o1, Measure o2) {
-							return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
-						}
-					};
-					Collections.sort(measures, cmp);
-					measuresmap.put(standard.getStandard().getLabel(), measures);
-
-				}
-			}
-
-		}
-
-		return measuresmap;
 	}
 
 	/**
@@ -310,16 +318,62 @@ public class ControllerAnalysisStandard {
 		OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		model.addAttribute("measure", measure);
+		loadEfficience(model, idAnalysis, measure);
 		model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
-		model.addAttribute("isEditable",!OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
+		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("selectedStandard", measure.getAnalysisStandard().getStandard());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
+		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
+	}
+
+	@RequestMapping(value = "/Compute-efficiency", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session, Principal principal) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002, chapters);
+		List<Measure> maturities = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_MATURITY,
+				chapters.stream().map(reference -> "M." + reference).collect(Collectors.toList()));
+		List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+				Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, parameters, false, expressionParameters);
+	}
+
+	/**
+	 * Compute Maturity-based Effectiveness Rate
+	 * 
+	 * @param model
+	 * @param idAnalysis
+	 * @param measure
+	 */
+	private void loadEfficience(Model model, Integer idAnalysis, Measure measure) {
+		try {
+			if (!measure.getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
+				return;
+			if (measure.getMeasureDescription().isComputable()) {
+				List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+				String chapter = measure.getMeasureDescription().getReference().split("[.]", 2)[0];
+				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY, "M." + chapter);
+				if (measures.isEmpty())
+					model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
+				else {
+					model.addAttribute("hasMaturity", true);
+					List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+							Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, parameters, expressionParameters).get(chapter);
+					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue(expressionParameters) * maturity * 0.01);
+				}
+			} else
+				model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		}
+
 	}
 
 	/**
@@ -445,7 +499,7 @@ public class ControllerAnalysisStandard {
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
-		return "analyses/single/components/standards/standard/manageForm";
+		return "analyses/single/components/standards/standard/form/manage";
 	}
 
 	/**
@@ -461,64 +515,39 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Create", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
-			Locale locale) throws Exception {
-
+	public @ResponseBody Object createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-
 		try {
-			// retrieve analysis id
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
-			// create new standard object
 			Standard standard = buildStandard(errors, value, locale, analysis);
-
 			if (!errors.isEmpty())
-				// return error on failure
 				return errors;
-
-			List<AnalysisStandard> astandards = analysis.getAnalysisOnlyStandards();
-
-			for (AnalysisStandard astandard : astandards)
-				if ((astandard.getStandard().getLabel().equals(standard.getLabel())) && (astandard.getStandard().getType().equals(standard.getType()))) {
-					errors.put("standard", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+			if (standard.getId() < 1) {
+				if (analysis.getAnalysisStandards().stream().anyMatch(analysisStandard -> analysisStandard.getStandard().hasSameName(standard)))
+					throw new TrickException("error.analysis.standard_exist_in_analysis", "The standard already exists in this analysis!");
+				standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
+				switch (standard.getType()) {
+				case ASSET:
+					analysis.addAnalysisStandard(new AssetStandard(standard));
+					break;
+				case MATURITY:
+					analysis.addAnalysisStandard(new MaturityStandard(standard));
+					break;
+				case NORMAL:
+				default:
+					analysis.addAnalysisStandard(new NormalStandard(standard));
 					break;
 				}
-
-			if (!errors.isEmpty())
-				// return error on failure
-				return errors;
-
-			standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
-
-			serviceStandard.save(standard);
-
-			AnalysisStandard astandard = null;
-
-			switch (standard.getType()) {
-			case ASSET:
-				astandard = new AssetStandard(standard);
-				break;
-			case MATURITY:
-				astandard = new MaturityStandard(standard);
-				break;
-			case NORMAL:
-			default:
-				astandard = new NormalStandard(standard);
-				break;
-			}
-
-			if (astandard != null) {
-				analysis.addAnalysisStandard(astandard);
 				serviceAnalysis.saveOrUpdate(analysis);
+				return JsonMessage.Success(messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", locale));
+			} else {
+				serviceStandard.saveOrUpdate(standard);
+				return JsonMessage.Success(messageSource.getMessage("success.analysis.update.standard", null, "The standard was successfully updated", locale));
 			}
-
-			errors.put("success", messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", locale));
-
 		} catch (TrickException e) {
 			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			TrickLogManager.Persist(e);
@@ -528,55 +557,6 @@ public class ControllerAnalysisStandard {
 			errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
 			return errors;
 		}
-		return errors;
-	}
-
-	/**
-	 * updateStandard: <br>
-	 * Description
-	 * 
-	 * @param value
-	 * @param session
-	 * @param principal
-	 * @param model
-	 * @param attributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> updateStandard(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
-			Locale locale) throws Exception {
-		Map<String, String> errors = new LinkedHashMap<String, String>();
-
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		try {
-			// retrieve analysis id
-
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-
-			// create new standard object
-			Standard standard = buildStandard(errors, value, locale, analysis);
-
-			// build standard
-
-			if (!errors.isEmpty())
-				// return error on failure
-				return errors;
-
-			serviceStandard.saveOrUpdate(standard);
-
-		} catch (TrickException e) {
-			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
-			return errors;
-		} catch (Exception e) {
-			errors.put("standard", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			TrickLogManager.Persist(e);
-			return errors;
-		}
-		return errors;
 	}
 
 	/**
@@ -592,22 +572,9 @@ public class ControllerAnalysisStandard {
 	 */
 	@RequestMapping(value = "/Available", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<Integer, String> getAvailableStandards(HttpSession session, Principal principal, Locale locale) throws Exception {
-
-		Map<Integer, String> availableStandards = new LinkedHashMap<Integer, String>();
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		try {
-			List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
-			for (Standard standard : standards)
-				availableStandards.put(standard.getId(), standard.getLabel() + " - " + standard.getVersion());
-			return availableStandards;
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			availableStandards.clear();
-			availableStandards.put(0, messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred",
-					new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2())));
-			return availableStandards;
-		}
+	public String getAvailableStandards(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+		model.addAttribute("availableStandards", serviceStandard.getAllNotInAnalysis((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS)));
+		return "analyses/single/components/standards/standard/form/import";
 	}
 
 	/**
@@ -704,7 +671,6 @@ public class ControllerAnalysisStandard {
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-			
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
@@ -769,9 +735,9 @@ public class ControllerAnalysisStandard {
 			if (!analysisStandard.getStandard().isAnalysisOnly())
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			Measure measure = MeasureManager.Create(analysisStandard);
+			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
 
-			MeasureProperties properties = null;
+			Measure measure = MeasureManager.Create(analysisStandard);
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
@@ -783,11 +749,11 @@ public class ControllerAnalysisStandard {
 
 				model.addAttribute("assetTypes", analysisAssetTypes);
 
-				((AssetMeasure) measure).setMeasurePropertyList(properties = new MeasureProperties());
+				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 
 			} else if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
-				normalMeasure.setMeasurePropertyList(properties = new MeasureProperties());
+				normalMeasure.setMeasurePropertyList(new MeasureProperties());
 				List<AssetType> assetTypes = serviceAssetType.getAll();
 
 				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
@@ -801,10 +767,11 @@ public class ControllerAnalysisStandard {
 
 			measure.setMeasureDescription(new MeasureDescription(new MeasureDescriptionText(language)));
 
-			if (properties != null) {
-				boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
-				for (String category : isCSSF ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS)
-					properties.setCategoryValue(category, 0);
+			if (!isCSSF) {
+				Map<String, Boolean> excludes = new HashMap<>();
+				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
+					excludes.put(category, true);
+				model.addAttribute("cssfExcludes", excludes);
 			}
 
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
@@ -832,16 +799,13 @@ public class ControllerAnalysisStandard {
 
 		try {
 
-			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
-			locale = new Locale(language.getAlpha2());
-
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, idMeasure);
 			if (measure == null)
 				throw new TrickException("error.measure.not_found", "Measure cannot be found");
 			else if (!(measure.getAnalysisStandard().getStandard().isComputable() || measure.getAnalysisStandard().getStandard().isAnalysisOnly()))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			MeasureProperties properties = null;
+			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
@@ -860,11 +824,8 @@ public class ControllerAnalysisStandard {
 						availableAssets.remove(assetValue.getAsset());
 				}
 
-				properties = ((AssetMeasure) measure).getMeasurePropertyList();
-
 			} else if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
-				properties = normalMeasure.getMeasurePropertyList();
 				List<AssetType> assetTypes = serviceAssetType.getAll();
 				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
 				for (AssetType assetType : assetTypes) {
@@ -876,17 +837,18 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
 			}
 
-			if (properties != null) {
-				boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
-				for (String category : isCSSF ? CategoryConverter.JAVAKEYS : CategoryConverter.TYPE_CIA_KEYS)
-					properties.getCategoryValue(category);
+			if (!isCSSF) {
+				Map<String, Boolean> excludes = new HashMap<>();
+				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
+					excludes.put(category, true);
+				model.addAttribute("cssfExcludes", excludes);
 			}
 
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -907,8 +869,6 @@ public class ControllerAnalysisStandard {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
-
-			Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
 
@@ -968,7 +928,7 @@ public class ControllerAnalysisStandard {
 				validate(measureForm, errors, locale);
 				if (!errors.isEmpty())
 					return errors;
-				if (!update(measure, measureForm, idAnalysis, language, locale, errors).isEmpty())
+				if (!update(measure, measureForm, idAnalysis, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
 					return errors;
 			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
 				if (measure.getId() < 1)
@@ -1009,8 +969,8 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("isMaturity", isMaturity);
 			if (isMaturity)
 				model.addAttribute("impscales", serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
+			model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 			model.addAttribute("showTodo", measureDescription.isComputable());
-			model.addAttribute("language", language.getAlpha2());
 			model.addAttribute("selectedMeasure", measure);
 			model.addAttribute("phases", phases);
 		} catch (Exception e) {
@@ -1018,6 +978,354 @@ public class ControllerAnalysisStandard {
 		}
 		return "analyses/single/components/standards/measure";
 
+	}
+	
+	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String generateTickets(@RequestBody TicketingForm form, Principal principal, HttpSession session, Locale locale) {
+		if (!loadUserSettings(principal, null, null))
+			throw new ResourceNotFoundException();
+		Worker worker = new WorkerGenerateTickets((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), null, form, serviceTaskFeedback, workersPoolManager, sessionFactory);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			worker.cancel();
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		} else {
+			((WorkerGenerateTickets) worker).setClient(buildClient(principal.getName()));
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.starting.creating.tickets", null, "Please wait while creating tickets", locale));
+		}
+	}
+
+	@RequestMapping(value = "/Ticketing/Open", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String openTickets(@RequestBody List<Integer> measures, Model model, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				Map<Integer, String> keyIssues;
+				if (measures.size() > 5) {
+					Map<Integer, Integer> contains = measures.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					keyIssues = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket()))
+							.collect(Collectors.toMap(Measure::getId, Measure::getTicket));
+				} else {
+					keyIssues = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && measures.contains(measure.getId()))
+							.collect(Collectors.toMap(Measure::getId, Measure::getTicket));
+				}
+				Map<String, TicketingTask> taskMap = client.findByIdsAndProjectId(analysis.getProject(), keyIssues.values()).stream()
+						.collect(Collectors.toMap(TicketingTask::getId, Function.identity()));
+				if (!taskMap.isEmpty()) {
+					List<TicketingTask> tasks = new LinkedList<>();
+					measures.stream().filter(id -> taskMap.containsKey(keyIssues.get(id))).forEach(id -> tasks.add(taskMap.get(keyIssues.get(id))));
+					model.addAttribute("first", tasks.get(0));
+					model.addAttribute("tasks", tasks);
+				}
+			}
+			return String.format("analyses/single/components/ticketing/%s/home", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@RequestMapping(value = "/Ticketing/UnLink", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String unlinkTickets(@RequestBody List<Integer> measureIds, Principal principal, HttpSession session, Locale locale) {
+		if (!loadUserSettings(principal, null, null))
+			throw new ResourceNotFoundException();
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).forEach(measure -> {
+			if (!StringUtils.isEmpty(measure.getTicket())) {
+				measure.setTicket(null);
+				serviceMeasure.saveOrUpdate(measure);
+			}
+		});
+		if (measureIds.size() > 1)
+			return JsonMessage.Success(messageSource.getMessage("success.unlinked.measures.from.tickets", null, "Measures has been successfully unlinked from tickets", locale));
+		return JsonMessage.Success(messageSource.getMessage("success.unlinked.measure.from.ticket", null, "Measure has been successfully unlinked from a ticket", locale));
+
+	}
+
+	@RequestMapping(value = "/Ticketing/Synchronise", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String synchroniseWithTicketingSystem(@RequestBody List<Integer> ids, Model model, Principal principal, HttpSession session, RedirectAttributes attributes,
+			Locale locale) {
+		Client client = null;
+		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				Map<Integer, Measure> measuresMap;
+				if (ids.size() > 5) {
+					Map<Integer, Integer> contains = ids.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					measuresMap = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && !StringUtils.isEmpty(measure.getTicket()))
+							.collect(Collectors.toMap(Measure::getId, Function.identity()));
+				} else {
+					measuresMap = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> !StringUtils.isEmpty(measure.getTicket()) && ids.contains(measure.getId()))
+							.collect(Collectors.toMap(Measure::getId, Function.identity()));
+				}
+
+				List<Measure> measures = new LinkedList<>();
+
+				List<String> keyIssues = new LinkedList<>();
+
+				ids.stream().filter(id -> measuresMap.containsKey(id)).forEach(id -> {
+					Measure measure = measuresMap.get(id);
+					measures.add(measure);
+					keyIssues.add(measure.getTicket());
+				});
+
+				Map<String, TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
+						.collect(Collectors.toMap(task -> task.getId(), Function.identity()));
+				List<Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				model.addAttribute("measures", measures);
+				model.addAttribute("parameters", parameters);
+				model.addAttribute("tasks", tasks);
+			}
+			return String.format("analyses/single/components/ticketing/%s/forms/synchronise", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	@RequestMapping(value = "/Ticketing/Link", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String linkTickets(@RequestBody List<Integer> measureIds, Model model, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				List<Measure> measures;
+				List<String> excludes = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
+
+				if (measureIds.size() > 5) {
+					Map<Integer, Integer> contains = measureIds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> contains.containsKey(measure.getId()) && StringUtils.isEmpty(measure.getTicket())).collect(Collectors.toList());
+				} else {
+					measures = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+							.filter(measure -> StringUtils.isEmpty(measure.getTicket()) && measureIds.contains(measure.getId())).collect(Collectors.toList());
+				}
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, 0));
+				model.addAttribute("measures", measures);
+			}
+			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@RequestMapping(value = "/Ticketing/Load", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String loadTickets(@RequestBody List<Integer> measureIds, @RequestParam(name = "startIndex") int startIndex, Model model, Principal principal, HttpSession session,
+			RedirectAttributes attributes, Locale locale) {
+		Client client = null;
+		try {
+			if (!loadUserSettings(principal, model, null))
+				throw new ResourceNotFoundException();
+			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.hasProject()) {
+				client = buildClient(principal.getName());
+				List<String> excludes = analysis.getAnalysisStandards().stream().flatMap(listMeasures -> listMeasures.getMeasures().stream())
+						.filter(measure -> !StringUtils.isEmpty(measure.getTicket())).map(Measure::getTicket).collect(Collectors.toList());
+				model.addAttribute("tasks", client.findOtherTasksByProjectId(analysis.getProject(), excludes, 20, startIndex));
+			}
+			return String.format("analyses/single/components/ticketing/%s/forms/link", model.asMap().get(TICKETING_NAME).toString().toLowerCase());
+		} catch (ResourceNotFoundException e) {
+			throw e;
+		} catch (TrickException e) {
+			attributes.addAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} catch (Exception e) {
+			attributes.addAttribute("error", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			TrickLogManager.Persist(e);
+			return "redirect:/Error";
+		} finally {
+			if (client != null) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@RequestMapping(value = "/Ticketing/Link/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String linkTicket(@RequestBody LinkForm form, Principal principal, HttpSession session, Locale locale) {
+		if (!loadUserSettings(principal, null, null))
+			throw new ResourceNotFoundException();
+		if (StringUtils.isEmpty(form.getIdTicket()))
+			return JsonMessage.Error(messageSource.getMessage("error.ticket.not_found", null, "Ticket cannot be found", locale));
+
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+		if (!analysis.hasProject())
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_project", null, "Please link your analysis to a project and try again", locale));
+		Measure measure = analysis.findMeasureById(form.getIdMeasure());
+		if (measure == null)
+			return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+		if (!StringUtils.isEmpty(measure.getTicket())) {
+			return measure.getTicket().equals(form.getIdTicket())
+					? JsonMessage.Success(messageSource.getMessage("info.measure.already.link", null, "Measure has been already linked to this ticket", locale))
+					: JsonMessage.Error(messageSource.getMessage("error.measure.already.link", null, "Measure is already linked to another ticket", locale));
+		}
+		if (analysis.hasTicket(form.getIdTicket()))
+			return JsonMessage.Error(messageSource.getMessage("error.ticket.already.linked", null, "Ticket is already linked to another measure", locale));
+
+		measure.setTicket(form.getIdTicket());
+		serviceMeasure.saveOrUpdate(measure);
+		return JsonMessage.Success(messageSource.getMessage("success.link.measure.to.ticket", null, "Measure has been successfully linked to a ticket", locale));
+
+	}
+
+	private Client buildClient(String username) {
+		User user = serviceUser.get(username);
+		TSSetting urlSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+		TSSetting nameSetting = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME);
+		if (urlSetting == null || nameSetting == null)
+			throw new TrickException("error.load.setting", "Setting cannot be loaded");
+		Map<String, Object> settings = new HashMap<>(3);
+		settings.put("username", user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME));
+		settings.put("password", user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD));
+		settings.put("url", urlSetting.getValue());
+		Client client = null;
+		boolean isConnected = false;
+		try {
+			isConnected = (client = ClientBuilder.Build(nameSetting.getString())).connect(settings);
+		} catch (TrickException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new TrickException("error.ticket_system.connexion.failed", "Unable to connect to your ticketing system", e);
+		} finally {
+			if (!(client == null || isConnected)) {
+				try {
+					client.close();
+				} catch (IOException e) {
+					TrickLogManager.Persist(e);
+				}
+			}
+		}
+		return client;
+	}
+
+	private boolean loadUserSettings(@Nonnull Principal principal, @Nullable Model model, @Nullable User user) {
+		boolean allowedTicketing = false;
+		try {
+			if (user == null)
+				user = serviceUser.get(principal.getName());
+			TSSetting name = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_NAME), url = serviceTSSetting.get(TSSettingName.TICKETING_SYSTEM_URL);
+			String username = user.getSetting(Constant.USER_TICKETING_SYSTEM_USERNAME), password = user.getSetting(Constant.USER_TICKETING_SYSTEM_PASSWORD);
+			allowedTicketing = !(name == null || url == null || StringUtils.isEmpty(name.getValue()) || StringUtils.isEmpty(url.getValue()) || StringUtils.isEmpty(username)
+					|| StringUtils.isEmpty(password)) && serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK);
+			if (model != null && allowedTicketing) {
+				model.addAttribute(TICKETING_NAME, StringUtils.capitalize(name.getValue()));
+				model.addAttribute(TICKETING_URL, url.getString());
+			}
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+		} finally {
+			if (model != null)
+				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
+		}
+		return allowedTicketing;
+	}
+	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateCost(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		Iterator<Parameter> iterator = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
+		while (iterator.hasNext()) {
+			Parameter parameter = iterator.next();
+			switch (parameter.getDescription()) {
+			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
+				internalSetupValue = parameter.getValue();
+				break;
+			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
+				externalSetupValue = parameter.getValue();
+				break;
+			case Constant.PARAMETER_LIFETIME_DEFAULT:
+				lifetimeDefault = parameter.getValue();
+				break;
+			}
+		}
+		updateMeasureCost(externalSetupValue, internalSetupValue, lifetimeDefault, analysis);
+		serviceAnalysis.saveOrUpdate(analysis);
+		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null, "Measure cost has been successfully updated", locale));
+	}
+
+	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault, Analysis analysis) {
+		analysis.getAnalysisStandards().stream().flatMap(analysisStandard -> analysisStandard.getMeasures().parallelStream()).forEach(measure -> {
+			double cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+					measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+			measure.setCost(cost >= 0D ? cost : 0D);
+		});
 	}
 
 	private Map<String, String> updateAssetTypeValues(NormalMeasure measure, List<MeasureAssetValueForm> assetValueForms, final Map<String, String> errors, Locale locale)

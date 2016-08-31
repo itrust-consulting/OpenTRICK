@@ -54,7 +54,7 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${analyses}" var="analysis">
-					<tr data-trick-id="${analysis.id}" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}">
+					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}">
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
 						<td><spring:message text="${analysis.identifier}" /></td>
 						<td><pre><spring:message text="${analysis.label}" /></pre></td>

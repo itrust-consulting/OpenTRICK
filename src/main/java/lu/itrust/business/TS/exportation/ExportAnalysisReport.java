@@ -1544,7 +1544,6 @@ public class ExportAnalysisReport {
 		List<RiskInformation> riskInformations = analysis.getRiskInformations();
 
 		Map<String, List<RiskInformation>> riskmapping = RiskInformationManager.Split(riskInformations);
-		boolean chapter = false;
 
 		for (String key : riskmapping.keySet()) {
 
@@ -1601,22 +1600,17 @@ public class ExportAnalysisReport {
 					row.getCell(0).setText(riskinfo.getChapter());
 					row.getCell(1).setText(getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")),
 							null, riskinfo.getLabel(), locale));
-					chapter = riskinfo.getChapter().matches("\\d(\\.0){2}");
+					String color = riskinfo.getChapter().matches("\\d(\\.0){2}") ? HEADER_COLOR : HEADER_COLOR;
 					if (riskinfo.getCategory().equals("Threat")) {
-						if (chapter) {
-							row.getCell(0).setColor(HEADER_COLOR);
-							MergeCell(row, 1, 2, HEADER_COLOR);
-						} else {
-							for (int i = 0; i < 3; i++)
-								row.getCell(i).setColor(SUB_HEADER_COLOR);
-							row.getCell(2).setText(riskinfo.getAcronym());
-						}
+						for (int i = 0; i < 3; i++)
+							row.getCell(i).setColor(color);
+						row.getCell(2).setText(riskinfo.getAcronym());
 						setCellText(row.getCell(3), riskinfo.getExposed(), ParagraphAlignment.CENTER);
 						row.getCell(4).setText(getValueOrEmpty(riskinfo.getOwner()));
 						addCellParagraph(row.getCell(5), riskinfo.getComment());
 					} else {
 						for (int i = 0; i < 2; i++)
-							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
+							row.getCell(i).setColor(color);
 						setCellText(row.getCell(2), riskinfo.getExposed(), ParagraphAlignment.CENTER);
 						row.getCell(3).setText(getValueOrEmpty(riskinfo.getOwner()));
 						addCellParagraph(row.getCell(4), riskinfo.getComment());

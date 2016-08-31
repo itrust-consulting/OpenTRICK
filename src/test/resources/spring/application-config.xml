@@ -19,11 +19,17 @@
 
 	<context:component-scan base-package="lu.itrust.business" />
 
-	<util:properties id="propertyConfigurer" location="classpath:application.properties" />
+	<util:properties id="propertyConfigurer" location="classpath:application.properties,classpath:deployment.properties,classpath:deployment-ldap.properties" />
 
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="${app.settings.background.task.core.pool.size}" />
 		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
+		<property name="waitForTasksToCompleteOnShutdown" value="true" />
+	</bean>
+	
+	<bean id="emailTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
 		<property name="waitForTasksToCompleteOnShutdown" value="true" />
 	</bean>
 
@@ -86,12 +92,16 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 
-	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-		<property name="resourceLoaderPath" value="/WEB-INF/data/email/template/" />
+	<bean id="freemarkerConfiguration" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+		<property name="templateLoaderPath" value="${app.settings.email.template}" />
 	</bean>
 
 	<!-- File Uploader -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
+	<bean class="lu.itrust.business.TS.usermanagement.listner.helper.PasswordEncryptionHelper">
+		<property name="password" value="${app.settings.password.ecryption.key}" />
+	</bean>
 
 	<import resource="spring-security.xml" />
 

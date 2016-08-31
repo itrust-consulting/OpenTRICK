@@ -6,12 +6,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:if test="${empty locale }">
-	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
 <!DOCTYPE html>
 <html lang="${locale.language}">
-<c:set var="language" value="${analysis.language.alpha2}" scope="request" />
-<c:set scope="request" var="title" value="label.title.analysis.measure"/>
+<c:set var="language" value="${locale.language}" scope="request" />
+<c:set scope="request" var="title" value="label.title.analysis.measure" />
 <jsp:include page="../../../../template/header.jsp" />
 <c:set var="canModify" value="${analysis.profile or analysis.getRightsforUserString(login).right.ordinal()<3}" />
 <body>
@@ -19,12 +19,15 @@
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
 		<jsp:include page="../../../../template/menu.jsp" />
 		<div class="container max-height">
+			<a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close.analysis" />' class="text-danger pull-right back-btn-top"><i
+				class="fa fa-2x fa-sign-out"></i> </a>
 			<div class="max-height" style="padding-top: 15px;">
-				<div class="col-lg-2 max-height" style="z-index: 1" role="left-menu" >
+				<div class="col-lg-2 max-height" style="z-index: 1" role="left-menu">
 					<div class="form-group">
 						<select name="standard" class="form-control">
 							<c:forEach items="${standards}" var="standard">
-								<option value="${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message code='label.index.standard' arguments="${standard.label}" /></option>
+								<option value="${standard.id}" data-trick-name="<spring:message text='${standard.label}'/>"><spring:message code='label.index.standard'
+										arguments="${standard.label}" /></option>
 							</c:forEach>
 						</select>
 					</div>
@@ -50,7 +53,7 @@
 								<div ${chapterStatus.index==0?'':'hidden="hidden"'} class='list-group' data-trick-chapter-name='${chapterText}'>
 									<c:forEach items="${measureChapters[chapter]}" var="measure" varStatus="measureStatus">
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
-										<spring:message text="${measureDescriptionText.domain}" var="domain"/>
+										<spring:message text="${measureDescriptionText.domain}" var="domain" />
 										<a href="#" title="${domain}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item ${measureStatus.index==0?'active':''}"
 											data-trick-id='${measure.id}'><spring:message text="${measure.measureDescription.reference}" /> - ${domain}</a>
 									</c:forEach>
@@ -58,14 +61,17 @@
 							</c:forEach>
 						</div>
 					</c:forEach>
-					<spring:url value="?open=edit" var="baseUrl"/>
+					<spring:url value="?open=edit" var="baseUrl" />
 					<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-measure'>
-						<li><a accesskey="A" href='${baseUrl}' data-base-url='${baseUrl}' title='<spring:message code="label.action.open.analysis"/>' class="text-danger"><i class="fa fa-book"></i> </a></li>
-						<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i> </a></li>
+						<li><a accesskey="A" href='${baseUrl}' data-base-url='${baseUrl}' title='<spring:message code="label.action.close.view"/>' class="text-danger"><i class="fa fa-sign-in fa-rotate-180"></i>
+						</a></li>
+						<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous.chapter" />' data-trick-nav='previous-chapter'><i class="fa fa-angle-double-left"></i>
+						</a></li>
 						<li><a accesskey="F" href="#" title='<spring:message code="label.action.previous.measure" />' data-trick-nav='previous-measure'><i class="fa fa-angle-left"></i> </a></li>
 						<li><a accesskey="H" href="#" title='<spring:message code="label.action.next.measure" />' data-trick-nav='next-measure'><i class="fa fa-angle-right"></i> </a></li>
 						<li><a accesskey="G" href="#" title='<spring:message code="label.action.next.chapter" />' data-trick-nav='next-chapter'><i class="fa fa-angle-double-right"></i> </a></li>
-						<li><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
+						<li class="back-btn-bottom"><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close.analysis" />' class="text-danger"><i
+								class="fa fa-sign-out"></i> </a></li>
 					</ul>
 				</div>
 				<jsp:include page="measure.jsp" />

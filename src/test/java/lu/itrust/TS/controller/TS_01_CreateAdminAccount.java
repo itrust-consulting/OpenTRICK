@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.usermanagement.User;
 
+
 @Test(groups = "firstAccount")
 public class TS_01_CreateAdminAccount extends SpringTestConfiguration {
 

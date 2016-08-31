@@ -1,12 +1,9 @@
-/**
- * 
- */
 package lu.itrust.TS.model;
-
-import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 
 /**
  * @author oensuifudine

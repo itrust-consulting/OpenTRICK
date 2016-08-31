@@ -45,7 +45,7 @@ public class TrickLog {
 	@Column(name = "dtCode")
 	private String code;
 
-	@Column(name = "dtMessage",length=2048)
+	@Column(name = "dtMessage",length=16384)
 	private String message;
 
 	@Column(name = "dtAuthor")
@@ -60,7 +60,7 @@ public class TrickLog {
 
 	@ElementCollection
 	@JoinTable(name = "TrickLogParameters", joinColumns = @JoinColumn(name = "fiTrickLog"))
-	@Column(name = "dtParameter",length=1024)
+	@Column(name = "dtParameter",length=16384)
 	@Cascade(CascadeType.ALL)
 	private List<String> parameters;
 

@@ -64,7 +64,7 @@ import lu.itrust.business.TS.model.standard.Standard;
  * @author eomar
  *
  */
-@Test(groups = "KnowledgeBase", dependsOnGroups = "Installation")
+@Test(groups = "KnowledgeBase", dependsOnGroups = "CreateAnalysis")
 public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 
 	private static final String APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8 = "application/x-www-form-urlencoded;charset=UTF-8";
@@ -384,7 +384,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		}
 	}
 
-	@Test(dependsOnGroups = "CreateAnalysis", dependsOnMethods = { "test_07_CreateMeasure", "test_04_LoadAnalysis" })
+	@Test(dependsOnMethods = { "test_07_CreateMeasure", "test_04_LoadAnalysis" })
 	public void test_08_CreateAnalysisUseStandard() throws Exception {
 		this.mockMvc
 				.perform(

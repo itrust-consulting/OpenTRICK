@@ -10,14 +10,14 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="manageAnalysisAccessModel-title">
+				<h4 class="modal-title">
 					<spring:message code="label.analysis.manage.access" text="Manage Analysis Access Rights" />
 				</h4>
 			</div>
-			<div id="manageAnalysisAccessModelBody" class="modal-body"></div>
+			<div class="modal-body"></div>
 			<div class="modal-footer">
-				<button id="manageAnalysisAccessModelButton" type="button" class="btn btn-primary" onclick="updatemanageAnalysisAccess('userrightsform')">
-					<spring:message code="label.analysis.update" text="Update" />
+				<button type="button" class="btn btn-primary">
+					<spring:message code="label.analysis.save" text="Save" />
 				</button>
 				<button type="button" name="cancel"  class="btn btn-default" data-dismiss="modal">
 					<spring:message code="label.action.cancel" text="Cancel" />

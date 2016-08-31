@@ -164,11 +164,11 @@ public class ControllerAnalysisCreate {
 
 			analysisForm.setDefaultProfile(defaultProfileId);
 
-			if (analysisForm.getAsset() > 0 && !serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getAsset(), principal.getName(), AnalysisRight.MODIFY))
+			if (analysisForm.getAsset() > 0 && !serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getAsset(), principal.getName(), AnalysisRight.EXPORT))
 				errors.put("asset", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (analysisForm.getScenario() > 0 && !(analysisForm.getScenario() == defaultProfileId
-					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScenario(), principal.getName(), AnalysisRight.MODIFY)))
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScenario(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("scenario", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			validateStandards(analysisForm.getStandards(), errors, principal, defaultProfileId, locale);
@@ -181,7 +181,7 @@ public class ControllerAnalysisCreate {
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("scope", messageSource.getMessage("error.analysis_custom.scope.empty", null, "No default profile, scope cannot be empty", locale));
 			} else if (!(analysisForm.getScope() == defaultProfileId
-					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScope(), principal.getName(), AnalysisRight.MODIFY)))
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScope(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (analysisForm.getParameter() < 1) {
@@ -189,7 +189,7 @@ public class ControllerAnalysisCreate {
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("parameter", messageSource.getMessage("error.analysis_custom.parameter.empty", null, "No default profile, parameter cannot be empty", locale));
 			} else if (!(analysisForm.getParameter() == defaultProfileId
-					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getParameter(), principal.getName(), AnalysisRight.MODIFY)))
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getParameter(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("parameter", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (analysisForm.getRiskInformation() < 1) {
@@ -198,7 +198,7 @@ public class ControllerAnalysisCreate {
 				errors.put("riskInformation",
 						messageSource.getMessage("error.analysis_custom.risk_information.empty", null, "No default profile, risk information cannot be empty", locale));
 			} else if (!(analysisForm.getRiskInformation() == defaultProfileId
-					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getRiskInformation(), principal.getName(), AnalysisRight.MODIFY)))
+					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getRiskInformation(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("riskInformation", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			Customer customer = null;
@@ -432,14 +432,14 @@ public class ControllerAnalysisCreate {
 			if (analysisStandardBaseInfo.getIdAnalysis() == defaultProfileId) {
 				if (analysisStandardBaseInfo.getIdAnalysisStandard() > 0)
 					validateStandards(analysisStandardBaseInfo, errors, principal, locale);
-			} else if (!serviceUserAnalysisRight.hasRightOrOwner(analysisStandardBaseInfo.getIdAnalysis(), principal.getName(), AnalysisRight.MODIFY))
+			} else if (!serviceUserAnalysisRight.hasRightOrOwner(analysisStandardBaseInfo.getIdAnalysis(), principal.getName(), AnalysisRight.EXPORT))
 				errors.put("standards", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		} else
 			standrads.forEach(analysisStandardBaseInfo -> validateStandards(analysisStandardBaseInfo, errors, principal, locale));
 	}
 
 	private void validateStandards(AnalysisStandardBaseInfo analysisStandardBaseInfo, Map<String, String> errors, Principal principal, Locale locale) {
-		if (!serviceUserAnalysisRight.hasRightOrOwner(analysisStandardBaseInfo.getIdAnalysis(), principal.getName(), AnalysisRight.MODIFY))
+		if (!serviceUserAnalysisRight.hasRightOrOwner(analysisStandardBaseInfo.getIdAnalysis(), principal.getName(), AnalysisRight.EXPORT))
 			errors.put("standards", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		else if (analysisStandardBaseInfo.getIdAnalysisStandard() > 0) {
 			if (!serviceAnalysisStandard.belongsToAnalysis(analysisStandardBaseInfo.getIdAnalysis(), analysisStandardBaseInfo.getIdAnalysisStandard()))
@@ -449,11 +449,11 @@ public class ControllerAnalysisCreate {
 
 	@RequestMapping(value = "/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable Integer id, Principal principal) {
-		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
+		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(), AnalysisRight.highRightFrom(AnalysisRight.EXPORT));
 	}
 
 	@RequestMapping(value = "/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable Integer id, @PathVariable String identifier, Principal principal) {
-		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
+		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier, AnalysisRight.highRightFrom(AnalysisRight.EXPORT));
 	}
 }

@@ -2,6 +2,7 @@ function importRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
 		idAnalysis = findAnalysisId();
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
 		$
 				.ajax({
 					url : context + "/Analysis/RRF/Import",
@@ -81,6 +82,8 @@ function importRRF(idAnalysis) {
 							unknowError();
 					},
 					error : unknowError
+				}).complete(function(){
+					$progress.hide();
 				});
 	} else
 		permissionError();
@@ -91,6 +94,7 @@ function importRawRRFForm(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
 		idAnalysis = findAnalysisId();
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/RRF/Form/Import/Raw/" + idAnalysis,
 			contentType : "application/json;charset=UTF-8",
@@ -107,6 +111,8 @@ function importRawRRFForm(idAnalysis) {
 					unknowError();
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	} else
 		permissionError();
@@ -117,6 +123,7 @@ function importDataRawRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
 		idAnalysis = findAnalysisId();
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
 		$("#import_raw_rrf_modal .modal-footer .btn").prop("disabled", true);
 		$("#import_raw_rrf_modal .modal-header .close").prop("disabled", true);
 		$("#import_raw_rrf_modal .alert").remove();
@@ -140,6 +147,7 @@ function importDataRawRRF(idAnalysis) {
 			complete : function() {
 				$("#import_raw_rrf_modal .modal-footer .btn").prop("disabled", false);
 				$("#import_raw_rrf_modal .modal-header .close").prop("disabled", false);
+				$progress.hide();
 			}
 		});
 	}

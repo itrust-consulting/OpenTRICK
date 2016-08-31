@@ -14,7 +14,7 @@ public class ComparatorMeasureDescription implements NaturalOrderComparator<Meas
 
 	@Override
 	public int compare(MeasureDescription o1, MeasureDescription o2) {
-		return compareTo(o1.getReference(), o2.getReference());
+		return NaturalOrderComparator.compareTo(o1.getReference(), o2.getReference());
 	}
 	
 	public static int Compare(String reference1, String reference2){

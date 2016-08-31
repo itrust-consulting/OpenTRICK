@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.controller;
 
+import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,15 +19,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.helper.AnalysisRightForm;
 import lu.itrust.business.TS.model.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
@@ -74,11 +77,12 @@ public class ControllerAnalysisManageAccess {
 		List<UserAnalysisRight> uars = analysis.getUserRights();
 		serviceUser.getAll().forEach(user-> userrights.put(user, null));
 		uars.forEach(uar-> userrights.put(uar.getUser(), uar.getRight()));
-		model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
-		model.addAttribute("analysisRights", AnalysisRight.values());
+		model.addAttribute("isAdmin", false);
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("userrights", userrights);
-		return "analyses/all/forms/manageUserAnalysisRights";
+		model.addAttribute("ownerId", analysis.getOwner().getId());
+		model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
+		return "analyses/all/forms/rights";
 	}
 
 	/**
@@ -91,31 +95,17 @@ public class ControllerAnalysisManageAccess {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/Update/{analysisID}", method = RequestMethod.POST)
-	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
-	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
+	@RequestMapping(value="/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#rightsForm.analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
+	public @ResponseBody String updatemanageaccessrights(@RequestBody AnalysisRightForm rightsForm, Principal principal, Locale locale) throws Exception {
 		try {
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-			int currentUser = jsonNode.get("userselect").asInt();
-			model.addAttribute("currentUser", currentUser);
-			manageAnalysisRight.updateAnalysisRights(principal, analysisID, jsonNode);
-			Analysis analysis = serviceAnalysis.get(analysisID);
-			Map<User, AnalysisRight> userrights = new LinkedHashMap<User, AnalysisRight>();
-			analysis.getUserRights().forEach(useraccess -> userrights.put(useraccess.getUser(), useraccess.getRight()));
-			serviceUser.getAllOthers(userrights.keySet()).forEach(user -> userrights.put(user, null));
-			model.addAttribute("success",
-					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
-			model.addAttribute("analysisRights", AnalysisRight.values());
-			model.addAttribute("analysis", analysis);
-			model.addAttribute("userrights", userrights);
-			return "analyses/all/forms/manageUserAnalysisRights";
+			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
+			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
-			// return errors
-			model.addAttribute("errors",  messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 			TrickLogManager.Persist(e);
-			return "analyses/all/forms/manageUserAnalysisRights";
+			if(e instanceof TrickException)
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 	}
 }

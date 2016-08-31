@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -155,6 +154,10 @@ public class Analysis implements Cloneable {
 	/** flag to determine if analysis has data */
 	@Column(name = "dtData", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean data;
+
+	/** Ticketing project id */
+	@Column(name = "dtProject")
+	private String project;
 
 	/** List of users and their access rights */
 	@OneToMany(mappedBy = "analysis")
@@ -1417,12 +1420,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<AnalysisStandard> getAnalysisOnlyStandards() {
-		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
-		for (AnalysisStandard standard : analysisStandards) {
-			if (standard.getStandard().isAnalysisOnly())
-				standards.add(standard);
-		}
-		return standards;
+		return analysisStandards.stream().filter(standard -> standard.getStandard().isAnalysisOnly()).collect(Collectors.toList());
 
 	}
 
@@ -1433,10 +1431,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public List<Standard> getStandards() {
-		List<Standard> standards = new ArrayList<Standard>();
-		for (AnalysisStandard standard : analysisStandards)
-			standards.add(standard.getStandard());
-		return standards;
+		return analysisStandards.stream().map(AnalysisStandard::getStandard).collect(Collectors.toList());
 
 	}
 
@@ -1569,6 +1564,25 @@ public class Analysis implements Cloneable {
 	 */
 	public void setRiskRegisters(List<RiskRegisterItem> riskRegisters) {
 		this.riskRegisters = riskRegisters;
+	}
+
+	/**
+	 * Ticketing project id
+	 * 
+	 * @return the project
+	 */
+	public String getProject() {
+		return project;
+	}
+
+	/**
+	 * Ticketing project id
+	 * 
+	 * @param project
+	 *            the project to set
+	 */
+	public void setProject(String project) {
+		this.project = project;
 	}
 
 	/**
@@ -1707,9 +1721,10 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * [0] : Simple, [1] : Extended, [2] : Maturity 
+	 * [0] : Simple, [1] : Extended, [2] : Maturity
+	 * 
 	 * @param parameters
-	 * @return 
+	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitParameters(List<Parameter> parameters) {
@@ -1736,7 +1751,7 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * [0] : Simple Parameter, [1] : CSSF Parameter, [2] : MAXEFF, [3] : other
+	 * [0] : Simple Parameter, [1] : CSSF Parameter, [2] : MAXEFF, [3] : other, [4] : dynamic
 	 * 
 	 * @param parameters
 	 * @return
@@ -1762,13 +1777,14 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * [0] IMPACT, [1]: PROBA
+	 * [0] IMPACT, [1]: PROBA, [2]: DYNAMIC
+	 * 
 	 * @param parameters
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Parameter>[] SplitExtendedParameters(List<Parameter> parameters) {
-		List<?>[] splits = new List<?>[3];
+	public static List<Parameter>[] SplitExtendedParameters(List< ? extends Parameter> parameters) {
+		List<?>[] splits = new List<?>[2];
 		for (int i = 0; i < splits.length; i++)
 			splits[i] = new ArrayList<>();
 		for (Parameter parameter : parameters) {
@@ -2125,8 +2141,7 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight getRightsforUserString(String login) {
-		Optional<UserAnalysisRight> optional = userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny();
-		return optional.isPresent() ? optional.get() : null;
+		return userRights.stream().filter(userRight -> userRight.getUser().getLogin().equals(login)).findAny().orElse(null);
 	}
 
 	public AnalysisRight getRightValue(User user) {
@@ -2152,17 +2167,9 @@ public class Analysis implements Cloneable {
 	 * @param user
 	 * @return
 	 */
-	public boolean removeRights(User user) {
-
+	public UserAnalysisRight removeRights(User user) {
 		UserAnalysisRight userRight = getRightsforUser(user);
-
-		if (userRight != null) {
-			userRights.remove(userRight);
-			return true;
-		} else {
-			return false;
-		}
-
+		return userRight == null ? null : userRights.remove(userRight) ? userRight : null;
 	}
 
 	/**
@@ -2640,7 +2647,21 @@ public class Analysis implements Cloneable {
 	}
 
 	public Parameter findParameter(String type, String description) {
-		return parameters.stream().filter(parameter -> parameter.isMatch(type,description)).findAny().orElse(null);
+		return parameters.stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
+	}
+
+	public Measure findMeasureById(int idMeasure) {
+		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
+	}
+
+	public boolean hasTicket(String idTicket) {
+		if (idTicket == null)
+			return false;
+		return analysisStandards.stream().flatMap(measures -> measures.getMeasures().stream()).anyMatch(measure -> idTicket.equals(measure.getTicket()));
+	}
+
+	public boolean hasProject() {
+		return !(project == null || project.isEmpty());
 	}
 
 	public double getParameter(String name, double defaultValue) {

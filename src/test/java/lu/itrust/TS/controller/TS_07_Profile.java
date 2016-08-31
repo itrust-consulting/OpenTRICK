@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.TS.controller;
 
 import static lu.itrust.TS.controller.TS_05_ImportExport.ANALYSIS_KEY;
@@ -21,6 +18,13 @@ import static org.springframework.util.Assert.notNull;
 
 import java.util.List;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.web.servlet.MvcResult;
+import org.testng.annotations.Test;
+
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
@@ -31,13 +35,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.general.helper.FilterControl;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.web.servlet.MvcResult;
-import org.testng.annotations.Test;
 
 /**
  * @author eomar
