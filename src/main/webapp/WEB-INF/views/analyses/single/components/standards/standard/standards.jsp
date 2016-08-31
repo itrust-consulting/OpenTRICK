@@ -216,8 +216,8 @@
 										<c:otherwise>
 											<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"
 												title="${measure.getImplementationRateValue(expressionParameters)}"
-												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
-													value="${measure.getImplementationRate()}" /></td>
+												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><spring:message
+													text="${measure.getImplementationRate()}" /></td>
 											<c:if test="${hasMaturity and standard.equals('27002') }">
 												<td class="text-center" data-trick-field='mer' ><c:choose>
 														<c:when test="${empty effectImpl27002[measure.measureDescription.reference]}">0</c:when>

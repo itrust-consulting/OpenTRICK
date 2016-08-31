@@ -103,5 +103,34 @@
 				</div>
 			</div>
 		</div>
+		<div class="col-md-6">
+			<span id="anchorParameter_Dynamic" class="anchor"></span>
+			<div class="panel panel-default" id="DynamicParameters">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.dynamic.probability" />
+				</div>
+				<div class="panel-body">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.value" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<fmt:setLocale value="fr" scope="session" />
+							<c:forEach items="${simpleParameters[4]}" var="parameter" varStatus="status">
+								<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
+									<!--<td>${itemInformation.id}</td>-->
+									<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
+									<td class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
+								</tr>
+							</c:forEach>
+							<fmt:setLocale value="${language}" scope="session" />
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
