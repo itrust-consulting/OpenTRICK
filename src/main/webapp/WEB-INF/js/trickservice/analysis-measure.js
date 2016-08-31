@@ -29,6 +29,7 @@ function saveMeasureData(e) {
 	if (value == oldValue)
 		$target.parent().removeClass('has-error');
 	else {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/EditField/Measure/" + id + "/Update",
 			async : false,
@@ -76,6 +77,8 @@ function saveMeasureData(e) {
 				}
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	}
 	return false;
@@ -85,6 +88,7 @@ function loadMeasureData(id) {
 	var $currentUI = $("#measure-ui");
 	if ($currentUI.attr("data-trick-id") == id)
 		return false;
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/Standard/Measure/" + id + "/Form",
 		contentType : "application/json;charset=UTF-8",
@@ -106,6 +110,8 @@ function loadMeasureData(id) {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function(){
+		$progress.hide();
 	});
 	return false;
 }
