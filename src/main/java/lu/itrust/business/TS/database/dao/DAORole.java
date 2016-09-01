@@ -3,6 +3,7 @@ package lu.itrust.business.TS.database.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -35,4 +36,6 @@ public interface DAORole {
 	public void delete(Role role) ;
 
 	public void delete(User user) ;
+
+	public Role getByType(RoleType type);
 }

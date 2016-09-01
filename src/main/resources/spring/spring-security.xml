@@ -12,7 +12,8 @@
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
-		<intercept-url pattern="/Api/**" access="ROLE_IDS" />
+		<intercept-url pattern="/Api/ids/**" access="ROLE_IDS" />
+		<intercept-url pattern="/Api/data/**" access="ROLE_USER,ROLE_ADMIN,ROLE_SUPERVISOR,ROLE_CONSULTANT" />
 		<form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler"
 			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
 		<logout logout-success-url="/Home" logout-url="/signout" invalidate-session="true" delete-cookies="TS_SESSION_ID"/>

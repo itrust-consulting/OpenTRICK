@@ -3,6 +3,7 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -17,6 +18,8 @@ public interface ServiceRole {
 	public Role get(Integer id) ;
 
 	public Role getByName(String name) ;
+	
+	public Role getByType(RoleType type) ;
 
 	public List<Role> getAll() ;
 

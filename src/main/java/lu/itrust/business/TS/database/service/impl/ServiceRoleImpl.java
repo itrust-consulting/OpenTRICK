@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.database.dao.DAORole;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -184,5 +185,10 @@ public class ServiceRoleImpl implements ServiceRole {
 	@Override
 	public void delete(User user)  {
 		daoRole.delete(user);
+	}
+
+	@Override
+	public Role getByType(RoleType type) {
+		return daoRole.getByType(type);
 	}
 }

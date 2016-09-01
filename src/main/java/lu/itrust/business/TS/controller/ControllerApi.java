@@ -137,7 +137,7 @@ public class ControllerApi {
 	 * @throws Exception
 	 */
 	@Transactional
-	@RequestMapping(value = "/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@RequestMapping(value = "/ids/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
 		String userName = principal.getName();
 
@@ -164,7 +164,7 @@ public class ControllerApi {
 	 * @throws Exception
 	 */
 	@Transactional
-	@RequestMapping(value = "/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@RequestMapping(value = "/ids/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object set(HttpSession session, Principal principal, @RequestBody ApiSetParameterRequest request) throws Exception {
 		String userName = principal.getName();
 
@@ -185,13 +185,13 @@ public class ControllerApi {
 		return new ApiResult(0);
 	}
 
-	@RequestMapping(value = "/customers", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@RequestMapping(value = "/data/customers", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadUserCustomer(Principal principal, Locale locale) throws Exception {
 		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream().map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
 				.collect(Collectors.toList());
 	}
 
-	@RequestMapping(value = "/analysis/all", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@RequestMapping(value = "/data/analysis/all", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadAnalyses(@RequestParam(name = "customerId") Integer idCustomer, Principal principal, Locale locale) {
 		if (idCustomer == null)
 			throw new TrickException("error.custmer.null", "Customer id cannot be empty");
@@ -199,7 +199,7 @@ public class ControllerApi {
 				.collect(Collectors.toList());
 	}
 
-	@RequestMapping(value = "/analysis/versions", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@RequestMapping(value = "/data/analysis/versions", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadAnalysesVersion(@RequestParam(name = "customerId") Integer idCustomer, @RequestParam(name = "identifier") String identifier,
 			Principal principal, Locale locale) {
 		if (idCustomer == null)
@@ -213,19 +213,19 @@ public class ControllerApi {
 				.map(version -> new ApiNamable(version[0], version[1].toString())).collect(Collectors.toList());
 	}
 
-	@RequestMapping(value = "/analysis/{idAnalysis}/assets", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/assets", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisAssets(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
 		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(asset -> new ApiAsset(asset.getId(), asset.getName(), asset.getValue())).collect(Collectors.toList());
 	}
 
-	@RequestMapping(value = "/analysis/{idAnalysis}/scenarios", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/scenarios", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisScenarios(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
 		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> new ApiNamable(scenario.getId(), scenario.getName())).collect(Collectors.toList());
 	}
 
-	@RequestMapping(value = "/analysis/{idAnalysis}/standards", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@RequestMapping(value = "/data/analysis/{idAnalysis}/standards", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") Integer idAnalysis, Principal principal) throws Exception {
 		return serviceStandard.getAllFromAnalysis(idAnalysis).stream().map(standard -> new ApiNamable(standard.getId(), standard.getLabel())).collect(Collectors.toList());
@@ -242,7 +242,7 @@ public class ControllerApi {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/load-rrf", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
+	@RequestMapping(value = "/data/load-rrf", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.GET)
 	public @ResponseBody Object loadRRF(@RequestParam(name = "analysisId") Integer idAnalysis, @RequestParam(name = "assetId") Integer idAsset,
 			@RequestParam(name = "scenarioId") Integer idScenario, @RequestParam(name = "standards") String standard, Principal principal, HttpServletResponse response,
 			Locale locale) throws Exception {

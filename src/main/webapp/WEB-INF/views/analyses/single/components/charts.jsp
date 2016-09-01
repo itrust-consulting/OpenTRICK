@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane trick-chart-tab" id="tabChartAsset" data-update-required="true" data-trigger="loadChartAsset">
-	<div id="chart_asset" class="sectionpanel">
+	<div id="chart_asset" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -22,7 +22,7 @@
 	</div>
 </div>
 <div class="tab-pane trick-chart-tab" id="tabChartScenario" data-update-required="true" data-trigger="loadChartScenario">
-	<div id="chart_scenario">
+	<div id="chart_scenario" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -38,7 +38,7 @@
 	</div>
 </div>
 <div class="tab-pane trick-chart-tab" id="tabChartCompliance" data-update-required="true" data-trigger="compliances">
-	<div id="chart_compliance">
+	<div id="chart_compliance" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -52,7 +52,7 @@
 	</div>
 </div>
 <div class="tab-pane trick-chart-tab" id="tabChartEvolution" data-update-required="true" data-trigger="loadChartEvolution">
-	<div id="chart_evolution">
+	<div id="chart_evolution" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -73,7 +73,7 @@
 	</div>
 </div>
 <div class="tab-pane trick-chart-tab" id="tabChartBudget" data-update-required="true" data-trigger="loadChartBudget">
-	<div id="chart_budget">
+	<div id="chart_budget" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -93,7 +93,7 @@
 	</div>
 </div>
 <div class="tab-pane trick-chart-tab" id="tabChartParameterEvolution" data-update-required="true" data-trigger="loadChartDynamicParameterEvolution">
-	<div id="chart_parameterevolution">
+	<div id="chart_parameterevolution" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -107,7 +107,7 @@
 	</div>
 </div>
 <div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByAssetType" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByAssetType">
-	<div id="chart_aleevolutionbyassettype">
+	<div id="chart_aleevolutionbyassettype" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -121,7 +121,7 @@
 	</div>
 </div>
 <div class="tab-pane trick-chart-tab" id="tabChartAleEvolutionByScenario" data-update-required="true" data-trigger="loadChartDynamicAleEvolutionByScenario">
-	<div id="chart_aleevolutionbyscenario">
+	<div id="chart_aleevolutionbyscenario" class="container">
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">

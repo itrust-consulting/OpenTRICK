@@ -55,7 +55,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 */
 	@Override
 	public Role getByName(String name)  {
-		return (Role) getSession().createQuery("FROM Role role WHERE role.type = :type").setParameter("type",RoleType.valueOf(name)).uniqueResult();
+		return getByType(RoleType.valueOf(name));
 	}
 
 	/**
@@ -160,5 +160,10 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	public void delete(User user)  {
 		for (Role role : getAllFromUser(user))
 			delete(role);
+	}
+
+	@Override
+	public Role getByType(RoleType type) {
+		return (Role) getSession().createQuery("FROM Role role WHERE role.type = :type").setParameter("type",type).uniqueResult();
 	}
 }

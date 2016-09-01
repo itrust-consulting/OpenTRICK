@@ -2,6 +2,7 @@ package lu.itrust.business.TS.controller;
 
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -491,7 +493,7 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
-		model.put("roles", RoleType.values());
+		model.put("roles", RoleType.ROLES);
 		return "admin/user/roles";
 
 	}
@@ -513,7 +515,7 @@ public class ControllerAdministration {
 		for (Role role : userRoles)
 			roleTypes.add(role.getType());
 		model.put("userRoles", roleTypes);
-		model.put("roles", RoleType.values());
+		model.put("roles", RoleType.ROLES);
 		return "admin/user/roles";
 
 	}
@@ -568,12 +570,11 @@ public class ControllerAdministration {
 								String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
 								user.getLogin(), role.getType().name()));
 			}
-		} catch (TrickException e) {
-			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
 		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			if (e instanceof TrickException)
+				errors.put("user", messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+			else
+				errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 		return errors;
 	}
@@ -629,158 +630,42 @@ public class ControllerAdministration {
 	 * @param locale
 	 * @param userRoles
 	 * @return
+	 * @throws IOException
+	 * @throws JsonProcessingException
 	 */
-	private User buildUser(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) {
-
+	private User buildUser(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) throws JsonProcessingException, IOException {
 		User user = null;
 		String error = null;
-		String login = "";
-		String password = "";
-		String firstname = "";
-		String lastname = "";
-		String email = "";
 		boolean newUser = false;
-		try {
-			ValidatorField validator = serviceDataValidation.findByClass(User.class);
-			if (validator == null)
-				serviceDataValidation.register(validator = new UserValidator());
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			login = jsonNode.get("login").asText();
-			password = jsonNode.get("password").asText();
-			firstname = jsonNode.get("firstName").asText();
-			lastname = jsonNode.get("lastName").asText();
-			email = jsonNode.get("email").asText();
-			int id = jsonNode.get("id").asInt(), connexionType = jsonNode.get("connexionType").asInt();
-			if (id > 0) {
-				user = serviceUser.get(id);
-			} else {
-				newUser = true;
-				user = new User();
-				error = validator.validate(user, "login", login);
-				if (error != null)
-					errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
-				else if (serviceUser.existByUsername(login))
-					errors.put("login", messageSource.getMessage("error.username.in_use", null, "Username is in use", locale));
-				else
-					user.setLogin(login);
-			}
-
-			if (connexionType >= User.STANDARD_CONNEXION && connexionType <= User.LADP_CONNEXION)
-				user.setConnexionType(connexionType);
-			else
-				user.setConnexionType(User.BOTH_CONNEXION);
-
-			if (user.getConnexionType() != User.LADP_CONNEXION) {
-				if (newUser || !StringUtils.isEmpty(password)) {
-					error = validator.validate(user, "password", password);
-					if (error != null)
-						errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
-					else {
-						user.setPassword(password);
-						ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-						user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-					}
-				}
-			} else if (!User.LDAP_KEY_PASSWORD.equals(user.getPassword()))
-				user.setPassword(User.LDAP_KEY_PASSWORD);
-
-			error = validator.validate(user, "firstName", firstname);
+		ValidatorField validator = serviceDataValidation.findByClass(User.class);
+		if (validator == null)
+			serviceDataValidation.register(validator = new UserValidator());
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = mapper.readTree(source);
+		String login = jsonNode.get("login").asText(), password = jsonNode.get("password").asText(), firstname = jsonNode.get("firstName").asText(),
+				lastname = jsonNode.get("lastName").asText(), email = jsonNode.get("email").asText();
+		int id = jsonNode.get("id").asInt(), connexionType = jsonNode.get("connexionType").asInt();
+		if (id > 0) {
+			user = serviceUser.get(id);
+		} else {
+			newUser = true;
+			user = new User();
+			error = validator.validate(user, "login", login);
 			if (error != null)
-				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
+			else if (serviceUser.existByUsername(login))
+				errors.put("login", messageSource.getMessage("error.username.in_use", null, "Username is in use", locale));
 			else
-				user.setFirstName(firstname);
-
-			error = validator.validate(user, "lastName", lastname);
-			if (error != null)
-				errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				user.setLastName(lastname);
-
-			error = validator.validate(user, "email", email);
-			if (error != null)
-				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-			else if (!email.equals(user.getEmail())) {
-				if (serviceUser.existByEmail(email))
-					errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
-				else
-					user.setEmail(email);
-			}
-			if (!principal.getName().equals(user.getLogin())) {
-
-				user.getRoles().forEach(role -> userRoles.add(role));
-
-				user.disable();
-
-				RoleType[] roletypes = RoleType.values();
-
-				for (int i = 0; i < roletypes.length; i++) {
-					Role role = serviceRole.getByName(roletypes[i].name());
-					if (role == null) {
-						role = new Role(roletypes[i]);
-						serviceRole.save(role);
-					}
-					JsonNode roleNode = jsonNode.get(role.getType().name());
-					if (roleNode != null && roleNode.asText().equals(Constant.CHECKBOX_CONTROL_ON))
-						user.addRole(role);
-				}
-			}
-
-			if (errors.isEmpty())
-				return user;
-			else
-				return null;
-
-		} catch (TrickException e) {
-			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
-			return null;
-		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
-			return null;
+				user.setLogin(login);
 		}
 
-	}
+		if (connexionType >= User.STANDARD_CONNEXION && connexionType <= User.LADP_CONNEXION)
+			user.setConnexionType(connexionType);
+		else
+			user.setConnexionType(User.BOTH_CONNEXION);
 
-	private User buildUserIDS(Map<String, String> errors, String source, Locale locale, List<Role> userRoles, Principal principal) {
-		User user = null;
-		String error = null;
-		String login = "";
-		String password = "";
-		String firstname = "";
-		boolean newUser = false;
-		try {
-			ValidatorField validator = serviceDataValidation.findByClass(User.class);
-			if (validator == null)
-				serviceDataValidation.register(validator = new UserValidator());
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			login = jsonNode.get("login").asText();
-			password = jsonNode.get("password").asText();
-			firstname = jsonNode.get("firstName").asText();
-
-			int id = jsonNode.get("id").asInt();
-
-			if (id > 0) {
-				user = serviceUser.get(jsonNode.get("id").asInt());
-			} else {
-				newUser = true;
-				user = new User();
-				user.setLastName(Constant.EMPTY_STRING);
-				user.setEmail(Constant.EMPTY_STRING);
-				user.addRole(serviceRole.getByName(RoleType.ROLE_IDS.name()));
-				userRoles.addAll(user.getRoles());
-				error = validator.validate(user, "login", login);
-				if (error != null)
-					errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
-				else {
-					user.setLogin(login);
-				}
-			}
-
-			if (newUser || !password.equals(Constant.EMPTY_STRING)) {
-
+		if (user.getConnexionType() != User.LADP_CONNEXION) {
+			if (newUser || !StringUtils.isEmpty(password)) {
 				error = validator.validate(user, "password", password);
 				if (error != null)
 					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
@@ -790,75 +675,127 @@ public class ControllerAdministration {
 					user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 				}
 			}
-			error = validator.validate(user, "firstName", firstname);
-			if (error != null)
-				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+		} else if (!User.LDAP_KEY_PASSWORD.equals(user.getPassword()))
+			user.setPassword(User.LDAP_KEY_PASSWORD);
+
+		error = validator.validate(user, "firstName", firstname);
+		if (error != null)
+			errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+		else
+			user.setFirstName(firstname);
+
+		error = validator.validate(user, "lastName", lastname);
+		if (error != null)
+			errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
+		else
+			user.setLastName(lastname);
+
+		error = validator.validate(user, "email", email);
+		if (error != null)
+			errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+		else if (!email.equals(user.getEmail())) {
+			if (serviceUser.existByEmail(email))
+				errors.put("email", messageSource.getMessage("error.email.in_use", null, "Email is in use", locale));
 			else
-				user.setFirstName(firstname);
-
-			if (errors.isEmpty())
-				return user;
-			else
-				return null;
-
-		} catch (TrickException e) {
-			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			e.printStackTrace();
-			return null;
-		} catch (Exception e) {
-
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
-			return null;
+				user.setEmail(email);
 		}
+		
+		if (!principal.getName().equals(user.getLogin())) {
+
+			user.getRoles().forEach(role -> userRoles.add(role));
+
+			user.disable();
+
+			RoleType[] roletypes = RoleType.values();
+			for (int i = RoleType.ROLE_USER.ordinal(); i < roletypes.length; i++) {
+				Role role = serviceRole.getByName(roletypes[i].name());
+				if (role == null)
+					serviceRole.save(role = new Role(roletypes[i]));
+				JsonNode roleNode = jsonNode.get(role.getType().name());
+				if (roleNode != null && roleNode.asText().equals(Constant.CHECKBOX_CONTROL_ON))
+					user.addRole(role);
+			}
+		}
+		return user;
 	}
-	
+
+	private User buildUserIDS(Map<String, String> errors, String source, Locale locale, Principal principal) throws JsonProcessingException, IOException {
+		User user = null;
+		String error = null;
+		boolean newUser = false;
+		ValidatorField validator = serviceDataValidation.findByClass(User.class);
+		if (validator == null)
+			serviceDataValidation.register(validator = new UserValidator());
+		JsonNode jsonNode = new ObjectMapper().readTree(source);
+		String login = jsonNode.get("login").asText(), password = jsonNode.get("password").asText(), firstname = jsonNode.get("firstName").asText();
+		int id = jsonNode.get("id").asInt();
+		if (id > 0) {
+			user = serviceUser.get(jsonNode.get("id").asInt());
+		} else {
+			newUser = true;
+			user = new User();
+			user.setLastName(Constant.EMPTY_STRING);
+			user.setEmail(Constant.EMPTY_STRING);
+			error = validator.validate(user, "login", login);
+			if (error != null)
+				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setLogin(login);
+		}
+
+		if (newUser || !password.equals(Constant.EMPTY_STRING)) {
+			error = validator.validate(user, "password", password);
+			if (error != null)
+				errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+			else {
+				user.setPassword(password);
+				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+			}
+		}
+
+		Role role = serviceRole.getByType(RoleType.ROLE_IDS);
+
+		if (role == null)
+			serviceRole.save(role = new Role(RoleType.ROLE_IDS));
+
+		user.getRoles().removeIf(userRole -> userRole.getType() != RoleType.ROLE_IDS);
+
+		if (user.getRoles().isEmpty())
+			user.addRole(role);
+
+		error = validator.validate(user, "firstName", firstname);
+		if (error != null)
+			errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+		else
+			user.setFirstName(firstname);
+
+		return user;
+	}
+
 	@RequestMapping(value = "/User/SaveIDS", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> saveUserIDS(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
-			List<Role> userRoles = new LinkedList<Role>();
-			User user = buildUserIDS(errors, value, locale, userRoles, principal);
+			User user = buildUserIDS(errors, value, locale, principal);
 			if (!errors.isEmpty())
 				return errors;
-			RoleType userAccess = RoleType.ROLE_IDS;
+			RoleType userAccess = user.getAccess();
 			String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
 			if (user.getId() < 1) {
 				serviceUser.save(user);
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user", String.format("Target: %s, access: %s", user.getLogin(), userRole),
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.ids", String.format("Target: %s, access: %s", user.getLogin(), userRole),
 						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-				// give access
-				user.getRoles()
-						.stream()
-						.filter(role -> role.getType() != userAccess)
-						.forEach(
-								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.get.access",
-										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GIVE_ACCESS,
-										user.getLogin(), role.getType().name()));
 			} else {
 				serviceUser.saveOrUpdate(user);
 				/**
 				 * Log
 				 */
-				// remove access
-				userRoles
-						.stream()
-						.filter(role -> !user.hasRole(role))
-						.forEach(
-								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.remove.access",
-										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.REMOVE_ACCESS,
-										user.getLogin(), role.getType().name()));
-				// give access
-				user.getRoles()
-						.stream()
-						.filter(role -> !userRoles.contains(role))
-						.forEach(
-								role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.grant.access",
-										String.format("Target: %s, access: %s", user.getLogin(), role.getRoleName().toLowerCase()), principal.getName(), LogAction.GRANT_ACCESS,
-										user.getLogin(), role.getType().name()));
+				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids", String.format("Target: %s, access: %s", user.getLogin(), userRole),
+						principal.getName(), LogAction.UPDATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
 			}
 			return errors;
 		} catch (Exception e) {

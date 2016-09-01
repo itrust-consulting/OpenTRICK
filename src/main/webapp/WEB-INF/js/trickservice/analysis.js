@@ -2,11 +2,11 @@ var el = null, table = null, taskController = function() {
 };
 
 var language = { // translated asynchronously below
-		"label.dynamicparameter.evolution": "from {0} to {1}"
+	"label.dynamicparameter.evolution" : "from {0} to {1}"
 };
 
 $(document).ready(function() {
-	for (var key in language)
+	for ( var key in language)
 		language[key] = MessageResolver(key, language[key]);
 
 	// ******************************************************************************************************************
@@ -44,7 +44,10 @@ $(document).ready(function() {
 	// Periodically reload assessment values
 	window.setInterval(function() {
 		reloadSection("section_asset", undefined, true /* prevent propagation */);
-		reloadSection("section_scenario", undefined, true /* prevent propagation */);
+		reloadSection("section_scenario", undefined, true /*
+															 * prevent
+															 * propagation
+															 */);
 		loadChartDynamicParameterEvolution();
 		loadChartDynamicAleEvolutionByAssetType();
 		loadChartDynamicAleEvolutionByScenario();
@@ -54,18 +57,22 @@ $(document).ready(function() {
 $.fn.loadOrUpdateChart = function(parameters) {
 	if (!parameters.tooltip) {
 		$.extend(true, parameters, {
-			tooltip: {
-				formatter: function() {
+			tooltip : {
+				formatter : function() {
 					var str_value = this.series.yAxis.userOptions.labels.format.replace("{value}", this.point.y);
-					var str = "<span style=\"font-size:80%;\">" + this.x + "</span><br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name + ":</span>   <b>" + str_value + "</b>";
-	
+					var str = "<span style=\"font-size:80%;\">" + this.x + "</span><br/><span style=\"color:" + this.point.series.color + "\">" + this.point.series.name
+							+ ":</span>   <b>" + str_value + "</b>";
+
 					if (this.series.options.metadata) {
 						var dataIndex = this.series.xAxis.categories.indexOf(this.x);
 						var metadata = this.series.options.metadata[dataIndex];
 						if (metadata.length > 0)
-							str += "<br/>\u00A0"; // non-breaking space; prevents empty line from being ignored
+							str += "<br/>\u00A0"; // non-breaking space;
+													// prevents empty line from
+													// being ignored
 						for (var i = 0; i < metadata.length; i++)
-							str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: " + language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
+							str += "<br/><b>" + metadata[i].dynamicParameter + "</b>: "
+									+ language["label.dynamicparameter.evolution"].replace("{0}", metadata[i].valueOld).replace("{1}", metadata[i].valueNew);
 					}
 					return str;
 				}
@@ -84,7 +91,7 @@ $.fn.loadOrUpdateChart = function(parameters) {
 	}
 
 	// Otherwise update only data
-	$.each(chart.series, function (i, series) {
+	$.each(chart.series, function(i, series) {
 		series.options.metadata = parameters.series[i].metadata;
 		series.setData(parameters.series[i].data);
 	});
@@ -178,6 +185,7 @@ function updateMeasuresCost() {
 function reloadMeasureRow(idMeasure, standard) {
 	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']")
 	if (!$currentRow.find("input[type!='checkbox'],select,textarea").length) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
 			type : "get",
@@ -197,6 +205,8 @@ function reloadMeasureRow(idMeasure, standard) {
 				}
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	} else
 		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title",
@@ -272,6 +282,7 @@ function updateMeasureEffience(reference) {
 // charts
 
 function compliances() {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/Standard/Compliances",
 		type : "get",
@@ -289,6 +300,8 @@ function compliances() {
 			});
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
 	return false;
 }
@@ -297,18 +310,19 @@ function compliance(standard) {
 	if (!$('#chart_compliance_' + standard).length)
 		return false;
 	if ($('#chart_compliance_' + standard).is(":visible")) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Standard/" + standard + "/Compliance",
 			type : "get",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return;
 				$('#chart_compliance_' + standard).loadOrUpdateChart(response);
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	} else
 		$("#tabChartCompliance").attr("data-update-required", "true");
@@ -319,18 +333,19 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	if (!$('#chart_evolution_profitability_compliance_' + actionPlanType).length)
 		return false;
 	if ($('#chart_evolution_profitability_compliance_' + actionPlanType).is(":visible")) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
 			type : "get",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_evolution_profitability_compliance_' + actionPlanType).loadOrUpdateChart(response);
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	} else
 		$("#tabChartEvolution").attr("data-update-required", "true");
@@ -341,18 +356,19 @@ function budgetByActionPlanType(actionPlanType) {
 	if (!$('#chart_budget_' + actionPlanType).length)
 		return false;
 	if ($('#chart_budget_' + actionPlanType).is(":visible")) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
 			type : "get",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response, textStatus, jqXHR) {
 				if (response.chart == undefined || response.chart == null)
 					return true;
 				$('#chart_budget_' + actionPlanType).loadOrUpdateChart(response);
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	} else
 		$("#tabChartBudget").attr("data-update-required", "true");
@@ -410,7 +426,8 @@ function reloadCharts() {
 function displayChart(id, response) {
 	var $element = $(id);
 	if ($.isArray(response)) {
-		// First prepare the document structure so that there is exactly one <div> available for each chart
+		// First prepare the document structure so that there is exactly one
+		// <div> available for each chart
 		if ($element.find(">div").length != response.length) {
 			$element.empty();
 			for (var i = 0; i < response.length; i++) {
@@ -423,8 +440,7 @@ function displayChart(id, response) {
 		var divSelector = $element.find(">div");
 		for (var i = 0; i < response.length; i++)
 			$(divSelector.get(i)).loadOrUpdateChart(response[i]);
-	}
-	else
+	} else
 		$element.loadOrUpdateChart(response);
 }
 
@@ -432,6 +448,7 @@ function loadChartAsset() {
 
 	if ($('#chart_ale_asset').length) {
 		if ($('#chart_ale_asset').is(":visible")) {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Asset/Chart/Ale",
 				type : "get",
@@ -440,12 +457,15 @@ function loadChartAsset() {
 					displayChart('#chart_ale_asset', response);
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		} else
 			$("#tabChartAsset").attr("data-update-required", "true");
 	}
 	if ($('#chart_ale_asset_type').length) {
 		if ($('#chart_ale_asset_type').is(":visible")) {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Asset/Chart/Type/Ale",
 				type : "get",
@@ -454,6 +474,8 @@ function loadChartAsset() {
 					displayChart('#chart_ale_asset_type', response);
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		} else
 			$("#tabChartAsset").attr("data-update-required", "true");
@@ -463,6 +485,7 @@ function loadChartAsset() {
 function loadChartScenario() {
 	if ($('#chart_ale_scenario_type').length) {
 		if ($('#chart_ale_scenario_type').is(":visible")) {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Scenario/Chart/Type/Ale",
 				type : "get",
@@ -471,6 +494,8 @@ function loadChartScenario() {
 					displayChart('#chart_ale_scenario_type', response);
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		} else
 			$("#tabChartScenario").attr("data-update-required", "true");
@@ -478,6 +503,7 @@ function loadChartScenario() {
 
 	if ($('#chart_ale_scenario').length) {
 		if ($('#chart_ale_scenario').is(":visible")) {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Scenario/Chart/Ale",
 				type : "get",
@@ -486,6 +512,8 @@ function loadChartScenario() {
 					displayChart('#chart_ale_scenario', response);
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		} else
 			$("#tabChartScenario").attr("data-update-required", "true");
@@ -495,6 +523,7 @@ function loadChartScenario() {
 function loadChartDynamicParameterEvolution() {
 	if ($('#chart_parameterevolution').length) {
 		if ($('#chart_parameterevolution').is(":visible")) {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Dynamic/Chart/ParameterEvolution",
 				type : "get",
@@ -505,6 +534,8 @@ function loadChartDynamicParameterEvolution() {
 					$('#chart_parameterevolution').loadOrUpdateChart(response);
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		} else
 			$("#tabChartParameterEvolution").attr("data-update-required", "true");
@@ -514,6 +545,7 @@ function loadChartDynamicParameterEvolution() {
 function loadChartDynamicAleEvolutionByAssetType() {
 	if ($('#chart_aleevolutionbyassettype').length) {
 		if ($('#chart_aleevolutionbyassettype').is(":visible")) {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
 				type : "get",
@@ -521,9 +553,11 @@ function loadChartDynamicAleEvolutionByAssetType() {
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_aleevolutionbyassettype',response);
+					displayChart('#chart_aleevolutionbyassettype', response);
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		} else
 			$("#tabChartAleEvolutionByAssetType").attr("data-update-required", "true");
@@ -533,6 +567,7 @@ function loadChartDynamicAleEvolutionByAssetType() {
 function loadChartDynamicAleEvolutionByScenario() {
 	if ($('#chart_aleevolutionbyscenario').length) {
 		if ($('#chart_aleevolutionbyscenario').is(":visible")) {
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
 				type : "get",
@@ -540,9 +575,11 @@ function loadChartDynamicAleEvolutionByScenario() {
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
-					displayChart('#chart_aleevolutionbyscenario',response);
+					displayChart('#chart_aleevolutionbyscenario', response);
 				},
 				error : unknowError
+			}).complete(function() {
+				$progress.hide();
 			});
 		} else
 			$("#tabChartAleEvolutionByScenario").attr("data-update-required", "true");
