@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lu.itrust.business.TS.exception.TrickException;
@@ -20,7 +21,7 @@ public class ExternalNotification {
 	 * Represents the type of the notification that has been sent.
 	 */
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idExternalNotification")
 	private Integer id;
 
