@@ -32,6 +32,7 @@ function saveAssessmentData(e) {
 	if (value == oldValue)
 		$target.parent().removeClass('has-error').removeAttr("title");
 	else {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/EditField/Estimation/Update?asset=" + idAsset + "&scenario=" + idScenario,
 			type : "post",
@@ -79,6 +80,8 @@ function saveAssessmentData(e) {
 				}
 			},
 			error : unknowError
+		}).complete(function(){
+			$progress.hide();
 		});
 	}
 	return false;
@@ -97,7 +100,7 @@ function loadAssessmentData(id) {
 	if (idAsset == -1 && idScenario == -1 || $currentUI.attr("data-trick-asset-id") == idAsset && $currentUI.attr("data-trick-scenario-id") == idScenario
 			&& $currentUI.attr("data-trick-content") == activeSelector)
 		return false;
-
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : url,
 		contentType : "application/json;charset=UTF-8",
@@ -145,7 +148,9 @@ function loadAssessmentData(id) {
 		},
 		error : unknowError
 	}).complete(function() {
-		fixTableHeader(".table-fixed-header-analysis");
+		if(idAsset ==-1 || idScenario ==-1)
+			fixTableHeader(".table-fixed-header-analysis");
+		$progress.hide()
 	});
 	return false;
 }

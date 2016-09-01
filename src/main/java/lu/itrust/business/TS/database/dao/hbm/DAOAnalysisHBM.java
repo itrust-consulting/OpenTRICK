@@ -607,12 +607,15 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.setInteger("idCustomer", idCustomer).uniqueResult();
 	}
 
+	/**
+	 * Select distinct x from tabX order by y. do not word with MYSQL 5.7.X
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getNamesByUserAndCustomerAndNotEmpty(String username, Integer idCustomer) {
 		return getSession()
 				.createQuery(
-						"Select distinct analysis.label from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc")
+						"Select distinct analysis.label from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer order by analysis.label asc")
 				.setParameter("username", username).setParameter("customer", idCustomer).list();
 	}
 
@@ -774,13 +777,16 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.setString("username", username).setParameterList("ids", ids).list();
 	}
 
+	/**
+	 * Select distinct x from tabX order by y. do not word with MYSQL 5.7.X
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getByUsernameAndCustomerAndNoEmptyAndGroupByIdentifier(String username, Integer customerId) {
 		return getSession()
-		.createQuery(
-				"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label asc, analysis.identifier asc, analysis.version desc")
-		.setParameter("username", username).setParameter("customer", customerId).list();
+				.createQuery(
+						"Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and analysis.customer.id = :customer group by analysis.identifier order by analysis.label asc, analysis.identifier asc, analysis.version desc")
+				.setParameter("username", username).setParameter("customer", customerId).list();
 	}
 
 	@Override
@@ -795,9 +801,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<Analysis> getFromUserNameAndNotEmpty(String userName, List<AnalysisRight> rights) {
 		return getSession()
-				.createQuery("Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight where userAnalysisRight.user.login = :username and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights")
-				.setString("username", userName)
-				.setParameterList("rights", rights)
-				.list();
+				.createQuery(
+						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight where userAnalysisRight.user.login = :username and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights")
+				.setString("username", userName).setParameterList("rights", rights).list();
 	}
 }
