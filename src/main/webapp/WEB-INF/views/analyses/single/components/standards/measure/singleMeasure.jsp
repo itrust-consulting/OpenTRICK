@@ -18,7 +18,7 @@
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <fmt:setLocale value="fr" scope="session" />
 <c:set var="css">
-	<c:if test="${not(measure.getImplementationRateValue(expressionParameters)==100 or measure.status=='NA')}">class="success"</c:if>
+	<c:if test="${measure.getImplementationRateValue(expressionParameters) < 100 and measure.status!='NA'}">class="success"</c:if>
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
