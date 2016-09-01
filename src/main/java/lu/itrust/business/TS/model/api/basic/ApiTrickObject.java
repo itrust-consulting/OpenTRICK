@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.api.model;
+package lu.itrust.business.TS.model.api.basic;
 
 /**
  * @author eomar
@@ -9,7 +9,7 @@ package lu.itrust.business.TS.model.api.model;
  */
 public class ApiTrickObject {
 	
-	private Integer id;
+	private Object id;
 
 	/**
 	 * 
@@ -20,21 +20,21 @@ public class ApiTrickObject {
 	/**
 	 * @param id
 	 */
-	public ApiTrickObject(Integer id) {
+	public ApiTrickObject(Object id) {
 		this.id = id;
 	}
 
 	/**
 	 * @return the id
 	 */
-	public Integer getId() {
+	public Object getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Integer id) {
+	public void setId(Object id) {
 		this.id = id;
 	}
 	

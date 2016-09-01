@@ -805,4 +805,31 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						"Select distinct userAnalysisRight.analysis From UserAnalysisRight userAnalysisRight where userAnalysisRight.user.login = :username and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights")
 				.setString("username", userName).setParameterList("rights", rights).list();
 	}
+
+	/**
+	 * Only analysis user can export.
+	 * 
+	 * @param name
+	 * @param idCustomer
+	 * @return Object[2], [0]=identifier, [1] = name
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getIdentifierAndNameByUserAndCustomer(String username, Integer idCustomer) {
+		return getSession()
+				.createQuery(
+						"Select userAnalysisRight.analysis.identifier , userAnalysisRight.analysis.label From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights group by userAnalysisRight.analysis.identifier")
+				.setString("username", username).setInteger("customerId", idCustomer).setParameterList("rights", new AnalysisRight[] { AnalysisRight.ALL, AnalysisRight.EXPORT })
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username) {
+		return getSession()
+				.createQuery(
+						"Select userAnalysisRight.analysis.id , userAnalysisRight.analysis.version From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.identifier = :identifier and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights            ")
+				.setString("username", username).setString("identifier", identifier).setString("username", username).setInteger("customerId", idCustomer)
+				.setParameterList("rights", new AnalysisRight[] { AnalysisRight.ALL, AnalysisRight.EXPORT }).list();
+	}
 }

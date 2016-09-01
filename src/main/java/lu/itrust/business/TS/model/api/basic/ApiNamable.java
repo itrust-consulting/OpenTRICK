@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.api.model;
+package lu.itrust.business.TS.model.api.basic;
 
 /**
  * @author eomar
@@ -20,7 +20,7 @@ public class ApiNamable extends ApiTrickObject {
 	/**
 	 * @param name
 	 */
-	public ApiNamable(Integer id, String name) {
+	public ApiNamable(Object id, String name) {
 		super(id);
 		this.name = name;
 	}
