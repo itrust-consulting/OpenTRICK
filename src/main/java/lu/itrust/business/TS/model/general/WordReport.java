@@ -56,7 +56,7 @@ public class WordReport {
 	@Column(name = "dtSize")
 	private long size;
 
-	@Column(name = "dtFile", columnDefinition = "MEDIUMBLOB")
+	@Column(name = "dtFile", length = 16777216)
 	private byte[] file;
 
 	@Column(name = "dtCreated")

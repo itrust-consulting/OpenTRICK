@@ -48,11 +48,11 @@ public class RiskInformation implements Cloneable {
 	private String exposed;
 
 	/** The Risk Information Comment */
-	@Column(name = "dtComment", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtComment", nullable = false, length=16777216)
 	private String comment;
 
 	/** The Risk Information Hidden Comment */
-	@Column(name = "dtHiddenComment", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtHiddenComment", nullable = false, length=16777216)
 	private String hiddenComment;
 
 	/** The Risk Information Category */

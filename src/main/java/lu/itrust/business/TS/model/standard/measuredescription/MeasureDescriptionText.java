@@ -52,11 +52,11 @@ public class MeasureDescriptionText implements Cloneable {
 	private Language language = null;
 
 	/** The Domain Text */
-	@Column(name = "dtDomain", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "dtDomain", nullable = false, length=65536)
 	private String domain = "";
 
 	/** The Description Text */
-	@Column(name = "dtDescription", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtDescription", nullable = false, length=16777216)
 	private String description = "";
 	
 	/**

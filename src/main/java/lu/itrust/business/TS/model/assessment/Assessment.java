@@ -49,15 +49,15 @@ public class Assessment implements Cloneable {
 	private int id = -1;
 
 	/** Assessment selected flag */
-	@Column(name = "dtSelected", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtSelected", nullable = false)
 	private boolean selected = false;
 
 	/** A comment on this assessment */
-	@Column(name = "dtComment", columnDefinition = "LONGTEXT", nullable = false)
+	@Column(name = "dtComment", nullable = false, length = 16777216)
 	private String comment = "";
 
 	/** hidden assessment comment */
-	@Column(name = "dtHiddenComment", columnDefinition = "LONGTEXT", nullable = false)
+	@Column(name = "dtHiddenComment", nullable = false, length=16777216)
 	private String hiddenComment = "";
 
 	/** hidden assessment comment */

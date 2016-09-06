@@ -143,7 +143,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Selected Flag
 	 */
-	@Column(name = "dtSelected", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtSelected", nullable = false)
 	public boolean isSelected() {
 		return selected;
 	}
@@ -168,7 +168,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Description
 	 */
-	@Column(name = "dtDescription", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtDescription", nullable = false, length=16777216)
 	public String getDescription() {
 		return description;
 	}

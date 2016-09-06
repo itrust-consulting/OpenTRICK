@@ -29,7 +29,7 @@ public class TrickService {
 	@Value("${app.settings.version}")
 	private String version;
 	
-	@Column(name="dtInstalled", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name="dtInstalled", nullable=false)
 	private boolean installed = false;
 	
 	/**

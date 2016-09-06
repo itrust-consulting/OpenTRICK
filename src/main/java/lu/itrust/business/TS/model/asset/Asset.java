@@ -54,15 +54,15 @@ public class Asset implements Cloneable {
 	private double value = 0;
 
 	/** The Asset Comment */
-	@Column(name = "dtComment", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtComment", nullable = false, length=16777216)
 	private String comment = "";
 
 	/** The Asset Hidden Comment */
-	@Column(name = "dtHiddenComment", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtHiddenComment", nullable = false, length=16777216)
 	private String hiddenComment = "";
 
 	/** The Flag to determine if the Asset is selected for calculations */
-	@Column(name = "dtSelected", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtSelected", nullable = false)
 	private boolean selected = false;
 
 	/** The Annual Loss Expectancy - Pessimistic */

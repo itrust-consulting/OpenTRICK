@@ -46,7 +46,7 @@ public class UserSQLite {
 	@Column(name = "dtSize", nullable = false)
 	private long size = 0;
 
-	@Column(name = "dtSQLite", columnDefinition = "MEDIUMBLOB", nullable = false)
+	@Column(name = "dtSQLite", nullable = false, length=16777216)
 	private byte[] sqLite;
 
 	@Column(name = "dtExportTime", nullable = false)

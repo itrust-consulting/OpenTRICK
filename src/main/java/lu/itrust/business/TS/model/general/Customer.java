@@ -64,7 +64,7 @@ public class Customer {
 	@Column(name = "dtEmail", nullable = false)
 	private String email = "";
 
-	@Column(name = "dtCanBeUsed", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtCanBeUsed", nullable = false)
 	private boolean canBeUsed = true;
 
 	/***********************************************************************************************

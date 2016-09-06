@@ -104,19 +104,19 @@ public class Analysis implements Cloneable {
 	private String version;
 
 	/** Creation Date of the Analysis (and a specific version) */
-	@Column(name = "dtCreationDate", nullable = false, columnDefinition = "datetime")
+	@Column(name = "dtCreationDate", nullable = false)
 	private Timestamp creationDate;
 
-	@Column(name = "dtProfile", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtProfile", nullable = false)
 	private boolean profile = false;
 
-	@Column(name = "dtDefaultProfile", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtDefaultProfile", nullable = false)
 	private boolean defaultProfile = false;
 
-	@Column(name = "dtUncertainty", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtUncertainty", nullable = false)
 	private boolean uncertainty = false;
 
-	@Column(name = "dtCssf", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtCssf", nullable = false)
 	private boolean cssf = false;
 
 	/** The Customer object */
@@ -152,7 +152,7 @@ public class Analysis implements Cloneable {
 	private Language language;
 
 	/** flag to determine if analysis has data */
-	@Column(name = "dtData", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtData", nullable = false)
 	private boolean data;
 
 	/** Ticketing project id */

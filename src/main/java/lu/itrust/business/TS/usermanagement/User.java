@@ -73,7 +73,7 @@ public class User implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name = "idUser")
+	@Column(name = "idUser", length=12)
 	private Integer id = -1;
 
 	@Column(name = "dtLogin", nullable = false)
@@ -94,7 +94,7 @@ public class User implements Serializable {
 	@Column(name = "dtEmail", nullable = false)
 	private String email = null;
 
-	@Column(name = "dtEnabled", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtEnabled", nullable = false)
 	private boolean enable = true;
 
 	@ManyToMany

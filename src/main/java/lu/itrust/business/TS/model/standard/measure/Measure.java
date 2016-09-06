@@ -363,7 +363,7 @@ public abstract class Measure implements Cloneable {
 	 * 
 	 * @return The Measure Comment
 	 */
-	@Column(name = "dtComment", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtComment", nullable = false, length=16777216)
 	public String getComment() {
 		return comment;
 	}
@@ -385,7 +385,7 @@ public abstract class Measure implements Cloneable {
 	 * 
 	 * @return The "ToDo" Comment
 	 */
-	@Column(name = "dtToDo", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtToDo", nullable = false, length=16777216)
 	public String getToDo() {
 		return toDo;
 	}

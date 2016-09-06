@@ -58,10 +58,10 @@ public class Standard implements Cloneable {
 	private StandardType type = null;
 
 	/** Standard available for actionplan computation */
-	@Column(name = "dtComputable", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtComputable", nullable = false)
 	private boolean computable = true;
 
-	@Column(name = "dtAnalysisOnly", nullable = false, columnDefinition = "TINYINT(1)")
+	@Column(name = "dtAnalysisOnly", nullable = false)
 	private boolean analysisOnly = false;
 
 	/***********************************************************************************************

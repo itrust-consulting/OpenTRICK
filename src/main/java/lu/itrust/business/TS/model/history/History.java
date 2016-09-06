@@ -56,7 +56,7 @@ public class History implements Cloneable {
 	private String author = "";
 
 	/** The Comment an Author gave to the History Entry */
-	@Column(name = "dtComment", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "dtComment", nullable = false, length=65536)
 	private String comment = "";
 
 	/***********************************************************************************************

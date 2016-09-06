@@ -36,7 +36,7 @@ public class ItemInformation implements Cloneable {
 	private int id = -1;
 
 	/** The Item Information Value */
-	@Column(name = "dtValue", nullable = false, columnDefinition = "LONGTEXT")
+	@Column(name = "dtValue", nullable = false, length=16777216)
 	private String value = "";
 
 	/** The Item Information description */
