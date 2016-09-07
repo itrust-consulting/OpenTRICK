@@ -13,17 +13,17 @@ import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
  * @since Jan 16, 2013
  */
 public interface ServiceRiskRegister {
-	public RiskRegisterItem get(Integer id) ;
+	public RiskRegisterItem get(Integer id);
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer riskregisterItemId) ;
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskregisterItemId);
 
-	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId) ;
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId);
 
-	public void save(RiskRegisterItem riskRegisterItem) ;
+	public void save(RiskRegisterItem riskRegisterItem);
 
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) ;
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem);
 
-	public void delete(RiskRegisterItem riskRegisterItem) ;
+	public void delete(RiskRegisterItem riskRegisterItem);
 	
-	public void deleteAllFromAnalysis(Integer analysisID) ;
+	public void deleteAllFromAnalysis(Integer analysisID);
 }

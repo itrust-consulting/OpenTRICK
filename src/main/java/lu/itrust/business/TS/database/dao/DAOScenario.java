@@ -14,35 +14,35 @@ import lu.itrust.business.TS.model.scenario.ScenarioType;
  * @since 16 janv. 2013
  */
 public interface DAOScenario {
-	public Scenario get(Integer id) ;
+	public Scenario get(Integer id);
 
-	public Scenario getFromAnalysisById(Integer idAnalysis, Integer scenarioId) ;
+	public Scenario getFromAnalysisById(Integer idAnalysis, Integer scenarioId);
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId) ;
+	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId);
 
-	public boolean exist(Integer idAnalysis, String name) ;
+	public boolean exist(Integer idAnalysis, String name);
 	
-	public List<Scenario> getAll() ;
+	public List<Scenario> getAll();
 
-	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) ;
+	public List<Scenario> getAllFromAnalysis(Integer idAnalysis);
 
-	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) ;
+	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis);
 
-	public List<Scenario> getAllSelectedFromAnalysisByType(Integer idAnalysis, ScenarioType scenariotype) ;
+	public List<Scenario> getAllSelectedFromAnalysisByType(Integer idAnalysis, ScenarioType scenariotype);
 	
-	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) ;
+	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType);
 
-	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) ;
+	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios);
 
-	public Integer getAnalysisIdFromScenario(Integer scenarioId) ;
+	public Integer getAnalysisIdFromScenario(Integer scenarioId);
 	
-	public void save(Scenario scenario) ;
+	public void save(Scenario scenario);
 
-	public void saveOrUpdate(Scenario scenario) ;
+	public void saveOrUpdate(Scenario scenario);
 
-	public Scenario merge(Scenario scenario) ;
+	public Scenario merge(Scenario scenario);
 
-	public void delete(Scenario scenario) ;
+	public void delete(Scenario scenario);
 
 	public Scenario getByNameAndAnalysisId(String name, int analysisId);
 

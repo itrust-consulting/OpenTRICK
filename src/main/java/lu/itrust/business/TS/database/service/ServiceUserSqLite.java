@@ -15,27 +15,27 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2013
  */
 public interface ServiceUserSqLite {
-	public UserSQLite get(Integer id) ;
+	public UserSQLite get(Integer id);
 
-	public UserSQLite getByFilename(String filename) ;
+	public UserSQLite getByFilename(String filename);
 
-	public UserSQLite getByIdAndUser(Integer idFile, String username) ;
+	public UserSQLite getByIdAndUser(Integer idFile, String username);
 
-	public List<UserSQLite> getAllFromUser(String username) ;
+	public List<UserSQLite> getAllFromUser(String username);
 
-	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) ;
+	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize);
 
-	public UserSQLite save(UserSQLite userSqLite) ;
+	public UserSQLite save(UserSQLite userSqLite);
 
-	public void saveOrUpdate(UserSQLite userSqLite) ;
+	public void saveOrUpdate(UserSQLite userSqLite);
 
-	public UserSQLite merge(UserSQLite userSqLite) ;
+	public UserSQLite merge(UserSQLite userSqLite);
 
-	public void delete(Integer idUserSqLite) ;
+	public void delete(Integer idUserSqLite);
 
-	public void delete(String filename) ;
+	public void delete(String filename);
 
-	public void delete(UserSQLite userSqLite) ;
+	public void delete(UserSQLite userSqLite);
 
 	public List<String> getDistinctIdentifierByUser(User user);
 

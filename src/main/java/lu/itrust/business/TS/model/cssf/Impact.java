@@ -495,7 +495,7 @@ public class Impact {
 	 * @param acronym
 	 *            The Acronym to check
 	 * @return True if value meets the {@link #ACRONYM_REGEX regular expression}
-	 *         ; False when not
+	 *        ; False when not
 	 */
 	public boolean isAcronym(String acronym) {
 

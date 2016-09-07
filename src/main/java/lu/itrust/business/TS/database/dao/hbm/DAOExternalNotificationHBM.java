@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.database.dao.DAOExternalNotification;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 import lu.itrust.business.TS.model.externalnotification.ExternalNotificationType;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
@@ -38,39 +39,39 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 
 	/** {@inheritDoc} */
 	@Override
-	public ExternalNotification get(Integer id) throws Exception {
+	public ExternalNotification get(Integer id){
 		return (ExternalNotification) getSession().get(ExternalNotification.class, id);
 	}
 
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExternalNotification> getAll() throws Exception {
+	public List<ExternalNotification> getAll(){
 		return (List<ExternalNotification>) getSession().createQuery("From ExternalNotification").list();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void save(ExternalNotification externalNotification) throws Exception {
+	public void save(ExternalNotification externalNotification){
 		getSession().save(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void saveOrUpdate(ExternalNotification externalNotification) throws Exception {
+	public void saveOrUpdate(ExternalNotification externalNotification){
 		getSession().saveOrUpdate(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void delete(ExternalNotification externalNotification) throws Exception {
+	public void delete(ExternalNotification externalNotification){
 		getSession().delete(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability) throws Exception {
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability){
 		// Note that the probability decays exponentially with time. In particular, it never becomes zero.
 		// However, for performance reasons, we start neglecting it once it reaches 1/128 (which is < 1%). It does so after 7 times the half life.  
 		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp <= :now AND extnot.timestamp + extnot.halfLife*7 > :now AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp ASC";
@@ -105,7 +106,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 			else if (extNot.getType().equals(ExternalNotificationType.ABSOLUTE))
 				totalProbability = extNot.getSeverity();
 			else
-				throw new Exception("Unknown notification type: " + extNot.getType().name());
+				throw new TrickException("error.unknown.notification.type","Unknown notification type: " + extNot.getType().name(), extNot.getType().name());
 
 			// Store new computed probability
 			totalProbability = Math.max(minimumProbability, totalProbability);
@@ -118,7 +119,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability) throws Exception {
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability){
 		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.category, extnot.timestamp ASC";
 		Iterator<ExternalNotification> iterator = getSession().createQuery(query).setParameter("begin", timestampBegin).setParameter("end", timestampEnd).setParameter("sourceUserName", sourceUserName).iterate();
 
@@ -175,7 +176,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 				addedProbability = lastProbabilityLevelAfterNotif * (deltaTimeEnd - deltaTimeBegin);
 			}
 			else
-				throw new Exception("Unknown external notification type: " + last.getType().name());
+				throw new TrickException("error.unknown.external.notification.type","Unknown external notification type: " + last.getType().name(), last.getType().name());
 			
 			// Store
 			probabilityLevel.put(parameterName, lastProbabilityLevelAfterNotif * Math.pow(.5, (double)(next.getTimestamp() - last.getTimestamp()) / last.getHalfLife()));
@@ -208,8 +209,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 				addedProbability = lastProbabilityLevelAfterNotif * (deltaTimeEnd - deltaTimeBegin);
 			}
 			else
-				throw new Exception("Unknown external notification type: " + last.getType().name());
-
+				throw new TrickException("error.unknown.external.notification.type","Unknown external notification type: " + last.getType().name(), last.getType().name());
 			// Store
 			totalProbability.put(parameterName, lastTotalProbability + addedProbability / totalInterval);
 		}

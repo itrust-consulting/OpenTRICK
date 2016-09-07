@@ -15,45 +15,45 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  * @since 16 janv. 2013
  */
 public interface DAOAssessment {
-	public Assessment get(Integer id) ;
+	public Assessment get(Integer id);
 
-	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) ;
+	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment);
 	
-	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId) ;
+	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId);
 
-	public List<Assessment> getAll() ;
+	public List<Assessment> getAll();
 
-	public List<Assessment> getAllFromAnalysis(Integer idAnalysis) ;
+	public List<Assessment> getAllFromAnalysis(Integer idAnalysis);
 
-	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym) ;
+	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym);
 
-	public List<Assessment> getAllFromAnalysisAndSelectedScenario(Integer idAnalysis) ;
+	public List<Assessment> getAllFromAnalysisAndSelectedScenario(Integer idAnalysis);
 
-	public List<Assessment> getAllFromScenario(Integer scenarioID) ;
+	public List<Assessment> getAllFromScenario(Integer scenarioID);
 
-	public List<Assessment> getAllFromScenario(Scenario scenario) ;
+	public List<Assessment> getAllFromScenario(Scenario scenario);
 
-	public List<Assessment> getAllSelectedFromScenario(Scenario scenario) ;
+	public List<Assessment> getAllSelectedFromScenario(Scenario scenario);
 
-	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario) ;
+	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario);
 
-	public List<Assessment> getAllFromAnalysisAndSelectedAsset(Integer idAnalysis) ;
+	public List<Assessment> getAllFromAnalysisAndSelectedAsset(Integer idAnalysis);
 
-	public List<Assessment> getAllFromAsset(Integer assetID) ;
+	public List<Assessment> getAllFromAsset(Integer assetID);
 
-	public List<Assessment> getAllFromAsset(Asset asset) ;
+	public List<Assessment> getAllFromAsset(Asset asset);
 
-	public List<Assessment> getAllSelectedFromAsset(Asset asset) ;
+	public List<Assessment> getAllSelectedFromAsset(Asset asset);
 
-	public List<Assessment> getAllUnSelectedFromAsset(Asset asset) ;
+	public List<Assessment> getAllUnSelectedFromAsset(Asset asset);
 
-	public void save(Assessment assessment) ;
+	public void save(Assessment assessment);
 
-	public void saveOrUpdate(Assessment assessment) ;
+	public void saveOrUpdate(Assessment assessment);
 
-	public void saveOrUpdate(List<Assessment> assessments) ;
+	public void saveOrUpdate(List<Assessment> assessments);
 
-	public void delete(Assessment assessment) ;
+	public void delete(Assessment assessment);
 
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis);
 

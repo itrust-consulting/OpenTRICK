@@ -13,7 +13,7 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
  */
 public interface DAORiskProfile {
 	
-	 RiskProfile get(Integer id) ;
+	 RiskProfile get(Integer id);
 
 	 boolean belongsToAnalysis(Integer analysisId, Integer idRiskProfile);
 

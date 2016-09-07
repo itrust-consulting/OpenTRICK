@@ -16,35 +16,35 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 1, 2013
  */
 public interface ServiceUser {
-	public User get(Integer id) ;
+	public User get(Integer id);
 
-	public User get(String login) ;
+	public User get(String login);
 
-	public User get(String login, String password) ;
+	public User get(String login, String password);
 
-	public boolean noUsers() ;
+	public boolean noUsers();
 
-	public List<User> getAll() ;
+	public List<User> getAll();
 
-	public List<User> getAllByFirstName(String name) ;
+	public List<User> getAllByFirstName(String name);
 
-	public List<User> getAllByCountry(String name) ;
+	public List<User> getAllByCountry(String name);
 
-	public List<User> getAllFromCustomer(Integer customer) ;
+	public List<User> getAllFromCustomer(Integer customer);
 
-	public List<User> getAllFromCustomer(Customer customer) ;
+	public List<User> getAllFromCustomer(Customer customer);
 
-	public List<User> getAllAdministrators() ;
+	public List<User> getAllAdministrators();
 	
-	public boolean hasRole(User user, Role role) ;
+	public boolean hasRole(User user, Role role);
 
-	public void save(User user) ;
+	public void save(User user);
 
-	public void saveOrUpdate(User user) ;
+	public void saveOrUpdate(User user);
 
-	public void delete(Integer id) ;
+	public void delete(Integer id);
 
-	public void delete(User user) ;
+	public void delete(User user);
 
 	public User getByEmail(String email);
 

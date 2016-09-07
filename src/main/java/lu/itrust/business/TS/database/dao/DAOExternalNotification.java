@@ -7,19 +7,19 @@ import lu.itrust.business.TS.model.externalnotification.ExternalNotification;
 
 public interface DAOExternalNotification {
 	/** Retrieves an entity from the DAO. */
-	public ExternalNotification get(Integer id) throws Exception;
+	public ExternalNotification get(Integer id);
 
 	/** Retrieves all entities from the DAO. */
-	public List<ExternalNotification> getAll() throws Exception;
+	public List<ExternalNotification> getAll();
 
 	/** Saves an entity into the DAO. */
-	public void save(ExternalNotification externalNotification) throws Exception;
+	public void save(ExternalNotification externalNotification);
 
 	/** Saves an entity into the DAO, or updates it. */
-	public void saveOrUpdate(ExternalNotification externalNotification) throws Exception;
+	public void saveOrUpdate(ExternalNotification externalNotification);
 
 	/** Removes an entity from the DAO. */
-	public void delete(ExternalNotification externalNotification) throws Exception;
+	public void delete(ExternalNotification externalNotification);
 
 	/**
 	 * Derives the probabilities of occurrence of categories from the external
@@ -39,7 +39,7 @@ public interface DAOExternalNotification {
 	 *         probability that the associated event occurs.
 	 * @throws Exception
 	 */
-	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability) throws Exception;
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability);
 
 	/**
 	 * Derives the probabilities of occurrence of categories from the external
@@ -61,5 +61,5 @@ public interface DAOExternalNotification {
 	 *         probability that the associated event occurs.
 	 * @throws Exception
 	 */
-	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability) throws Exception;
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability);
 }

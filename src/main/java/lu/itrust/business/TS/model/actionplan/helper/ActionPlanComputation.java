@@ -2457,7 +2457,7 @@ public class ActionPlanComputation {
 	 * @param chapter
 	 *            The Maturity Chapter to check
 	 * @return True if there is at least 1 Measure inside the AnalysisStandard
-	 *         27002 Chapter that is applicable ;False if there are no Measures
+	 *         27002 Chapter that is applicable;False if there are no Measures
 	 *         in the 27002 AnalysisStandard
 	 */
 	private static boolean hasUsable27002MeasuresInMaturityChapter(Analysis analysis, String chapter) {

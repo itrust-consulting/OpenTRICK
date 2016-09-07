@@ -1,8 +1,6 @@
 package lu.itrust.business.TS.component;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +9,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
+import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOIDSHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.impl.ServiceExternalNotificationImpl;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
-import lu.itrust.business.TS.usermanagement.RoleType;
 
 /**
  * Component which allows to compute the values of dynamic parameters.
@@ -34,6 +32,7 @@ import lu.itrust.business.TS.usermanagement.RoleType;
 @Component
 @Transactional
 public class DynamicParameterComputer {
+	
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
@@ -45,6 +44,9 @@ public class DynamicParameterComputer {
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentManager;
+	
+	@Autowired
+	private DAOIDS daoIDS;
 
 	public DynamicParameterComputer() {
 	}
@@ -53,6 +55,7 @@ public class DynamicParameterComputer {
 		this.daoAnalysis = new DAOAnalysisHBM(session);
 		this.daoParameterType = new DAOParameterTypeHBM(session);
 		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
+		this.daoIDS = new DAOIDSHBM(session);
 		this.assessmentManager = assessmentManager;
 	}
 
@@ -64,10 +67,7 @@ public class DynamicParameterComputer {
 	 */
 	public void computeForAllAnalysesOfUser(String userName) throws Exception {
 		// Fetch all analyses which the user can access
-		List<Analysis> analyses = daoAnalysis.getFromUserNameAndNotEmpty(userName, AnalysisRight.highRightFrom(AnalysisRight.MODIFY));
-		for (Analysis analysis : analyses) {
-			this.computeForAnalysisAndSource(userName, analysis);
-		}
+		daoIDS.get(userName).getSubscribers().forEach(analysis -> computeForAnalysisAndSource(userName, analysis));
 	}
 
 	/**
@@ -79,13 +79,8 @@ public class DynamicParameterComputer {
 	public void computeForAnalysis(Analysis analysis) throws Exception {
 		// Find all external sources (i.e. users) which provide dynamic
 		// parameters
-		List<String> userNames = analysis.getUserRights().stream().map(userRight -> userRight.getUser()).filter(user -> user.hasRole(RoleType.ROLE_IDS))
-				.map(user -> user.getLogin()).collect(Collectors.toList());
-
 		// Compute dynamic parameters
-		for (String userName : userNames) {
-			this.computeForAnalysisAndSource(userName, analysis);
-		}
+		daoIDS.getPrefixesByAnalysisId(analysis.getId()).stream().forEach(prefix -> this.computeForAnalysisAndSource(prefix, analysis));
 	}
 
 	/**
@@ -97,7 +92,7 @@ public class DynamicParameterComputer {
 	 * @param analysis
 	 *            The analysis for which parameters shall be recomputed.
 	 */
-	private void computeForAnalysisAndSource(String userName, Analysis analysis) throws Exception {
+	private void computeForAnalysisAndSource(String userName, Analysis analysis) {
 		// Fetch the 'DYNAMIC' parameter type or create it, if if does not exist
 		// yet/anymore
 		ParameterType dynamicParameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);

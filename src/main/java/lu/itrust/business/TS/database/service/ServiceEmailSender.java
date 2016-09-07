@@ -14,7 +14,7 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public interface ServiceEmailSender {
 	
-	void sendRegistrationMail(List<User> recipient, User user) ;
+	void sendRegistrationMail(List<User> recipient, User user);
 	
 	void sendResetPassword(ResetPassword password,String hotname);
 }

@@ -15,27 +15,27 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2013
  */
 public interface ServiceRole {
-	public Role get(Integer id) ;
+	public Role get(Integer id);
 
-	public Role getByName(String name) ;
+	public Role getByName(String name);
 	
-	public Role getByType(RoleType type) ;
+	public Role getByType(RoleType type);
 
-	public List<Role> getAll() ;
+	public List<Role> getAll();
 
-	public List<Role> getAllFromUser(String login) ;
+	public List<Role> getAllFromUser(String login);
 
-	public List<Role> getAllFromUser(User user) ;
+	public List<Role> getAllFromUser(User user);
 
-	public void save(Role role) ;
+	public void save(Role role);
 
-	public void saveOrUpdate(Role role) ;
+	public void saveOrUpdate(Role role);
 
-	public void delete(Integer id) ;
+	public void delete(Integer id);
 
-	public void delete(String login) ;
+	public void delete(String login);
 
-	public void delete(Role role) ;
+	public void delete(Role role);
 
-	public void delete(User user) ;
+	public void delete(User user);
 }

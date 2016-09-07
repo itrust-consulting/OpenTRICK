@@ -16,27 +16,27 @@ import lu.itrust.business.TS.model.standard.Standard;
  */
 public interface DAOAnalysisStandard {
 	
-	public AnalysisStandard get(Integer id) ;
+	public AnalysisStandard get(Integer id);
 
-	public List<AnalysisStandard> getAll() ;
+	public List<AnalysisStandard> getAll();
 
-	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId) ;
+	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisId);
 
-	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId) ;
+	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisId);
 	
-	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) ;
+	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis);
 
-	public List<AnalysisStandard> getAllFromStandard(Standard standard) ;
+	public List<AnalysisStandard> getAllFromStandard(Standard standard);
 	
-	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) ;
+	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard);
 
-	public void deleteAllFromAnalysis(Integer analysisId) ;
+	public void deleteAllFromAnalysis(Integer analysisId);
 	
-	public void save(AnalysisStandard analysisStandard) ;
+	public void save(AnalysisStandard analysisStandard);
 
-	public void saveOrUpdate(AnalysisStandard analysisStandard) ;
+	public void saveOrUpdate(AnalysisStandard analysisStandard);
 
-	public void delete(AnalysisStandard analysisStandard) ;
+	public void delete(AnalysisStandard analysisStandard);
 
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard);
 

@@ -21,6 +21,7 @@
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
 				<li class="active"><a href="#tab_status" data-toggle="tab"><spring:message code="label.menu.installation.status" text="Status" /></a></li>
 				<li><a href="#tab_user" data-toggle="tab"><spring:message code="menu.admin.user" text="User" /></a></li>
+				<li><a href="#tab_ids" data-toggle="tab"><spring:message code="menu.admin.ids" text="IDS" /></a></li>
 				<li><a href="#tab_customer" data-toggle="tab"><spring:message code="menu.knowledgebase.customers" text="Customers" /></a></li>
 				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.title" text="All Analyses" /></a></li>
 				<li><a href="#tab_tsSetting" data-toggle="tab"><spring:message code="label.settings" text="Settings" /></a></li>
@@ -33,6 +34,7 @@
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="status.jsp" />
 				<jsp:include page="user/users.jsp" />
+				<jsp:include page="ids/home.jsp" />
 				<jsp:include page="customer/customers.jsp" />
 				<jsp:include page="analysis/analyses.jsp" />
 				<jsp:include page="tsSetting/home.jsp" />

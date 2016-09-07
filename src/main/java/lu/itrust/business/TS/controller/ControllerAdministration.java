@@ -43,6 +43,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTrickLog;
@@ -105,6 +106,9 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceUser serviceUser;
+	
+	@Autowired
+	private ServiceIDS serviceIDS;
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
@@ -147,6 +151,7 @@ public class ControllerAdministration {
 	@RequestMapping
 	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
 		model.put("users", serviceUser.getAll());
+		model.put("IDSs", serviceIDS.getAll());
 		List<Customer> customers = serviceCustomer.getAll();
 		Integer customerID = (Integer) session.getAttribute("currentAdminCustomer");
 		Integer profileId = null;
@@ -479,6 +484,22 @@ public class ControllerAdministration {
 	public String userSection(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("users", serviceUser.getAll());
 		return "admin/user/users";
+	}
+	
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/IDS/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String idsSection(Model model, HttpSession session, Principal principal) throws Exception {
+		model.addAttribute("IDSs", serviceIDS.getAll());
+		return "admin/ids/home";
 	}
 
 	/**

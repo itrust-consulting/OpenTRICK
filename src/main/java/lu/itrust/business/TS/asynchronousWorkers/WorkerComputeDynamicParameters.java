@@ -11,6 +11,7 @@ import lu.itrust.business.TS.component.DynamicParameterComputer;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 
 public class WorkerComputeDynamicParameters implements Worker {
+	
 	private String id = String.valueOf(System.nanoTime());
 
 	private Exception error;

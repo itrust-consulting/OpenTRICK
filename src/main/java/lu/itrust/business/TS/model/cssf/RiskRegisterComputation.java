@@ -534,7 +534,7 @@ public class RiskRegisterComputation {
 
 	/**
 	 * getLikelihoodLevel: <br>
-	 * Use parameters to retrieve Likelihood Level [0 ; 10]
+	 * Use parameters to retrieve Likelihood Level [0; 10]
 	 * 
 	 * @param likelihood
 	 *            [0; +&infin;[
@@ -550,7 +550,7 @@ public class RiskRegisterComputation {
 
 	/**
 	 * getImpactLevel: <br>
-	 * Use parameters to retrieve Impact Level [0 ; 10]
+	 * Use parameters to retrieve Impact Level [0; 10]
 	 * 
 	 * @param impact
 	 *            [0; +&infin;[
@@ -620,7 +620,7 @@ public class RiskRegisterComputation {
 
 	/**
 	 * getLevel: <br>
-	 * Use parameters to retrieve Level [0 ; 10]
+	 * Use parameters to retrieve Level [0; 10]
 	 * 
 	 * @param value
 	 *            [0; +&infin;[

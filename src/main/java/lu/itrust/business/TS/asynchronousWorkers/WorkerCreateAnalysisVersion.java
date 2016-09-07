@@ -12,6 +12,8 @@ import org.hibernate.SessionFactory;
 
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.database.dao.DAOIDS;
+import lu.itrust.business.TS.database.dao.hbm.DAOIDSHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
@@ -45,6 +47,8 @@ public class WorkerCreateAnalysisVersion implements Worker {
 	private WorkersPoolManager poolManager;
 
 	private SessionFactory sessionFactory;
+
+	private DAOIDS daoIDS;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -125,6 +129,8 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 			session = sessionFactory.openSession();
 
+			daoIDS = new DAOIDSHBM(session);
+
 			Duplicator duplicator = new Duplicator(session);
 
 			session.getTransaction().begin();
@@ -134,7 +140,7 @@ public class WorkerCreateAnalysisVersion implements Worker {
 			if (analysis == null)
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", 0));
 			else {
-				
+
 				Analysis copy = duplicator.duplicateAnalysis(analysis, null, serviceTaskFeedback, id, 5, 95);
 
 				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.update.setting", "Update analysis settings", 95));
@@ -164,6 +170,11 @@ public class WorkerCreateAnalysisVersion implements Worker {
 				duplicator.getDaoAnalysis().saveOrUpdate(copy);
 
 				serviceTaskFeedback.send(id, new MessageHandler("info.commit.transcation", "Commit transaction", 98));
+
+				daoIDS.getByAnalysis(analysis).forEach(ids -> {
+					ids.getSubscribers().add(copy);
+					daoIDS.saveOrUpdate(ids);
+				});
 
 				session.getTransaction().commit();
 

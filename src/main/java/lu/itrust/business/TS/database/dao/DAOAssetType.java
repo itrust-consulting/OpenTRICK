@@ -13,17 +13,17 @@ import lu.itrust.business.TS.model.asset.AssetType;
  * @since 16 janv. 2013
  */
 public interface DAOAssetType {
-	public AssetType get(Integer id) ;
+	public AssetType get(Integer id);
 
-	public AssetType getByName(String assetTypeName) ;
+	public AssetType getByName(String assetTypeName);
 
-	public List<AssetType> getAll() ;
+	public List<AssetType> getAll();
 
-	public List<AssetType> getAllFromAnalysis(Integer idAnalysis) ;
+	public List<AssetType> getAllFromAnalysis(Integer idAnalysis);
 
-	public void save(AssetType assetType) ;
+	public void save(AssetType assetType);
 
-	public void saveOrUpdate(AssetType assetType) ;
+	public void saveOrUpdate(AssetType assetType);
 
-	public void delete(AssetType assetType) ;
+	public void delete(AssetType assetType);
 }

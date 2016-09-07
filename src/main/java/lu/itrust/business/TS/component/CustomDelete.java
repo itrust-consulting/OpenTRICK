@@ -28,6 +28,7 @@ import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
+import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
@@ -130,6 +131,8 @@ public class CustomDelete {
 
 	@Autowired
 	private DAORiskProfile daoRiskProfile;
+	
+	private DAOIDS daoIDS;
 
 	@Transactional
 	public void deleteAsset(int idAsset, int idAnalysis) throws Exception {
@@ -359,7 +362,12 @@ public class CustomDelete {
 	}
 
 	protected void deleteAnalysis(Analysis analysis, String username) throws Exception {
-
+		
+		daoIDS.getByAnalysis(analysis).forEach(ids -> {
+			ids.getSubscribers().remove(analysis);
+			daoIDS.saveOrUpdate(ids);
+		});
+		
 		daoAnalysis.delete(analysis);
 		/**
 		 * Log
@@ -384,6 +392,12 @@ public class CustomDelete {
 			return;
 		Collections.sort(analyses, Collections.reverseOrder(new AnalysisComparator()));
 		for (Analysis analysis : analyses) {
+			
+			daoIDS.getByAnalysis(analysis).forEach(ids -> {
+				ids.getSubscribers().remove(analysis);
+				daoIDS.saveOrUpdate(ids);
+			});
+			
 			daoAnalysis.delete(analysis);
 			/**
 			 * Log

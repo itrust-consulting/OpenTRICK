@@ -13,13 +13,13 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
  * @since May 12, 2014
  */
 public interface DAOMeasureAssetValue {
-	public MeasureAssetValue get(Integer id) ;
+	public MeasureAssetValue get(Integer id);
 
-	public void save(MeasureAssetValue measureAssetValue) ;
+	public void save(MeasureAssetValue measureAssetValue);
 
-	public void saveOrUpdate(MeasureAssetValue measureAssetValue) ;
+	public void saveOrUpdate(MeasureAssetValue measureAssetValue);
 
-	public void delete(MeasureAssetValue measureAssetValue) ;
+	public void delete(MeasureAssetValue measureAssetValue);
 
 	public List<MeasureAssetValue> getByAssetId(int idAsset);
 

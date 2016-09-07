@@ -13,35 +13,35 @@ import lu.itrust.business.TS.model.asset.Asset;
  * @since 16 janv. 2013
  */
 public interface DAOAsset {
-	public Asset get(Integer id) ;
+	public Asset get(Integer id);
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) ;
+	public boolean belongsToAnalysis(Integer analysisId, Integer assetId);
 
-	public Asset getFromAnalysisByName(Integer analysisId, String name) ;
+	public Asset getFromAnalysisByName(Integer analysisId, String name);
 	
-	public List<Asset> getAll() ;
+	public List<Asset> getAll();
 
-	public List<Asset> getByPageAndSize(Integer pageIndex, Integer pageSize) ;
+	public List<Asset> getByPageAndSize(Integer pageIndex, Integer pageSize);
 
-	public List<Asset> getFromAnalysisByPageAndSize(Integer analysisId, Integer pageIndex, Integer pageSize) ;
+	public List<Asset> getFromAnalysisByPageAndSize(Integer analysisId, Integer pageIndex, Integer pageSize);
 
-	public List<Asset> getAllFromAnalysis(Integer analysisId) ;
+	public List<Asset> getAllFromAnalysis(Integer analysisId);
 
-	public List<Asset> getAllFromAnalysisIdAndSelected(Integer idAnalysis) ;
+	public List<Asset> getAllFromAnalysisIdAndSelected(Integer idAnalysis);
 
-	public List<Asset> getSelectedFromAnalysisAndOrderByALE(Integer idAnalysis) ;
+	public List<Asset> getSelectedFromAnalysisAndOrderByALE(Integer idAnalysis);
 
-	public Integer getAnalysisIdFromAsset(Integer assetId) ;
+	public Integer getAnalysisIdFromAsset(Integer assetId);
 	
-	public Asset save(Asset asset) ;
+	public Asset save(Asset asset);
 
-	public void saveOrUpdate(Asset asset) ;
+	public void saveOrUpdate(Asset asset);
 
-	public Asset merge(Asset asset) ;
+	public Asset merge(Asset asset);
 
-	public void delete(Integer id) ;
+	public void delete(Integer id);
 
-	public void delete(Asset asset) ;
+	public void delete(Asset asset);
 
 	public boolean exist(Integer idAnalysis, String name);
 

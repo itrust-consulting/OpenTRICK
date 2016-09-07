@@ -33,43 +33,43 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 
 	/** {@inheritDoc} */
 	@Override
-	public ExternalNotification get(Integer id) throws Exception {
+	public ExternalNotification get(Integer id){
 		return daoExternalNotification.get(id); 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public List<ExternalNotification> getAll() throws Exception {
+	public List<ExternalNotification> getAll(){
 		return daoExternalNotification.getAll();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void save(ExternalNotification externalNotification) throws Exception {
+	public void save(ExternalNotification externalNotification){
 		daoExternalNotification.save(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void saveOrUpdate(ExternalNotification externalNotification) throws Exception {
+	public void saveOrUpdate(ExternalNotification externalNotification){
 		daoExternalNotification.save(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void delete(ExternalNotification externalNotification) throws Exception {
+	public void delete(ExternalNotification externalNotification){
 		daoExternalNotification.delete(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Double> computeProbabilitiesAtTime(long timestampNow, String sourceUserName, double minimumProbability) throws Exception {
+	public Map<String, Double> computeProbabilitiesAtTime(long timestampNow, String sourceUserName, double minimumProbability){
 		return daoExternalNotification.computeProbabilitiesAtTime(timestampNow, sourceUserName, minimumProbability);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability) throws Exception {
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability){
 		return daoExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability);
 	}
 }

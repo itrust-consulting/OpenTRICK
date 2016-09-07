@@ -7,12 +7,16 @@
 	<global-method-security pre-post-annotations="enabled">
 		<expression-handler ref="methodSecurityExpressionHandler" />
 	</global-method-security>
+	
+	<http pattern="/Api/ids/**" realm="TRICK Service application" authentication-manager-ref="ids_authentication-manager">
+		<intercept-url pattern="/Api/ids/**" access="hasRole('ROLE_IDS')" />
+		<http-basic />
+	</http>
 
-	<http use-expressions="false" realm="TRICK Service application">
+	<http use-expressions="false" realm="TRICK Service application" authentication-manager-ref="authentication-manager">
 		<intercept-url pattern="/Login" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/Register" access="ROLE_ANONYMOUS" />
 		<intercept-url pattern="/DoRegister" access="ROLE_ANONYMOUS" />
-		<intercept-url pattern="/Api/ids/**" access="ROLE_IDS" />
 		<intercept-url pattern="/Api/data/**" access="ROLE_USER,ROLE_ADMIN,ROLE_SUPERVISOR,ROLE_CONSULTANT" />
 		<form-login login-page="/Login" default-target-url="/Home" login-processing-url="/signin" authentication-success-handler-ref="authenticationSuccessHandler"
 			authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />

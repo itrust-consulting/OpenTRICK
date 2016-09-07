@@ -119,11 +119,11 @@ public class WorkersPoolManagerImpl implements WorkersPoolManager {
 	}
 
 	@Override
-	@Scheduled(initialDelay = 5000, fixedDelay = 5000)
+	@Scheduled(initialDelay = 60000, fixedDelay = 60000)
 	public void cleaning() {
 		if (workersPool == null || workersPool.isEmpty())
 			return;
-		Date limit = new Timestamp(System.currentTimeMillis() - 5000);
+		Date limit = new Timestamp(System.currentTimeMillis() - 120000);
 		Iterator<Entry<String, Worker>> iterator = workersPool.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<String, Worker> entry = iterator.next();

@@ -17,32 +17,32 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
  * @since Feb 13, 2013
  */
 public interface ServiceActionPlan {
-	public ActionPlanEntry get(Integer id) ;
+	public ActionPlanEntry get(Integer id);
 
-	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer id) ;
+	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer id);
 	
-	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanEntryId) ;
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanEntryId);
 
-	public List<ActionPlanEntry> getAll() ;
+	public List<ActionPlanEntry> getAll();
 
-	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) ;
+	public List<ActionPlanEntry> getAllFromAnalysis(Integer id);
 
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) ;
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode);
 
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) ;
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode);
 
-	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer analysisID, ActionPlanMode mode) ;
+	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer analysisID, ActionPlanMode mode);
 
-	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm) ;
+	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm);
 
-	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID) ;
+	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID);
 
-	public void save(ActionPlanEntry actionPlanEntry) ;
+	public void save(ActionPlanEntry actionPlanEntry);
 
-	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) ;
+	public void saveOrUpdate(ActionPlanEntry actionPlanEntry);
 
-	public void delete(ActionPlanEntry actionPlanEntry) ;
+	public void delete(ActionPlanEntry actionPlanEntry);
 	
-	public void deleteAllFromAnalysis(Integer analysisID) ;
+	public void deleteAllFromAnalysis(Integer analysisID);
 
 }

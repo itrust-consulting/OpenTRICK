@@ -11,13 +11,13 @@ import lu.itrust.business.TS.model.TrickService;
  * @since Apr 23, 2014
  */
 public interface DAOTrickService {
-	public TrickService get(Integer id) ;
+	public TrickService get(Integer id);
 
-	public TrickService getStatus() ;
+	public TrickService getStatus();
 
-	public void save(TrickService trickservice) ;
+	public void save(TrickService trickservice);
 
-	public void saveOrUpdate(TrickService trickservice) ;
+	public void saveOrUpdate(TrickService trickservice);
 
-	public void delete(TrickService trickservice) ;
+	public void delete(TrickService trickservice);
 }

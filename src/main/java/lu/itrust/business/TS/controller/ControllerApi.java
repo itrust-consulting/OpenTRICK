@@ -33,6 +33,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
+import lu.itrust.business.TS.database.service.ServiceIDS;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -56,6 +57,7 @@ import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.usermanagement.IDS;
 
 /**
  * ControllerApi.java: <br>
@@ -100,6 +102,9 @@ public class ControllerApi {
 
 	@Autowired
 	private ServiceStandard serviceStandard;
+	
+	@Autowired
+	private ServiceIDS serviceIDS;
 
 	/**
 	 * Method is called whenever an exception of type TrickException is thrown
@@ -139,16 +144,19 @@ public class ControllerApi {
 	@Transactional
 	@RequestMapping(value = "/ids/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
-		String userName = principal.getName();
+		
+		IDS ids = serviceIDS.get(principal.getName()).notifyAlert();
 
 		for (ApiExternalNotification apiObj : request.getData())
-			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, userName));
+			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, ids.getPrefix()));
 
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been
 		// scheduled yet for the given user.
-		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
-
+		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+		
+		serviceIDS.saveOrUpdate(ids);
+		
 		// Success
 		return new ApiResult(0);
 	}
@@ -166,10 +174,11 @@ public class ControllerApi {
 	@Transactional
 	@RequestMapping(value = "/ids/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object set(HttpSession session, Principal principal, @RequestBody ApiSetParameterRequest request) throws Exception {
-		String userName = principal.getName();
+		
+		IDS ids = serviceIDS.get(principal.getName()).notifyUpdate();
 
 		for (ApiParameterSetter apiObj : request.getData())
-			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, userName));
+			serviceExternalNotification.save(ExternalNotificationHelper.createEntityBasedOn(apiObj, ids.getPrefix()));
 
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been
@@ -179,8 +188,9 @@ public class ControllerApi {
 		// whether there are other parameter setters
 		// or external notifications in the database which also impact the value
 		// of the parameter.
-		WorkerComputeDynamicParameters.trigger(userName, computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
-
+		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
+		
+		serviceIDS.saveOrUpdate(ids);
 		// Success
 		return new ApiResult(0);
 	}

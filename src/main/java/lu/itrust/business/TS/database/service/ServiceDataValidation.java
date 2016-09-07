@@ -17,25 +17,25 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
  * @since May 13, 2013
  */
 public interface ServiceDataValidation {
-	public boolean register(ValidatorField validator) ;
+	public boolean register(ValidatorField validator);
 
-	public boolean unregister(Class<?> clazz) ;
+	public boolean unregister(Class<?> clazz);
 
-	public boolean isRegistred(Class<?> clazz) ;
+	public boolean isRegistred(Class<?> clazz);
 
-	public boolean isRegistred(ValidatorField validator) ;
+	public boolean isRegistred(ValidatorField validator);
 
-	public ValidatorField findByClass(Class<?> clazz) ;
+	public ValidatorField findByClass(Class<?> clazz);
 
-	public String validate(Object object, String fieldName, Object data) ;
+	public String validate(Object object, String fieldName, Object data);
 
-	public String validate(Object o, String fieldName, Object candidate, Object[] choose) ;
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose);
 
-	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) ;
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose);
 
-	public String ParseError(String message, MessageSource messageSource, Locale locale) ;
+	public String ParseError(String message, MessageSource messageSource, Locale locale);
 
-	public Map<String, String> validate(Object object) ;
+	public Map<String, String> validate(Object object);
 
-	public Map<String, String> validate(Object o, Map<Object, Object> choose) ;
+	public Map<String, String> validate(Object o, Map<Object, Object> choose);
 }

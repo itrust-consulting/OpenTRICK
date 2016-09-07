@@ -5,7 +5,7 @@
            http://www.springframework.org/schema/security/spring-security-4.1.xsd">
 
 
-	<authentication-manager>
+	<authentication-manager id="authentication-manager">
 		<!-- Standard Authentication, it can be commented if not used -->
 		<authentication-provider>
 			<jdbc-user-service data-source-ref="dataSource"
@@ -26,6 +26,15 @@
 			group-search-base="${app.settings.ldap.group_search_base}" user-search-filter="${app.settings.ldap.user_search_filter}" user-search-base="${app.settings.ldap.user_search_base}" group-search-filter="${app.settings.ldap.group_search_filter}" 
 			/> -->
 
+	</authentication-manager>
+
+	<authentication-manager id="ids_authentication-manager">
+		<authentication-provider>
+			<jdbc-user-service data-source-ref="dataSource" users-by-username-query="SELECT dtPrefix as username, dtToken as password, dtEnabled as enable from
+			IDS where dtPrefix=?"
+				authorities-by-username-query="SELECT dtPrefix as username, case when dtEnabled = true then 'ROLE_IDS' else null end as role from 
+			IDS where dtPrefix=?" />
+		</authentication-provider>
 	</authentication-manager>
 
 	<!-- LDAP Authentication, it can be commented if not used -->

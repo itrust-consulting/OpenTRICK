@@ -11,7 +11,6 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,7 +18,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
@@ -27,7 +25,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.usermanagement.listner.UserEncryptListner;
 
 /**
  * User: <br>
@@ -38,9 +35,7 @@ import lu.itrust.business.TS.usermanagement.listner.UserEncryptListner;
  * @since Aug 19, 2012
  */
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "dtEmail"), @UniqueConstraint(columnNames = "dtLogin") })
-@EntityListeners(UserEncryptListner.class)
-public class User implements Serializable {
+public class User implements Serializable, IUser {
 
 	@Transient
 	private static final String DEFAULT_LANGUAGE = "default-language";
@@ -72,11 +67,11 @@ public class User implements Serializable {
 	/** Fields */
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name = "idUser", length=12)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idUser", length = 12)
 	private Integer id = -1;
 
-	@Column(name = "dtLogin", nullable = false)
+	@Column(name = "dtLogin", nullable = false, unique = true)
 	private String login = null;
 
 	@Column(name = "dtPassword", nullable = false)
@@ -91,19 +86,20 @@ public class User implements Serializable {
 	@Column(name = "dtLastName", nullable = false)
 	private String lastName = null;
 
-	@Column(name = "dtEmail", nullable = false)
+	@Column(name = "dtEmail", nullable = false, unique = true)
 	private String email = null;
 
 	@Column(name = "dtEnabled", nullable = false)
 	private boolean enable = true;
 
 	@ManyToMany
-	@JoinTable(name = "UserRole", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiRole", nullable = false, updatable = false) })
+	@JoinTable(name = "UserRole", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
+			@JoinColumn(name = "fiRole", nullable = false, updatable = false) })
 	private List<Role> roles = null;
 
 	@ManyToMany
-	@JoinTable(name = "UserCustomer", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
-			"fiUser", "fiCustomer" }))
+	@JoinTable(name = "UserCustomer", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
+			@JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiUser", "fiCustomer" }))
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = null;
 
@@ -176,12 +172,12 @@ public class User implements Serializable {
 		this.id = id;
 	}
 
-	/**
-	 * getLogin: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return
+	 * @see lu.itrust.business.TS.usermanagement.IUser#getLogin()
 	 */
+	@Override
 	public String getLogin() {
 		return login;
 	}
@@ -196,12 +192,12 @@ public class User implements Serializable {
 		this.login = login;
 	}
 
-	/**
-	 * getPassword: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return
+	 * @see lu.itrust.business.TS.usermanagement.IUser#getPassword()
 	 */
+	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -276,12 +272,12 @@ public class User implements Serializable {
 		this.email = email;
 	}
 
-	/**
-	 * isEnable: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return
+	 * @see lu.itrust.business.TS.usermanagement.IUser#isEnable()
 	 */
+	@Override
 	public boolean isEnable() {
 		return enable;
 	}
@@ -595,6 +591,12 @@ public class User implements Serializable {
 			this.userSettings.put(name, String.valueOf(value));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.usermanagement.IUser#getAccess()
+	 */
+	@Override
 	public RoleType getAccess() {
 		RoleType[] roleTypes = RoleType.values();
 		for (int i = roleTypes.length - 1; i >= 0; i--) {
@@ -610,6 +612,14 @@ public class User implements Serializable {
 
 	public String removeSetting(String name) {
 		return userSettings.remove(name);
+	}
+
+	/**
+	 * return {@value User#firstName} +" "+ {@value #lastName}
+	 */
+	@Override
+	public String getFullname() {
+		return (firstName == null ? "" : firstName + " ") + (lastName == null ? "" : lastName);
 	}
 
 }

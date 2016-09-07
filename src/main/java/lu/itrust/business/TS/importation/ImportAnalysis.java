@@ -330,8 +330,7 @@ public class ImportAnalysis {
 			daoAnalysis.save(this.analysis);
 
 			// Update values of dynamic parameters
-			DynamicParameterComputer dynamicParameterComputer = new DynamicParameterComputer(session, new AssessmentAndRiskProfileManager());
-			dynamicParameterComputer.computeForAnalysis(this.analysis);
+			new DynamicParameterComputer(session, new AssessmentAndRiskProfileManager()).computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
 			new AssessmentAndRiskProfileManager().UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());

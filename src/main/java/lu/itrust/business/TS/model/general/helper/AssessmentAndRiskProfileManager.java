@@ -185,7 +185,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void UpdateAssessment() throws Exception {
+	public void UpdateAssessment() {
 		int size = daoAnalysis.countNotEmpty(), pageSize = 30;
 		for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++)
 			for (Analysis analysis : daoAnalysis.getAllNotEmpty(pageIndex, pageSize))
@@ -193,7 +193,7 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void UpdateAssessment(Analysis analysis) throws Exception {
+	public void UpdateAssessment(Analysis analysis){
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 		Map<String, AcronymParameter> expressionParameters = analysis.mapExpressionParametersByAcronym();
 		if (analysis.isCssf() || !analysis.getRiskProfiles().isEmpty()) {
@@ -238,7 +238,7 @@ public class AssessmentAndRiskProfileManager {
 		UpdateAssetALE(analysis);
 	}
 
-	public void UpdateRiskDendencies(Analysis analysis, Map<String, ExtendedParameter> parametersMapped) throws Exception {
+	public void UpdateRiskDendencies(Analysis analysis, Map<String, ExtendedParameter> parametersMapped) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
 		if (analysis.isCssf() || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
@@ -286,7 +286,7 @@ public class AssessmentAndRiskProfileManager {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void UpdateAssetALE(Analysis analysis) throws Exception {
+	public void UpdateAssetALE(Analysis analysis){
 		Map<String, AcronymParameter> expressionParameters = analysis.mapExpressionParametersByAcronym();
 		List<Asset> assets = analysis.findAssessmentBySelected();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();

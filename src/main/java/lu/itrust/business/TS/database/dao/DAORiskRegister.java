@@ -13,19 +13,19 @@ import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
  * @since 16 janv. 2013
  */
 public interface DAORiskRegister {
-	public RiskRegisterItem get(Integer id) ;
+	public RiskRegisterItem get(Integer id);
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer riskregisterItemId) ;
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskregisterItemId);
 
-	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId) ;
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId);
 
-	public void save(RiskRegisterItem riskRegisterItem) ;
+	public void save(RiskRegisterItem riskRegisterItem);
 
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) ;
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem);
 
-	public void delete(RiskRegisterItem riskRegisterItem) ;
+	public void delete(RiskRegisterItem riskRegisterItem);
 	
-	public void deleteAllFromAnalysis(Integer analysisID) ;
+	public void deleteAllFromAnalysis(Integer analysisID);
 
 	public void delete(Integer integer);
 

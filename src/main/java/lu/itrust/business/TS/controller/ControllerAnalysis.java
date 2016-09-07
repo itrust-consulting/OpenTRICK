@@ -620,7 +620,6 @@ public class ControllerAnalysis {
 	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
-
 			// prepare permission verifier
 			PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
@@ -770,18 +769,10 @@ public class ControllerAnalysis {
 			if (analysis == null)
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
-			List<String> versions = serviceAnalysis.getAllNotEmptyVersion(analysis.getIdentifier());
+			String lastVersion = serviceAnalysis.getAllNotEmptyVersion(analysis.getIdentifier()).stream().sorted((v0, v1) -> {
+				return NaturalOrderComparator.compareTo(v1, v0);
+			}).findFirst().get();
 
-			Comparator<String> comparator = new Comparator<String>() {
-				@Override
-				public int compare(String o1, String o2) {
-					return NaturalOrderComparator.compareTo(o1, o2);
-				}
-			};
-
-			Collections.sort(versions, Collections.reverseOrder(comparator));
-
-			String lastVersion = versions.get(0);
 
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
@@ -790,17 +781,13 @@ public class ControllerAnalysis {
 
 			History history = new History();
 
-			String error = null;
-
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-
+			JsonNode jsonNode = new ObjectMapper().readTree(value);
 			String author = jsonNode.get("author").asText();
 			Date date = new Date(System.currentTimeMillis());
 			String version = jsonNode.get("version").asText();
 			String comment = jsonNode.get("comment").asText();
-
-			error = validator.validate(history, "author", author);
+			
+			String error  = validator.validate(history, "author", author);
 			if (error != null)
 				errors.put("author", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
@@ -1114,7 +1101,7 @@ public class ControllerAnalysis {
 				row = sheet.getRow(++lineIndex);
 				if (row == null)
 					row = sheet.createRow(lineIndex);
-				writeActionPLanData(row, actionPlanEntry, expressionParameters,locale);
+				writeActionPLanData(row, actionPlanEntry, expressionParameters, locale);
 			}
 			response.setContentType("xlsx");
 			// set response header with location of the filename

@@ -13,18 +13,18 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
  * @since 16 janv. 2013
  */
 public interface DAOAssetTypeValue {
-	public AssetTypeValue get(Integer id) ;
+	public AssetTypeValue get(Integer id);
 
-	public AssetTypeValue save(AssetTypeValue assetTypeValue) ;
+	public AssetTypeValue save(AssetTypeValue assetTypeValue);
 
-	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue) ;
+	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue);
 
-	public AssetTypeValue merge(AssetTypeValue assetTypeValue) ;
+	public AssetTypeValue merge(AssetTypeValue assetTypeValue);
 
-	public void delete(Integer id) ;
+	public void delete(Integer id);
 
-	public void delete(AssetTypeValue assetTypeValue) ;
+	public void delete(AssetTypeValue assetTypeValue);
 
-	public void delete(List<AssetTypeValue> assetTypeValues) ;
+	public void delete(List<AssetTypeValue> assetTypeValues);
 	
 }

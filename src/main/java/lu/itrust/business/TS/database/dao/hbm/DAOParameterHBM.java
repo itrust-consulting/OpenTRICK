@@ -392,7 +392,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis){
 		// We assume that all parameters that have an acronym can be used in an expression
 		// Maybe we want to change this in the future (checking parameter.type); then this is the place to act.
 		// In that case, lu.itrust.business.TS.model.analysis.Analysis#getExpressionParameters() must also be updated.
@@ -417,7 +417,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) throws Exception {
+	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis){
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type = :type";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME).list();
 	}
