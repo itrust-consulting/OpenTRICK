@@ -142,7 +142,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 			if (user.getId() < 1 || alwaysLoadRole)
 				loadRoles(ctx, authorities, essence, user);
 			else
-				user.getRoles().forEach(role -> essence.getGrantedAuthorities().add(new SimpleGrantedAuthority(role.getType().name())));
+				user.getRoles().forEach(role -> essence.addAuthority(new SimpleGrantedAuthority(role.getType().name())));
 
 			if (!user.isEnable())
 				throw new DisabledException("User account is disabled");

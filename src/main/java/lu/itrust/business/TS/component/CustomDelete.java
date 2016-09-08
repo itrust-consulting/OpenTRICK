@@ -132,6 +132,7 @@ public class CustomDelete {
 	@Autowired
 	private DAORiskProfile daoRiskProfile;
 	
+	@Autowired
 	private DAOIDS daoIDS;
 
 	@Transactional

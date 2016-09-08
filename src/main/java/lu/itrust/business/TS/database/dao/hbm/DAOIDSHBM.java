@@ -61,7 +61,7 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getByAnalysisId(int idAnalysis) {
-		return getSession().createQuery("Select ids From IDS ids inner join ids.subscribers as subscriber  where enable = true and subscriber.id = :idAnalysis order by prefix")
+		return getSession().createQuery("Select ids From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 
@@ -117,13 +117,13 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getAllByState(boolean enabled) {
-		return getSession().createQuery("From IDS where enabled = :enabled order by prefix").setBoolean("enabled", enabled).list();
+		return getSession().createQuery("From IDS ids where ids.enable = :enabled order by ids.prefix").setBoolean("enabled", enabled).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getAllNoSubscribers() {
-		return getSession().createQuery("From IDS where subscribers IS EMPTY order by prefix").list();
+		return getSession().createQuery("From IDS ids where ids.subscribers IS EMPTY order by ids.prefix").list();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -135,7 +135,7 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getPrefixesByAnalysisId(int idAnalysis) {
-		return getSession().createQuery("Select ids.prefix From IDS ids inner join ids.subscribers as subscriber  where enable = true and subscriber.id = :idAnalysis order by prefix")
+		return getSession().createQuery("Select ids.prefix From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 

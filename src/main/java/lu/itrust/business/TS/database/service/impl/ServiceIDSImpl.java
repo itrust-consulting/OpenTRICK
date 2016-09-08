@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOIDS;
 import lu.itrust.business.TS.database.service.ServiceIDS;
@@ -58,6 +59,7 @@ public class ServiceIDSImpl implements ServiceIDS {
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.database.service.ServiceIDS#save(lu.itrust.business.TS.usermanagement.IDS)
 	 */
+	@Transactional
 	@Override
 	public Integer save(IDS ids) {
 		return daoIDS.save(ids);
@@ -66,6 +68,7 @@ public class ServiceIDSImpl implements ServiceIDS {
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.database.service.ServiceIDS#saveOrUpdate(lu.itrust.business.TS.usermanagement.IDS)
 	 */
+	@Transactional
 	@Override
 	public void saveOrUpdate(IDS ids) {
 		daoIDS.saveOrUpdate(ids);
@@ -74,6 +77,7 @@ public class ServiceIDSImpl implements ServiceIDS {
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.database.service.ServiceIDS#delete(lu.itrust.business.TS.usermanagement.IDS)
 	 */
+	@Transactional
 	@Override
 	public void delete(IDS ids) {
 		daoIDS.delete(ids);

@@ -85,13 +85,11 @@ function exportRiskSheet(idAnalysis, report) {
 						var data = $("form", $modal).serializeJSON();
 						data.filter = {};
 						for ( var field in data) {
-							if (field.contains("filter.")) {
+							if (field.indexOf("filter.")!=-1) {
 								data['filter'][field.replace("filter.", "")] = data[field];
 								delete data[field];
 							}
 						}
-						
-						console.log(data);
 						
 						$.ajax({
 							url : context + "/Analysis/RiskRegister/RiskSheet/Export",
