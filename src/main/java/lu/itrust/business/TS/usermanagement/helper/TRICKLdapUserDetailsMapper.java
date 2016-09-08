@@ -106,8 +106,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 				essence.setPassword(mapPassword(passwordValue));
 			}
 
-			String firstName = ctx.getStringAttribute(firstNameAttribute), lastName = ctx.getStringAttribute(lastNameAttribute), email = ctx.getStringAttribute(emailAttribute), fullName = ctx
-					.getStringAttribute(fullNameAttribute);
+			String firstName = ctx.getStringAttribute(firstNameAttribute), lastName = ctx.getStringAttribute(lastNameAttribute), email = ctx.getStringAttribute(emailAttribute),
+					fullName = ctx.getStringAttribute(fullNameAttribute);
 
 			if (firstName == null) {
 				if (fullName == null)
@@ -127,7 +127,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 			if (user == null) {
 				if (!StringUtils.isEmpty(email))
 					user = daoUser.getByEmail(email);
-				else 
+				else
 					throw new TrickException("error.ldap.email.empty", "Please contact your administrator, your email cannot be loaded");
 				if (user == null)
 					user = new User(username, firstName, lastName, email, User.LADP_CONNEXION);
@@ -139,6 +139,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 			if (user.getId() < 1 || alwaysLoadRole)
 				loadRoles(ctx, authorities, essence, user);
+			else
+				user.getRoles().forEach(role -> essence.addAuthority(new SimpleGrantedAuthority(role.getType().name())));
 
 			if (!user.isEnable())
 				throw new DisabledException("User account is disabled");
@@ -192,7 +194,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 		for (GrantedAuthority grantedAuthority : essence.getGrantedAuthorities()) {
 			Role role = daoRole.getByName(grantedAuthority.getAuthority());
-			if (role == null){
+			if (role == null) {
 				role = new Role(RoleType.valueOf(grantedAuthority.getAuthority()));
 				daoRole.saveOrUpdate(role);
 			}
