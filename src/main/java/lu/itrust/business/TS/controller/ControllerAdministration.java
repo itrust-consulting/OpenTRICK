@@ -485,22 +485,6 @@ public class ControllerAdministration {
 		model.addAttribute("users", serviceUser.getAll());
 		return "admin/user/users";
 	}
-	
-	/**
-	 * section: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/IDS/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String idsSection(Model model, HttpSession session, Principal principal) throws Exception {
-		model.addAttribute("IDSs", serviceIDS.getAll());
-		return "admin/ids/home";
-	}
 
 	/**
 	 * getAllRoles: <br>
@@ -739,90 +723,5 @@ public class ControllerAdministration {
 		}
 		return user;
 	}
-
-	private User buildUserIDS(Map<String, String> errors, String source, Locale locale, Principal principal) throws JsonProcessingException, IOException {
-		User user = null;
-		String error = null;
-		boolean newUser = false;
-		ValidatorField validator = serviceDataValidation.findByClass(User.class);
-		if (validator == null)
-			serviceDataValidation.register(validator = new UserValidator());
-		JsonNode jsonNode = new ObjectMapper().readTree(source);
-		String login = jsonNode.get("login").asText(), password = jsonNode.get("password").asText(), firstname = jsonNode.get("firstName").asText();
-		int id = jsonNode.get("id").asInt();
-		if (id > 0) {
-			user = serviceUser.get(jsonNode.get("id").asInt());
-		} else {
-			newUser = true;
-			user = new User();
-			user.setLastName(Constant.EMPTY_STRING);
-			user.setEmail(Constant.EMPTY_STRING);
-			error = validator.validate(user, "login", login);
-			if (error != null)
-				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				user.setLogin(login);
-		}
-
-		if (newUser || !password.equals(Constant.EMPTY_STRING)) {
-			error = validator.validate(user, "password", password);
-			if (error != null)
-				errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
-			else {
-				user.setPassword(password);
-				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-			}
-		}
-
-		Role role = serviceRole.getByType(RoleType.ROLE_IDS);
-
-		if (role == null)
-			serviceRole.save(role = new Role(RoleType.ROLE_IDS));
-
-		user.getRoles().removeIf(userRole -> userRole.getType() != RoleType.ROLE_IDS);
-
-		if (user.getRoles().isEmpty())
-			user.addRole(role);
-
-		error = validator.validate(user, "firstName", firstname);
-		if (error != null)
-			errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
-		else
-			user.setFirstName(firstname);
-
-		return user;
-	}
-
-	@RequestMapping(value = "/User/SaveIDS", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Map<String, String> saveUserIDS(@RequestBody String value, Locale locale, Principal principal) throws Exception {
-		Map<String, String> errors = new LinkedHashMap<>();
-		try {
-			User user = buildUserIDS(errors, value, locale, principal);
-			if (!errors.isEmpty())
-				return errors;
-			RoleType userAccess = user.getAccess();
-			String userRole = userAccess == null ? "none" : userAccess.name().toLowerCase().replace("role_", "");
-			if (user.getId() < 1) {
-				serviceUser.save(user);
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.ids", String.format("Target: %s, access: %s", user.getLogin(), userRole),
-						principal.getName(), LogAction.CREATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-			} else {
-				serviceUser.saveOrUpdate(user);
-				/**
-				 * Log
-				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids", String.format("Target: %s, access: %s", user.getLogin(), userRole),
-						principal.getName(), LogAction.UPDATE, user.getLogin(), userAccess == null ? "none" : userAccess.name());
-			}
-			return errors;
-		} catch (Exception e) {
-			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			e.printStackTrace();
-			return errors;
-		}
-	}
+	
 }

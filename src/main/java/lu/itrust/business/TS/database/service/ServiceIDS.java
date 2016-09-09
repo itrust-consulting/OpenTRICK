@@ -37,4 +37,13 @@ public interface ServiceIDS {
 	List<String> getPrefixesByAnalysisId(int idAnalysis);
 	
 	List<String> getPrefixesByAnalysis(Analysis analysis);
+
+	boolean existByPrefix(String prefix);
+
+	/**
+	 * 
+	 * @param token
+	 * @return true if token is already exist.
+	 */
+	boolean exists(String token);
 }

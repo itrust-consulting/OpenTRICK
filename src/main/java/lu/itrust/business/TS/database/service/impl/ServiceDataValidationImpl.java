@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.service.impl;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -88,7 +89,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	public Map<String, String> validate(Object object) throws TrickException {
 		ValidatorField validator = findByClass(object.getClass());
 		if (validator == null)
-			return null;
+			return Collections.emptyMap();
 		return validator.validate(object);
 	}
 

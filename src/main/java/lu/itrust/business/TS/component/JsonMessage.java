@@ -16,4 +16,8 @@ public class JsonMessage {
 	public static String Success(String message) {
 		return "{\"success\":\"" + message + "\"}";
 	}
+
+	public static String Field(String fieldName, String value) {
+		return String.format("{\"%s\": \"%s\"}", fieldName, value);
+	}
 }

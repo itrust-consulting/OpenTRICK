@@ -529,7 +529,6 @@ function loadChartDynamicParameterEvolution() {
 				type : "get",
 				async : true,
 				contentType : "application/json;charset=UTF-8",
-				async : true,
 				success : function(response, textStatus, jqXHR) {
 					$('#chart_parameterevolution').loadOrUpdateChart(response);
 				},
@@ -549,7 +548,6 @@ function loadChartDynamicAleEvolutionByAssetType() {
 			$.ajax({
 				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByAssetType",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {
@@ -571,7 +569,6 @@ function loadChartDynamicAleEvolutionByScenario() {
 			$.ajax({
 				url : context + "/Analysis/Dynamic/Chart/AleEvolutionByScenario",
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response, textStatus, jqXHR) {

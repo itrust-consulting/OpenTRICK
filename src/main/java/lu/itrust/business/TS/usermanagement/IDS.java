@@ -39,7 +39,7 @@ public class IDS implements IUser {
 	@Column(name = "dtDescription", length = 255)
 	private String description;
 
-	@Column(name = "dtToken", length = 1024, nullable = false)
+	@Column(name = "dtToken", length = 256, nullable = false)
 	private String token;
 
 	@Column(name = "dtLastUpdate")

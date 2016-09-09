@@ -37,4 +37,8 @@ public interface DAOIDS {
 	List<String> getPrefixesByAnalysisId(int idAnalysis);
 	
 	List<String> getPrefixesByAnalysis(Analysis analysis);
+
+	boolean existByPrefix(String prefix);
+
+	boolean exists(String token);
 }

@@ -108,7 +108,8 @@ function findControllerBySection(section, subSection) {
 		"section_actionplans" : "/Analysis/ActionPlan/Section",
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
-		"section_soa" : "/Analysis/Standard/SOA"
+		"section_soa" : "/Analysis/Standard/SOA",
+		"section_ids" : "/Admin/IDS/Section",
 	};
 
 	if (section.match("^section_standard_")) {
@@ -186,6 +187,7 @@ SectionSmartUpdate.prototype = {
 		case "section_customer":
 		case "section_profile_analysis":
 		case "section_kb_measure":
+		case "section_ids":
 		case "section_soa":
 			return this.__generic_update(this.data, "#" + this.sectionName, -1);
 		default:

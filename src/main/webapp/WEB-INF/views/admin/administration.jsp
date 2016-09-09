@@ -50,6 +50,7 @@
 	<script type="text/javascript" src="<spring:url value="js/trickservice/administration.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/user.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/ids.js" />"></script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

@@ -607,19 +607,6 @@ function log(msg) {
 	}, 0);
 }
 
-function post(url, data, refraich) {
-	$.ajax({
-		url : url,
-		type : "post",
-		data : $("#" + data).serialize(),
-		success : extract
-	}).done(function() {
-		if (refraich)
-			refraichContentSideLeft();
-	});
-	return false;
-}
-
 function findSelectItemIdBySection(section, modal) {
 	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("#" + section + " tbody :checked") : $("tbody :checked", modal);
 	for (var i = 0; i < $items.length; i++) {

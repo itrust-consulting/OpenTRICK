@@ -16,14 +16,14 @@
 		<table class="table table-hover table-condensed">
 			<thead>
 				<tr>
-					<th></th>
-					<th><spring:message code="label.ids.prefix" text="Prefix" /></th>
-					<th><spring:message code="label.ids.token" text="Token" /></th>
+					<th width="1%"></th>
+					<th width="6%"><spring:message code="label.name" text="Name" /></th>
+					<th width="30%"><spring:message code="label.ids.token" text="Token" /></th>
 					<th><spring:message code="label.description" text="Description" /></th>
-					<th><spring:message code="label.ids.last_update" text="Last update" /></th>
-					<th><spring:message code="label.ids.last_alert" text="Last alert" /></th>
-					<th><spring:message code="label.user.account.status" text="Status" /></th>
-					<th><spring:message code="label.count.subscriber" text="Number of subscriber" /></th>
+					<th width="8%"><spring:message code="label.last_update" text="Last update" /></th>
+					<th width="8%"><spring:message code="label.last_alert" text="Last alert" /></th>
+					<th width="8%"><spring:message code="label.user.account.status" text="Status" /></th>
+					<th width="8%"><spring:message code="label.count.subscriber" text="Number of subscriber" /></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -36,7 +36,7 @@
 						<td><spring:message text="${ids.lastUpdate}" /></td>
 						<td><spring:message text="${ids.lastAlert}" /></td>
 						<td><spring:message code="label.user.account.state_${fn:toLowerCase(ids.enable)}" text="${ids.enable?'Enabled':'Disabled'}" /></td>
-						<td><spring:message text="${ids.subscribers.size()}" /></td>
+						<td align="center"><spring:message text="${ids.subscribers.size()}" /></td>
 					</tr>
 				</c:forEach>
 			</tbody>

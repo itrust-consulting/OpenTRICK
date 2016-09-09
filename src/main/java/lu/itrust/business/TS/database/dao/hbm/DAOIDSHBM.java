@@ -61,7 +61,8 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getByAnalysisId(int idAnalysis) {
-		return getSession().createQuery("Select ids From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
+		return getSession()
+				.createQuery("Select ids From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 
@@ -135,7 +136,8 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getPrefixesByAnalysisId(int idAnalysis) {
-		return getSession().createQuery("Select ids.prefix From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
+		return getSession()
+				.createQuery("Select ids.prefix From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 
@@ -144,6 +146,17 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 		if (analysis == null || analysis.getId() < 1)
 			return Collections.emptyList();
 		return getPrefixesByAnalysisId(analysis.getId());
+	}
+
+	@Override
+	public boolean existByPrefix(String prefix) {
+
+		return (boolean) getSession().createQuery("Select count(*)> 0 From IDS where prefix = :prefix").setString("prefix", prefix).uniqueResult();
+	}
+
+	@Override
+	public boolean exists(String token) {
+		return (boolean) getSession().createQuery("Select count(*)> 0 From IDS where token = :token").setString("token", token).uniqueResult();
 	}
 
 }

@@ -89,7 +89,7 @@ function saveUser(form) {
 
 function deleteUser(userId, name) {
 	if (userId == null || userId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_user"));
+		var selectedScenario = findSelectItemIdBySection("section_user");
 		if (selectedScenario.length != 1)
 			return false;
 		userId = selectedScenario[0];

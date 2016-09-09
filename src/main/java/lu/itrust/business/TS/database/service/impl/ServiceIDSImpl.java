@@ -108,4 +108,14 @@ public class ServiceIDSImpl implements ServiceIDS {
 		return daoIDS.getPrefixesByAnalysis(analysis);
 	}
 
+	@Override
+	public boolean existByPrefix(String prefix) {
+		return daoIDS.existByPrefix(prefix);
+	}
+
+	@Override
+	public boolean exists(String token) {
+		return daoIDS.exists(token);
+	}
+
 }
