@@ -159,4 +159,18 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 		return (boolean) getSession().createQuery("Select count(*)> 0 From IDS where token = :token").setString("token", token).uniqueResult();
 	}
 
+	@Override
+	public void delete(Integer id) {
+		getSession().createQuery("Delete IDS where id = :id").setInteger("id", id).executeUpdate();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<IDS> getAllAnalysisNoSubscribe(Integer idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select ids From IDS ids where ids.enable = true and ids not in ( Select subIds From IDS subIds inner join subIds.subscribers as subscriber where subIds.enable = true and subscriber.id = :idAnalysis) order by ids.prefix")
+				.setInteger("idAnalysis", idAnalysis).list();
+	}
+
 }

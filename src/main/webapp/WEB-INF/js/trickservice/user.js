@@ -1,26 +1,20 @@
 function saveUser(form) {
-	isIDSUser = !!$("#user_form").data("trick-isIDSUser");
-
-	result = "";
 	var idUser = $("#" + form).find("#user_id");
 	if (!idUser.length)
 		idUser = -1;
 	else
 		idUser = parseInt(idUser.val());
-
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + (!isIDSUser ? "/Admin/User/Save" : "/Admin/User/SaveIDS"),
+		url : context +  "/Admin/User/Save",
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			$("#success").attr("hidden", "hidden");
-			$("#success div").remove();
-
-			var alert = $("#" + form + " .label-danger");
-			if (alert.length)
-				alert.remove();
-
+			
+			$("#success").attr("hidden", "hidden").find("div").remove();
+			
+			$("#" + form + " .label-danger").remove();
 			for ( var error in response) {
 
 				$("#success").attr("hidden", "hidden");
@@ -71,9 +65,7 @@ function saveUser(form) {
 			}
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			var alert = $("#addUserModel .label-danger");
-			if (alert.length)
-				alert.remove();
+			$("#addUserModel .label-danger").remove();
 			var errorElement = document.createElement("div");
 			errorElement.setAttribute("class", "alert alert-danger");
 			$(errorElement).text(
@@ -82,8 +74,7 @@ function saveUser(form) {
 			$(errorElement).appendTo($("#addUserModel .modal-body #success"));
 			$("#user_password").prop("value", "");
 		}
-	});
-
+	}).complete(() => $("#loading-indicator").hide());
 	return false;
 }
 
@@ -95,6 +86,7 @@ function deleteUser(userId, name) {
 		userId = selectedScenario[0];
 		name = $("#section_user tbody tr[data-trick-id='" + userId + "'] td:nth-child(2)").text();
 	}
+	var $loadProgress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Admin/User/" + userId + "/Prepare-to-delete",
 		contentType : "application/json;charset=UTF-8",
@@ -182,17 +174,14 @@ function deleteUser(userId, name) {
 			return false;
 		},
 		error : unknowError
-	});
+	}).complete(() => $loadProgress.hide());
 	return false;
 }
 
 function newUser(isIDSUser) {
-	isIDSUser = !!isIDSUser;
-
-	$("#user_form").data("trick-isIDSUser", isIDSUser);
-
-	if (findSelectItemIdBySection(("section_user")).length > 0)
+	if (findSelectItemIdBySection("section_user").length > 0)
 		return false;
+	var $progress = $("#loading-indicator").show();
 	$("#addUserModel .alert,.label-danger").remove()
 	$("#user_id").prop("value", "-1");
 	$("#user_login").prop("value", "");
@@ -201,19 +190,10 @@ function newUser(isIDSUser) {
 	$("#user_firstName").prop("value", "");
 	$("#user_lastName").prop("value", "");
 	$("#user_email").prop("value", "");
-
-	if (isIDSUser)
-		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").hide();
-	else
-		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").show();
-
 	$("#radioConnexionType input[value='0']").prop("checked", "ckecked");
 	$("#radioConnexionType").button("reset");
-
 	$.ajax({
 		url : context + "/Admin/Roles",
-		type : "get",
-		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			$("#rolescontainer").html(response);
@@ -223,29 +203,23 @@ function newUser(isIDSUser) {
 			$("#addUserModel").modal('show');
 		},
 		error : unknowError
-	});
-
-	if (isIDSUser)
-		$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
-	else
-		$("#addUserModel-title").text(MessageResolver("title.administration.idsuser.add", "Add a new IDS User"));
+	}).complete(() => $progress.hide());
+	$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
 	$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#user_form").prop("action", "/Save");
-	//$("#addUserModel").modal('toggle');
 	return false;
 }
 
 function editSingleUser(userId) {
+	
 	if (userId == null || userId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_user");
 		if (selectedScenario.length != 1)
 			return false;
 		userId = selectedScenario[0];
 	}
-
-	$("#addUserModel .alert,.label-danger").remove()
-
-	var rows = $("#section_user").find("tr[data-trick-id='" + userId + "'] td:not(:first-child)");
+	
+	var rows = $("#section_user").find("tr[data-trick-id='" + userId + "'] td:not(:first-child)"), $progress = $("#loading-indicator").show();;
 	$("#user_id").prop("value", userId);
 	$("#user_login").prop("value", $(rows[0]).text());
 	$("#user_login").prop("disabled", "disabled");
@@ -253,16 +227,8 @@ function editSingleUser(userId) {
 	$("#user_firstName").prop("value", $(rows[1]).text());
 	$("#user_lastName").prop("value", $(rows[2]).text());
 	$("#user_email").prop("value", $(rows[3]).text());
-
-	var isIDSUser = $(rows[3]).text().trim().length == 0;
-	if (isIDSUser)
-		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").hide();
-	else
-		$("#user_lastName,#user_email,#rolescontainer").closest(".form-group").show();
-	$("#user_form").data("trick-isIDSUser", isIDSUser);
-
 	$("#radioConnexionType input[value='" + $(rows[5]).attr("data-trick-real-value") + "']").parent().button("toggle");
-
+	$("#addUserModel .alert,.label-danger").remove()
 	$.ajax({
 		url : context + "/Admin/User/Roles/" + userId,
 		type : "get",
@@ -276,6 +242,6 @@ function editSingleUser(userId) {
 			$("#addUserModel").modal('show');
 		},
 		error : unknowError
-	});
+	}).complete(() => $progress.hide());
 	return false;
 }

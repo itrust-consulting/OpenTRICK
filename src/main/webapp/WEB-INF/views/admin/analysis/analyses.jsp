@@ -10,11 +10,11 @@
 		<jsp:include page="../../template/successErrors.jsp" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_admin_analysis">
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
-				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
+				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="fa fa-users"></span> <spring:message
 						code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
 
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
-				onclick="return switchCustomer('section_admin_analysis');"> <span class="fa fa-exchange fa-sw primary"></span> <spring:message code="label.menu.switch.customer"
+				onclick="return switchCustomer('section_admin_analysis');"> <span class="glyphicon glyphicon-transfer"></span> <spring:message code="label.menu.switch.customer"
 						text="Switch customer" /></a></li>
 						
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"

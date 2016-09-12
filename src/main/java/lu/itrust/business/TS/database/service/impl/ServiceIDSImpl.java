@@ -82,6 +82,12 @@ public class ServiceIDSImpl implements ServiceIDS {
 	public void delete(IDS ids) {
 		daoIDS.delete(ids);
 	}
+	
+	
+	@Override
+	public void delete(Integer id) {
+		daoIDS.delete(id);
+	}
 
 	@Override
 	public List<IDS> getAll() {
@@ -117,5 +123,12 @@ public class ServiceIDSImpl implements ServiceIDS {
 	public boolean exists(String token) {
 		return daoIDS.exists(token);
 	}
+
+	@Override
+	public List<IDS> getAllAnalysisNoSubscribe(Integer idAnalysis) {
+		return daoIDS.getAllAnalysisNoSubscribe(idAnalysis);
+	}
+
+	
 
 }

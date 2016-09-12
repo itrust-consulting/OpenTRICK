@@ -10,13 +10,13 @@
 			<li><a href="#" onclick="return newIDS();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
 			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editIDS();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 						code="label.action.edit" text="Edit" /> </a></li>
-			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteIDS();"><span class="glyphicon glyphicon-remove"></span>
+			<li class="disabled pull-right" data-trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteIDS();"><span class="glyphicon glyphicon-remove"></span>
 					<spring:message code="label.action.delete" text="Delete" /> </a></li>
 		</ul>
 		<table class="table table-hover table-condensed">
 			<thead>
 				<tr>
-					<th width="1%"></th>
+					<th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'ids')"></th>
 					<th width="6%"><spring:message code="label.name" text="Name" /></th>
 					<th width="30%"><spring:message code="label.ids.token" text="Token" /></th>
 					<th><spring:message code="label.description" text="Description" /></th>

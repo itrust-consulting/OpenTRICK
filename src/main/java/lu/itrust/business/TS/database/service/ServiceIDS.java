@@ -22,11 +22,15 @@ public interface ServiceIDS {
 	
 	List<IDS> getByAnalysis(Analysis analysis);
 	
+	List<IDS> getAllAnalysisNoSubscribe(Integer idAnalysis);
+	
 	Integer save(IDS ids);
 	
 	void saveOrUpdate(IDS ids);
 	
 	void delete(IDS ids);
+	
+	void delete(Integer id);
 
 	List<IDS> getAllByState(boolean enabled);
 
@@ -46,4 +50,6 @@ public interface ServiceIDS {
 	 * @return true if token is already exist.
 	 */
 	boolean exists(String token);
+
+	
 }

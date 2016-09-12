@@ -27,6 +27,8 @@ public interface DAOIDS {
 	void saveOrUpdate(IDS ids);
 	
 	void delete(IDS ids);
+	
+	void delete(Integer id);
 
 	List<IDS> getAllByState(boolean enabled);
 
@@ -41,4 +43,8 @@ public interface DAOIDS {
 	boolean existByPrefix(String prefix);
 
 	boolean exists(String token);
+
+	List<IDS> getAllAnalysisNoSubscribe(Integer idAnalysis);
+
+	
 }

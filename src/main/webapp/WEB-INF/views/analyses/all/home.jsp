@@ -27,8 +27,11 @@
 					<li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY')"><a href="#" href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)"><span
 							class="glyphicon glyphicon-edit"></span> <spring:message code="label.action.edit" text="Edit" /></a></li>
 					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
-						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-cog"></span> <spring:message code="label.menu.manage.access.analysis"
+						onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="fa fa-users"></span> <spring:message code="label.menu.manage.access.analysis"
 								text="Manage Access Rights" /></a></li>
+					<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="canManageAccess()"><a href="#"
+						onclick="return manageAnalysisIDSAccess('section_analysis');"> <span class="fa fa-rss-square"></span> <spring:message code="label.menu.manage.ids.access.analysis"
+								text="Manage IDS" /></a></li>
 					<c:if test="${allowedTicketing}">
 						<li class="disabled" data-trick-selectable="true" data-trick-check="!isLinked() && hasRight('ALL')"><a href="#" onclick="return linkToProject()"> <span
 								class="glyphicon glyphicon-link"></span> <spring:message code="label.menu.link.project" arguments="${ticketingName}" text="Link to ${ticketingName}" /></a></li>

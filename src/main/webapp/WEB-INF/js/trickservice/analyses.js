@@ -83,6 +83,58 @@ function updateAnalysisAccess(e) {
 		$progress.hide();
 }
 
+function manageAnalysisIDSAccess(section) {
+	var selectedAnalysis = findSelectItemIdBySection(section);
+	if (selectedAnalysis.length != 1)
+		return false;
+	if (canManageAccess()) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Manage/IDS/"+selectedAnalysis[0],
+			type : "GET",
+			success : function(response, textStatus, jqXHR) {
+				var $content = $("#manageAnalysisIDSAccessModel", new DOMParser().parseFromString(response, "text/html"));
+				if ($content.length) {
+					$content.appendTo("#widget").on("hidden.bs.modal", () => $content.remove()).modal("show").find(".modal-footer button[name='save']").one("click", function(){
+						var  data = { };
+						$content.find(".form-group[data-trick-id][data-default-value]").each(function() {
+							var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
+							if (newRight != oldRight)
+								data[this.getAttribute("data-trick-id")] = newRight; 
+						});
+						if (Object.keys(data).length) {
+							$.ajax({
+								url : context + "/Analysis/Manage/IDS/"+selectedAnalysis[0]+"/Update",
+								type : "post",
+								data : JSON.stringify(data),
+								contentType : "application/json;charset=UTF-8",
+								success : function(response, textStatus, jqXHR) {
+									if (response.error != undefined)
+										showDialog("#alert-dialog", response.error);
+									else if (response.success != undefined) 
+										showDialog("#info-dialog", response.success);
+									else
+										unknowError();
+								},
+								error : unknowError
+							}).complete(function() {
+								$progress.hide();
+							});
+						} else
+							$progress.hide();
+					});
+				} else
+					unknowError();
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	}
+	return false;
+
+}
+
 function findTrickisProfile(element) {
 	if (element != undefined && element != null && element.length > 0 && element.length < 2)
 		if ($(element).attr("data-trick-is-profile") != undefined)
