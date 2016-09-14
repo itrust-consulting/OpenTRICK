@@ -206,28 +206,30 @@ function manageAnalysisIDSAccess(section) {
 		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
-		url : context + "/Admin/Manage/IDS/"+selectedAnalysis[0],
+		url : context + "/Admin/Manage/IDS/" + selectedAnalysis[0],
 		type : "GET",
 		success : function(response, textStatus, jqXHR) {
 			var $content = $("#manageAnalysisIDSAccessModel", new DOMParser().parseFromString(response, "text/html"));
 			if ($content.length) {
-				$content.appendTo("#widget").on("hidden.bs.modal", () => $content.remove()).modal("show").find(".modal-footer button[name='save']").one("click", function(){
-					var  data = { };
+				$content.appendTo("#widget").on("hidden.bs.modal", function() {
+					$content.remove();
+				}).modal("show").find(".modal-footer button[name='save']").one("click", function() {
+					var data = {};
 					$content.find(".form-group[data-trick-id][data-default-value]").each(function() {
 						var $this = $(this), newRight = $this.find("input[type='radio']:checked").val(), oldRight = $this.attr("data-default-value");
 						if (newRight != oldRight)
-							data[this.getAttribute("data-trick-id")] = newRight; 
+							data[this.getAttribute("data-trick-id")] = newRight;
 					});
 					if (Object.keys(data).length) {
 						$.ajax({
-							url : context + "/Admin/Manage/IDS/"+selectedAnalysis[0]+"/Update",
+							url : context + "/Admin/Manage/IDS/" + selectedAnalysis[0] + "/Update",
 							type : "post",
 							data : JSON.stringify(data),
 							contentType : "application/json;charset=UTF-8",
 							success : function(response, textStatus, jqXHR) {
 								if (response.error != undefined)
 									showDialog("#alert-dialog", response.error);
-								else if (response.success != undefined) 
+								else if (response.success != undefined)
 									showDialog("#info-dialog", response.success);
 								else
 									unknowError();
@@ -368,7 +370,7 @@ function loadSystemLog() {
 		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-			var $section = $("#section_log",new DOMParser().parseFromString(response, "text/html"));
+			var $section = $("#section_log", new DOMParser().parseFromString(response, "text/html"));
 			if ($section.length) {
 				$("#section_log").replaceWith($section);
 				fixTableHeader($("table.table-fixed-header-analysis", $section));
