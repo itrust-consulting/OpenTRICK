@@ -91,9 +91,6 @@ public class IDSValidator extends ValidatorFieldImpl implements Validator {
 		if (!errors.hasFieldErrors(DESCRIPTION) && ids.getDescription().length() > 255)
 			ValidationUtils.rejectIfEmptyOrWhitespace(errors, DESCRIPTION, "error.description.too.long", new Object[] { 255 }, "Description length can not be greater than 255");
 
-		if (!errors.hasFieldErrors(DESCRIPTION) && ids.getDescription().length() > 255)
-			ValidationUtils.rejectIfEmptyOrWhitespace(errors, DESCRIPTION, "error.description.too.long", new Object[] { 255 }, "Description length can not be greater than 255");
-
 		if (!errors.hasFieldErrors(PREFIX) && ids.getDescription().length() > 32)
 			ValidationUtils.rejectIfEmptyOrWhitespace(errors, PREFIX, "error.prefix.too.long", new Object[] { 32 }, "Name length can not be greater than 32");
 

@@ -46,5 +46,7 @@ public interface DAOIDS {
 
 	List<IDS> getAllAnalysisNoSubscribe(Integer idAnalysis);
 
+	IDS getByToken(String token);
+
 	
 }

@@ -12,13 +12,17 @@
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="fa fa-users"></span> <spring:message
 						code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
+						
+			<li class="disabled profilemenu" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
+						onclick="return manageAnalysisIDSAccess('section_admin_analysis');"> <span class="fa fa-rss-square"></span> <spring:message code="label.menu.manage.ids.access.analysis"
+								text="Manage IDS" /></a></li>
 
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return switchCustomer('section_admin_analysis');"> <span class="glyphicon glyphicon-transfer"></span> <spring:message code="label.menu.switch.customer"
 						text="Switch customer" /></a></li>
 						
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
-				onclick="return switchOwner('section_admin_analysis');"> <span class="fa fa-exchange fa-sw primary"></span> <spring:message code="label.menu.switch.owner"
+				onclick="return switchOwner('section_admin_analysis');"> <span class="fa fa-exchange fa-sw"></span> <spring:message code="label.menu.switch.owner"
 						text="Switch owner" /></a></li>
 
 			<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"

@@ -35,10 +35,9 @@ function editIDS(id) {
 
 function processIDSForm(response, textStatus, jqXHR) {
 	var $view = $("#formIDSModal", new DOMParser().parseFromString(response, "text/html"));
-	if (!$view.length) {
-		$("#info-dialog .modal-body").html(MessageResolver("error.unknown.view.loading", "An unknown error occurred while loading view"));
-		$("#alert-dialog").modal("toggle");
-	} else {
+	if (!$view.length)
+		showDialog("#info-dialog", MessageResolver("error.unknown.view.loading", "An unknown error occurred while loading view"));
+	else {
 		$view.appendTo("#dialog-body");
 		
 		$view.on("hidden.bs.modal", () => $view.remove());
@@ -97,7 +96,7 @@ function deleteIDS(){
 		return false;
 	var $confirmModal = $("#confirm-dialog") , $progress = $("#loading-indicator").show();
 	try {
-		$confirmModal.find(".modal-body").html(selectedIDS.length > 1 ? MessageResolver("confirm.delete.multi.ids", "Are you sur, you want to delete selected IDSs") : MessageResolver("confirm.delete.single.ids", "Are you sur, you want to delete selected IDS"));
+		$confirmModal.find(".modal-body").html(selectedIDS.length > 1 ? MessageResolver("confirm.delete.multi.ids", "Are you sure you want to delete selected IDSs") : MessageResolver("confirm.delete.single.ids", "Are you sure, you want to delete selected IDS"));
 		$confirmModal.find(".modal-footer>button[name='yes']").one("click", (e) => {
 			$progress.show();
 			$.ajax({
@@ -108,10 +107,44 @@ function deleteIDS(){
 				success : (response, textStatus, jqXHR) => {
 					if(response["success"]!=undefined)
 						reloadSection("section_ids");
-					else {
-						$("#info-dialog .modal-body").html(MessageResolver("error.unknown.delete", "An unknown error occurred while deleting"));
-						$("#alert-dialog").modal("toggle");
-					}
+					else if(response["error"]!=undefined)
+						showDialog("#info-dialog", response["error"]);
+					else showDialog("#info-dialog", MessageResolver("error.unknown.delete", "An unknown error occurred while deleting"));
+				},
+				error : unknowError
+			}).complete(() =>$progress.hide());
+		});
+		$confirmModal.modal("show");
+	} finally{
+		$progress.hide();
+	}
+	return false;
+}
+
+function renewIDSToken(){
+	var selectedIDS = findSelectItemIdBySection("section_ids");
+	if (selectedIDS.length <1)
+		return false;
+	var $confirmModal = $("#confirm-dialog") , $progress = $("#loading-indicator").show();
+	try {
+		$confirmModal.find(".modal-body").html(selectedIDS.length > 1 ? MessageResolver("confirm.renew.multi.ids.token", "Are you sure you want to renew the tokens of selected IDS") : MessageResolver("confirm.delete.single.ids.token", "Are you sure you want to renew token of selected IDS"));
+		$confirmModal.find(".modal-footer>button[name='yes']").one("click", (e) => {
+			$progress.show();
+			$.ajax({
+				url : context + "/Admin/IDS/Renew/Token",
+				type : "POST",
+				contentType : "application/json;charset=UTF-8",
+				data : JSON.stringify(selectedIDS),
+				success : (response, textStatus, jqXHR) => {
+					if(response["error"]!=undefined)
+						showDialog("#info-dialog", response["error"]);
+					else if(typeof response == 'object'){
+						$("table>tbody>tr[data-trick-id]", "#section_ids").each(function(){
+							if(response[this.getAttribute("data-trick-id")])
+								$("td[data-trick-field='token']",this).text(response[this.getAttribute("data-trick-id")]);
+						});
+					}else showDialog("#info-dialog", MessageResolver("error.unknown.renew.ids.token", "An unknown error occurred while renewing token of IDS"));
+			
 				},
 				error : unknowError
 			}).complete(() =>$progress.hide());

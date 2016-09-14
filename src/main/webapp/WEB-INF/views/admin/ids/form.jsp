@@ -33,7 +33,7 @@
 					<div class="form-group">
 						<form:label path="token" cssClass="col-sm-2 control-label"> <spring:message code="label.ids.token" text="Token" /></form:label>
 						<div class="col-sm-10">
-							<form:textarea path="token" cssClass="form-control resize_vectical_only" maxlength="512" disabled="true" size="256" rows="2"/>
+							<form:textarea path="token" cssClass="form-control resize_vectical_only" maxlength="512" readonly="true" size="256" rows="2"/>
 						</div>
 					</div>
 					<div class="form-group">

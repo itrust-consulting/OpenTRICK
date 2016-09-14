@@ -173,4 +173,9 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 
+	@Override
+	public IDS getByToken(String token) {
+		return (IDS) getSession().createQuery("From IDS ids where ids.token = :token ").setString("token",token).uniqueResult();
+	}
+
 }

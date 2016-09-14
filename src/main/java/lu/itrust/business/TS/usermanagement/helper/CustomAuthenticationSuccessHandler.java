@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +43,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
 		try {
-			UserDetails user = (UserDetails) authentication.getPrincipal();
-			User myUser = daoUser.get(user.getUsername());
+			User myUser = daoUser.get(authentication.getName());
 			if (myUser.getLocale() == null) {
 				myUser.setLocale("en");
 				daoUser.saveOrUpdate(myUser);
@@ -55,9 +53,10 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			String remoteaddr = request.getHeader("X-FORWARDED-FOR");
 			if (remoteaddr == null)
 				remoteaddr = request.getRemoteAddr();
-			System.out.println(stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + user.getUsername() + "'! Requesting IP: " + remoteaddr);
-			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", user.getUsername(), remoteaddr), user.getUsername(),
-					LogAction.SIGN_IN, remoteaddr);
+			System.out
+					.println(stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '" + authentication.getName() + "'! Requesting IP: " + remoteaddr);
+			TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect", String.format("%s connects from %s", authentication.getName(), remoteaddr),
+					authentication.getName(), LogAction.SIGN_IN, remoteaddr);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 		} finally {

@@ -18,6 +18,8 @@ public interface ServiceIDS {
 	
 	IDS get(String prefix);
 	
+	IDS getByToken(String token);
+	
 	List<IDS> getByAnalysisId(int idAnalysis);
 	
 	List<IDS> getByAnalysis(Analysis analysis);

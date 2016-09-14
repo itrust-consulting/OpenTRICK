@@ -130,7 +130,7 @@ function manageAnalysisIDSAccess(section) {
 		}).complete(function() {
 			$progress.hide();
 		});
-	}
+	}else permissionError();
 	return false;
 
 }

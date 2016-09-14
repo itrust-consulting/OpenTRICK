@@ -12,7 +12,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.title.analysis.manage.ids.access" text="Manage analysis IDS" />
+					<spring:message code="label.title.analysis.manage.ids.access" text="Manage subscriptions to IDSs" />
 				</h4>
 			</div>
 			<div class="modal-body" style="padding: 0;">
@@ -27,12 +27,12 @@
 							<spring:message code='label.name' />
 						</h4>
 						<h4 class="col-xs-4 bordered-bottom text-center">
-							<spring:message code='label.subscription.status' text="Status"/>
+							<spring:message code='label.action' text="Action"/>
 						</h4>
 					</div>
 				</div>
-				<spring:message code="label.subscribed" text="Subscribed" var="subscribe"/>
-				<spring:message code="label.unsubscribed" text="Unsubscribed" var="unsubscribe"/>
+				<spring:message code="label.action.subscribe" text="Subscribe" var="subscribe"/>
+				<spring:message code="label.action.unsubscribe" text="Unsubscribe" var="unsubscribe"/>
 				<div class="form-horizontal" style="padding: 5px 20px; height: 500px; overflow-x: hidden; clear: both;">
 					<c:forEach items="${IDSs}" var="ids">
 						<c:set var="hasAccess" value="${not empty subscriptionsStates[ids.id]}"/>

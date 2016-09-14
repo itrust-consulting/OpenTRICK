@@ -129,6 +129,11 @@ public class ServiceIDSImpl implements ServiceIDS {
 		return daoIDS.getAllAnalysisNoSubscribe(idAnalysis);
 	}
 
+	@Override
+	public IDS getByToken(String token) {
+		return daoIDS.getByToken(token);
+	}
+
 	
 
 }

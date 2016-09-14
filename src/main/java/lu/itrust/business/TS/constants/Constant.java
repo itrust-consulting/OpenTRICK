@@ -842,5 +842,7 @@ public class Constant {
 																				// k€/y
 	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
 
+	public static final String API_AUTHENTICATION_TOKEN_NAME = "X-Auth-Token";
+
 
 }

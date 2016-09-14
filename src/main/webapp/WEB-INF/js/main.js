@@ -664,7 +664,6 @@ function oldversionComparator(version1, version2) {
 function closeToolTips() {
 	if (application["settings-open-tooltip"]) {
 		$(application["settings-open-tooltip"]).tooltip("hide");
-		;
 		delete application["settings-open-tooltip"];
 	}
 }

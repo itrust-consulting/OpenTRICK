@@ -6,6 +6,7 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -121,7 +122,7 @@ public class ControllerIDS {
 					return JsonMessage.Field("prefix", messageSource.getMessage("error.ids.prefix.used", null, "Name is already in used", locale));
 				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 				do {
-					ids.setToken(passwordEncoder.encodePassword(UUID.randomUUID().toString(), ids.getPrefix()));
+					ids.setToken(passwordEncoder.encodePassword(UUID.randomUUID().toString(), ids.getPrefix() + System.nanoTime()));
 				} while (serviceIDS.exists(ids.getToken()));
 			}
 
@@ -167,6 +168,46 @@ public class ControllerIDS {
 		}
 	}
 
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@RequestMapping(value = "/Admin/IDS/Renew/Token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody Object renewToken(@RequestBody List<Integer> IDs, Principal principal, Locale locale) {
+		try {
+			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+			Map<Integer, String> newToken = new LinkedHashMap<>(IDs.size());
+			IDs.forEach(id -> {
+				IDS ids = serviceIDS.get(id);
+				if (ids != null) {
+					do {
+						ids.setToken(passwordEncoder.encodePassword(UUID.randomUUID().toString(), ids.getPrefix() + System.nanoTime()));
+					} while (serviceIDS.exists(ids.getToken()));
+					serviceIDS.saveOrUpdate(ids);
+					TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids.token", String.format("IDS token has been renewed, Target: %s", ids.getLogin()), principal.getName(),
+							LogAction.RENEW, ids.getLogin());
+					newToken.put(id, ids.getToken());
+				}
+			});
+			return newToken;
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			if (e instanceof TrickException)
+				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+			else
+				return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+		}
+	}
+	
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@RequestMapping("/Admin/Manage/IDS/{id}")
+	public String adminManage(@PathVariable Integer id, Model model, Principal principal, Locale locale) {
+		return analysisManage(id, model, principal, locale);
+	}
+
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
+	@RequestMapping(value = "/Admin/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody String adminSaveManagement(@PathVariable Integer id, @RequestBody Map<Integer, Boolean> subscriptions, Principal principal, Locale locale) {
+		return saveManagement(id, subscriptions, principal, locale);
+	}
+
 	/**
 	 * USER ACCESS
 	 */
@@ -184,7 +225,7 @@ public class ControllerIDS {
 
 	@RequestMapping(value = "/Analysis/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@PreAuthorize("@permissionEvaluator.userOrOwnerIsAuthorized(#id, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).ALL)")
-	public @ResponseBody String saveAnalysis(@PathVariable Integer id, @RequestBody Map<Integer, Boolean> subscriptions, Principal principal, Locale locale) {
+	public @ResponseBody String saveManagement(@PathVariable Integer id, @RequestBody Map<Integer, Boolean> subscriptions, Principal principal, Locale locale) {
 		Map<Integer, IDS> analysisSubscriptions = serviceIDS.getByAnalysisId(id).stream().collect(Collectors.toMap(IDS::getId, Function.identity()));
 		Analysis analysis = serviceAnalysis.get(id);
 		subscriptions.forEach((IDSId, status) -> {
