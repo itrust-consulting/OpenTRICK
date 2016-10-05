@@ -60,7 +60,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (asset.getId() < 1)
 			analysis.addAnAsset(asset);
-		if (analysis.getType() == AnalysisType.QUANTITATIVE && analysis.getRiskProfiles().isEmpty())
+		if (analysis.getType() != AnalysisType.QUALITATIVE && analysis.getRiskProfiles().isEmpty())
 			buildAssessment(asset, analysis);
 		else
 			build(asset, analysis);
@@ -80,7 +80,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (scenario.getId() < 1)
 			analysis.addAScenario(scenario);
-		if (analysis.getType() == AnalysisType.QUANTITATIVE && analysis.getRiskProfiles().isEmpty())
+		if (analysis.getType() != AnalysisType.QUALITATIVE && analysis.getRiskProfiles().isEmpty())
 			buildAssessment(scenario, analysis);
 		else
 			build(scenario, analysis);

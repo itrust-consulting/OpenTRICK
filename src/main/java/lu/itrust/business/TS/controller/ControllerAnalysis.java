@@ -593,6 +593,8 @@ public class ControllerAnalysis {
 
 			// add customers of user
 			model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+			
+			model.put("types", AnalysisType.values());
 
 			// add the analysis object
 			model.put("analysis", analysis);

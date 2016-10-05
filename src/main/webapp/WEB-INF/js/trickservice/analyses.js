@@ -579,7 +579,7 @@ function customAnalysis(element) {
 									},
 									checkProfile : function() {
 										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
-												this.assessmentDisable || this.analysisType != 'QUANTITATIVE');
+												this.assessmentDisable || this.analysisType != 'QUALITATIVE');
 										return this;
 									},
 									checkAssetStandard : function() {

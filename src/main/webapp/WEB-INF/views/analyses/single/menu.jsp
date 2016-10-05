@@ -76,7 +76,7 @@
 					<li><a href="#tabSOA" data-toggle="tab"> <spring:message code="label.menu.analysis.soa" /></a></li>
 				</c:if>
 				<li><a href="#tabSummary" data-toggle="tab"> <spring:message code="label.menu.analysis.summary" /></a></li>
-				<c:if test="${type=='QUANTITATIVE'}">
+				<c:if test="${type=='QUALITATIVE'}">
 					<li><a href="#tabRiskRegister" data-toggle="tab"> <spring:message code="label.menu.analysis.risk_register" /></a></li>
 				</c:if>
 				<li class="divider"></li>
@@ -104,7 +104,7 @@
 				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" />
 				</a></li>
 				<c:choose>
-					<c:when test="${type=='QUANTITATIVE'}">
+					<c:when test="${type=='QUALITATIVE'}">
 						<li><a href="#" onclick="return calculateRiskRegister();"> <spring:message code="label.menu.analysis.risk_register" /></a></li>
 					</c:when>
 					<c:when test="${not isEditable}">
@@ -132,11 +132,11 @@
 				<li class="dropdown-header"><spring:message code="label.title.edit_mode" /></li>
 				<li role="enterEditMode"><a href="#" onclick="return enableEditMode()"><spring:message code="label.action.edit_mode.open" /></a></li>
 				<li class="disabled" onclick="return disableEditMode()" role="leaveEditMode"><a href="#"><spring:message code="label.action.edit_mode.close" /></a></li>
-				<c:if test="${not(isProfile and type=='QUANTITATIVE')}">
+				<c:if test="${not(isProfile and type=='QUALITATIVE')}">
 					<li class="divider"></li>
 				</c:if>
 			</c:if>
-			<c:if test="${type=='QUALITATIVE'}">
+			<c:if test="${type=='QUANTITATIVE'}">
 				<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
 				<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.open" /></a></li>
 				<c:if test="${isProfile or isEditable}">
