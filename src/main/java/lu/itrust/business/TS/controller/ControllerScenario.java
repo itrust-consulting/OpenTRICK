@@ -38,6 +38,7 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -305,7 +306,7 @@ public class ControllerScenario {
 
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 
-			Scenario scenario = buildScenario(errors, assetTypes, value, locale, analysis.isCssf());
+			Scenario scenario = buildScenario(errors, assetTypes, value, locale, analysis.getType() == AnalysisType.QUALITATIVE);
 
 			if (!errors.isEmpty())
 				return errors;
@@ -459,23 +460,23 @@ public class ControllerScenario {
 			}
 
 			returnvalue.setAccidental(jsonNode.get("accidental").asInt());
-			
+
 			returnvalue.setEnvironmental(jsonNode.get("environmental").asInt());
-			
+
 			returnvalue.setExternalThreat(jsonNode.get("externalThreat").asInt());
-			
+
 			returnvalue.setInternalThreat(jsonNode.get("internalThreat").asInt());
-			
+
 			returnvalue.setIntentional(jsonNode.get("intentional").asInt());
-			
+
 			returnvalue.setDetective(jsonNode.get("detective").asDouble());
 
 			returnvalue.setCorrective(jsonNode.get("corrective").asDouble());
-			
+
 			returnvalue.setLimitative(jsonNode.get("limitative").asDouble());
-			
+
 			returnvalue.setPreventive(jsonNode.get("preventive").asDouble());
-			
+
 			for (AssetType assetType : assetTypes) {
 
 				AssetTypeValue atv = null;
@@ -491,9 +492,9 @@ public class ControllerScenario {
 					returnvalue.addAssetTypeValue(new AssetTypeValue(assetType, value));
 
 			}
-			if(!returnvalue.hasThreatSource())
+			if (!returnvalue.hasThreatSource())
 				throw new TrickException("error.scenario.threat.source", "Please define a threat source.");
-			if(!returnvalue.hasControlCharacteristics())
+			if (!returnvalue.hasControlCharacteristics())
 				throw new TrickException("error.scenario.control.characteristic", "Sum of the control characteristics must be equal to 1.");
 			return returnvalue;
 

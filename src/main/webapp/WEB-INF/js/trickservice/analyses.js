@@ -439,7 +439,7 @@ function customAnalysis(element) {
 									customers : {},
 									cloneWidth : undefined,
 									assessmentDisable : true,
-									cssfChecked : false,
+									analysisType : undefined,
 									saveVersions : function(identifier, data) {
 										for (var i = 0; i < data.length; i++)
 											this.versions[data[i].id] = data[i];
@@ -578,7 +578,8 @@ function customAnalysis(element) {
 										return this.checkProfile();
 									},
 									checkProfile : function() {
-										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled", this.assessmentDisable || !this.cssfChecked);
+										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
+												this.assessmentDisable || this.analysisType != 'QUANTITATIVE');
 										return this;
 									},
 									checkAssetStandard : function() {
@@ -621,7 +622,8 @@ function customAnalysis(element) {
 								};
 
 								var $locker = $("<a href='#' style='margin-right:3px;' class='pull-right' title='" + $lockText
-										+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $cssf = $("#cssf");
+										+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $analysisType = $(
+										"input[name='type']", $modalContent);
 
 								// Event user select a customer
 								$("#selector-customer").on("change", function(e) {
@@ -641,9 +643,11 @@ function customAnalysis(element) {
 										analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
 								});
 
-								$cssf.on("change", function(e) {
-									analysesCaching.cssfChecked = $cssf.is(":checked");
-									analysesCaching.checkProfile();
+								$analysisType.on("change", function(e) {
+									if (e.currentTarget.checked) {
+										analysesCaching.analysisType = e.currentTarget.value;
+										analysesCaching.checkProfile();
+									}
 								});
 
 								$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
@@ -771,7 +775,7 @@ function customAnalysis(element) {
 								$saveButton.click(function() {
 									$(modal.modal).find(".label-danger, .alert").remove();
 									$(modal.modal_dialog).find("button").prop("disabled", true);
-									$progress_bar.show();
+									$progress.show();
 									$.ajax({
 										url : context + "/Analysis/Build/Save",
 										type : "post",
@@ -782,12 +786,12 @@ function customAnalysis(element) {
 											var response = parseJson(data);
 											if (typeof response == 'object') {
 												if (response.error != undefined)
-													$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
+													$(showError($("#build-analysis-modal-error",$modalBody)[0], response.error)).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});
 												else if (response.success != undefined) {
-													$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
+													$(showSuccess($("#build-analysis-modal-error",$modalBody)[0], response.success)).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});
@@ -838,11 +842,12 @@ function customAnalysis(element) {
 												unknowError();
 										},
 										error : unknowError
+									}).complete(function() {
+										$(modal.modal_dialog).find("button").prop("disabled", false);
+										$progress.hide();
 									});
-									$(modal.modal_dialog).find("button").prop("disabled", false);
-									$progress_bar.hide();
-								});
-
+								})
+								$analysisType.trigger("change");
 								modal.Show();
 							}
 							return false;

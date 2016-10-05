@@ -35,6 +35,7 @@ import lu.itrust.business.expressions.StringExpressionParser;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idAssetMeasure")
+//@DiscriminatorValue("ASSET")
 public class AssetMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************

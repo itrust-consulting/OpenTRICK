@@ -43,6 +43,7 @@ import lu.itrust.business.expressions.StringExpressionParser;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idNormalMeasure")
+//@DiscriminatorValue("NORMAL")
 public class NormalMeasure extends Measure {
 
 	/***********************************************************************************************

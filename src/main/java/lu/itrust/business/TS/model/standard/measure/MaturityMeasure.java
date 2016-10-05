@@ -28,6 +28,7 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idMaturityMeasure")
+//@DiscriminatorValue("MATURITY")
 public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************

@@ -15,6 +15,8 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -115,10 +117,11 @@ public class Analysis implements Cloneable {
 
 	@Column(name = "dtUncertainty", nullable = false)
 	private boolean uncertainty = false;
-
-	@Column(name = "dtCssf", nullable = false)
-	private boolean cssf = false;
-
+	
+	@Column(name = "dtType", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private AnalysisType type = AnalysisType.QUANTITATIVE;
+	
 	/** The Customer object */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -2227,24 +2230,17 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * isCssf: <br>
-	 * Returns the cssf field value.
-	 * 
-	 * @return The value of the cssf field
+	 * @return the type
 	 */
-	public boolean isCssf() {
-		return cssf;
+	public AnalysisType getType() {
+		return type;
 	}
 
 	/**
-	 * setCssf: <br>
-	 * Sets the Field "cssf" with a value.
-	 * 
-	 * @param cssf
-	 *            The Value to set the cssf field
+	 * @param type the type to set
 	 */
-	public void setCssf(boolean cssf) {
-		this.cssf = cssf;
+	public void setType(AnalysisType type) {
+		this.type = type;
 	}
 
 	public Analysis duplicateTo(Analysis copy) throws CloneNotSupportedException {
@@ -2261,7 +2257,7 @@ public class Analysis implements Cloneable {
 			copy.profile = profile;
 			copy.version = version;
 			copy.uncertainty = uncertainty;
-			copy.cssf = cssf;
+			copy.type = type;
 		}
 		copy.actionPlans = new ArrayList<>();
 		copy.riskRegisters = new ArrayList<>();

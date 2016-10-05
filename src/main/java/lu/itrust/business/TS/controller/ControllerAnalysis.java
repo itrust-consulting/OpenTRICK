@@ -92,6 +92,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
@@ -268,10 +269,10 @@ public class ControllerAnalysis {
 				model.addAttribute("soa", measures.get(Constant.STANDARD_27002));
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
-				model.addAttribute("show_cssf", analysis.isCssf());
+				model.addAttribute("type", analysis.getType());
 				model.addAttribute("standards", standards);
 				model.addAttribute("hasMaturity", hasMaturity);
-				if (analysis.isCssf()) {
+				if (analysis.getType() == AnalysisType.QUALITATIVE) {
 					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
 					model.addAttribute("estimationMapping", analysis.mapAssessment());
 				}
@@ -1248,8 +1249,6 @@ public class ControllerAnalysis {
 
 			boolean uncertainty = jsonNode.has("uncertainty") ? !jsonNode.get("uncertainty").asText().isEmpty() : false;
 
-			boolean cssf = jsonNode.has("cssf") ? !jsonNode.get("cssf").asText().isEmpty() : false;
-
 			if (idLanguage < 1)
 				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
 			else if (language == null)
@@ -1259,11 +1258,10 @@ public class ControllerAnalysis {
 
 			if (!errors.isEmpty())
 				return false;
-			boolean update = analysis.getId() > 0 && !analysis.isProfile() && cssf != analysis.isCssf();
+			boolean update = analysis.getId() > 0 && !analysis.isProfile();
 			analysis.setLabel(comment);
 			analysis.setLanguage(language);
 			analysis.setUncertainty(uncertainty);
-			analysis.setCssf(cssf);
 			if (update)
 				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());
 			serviceAnalysis.saveOrUpdate(analysis);

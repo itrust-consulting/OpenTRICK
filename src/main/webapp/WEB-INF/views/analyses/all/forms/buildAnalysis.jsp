@@ -4,6 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="buildAnalysisModal" tabindex="-1" role="dialog" data-aria-labelledby="buildAnalysisModal" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 900px;">
 		<div class="modal-content">
@@ -17,14 +18,22 @@
 				<ul class="nav nav-tabs" role="tablist" style="margin-top: 0px;">
 					<li class="active" role="tab_group_1"><a href="#group_1" data-toggle="tab"><spring:message code="label.menu.build.analyis.default" text="Default" /></a></li>
 					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.advance" text="Advance" /></a></li>
-					<li class="col-sm-6 pull-right">
-						<div class="progress progress-striped active" hidden="true" style="margin-bottom: 5px; margin-top: 8px;">
-							<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-						</div>
-					</li>
+					<li class="col-sm-8 pull-right"  id="build-analysis-modal-error"></li>
 				</ul>
-				<form action="#" class="form-horizontal tab-content" id="tabs">
-					<div id="group_1" class="tab-pane active" style="padding-top: 10px; height: 575.5px">
+				<form action="#" class="form-horizontal tab-content" id="tabs" style="height: 620px">
+					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
+						<div class="form-group">
+							<label for="type" class="col-sm-2 control-label"> <spring:message code="label.analysis.type" text="Type" /></label>
+							<div class="col-sm-10" align="center">
+								<div class="btn-group" data-toggle="buttons">
+									<c:forEach items="${types}" var="type" varStatus="status">
+										<c:set var="typeValue" value="${fn:toLowerCase(type)}" />
+										<label class="btn btn-default ${status.index==0?'active':''}"><spring:message code="label.analysis.type.${typeValue}" text="${typeValue}" /><input
+											${status.index==0 ? 'checked' :''} name="type" type="radio" value="${type}"></label>
+									</c:forEach>
+								</div>
+							</div>
+						</div>
 						<div class="form-group">
 							<label for="customer" class="col-sm-2 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
 							</label>
@@ -64,7 +73,7 @@
 						<div class="form-group">
 							<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
 							</label>
-							<div class="col-sm-10" >
+							<div class="col-sm-10">
 								<input type="text" class="form-control" name="author" value="${author}" required="required" />
 							</div>
 						</div>
@@ -86,7 +95,7 @@
 							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 							</label>
 							<div class="col-sm-10">
-								<textarea name="comment" class="form-control resize_vectical_only" rows="5"  required="required"></textarea>
+								<textarea name="comment" class="form-control resize_vectical_only" rows="5" required="required"></textarea>
 							</div>
 						</div>
 						<div class="form-group">
@@ -96,13 +105,7 @@
 								<input type="checkbox" name="uncertainty" class="checkbox">
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" />
-							</label>
-							<div class="col-sm-10" align="center">
-								<input id="cssf" type="checkbox" name="cssf" class="checkbox">
-							</div>
-						</div>
+
 					</div>
 					<div id="group_2" class="tab-pane" style="padding-top: 10px; height: 575.5px">
 						<div class="col-sm-4">
@@ -195,7 +198,7 @@
 							<div class="form-group">
 								<label for="standards" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
-									<div class="well well-sm" style="height: 150px;overflow-y:auto">
+									<div class="well well-sm" style="height: 150px; overflow-y: auto">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 								</div>
@@ -214,15 +217,12 @@
 				<span style="display: block; clear: both; margin: 0; padding: 0"></span>
 			</div>
 			<div class="modal-footer" style="margin-top: 0">
-				<div class="col-sm-8" id="build-analysis-modal-error"></div>
-				<div class="col-sm-4">
-					<button type="button" class="btn btn-primary" name="save">
-						<spring:message code="label.action.save" text="Save" />
-					</button>
-					<button type="button" class="btn btn-default" name="cancel">
-						<spring:message code="label.action.cancel" text="Cancel" />
-					</button>
-				</div>
+				<button type="button" class="btn btn-primary" name="save">
+					<spring:message code="label.action.save" text="Save" />
+				</button>
+				<button type="button" class="btn btn-default" name="cancel">
+					<spring:message code="label.action.cancel" text="Cancel" />
+				</button>
 			</div>
 		</div>
 	</div>

@@ -96,6 +96,7 @@
 								</c:if>
 							</th>
 							<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
+							<th width="5%"><spring:message code="label.analysis.type" text="Type" /></th>
 							<th width="35%"><spring:message code="label.analysis.comment" text="Comment" /></th>
 							<c:if test="${allowedTicketing}">
 								<th><spring:message code="label.link.to.project" arguments="${ticketingName}" text="${ticketingName}" /></th>
@@ -114,6 +115,7 @@
 								data-analysis-owner="${user.username == analysis.owner.login}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 								<td><spring:message text="${analysis.label}" /></td>
+								<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
 								<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
 								<c:if test="${allowedTicketing}">
 									<th>

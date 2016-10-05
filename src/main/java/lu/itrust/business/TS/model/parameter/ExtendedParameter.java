@@ -129,6 +129,7 @@ public class ExtendedParameter extends AcronymParameter implements Cloneable {
 	 * @param extendedParameterNext
 	 */
 	public static void ComputeScales(ExtendedParameter extendedParameter, ExtendedParameter extendedParameterPrev, ExtendedParameter extendedParameterNext) {
+		
 		extendedParameter.setValue(Math.sqrt(extendedParameterPrev.getValue() * extendedParameterNext.getValue()));
 
 		if (extendedParameterPrev.level == 0) {

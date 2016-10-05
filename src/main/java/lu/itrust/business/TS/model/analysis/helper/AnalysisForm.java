@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.history.History;
 
 /**
@@ -49,7 +50,7 @@ public class AnalysisForm {
 
 	private boolean uncertainty;
 
-	private boolean cssf;
+	private AnalysisType type;
 
 	/**
 	 * 
@@ -69,7 +70,7 @@ public class AnalysisForm {
 	 * @return the riskProfile
 	 */
 	public boolean isRiskProfile() {
-		return riskProfile && cssf && asset > 0 && asset == scenario;
+		return riskProfile && type == AnalysisType.QUALITATIVE  && asset > 0 && asset == scenario;
 	}
 
 	/**
@@ -228,24 +229,17 @@ public class AnalysisForm {
 	}
 
 	/**
-	 * isCssf: <br>
-	 * Returns the cssf field value.
-	 * 
-	 * @return The value of the cssf field
+	 * @return the type
 	 */
-	public boolean isCssf() {
-		return cssf;
+	public AnalysisType getType() {
+		return type;
 	}
 
 	/**
-	 * setCssf: <br>
-	 * Sets the Field "cssf" with a value.
-	 * 
-	 * @param cssf
-	 *            The Value to set the cssf field
+	 * @param type the type to set
 	 */
-	public void setCssf(boolean cssf) {
-		this.cssf = cssf;
+	public void setType(AnalysisType type) {
+		this.type = type;
 	}
 
 	public String getName() {

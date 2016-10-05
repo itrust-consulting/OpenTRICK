@@ -44,6 +44,7 @@ import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisForm;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisStandardBaseInfo;
@@ -146,6 +147,8 @@ public class ControllerAnalysisCreate {
 		User user = serviceUser.get(principal.getName());
 
 		model.addAttribute("author", user.getFirstName() + " " + user.getLastName());
+		
+		model.addAttribute("types", AnalysisType.values());
 
 		return "analyses/all/forms/buildAnalysis";
 
@@ -236,7 +239,7 @@ public class ControllerAnalysisCreate {
 			analysis.setCreationDate((Timestamp) history.getDate());
 			analysis.setVersion(analysisForm.getVersion());
 			analysis.setUncertainty(analysisForm.isUncertainty());
-			analysis.setCssf(analysisForm.isCssf());
+			analysis.setType(analysisForm.getType());
 			analysis.setOwner(serviceUser.get(principal.getName()));
 			analysis.addUserRight(analysis.getOwner(), AnalysisRight.ALL);
 			String baseAnalysis = "";

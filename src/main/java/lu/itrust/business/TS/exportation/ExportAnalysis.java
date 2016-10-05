@@ -754,7 +754,7 @@ public class ExportAnalysis {
 		// add parameters
 		params.add(this.analysis.getIdentifier());
 		params.add(this.analysis.getLabel());
-		params.add(this.analysis.isCssf());
+		params.add(this.analysis.getType());
 		params.add(this.analysis.isUncertainty());
 		// execute the query
 		sqlite.query(query, params);
@@ -939,28 +939,31 @@ public class ExportAnalysis {
 	 * exportExtendedParameters: <br>
 	 * Export Extended Parameters to an Sqlite File using a Sqlite Database
 	 * Handler.
+	 * 
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 */
 	private void exportExtendedParameters() throws Exception {
-		// Export all extended parameters of type IMPACT, PROBABILITY and SEVERITY
+		// Export all extended parameters of type IMPACT, PROBABILITY and
+		// SEVERITY
 		for (Parameter parameter : this.analysis.getParameters()) {
 			// Determine insert query
 			String query = null;
 			switch (parameter.getType().getLabel()) {
-				case Constant.PARAMETERTYPE_TYPE_IMPACT_NAME:
-					query = DatabaseHandler.generateInsertQuery("impact", 7);
-					break;
-				case Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME:
-					query = DatabaseHandler.generateInsertQuery("potentiality", 7);
-					break;
+			case Constant.PARAMETERTYPE_TYPE_IMPACT_NAME:
+				query = DatabaseHandler.generateInsertQuery("impact", 7);
+				break;
+			case Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME:
+				query = DatabaseHandler.generateInsertQuery("potentiality", 7);
+				break;
 			}
 
 			// Exclude all other extended parameters (there should be none)
-			if (query == null) continue;
-			
+			if (query == null)
+				continue;
+
 			// Cast object (we know it is of the good type)
-			ExtendedParameter extendedParameter = (ExtendedParameter)parameter;
-			
+			ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
+
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id
@@ -980,6 +983,7 @@ public class ExportAnalysis {
 	 * exportDynamicParameters: <br>
 	 * Export Dynamic Parameters to an Sqlite File using a Sqlite Database
 	 * Handler.
+	 * 
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 */
 	private void exportDynamicParameters() throws Exception {
@@ -987,13 +991,13 @@ public class ExportAnalysis {
 		for (Parameter parameter : this.analysis.getParameters()) {
 			if (!parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
 				continue;
-			
+
 			// Determine insert query
 			String query = DatabaseHandler.generateInsertQuery("dynamic_parameter", 4);
 
 			// Cast object (we know it is of the good type)
-			AcronymParameter acronymParameter = (AcronymParameter)parameter;
-			
+			AcronymParameter acronymParameter = (AcronymParameter) parameter;
+
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id

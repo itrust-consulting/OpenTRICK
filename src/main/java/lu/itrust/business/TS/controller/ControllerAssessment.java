@@ -36,6 +36,7 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentAssetComparator;
@@ -154,7 +155,7 @@ public class ControllerAssessment {
 			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 		}
 		model.addAttribute("asset", asset);
-		model.addAttribute("show_cssf", analysis.isCssf());
+		model.addAttribute("type", analysis.getType());
 		model.addAttribute("language", locale.getISO3Country());
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
 		return "analyses/single/components/estimation/asset";
@@ -194,7 +195,7 @@ public class ControllerAssessment {
 
 		}
 		model.addAttribute("scenario", scenario);
-		model.addAttribute("show_cssf", analysis.isCssf());
+		model.addAttribute("type", analysis.getType());
 		model.addAttribute("language", locale.getISO3Country());
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
 		return "analyses/single/components/estimation/scenario";
@@ -207,7 +208,7 @@ public class ControllerAssessment {
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("assessment", assessment);
 		model.addAttribute("probabilities", probabilities);
-		if (analysis.isCssf()) {
+		if (analysis.getType() == AnalysisType.QUALITATIVE) {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
 			ParameterConvertor converter = new ParameterConvertor(impacts, probabilities);

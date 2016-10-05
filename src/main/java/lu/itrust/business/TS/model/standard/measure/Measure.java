@@ -40,6 +40,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+//@DiscriminatorColumn(name="dtType")
 public abstract class Measure implements Cloneable {
 
 	/***********************************************************************************************

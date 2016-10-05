@@ -20,7 +20,6 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
-
 /**
  * Assessment: <br>
  * This class represents an assessments and all its data.
@@ -35,7 +34,7 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
 public class Assessment implements Cloneable {
 
 	/***********************************************************************************************
@@ -44,7 +43,7 @@ public class Assessment implements Cloneable {
 
 	/** identifier from the database */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAssessment")
 	private int id = -1;
 
@@ -57,7 +56,7 @@ public class Assessment implements Cloneable {
 	private String comment = "";
 
 	/** hidden assessment comment */
-	@Column(name = "dtHiddenComment", nullable = false, length=16777216)
+	@Column(name = "dtHiddenComment", nullable = false, length = 16777216)
 	private String hiddenComment = "";
 
 	/** hidden assessment comment */
@@ -298,15 +297,7 @@ public class Assessment implements Cloneable {
 	}
 
 	protected String checkImpact(String impact) {
-		/*
-		 * if (impact == null) throw new IllegalArgumentException(
-		 * "Impact value is null"); else if (impact.trim().isEmpty()) impact =
-		 * "0"; else if (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw
-		 * new IllegalArgumentException(
-		 * "Impact does not meet the regular expression: " +
-		 * Constant.REGEXP_VALID_IMPACT);
-		 */
-		return impact.toLowerCase();
+		return impact == null ? "0" : impact.toLowerCase();
 	}
 
 	/**
@@ -317,7 +308,6 @@ public class Assessment implements Cloneable {
 	 *            The value to set "impactFin"
 	 */
 	public void setImpactFin(String impact) {
-
 		this.impactFin = checkImpact(impact);
 	}
 

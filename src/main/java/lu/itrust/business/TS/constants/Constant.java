@@ -268,6 +268,9 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
 	public final static int PARAMETERTYPE_TYPE_CSSF = 7;
 	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 8;
+	public final static int PARAMETERTYPE_TYPE_IMPACT_REP = 9;
+	public final static int PARAMETERTYPE_TYPE_IMPACT_OPE = 10;
+	public final static int PARAMETERTYPE_TYPE_IMPACT_LEG = 11;
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -278,6 +281,9 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
 	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
+	public final static String PARAMETERTYPE_TYPE_IMPACT_REP_NAME = "IMPACT_REP";
+	public final static String PARAMETERTYPE_TYPE_IMPACT_OPE_NAME = "IMPACT_OPE";
+	public final static String PARAMETERTYPE_TYPE_IMPACT_LEG_NAME = "IMPACT_LEG";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
@@ -591,7 +597,7 @@ public class Constant {
 	public static final String MATURITY_RATE = "rate";
 	public static final String MATURITY_DOMAIN = "domain";
 	public static final String VALUE_SPEC = "value_spec";
-	
+
 	/** SML LEVEL **/
 	public static final String MATURITY_LEVEL_SML5 = "SML5";
 	public static final String MATURITY_LEVEL_SML4 = "SML4";
@@ -599,8 +605,6 @@ public class Constant {
 	public static final String MATURITY_LEVEL_SML2 = "SML2";
 	public static final String MATURITY_LEVEL_SML1 = "SML1";
 	public static final String MATURITY_LEVEL_SML0 = "SML0";
-	
-	
 
 	/** List of Constants for the Sqlite Table "maturity_phase" */
 	public final static String MATURITYPHASE_ID = "phase";
@@ -801,7 +805,7 @@ public class Constant {
 	public static final String ALLOWED_TICKETING = "allowedTicketing";
 
 	public static final String TICKETING_NAME = "ticketingName";
-	
+
 	public static final String TICKETING_URL = "ticketingURL";
 
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
@@ -843,6 +847,5 @@ public class Constant {
 	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
 
 	public static final String API_AUTHENTICATION_TOKEN_NAME = "X-Auth-Token";
-
 
 }

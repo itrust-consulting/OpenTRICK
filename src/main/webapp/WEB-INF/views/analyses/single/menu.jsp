@@ -5,6 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<c:set var="canExport" value="${analysis.getRightsforUserString(login).right.ordinal()<2}" />
 <ul class="nav nav-tabs affix affix-top nav-analysis col-xs-12">
 	<c:if test="${!isProfile}">
 		<li class="active"><a href="#tabHistory" data-toggle="tab"><spring:message code="label.menu.analysis.history" /></a></li>
@@ -75,7 +76,7 @@
 					<li><a href="#tabSOA" data-toggle="tab"> <spring:message code="label.menu.analysis.soa" /></a></li>
 				</c:if>
 				<li><a href="#tabSummary" data-toggle="tab"> <spring:message code="label.menu.analysis.summary" /></a></li>
-				<c:if test="${show_cssf}">
+				<c:if test="${type=='QUANTITATIVE'}">
 					<li><a href="#tabRiskRegister" data-toggle="tab"> <spring:message code="label.menu.analysis.risk_register" /></a></li>
 				</c:if>
 				<li class="divider"></li>
@@ -93,8 +94,8 @@
 				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
 			</ul></li>
 	</c:if>
-	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted" title='<spring:message code="label.action.close.analysis" />'
-		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-sign-out fa-2x"></i></a></li>
+	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted"
+		title='<spring:message code="label.action.close.analysis" />' style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-sign-out fa-2x"></i></a></li>
 	<li class="dropdown-submenu pull-right"><a href="#" class="dropdown-toggle text-muted" data-toggle="dropdown" title='<spring:message code="label.actions" />'
 		style="padding-bottom: 5px; padding-top: 5px"><i class="fa fa-cog fa-2x"></i></a>
 		<ul class="dropdown-menu" id="actionmenu">
@@ -102,15 +103,20 @@
 				<li class="dropdown-header"><spring:message code="label.title.computation" /></li>
 				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" />
 				</a></li>
-				<c:if test="${show_cssf}">
-					<li><a href="#" onclick="return calculateRiskRegister();"> <spring:message code="label.menu.analysis.risk_register" /></a></li>
-				</c:if>
-				<li class="divider"></li>
-				<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
+				<c:choose>
+					<c:when test="${type=='QUANTITATIVE'}">
+						<li><a href="#" onclick="return calculateRiskRegister();"> <spring:message code="label.menu.analysis.risk_register" /></a></li>
+					</c:when>
+					<c:when test="${not isEditable}">
+						<li class="divider"></li>
+					</c:when>
+				</c:choose>
+				<c:if test="${canExport and isEditable}">
+					<li class="divider"></li>
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
 					<c:if test="${show_cssf}">
-					<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
+						<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
 						</a></li>
 						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />
 						</a></li>
@@ -126,19 +132,27 @@
 				<li class="dropdown-header"><spring:message code="label.title.edit_mode" /></li>
 				<li role="enterEditMode"><a href="#" onclick="return enableEditMode()"><spring:message code="label.action.edit_mode.open" /></a></li>
 				<li class="disabled" onclick="return disableEditMode()" role="leaveEditMode"><a href="#"><spring:message code="label.action.edit_mode.close" /></a></li>
-				<li class="divider"></li>
+				<c:if test="${not(isProfile and type=='QUANTITATIVE')}">
+					<li class="divider"></li>
+				</c:if>
 			</c:if>
-			<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
-			<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.open" /></a></li>
-			<c:if test="${isProfile or isEditable}">
-				<li><a href="#" onclick="return importRRF(${analysis.id});"> <spring:message code="label.action.import" /></a></li>
-				<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
-			</c:if>
-			<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
-				<li><a href="${pageContext.request.contextPath}/Analysis/RRF/Export/Raw/${analysis.id}" download> <spring:message code="label.action.export.rrf.raw" /></a></li>
+			<c:if test="${type=='QUALITATIVE'}">
+				<li class="dropdown-header"><spring:message code="label.title.rrf" /></li>
+				<li><a href="#" onclick="return loadRRF();"> <spring:message code="label.action.open" /></a></li>
+				<c:if test="${isProfile or isEditable}">
+					<li><a href="#" onclick="return importRRF(${analysis.id});"> <spring:message code="label.action.import" /></a></li>
+					<li><a href="#" onclick="return importRawRRFForm(${analysis.id});"> <spring:message code="label.action.import.rrf.raw" /></a></li>
+					<c:set var="importRRF" value="true" />
+				</c:if>
+				<c:if test="${canExport and isEditable}">
+					<li><a href="${pageContext.request.contextPath}/Analysis/RRF/Export/Raw/${analysis.id}" download> <spring:message code="label.action.export.rrf.raw" /></a></li>
+					<c:set var="exportRRF" value="true" />
+				</c:if>
+				<c:if test="${not isProfile and isEditable}">
+					<li class="divider"></li>
+				</c:if>
 			</c:if>
 			<c:if test="${not isProfile and isEditable}">
-				<li class="divider"></li>
 				<li class="dropdown-header"><spring:message code="label.title.assessment" /></li>
 				<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" /></a></li>
 				<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" /></a></li>

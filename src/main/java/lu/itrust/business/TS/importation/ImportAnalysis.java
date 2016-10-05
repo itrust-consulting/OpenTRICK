@@ -43,6 +43,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -67,7 +68,6 @@ import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
-import lu.itrust.business.TS.model.parameter.helper.ExtendedParameterComparator;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -230,14 +230,14 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * import risk information
 			// ****************************************************************
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", 1));
 			importRiskInformation();
 
 			// ****************************************************************
 			// * import item information
 			// ****************************************************************
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", 5));
 			importItemInformation();
 
@@ -247,7 +247,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", 10));
 			importSimpleParameters();
-			
+
 			// ****************************************************************
 			// * import dynamic parameters
 			// ****************************************************************
@@ -258,7 +258,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * import extended parameters
 			// ****************************************************************
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 15));
 			importExtendedParameters();
 
@@ -312,7 +312,7 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", 70));
 			importAssetTypeValues();
 			importAssetValues();
-			
+
 			// ****************************************************************
 			// * import maturity measures
 			// ****************************************************************
@@ -465,7 +465,12 @@ public class ImportAnalysis {
 			if (analysis.getLabel() == null)
 				this.analysis.setLabel(rs.getString(Constant.IDENTIFIER_LABEL));
 
-			analysis.setCssf(getBoolean(rs, "cssf"));
+			String type = getString(rs, "analysis_type");
+
+			if (type == null)
+				analysis.setType(getBoolean(rs, "cssf") ? AnalysisType.QUALITATIVE : AnalysisType.QUANTITATIVE);
+			else
+				analysis.setType(AnalysisType.valueOf(type));
 
 			analysis.setUncertainty(getBoolean(rs, "uncertainty"));
 		}
@@ -1464,7 +1469,7 @@ public class ImportAnalysis {
 		rs.close();
 
 	}
-	
+
 	private void importDynamicParameters() throws Exception {
 
 		// ****************************************************************
@@ -1496,8 +1501,7 @@ public class ImportAnalysis {
 			}
 		} catch (SQLException ex) {
 			// Table does not exist, so we are dealing with an old database.
-		}
-		finally {
+		} finally {
 			if (rs != null)
 				rs.close();
 		}
@@ -1590,10 +1594,6 @@ public class ImportAnalysis {
 		// * retrieve parameter type label
 		// ****************************************************************
 
-		Comparator<ExtendedParameter> comparator = new ExtendedParameterComparator();
-
-		Collections.sort(extendedParameters, comparator);
-
 		ParameterManager.ComputeImpactValue(extendedParameters);
 
 		this.analysis.getParameters().addAll(extendedParameters);
@@ -1647,8 +1647,6 @@ public class ImportAnalysis {
 
 		// close result
 		rs.close();
-
-		Collections.sort(extendedParameters, comparator);
 
 		ParameterManager.ComputeImpactValue(extendedParameters);
 

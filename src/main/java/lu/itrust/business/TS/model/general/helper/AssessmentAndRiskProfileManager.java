@@ -19,6 +19,7 @@ import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.dao.DAORiskProfile;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
@@ -59,7 +60,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (asset.getId() < 1)
 			analysis.addAnAsset(asset);
-		if (!analysis.isCssf() && analysis.getRiskProfiles().isEmpty())
+		if (analysis.getType() == AnalysisType.QUANTITATIVE && analysis.getRiskProfiles().isEmpty())
 			buildAssessment(asset, analysis);
 		else
 			build(asset, analysis);
@@ -79,7 +80,7 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (scenario.getId() < 1)
 			analysis.addAScenario(scenario);
-		if (!analysis.isCssf() && analysis.getRiskProfiles().isEmpty())
+		if (analysis.getType() == AnalysisType.QUANTITATIVE && analysis.getRiskProfiles().isEmpty())
 			buildAssessment(scenario, analysis);
 		else
 			build(scenario, analysis);
@@ -193,10 +194,10 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void UpdateAssessment(Analysis analysis){
+	public void UpdateAssessment(Analysis analysis) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 		Map<String, AcronymParameter> expressionParameters = analysis.mapExpressionParametersByAcronym();
-		if (analysis.isCssf() || !analysis.getRiskProfiles().isEmpty()) {
+		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -240,7 +241,7 @@ public class AssessmentAndRiskProfileManager {
 
 	public void UpdateRiskDendencies(Analysis analysis, Map<String, ExtendedParameter> parametersMapped) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
-		if (analysis.isCssf() || !analysis.getRiskProfiles().isEmpty()) {
+		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -286,7 +287,7 @@ public class AssessmentAndRiskProfileManager {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void UpdateAssetALE(Analysis analysis){
+	public void UpdateAssetALE(Analysis analysis) {
 		Map<String, AcronymParameter> expressionParameters = analysis.mapExpressionParametersByAcronym();
 		List<Asset> assets = analysis.findAssessmentBySelected();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
@@ -367,10 +368,15 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Parses the given expression for an assessment IMPACT and replaces any of the given parameters by their respective value.
-	 * @param expression The expression to parse.
-	 * @param parameters A list of parameters which are known to the expression evaluation engine.
-	 * The latter replaces each encountered parameter name in an expression by its respective value.
+	 * Parses the given expression for an assessment IMPACT and replaces any of
+	 * the given parameters by their respective value.
+	 * 
+	 * @param expression
+	 *            The expression to parse.
+	 * @param parameters
+	 *            A list of parameters which are known to the expression
+	 *            evaluation engine. The latter replaces each encountered
+	 *            parameter name in an expression by its respective value.
 	 * @return Returns the computed value.
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 15, 2015
@@ -379,8 +385,7 @@ public class AssessmentAndRiskProfileManager {
 		// Parse number
 		try {
 			return Double.parseDouble(expression);
-		}
-		catch (NumberFormatException ex) {
+		} catch (NumberFormatException ex) {
 			// Parse parameter
 			if (parameters.containsKey(expression))
 				return parameters.get(expression).getValue();
@@ -388,22 +393,28 @@ public class AssessmentAndRiskProfileManager {
 				return 0.0;
 		}
 	}
-	
+
 	/**
-	 * Parses the given expression for an assessment PROBABILITY and replaces any of the given parameters by their respective value.
-	 * @param expression The expression to parse.
-	 * @param parameters A list of parameters which are known to the expression evaluation engine.
-	 * The latter replaces each encountered parameter name in an expression by its respective value.
+	 * Parses the given expression for an assessment PROBABILITY and replaces
+	 * any of the given parameters by their respective value.
+	 * 
+	 * @param expression
+	 *            The expression to parse.
+	 * @param parameters
+	 *            A list of parameters which are known to the expression
+	 *            evaluation engine. The latter replaces each encountered
+	 *            parameter name in an expression by its respective value.
 	 * @return Returns the computed value.
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 12, 2015
 	 */
 	private static double ProbabilityStringToDouble(String expression, Map<String, ? extends AcronymParameter> parameters) {
-		// Create map which assigns a value to a parameter acronym from the given parameter list
+		// Create map which assigns a value to a parameter acronym from the
+		// given parameter list
 		Map<String, Double> variableValueMap = new HashMap<>();
 		for (String parameterAcronym : parameters.keySet())
 			variableValueMap.put(parameterAcronym, parameters.get(parameterAcronym).getValue());
-		
+
 		// Parse expression
 		ExpressionParser exprParser = new StringExpressionParser(expression);
 		try {
@@ -624,15 +635,11 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/*
-	private static double StringToDouble(String value, Map<String, ExtendedParameter> parameters) {
-		try {
-			if (parameters.containsKey(value.trim().toLowerCase()))
-				return parameters.get(value.trim().toLowerCase()).getValue();
-			return Double.parseDouble(value);
-		} catch (Exception e) {
-			return 0;
-		}
-	}
+	 * private static double StringToDouble(String value, Map<String,
+	 * ExtendedParameter> parameters) { try { if
+	 * (parameters.containsKey(value.trim().toLowerCase())) return
+	 * parameters.get(value.trim().toLowerCase()).getValue(); return
+	 * Double.parseDouble(value); } catch (Exception e) { return 0; } }
 	 */
 
 	@Transactional
