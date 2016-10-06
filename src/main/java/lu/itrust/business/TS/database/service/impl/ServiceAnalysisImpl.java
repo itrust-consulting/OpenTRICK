@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
@@ -497,11 +498,6 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public boolean isAnalysisCssf(Integer analysisID)  {
-		return daoAnalysis.isAnalysisCssf(analysisID);
-	}
-
-	@Override
 	public List<String> getAllNotEmptyVersion(int analysisId) {
 		return daoAnalysis.getAllNotEmptyVersion(analysisId);
 	}
@@ -696,5 +692,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username) {
 		return daoAnalysis.getIdAndVersionByIdentifierAndCustomerAndUsername(identifier,idCustomer,username);
+	}
+
+	@Override
+	public AnalysisType getAnalysisTypeById(int idAnalysis) {
+		return daoAnalysis.getAnalysisTypeById(idAnalysis);
 	}
 }

@@ -68,6 +68,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -221,7 +222,7 @@ public class ControllerAnalysisStandard {
 		Map<String, List<Measure>> measures = new LinkedHashMap<>(analysisStandards.size());
 
 		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
-		
+
 		analysisStandards.forEach(analysisStandard -> {
 			standards.add(analysisStandard.getStandard());
 			measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
@@ -230,9 +231,10 @@ public class ControllerAnalysisStandard {
 		boolean hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
 
 		if (hasMaturity)
-			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
-					serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME),
-					true, expressionParameters));
+			model.addAttribute("effectImpl27002",
+					MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY), serviceParameter
+							.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME), true,
+							expressionParameters));
 
 		model.addAttribute("hasMaturity", hasMaturity);
 
@@ -735,7 +737,7 @@ public class ControllerAnalysisStandard {
 			if (!analysisStandard.getStandard().isAnalysisOnly())
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			Measure measure = MeasureManager.Create(analysisStandard);
 
@@ -767,7 +769,7 @@ public class ControllerAnalysisStandard {
 
 			measure.setMeasureDescription(new MeasureDescription(new MeasureDescriptionText(language)));
 
-			if (!isCSSF) {
+			if (type != AnalysisType.QUALITATIVE) {
 				Map<String, Boolean> excludes = new HashMap<>();
 				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 					excludes.put(category, true);
@@ -805,7 +807,7 @@ public class ControllerAnalysisStandard {
 			else if (!(measure.getAnalysisStandard().getStandard().isComputable() || measure.getAnalysisStandard().getStandard().isAnalysisOnly()))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
@@ -837,7 +839,7 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
 			}
 
-			if (!isCSSF) {
+			if (type != AnalysisType.QUALITATIVE) {
 				Map<String, Boolean> excludes = new HashMap<>();
 				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 					excludes.put(category, true);
@@ -979,7 +981,7 @@ public class ControllerAnalysisStandard {
 		return "analyses/single/components/standards/measure";
 
 	}
-	
+
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String generateTickets(@RequestBody TicketingForm form, Principal principal, HttpSession session, Locale locale) {
@@ -1294,6 +1296,7 @@ public class ControllerAnalysisStandard {
 		}
 		return allowedTicketing;
 	}
+
 	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateCost(HttpSession session, Principal principal, Locale locale) {

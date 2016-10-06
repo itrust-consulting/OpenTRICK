@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.parameter.Parameter;
@@ -31,6 +32,9 @@ public class ControllerParameter {
 
 	@Autowired
 	private ServiceParameter serviceParameter;
+	
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
 
 	/**
 	 * section: <br>
@@ -46,7 +50,8 @@ public class ControllerParameter {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		model.addAttribute("extendedParameters", Analysis.SplitExtendedParameters(serviceParameter.getAllExtendedFromAnalysis(idAnalysis)));
+		model.addAttribute("mappedParameters", Analysis.SplitParameters(serviceParameter.getAllExtendedFromAnalysis(idAnalysis)));
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/parameters/extended";
 	}
 

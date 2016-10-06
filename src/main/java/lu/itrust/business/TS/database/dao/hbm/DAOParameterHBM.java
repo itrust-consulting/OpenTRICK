@@ -1,7 +1,5 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -260,8 +258,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) {
-		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact or ";
-		query += "parameter.type.label = :proba) order by parameter.type.id, parameter.level";
+		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact or parameter.type.label = :proba) order by parameter.type.id, parameter.level";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
 				.setParameter("proba", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
 	}
@@ -385,39 +382,40 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * {@inheritDoc}<br>
+	 * <b>Updated by eomar 06/10/2016:
+	 * Add filter, retrieves Dynamic + Probability</b>
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 10, 2015
 	 * @see lu.itrust.business.TS.model.analysis.Analysis#getExpressionParameters()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis){
-		// We assume that all parameters that have an acronym can be used in an expression
-		// Maybe we want to change this in the future (checking parameter.type); then this is the place to act.
-		// In that case, lu.itrust.business.TS.model.analysis.Analysis#getExpressionParameters() must also be updated.
-		
-		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis";
-		Iterator<Parameter> iterator = getSession().createQuery(query)
-				.setParameter("idAnalysis", idAnalysis)
-				.iterate();
-		List<AcronymParameter> result = new ArrayList<>();
-		while (iterator.hasNext()) {
-			Parameter parameter = iterator.next();
-			if (parameter instanceof AcronymParameter)
-				result.add((AcronymParameter)parameter);
-		}
-		return result;
+	public List<AcronymParameter> getAllExpressionParametersFromAnalysis(Integer idAnalysis) {
+		// We assume that all parameters that have an acronym can be used in an
+		// expression
+		// Maybe we want to change this in the future (checking parameter.type);
+		// then this is the place to act.
+		// In that case,
+		// lu.itrust.business.TS.model.analysis.Analysis#getExpressionParameters()
+		// must also be updated.
+		return getSession()
+				.createQuery(
+						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.type.id in :types")
+				.setParameter("idAnalysis", idAnalysis).setParameterList("types", new Integer[] { Constant.PARAMETERTYPE_TYPE_DYNAMIC, Constant.PARAMETERTYPE_TYPE_PROPABILITY })
+				.list();
+
 	}
 
 	/**
 	 * {@inheritDoc}
+	 * 
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 10, 2015
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis){
+	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type = :type";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME).list();
 	}

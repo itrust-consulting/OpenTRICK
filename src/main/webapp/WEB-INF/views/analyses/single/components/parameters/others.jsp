@@ -28,7 +28,7 @@
 						</thead>
 						<tfoot></tfoot>
 						<tbody>
-							<c:forEach items="${maturityParameters}" var="parameter">
+							<c:forEach items="${mappedParameters['ILPS']}" var="parameter">
 								<tr data-trick-class="MaturityParameter" data-trick-id="${parameter.id}" data-trick-callback="updateMeasureEffience()">
 									<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" /></td>
 									<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" /></td>
@@ -70,7 +70,7 @@
 						</thead>
 						<tbody>
 							<tr data-trick-class="Parameter"  class='success'>
-								<c:forEach items="${simpleParameters[0]}" var="parameter">
+								<c:forEach items="${mappedParameters['SINGLE']}" var="parameter">
 									<c:choose>
 										<c:when test="${parameter.description=='max_rrf' or parameter.description=='soaThreshold'}">
 											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter"
@@ -121,7 +121,7 @@
 						</thead>
 						<tbody>
 							<tr>
-								<c:forEach items="${simpleParameters[1]}" var="parameter">
+								<c:forEach items="${mappedParameters['CSSF']}" var="parameter">
 									<c:choose>
 										<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
 											<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1' class="success textaligncenter"
@@ -174,7 +174,7 @@
 						</thead>
 						<tbody>
 							<tr data-trick-class="Parameter" data-trick-min-value='0' data-trick-max-value='100' data-trick-callback="updateMeasureEffience()">
-								<c:forEach items="${simpleParameters[2]}" var="parameter">
+								<c:forEach items="${mappedParameters['MAXEFF']}" var="parameter">
 									<td data-trick-field="value" data-trick-field-type="double"  data-trick-id="${parameter.id}"  class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 								</c:forEach>
 							</tr>
@@ -197,7 +197,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${simpleParameters[3]}" var="parameter">
+							<c:forEach items="${mappedParameters['IMPSCALE']}" var="parameter">
 								<tr data-trick-class="Parameter" data-trick-id="${parameter.id}">
 									<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}"/></td>
 									<td data-trick-field="value" data-trick-field-type="double" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"

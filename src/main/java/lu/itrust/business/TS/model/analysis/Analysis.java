@@ -51,7 +51,6 @@ import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -117,11 +116,11 @@ public class Analysis implements Cloneable {
 
 	@Column(name = "dtUncertainty", nullable = false)
 	private boolean uncertainty = false;
-	
+
 	@Column(name = "dtType", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private AnalysisType type = AnalysisType.QUANTITATIVE;
-	
+
 	/** The Customer object */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -1111,8 +1110,8 @@ public class Analysis implements Cloneable {
 	 * @param param
 	 *            The Parameter object to Add
 	 */
-	public void addAParameter(Parameter param) {
-		this.parameters.add(param);
+	public boolean addAParameter(Parameter param) {
+		return this.parameters.add(param);
 	}
 
 	/**
@@ -1724,81 +1723,21 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * [0] : Simple, [1] : Extended, [2] : Maturity
-	 * 
+	 * Retrieves parameter by type
 	 * @param parameters
-	 * @return
+	 * @return Map<String, Parameter>
 	 */
-	@SuppressWarnings("unchecked")
-	public static List<Parameter>[] SplitParameters(List<Parameter> parameters) {
-		List<?>[] splits = new List<?>[3];
-		for (int i = 0; i < splits.length; i++)
-			splits[i] = new ArrayList<>();
-		for (Parameter parameter : parameters) {
-			if (parameter instanceof ExtendedParameter)
-				((List<ExtendedParameter>) splits[1]).add((ExtendedParameter) parameter);
-			else if (parameter instanceof MaturityParameter)
-				((List<MaturityParameter>) splits[2]).add((MaturityParameter) parameter);
-			else
-				((List<Parameter>) splits[0]).add(parameter);
-		}
-		return (List<Parameter>[]) splits;
-	}
+	public static Map<String, List<Parameter>> SplitParameters(List<? extends Parameter> parameters) {
+		Map<String, List<Parameter>> mappedParameters = new LinkedHashMap<>();
+		parameters.forEach(parameter -> {
+			List<Parameter> currentParameters = mappedParameters.get(parameter.getType().getLabel());
+			if (currentParameters == null)
+				mappedParameters.put(parameter.getType().getLabel(), currentParameters = new ArrayList<>());
+			currentParameters.add(parameter);
+		});
+		
+		return mappedParameters;
 
-	public static List<MaturityParameter> SplitMaturityParameters(List<Parameter> parameters) {
-		List<MaturityParameter> splits = new ArrayList<MaturityParameter>();
-		for (Parameter parameter : parameters)
-			if (parameter instanceof MaturityParameter)
-				splits.add((MaturityParameter) parameter);
-		return splits;
-	}
-
-	/**
-	 * [0] : Simple Parameter, [1] : CSSF Parameter, [2] : MAXEFF, [3] : other, [4] : dynamic
-	 * 
-	 * @param parameters
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static List<Parameter>[] SplitSimpleParameters(List<Parameter> parameters) {
-		List<?>[] splits = new List<?>[5];
-		for (int i = 0; i < splits.length; i++)
-			splits[i] = new ArrayList<>();
-		for (Parameter parameter : parameters) {
-			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME))
-				((List<Parameter>) splits[0]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_CSSF_NAME))
-				((List<Parameter>) splits[1]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
-				((List<Parameter>) splits[2]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
-				((List<Parameter>) splits[4]).add(parameter);
-			else
-				((List<Parameter>) splits[3]).add(parameter);
-		}
-		return (List<Parameter>[]) splits;
-	}
-
-	/**
-	 * [0] IMPACT, [1]: PROBA, [2]: DYNAMIC
-	 * 
-	 * @param parameters
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static List<Parameter>[] SplitExtendedParameters(List< ? extends Parameter> parameters) {
-		List<?>[] splits = new List<?>[2];
-		for (int i = 0; i < splits.length; i++)
-			splits[i] = new ArrayList<>();
-		for (Parameter parameter : parameters) {
-			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				((List<Parameter>) splits[0]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
-				((List<Parameter>) splits[1]).add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
-				((List<Parameter>) splits[2]).add(parameter);
-		}
-		return (List<Parameter>[]) splits;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -2237,7 +2176,8 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * @param type the type to set
+	 * @param type
+	 *            the type to set
 	 */
 	public void setType(AnalysisType type) {
 		this.type = type;
@@ -2550,9 +2490,9 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
 	}
 
-	public Map<String, ExtendedParameter> mapExtendedParameterByAcronym() {
-		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
-				.collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
+	public Map<String, AcronymParameter> mapAcronymParameterByKey() {
+		return parameters.stream().filter(parameter -> parameter instanceof AcronymParameter).map(parameter -> (AcronymParameter) parameter)
+				.collect(Collectors.toMap(AcronymParameter::getKey, Function.identity()));
 	}
 
 	/**
@@ -2666,7 +2606,9 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * Gets the list of all parameters that shall be taken into consideration
-	 * whenever an expression (e.g. for likelihood) is evaluated.
+	 * whenever an expression (e.g. for likelihood) is evaluated.<br>
+	 * <b>Updated by eomar 06/10/2016: <br>
+	 * Add filter by Type: Dynamic + likelihood</b>
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
 	 */
@@ -2679,40 +2621,13 @@ public class Analysis implements Cloneable {
 		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
 		// so in particular
 		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
-		List<AcronymParameter> expressionParameters = new ArrayList<>();
-		for (Parameter parameter : this.parameters)
-			if (parameter instanceof AcronymParameter)
-				expressionParameters.add((AcronymParameter) parameter);
-		return expressionParameters;
-	}
-
-	/**
-	 * Gets a list of all parameters that are considered to be used as variable
-	 * when evaluating an arithmetic expression. The parameter acronym is then
-	 * replaced by the value of the respective parameter.
-	 * 
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @since Jun 10, 2015
-	 */
-	public List<AcronymParameter> findExpressionParametersByAnalysis() {
-		List<AcronymParameter> acronymParameters = new ArrayList<>();
-		for (Parameter parameter : parameters) {
-			if (parameter instanceof AcronymParameter)
-				acronymParameters.add((AcronymParameter) parameter);
-		}
-		return acronymParameters;
+		return this.parameters.stream().filter(parameter -> (parameter instanceof DynamicParameter) || parameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+				.map(parameter -> (AcronymParameter) parameter).collect(Collectors.toList());
 	}
 
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
 		return parameters.stream().filter(parameter -> parameter instanceof DynamicParameter)
 				.collect(Collectors.toMap(parameter -> ((DynamicParameter) parameter).getAcronym(), parameter -> (DynamicParameter) parameter));
-	}
-
-	public Map<String, AcronymParameter> mapExpressionParametersByAcronym() {
-		return parameters.stream()
-				.filter(parameter -> parameter instanceof AcronymParameter)
-				.map(parameter -> (AcronymParameter) parameter)
-				.collect(Collectors.toMap(AcronymParameter::getAcronym, Function.identity()));
 	}
 
 	public Parameter findParameterByTypeAndDescription(String typeLabel, String description) {

@@ -177,7 +177,7 @@ public class ControllerAssessment {
 			model.addAttribute("alep", alep);
 			model.addAttribute("scenario", scenario);
 			model.addAttribute("parameters", analysis.mapAcronymToValue());
-			model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
+			model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
 			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
@@ -490,7 +490,7 @@ public class ControllerAssessment {
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
-		model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
@@ -519,7 +519,7 @@ public class ControllerAssessment {
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
-		model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)

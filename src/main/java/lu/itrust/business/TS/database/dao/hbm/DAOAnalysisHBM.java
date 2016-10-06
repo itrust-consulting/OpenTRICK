@@ -14,6 +14,7 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
@@ -514,12 +515,6 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return (boolean) getSession().createQuery(query).setParameter("id", analysisID).uniqueResult();
 	}
 
-	@Override
-	public boolean isAnalysisCssf(Integer analysisID) {
-		String query = "Select analysis.cssf from Analysis as analysis where analysis.id= :id";
-		return (boolean) getSession().createQuery(query).setParameter("id", analysisID).uniqueResult();
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getAllNotEmptyVersion(int idAnalysis) {
@@ -831,5 +826,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						"Select userAnalysisRight.analysis.id , userAnalysisRight.analysis.version From UserAnalysisRight userAnalysisRight where  userAnalysisRight.user.login = :username and userAnalysisRight.analysis.customer.id = :customerId and userAnalysisRight.analysis.identifier = :identifier and userAnalysisRight.analysis.data = true and userAnalysisRight.analysis.profile = false and userAnalysisRight.right in :rights            ")
 				.setString("username", username).setString("identifier", identifier).setString("username", username).setInteger("customerId", idCustomer)
 				.setParameterList("rights", new AnalysisRight[] { AnalysisRight.ALL, AnalysisRight.EXPORT }).list();
+	}
+
+	@Override
+	public AnalysisType getAnalysisTypeById(int idAnalysis) {
+		return (AnalysisType) getSession().createQuery("Select type From Analysis where id = :idAnalysis").setParameter("idAnalysis", idAnalysis).uniqueResult();
 	}
 }

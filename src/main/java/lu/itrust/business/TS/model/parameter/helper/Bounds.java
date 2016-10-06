@@ -166,7 +166,11 @@ public class Bounds implements Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	public Object clone(){
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.bounds", "Bounds cannot be copied", e);
+		}
 	}
 }

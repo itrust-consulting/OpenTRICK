@@ -1520,7 +1520,7 @@ public class ActionPlanComputation {
 				// store totalALE in the ActionPlan entry for this maturity
 				// measure divide to the
 				// number of measures to have the correct value
-				actionPlanEntry.setTotalALE(totalChapter / numberMeasures);
+				actionPlanEntry.setTotalALE( totalChapter / numberMeasures);
 
 				// ****************************************************************
 				// * parse assets to divide ALE with number of measures then

@@ -3,6 +3,7 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
@@ -101,8 +102,6 @@ public interface ServiceAnalysis {
 
 	public boolean hasData(Integer idAnalysis);
 
-	public boolean isAnalysisCssf(Integer analysisID);
-
 	public boolean isAnalysisOwner(Integer analysisId, String userName);
 
 	public boolean isAnalysisUncertainty(Integer analysisID);
@@ -177,5 +176,7 @@ public interface ServiceAnalysis {
 	 * @return Object[2],  [0]=id, [1] = version
 	 */
 	public List<Object[]> getIdAndVersionByIdentifierAndCustomerAndUsername(String identifier, Integer idCustomer, String username);
+
+	public AnalysisType getAnalysisTypeById(int idAnalysis);
 
 }

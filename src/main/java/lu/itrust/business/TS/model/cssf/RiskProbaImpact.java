@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 
@@ -40,16 +41,12 @@ public class RiskProbaImpact implements Cloneable {
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private ExtendedParameter impactFin;
-	
-	
 
 	/**
 	 * 
 	 */
 	public RiskProbaImpact() {
 	}
-	
-	
 
 	/**
 	 * @param probability
@@ -65,8 +62,6 @@ public class RiskProbaImpact implements Cloneable {
 		this.impactOp = impactOp;
 		this.impactRep = impactRep;
 	}
-
-
 
 	/**
 	 * @return the probability
@@ -215,11 +210,11 @@ public class RiskProbaImpact implements Cloneable {
 		if (impactFin != null)
 			impactFin = (ExtendedParameter) parameters.get(impactFin.getKey());
 		if (impactRep != null)
-			impactRep = (ExtendedParameter) parameters.get(impactRep.getKey());
+			impactRep = (ExtendedParameter) parameters.get(ExtendedParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_REP_NAME, impactRep.getAcronym()));
 		if (impactOp != null)
-			impactOp = (ExtendedParameter) parameters.get(impactOp.getKey());
+			impactOp = (ExtendedParameter) parameters.get(ExtendedParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, impactOp.getAcronym()));
 		if (impactLeg != null)
-			impactLeg = (ExtendedParameter) parameters.get(impactLeg.getKey());
+			impactLeg = (ExtendedParameter) parameters.get(ExtendedParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_LEG_NAME, impactLeg.getAcronym()));
 	}
 
 	protected ExtendedParameter getValueOrDefault(ExtendedParameter value, ExtendedParameter defaultValue) {

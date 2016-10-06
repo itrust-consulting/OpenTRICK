@@ -216,7 +216,7 @@ public class ControllerActionPlan {
 	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model) throws Exception {
 		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.put("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(analysisID));
-		model.put("show_cssf", serviceAnalysis.isAnalysisCssf(analysisID));
+		model.put("type", serviceAnalysis.getAnalysisTypeById(analysisID));
 		model.put("id", analysisID);
 		model.put("standards", serviceAnalysisStandard.getAllFromAnalysis(analysisID));
 		return "analyses/single/components/actionPlan/form";

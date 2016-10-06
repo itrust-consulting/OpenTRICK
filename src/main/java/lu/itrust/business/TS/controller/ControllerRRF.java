@@ -211,6 +211,7 @@ public class ControllerRRF {
 			model.addAttribute(SCENARIOS, ScenarioManager.SplitByType(scenarios));
 
 			Measure measure = splittedmeasures.entrySet().iterator().next().getValue().get(0);
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
@@ -218,7 +219,7 @@ public class ControllerRRF {
 				model.addAttribute("measureid", normalMeasure.getId());
 				model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
-				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				if (type == AnalysisType.QUALITATIVE) {
 					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
 				} else {
 					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
@@ -251,7 +252,7 @@ public class ControllerRRF {
 				model.addAttribute("measureid", assetMeasure.getId());
 				model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
-				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				if (type == AnalysisType.QUALITATIVE) {
 					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
 				} else {
 					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
@@ -381,12 +382,14 @@ public class ControllerRRF {
 		if (measure.getAnalysisStandard().getStandard().getId() != standardID || measure.getAnalysisStandard().getStandard().getType() == StandardType.MATURITY)
 			return null;
 
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+		
 		if (measure instanceof NormalMeasure) {
 
 			NormalMeasure normalMeasure = (NormalMeasure) measure;
 			model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
-			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+			if (type == AnalysisType.QUALITATIVE) {
 				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
 			} else {
 				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
@@ -419,7 +422,7 @@ public class ControllerRRF {
 			model.addAttribute("measureid", assetMeasure.getId());
 			model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
-			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+			if (type == AnalysisType.QUALITATIVE) {
 				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
 			} else {
 				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());

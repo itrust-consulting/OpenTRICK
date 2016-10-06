@@ -231,7 +231,7 @@ public class ControllerScenario {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (serviceAnalysis.isAnalysisCssf(analysisID))
+		if (serviceAnalysis.getAnalysisTypeById(analysisID) == AnalysisType.QUALITATIVE)
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
@@ -253,7 +253,7 @@ public class ControllerScenario {
 	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (serviceAnalysis.isAnalysisCssf(idAnalysis))
+		if (serviceAnalysis.getAnalysisTypeById(idAnalysis) == AnalysisType.QUALITATIVE)
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());

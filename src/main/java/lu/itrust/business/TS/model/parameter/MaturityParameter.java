@@ -221,32 +221,6 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	}
 
 	/**
-	 * clone: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see lu.itrust.business.TS.model.parameter.Parameter#clone()
-	 */
-	@Override
-	public MaturityParameter clone() throws CloneNotSupportedException {
-		return (MaturityParameter) super.clone();
-	}
-
-	/**
-	 * duplicate: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see lu.itrust.business.TS.model.parameter.Parameter#duplicate()
-	 */
-	@Override
-	public MaturityParameter duplicate() throws CloneNotSupportedException {
-		return (MaturityParameter) super.duplicate();
-	}
-
-	/**
 	 * getSMLLevel: <br>
 	 * Returns the sMLLevel field value.
 	 * 

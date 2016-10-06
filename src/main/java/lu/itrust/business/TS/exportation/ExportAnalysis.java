@@ -1417,7 +1417,6 @@ public class ExportAnalysis {
 		MaturityStandard maturityStandard = null;
 		MaturityMeasure maturity = null;
 		String measurequery = "", specdefaultquery = "";
-		;
 		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
 		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
 

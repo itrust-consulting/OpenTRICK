@@ -16,6 +16,8 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.exception.TrickException;
+
 /**
  * Parameter: <br>
  * This class represents a Parameter and its data.
@@ -173,8 +175,12 @@ public class Parameter implements Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Parameter clone() throws CloneNotSupportedException {
-		return (Parameter) super.clone();
+	public Parameter clone()  {
+		try {
+			return (Parameter) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.parameter", "Parameter cannot be copied");
+		}
 	}
 
 	/**
@@ -184,10 +190,14 @@ public class Parameter implements Cloneable {
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public Parameter duplicate() throws CloneNotSupportedException {
-		Parameter parameter = (Parameter) super.clone();
-		parameter.id = -1;
-		return parameter;
+	public Parameter duplicate() {
+		try {
+			Parameter parameter = (Parameter) super.clone();
+			parameter.id = -1;
+			return parameter;
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.duplicate.parameter", "Parameter cannot be duplicated");
+		}
 	}
 
 	public Boolean isMatch(String typeName, String description) {

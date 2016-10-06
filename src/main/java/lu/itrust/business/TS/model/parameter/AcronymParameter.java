@@ -8,6 +8,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 
 /**
  * Represents a parameter which can be referenced to by an acronym.
+ * 
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 10, 2015
  */
@@ -16,7 +17,10 @@ import javax.persistence.PrimaryKeyJoinColumn;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class AcronymParameter extends Parameter implements Cloneable {
 
-	/** The acronym which can be used to refer to this parameter (e.g. in expressions). */
+	/**
+	 * The acronym which can be used to refer to this parameter (e.g. in
+	 * expressions).
+	 */
 	@Column(name = "dtAcronym", nullable = false)
 	private String acronym = "";
 
@@ -36,19 +40,26 @@ public class AcronymParameter extends Parameter implements Cloneable {
 
 	/**
 	 * {@inheritDoc}
-	 * @see lu.itrust.business.TS.model.parameter.Parameter#clone()
-	 */
-	@Override
-	public AcronymParameter clone() throws CloneNotSupportedException {
-		return (AcronymParameter) super.clone();
-	}
-
-	/**
-	 * {@inheritDoc}
+	 * 
 	 * @see lu.itrust.business.TS.model.parameter.Parameter#duplicate()
 	 */
 	@Override
-	public AcronymParameter duplicate() throws CloneNotSupportedException {
+	public AcronymParameter duplicate() {
 		return (AcronymParameter) super.duplicate();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.model.parameter.Parameter#getKey()
+	 */
+	@Override
+	public String getKey() {
+		return String.format(Parameter.KEY_PARAMETER_FORMAT, getType().getLabel(), acronym);
+	}
+
+	public static String key(String type, String acronym) {
+		return String.format(Parameter.KEY_PARAMETER_FORMAT, type, acronym);
+	}
+
 }

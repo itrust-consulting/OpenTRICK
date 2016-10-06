@@ -1265,7 +1265,7 @@ public class ControllerAnalysis {
 			analysis.setLanguage(language);
 			analysis.setUncertainty(uncertainty);
 			if (update)
-				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());
+				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, analysis.mapAcronymParameterByKey());
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {

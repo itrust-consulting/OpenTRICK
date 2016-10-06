@@ -1,7 +1,12 @@
 package lu.itrust.business.TS.model.general.helper;
 
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_LEG_NAME;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_NAME;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_OPE_NAME;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_REP_NAME;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
+
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,9 +32,9 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.expressions.ExpressionParser;
 import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
@@ -196,7 +201,7 @@ public class AssessmentAndRiskProfileManager {
 	@Transactional
 	public void UpdateAssessment(Analysis analysis) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
-		Map<String, AcronymParameter> expressionParameters = analysis.mapExpressionParametersByAcronym();
+		Map<String, AcronymParameter> expressionParameters = analysis.mapAcronymParameterByKey();
 		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
 			for (Asset asset : analysis.getAssets()) {
@@ -239,7 +244,7 @@ public class AssessmentAndRiskProfileManager {
 		UpdateAssetALE(analysis);
 	}
 
-	public void UpdateRiskDendencies(Analysis analysis, Map<String, ExtendedParameter> parametersMapped) {
+	public void UpdateRiskDendencies(Analysis analysis, Map<String, AcronymParameter> parametersMapped) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
 		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
@@ -288,7 +293,7 @@ public class AssessmentAndRiskProfileManager {
 	 */
 	@Transactional
 	public void UpdateAssetALE(Analysis analysis) {
-		Map<String, AcronymParameter> expressionParameters = analysis.mapExpressionParametersByAcronym();
+		Map<String, AcronymParameter> expressionParameters = analysis.mapAcronymParameterByKey();
 		List<Asset> assets = analysis.findAssessmentBySelected();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
 		try {
@@ -379,18 +384,16 @@ public class AssessmentAndRiskProfileManager {
 	 *            parameter name in an expression by its respective value.
 	 * @return Returns the computed value.
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @param string
 	 * @since Jun 15, 2015
 	 */
-	private static double ImpactStringToDouble(String expression, Map<String, ? extends AcronymParameter> parameters) {
+	private static double ImpactStringToDouble(String expression, String type, Map<String, AcronymParameter> parameters) {
 		// Parse number
 		try {
 			return Double.parseDouble(expression);
 		} catch (NumberFormatException ex) {
-			// Parse parameter
-			if (parameters.containsKey(expression))
-				return parameters.get(expression).getValue();
-			else
-				return 0.0;
+			AcronymParameter value = parameters.get(AcronymParameter.key(type, expression));
+			return value == null ? 0.0 : value.getValue();
 		}
 	}
 
@@ -408,17 +411,14 @@ public class AssessmentAndRiskProfileManager {
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 12, 2015
 	 */
-	private static double ProbabilityStringToDouble(String expression, Map<String, ? extends AcronymParameter> parameters) {
+	private static double ProbabilityStringToDouble(String expression, Map<String, AcronymParameter> parameters) {
 		// Create map which assigns a value to a parameter acronym from the
 		// given parameter list
-		Map<String, Double> variableValueMap = new HashMap<>();
-		for (String parameterAcronym : parameters.keySet())
-			variableValueMap.put(parameterAcronym, parameters.get(parameterAcronym).getValue());
-
 		// Parse expression
-		ExpressionParser exprParser = new StringExpressionParser(expression);
 		try {
-			return exprParser.evaluate(variableValueMap);
+			return new StringExpressionParser(expression)
+					.evaluate(parameters.values().stream().filter(parameter -> (parameter instanceof DynamicParameter) || parameter.isMatch(PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+							.collect(Collectors.toMap(AcronymParameter::getAcronym, AcronymParameter::getValue)));
 		} catch (Exception e) {
 			return 0.0;
 		}
@@ -468,11 +468,11 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	public static Assessment ComputeAlE(Assessment assessment, Map<String, ? extends AcronymParameter> expressionParameters) {
-		double impactRep = ImpactStringToDouble(assessment.getImpactRep(), expressionParameters);
-		double impactOP = ImpactStringToDouble(assessment.getImpactOp(), expressionParameters);
-		double impactLeg = ImpactStringToDouble(assessment.getImpactLeg(), expressionParameters);
-		double impactFin = ImpactStringToDouble(assessment.getImpactFin(), expressionParameters);
+	public static Assessment ComputeAlE(Assessment assessment, Map<String, AcronymParameter> expressionParameters) {
+		double impactRep = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_REP_NAME, assessment.getImpactRep(), expressionParameters);
+		double impactOP = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, assessment.getImpactOp(), expressionParameters);
+		double impactLeg = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_LEG_NAME, assessment.getImpactLeg(), expressionParameters);
+		double impactFin = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_NAME, assessment.getImpactFin(), expressionParameters);
 		double probability = ProbabilityStringToDouble(assessment.getLikelihood(), expressionParameters);
 		assessment.setImpactReal(Math.max(impactRep, Math.max(impactOP, Math.max(impactLeg, impactFin))));
 		assessment.setLikelihoodReal(probability);
@@ -483,15 +483,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static void ComputeAlE(List<Assessment> assessments, List<AcronymParameter> parameters) {
-		Map<String, AcronymParameter> parametersMapping = new LinkedHashMap<>(parameters.size());
-		try {
-			for (AcronymParameter extendedParameter : parameters)
-				parametersMapping.put(extendedParameter.getAcronym(), extendedParameter);
-			for (Assessment assessment : assessments)
-				ComputeAlE(assessment, parametersMapping);
-		} finally {
-			parametersMapping.clear();
-		}
+		Map<String, AcronymParameter> parametersMapping = parameters.stream().collect(Collectors.toMap(AcronymParameter::getKey, Function.identity()));
+		assessments.forEach(assessment -> ComputeAlE(assessment, parametersMapping));
 	}
 
 	/**
@@ -633,14 +626,6 @@ public class AssessmentAndRiskProfileManager {
 		}
 		return assessments;
 	}
-
-	/*
-	 * private static double StringToDouble(String value, Map<String,
-	 * ExtendedParameter> parameters) { try { if
-	 * (parameters.containsKey(value.trim().toLowerCase())) return
-	 * parameters.get(value.trim().toLowerCase()).getValue(); return
-	 * Double.parseDouble(value); } catch (Exception e) { return 0; } }
-	 */
 
 	@Transactional
 	public void toggledAsset(int idAsset) {

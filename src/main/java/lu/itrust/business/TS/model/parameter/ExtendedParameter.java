@@ -99,7 +99,7 @@ public class ExtendedParameter extends AcronymParameter implements Cloneable {
 	 * @see lu.itrust.business.TS.model.parameter.Parameter#clone()
 	 */
 	@Override
-	public ExtendedParameter clone() throws CloneNotSupportedException {
+	public ExtendedParameter clone() {
 		ExtendedParameter parameter = (ExtendedParameter) super.clone();
 		parameter.bounds = (Bounds) this.bounds.clone();
 		return parameter;
@@ -114,7 +114,7 @@ public class ExtendedParameter extends AcronymParameter implements Cloneable {
 	 * @see lu.itrust.business.TS.model.parameter.Parameter#duplicate()
 	 */
 	@Override
-	public ExtendedParameter duplicate() throws CloneNotSupportedException {
+	public ExtendedParameter duplicate() {
 		ExtendedParameter parameter = (ExtendedParameter) super.duplicate();
 		parameter.bounds = (Bounds) this.bounds.clone();
 		return parameter;
@@ -129,7 +129,10 @@ public class ExtendedParameter extends AcronymParameter implements Cloneable {
 	 * @param extendedParameterNext
 	 */
 	public static void ComputeScales(ExtendedParameter extendedParameter, ExtendedParameter extendedParameterPrev, ExtendedParameter extendedParameterNext) {
-		
+		if (!((extendedParameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME) || extendedParameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				&& extendedParameter.isMatch(extendedParameterPrev.getType().getLabel()) && extendedParameter.isMatch(extendedParameterNext.getType().getLabel())))
+			throw new TrickException("error.compute.scale.extended.parameter.bad.type", "Scales cannot only compute for probability and financial impact");
+
 		extendedParameter.setValue(Math.sqrt(extendedParameterPrev.getValue() * extendedParameterNext.getValue()));
 
 		if (extendedParameterPrev.level == 0) {
