@@ -17,7 +17,16 @@
 				<li class="divider"></li>
 			</c:if>
 			<li class="dropdown-header"><spring:message code="label.menu.analysis.parmeter" /></li>
-			<li><a href="#tabParameterImpactProba" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
+			<c:choose>
+				<c:when test="${type=='QUALITATIVE' }">
+					<li><a href="#tabParameterImpact" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact" /></a></li>
+					<li><a href="#tabParameterProbability" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.probability" /></a></li>
+				</c:when>
+				<c:otherwise>
+					<li><a href="#tabParameterImpactProba" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
+				</c:otherwise>
+			</c:choose>
+			
 			<li><a href="#tabParameterOther" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.various" /></a></li>
 		</ul></li>
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_analysis" /> <span class="caret"></span></a>

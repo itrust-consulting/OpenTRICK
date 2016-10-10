@@ -50,7 +50,7 @@ public class ControllerParameter {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		model.addAttribute("mappedParameters", Analysis.SplitParameters(serviceParameter.getAllExtendedFromAnalysis(idAnalysis)));
+		model.addAttribute("mappedParameters", Analysis.SplitParameters(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis)));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		return "analyses/single/components/parameters/extended";
 	}

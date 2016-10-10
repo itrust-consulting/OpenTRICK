@@ -15,7 +15,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 @Entity
 @PrimaryKeyJoinColumn(name = "idAcronymParameter")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class AcronymParameter extends Parameter implements Cloneable {
+public abstract class AcronymParameter extends Parameter implements Cloneable {
 
 	/**
 	 * The acronym which can be used to refer to this parameter (e.g. in
@@ -37,7 +37,11 @@ public class AcronymParameter extends Parameter implements Cloneable {
 	public void setAcronym(String acronym) {
 		this.acronym = acronym;
 	}
-
+	
+	public abstract int getLevel();
+	
+	public abstract void setLevel(int level);
+	
 	/**
 	 * {@inheritDoc}
 	 * 

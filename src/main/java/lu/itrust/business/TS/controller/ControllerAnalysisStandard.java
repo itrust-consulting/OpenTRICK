@@ -81,6 +81,7 @@ import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
@@ -221,7 +222,7 @@ public class ControllerAnalysisStandard {
 
 		Map<String, List<Measure>> measures = new LinkedHashMap<>(analysisStandards.size());
 
-		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+		ValueFactory factory = new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis));
 
 		analysisStandards.forEach(analysisStandard -> {
 			standards.add(analysisStandard.getStandard());
@@ -234,7 +235,7 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("effectImpl27002",
 					MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY), serviceParameter
 							.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME), true,
-							expressionParameters));
+							factory));
 
 		model.addAttribute("hasMaturity", hasMaturity);
 
@@ -246,7 +247,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		model.addAttribute("expressionParameters", expressionParameters);
+		model.addAttribute("valueFactory", factory);
 
 		return "analyses/single/components/standards/standard/standards";
 	}
@@ -273,7 +274,7 @@ public class ControllerAnalysisStandard {
 		AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, standardid);
 		if (analysisStandard == null)
 			return null;
-		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+		ValueFactory factory = new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis));
 		List<Standard> standards = new ArrayList<Standard>(1);
 		Map<String, List<Measure>> measures = new HashMap<>(1);
 		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
@@ -282,7 +283,7 @@ public class ControllerAnalysisStandard {
 				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 						Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 				model.addAttribute("effectImpl27002",
-						MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true, expressionParameters));
+						MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true, factory));
 			}
 		}
 
@@ -298,7 +299,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		model.addAttribute("expressionParameters", expressionParameters);
+		model.addAttribute("valueFactory", factory);
 
 		return "analyses/single/components/standards/standard/standards";
 	}
@@ -329,7 +330,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
-		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
+		model.addAttribute("expressionParameters", serviceParameter.findAllDynamicByAnalysisId(idAnalysis));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
@@ -337,13 +338,12 @@ public class ControllerAnalysisStandard {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002, chapters);
 		List<Measure> maturities = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_MATURITY,
 				chapters.stream().map(reference -> "M." + reference).collect(Collectors.toList()));
 		List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 				Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, parameters, false, expressionParameters);
+		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, parameters, false, new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis)));
 	}
 
 	/**
@@ -358,7 +358,8 @@ public class ControllerAnalysisStandard {
 			if (!measure.getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
 				return;
 			if (measure.getMeasureDescription().isComputable()) {
-				List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+				List<AcronymParameter> expressionParameters = serviceParameter.findAllDynamicByAnalysisId(idAnalysis);
+
 				String chapter = measure.getMeasureDescription().getReference().split("[.]", 2)[0];
 				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY, "M." + chapter);
 				if (measures.isEmpty())

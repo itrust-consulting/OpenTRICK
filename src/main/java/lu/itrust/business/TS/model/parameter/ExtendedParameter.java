@@ -51,6 +51,7 @@ public class ExtendedParameter extends AcronymParameter implements Cloneable {
 	 * 
 	 * @return The Level of the Extended Parameter
 	 */
+	@Override
 	public int getLevel() {
 		return level;
 	}
@@ -63,6 +64,7 @@ public class ExtendedParameter extends AcronymParameter implements Cloneable {
 	 *            The value to set the Level
 	 * @throws TrickException
 	 */
+	@Override
 	public void setLevel(int level) throws TrickException {
 		if (level < 0 || level > 10)
 			throw new TrickException("error.extended_parameter.level", "Level needs to be between 0 and 10 included!");

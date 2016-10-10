@@ -271,6 +271,8 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_IMPACT_REP = 9;
 	public final static int PARAMETERTYPE_TYPE_IMPACT_OPE = 10;
 	public final static int PARAMETERTYPE_TYPE_IMPACT_LEG = 11;
+	public final static Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_IMPACT, PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC, PARAMETERTYPE_TYPE_IMPACT_REP,
+			PARAMETERTYPE_TYPE_IMPACT_OPE, PARAMETERTYPE_TYPE_IMPACT_LEG };
 
 	/** Parameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -284,6 +286,8 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_IMPACT_REP_NAME = "IMPACT_REP";
 	public final static String PARAMETERTYPE_TYPE_IMPACT_OPE_NAME = "IMPACT_OPE";
 	public final static String PARAMETERTYPE_TYPE_IMPACT_LEG_NAME = "IMPACT_LEG";
+	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETERTYPE_TYPE_IMPACT_NAME, PARAMETERTYPE_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME,
+			PARAMETERTYPE_TYPE_IMPACT_REP_NAME, PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, PARAMETERTYPE_TYPE_IMPACT_LEG_NAME };
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
@@ -335,7 +339,6 @@ public class Constant {
 	/***********************************************************************************************
 	 * List of Common Constants - END
 	 **********************************************************************************************/
-
 
 	/***********************************************************************************************
 	 * SQLITE Constant Fields - BEGIN

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lu.itrust.business.TS.model.parameter.helper.value.IValue;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+
 /**
  * Represents a simple expression parser with support for variables and basic
  * arithmetic operations.
@@ -54,17 +57,26 @@ public class StringExpressionParser implements ExpressionParser {
 
 	/** {@inheritDoc} */
 	@Override
-	public double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException {
+	public double evaluate(ValueFactory factory) throws InvalidExpressionException {
 		// Tokenize the expression and process each token
 		UndoableTokenizer source = new UndoableTokenizer(new StringTokenizer(this.expression));
-
 		// Start from the top-layer
-		double value = this.evaluateSum(source, variableValueMap);
-
+		double value = this.evaluateSum(source, factory);
 		// We should have reached the end of the expression
 		if (!source.read().getType().equals(TokenType.End))
 			throw new InvalidExpressionException("Unexpected additional tokens after the end of the expression");
+		return value;
+	}
 
+	@Override
+	public double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException, IllegalArgumentException {
+		// Tokenize the expression and process each token
+		UndoableTokenizer source = new UndoableTokenizer(new StringTokenizer(this.expression));
+		// Start from the top-layer
+		double value = this.evaluateSum(source, variableValueMap);
+		// We should have reached the end of the expression
+		if (!source.read().getType().equals(TokenType.End))
+			throw new InvalidExpressionException("Unexpected additional tokens after the end of the expression");
 		return value;
 	}
 
@@ -75,7 +87,7 @@ public class StringExpressionParser implements ExpressionParser {
 	 * @param source
 	 *            The tokenizer to read the function from. Must point to the
 	 *            opening (left) bracket of the function argument list.
-	 * @param variableValueMap
+	 * @param values
 	 *            The map which assigns a value to each variable.
 	 * @param functionName
 	 *            The name of the function to evaluate.
@@ -83,7 +95,7 @@ public class StringExpressionParser implements ExpressionParser {
 	 * @throws InvalidExpressionException
 	 *             Throws an exception on syntax errors.
 	 */
-	private double evaluateFunction(UndoableTokenizer source, Map<String, Double> variableValueMap, String functionName) throws InvalidExpressionException {
+	private double evaluateFunction(UndoableTokenizer source, Object values, String functionName) throws InvalidExpressionException {
 		if (!source.read().getType().equals(TokenType.LeftBracket))
 			throw new InvalidExpressionException("Expected opening bracket '('.");
 
@@ -98,8 +110,7 @@ public class StringExpressionParser implements ExpressionParser {
 
 		// Read all arguments
 		while (true) {
-			arguments.add(evaluateSum(source, variableValueMap));
-
+			arguments.add(evaluateSum(source, values));
 			Token token = source.read();
 			if (token.getType().equals(TokenType.RightBracket))
 				return evaluateFunction(functionName, arguments);
@@ -145,13 +156,14 @@ public class StringExpressionParser implements ExpressionParser {
 	 * 
 	 * @param source
 	 *            The tokenizer to read the number/variable token from.
-	 * @param variableValueMap
+	 * @param values
 	 *            The map which assigns a value to each variable.
 	 * @return Returns the value obtained by evaluating the expression.
 	 * @throws InvalidExpressionException
 	 *             Throws an exception on syntax errors.
 	 */
-	private double evaluateLiteral(UndoableTokenizer source, Map<String, Double> variableValueMap) throws InvalidExpressionException {
+	@SuppressWarnings("unchecked")
+	private double evaluateLiteral(UndoableTokenizer source, Object values) throws InvalidExpressionException {
 		// Read the next token from the source
 		Token token = source.read();
 
@@ -170,21 +182,27 @@ public class StringExpressionParser implements ExpressionParser {
 
 			final String variableName = token.getParameter();
 			if (isFunction)
-				return evaluateFunction(source, variableValueMap, variableName);
-			else if (variableValueMap.containsKey(variableName))
-				return variableValueMap.get(variableName);
-			else
-				// throw new IllegalArgumentException("The variable '" +
-				// variableName + "' is involved, but no value has been assigned
-				// to it in the value map.");
-				return 0.0;
+				return evaluateFunction(source, values, variableName);
+			else if (values instanceof ValueFactory) {
+				IValue value = ((ValueFactory) values).findExp(variableName);
+				return value == null ? 0.0 : value.getReal();
+			} else if (values instanceof Map) {
+				Map<String, Double> variableValueMap = (Map<String, Double>) values;
+				if (variableValueMap.containsKey(variableName))
+					return variableValueMap.get(variableName);
+			}
+			// throw new IllegalArgumentException("The variable '" +
+			// variableName + "' is involved, but no value has been assigned
+			// to it in the value map.");
+			return 0.0;
+
 		}
 
 		// If it is + or -, we are dealing with the unary operator
 		else if (token.getType().equals(TokenType.PlusOperator)) {
-			return this.evaluateParentheses(source, variableValueMap);
+			return this.evaluateParentheses(source, values);
 		} else if (token.getType().equals(TokenType.MinusOperator)) {
-			return -this.evaluateParentheses(source, variableValueMap);
+			return -this.evaluateParentheses(source, values);
 		}
 
 		// In all other cases we have a syntax error
@@ -200,19 +218,19 @@ public class StringExpressionParser implements ExpressionParser {
 	 * 
 	 * @param source
 	 *            The tokenizer to read the number/variable token from.
-	 * @param variableValueMap
+	 * @param values
 	 *            The map which assigns a value to each variable.
 	 * @return Returns the value obtained by evaluating the expression.
 	 * @throws InvalidExpressionException
 	 *             Throws an exception on syntax errors.
 	 */
-	private double evaluateParentheses(UndoableTokenizer source, Map<String, Double> variableValueMap) throws InvalidExpressionException {
+	private double evaluateParentheses(UndoableTokenizer source, Object values) throws InvalidExpressionException {
 		Token token;
 
 		// Check if there is an opening bracket
 		if ((token = source.read()).getType().equals(TokenType.LeftBracket)) {
 			// Start over with the top-layer step
-			double value = this.evaluateSum(source, variableValueMap);
+			double value = this.evaluateSum(source, values);
 
 			// Expecting a closing bracket here
 			if (!(token = source.read()).getType().equals(TokenType.RightBracket))
@@ -223,7 +241,7 @@ public class StringExpressionParser implements ExpressionParser {
 			// The last token has been read too much; put it back
 			source.putBack(token);
 			// Go to the next layer
-			return this.evaluateLiteral(source, variableValueMap);
+			return this.evaluateLiteral(source, values);
 		}
 	}
 
@@ -234,16 +252,16 @@ public class StringExpressionParser implements ExpressionParser {
 	 * 
 	 * @param source
 	 *            The tokenizer to read the number/variable token from.
-	 * @param variableValueMap
+	 * @param values
 	 *            The map which assigns a value to each variable.
 	 * @return Returns the value obtained by evaluating the expression.
 	 * @throws InvalidExpressionException
 	 *             Throws an exception on syntax errors.
 	 */
-	private double evaluateProduct(UndoableTokenizer source, Map<String, Double> variableValueMap) throws InvalidExpressionException {
+	private double evaluateProduct(UndoableTokenizer source, Object values) throws InvalidExpressionException {
 		// Read first factor in the product(there is always at least one factor,
 		// even if there is not really a product)
-		double value = this.evaluateParentheses(source, variableValueMap);
+		double value = this.evaluateParentheses(source, values);
 
 		// Continously read tokens until no more '*' or '/' occurs
 		Token token;
@@ -252,12 +270,12 @@ public class StringExpressionParser implements ExpressionParser {
 
 			// If token is '*', multiply by the next factor
 			if (token.getType().equals(TokenType.TimesOperator)) {
-				value *= this.evaluateParentheses(source, variableValueMap);
+				value *= this.evaluateParentheses(source, values);
 			}
 			// If token is '/', divide by the next factor. Note that division by
 			// zero yields Double.Infinity.
 			else if (token.getType().equals(TokenType.DivideOperator)) {
-				value /= this.evaluateParentheses(source, variableValueMap);
+				value /= this.evaluateParentheses(source, values);
 			} else {
 				// The last token has been read too much; put it back
 				source.putBack(token);
@@ -277,16 +295,16 @@ public class StringExpressionParser implements ExpressionParser {
 	 * 
 	 * @param source
 	 *            The tokenizer to read the number/variable token from.
-	 * @param variableValueMap
+	 * @param factory
 	 *            The map which assigns a value to each variable.
 	 * @return Returns the value obtained by evaluating the expression.
 	 * @throws InvalidExpressionException
 	 *             Throws an exception on syntax errors.
 	 */
-	private double evaluateSum(UndoableTokenizer source, Map<String, Double> variableValueMap) throws InvalidExpressionException {
+	private double evaluateSum(UndoableTokenizer source, Object values) throws InvalidExpressionException {
 		// Read first term in the sum (there is always at least one term, even
 		// if there is not really a sum)
-		double value = this.evaluateProduct(source, variableValueMap);
+		double value = this.evaluateProduct(source, values);
 
 		// Continously read tokens until no more '+' or '-' occurs
 		Token token;
@@ -295,11 +313,11 @@ public class StringExpressionParser implements ExpressionParser {
 
 			// If token is '+', add the next term
 			if (token.getType().equals(TokenType.PlusOperator)) {
-				value += this.evaluateProduct(source, variableValueMap);
+				value += this.evaluateProduct(source, values);
 			}
 			// If token is '-', subtract the next term
 			else if (token.getType().equals(TokenType.MinusOperator)) {
-				value -= this.evaluateProduct(source, variableValueMap);
+				value -= this.evaluateProduct(source, values);
 			} else {
 				// The last token has been read too much; put it back
 				source.putBack(token);
@@ -314,14 +332,27 @@ public class StringExpressionParser implements ExpressionParser {
 
 	/** @{inheritDoc} */
 	@Override
-	public boolean isValid(List<String> variables) {
+	public boolean isValid(ValueFactory factory) {
 		// Assign an arbitrary value to each variable.
 		// Since we are dealing with doubles, dividing by zero does not throw
 		// exceptions.
-		Map<String, Double> values = new HashMap<>();
+		// Evaluate. If this succeeds, the expression is valid.
+		try {
+			this.evaluate(factory);
+			return true;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean isValid(Collection<String> variables) {
+		// Assign an arbitrary value to each variable.
+		// Since we are dealing with doubles, dividing by zero does not throw
+		// exceptions.
+		Map<String, Double> values = new HashMap<>(variables.size());
 		for (String variable : variables)
 			values.put(variable, 0.0);
-
 		// Evaluate. If this succeeds, the expression is valid.
 		try {
 			this.evaluate(values);
@@ -330,4 +361,5 @@ public class StringExpressionParser implements ExpressionParser {
 			return false;
 		}
 	}
+
 }

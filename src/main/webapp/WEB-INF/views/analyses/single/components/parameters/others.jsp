@@ -69,29 +69,27 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr data-trick-class="Parameter"  class='success'>
+							<tr data-trick-class="Parameter" class='success'>
 								<c:forEach items="${mappedParameters['SINGLE']}" var="parameter">
 									<c:choose>
 										<c:when test="${parameter.description=='max_rrf' or parameter.description=='soaThreshold'}">
-											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter"
-												data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
-													pattern="#" /></td>
+											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='100' class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
+												onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 										</c:when>
 										<c:when test="${parameter.description== 'lifetime_default'}">
 											<td data-trick-id="${parameter.id}" data-trick-min-value='1e-19' class="textaligncenter" data-trick-field="value" data-trick-callback='updateMeasuresCost()'
 												data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 										</c:when>
 										<c:when test="${parameter.description=='mandatoryPhase'}">
-											<td data-trick-id="${parameter.id}" data-trick-callback-pre="extractPhase(this,true)" class="textaligncenter"
-												data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
-													pattern="#" /></td>
+											<td data-trick-id="${parameter.id}" data-trick-callback-pre="extractPhase(this,true)" class="textaligncenter" data-trick-field="value" data-trick-field-type="double"
+												onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 										</c:when>
 										<c:otherwise>
 											<td data-trick-id="${parameter.id}" class="textaligncenter" data-trick-field="value" data-trick-field-type="double" data-trick-callback='updateMeasuresCost()'
 												onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 										</c:otherwise>
 									</c:choose>
-	
+
 								</c:forEach>
 							</tr>
 						</tbody>
@@ -99,62 +97,62 @@
 				</div>
 			</div>
 		</div>
-	
-		<spring:message code='label.nil' var="nil"/>
-		<spring:message code='label.all' var="all"/>
-		<spring:message code='label.compliant' var="compliant"/>
-		<div class="col-md-6">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<spring:message code="label.title.parameter.simple.cssf" />
-				</div>
-				<div class="panel-body">
-					<table class="table table-hover table-condensed">
-						<thead>
-							<tr>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.impact_threshold" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.probability_threshold" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.direct_size" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.indirect_size" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.cia_size" /></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<c:forEach items="${mappedParameters['CSSF']}" var="parameter">
-									<c:choose>
-										<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
-											<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1' class="success textaligncenter"
-												data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"
-													pattern="#" /></td>
-										</c:when>
-										<c:when test="${parameter.description== 'cssfCIASize' or parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
-											<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfSize" />
-											<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all},${compliant}' data-trick-min-value='-2' data-trick-step-value='1'
-												data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);">
-												<c:choose>
-													<c:when test="${parameter.value <= -2 }">
+
+		<spring:message code='label.nil' var="nil" />
+		<spring:message code='label.all' var="all" />
+		<spring:message code='label.compliant' var="compliant" />
+		<c:if test="${type=='QUALITATIVE'}">
+			<div class="col-md-6">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<spring:message code="label.title.parameter.simple.cssf" />
+					</div>
+					<div class="panel-body">
+						<table class="table table-hover table-condensed">
+							<thead>
+								<tr>
+									<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.impact_threshold" /></th>
+									<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.probability_threshold" /></th>
+									<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.direct_size" /></th>
+									<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.indirect_size" /></th>
+									<th class="textaligncenter"><spring:message code="label.parameter.simple.cssf.cia_size" /></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<c:forEach items="${mappedParameters['CSSF']}" var="parameter">
+										<c:choose>
+											<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
+												<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1'
+													class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+														value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
+											</c:when>
+											<c:when test="${parameter.description== 'cssfCIASize' or parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
+												<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfSize" />
+												<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all},${compliant}' data-trick-min-value='-2'
+													data-trick-step-value='1' data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double"
+													onclick="return editField(this);"><c:choose>
+														<c:when test="${parameter.value <= -2 }">
 														${nil}
 														</c:when>
 														<c:when test="${parameter.value == -1}">
 														${all}
 														</c:when>
-													<c:when test="${parameter.value == 0}">
+														<c:when test="${parameter.value == 0}">
 														${compliant}
 														</c:when>
-													<c:otherwise>${cssfSize}</c:otherwise>
-												</c:choose>
-											</td>
-										</c:when>
-									</c:choose>
-								</c:forEach>
-							</tr>
-						</tbody>
-					</table>
+														<c:otherwise>${cssfSize}</c:otherwise>
+													</c:choose></td>
+											</c:when>
+										</c:choose>
+									</c:forEach>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
-		</div>
-	
+		</c:if>
 		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -175,7 +173,8 @@
 						<tbody>
 							<tr data-trick-class="Parameter" data-trick-min-value='0' data-trick-max-value='100' data-trick-callback="updateMeasureEffience()">
 								<c:forEach items="${mappedParameters['MAXEFF']}" var="parameter">
-									<td data-trick-field="value" data-trick-field-type="double"  data-trick-id="${parameter.id}"  class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
+									<td data-trick-field="value" data-trick-field-type="double" data-trick-id="${parameter.id}" class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber
+											value="${parameter.value}" maxFractionDigits="0" /></td>
 								</c:forEach>
 							</tr>
 						</tbody>
@@ -199,7 +198,7 @@
 						<tbody>
 							<c:forEach items="${mappedParameters['IMPSCALE']}" var="parameter">
 								<tr data-trick-class="Parameter" data-trick-id="${parameter.id}">
-									<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}"/></td>
+									<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}" /></td>
 									<td data-trick-field="value" data-trick-field-type="double" data-trick-min-value='0' data-trick-max-value='100' class="success textaligncenter"
 										onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" /></td>
 								</tr>

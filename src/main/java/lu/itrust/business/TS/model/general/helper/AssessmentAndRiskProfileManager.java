@@ -1,11 +1,5 @@
 package lu.itrust.business.TS.model.general.helper;
 
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_LEG_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_OPE_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_REP_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -32,10 +26,10 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.helper.value.IValue;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.scenario.Scenario;
-import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
  * AssessmentAndRiskProfileManager.java: <br>
@@ -201,7 +195,7 @@ public class AssessmentAndRiskProfileManager {
 	@Transactional
 	public void UpdateAssessment(Analysis analysis) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
-		Map<String, AcronymParameter> expressionParameters = analysis.mapAcronymParameterByKey();
+		ValueFactory factory = new ValueFactory(analysis.getParameters());
 		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
 			for (Asset asset : analysis.getAssets()) {
@@ -210,7 +204,7 @@ public class AssessmentAndRiskProfileManager {
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
 						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), expressionParameters));
+							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
 						if (riskProfile == null)
 							analysis.getRiskProfiles().add(riskProfile);
 					} else {
@@ -231,7 +225,7 @@ public class AssessmentAndRiskProfileManager {
 					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
 						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), expressionParameters));
+							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
 					} else {
 						if (assessment != null) {
 							analysis.getAssessments().remove(assessment);
@@ -241,10 +235,10 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		UpdateAssetALE(analysis);
+		UpdateAssetALE(analysis, factory);
 	}
 
-	public void UpdateRiskDendencies(Analysis analysis, Map<String, AcronymParameter> parametersMapped) {
+	public void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
 		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
@@ -254,7 +248,7 @@ public class AssessmentAndRiskProfileManager {
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
 						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), parametersMapped));
+							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
 						if (riskProfile == null)
 							analysis.getRiskProfiles().add(riskProfile);
 					} else {
@@ -272,7 +266,7 @@ public class AssessmentAndRiskProfileManager {
 					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
 						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), parametersMapped));
+							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
 					} else {
 						if (assessment != null)
 							analysis.getAssessments().remove(assessment);
@@ -281,7 +275,7 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		UpdateAssetALE(analysis);
+		UpdateAssetALE(analysis, factory);
 	}
 
 	/**
@@ -289,14 +283,17 @@ public class AssessmentAndRiskProfileManager {
 	 * Description
 	 * 
 	 * @param analysis
+	 * @param factory
 	 * @throws Exception
 	 */
 	@Transactional
-	public void UpdateAssetALE(Analysis analysis) {
-		Map<String, AcronymParameter> expressionParameters = analysis.mapAcronymParameterByKey();
+	public void UpdateAssetALE(Analysis analysis, ValueFactory factory) {
 		List<Asset> assets = analysis.findAssessmentBySelected();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
+
 		try {
+			if (factory == null)
+				factory = new ValueFactory(analysis.getParameters());
 			double ale = 0, alep = 0, aleo;
 			for (Asset asset : assets) {
 				ale = alep = aleo = 0;
@@ -304,7 +301,7 @@ public class AssessmentAndRiskProfileManager {
 				if (assessments == null)
 					continue;
 				for (Assessment assessment : assessments) {
-					ComputeAlE(assessment, expressionParameters);
+					ComputeAlE(assessment, factory, analysis.getType());
 					ale += assessment.getALE();
 					aleo += assessment.getALEO();
 					alep += assessment.getALEP();
@@ -317,7 +314,6 @@ public class AssessmentAndRiskProfileManager {
 		} finally {
 			assets.clear();
 			assessmentsByAsset.clear();
-			expressionParameters.clear();
 		}
 	}
 
@@ -372,58 +368,6 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	/**
-	 * Parses the given expression for an assessment IMPACT and replaces any of
-	 * the given parameters by their respective value.
-	 * 
-	 * @param expression
-	 *            The expression to parse.
-	 * @param parameters
-	 *            A list of parameters which are known to the expression
-	 *            evaluation engine. The latter replaces each encountered
-	 *            parameter name in an expression by its respective value.
-	 * @return Returns the computed value.
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @param string
-	 * @since Jun 15, 2015
-	 */
-	private static double ImpactStringToDouble(String expression, String type, Map<String, AcronymParameter> parameters) {
-		// Parse number
-		try {
-			return Double.parseDouble(expression);
-		} catch (NumberFormatException ex) {
-			AcronymParameter value = parameters.get(AcronymParameter.key(type, expression));
-			return value == null ? 0.0 : value.getValue();
-		}
-	}
-
-	/**
-	 * Parses the given expression for an assessment PROBABILITY and replaces
-	 * any of the given parameters by their respective value.
-	 * 
-	 * @param expression
-	 *            The expression to parse.
-	 * @param parameters
-	 *            A list of parameters which are known to the expression
-	 *            evaluation engine. The latter replaces each encountered
-	 *            parameter name in an expression by its respective value.
-	 * @return Returns the computed value.
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @since Jun 12, 2015
-	 */
-	private static double ProbabilityStringToDouble(String expression, Map<String, AcronymParameter> parameters) {
-		// Create map which assigns a value to a parameter acronym from the
-		// given parameter list
-		// Parse expression
-		try {
-			return new StringExpressionParser(expression)
-					.evaluate(parameters.values().stream().filter(parameter -> (parameter instanceof DynamicParameter) || parameter.isMatch(PARAMETERTYPE_TYPE_PROPABILITY_NAME))
-							.collect(Collectors.toMap(AcronymParameter::getAcronym, AcronymParameter::getValue)));
-		} catch (Exception e) {
-			return 0.0;
-		}
-	}
-
 	private void buildAssessment(Scenario scenario, Analysis analysis) {
 		Map<Integer, Assessment> sceanrioAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
 		analysis.getAssets().forEach(asset -> buildAssessment(scenario, asset, analysis.getAssessments(), sceanrioAssessments));
@@ -468,23 +412,25 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
-	public static Assessment ComputeAlE(Assessment assessment, Map<String, AcronymParameter> expressionParameters) {
-		double impactRep = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_REP_NAME, assessment.getImpactRep(), expressionParameters);
-		double impactOP = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, assessment.getImpactOp(), expressionParameters);
-		double impactLeg = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_LEG_NAME, assessment.getImpactLeg(), expressionParameters);
-		double impactFin = ImpactStringToDouble(PARAMETERTYPE_TYPE_IMPACT_NAME, assessment.getImpactFin(), expressionParameters);
-		double probability = ProbabilityStringToDouble(assessment.getLikelihood(), expressionParameters);
-		assessment.setImpactReal(Math.max(impactRep, Math.max(impactOP, Math.max(impactLeg, impactFin))));
-		assessment.setLikelihoodReal(probability);
-		assessment.setALE(assessment.getImpactReal() * probability);
+	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory, AnalysisType type) {
+		IValue impactFin = factory.findImpactFin(assessment.getImpactFin()), probability = factory.findProb(assessment.getLikelihood());
+		if (type == AnalysisType.QUALITATIVE) {
+			IValue impactLeg = factory.findImpactLeg(assessment.getImpactLeg()), impactOP = factory.findImpactOp(assessment.getImpactOp()),
+					impactRep = factory.findImpactRep(assessment.getImpactRep());
+			assessment.setImpactReal(Math.max(impactRep == null ? 0D : impactRep.getReal(),
+					Math.max(impactOP == null ? 0D : impactOP.getReal(), Math.max(impactLeg == null ? 0D : impactLeg.getReal(), impactFin == null ? 0D : impactFin.getReal()))));
+		} else
+			assessment.setImpactReal(impactFin == null ? 0.0 : impactFin.getReal());
+		assessment.setLikelihoodReal(probability == null ? 0 : probability.getReal());
+		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
 		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
 		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
 		return assessment;
 	}
 
-	public static void ComputeAlE(List<Assessment> assessments, List<AcronymParameter> parameters) {
-		Map<String, AcronymParameter> parametersMapping = parameters.stream().collect(Collectors.toMap(AcronymParameter::getKey, Function.identity()));
-		assessments.forEach(assessment -> ComputeAlE(assessment, parametersMapping));
+	public static void ComputeAlE(List<Assessment> assessments, List<AcronymParameter> parameters, AnalysisType type) {
+		ValueFactory factory = new ValueFactory(parameters);
+		assessments.forEach(assessment -> ComputeAlE(assessment, factory, type));
 	}
 
 	/**

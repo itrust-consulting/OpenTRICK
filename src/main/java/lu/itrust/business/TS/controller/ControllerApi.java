@@ -53,8 +53,8 @@ import lu.itrust.business.TS.model.api.basic.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.IDS;
@@ -102,7 +102,7 @@ public class ControllerApi {
 
 	@Autowired
 	private ServiceStandard serviceStandard;
-	
+
 	@Autowired
 	private ServiceIDS serviceIDS;
 
@@ -144,7 +144,7 @@ public class ControllerApi {
 	@Transactional
 	@RequestMapping(value = "/ids/notify", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object notify(HttpSession session, Principal principal, @RequestBody ApiNotifyRequest request) throws Exception {
-		
+
 		IDS ids = serviceIDS.get(principal.getName()).notifyAlert();
 
 		for (ApiExternalNotification apiObj : request.getData())
@@ -154,13 +154,13 @@ public class ControllerApi {
 		// This method only schedules the task if it does not have been
 		// scheduled yet for the given user.
 		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
-		
+
 		serviceIDS.saveOrUpdate(ids);
-		
+
 		// Success
 		return new ApiResult(0);
 	}
-	
+
 	/**
 	 * This method is responsible for accepting requests that set the value of a
 	 * dynamic parameter ready to be used within the TRICK service user
@@ -174,7 +174,7 @@ public class ControllerApi {
 	@Transactional
 	@RequestMapping(value = "/ids/set", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
 	public Object set(HttpSession session, Principal principal, @RequestBody ApiSetParameterRequest request) throws Exception {
-		
+
 		IDS ids = serviceIDS.get(principal.getName()).notifyUpdate();
 
 		for (ApiParameterSetter apiObj : request.getData())
@@ -189,7 +189,7 @@ public class ControllerApi {
 		// or external notifications in the database which also impact the value
 		// of the parameter.
 		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer, taskScheduler, poolManager);
-		
+
 		serviceIDS.saveOrUpdate(ids);
 		// Success
 		return new ApiResult(0);
@@ -274,8 +274,7 @@ public class ControllerApi {
 		apiRRF.setScenario(new ApiNamable(assessment.getScenario().getId(), assessment.getScenario().getName()));
 		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getValue()));
 		Parameter rrfTuning = analysis.findParameterByTypeAndDescription(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
-		Map<String, Double> dynamicParameters = analysis.getParameters().stream().filter(parameter -> (parameter instanceof DynamicParameter))
-				.map(parameter -> (DynamicParameter) parameter).collect(Collectors.toMap(DynamicParameter::getAcronym, DynamicParameter::getValue));
+		ValueFactory factory = new ValueFactory(analysis.getParameters());
 		for (String name : standardNames) {
 			AnalysisStandard analysisStandard = analysisStandards.get(name);
 			if (analysisStandard == null)
@@ -283,7 +282,7 @@ public class ControllerApi {
 			ApiStandard apiStandard = new ApiStandard(analysisStandard.getStandard().getId(), analysisStandard.getStandard().getLabel());
 			analysisStandard.getMeasures().stream().filter(measure -> measure.getMeasureDescription().isComputable()).forEach(measure -> {
 				apiStandard.getMeasures().add(new ApiMeasure(measure.getId(), measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain(),
-						(int) measure.getImplementationRateValue(dynamicParameters), measure.getCost(), RRF.calculateRRF(assessment, rrfTuning, measure)));
+						(int) measure.getImplementationRateValue(factory), measure.getCost(), RRF.calculateRRF(assessment, rrfTuning, measure)));
 			});
 			apiRRF.getStandards().add(apiStandard);
 		}

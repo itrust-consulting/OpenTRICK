@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
@@ -287,8 +286,8 @@ public class ServiceParameterImpl implements ServiceParameter {
 	 * @see lu.itrust.business.TS.database.service.ServiceParameter#getAllExtendedParametersFromAnalysisId(int)
 	 */
 	@Override
-	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis)  {
-		return daoParameter.getAllExtendedFromAnalysis(idAnalysis);
+	public List<AcronymParameter> findAllAcronymParameterByAnalysisId(Integer idAnalysis)  {
+		return daoParameter.findAllAcronymParameterByAnalysisId(idAnalysis);
 	}
 
 	/**
@@ -446,21 +445,16 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @since Jun 10, 2015
-	 */
-	@Override
-	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) throws Exception {
-		return daoParameter.getDynamicParametersFromAnalysis(idAnalysis);
-	}
-
 	@Override
 	public List<String> getAllExpressionParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception {
 		return daoParameter
 				.getAllExpressionParametersFromAnalysis(idAnalysis).stream()
 				.map(parameter -> parameter.getAcronym())
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<AcronymParameter> findAllDynamicByAnalysisId(Integer idAnalysis) {
+		return daoParameter.findAllDynamicByAnalysisId(idAnalysis);
 	}
 }

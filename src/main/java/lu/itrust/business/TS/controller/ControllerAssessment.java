@@ -330,11 +330,13 @@ public class ControllerAssessment {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve asset by id
 			Asset asset = serviceAsset.get(elementID);
+			
+			
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 
 			// retrieve parameters which are considered in the expression
 			// evaluation
-			List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+			List<AcronymParameter> expressionParameters = serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis);
 
 			// retrieve assessments of analysis
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
@@ -417,7 +419,7 @@ public class ControllerAssessment {
 
 			// retrieve parameters which are considered in the expression
 			// evaluation
-			List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+			List<AcronymParameter> expressionParameters = serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis);
 
 			// load assessments
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromScenario(scenario);
@@ -462,8 +464,8 @@ public class ControllerAssessment {
 	 * @return
 	 * @throws Exception
 	 */
-	private Map<String, Double> generateAcronymValueMatching(int idAnalysis) throws Exception {
-		return serviceParameter.getAllExtendedFromAnalysis(idAnalysis).stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
+	private Map<String, Double> generateKeyValueMatching(int idAnalysis) throws Exception {
+		return serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis).stream().collect(Collectors.toMap(AcronymParameter::getKey, AcronymParameter::getValue));
 	}
 
 	/**
@@ -485,7 +487,7 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("asset", asset);
-		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
+		model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
 		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
@@ -518,7 +520,7 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
-		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
+		model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);

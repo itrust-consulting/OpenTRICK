@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 
 /**
@@ -28,7 +29,7 @@ import lu.itrust.business.TS.model.standard.AnalysisStandard;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idMaturityMeasure")
-//@DiscriminatorValue("MATURITY")
+// @DiscriminatorValue("MATURITY")
 public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -227,7 +228,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	public List<String> getVariablesInvolvedInImplementationRateValue() {
 		return new ArrayList<String>();
 	}
-	
+
 	/**
 	 * setImplementationRate: <br>
 	 * Sets the Field "implementationRate" with a Parameter object.
@@ -252,8 +253,20 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	@Transient
-	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
+	public double getImplementationRateValue(ValueFactory factory) {
 		return getImplementationRate() != null ? getImplementationRate().getValue() : 0;
+	}
+
+	/**
+	 * getImplementationRateValue: <br>
+	 * returns the Real Implementation Rate Value
+	 * 
+	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRateValue()
+	 */
+	@Override
+	@Transient
+	public double getImplementationRateValue(Map<String, Double> factory) {
+		return getImplementationRateValue((ValueFactory) null);
 	}
 
 	/**
@@ -272,6 +285,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	/**
 	 * duplicate: <br>
 	 * Description
+	 * 
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#duplicate(lu.itrust.business.TS.model.standard.AnalysisStandard)

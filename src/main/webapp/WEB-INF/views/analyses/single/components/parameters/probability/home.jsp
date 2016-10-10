@@ -4,9 +4,8 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <fmt:setLocale value="fr" scope="session" />
-<div class="tab-pane" id="tabParameterImpactProba">
-	<div class='section row' id='section_parameter_extended'>
-		<jsp:include page="impact/financial.jsp"/>
-		<jsp:include page="probability/section.jsp" />
+<div class="tab-pane" id="tabParameterProbability">
+	<div class='section row' id='section_parameter_probability'>
+		<jsp:include page="section.jsp" />
 	</div>
 </div>

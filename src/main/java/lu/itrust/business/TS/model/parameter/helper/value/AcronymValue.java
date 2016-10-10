@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.assessment.value;
+package lu.itrust.business.TS.model.parameter.helper.value;
 
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 
@@ -9,7 +9,7 @@ import lu.itrust.business.TS.model.parameter.AcronymParameter;
  * @author eomar
  *
  */
-public abstract class AcronymValue implements IValue {
+public class AcronymValue implements IValue {
 
 	private AcronymParameter parameter;
 
@@ -33,10 +33,10 @@ public abstract class AcronymValue implements IValue {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.TS.model.assessment.helper.IValue#getNumeric()
+	 * @see lu.itrust.business.TS.model.assessment.helper.IValue#getReal()
 	 */
 	@Override
-	public Double getNumeric() {
+	public Double getReal() {
 		return parameter.getValue();
 	}
 
@@ -50,4 +50,11 @@ public abstract class AcronymValue implements IValue {
 		return parameter;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.assessment.value.IValue#getLevel()
+	 */
+	@Override
+	public Integer getLevel() {
+		return parameter.getLevel();
+	}
 }

@@ -52,6 +52,7 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
@@ -68,6 +69,8 @@ import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
+import lu.itrust.business.TS.model.parameter.helper.value.IValue;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
@@ -570,13 +573,14 @@ public class ControllerEditField {
 			// set validator
 			if (!serviceDataValidation.isRegistred(Assessment.class))
 				serviceDataValidation.register(new AssessmentValidator());
-			List<? extends AcronymParameter> parameters = null;
+			boolean computeAle = false;
 			// retrieve all acronyms of impact and likelihood
 			Object[] chooses = null;
 			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName())) {
-				parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
-				List<String> impacts = parameters.stream().filter(parameter -> parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-						.map(parameter -> parameter.getAcronym()).collect(Collectors.toList());
+				String name = fieldEditor.getFieldName().replaceAll("impact|Fin", "").toUpperCase();
+				List<String> impacts = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME + (name.isEmpty() ? "" : "_") + name).stream()
+						.filter(parameter -> parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+						.map(parameter -> ((AcronymParameter) parameter).getAcronym()).collect(Collectors.toList());
 				if (!impacts.contains(fieldEditor.getValue())) {
 					try {
 						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
@@ -588,16 +592,12 @@ public class ControllerEditField {
 					}
 				} else
 					chooses = impacts.toArray();
+				computeAle = true;
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
-/*
-				parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
-				chooses = parameters.stream().filter(parameter -> parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
-						.map(parameter -> parameter.getAcronym()).toArray();
-*/
-				parameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
-				chooses = serviceParameter.getAllExpressionParameterAcronymsFromAnalysis(idAnalysis).toArray();
+				chooses = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis).stream().map(AcronymParameter::getAcronym).toArray();
 				if (fieldEditor.getValue().equals("NA"))
 					fieldEditor.setValue("0");
+				computeAle = true;
 			}
 			// get value
 			Object value = FieldValue(fieldEditor);
@@ -616,12 +616,15 @@ public class ControllerEditField {
 			Result result = Result.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
 
 			// compute new ALE
-			if (parameters != null) {
-				AssessmentAndRiskProfileManager.ComputeAlE(assessment, parameters.stream().collect(Collectors.toMap(AcronymParameter::getAcronym, Function.identity())));
-				if (netImportance) {
-					ParameterConvertor converter = new ParameterConvertor(parameters);
+			if (computeAle) {
+				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+				ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
+				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+				if (netImportance && type == AnalysisType.QUALITATIVE) {
+					//int impact = Mpafactory.findImpactFinLevel(value)
 					result.add(new FieldValue("computedNextImportance",
-							converter.getImpactLevel(assessment.getImpactReal()) * converter.getProbabiltyLevel(assessment.getLikelihoodReal())));
+							 * converter.getProbabiltyLevel(assessment.getLikelihoodReal())));
+
 				}
 				NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 				result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
@@ -829,8 +832,9 @@ public class ControllerEditField {
 						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
-						if (!(new StringExpressionParser((String)value)).isValid(serviceParameter.getAllExpressionParameterAcronymsFromAnalysis(idAnalysis)))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null, "Invalid expression. Check the syntax and make sure that all used parameters exist.", locale));
+						if (!(new StringExpressionParser((String) value)).isValid(new ValueFactory(serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis))))
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null,
+									"Invalid expression. Check the syntax and make sure that all used parameters exist.", locale));
 					}
 
 					SetFieldValue(measure, field, value);

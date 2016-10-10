@@ -1,14 +1,19 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import static lu.itrust.business.TS.constants.Constant.ALL_ACRONYM_TYPE_IDS;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_DYNAMIC;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_NAME;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
+import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
+
 import java.util.List;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
@@ -102,8 +107,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis) {
 		String query = "Select parameter.acronym From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact ";
 		query += "or parameter.type.label = :proba ) order by parameter.level";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
-				.setParameter("proba", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", PARAMETERTYPE_TYPE_IMPACT_NAME)
+				.setParameter("proba", PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
 	}
 
 	/**
@@ -257,10 +262,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) {
-		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact or parameter.type.label = :proba) order by parameter.type.id, parameter.level";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
-				.setParameter("proba", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
+	public List<AcronymParameter> findAllAcronymParameterByAnalysisId(Integer idAnalysis) {
+		return getSession().createQuery("Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and  parameter.type.id in :typeIds").setParameter("idAnalysis", idAnalysis).setParameterList("typeIds", ALL_ACRONYM_TYPE_IDS).list();
 	}
 
 	/**
@@ -273,8 +276,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type) {
-		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type = :type order by ";
-		query += "parameter.level asc";
+		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type = :type order by parameter.level asc";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", type).list();
 	}
 
@@ -289,7 +291,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis) {
 		String query = "Select parameter From Analysis as analysis  inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.label = :type order by ";
 		query += "parameter.level asc";
-		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
+		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
 	}
 
 	/**
@@ -303,7 +305,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis) {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.label = :type order by ";
 		query += "parameter.level asc";
-		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME).list();
+		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", PARAMETERTYPE_TYPE_IMPACT_NAME).list();
 	}
 
 	/**
@@ -378,13 +380,14 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 		return (Parameter) getSession()
 				.createQuery(
 						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.description = :description")
-				.setParameter("analysisId", idAnalysis).setParameter("description", Constant.SOA_THRESHOLD).uniqueResult();
+				.setParameter("analysisId", idAnalysis).setParameter("description", SOA_THRESHOLD).uniqueResult();
 	}
 
 	/**
 	 * {@inheritDoc}<br>
-	 * <b>Updated by eomar 06/10/2016:
-	 * Add filter, retrieves Dynamic + Probability</b>
+	 * <b>Updated by eomar 06/10/2016: Add filter, retrieves Dynamic +
+	 * Probability</b>
+	 * 
 	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
 	 * @since Jun 10, 2015
 	 * @see lu.itrust.business.TS.model.analysis.Analysis#getExpressionParameters()
@@ -402,21 +405,16 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 		return getSession()
 				.createQuery(
 						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.type.id in :types")
-				.setParameter("idAnalysis", idAnalysis).setParameterList("types", new Integer[] { Constant.PARAMETERTYPE_TYPE_DYNAMIC, Constant.PARAMETERTYPE_TYPE_PROPABILITY })
-				.list();
+				.setParameter("idAnalysis", idAnalysis).setParameterList("types", new Integer[] { PARAMETERTYPE_TYPE_DYNAMIC, PARAMETERTYPE_TYPE_PROPABILITY }).list();
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @since Jun 10, 2015
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) {
-		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type = :type";
-		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME).list();
+	public List<AcronymParameter> findAllDynamicByAnalysisId(Integer idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.type.id = :typeId")
+				.setInteger("typeId", PARAMETERTYPE_TYPE_DYNAMIC).list();
 	}
 }

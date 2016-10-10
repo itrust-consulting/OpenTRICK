@@ -25,6 +25,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.expressions.StringExpressionParser;
 
@@ -213,9 +214,18 @@ public class NormalMeasure extends Measure {
 	 */
 	@Override
 	@Transient
-	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
+	public double getImplementationRateValue(ValueFactory factory) {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate())).evaluate(dynamicParameters);
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
+		} catch (Exception ex) {
+			return 0.0;
+		}
+	}
+	
+	@Override
+	public double getImplementationRateValue(Map<String, Double> factory) {
+		try {
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -330,5 +340,4 @@ public class NormalMeasure extends Measure {
 			measure.assetTypeValues.add(assetTypeValue);
 		}
 	}
-
 }

@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.constants.Constant.FILTER_ANALYSIS_NAME;
 import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_ANALYSIS_NAME;
 import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID;
 import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_SINGLE_NAME;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
@@ -28,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -107,7 +107,7 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.helper.StandardComparator;
@@ -249,6 +249,7 @@ public class ControllerAnalysis {
 		if (analysis == null)
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
+		ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 		Boolean readOnly = OpenMode.isReadOnly(mode);
 		List<Standard> standards = null;
 		boolean hasMaturity = false;
@@ -260,12 +261,12 @@ public class ControllerAnalysis {
 			case READ:
 			case EDIT:
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
+
 				standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
 						.collect(Collectors.toList());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
-				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
+				model.addAttribute("soaThreshold", analysis.getParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
 				model.addAttribute("soa", measures.get(Constant.STANDARD_27002));
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
@@ -278,7 +279,7 @@ public class ControllerAnalysis {
 				}
 				if (hasMaturity)
 					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002),
-							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(), true, analysis.getExpressionParameters()));
+							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(), true, valueFactory));
 				break;
 			case EDIT_MEASURE:
 				standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty())
@@ -593,7 +594,7 @@ public class ControllerAnalysis {
 
 			// add customers of user
 			model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-			
+
 			model.put("types", AnalysisType.values());
 
 			// add the analysis object
@@ -776,7 +777,6 @@ public class ControllerAnalysis {
 				return NaturalOrderComparator.compareTo(v1, v0);
 			}).findFirst().get();
 
-
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
 			if (validator == null)
@@ -789,8 +789,8 @@ public class ControllerAnalysis {
 			Date date = new Date(System.currentTimeMillis());
 			String version = jsonNode.get("version").asText();
 			String comment = jsonNode.get("comment").asText();
-			
-			String error  = validator.validate(history, "author", author);
+
+			String error = validator.validate(history, "author", author);
 			if (error != null)
 				errors.put("author", serviceDataValidation.ParseError(error, messageSource, locale));
 			else

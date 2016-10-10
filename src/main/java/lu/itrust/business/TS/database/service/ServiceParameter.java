@@ -3,7 +3,6 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
@@ -47,7 +46,7 @@ public interface ServiceParameter {
 
 	public List<Parameter> getAllInitialisedFromAnalysisByType(Integer idAnalysis, String type);
 
-	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis);
+	public List<AcronymParameter> findAllAcronymParameterByAnalysisId(Integer idAnalysis);
 
 	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type);
 
@@ -89,11 +88,6 @@ public interface ServiceParameter {
 	 */
 	public List<String> getAllExpressionParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception;
 
-	/**
-	 * Gets all dynamic parameters for the given analysis.
-	 * @param idAnalysis The identifier of the analysis for which parameters shall be retrieved.
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
-	 * @since Jun 11, 2015
-	 */
-	public List<DynamicParameter> getDynamicParametersFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<AcronymParameter> findAllDynamicByAnalysisId(Integer idAnalysis);
+
 }

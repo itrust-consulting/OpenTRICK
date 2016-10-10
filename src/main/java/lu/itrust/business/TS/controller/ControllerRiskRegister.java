@@ -43,7 +43,6 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.helper.ExportType;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 
 /**
@@ -163,10 +162,11 @@ public class ControllerRiskRegister {
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/RiskSheet/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request, Principal principal) {
+	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request,
+			Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<ExtendedParameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
-		serviceParameter.getAllExtendedFromAnalysis(analysisId).forEach(parameter -> {
+		List<Parameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
+		serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).forEach(parameter -> {
 			if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 				impacts.add(parameter);
 			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
@@ -175,9 +175,9 @@ public class ControllerRiskRegister {
 
 		model.addAttribute("parameters", serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_CSSF).stream()
 				.collect(Collectors.toMap(Parameter::getDescription, Function.identity())));
-		
+
 		model.addAttribute("owners", serviceAssessment.getDistinctOwnerByIdAnalysis(analysisId));
-		
+
 		model.addAttribute("type", type);
 
 		model.addAttribute("impacts", impacts);

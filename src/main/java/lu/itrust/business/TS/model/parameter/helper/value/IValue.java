@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.assessment.value;
+package lu.itrust.business.TS.model.parameter.helper.value;
 
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 
@@ -15,7 +15,7 @@ public interface IValue {
 	
 	String getVariable();
 	
-	Double getNumeric();
+	Double getReal();
 	
 	AcronymParameter getParameter();
 }
