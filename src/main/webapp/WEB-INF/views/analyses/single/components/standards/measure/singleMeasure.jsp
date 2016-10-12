@@ -18,7 +18,7 @@
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <fmt:setLocale value="fr" scope="session" />
 <c:set var="css">
-	<c:if test="${measure.getImplementationRateValue(expressionParameters) < 100 and measure.status!='NA'}">class="success"</c:if>
+	<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA'}">class="success"</c:if>
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
@@ -108,7 +108,7 @@
 				<c:when test="${standardType.name.equals('MATURITY')}">
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${measure.measureDescription.reference}');" onclick="return editField(this);"><fmt:formatNumber
-							value="${measure.getImplementationRateValue(expressionParameters)}" maxFractionDigits="0" minFractionDigits="0" /></td>
+							value="${measure.getImplementationRateValue(valueFactory)}" maxFractionDigits="0" minFractionDigits="0" /></td>
 				</c:when>
 				<c:otherwise>
 					<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"

@@ -50,6 +50,7 @@ import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -110,7 +111,7 @@ public class ControllerAssessment {
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
 			// update assessments of analysis
 			assessmentAndRiskProfileManager.WipeAssessment(analysis);
-			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
+			assessmentAndRiskProfileManager.UpdateAssessment(analysis, null);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -248,7 +249,7 @@ public class ControllerAssessment {
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 			// update assessments of analysis
-			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
+			assessmentAndRiskProfileManager.UpdateAssessment(analysis, null);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -273,7 +274,7 @@ public class ControllerAssessment {
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 			// update assessments of analysis
-			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
+			assessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -330,14 +331,17 @@ public class ControllerAssessment {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve asset by id
 			Asset asset = serviceAsset.get(elementID);
-			
-			
+
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 
 			// retrieve parameters which are considered in the expression
 			// evaluation
-			List<AcronymParameter> expressionParameters = serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis);
+			ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
 
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+
+			model.addAttribute("valueFactory", factory);
+			
 			// retrieve assessments of analysis
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
 			// parse assessments and initialise impact values to 0 if empty
@@ -352,12 +356,12 @@ public class ControllerAssessment {
 					assessment.setImpactRep("0");
 				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
+				// compute ALE
+				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+				// update assessments
+				serviceAssessment.saveOrUpdate(assessment);
+				// add assessments of asset to model
 			}
-			// compute ALE
-			AssessmentAndRiskProfileManager.ComputeAlE(assessments, expressionParameters);
-			// update assessments
-			serviceAssessment.saveOrUpdate(assessments);
-			// add assessments of asset to model
 			return assessmentByAsset(model, asset, assessments, idAnalysis, false);
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -419,7 +423,11 @@ public class ControllerAssessment {
 
 			// retrieve parameters which are considered in the expression
 			// evaluation
-			List<AcronymParameter> expressionParameters = serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis);
+			ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
+			
+			model.addAttribute("valueFactory", factory);
+
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			// load assessments
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromScenario(scenario);
@@ -436,12 +444,13 @@ public class ControllerAssessment {
 					assessment.setImpactRep("0");
 				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
+				// compute ALE
+				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+				// update assessments
+				serviceAssessment.saveOrUpdate(assessments);
+				// load assessments of scenario to model
 			}
-			// compute ALE
-			AssessmentAndRiskProfileManager.ComputeAlE(assessments, expressionParameters);
-			// update assessments
-			serviceAssessment.saveOrUpdate(assessments);
-			// load assessments of scenario to model
+
 			return assessmentByScenario(model, scenario, assessments, idAnalysis, false);
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);

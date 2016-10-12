@@ -333,7 +333,7 @@ public class ImportAnalysis {
 			new DynamicParameterComputer(session, new AssessmentAndRiskProfileManager()).computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
-			new AssessmentAndRiskProfileManager().UpdateRiskDendencies(analysis, analysis.mapAcronymParameterByKey());
+			new AssessmentAndRiskProfileManager().UpdateRiskDendencies(analysis, null);
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 

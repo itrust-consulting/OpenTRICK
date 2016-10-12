@@ -299,7 +299,7 @@ public class ControllerAnalysis {
 				model.addAttribute("probabilities", probabilities);
 				break;
 			}
-			model.addAttribute("expressionParameters", analysis.getExpressionParameters());
+			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("login", user.getLogin());
@@ -497,7 +497,7 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
+			assessmentAndRiskProfileManager.UpdateAssetALE(analysis,null);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1265,7 +1265,7 @@ public class ControllerAnalysis {
 			analysis.setLanguage(language);
 			analysis.setUncertainty(uncertainty);
 			if (update)
-				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, analysis.mapAcronymParameterByKey());
+				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis,null);
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {

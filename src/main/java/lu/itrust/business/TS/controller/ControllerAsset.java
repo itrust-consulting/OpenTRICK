@@ -198,6 +198,7 @@ public class ControllerAsset {
 		// load all assets of analysis to model
 		model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(integer));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(open) && serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		return "analyses/single/components/asset/asset";

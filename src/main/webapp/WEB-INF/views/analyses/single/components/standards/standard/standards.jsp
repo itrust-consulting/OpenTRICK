@@ -118,7 +118,7 @@
 				<tbody>
 					<c:forEach items="${measures.get(standard)}" var="measure">
 						<c:set var="css">
-							<c:if test="${measure.getImplementationRateValue(expressionParameters) < 100 and measure.status!='NA' }">class="success"</c:if>
+							<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA' }">class="success"</c:if>
 						</c:set>
 						<c:set var="todoCSS">
 							<c:choose>
@@ -211,11 +211,11 @@
 										<c:when test="${standardType.name.equals('MATURITY')}">
 											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
 												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${measure.measureDescription.reference}');" onclick="return editField(this);"><fmt:formatNumber
-													value="${measure.getImplementationRateValue(expressionParameters)}" maxFractionDigits="0" minFractionDigits="0" /></td>
+													value="${measure.getImplementationRateValue(valueFactory)}" maxFractionDigits="0" minFractionDigits="0" /></td>
 										</c:when>
 										<c:otherwise>
 											<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"
-												title="${measure.getImplementationRateValue(expressionParameters)}"
+												title="${measure.getImplementationRateValue(valueFactory)}"
 												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><spring:message
 													text="${measure.getImplementationRate()}" /></td>
 											<c:if test="${hasMaturity and standard.equals('27002') }">
@@ -246,7 +246,7 @@
 										data-real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
 											value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
 									<c:choose>
-										<c:when test="${measure.getImplementationRateValue(expressionParameters)>=100 || measure.getStatus().equals('NA')}">
+										<c:when test="${measure.getImplementationRateValue(valueFactory)>=100 || measure.getStatus().equals('NA')}">
 											<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
 													value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
 										</c:when>

@@ -1,5 +1,12 @@
 package lu.itrust.business.TS.model.general.helper;
 
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_DYNAMIC;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_LEG;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_OPE;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_REP;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -11,6 +18,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
@@ -26,10 +34,9 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.IValue;
 import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
  * AssessmentAndRiskProfileManager.java: <br>
@@ -164,21 +171,36 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void UpdateAcronym(int idAnalysis, ExtendedParameter extendedParameter, String acronym) {
+	public void UpdateAcronym(int idAnalysis, AcronymParameter acronymParameter, String acronym) {
 		// retrieve assessments by acronym and analysis
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
 		// parse assessments and update impact value to parameter acronym
 		for (Assessment assessment : assessments) {
-			if (acronym.equals(assessment.getImpactFin()))
-				assessment.setImpactFin(extendedParameter.getAcronym());
-			else if (acronym.equals(assessment.getImpactLeg()))
-				assessment.setImpactLeg(extendedParameter.getAcronym());
-			else if (acronym.equals(assessment.getImpactOp()))
-				assessment.setImpactOp(extendedParameter.getAcronym());
-			else if (acronym.equals(assessment.getImpactRep()))
-				assessment.setImpactRep(extendedParameter.getAcronym());
-			else if (acronym.equals(assessment.getLikelihood()))
-				assessment.setLikelihood(extendedParameter.getAcronym());
+			switch (acronymParameter.getType().getId()) {
+			case PARAMETERTYPE_TYPE_IMPACT:
+				if (acronym.equals(assessment.getImpactFin()))
+					assessment.setImpactFin(acronymParameter.getAcronym());
+				break;
+			case PARAMETERTYPE_TYPE_IMPACT_LEG:
+				if (acronym.equals(assessment.getImpactLeg()))
+					assessment.setImpactLeg(acronymParameter.getAcronym());
+				break;
+			case PARAMETERTYPE_TYPE_IMPACT_OPE:
+				if (acronym.equals(assessment.getImpactOp()))
+					assessment.setImpactOp(acronymParameter.getAcronym());
+				break;
+			case PARAMETERTYPE_TYPE_IMPACT_REP:
+				if (acronym.equals(assessment.getImpactRep()))
+					assessment.setImpactRep(acronymParameter.getAcronym());
+				break;
+			case PARAMETERTYPE_TYPE_PROPABILITY:
+			case PARAMETERTYPE_TYPE_DYNAMIC:
+				if (acronym.equals(assessment.getLikelihood()))
+					assessment.setLikelihood(acronymParameter.getAcronym());
+				else if (!StringUtils.isEmpty(assessment.getLikelihood()))
+					assessment.setLikelihood(assessment.getLikelihood().replace(acronym, acronymParameter.getAcronym()));
+				break;
+			}
 			// update assessment
 			daoAssessment.saveOrUpdate(assessment);
 		}
@@ -189,13 +211,14 @@ public class AssessmentAndRiskProfileManager {
 		int size = daoAnalysis.countNotEmpty(), pageSize = 30;
 		for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++)
 			for (Analysis analysis : daoAnalysis.getAllNotEmpty(pageIndex, pageSize))
-				UpdateAssessment(analysis);
+				UpdateAssessment(analysis, null);
 	}
 
 	@Transactional
-	public void UpdateAssessment(Analysis analysis) {
+	public void UpdateAssessment(Analysis analysis, ValueFactory factory) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
-		ValueFactory factory = new ValueFactory(analysis.getParameters());
+		if (factory == null)
+			factory = new ValueFactory(analysis.getParameters());
 		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
 			for (Asset asset : analysis.getAssets()) {
@@ -239,6 +262,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
+		if (factory == null)
+			factory = new ValueFactory(analysis.getParameters());
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
 		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
 			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
@@ -290,7 +315,6 @@ public class AssessmentAndRiskProfileManager {
 	public void UpdateAssetALE(Analysis analysis, ValueFactory factory) {
 		List<Asset> assets = analysis.findAssessmentBySelected();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
-
 		try {
 			if (factory == null)
 				factory = new ValueFactory(analysis.getParameters());
@@ -337,11 +361,7 @@ public class AssessmentAndRiskProfileManager {
 	private void build(Scenario scenario, Analysis analysis) {
 		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
 		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByScenarioId(scenario.getId());
-		analysis.getAssets().forEach(asset -> {
-			Assessment assessment = assetAssessments.get(asset.getId());
-			RiskProfile riskProfile = riskProfiles.get(asset.getId());
-			Update(assessment, scenario, asset, riskProfile, analysis);
-		});
+		analysis.getAssets().forEach(asset -> Update(assetAssessments.get(asset.getId()), scenario, asset, riskProfiles.get(asset.getId()), analysis));
 	}
 
 	private void buildAssessment(Asset asset, Analysis analysis) {
@@ -413,15 +433,13 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory, AnalysisType type) {
-		IValue impactFin = factory.findImpactFin(assessment.getImpactFin()), probability = factory.findProb(assessment.getLikelihood());
-		if (type == AnalysisType.QUALITATIVE) {
-			IValue impactLeg = factory.findImpactLeg(assessment.getImpactLeg()), impactOP = factory.findImpactOp(assessment.getImpactOp()),
-					impactRep = factory.findImpactRep(assessment.getImpactRep());
-			assessment.setImpactReal(Math.max(impactRep == null ? 0D : impactRep.getReal(),
-					Math.max(impactOP == null ? 0D : impactOP.getReal(), Math.max(impactLeg == null ? 0D : impactLeg.getReal(), impactFin == null ? 0D : impactFin.getReal()))));
-		} else
-			assessment.setImpactReal(impactFin == null ? 0.0 : impactFin.getReal());
-		assessment.setLikelihoodReal(probability == null ? 0 : probability.getReal());
+		double impactFin = factory.findImpactFinValue(assessment.getImpactFin());
+		if (type == AnalysisType.QUALITATIVE)
+			assessment.setImpactReal(Math.max(factory.findImpactRepValue(assessment.getImpactRep()),
+					Math.max(factory.findImpactOpValue(assessment.getImpactOp()), Math.max(factory.findImpactLegValue(assessment.getImpactLeg()), impactFin))));
+		else
+			assessment.setImpactReal(impactFin);
+		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood()).evaluate(factory));
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
 		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
 		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());

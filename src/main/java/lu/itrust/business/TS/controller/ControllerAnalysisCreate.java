@@ -70,7 +70,6 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.ParameterType;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -358,9 +357,7 @@ public class ControllerAnalysisCreate {
 					for (RiskProfile riskProfile : riskProfiles)
 						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters));
 				}
-
-				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, mappingParameters.values().stream().filter(parameter -> parameter instanceof AcronymParameter)
-						.map(parameter -> (AcronymParameter) parameter).collect(Collectors.toMap(AcronymParameter::getKey, Function.identity())));
+				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			}
 
 			Map<Integer, Phase> mappingPhases;
@@ -436,11 +433,11 @@ public class ControllerAnalysisCreate {
 			});
 
 			if (presents[2])
-				copyExtendedParameters(analysis,finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_REP, PARAMETERTYPE_TYPE_IMPACT_REP_NAME);
+				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_REP, PARAMETERTYPE_TYPE_IMPACT_REP_NAME);
 			if (presents[1])
-				copyExtendedParameters(analysis,finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_OPE, PARAMETERTYPE_TYPE_IMPACT_OPE_NAME);
+				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_OPE, PARAMETERTYPE_TYPE_IMPACT_OPE_NAME);
 			if (presents[0])
-				copyExtendedParameters(analysis,finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_LEG, PARAMETERTYPE_TYPE_IMPACT_LEG_NAME);
+				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_LEG, PARAMETERTYPE_TYPE_IMPACT_LEG_NAME);
 			return mappedParameters;
 		} else
 			return parameters.stream()

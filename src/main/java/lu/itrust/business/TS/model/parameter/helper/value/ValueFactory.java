@@ -164,7 +164,7 @@ public class ValueFactory {
 		if (operationalMapper == null) {
 			if (operationalImpacts == null)
 				return null;
-			setReputationMapper(operationalImpacts.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity())));
+			setOperationalMapper(operationalImpacts.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity())));
 		}
 		return Collections.unmodifiableMap(operationalMapper);
 	}
@@ -244,7 +244,7 @@ public class ValueFactory {
 		if (probabilityMapper == null) {
 			if (probabilities == null)
 				return null;
-			setFinancialMapper(probabilities.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity())));
+			setProbabilityMapper(probabilities.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity())));
 		}
 		return Collections.unmodifiableMap(probabilityMapper);
 	}
@@ -261,6 +261,11 @@ public class ValueFactory {
 	 * @return the dynamicMapper
 	 */
 	public Map<String, DynamicParameter> getDynamicMapper() {
+		if (dynamicMapper == null) {
+			if (dynamicParameters == null)
+				return null;
+			setDynamicMapper(dynamicParameters.stream().collect(Collectors.toMap(DynamicParameter::getAcronym, Function.identity())));
+		}
 		return Collections.unmodifiableMap(dynamicMapper);
 	}
 
@@ -377,7 +382,7 @@ public class ValueFactory {
 		return impact == null ? 0D : impact.getReal();
 	}
 
-	public Double findImpactOpeValue(Object value) {
+	public Double findImpactOpValue(Object value) {
 		IValue impact = findImpactOp(value);
 		return impact == null ? 0D : impact.getReal();
 	}
@@ -392,7 +397,7 @@ public class ValueFactory {
 		return impact == null ? 0D : impact.getReal();
 	}
 
-	public Integer findImpactReplLevel(Object value) {
+	public Integer findImpactRepLevel(Object value) {
 		IValue impact = findImpactRep(value);
 		return impact == null ? 0 : impact.getLevel();
 	}

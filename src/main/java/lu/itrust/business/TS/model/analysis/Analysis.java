@@ -1724,6 +1724,7 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * Retrieves parameter by type
+	 * 
 	 * @param parameters
 	 * @return Map<String, Parameter>
 	 */
@@ -1735,7 +1736,7 @@ public class Analysis implements Cloneable {
 				mappedParameters.put(parameter.getType().getLabel(), currentParameters = new ArrayList<>());
 			currentParameters.add(parameter);
 		});
-		
+
 		return mappedParameters;
 
 	}
@@ -2570,7 +2571,7 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getAsset().getId(), Function.identity()));
 	}
 
-	public List<Parameter> findParametersByType(String type) {
+	public List< ? extends Parameter> findParametersByType(String type) {
 		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
 	}
 
@@ -2623,6 +2624,22 @@ public class Analysis implements Cloneable {
 		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
 		return this.parameters.stream().filter(parameter -> (parameter instanceof DynamicParameter) || parameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 				.map(parameter -> (AcronymParameter) parameter).collect(Collectors.toList());
+	}
+
+	/**
+	 * Get all Dynamic Parameter
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
+	 */
+	public List<DynamicParameter> getDynamicParameters() {
+		// We assume that all parameters that have an acronym can be used in an
+		// expression
+		// Maybe we want to change this in the future (checking parameter.type);
+		// then this is the place to act.
+		// In that case, we must update
+		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
+		// so in particular
+		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
+		return this.parameters.stream().filter(parameter -> parameter instanceof DynamicParameter).map(parameter -> (DynamicParameter) parameter).collect(Collectors.toList());
 	}
 
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {

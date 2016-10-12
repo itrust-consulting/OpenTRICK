@@ -186,7 +186,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 		ValidatorField validator = findByClass(o.getClass());
 		if (validator == null)
 			return null;
-		return validator.validate(o, fieldName, candidate, choose, null);
+		return validator.validate(o, fieldName, candidate, choose);
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 		ValidatorField validator = findByClass(o.getClass());
 		if (validator == null)
 			return null;
-		return validator.validate(o, fieldName, candidate, choose, null);
+		return validator.validate(o, fieldName, candidate, choose);
 	}
 
 	/**
@@ -228,6 +228,6 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 		ValidatorField validator = findByClass(o.getClass());
 		if (validator == null)
 			return null;
-		return validator.validate(o, choose, null);
+		return validator.validate(o, choose);
 	}
 }

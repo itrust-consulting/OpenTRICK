@@ -79,7 +79,6 @@ import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -358,8 +357,7 @@ public class ControllerAnalysisStandard {
 			if (!measure.getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
 				return;
 			if (measure.getMeasureDescription().isComputable()) {
-				List<AcronymParameter> expressionParameters = serviceParameter.findAllDynamicByAnalysisId(idAnalysis);
-
+				ValueFactory factory = new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis));
 				String chapter = measure.getMeasureDescription().getReference().split("[.]", 2)[0];
 				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY, "M." + chapter);
 				if (measures.isEmpty())
@@ -368,8 +366,8 @@ public class ControllerAnalysisStandard {
 					model.addAttribute("hasMaturity", true);
 					List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 							Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, parameters, expressionParameters).get(chapter);
-					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue(expressionParameters) * maturity * 0.01);
+					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, parameters, factory).get(chapter);
+					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue(factory) * maturity * 0.01);
 				}
 			} else
 				model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
@@ -1104,7 +1102,7 @@ public class ControllerAnalysisStandard {
 
 				Map<String, TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
 						.collect(Collectors.toMap(task -> task.getId(), Function.identity()));
-				List<Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				List<? extends Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 				model.addAttribute("measures", measures);
 				model.addAttribute("parameters", parameters);
 				model.addAttribute("tasks", tasks);

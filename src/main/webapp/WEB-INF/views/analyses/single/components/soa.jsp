@@ -46,7 +46,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:set var="css">
-									<c:if test="${measure.getImplementationRateValue(expressionParameters) < 100 and measure.getImplementationRateValue(expressionParameters) < soaThreshold}">class="success"</c:if>
+									<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.getImplementationRateValue(valueFactory) < soaThreshold}">class="success"</c:if>
 								</c:set>
 								<tr data-trick-class="SOA" data-trick-id="${measure.id}">
 									<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />

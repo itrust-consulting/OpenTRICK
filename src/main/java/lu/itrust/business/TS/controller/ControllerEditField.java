@@ -11,7 +11,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -58,7 +57,6 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
-import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
@@ -69,7 +67,6 @@ import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
-import lu.itrust.business.TS.model.parameter.helper.value.IValue;
 import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -612,19 +609,17 @@ public class ControllerEditField {
 			if (!SetFieldData(field, assessment, fieldEditor))
 				// return error message
 				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-
 			Result result = Result.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
-
 			// compute new ALE
 			if (computeAle) {
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 				ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
 				if (netImportance && type == AnalysisType.QUALITATIVE) {
-					//int impact = Mpafactory.findImpactFinLevel(value)
-					result.add(new FieldValue("computedNextImportance",
-							 * converter.getProbabiltyLevel(assessment.getLikelihoodReal())));
-
+					int impactFin = factory.findImpactFinLevel(assessment.getImpactFin()), impactLeg = factory.findImpactLegLevel(assessment.getImpactLeg()),
+							impactOp = factory.findImpactOpeLevel(assessment.getImpactOp()), impactRep = factory.findImpactRepLevel(assessment.getImpactRep()),
+							proba = factory.findExpLevel(assessment.getLikelihood());
+					result.add(new FieldValue("computedNextImportance", Math.max(impactRep, Math.max(impactOp, Math.max(impactLeg, impactFin))) * proba));
 				}
 				NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 				result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));

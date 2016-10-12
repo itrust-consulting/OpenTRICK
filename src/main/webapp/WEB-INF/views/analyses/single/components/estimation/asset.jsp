@@ -21,15 +21,17 @@
 				<thead>
 					<tr>
 						<th style="width: 10%" title='<spring:message code="label.assessment.scenario" />'><spring:message code="label.assessment.scenario" /></th>
-						<c:if test="${show_cssf}">
-							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_rep" />'><spring:message code="label.assessment.impact_rep" /></th>
-							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_op" />'><spring:message code="label.assessment.impact_op" /></th>
-							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_leg" />'><spring:message code="label.assessment.impact_leg" /></th>
-							<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_fin" />'><spring:message code="label.assessment.impact_fin" /></th>
-						</c:if>
-						<c:if test="${!show_cssf}">
-							<th style="width: 2.6%" title='<spring:message code="label.title.impact" />'><spring:message code="label.assessment.impact" /></th>
-						</c:if>
+						<c:choose>
+							<c:when test="${type=='QUALITATIVE'}">
+								<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_rep" />'><spring:message code="label.assessment.impact_rep" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_op" />'><spring:message code="label.assessment.impact_op" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_leg" />'><spring:message code="label.assessment.impact_leg" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.assessment.impact_fin" />'><spring:message code="label.assessment.impact_fin" /></th>
+							</c:when>
+							<c:otherwise>
+								<th style="width: 2.6%" title='<spring:message code="label.title.impact" />'><spring:message code="label.assessment.impact" /></th>
+							</c:otherwise>
+						</c:choose>
 						<th style="width: 2.6%" title='<spring:message code="label.title.likelihood" />'><spring:message code="label.assessment.likelihood" /></th>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
@@ -51,92 +53,71 @@
 					<c:forEach items="${assessments}" var="assessment">
 						<tr data-trick-id="${assessment.id}">
 							<td><spring:message text="${assessment.scenario.name}" /></td>
-							<c:if test="${show_cssf}">
-								<c:choose>
-									<c:when test="${parameters.containsKey(assessment.impactRep)}">
-										<td title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactRep),0)}" /> &euro;'><spring:message text="${assessment.impactRep}" /></td>
-									</c:when>
-									<c:otherwise>
-										<td title='<fmt:formatNumber value="${fct:round(assessment.impactRep,0)}" /> &euro;'><c:catch>
-												<fmt:formatNumber value="${fct:round(assessment.impactRep*0.001,0)}" var="impactRep" />
-											</c:catch> <c:choose>
-												<c:when test="${!empty impactRep}">
-													<spring:message text="${impactRep}" />
-												</c:when>
-												<c:otherwise>
-													<spring:message text="${assessment.impactRep}" />
-												</c:otherwise>
-											</c:choose></td>
-									</c:otherwise>
-								</c:choose>
-								<c:choose>
-									<c:when test="${parameters.containsKey(assessment.impactOp)}">
-										<td title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactOp),0)}" /> &euro;'><spring:message text="${assessment.impactOp}" /></td>
-									</c:when>
-									<c:otherwise>
-										<td title='<fmt:formatNumber value="${fct:round(assessment.impactOp,0)}" /> &euro;'><c:catch>
-												<fmt:formatNumber value="${fct:round(assessment.impactOp*0.001,0)}" var="impactOp" />
-											</c:catch> <c:choose>
-												<c:when test="${!empty impactOp}">
-													<spring:message text="${impactOp}" />
-												</c:when>
-												<c:otherwise>
-													<spring:message text="${assessment.impactOp}" />
-												</c:otherwise>
-											</c:choose></td>
-									</c:otherwise>
-								</c:choose>
-								<c:choose>
-									<c:when test="${parameters.containsKey(assessment.impactLeg)}">
-										<td title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactLeg),0)}" /> &euro;'><spring:message text="${assessment.impactLeg}" /></td>
-									</c:when>
-									<c:otherwise>
-										<td title='<fmt:formatNumber value="${fct:round(assessment.impactLeg,0)}" /> &euro;'><c:catch>
-												<fmt:formatNumber value="${fct:round(assessment.impactLeg*0.001,0)}" var="impactLeg" />
-											</c:catch> <c:choose>
-												<c:when test="${!empty impactLeg}">
-													<spring:message text="${impactLeg}" />
-												</c:when>
-												<c:otherwise>
-													<spring:message text="${assessment.impactLeg}" />
-												</c:otherwise>
-											</c:choose></td>
-									</c:otherwise>
-								</c:choose>
-							</c:if>
+							<c:set var="impactFin" value="${valueFactory.findImpactFin(assessment.impactFin)}" />
+							<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
 							<c:choose>
-								<c:when test="${parameters.containsKey(assessment.impactFin)}">
-									<td title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactFin),0)}" /> &euro;'><spring:message text="${assessment.impactFin}" /></td>
+								<c:when test="${type == 'QUALITATIVE'}">
+									<c:set var="impactRep" value="${valueFactory.findImpactRep(assessment.impactRep)}" />
+									<c:set var="impactOp" value="${valueFactory.findImpactOp(assessment.impactOp)}" />
+									<c:set var="impactLeg" value="${valueFactory.findImpactLeg(assessment.impactLeg)}" />
+									<c:choose>
+										<c:when test="${empty impactRep}">
+											<spring:message text="${assessment.impactRep}" var="impactRep" />
+											<td data-trick-field="impactRep" title='${impactRep}'>${impactRep}</td>
+										</c:when>
+										<c:otherwise>
+											<td data-trick-field="impactRep" title='<fmt:formatNumber value="${fct:round(impactRep.real,0)}" /> &euro;'><spring:message text="${impactRep.variable}" /></td>
+										</c:otherwise>
+									</c:choose>
+									<c:choose>
+										<c:when test="${empty impactOp}">
+											<spring:message text="${assessment.impactOp}" var="impactOp" />
+											<td data-trick-field="impactOp" title='${impactOp}'>${impactOp}</td>
+										</c:when>
+										<c:otherwise>
+											<td data-trick-field="impactOp" title='<fmt:formatNumber value="${fct:round(impactOp.real,0)}" /> &euro;'><spring:message text="${impactOp.variable}" /></td>
+										</c:otherwise>
+									</c:choose>
+									<c:choose>
+										<c:when test="${empty impactLeg}">
+											<spring:message text="${assessment.impactLeg}" var="impactLeg" />
+											<td data-trick-field="impactLeg" title='${impactLeg}'>${impactLeg}</td>
+										</c:when>
+										<c:otherwise>
+											<td data-trick-field="impactLeg" title='<fmt:formatNumber value="${fct:round(impactLeg.real,0)}" /> &euro;'><spring:message text="${impactLeg.variable}" /></td>
+										</c:otherwise>
+									</c:choose>
+									<c:choose>
+										<c:when test="${empty impactFin}">
+											<spring:message text="${assessment.impactFin}" var="impactFin" />
+											<td data-trick-field="impactFin" title='${impactFin}'>${impactFin}</td>
+										</c:when>
+										<c:otherwise>
+											<td data-trick-field="impactFin" title='<fmt:formatNumber value="${fct:round(impactFin.real,0)}" /> &euro;'><spring:message text="${impactFin.variable}" /></td>
+										</c:otherwise>
+									</c:choose>
 								</c:when>
 								<c:otherwise>
-									<td title='<fmt:formatNumber value="${fct:round(assessment.impactFin,0)}" /> &euro;'><c:catch>
-											<fmt:formatNumber value="${fct:round(assessment.impactFin*0.001,0)}" var="impactFin" />
-										</c:catch> <c:choose>
-											<c:when test="${not empty impactFin}">
-												<spring:message text="${impactFin}" />
-											</c:when>
-											<c:otherwise>
-												<spring:message text="${assessment.impactFin}" />
-											</c:otherwise>
-										</c:choose></td>
+									<c:choose>
+										<c:when test="${empty impactFin}">
+											<spring:message text="${assessment.impactFin}" var="impactFin" />
+											<td data-trick-field="impactFin" title='${impactFin}'>${impactFin}</td>
+										</c:when>
+										<c:otherwise>
+											<td data-trick-field="impactFin" title='<fmt:formatNumber value="${fct:round(impactFin.real,0)}" /> &euro;'><fmt:formatNumber
+													value="${fct:round(impactFin.real*0.001,0)}" /></td>
+										</c:otherwise>
+									</c:choose>
 								</c:otherwise>
 							</c:choose>
 							<c:choose>
-								<c:when test="${parameters.containsKey(assessment.likelihood)}">
-									<td title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.likelihood),2)}" maxFractionDigits="2" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
-											text="${assessment.likelihood}" /></td>
+								<c:when test="${empty likelihood}">
+									<spring:message text="${assessment.likelihood}" var="likelihood" />
+									<td data-trick-field="likelihood" title='${likelihood}'>${likelihood}</td>
 								</c:when>
 								<c:otherwise>
-									<td><c:catch>
-											<fmt:formatNumber value="${fct:round(assessment.likelihood,2)}" maxFractionDigits="2" var="likelihood" />
-										</c:catch> <c:choose>
-											<c:when test="${not empty likelihood }">
-												<spring:message text="${likelihood}" />
-											</c:when>
-											<c:otherwise>
-												<spring:message text="${assessment.likelihood}" />
-											</c:otherwise>
-										</c:choose></td>
+									<td data-trick-field="likelihood" title='<fmt:formatNumber value="${fct:round(likelihood.real,2)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
+											text="${likelihood.variable}" /></td>
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${show_uncertainty}">
@@ -156,7 +137,7 @@
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<c:choose>
-									<c:when test="${show_cssf}">
+									<c:when test="${type == 'QUALITATIVE'}">
 										<td colspan="7"><spring:message code="label.total.ale" /></td>
 									</c:when>
 									<c:otherwise>
@@ -169,7 +150,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${show_cssf}">
+									<c:when test="${type == 'QUALITATIVE'}">
 										<td colspan="6"><spring:message code="label.total.ale" /></td>
 									</c:when>
 									<c:otherwise>
@@ -198,7 +179,7 @@
 				</div>
 			</fieldset>
 			<c:choose>
-				<c:when test="${show_cssf}">
+				<c:when test="${type == 'QUALITATIVE'}">
 					<jsp:include page="form-cssf.jsp" />
 				</c:when>
 				<c:otherwise>

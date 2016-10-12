@@ -48,6 +48,7 @@
 				<tr>
 					<th width="1%"></th>
 					<th><spring:message code="label.analysis.identifier" text="Identifier" /></th>
+					<th width="5%"><spring:message code="label.analysis.type" text="Type" /></th>
 					<th width="20%"><spring:message code="label.analysis.label" text="Name" /></th>
 					<th width="40%"><spring:message code="label.analysis.comment" text="Comment" /></th>
 					<th><spring:message code="label.analysis.version" text="Version" /></th>
@@ -61,6 +62,7 @@
 					<tr data-trick-id="${analysis.id}" onclick="selectElement(this)" data-trick-rights-id="0" data-trick-is-profile="${analysis.profile}">
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
 						<td><spring:message text="${analysis.identifier}" /></td>
+						<td><spring:message code='label.analysis.type.${fn:toLowerCase(analysis.type)}' text="${fn:toLowerCase(analysis.type)}" /></td>
 						<td><pre><spring:message text="${analysis.label}" /></pre></td>
 						<td><pre><spring:message text="${analysis.lastHistory.comment}" /></pre></td>
 						<td data-trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>

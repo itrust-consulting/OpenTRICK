@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,6 @@ import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManage
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -209,8 +207,7 @@ public class Duplicator {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", (int) (minProgress + bound * 45)));
 			
-			assessmentAndRiskProfileManager.UpdateRiskDendencies(copy, parameters.entrySet().stream().filter(entry -> entry.getValue() instanceof ExtendedParameter)
-					.collect(Collectors.toMap(entry -> ((ExtendedParameter) entry.getValue()).getAcronym(), entry -> (ExtendedParameter) entry.getValue())));
+			assessmentAndRiskProfileManager.UpdateRiskDendencies(copy, null);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", (int) (minProgress + bound * 50)));
 

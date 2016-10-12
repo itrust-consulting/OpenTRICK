@@ -56,6 +56,7 @@ import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformat
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -1045,11 +1046,11 @@ public class ExportAnalysisReport {
 			return;
 		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
 		List<Measure> measures = (List<Measure>) analysis.findMeasureByStandard(standard);
-		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
+		ValueFactory factory = new ValueFactory(analysis.getDynamicParameters());
 		if (measures == null)
 			return;
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, expressionParameters);
+		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, factory);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
 		if (xssfSheet.getRow(rowCount) == null)
@@ -1076,7 +1077,7 @@ public class ExportAnalysisReport {
 			List<Phase> phases = analysis.findUsablePhase();
 			int columnIndex = 2;
 			for (Phase phase : phases) {
-				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, expressionParameters);
+				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, factory);
 				if (xssfSheet.getRow(rowCount = 0) == null)
 					xssfSheet.createRow(rowCount);
 				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
@@ -1160,6 +1161,7 @@ public class ExportAnalysisReport {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void generateExtendedParameters(String type) throws Exception {
 		XWPFParagraph paragraph = null;
 		XWPFTable table = null;
@@ -1172,14 +1174,7 @@ public class ExportAnalysisReport {
 
 		paragraph = findTableAnchor("<" + parmetertype + ">");
 
-		List<Parameter> parameters = analysis.getParameters();
-
-		List<ExtendedParameter> extendedParameters = new ArrayList<ExtendedParameter>();
-
-		for (Parameter parameter : parameters) {
-			if (parameter.getType().getLabel().equals(type))
-				extendedParameters.add((ExtendedParameter) parameter);
-		}
+		List<ExtendedParameter> extendedParameters = (List<ExtendedParameter>) analysis.findParametersByType(type);
 
 		if (paragraph != null && extendedParameters.size() > 0) {
 

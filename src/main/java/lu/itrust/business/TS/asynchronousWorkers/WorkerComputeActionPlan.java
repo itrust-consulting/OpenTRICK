@@ -147,7 +147,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 			deleteActionPlan(analysis);
 
-			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
+			assessmentAndRiskProfileManager.UpdateAssessment(analysis, null);
 
 			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, getId(), analysis, analysisStandards, this.uncertainty,
 					this.messageSource);
