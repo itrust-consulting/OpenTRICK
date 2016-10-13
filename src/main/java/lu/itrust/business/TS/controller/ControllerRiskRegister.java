@@ -44,6 +44,7 @@ import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.helper.ExportType;
 import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -102,14 +103,16 @@ public class ControllerRiskRegister {
 		// prepare model
 		model.put("riskregister", analysis.getRiskRegisters());
 
-		model.put("parameters", analysis.findExtendedByAnalysis());
+		model.put("valueFactory", new ValueFactory(analysis.getParameters()));
+		
+		model.put("type", analysis.getType());
 
 		model.put("language", analysis.getLanguage().getAlpha2());
 
 		model.put("riskProfileMapping", analysis.mapRiskProfile());
 
 		model.put("estimationMapping", analysis.mapAssessment());
-
+		
 		// return view
 		return "analyses/single/components/riskRegister/home";
 	}

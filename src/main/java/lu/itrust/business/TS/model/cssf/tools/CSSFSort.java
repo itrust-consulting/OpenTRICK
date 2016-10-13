@@ -1,13 +1,9 @@
 package lu.itrust.business.TS.model.cssf.tools;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItemGroup;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.cssf.helper.ComputationHelper;
 
@@ -64,147 +60,7 @@ public class CSSFSort {
 	 * Methods
 	 **********************************************************************************************/
 
-	/**
-	 * sortByGroup: <br>
-	 * Initialises groups with empty RiskRegisterItem Lists (if group name was
-	 * not yet found), or with existing groups Sort risk register in three
-	 * groups [direct, indirect, other]
-	 * 
-	 * @param registers
-	 *            CSSF computation result
-	 * 
-	 * @return initialised groups with empty RiskkRegisterItem Lists
-	 * @see #findGroup(String)
-	 */
-	public static Map<String, List<RiskRegisterItemGroup>> sortByGroup(Map<String, RiskRegisterItem> registers) {
-
-		// initialises the group list which contains 3 entries: direct, indirect
-		// and others as keys
-		// and for each entry the corresponding riskregister item list
-		Map<String, List<RiskRegisterItemGroup>> groups = new HashMap<String, List<RiskRegisterItemGroup>>(3);
-
-		// parse all riskregister items
-		for (RiskRegisterItem registerItem : registers.values()) {
-
-			// retrieve group name from scenario type (direct, indirect or
-			// other)
-			String groupName = findGroup(registerItem.getScenario().getType().getName());
-
-			// retrieve group from name (the risk register item list)
-			List<RiskRegisterItemGroup> registerItemGroups = groups.get(groupName);
-
-			// check if the list is not yet initialised -> YES
-			if (registerItemGroups == null) {
-
-				// create a new risk register item list
-				registerItemGroups = new ArrayList<RiskRegisterItemGroup>();
-
-				// add this empty list to the groups
-				groups.put(groupName, registerItemGroups);
-			}
-
-			RiskRegisterItemGroup registerItemGroup = null;
-
-			for (int i = 0; i < registerItemGroups.size(); i++) {
-
-				if (registerItemGroups.get(i).getIdScenario() == registerItem.getScenario().getId()) {
-					registerItemGroup = registerItemGroups.get(i);
-					break;
-				}
-			}
-
-			if (registerItemGroup == null) {
-				registerItemGroup = new RiskRegisterItemGroup(registerItem.getScenario().getId());
-				registerItemGroups.add(registerItemGroup);
-			}
-
-			// add the risk register item to the list inside this group
-			registerItemGroup.add(registerItem);
-		}
-
-		// return all risk register items grouped by their scenario type into
-		// direct, indeirect and
-		// other
-		return groups;
-	}
-
-	/**
-	 * sortAndConcatGroup: <br>
-	 * Identify:
-	 * <ul>
-	 * <li>20 most important direct risk(referring to the net importance value)
-	 * </li>
-	 * <li>5 most important indirect risk(referring to the net importance value)
-	 * </li>
-	 * <li>Risks that have a net impact >=6 and net impact probability >= 5
-	 * (inside direct and indirect)</li>
-	 * </ul>
-	 * Afterwards, the 2 lists will be concatenated<br>
-	 * <ul>
-	 * <li>RiskRegister with id between 1 and 20, are the 20 most important
-	 * direct risk(referring to the net importance value) after 20 come those
-	 * where impact >= 6 and probability >= 5</li>
-	 * <li>RiskRegister with id after the 20 and x items with impact >= 6 and
-	 * probability >= 5 come the 5 most important indirect risk(referring to the
-	 * net importance value) after these 5 items come all indirect risk that
-	 * have impact >= 6 and probability >= 5</li>
-	 * </ul>
-	 * 
-	 * @param groups
-	 *            The 3 lists of indirect, direct and other risk register items
-	 * 
-	 * @return A concatenated list of all direct and indirect items
-	 */
-	@Deprecated
-	public static List<RiskRegisterItem> sortAndConcatenateGroup(Map<String, List<RiskRegisterItemGroup>> groups, double acceptableImportace) {
-
-		// initialise or use existing group direct
-		List<RiskRegisterItemGroup> direct20 = groups.containsKey(DIRECT) ? groups.get(DIRECT) : new ArrayList<RiskRegisterItemGroup>();
-
-		// initialise or use existing group indirect
-		List<RiskRegisterItemGroup> indirect5 = groups.containsKey(INDIRECT) ? groups.get(INDIRECT) : new ArrayList<RiskRegisterItemGroup>();
-
-		List<RiskRegisterItemGroup> cia = groups.containsKey(OTHER) ? groups.get(OTHER) : new ArrayList<RiskRegisterItemGroup>();
-
-		// sort direct risk register items descending
-		sortByNetImportance(direct20);
-
-		// sort indirect risk register items descending
-		sortByNetImportance(indirect5);
-
-		sortByNetImportance(cia);
-
-		// identify 20 most important direct risks, start at index 1 and add all
-		// those where
-		// impact >= 5 and probability >= 6
-		indexRiskRegisterItem(direct20, 1, 20, acceptableImportace);
-
-		// identify 5 most important indirect risks, start at last index of the
-		// direct risks + 1 and
-		// add all those where impact >= 5 and probability >= 6
-		indexRiskRegisterItem(indirect5, direct20.size() + 1, 5, acceptableImportace);
-
-		direct20.addAll(indirect5);
-
-		indexRiskRegisterItem(cia, direct20.size() + 1, cia.size(), acceptableImportace);
-
-		direct20.addAll(cia);
-
-		List<RiskRegisterItem> registerItems = new ArrayList<>();
-
-		for (int i = 0; i < direct20.size(); i++) {
-			sortRiskRegisterItemGroupByNetImportance(direct20.get(i).getRegisters());
-			registerItems.addAll(direct20.get(i).getRegisters());
-		}
-
-		// concatenate all indirect items to the direct items list (direct start
-		// from index 1,
-		// indirect come after the last direct item)
-
-		// return the whole risk register
-		return registerItems;
-	}
-
+	
 	/**
 	 * selectedByProbabilityAndImpactAndIndexing: <br>
 	 * Indexing RiskRegisterItem and remove all item with (net impact <
@@ -235,43 +91,7 @@ public class CSSFSort {
 		}
 	}
 
-	/**
-	 * indexRiskRegisterItem: <br>
-	 * RiskRegisterItem Indexing, on item out of bounds "limit" check with
-	 * {@link #checkImpactAndProbability(RiskRegisterItem)} to have usable
-	 * Items. Unusable items will be removed.
-	 * 
-	 * @param registerItems
-	 *            The List of Risk Register Items to Index
-	 * @param startIndex
-	 *            The Index to start
-	 * @param limit
-	 *            the Limit of Items to add (default: 20 for direct; 5 for
-	 *            indirect)
-	 * @param parameters
-	 *
-	 */
-	@Deprecated
-	public static void indexRiskRegisterItem(List<RiskRegisterItemGroup> registerItems, int startIndex, int limit, double acceptableNetImportace) {
-
-		// parse all risk register items
-		for (int i = 0; i < registerItems.size();) {
-
-			// check if current index has reached the limit and if the impact
-			// and probability are
-			// acceptable
-			if (i < limit || registerItems.get(i).getNetImportance() >= acceptableNetImportace) {
-
-				// index this register item as next index
-				registerItems.get(i).setPosition(i++ + startIndex);
-			} else {
-
-				// remove this registeritem (wont be used)
-				registerItems.remove(i);
-			}
-		}
-	}
-
+	
 	/**
 	 * findGroup:<br>
 	 * Tries to identify the group name [direct, indirect, other]<br>
@@ -345,29 +165,6 @@ public class CSSFSort {
 	 */
 	public static boolean isIndirect(String name) {
 		return name == null ? false : name.matches(INDIRECT_REGEX);
-	}
-
-	public static void sortByNetImportance(List<RiskRegisterItemGroup> registerItems) {
-		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceRegisterGroupComparator()));
-	}
-
-	/**
-	 * sortByNetImportance: <br>
-	 * Sort a given Group of Risk Register Items by NET Importance. The
-	 * Algorithme to compare is located inside the
-	 * NetImportanceComparatorDescending class (it checks one item with another
-	 * on a criteria inside NetImportanceComparatorDescending to sort)
-	 * 
-	 * @param registerItems
-	 *            The List of Risk Register Items to sort
-	 * 
-	 * @see NetImportanceComparatorDescending
-	 */
-	public static void sortRiskRegisterItemGroupByNetImportance(List<RiskRegisterItem> registerItems) {
-		// Sort the given list of risk register items using the Collections java
-		// class and using the
-		// NetImportanceComparatorDescending check
-		Collections.sort(registerItems, Collections.reverseOrder(new NetImportanceComparator()));
 	}
 
 	public static List<RiskRegisterItem> sortAndConcatenate(ComputationHelper helper, CSSFFilter cssfFilter) {

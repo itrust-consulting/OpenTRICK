@@ -61,7 +61,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<spring:eval expression="T(lu.itrust.business.TS.model.cssf.helper.RiskRegisterMapper).Generate(riskregister,parameters)" var="mappingRegisterHelpers" />
+						<spring:eval expression="T(lu.itrust.business.TS.model.cssf.helper.RiskRegisterMapper).Generate(riskregister,valueFactory)" var="mappingRegisterHelpers" />
 						<c:forEach items="${riskregister}" var="item" varStatus="status">
 							<spring:eval expression="T(lu.itrust.business.TS.model.cssf.RiskProfile).key(item.asset,item.scenario)" var="strategyKey" />
 							<spring:eval expression="T(lu.itrust.business.TS.model.assessment.Assessment).key(item.asset,item.scenario)" var="ownerKey" />

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.model.parameter.Parameter;
  * @author eomar
  *
  */
+@Deprecated
 public class ParameterConvertor {
 
 	private List<ExtendedParameter> impactsParameters;

@@ -7,9 +7,9 @@ import java.util.Map;
 import javax.security.auth.Destroyable;
 
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.cssf.Impact;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 
 public class ComputationHelper implements Destroyable {
 
@@ -36,11 +36,10 @@ public class ComputationHelper implements Destroyable {
 	// initialise an empty map for delta ALEs
 	private Map<String, Double> deltaALEs = new HashMap<String, Double>();
 	
-	private ParameterConvertor parameterConvertor;
+	private ValueFactory factory;
 	
-
 	public ComputationHelper(List<ExtendedParameter> parameters) {
-		setParameterConvertor(new ParameterConvertor(parameters));
+		setFactory(new ValueFactory(parameters));
 	}
 
 	/**
@@ -156,24 +155,6 @@ public class ComputationHelper implements Destroyable {
 			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
 		this.deltaALEs = deltaALEs;
 	}
-	
-	/**
-	 * @return the parameterConvertor
-	 */
-	public ParameterConvertor getParameterConvertor() {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		return parameterConvertor;
-	}
-
-	/**
-	 * @param parameterConvertor the parameterConvertor to set
-	 */
-	public void setParameterConvertor(ParameterConvertor parameterConvertor) {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		this.parameterConvertor = parameterConvertor;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -205,6 +186,20 @@ public class ComputationHelper implements Destroyable {
 	@Override
 	public boolean isDestroyed() {
 		return destroyed;
+	}
+
+	/**
+	 * @return the factory
+	 */
+	public ValueFactory getFactory() {
+		return factory;
+	}
+
+	/**
+	 * @param factory the factory to set
+	 */
+	public void setFactory(ValueFactory factory) {
+		this.factory = factory;
 	}
 
 	

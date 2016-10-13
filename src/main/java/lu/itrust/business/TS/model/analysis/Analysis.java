@@ -2571,7 +2571,7 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getAsset().getId(), Function.identity()));
 	}
 
-	public List< ? extends Parameter> findParametersByType(String type) {
+	public List<? extends Parameter> findParametersByType(String type) {
 		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
 	}
 
@@ -2628,6 +2628,7 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * Get all Dynamic Parameter
+	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
 	 */
 	public List<DynamicParameter> getDynamicParameters() {
@@ -2654,4 +2655,22 @@ public class Analysis implements Cloneable {
 	public boolean isUserAuthorized(String username, AnalysisRight right) {
 		return userRights.stream().anyMatch(userRight -> userRight.getUser().getLogin().equals(username) && UserAnalysisRight.userIsAuthorized(userRight, right));
 	}
+
+	public AcronymParameter findParameterByTypeAndAcronym(String type, String acronym) {
+		return (AcronymParameter) parameters.stream()
+				.filter(parameter -> (parameter instanceof AcronymParameter) && parameter.isMatch(type) && ((AcronymParameter) parameter).getAcronym().equals(acronym)).findAny()
+				.orElse(null);
+	}
+	
+	public Double findParameterValueByTypeAndAcronym(String type, String acronym, Double defaultValue) {
+		AcronymParameter parameter = findParameterByTypeAndAcronym(type, acronym);
+		return parameter == null ? defaultValue : parameter.getValue();
+	}
+
+	public double findParameterValueByTypeAndAcronym(String type, String acronym) {
+		return findParameterValueByTypeAndAcronym(type, acronym, 0D);
+	}
+
+	
+
 }

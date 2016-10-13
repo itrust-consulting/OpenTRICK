@@ -1,10 +1,10 @@
 package lu.itrust.business.TS.component;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,7 +118,7 @@ public class DynamicRiskComputer {
 			List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability, final Map<Assessment, Set<String>> out_involvedVariables,
 			final Map<String, Double> out_expressionParameters) throws Exception {
 		// Find all measures
-		final List<Measure> measures = new ArrayList<>();
+		final List<Measure> measures = new LinkedList<>();
 		for (AnalysisStandard standard : standards)
 			measures.addAll(standard.getMeasures());
 
@@ -127,7 +127,7 @@ public class DynamicRiskComputer {
 		for (Parameter p : allParameters) {
 			if (p instanceof AcronymParameter && !(p instanceof DynamicParameter))
 				out_expressionParameters.put(((AcronymParameter) p).getAcronym(), p.getValue());
-			else if (p.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME) && p.getDescription().equals(Constant.PARAMETER_MAX_RRF))
+			else if (p.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
 				tuningParameter = p;
 		}
 

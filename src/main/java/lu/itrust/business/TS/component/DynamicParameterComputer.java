@@ -107,8 +107,8 @@ public class DynamicParameterComputer {
 				analysis.getIdentifier(), analysis.getVersion());
 
 		// Get parameters
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0"));
-
+		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME,"p0"));
+		
 		/**
 		 * The maximum timestamp for all notifications to consider. Points to
 		 * NOW.

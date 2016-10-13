@@ -329,7 +329,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
-		model.addAttribute("expressionParameters", serviceParameter.findAllDynamicByAnalysisId(idAnalysis));
+		model.addAttribute("valueFactory", new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis)));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
@@ -475,6 +475,8 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue());
 
 		model.addAttribute("soa", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
+		
+		model.addAttribute("valueFactory", new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis)));
 
 		return "analyses/single/components/soa";
 	}

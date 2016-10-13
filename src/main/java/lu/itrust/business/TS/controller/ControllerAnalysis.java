@@ -579,7 +579,6 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Edit/{analysisId}")
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Locale locale) throws Exception {
-
 		// retrieve analysis
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
@@ -773,7 +772,7 @@ public class ControllerAnalysis {
 			if (analysis == null)
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
-			String lastVersion = serviceAnalysis.getAllNotEmptyVersion(analysis.getIdentifier()).stream().sorted((v0, v1) -> {
+			String lastVersion = serviceAnalysis.getAllVersion(analysis.getIdentifier()).stream().sorted((v0, v1) -> {
 				return NaturalOrderComparator.compareTo(v1, v0);
 			}).findFirst().get();
 

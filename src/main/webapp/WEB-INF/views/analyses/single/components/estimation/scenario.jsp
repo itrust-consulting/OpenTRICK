@@ -97,6 +97,16 @@
 											<td data-trick-field="impactFin" title='<fmt:formatNumber value="${fct:round(impactFin.real,0)}" /> &euro;'><spring:message text="${impactFin.variable}" /></td>
 										</c:otherwise>
 									</c:choose>
+									<c:choose>
+										<c:when test="${empty likelihood}">
+											<spring:message text="${assessment.likelihood}" var="likelihood" />
+											<td data-trick-field="likelihood" title='${likelihood}'>${likelihood}</td>
+										</c:when>
+										<c:otherwise>
+											<td data-trick-field="likelihood" title='<fmt:formatNumber value="${fct:round(likelihood.real,2)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
+													text="${likelihood.variable}" /></td>
+										</c:otherwise>
+									</c:choose>
 								</c:when>
 								<c:otherwise>
 									<c:choose>
@@ -109,16 +119,15 @@
 													value="${fct:round(impactFin.real*0.001,0)}" /></td>
 										</c:otherwise>
 									</c:choose>
-								</c:otherwise>
-							</c:choose>
-							<c:choose>
-								<c:when test="${empty likelihood}">
-									<spring:message text="${assessment.likelihood}" var="likelihood" />
-									<td data-trick-field="likelihood" title='${likelihood}'>${likelihood}</td>
-								</c:when>
-								<c:otherwise>
-									<td data-trick-field="likelihood" title='<fmt:formatNumber value="${fct:round(likelihood.real,2)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
-											text="${likelihood.variable}" /></td>
+									<c:choose>
+										<c:when test="${empty likelihood}">
+											<spring:message text="${assessment.likelihood}" var="likelihood" />
+											<td data-trick-field="likelihood" title='${likelihood}'>${likelihood}</td>
+										</c:when>
+										<c:otherwise>
+											<td data-trick-field="likelihood" title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,2)}" /></td>
+										</c:otherwise>
+									</c:choose>
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${show_uncertainty}">

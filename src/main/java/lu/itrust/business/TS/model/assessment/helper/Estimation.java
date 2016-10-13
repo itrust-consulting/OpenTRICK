@@ -10,7 +10,7 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
-import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -43,10 +43,11 @@ public class Estimation {
 	 * @param netEvaluation
 	 * @param riskProfile
 	 */
-	public Estimation(Assessment assessment, RiskProfile riskProfile, ParameterConvertor convertor) {
+	public Estimation(Assessment assessment, RiskProfile riskProfile, ValueFactory convertor) {
 		this(assessment.getOwner(), assessment.getComment(), riskProfile,
-				new RiskProbaImpact(convertor.getProbability(assessment.getLikelihood()), convertor.getImpact(assessment.getImpactFin()),
-						convertor.getImpact(assessment.getImpactLeg()), convertor.getImpact(assessment.getImpactOp()), convertor.getImpact(assessment.getImpactRep())));
+				new RiskProbaImpact(convertor.findProbParameter(assessment.getLikelihood()), convertor.findImpactFinParameter(assessment.getImpactFin()),
+						convertor.findImpactLegParameter(assessment.getImpactLeg()), convertor.findImpactOpParameter(assessment.getImpactOp()),
+						convertor.findImpactRepParameter(assessment.getImpactRep())));
 	}
 
 	/**

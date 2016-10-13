@@ -45,9 +45,10 @@ import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
-import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -223,7 +224,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			MessageHandler messageHandler = computation.computeRiskRegister();
 			if (messageHandler != null)
 				throw messageHandler.getException();
-			ParameterConvertor convertor = computation.getConvertor();
+			ValueFactory factory = computation.getFactory();
 			Map<String, RiskProfile> riskProfilesMap = analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
 					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 			if (!oldRiskRegister.isEmpty()) {
@@ -269,23 +270,23 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				addString(riskProfile.getScenario().getName(), row, 3);
 				addString(riskProfile.getAsset().getName(), row, 4);
 				RiskProbaImpact netImpact = new RiskProbaImpact(), raw = riskProfile.getExpProbaImpact(), expected = riskProfile.getExpProbaImpact();
-				netImpact.setImpactFin(convertor.getImpact(assessment.getImpactFin()));
-				netImpact.setImpactLeg(convertor.getImpact(assessment.getImpactLeg()));
-				netImpact.setImpactOp(convertor.getImpact(assessment.getImpactOp()));
-				netImpact.setImpactRep(convertor.getImpact(assessment.getImpactRep()));
-				netImpact.setProbability(convertor.getProbability(assessment.getLikelihood()));
+				netImpact.setImpactFin(factory.findImpactFinParameter(assessment.getImpactFin()));
+				netImpact.setImpactLeg(factory.findImpactLegParameter(assessment.getImpactLeg()));
+				netImpact.setImpactOp(factory.findImpactOpParameter(assessment.getImpactOp()));
+				netImpact.setImpactRep(factory.findImpactRepParameter(assessment.getImpactRep()));
+				netImpact.setProbability(factory.findProbParameter(assessment.getLikelihood()));
 				if (raw == null) {
 					raw = new RiskProbaImpact();
-					raw.setImpactFin(convertor.getImpact(registerItem.getRawEvaluation().getImpact()));
-					raw.setProbability(convertor.getProbability(registerItem.getRawEvaluation().getProbability()));
+					raw.setImpactFin((ExtendedParameter) factory.findMaxImpactByLevel(registerItem.getRawEvaluation().getImpact()).getParameter());
+					raw.setProbability(factory.findProbParameter(registerItem.getRawEvaluation().getProbability()));
 				}
 
 				if (expected == null) {
 					expected = new RiskProbaImpact();
-					expected.setImpactFin(convertor.getImpact(registerItem.getExpectedEvaluation().getImpact()));
-					expected.setProbability(convertor.getProbability(registerItem.getExpectedEvaluation().getProbability()));
+					expected.setImpactFin((ExtendedParameter) factory.findMaxImpactByLevel(registerItem.getExpectedEvaluation().getImpact()).getParameter());
+					expected.setProbability(factory.findProbParameter(registerItem.getExpectedEvaluation().getProbability()));
 				}
-
+				
 				addField(raw, row, 5);
 				addField(netImpact, row, 8);
 				addField(expected, row, 11);

@@ -46,7 +46,6 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.EvaluationResult;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
-import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.AcronymParameter;
 import lu.itrust.business.TS.model.parameter.ExtendedParameter;
@@ -133,6 +132,7 @@ public class ControllerAssessment {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		Asset asset = analysis.findAsset(idAsset);
+		model.addAttribute("valueFactory", new ValueFactory(analysis.getParameters()));
 		if (idScenario < 1) {
 			ALE ale = new ALE(asset.getName(), 0);
 			ALE aleo = new ALE(asset.getName(), 0);
@@ -143,7 +143,7 @@ public class ControllerAssessment {
 			model.addAttribute("ale", ale);
 			model.addAttribute("aleo", aleo);
 			model.addAttribute("alep", alep);
-			model.addAttribute("parameters", analysis.mapAcronymToValue());
+			// model.addAttribute("parameters", analysis.mapAcronymToValue());
 			model.addAttribute("assessments", assessments);
 		} else {
 			Scenario scenario = analysis.findScenario(idScenario);
@@ -169,6 +169,7 @@ public class ControllerAssessment {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		Scenario scenario = analysis.findScenario(idScenario);
+		model.addAttribute("valueFactory", new ValueFactory(analysis.getParameters()));
 		if (idAsset < 1) {
 			ALE ale = new ALE(scenario.getName(), 0);
 			ALE aleo = new ALE(scenario.getName(), 0);
@@ -176,10 +177,7 @@ public class ControllerAssessment {
 			model.addAttribute("ale", ale);
 			model.addAttribute("aleo", aleo);
 			model.addAttribute("alep", alep);
-			model.addAttribute("scenario", scenario);
-			model.addAttribute("parameters", analysis.mapAcronymToValue());
-			model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
+			// model.addAttribute("parameters", analysis.mapAcronymToValue());
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
 			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 			assessments.sort(new AssessmentAssetComparator().reversed());
@@ -195,6 +193,7 @@ public class ControllerAssessment {
 			loadAssessmentFormData(idScenario, idAsset, model, analysis, assessment);
 
 		}
+
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("language", locale.getISO3Country());
@@ -212,17 +211,16 @@ public class ControllerAssessment {
 		if (analysis.getType() == AnalysisType.QUALITATIVE) {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
-			ParameterConvertor converter = new ParameterConvertor(impacts, probabilities);
+			ValueFactory factory = (ValueFactory) model.asMap().get("valueFactory");
 			RiskRegisterItem registerItem = analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario);
-			int netProba = converter.getProbabiltyLevel(assessment.getLikelihoodReal()), netImpact = converter.getImpactLevel(assessment.getImpactReal());
-			model.addAttribute("computeNextImportance", netProba * netImpact);
+			model.addAttribute("computeNextImportance", factory.findImportance(assessment));
 			if (registerItem != null) {
-				int rawImpact = converter.getImpactLevel(registerItem.getRawEvaluation().getImpact()),
-						rawProbability = converter.getProbabiltyLevel(registerItem.getRawEvaluation().getProbability()),
-						netProbability = converter.getProbabiltyLevel(registerItem.getNetEvaluation().getProbability()),
-						expImpact = converter.getImpactLevel(registerItem.getExpectedEvaluation().getImpact()),
-						expProbability = converter.getProbabiltyLevel(registerItem.getExpectedEvaluation().getProbability());
-				netImpact = converter.getImpactLevel(registerItem.getNetEvaluation().getImpact());
+				int rawImpact = factory.findImpactLevelByMaxLevel(registerItem.getRawEvaluation().getImpact()),
+						rawProbability = factory.findExpLevel(registerItem.getRawEvaluation().getProbability()),
+						netProbability = factory.findExpLevel(registerItem.getNetEvaluation().getProbability()),
+						expImpact = factory.findExpLevel(registerItem.getExpectedEvaluation().getImpact()),
+						expProbability = factory.findExpLevel(registerItem.getExpectedEvaluation().getProbability()),
+						netImpact = factory.findImpactLevelByMaxLevel(registerItem.getNetEvaluation().getImpact());
 				model.addAttribute("rawModelling", new EvaluationResult(rawProbability, rawImpact));
 				model.addAttribute("netModelling", new EvaluationResult(netProbability, netImpact));
 				model.addAttribute("expModelling", new EvaluationResult(expProbability, expImpact));
@@ -341,7 +339,7 @@ public class ControllerAssessment {
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			model.addAttribute("valueFactory", factory);
-			
+
 			// retrieve assessments of analysis
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
 			// parse assessments and initialise impact values to 0 if empty
@@ -424,7 +422,7 @@ public class ControllerAssessment {
 			// retrieve parameters which are considered in the expression
 			// evaluation
 			ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
-			
+
 			model.addAttribute("valueFactory", factory);
 
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
