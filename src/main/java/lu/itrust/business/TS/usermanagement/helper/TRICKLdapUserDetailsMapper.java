@@ -189,9 +189,9 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 			AddRole(essence, authority, userRoles, RoleType.ROLE_USER.name());
 		}
 
-		if (essence.getGrantedAuthorities().isEmpty() && (userRoles == null || userRoles.isEmpty()))
+		if (essence.getGrantedAuthorities().isEmpty() && !StringUtils.isEmpty(defaultRole))
 			essence.addAuthority(new SimpleGrantedAuthority(defaultRole));
-
+		
 		user.disable();
 
 		for (GrantedAuthority grantedAuthority : essence.getGrantedAuthorities()) {
@@ -436,5 +436,20 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 */
 	public void setAllowedAuthentication(boolean allowedAuthentication) {
 		this.allowedAuthentication = allowedAuthentication;
+	}
+
+	
+	/**
+	 * @return the defaultRole
+	 */
+	public String getDefaultRole() {
+		return defaultRole;
+	}
+
+	/**
+	 * @param defaultRole the defaultRole to set
+	 */
+	public void setDefaultRole(String defaultRole) {
+		this.defaultRole = defaultRole;
 	}
 }
