@@ -73,13 +73,13 @@ public class ValueFactory {
 			return null;
 		if (value instanceof Integer) {
 			int index = (int) value, last = dynamicParameters.size() - 1;
-			return new AcronymValue(dynamicParameters.get(index < 0 ? 0 : index > last ? last : index));
+			return new ParameterValue(null, dynamicParameters.get(index < 0 ? 0 : index > last ? last : index));
 		}
 
 		if (value instanceof String) {
 			DynamicParameter parameter = getDynamicMapper().get(value.toString());
 			if (parameter != null)
-				return new AcronymValue(parameter);
+				return new ParameterValue(null, parameter);
 		}
 		Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
 		if (doubleValue == null)
@@ -462,9 +462,9 @@ public class ValueFactory {
 		int mid = parameters.size() / 2;
 		AcronymParameter parameter = parameters.get(mid);
 		if (parameter.getLevel() == level)
-			return new AcronymValue(parameter);
+			return new ParameterValue(null, parameter);
 		else if (mid == 0)
-			return new DefaultLevelValue(level, parameter);
+			return new DefaultLevelValue(null, level, parameter);
 		else if (parameter.getLevel() > level)
 			return findByLevel(level, parameters.subList(0, mid));
 		else
@@ -475,9 +475,9 @@ public class ValueFactory {
 		int mid = parameters.size() / 2;
 		ExtendedParameter parameter = parameters.get(mid);
 		if (parameter.getBounds().isInRange(value))
-			return value == parameter.getValue() ? new AcronymValue(parameter) : new DefaultRealValue(value, parameter);
+			return value == parameter.getValue() ? new ParameterValue(null, parameter) : new DefaultRealValue(null, value, parameter);
 		else if (mid == 0)
-			return new DefaultRealValue(value, parameter);
+			return new DefaultRealValue(null, value, parameter);
 		else if (parameter.getBounds().getFrom() > value)
 			return findByValue(value, parameters.subList(0, mid));
 		else
@@ -488,15 +488,15 @@ public class ValueFactory {
 		DynamicParameter minParameter = dynamicParameters.get(0), midParameter = dynamicParameters.get(dynamicParameters.size() / 2),
 				maxParameter = dynamicParameters.get(dynamicParameters.size() - 1);
 		if (minParameter.getValue() == doubleValue)
-			return new AcronymValue(minParameter);
+			return new ParameterValue(null, minParameter);
 		else if (midParameter.getValue() == doubleValue)
-			return new AcronymValue(midParameter);
+			return new ParameterValue(null, midParameter);
 		else if (maxParameter.getValue() == doubleValue)
-			return new AcronymValue(maxParameter);
+			return new ParameterValue(null, maxParameter);
 		else if (doubleValue < minParameter.getValue())
-			return new DefaultRealValue(doubleValue, minParameter);
+			return new DefaultRealValue(null, doubleValue, minParameter);
 		else if (doubleValue > maxParameter.getValue() || dynamicParameters.size() < 2)
-			return new DefaultRealValue(doubleValue, maxParameter);
+			return new DefaultRealValue(null, doubleValue, maxParameter);
 		else if (doubleValue > midParameter.getValue())
 			return findDynamicByValue(doubleValue, dynamicParameters.subList(dynamicParameters.size() / 2, dynamicParameters.size()));
 		else
@@ -511,7 +511,7 @@ public class ValueFactory {
 		if (value instanceof String) {
 			ExtendedParameter parameter = (ExtendedParameter) getParameterMapper(type).get(value.toString());
 			if (parameter != null)
-				return new AcronymValue(parameter);
+				return new ParameterValue(null, parameter);
 		}
 		Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
 		if (doubleValue == null)

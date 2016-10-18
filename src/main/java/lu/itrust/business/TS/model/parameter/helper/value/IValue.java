@@ -10,6 +10,8 @@ import lu.itrust.business.TS.model.parameter.AcronymParameter;
  *
  */
 public interface IValue {
+	
+	String getName();
 
 	Integer getLevel();
 

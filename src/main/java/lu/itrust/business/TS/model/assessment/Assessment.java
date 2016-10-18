@@ -1,5 +1,8 @@
 package lu.itrust.business.TS.model.assessment;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -8,7 +11,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -16,8 +22,12 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import bsh.This;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.helper.value.ParameterValue;
+import lu.itrust.business.TS.model.parameter.helper.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -63,21 +73,12 @@ public class Assessment implements Cloneable {
 	@Column(name = "dtOwner")
 	private String owner = "";
 
-	/** The impactFin value of this assessment */
-	@Column(name = "dtImpactRep", nullable = false)
-	private String impactRep = "0";
-
-	/** The impactOp value of this assessment */
-	@Column(name = "dtImpactOp", nullable = false)
-	private String impactOp = "0";
-
-	/** The impactLeg value of this assessment */
-	@Column(name = "dtImpactLeg", nullable = false)
-	private String impactLeg = "0";
-
-	/** The impactFin value of this assessment */
-	@Column(name = "dtImpactFin", nullable = false)
-	private String impactFin = "0";
+	@OneToMany
+	@MapKey(name = "name")
+	@Cascade(CascadeType.ALL)
+	@JoinTable(name = "AssessmentImpacts", joinColumns = @JoinColumn(name = "fiAssessment"), inverseJoinColumns = @JoinColumn(name = "fiParameterValue"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"fiAssessment", "fiParameterValue" }))
+	private Map<String, ParameterValue> impacts = new LinkedHashMap<>();
 
 	/** The impactFin value of this assessment */
 	@Column(name = "dtImpactReal", nullable = false)
@@ -134,12 +135,6 @@ public class Assessment implements Cloneable {
 	}
 
 	public Assessment() {
-	}
-
-	public boolean isCSSF() {
-		return !((impactLeg == null || impactLeg.trim().equals("0") || impactLeg.trim().equals("0.0"))
-				&& (impactOp == null || impactOp.trim().equals("0") || impactOp.trim().equals("0.0"))
-				&& (impactRep == null || impactRep.trim().equals("0") || impactRep.trim().equals("0.0")));
 	}
 
 	/**
@@ -223,92 +218,55 @@ public class Assessment implements Cloneable {
 		this.owner = owner;
 	}
 
-	/**
-	 * getImpactRep: <br>
-	 * Returns the field "impactRep"
-	 * 
-	 * @return The impactRep value
-	 */
-	public String getImpactRep() {
-		return impactRep;
-	}
-
-	/**
-	 * setImpactRep: <br>
-	 * Sets the field "impactRep" with a value
-	 * 
-	 * @param impactRep
-	 *            The value to set "impactRep"
-	 */
-	public void setImpactRep(String impactRep) {
-		this.impactRep = checkImpact(impactRep);
-	}
-
-	/**
-	 * getImpactOp: <br>
-	 * Returns the field "impactOp"
-	 * 
-	 * @return The impactOp value
-	 */
-	public String getImpactOp() {
-		return impactOp;
-	}
-
-	/**
-	 * setImpactOp: <br>
-	 * Sets the field "ImpactOp" with a value
-	 * 
-	 * @param impactOp
-	 *            The value to set "impactOp"
-	 */
-	public void setImpactOp(String impactOp) {
-		this.impactOp = checkImpact(impactOp);
-	}
-
-	/**
-	 * getImpactLeg: <br>
-	 * Returns the field "impactLeg"
-	 * 
-	 * @return The impactLeg value
-	 */
-	public String getImpactLeg() {
-		return impactLeg;
-	}
-
-	/**
-	 * setImpactLeg: <br>
-	 * Sets the field "impactLeg" with a value
-	 * 
-	 * @param impactLeg
-	 *            The value to set "impactLeg"
-	 */
-	public void setImpactLeg(String impactLeg) {
-		this.impactLeg = checkImpact(impactLeg);
-	}
-
-	/**
-	 * getImpactFin: <br>
-	 * Returns the field "impactFin"
-	 * 
-	 * @return The Impact value
-	 */
-	public String getImpactFin() {
-		return impactFin;
-	}
-
 	protected String checkImpact(String impact) {
 		return impact == null ? "0" : impact.toLowerCase();
 	}
 
 	/**
-	 * setImpact: <br>
-	 * Sets the field "impactFin" with a value
-	 * 
-	 * @param impactFin
-	 *            The value to set "impactFin"
+	 * @return the impacts
 	 */
-	public void setImpactFin(String impact) {
-		this.impactFin = checkImpact(impact);
+	public Map<String, ParameterValue> getImpacts() {
+		return impacts;
+	}
+
+	/**
+	 * @param impacts
+	 *            the impacts to set
+	 */
+	public void setImpacts(Map<String, ParameterValue> impacts) {
+		this.impacts = impacts;
+	}
+
+	public IValue getImpact(String name) {
+		return impacts.get(name);
+	}
+
+	public String getImpactAcronym(String name) {
+		IValue value = getImpact(name);
+		return value == null ? null : value.getName();
+	}
+
+	public int getImpactLevel(String name) {
+		IValue value = getImpact(name);
+		return value == null ? 0 : value.getLevel();
+	}
+
+	public double getImpactValue(String name) {
+		IValue value = getImpact(name);
+		return value == null ? 0D : value.getReal();
+	}
+
+	public AcronymParameter getImpactParameter(String name) {
+		IValue value = getImpact(name);
+		return value == null ? null : value.getParameter();
+	}
+
+	public void setImpact(ParameterValue impact) {
+		impacts.put(impact.getName(), impact);
+	}
+
+	public void setImpact(IValue impact) {
+		setImpact((ParameterValue) impact);
 	}
 
 	public double getImpactReal() {
@@ -339,13 +297,6 @@ public class Assessment implements Cloneable {
 	 *            The value to set "likelihood"
 	 */
 	public void setLikelihood(String likelihood) {
-		/*
-		 * if ((likelihood == null) ||
-		 * (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) { throw new
-		 * IllegalArgumentException(
-		 * "Likelihood value is null or it does not meet the regular expression: "
-		 * + Constant.REGEXP_VALID_LIKELIHOOD); }
-		 */
 		this.likelihood = likelihood;
 	}
 
