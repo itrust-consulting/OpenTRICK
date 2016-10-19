@@ -615,12 +615,8 @@ public class ControllerEditField {
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 				ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
-				if (netImportance && type == AnalysisType.QUALITATIVE) {
-					int impactFin = factory.findImpactFinLevel(assessment.getImpactFin()), impactLeg = factory.findImpactLegLevel(assessment.getImpactLeg()),
-							impactOp = factory.findImpactOpeLevel(assessment.getImpactOp()), impactRep = factory.findImpactRepLevel(assessment.getImpactRep()),
-							proba = factory.findExpLevel(assessment.getLikelihood());
-					result.add(new FieldValue("computedNextImportance", Math.max(impactRep, Math.max(impactOp, Math.max(impactLeg, impactFin))) * proba));
-				}
+				if (netImportance && type == AnalysisType.QUALITATIVE)
+					result.add(new FieldValue("computedNextImportance", factory.findImportance(assessment)));
 				NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 				result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2), format(assessment.getALE(), numberFormat, 0) + " €"));
 				result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
