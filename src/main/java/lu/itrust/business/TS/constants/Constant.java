@@ -166,7 +166,7 @@ public class Constant {
 	/** Standard Caption regular Expression */
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
-	/** Regular expression for Parameter types */
+	/** Regular expression for SimpleParameter types */
 	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPACT_REP|IMPACT_OPE|IMPACT_LEG|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
 
 	/** Regular expression for asset types */
@@ -259,7 +259,7 @@ public class Constant {
 	public final static int PHASE_NOT_USABLE = 0;
 	public final static int PHASE_DEFAULT = 1;
 
-	/** Parameter Type Identifiers */
+	/** SimpleParameter Type Identifiers */
 	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML = 1;
 	public final static int PARAMETERTYPE_TYPE_PROPABILITY = 2;
 	public final static int PARAMETERTYPE_TYPE_IMPACT = 3;
@@ -274,7 +274,7 @@ public class Constant {
 	public final static Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_IMPACT, PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC, PARAMETERTYPE_TYPE_IMPACT_REP,
 			PARAMETERTYPE_TYPE_IMPACT_OPE, PARAMETERTYPE_TYPE_IMPACT_LEG };
 
-	/** Parameter Type Names */
+	/** SimpleParameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
 	public final static String PARAMETERTYPE_TYPE_IMPACT_NAME = "IMPACT";
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME = "IMPSCALE";
@@ -312,7 +312,7 @@ public class Constant {
 	public static final String RI_TYPE_RISK_TBS = "Risk_TBS";
 	public static final String RI_TYPE_RISK_TBA = "Risk_TBA";
 
-	/** Parameter Attributes */
+	/** SimpleParameter Attributes */
 	public final static String PARAMATTRIBUTE_NAME = "Name";
 	public final static String PARAMATTRIBUTE_VALUE = "Value";
 	public final static String PARAMATTRIBUTE_MAT_CATEGORY = "Category";
@@ -322,7 +322,7 @@ public class Constant {
 	public final static String PARAMATTRIBUTE_EXT_FROM = "From";
 	public final static String PARAMATTRIBUTE_EXT_TO = "To";
 
-	/** Parameter Attribute Value Types */
+	/** SimpleParameter Attribute Value Types */
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_STRING = "S";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_INTEGER = "I";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_DOUBLE = "D";

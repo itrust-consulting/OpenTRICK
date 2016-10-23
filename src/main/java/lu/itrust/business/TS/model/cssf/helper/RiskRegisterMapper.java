@@ -9,7 +9,7 @@ import java.util.Map;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 /**
  * @author eomar

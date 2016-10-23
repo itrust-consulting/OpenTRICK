@@ -53,10 +53,10 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -272,7 +272,7 @@ public class ExportAnalysisReport {
 	}
 
 	private void updateProperties() {
-		Optional<Parameter> maxImplParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findAny();
+		Optional<SimpleParameter> maxImplParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findAny();
 		if (maxImplParameter.isPresent()) {
 			CTProperty soaThresholdProperty = document.getProperties().getCustomProperties().getProperty(MAX_IMPL);
 			if (soaThresholdProperty == null)
@@ -1174,9 +1174,9 @@ public class ExportAnalysisReport {
 
 		paragraph = findTableAnchor("<" + parmetertype + ">");
 
-		List<ExtendedParameter> extendedParameters = (List<ExtendedParameter>) analysis.findParametersByType(type);
+		List<ImpactParameter> impactParameters = (List<ImpactParameter>) analysis.findParametersByType(type);
 
-		if (paragraph != null && extendedParameters.size() > 0) {
+		if (paragraph != null && impactParameters.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);
@@ -1217,29 +1217,29 @@ public class ExportAnalysisReport {
 
 			int countrow = 0;
 			// set data
-			for (ExtendedParameter extendedParameter : extendedParameters) {
+			for (ImpactParameter impactParameter : impactParameters) {
 				row = table.createRow();
 
 				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
-				row.getCell(0).setText("" + extendedParameter.getLevel());
-				row.getCell(1).setText(extendedParameter.getAcronym());
-				row.getCell(2).setText(extendedParameter.getDescription());
+				row.getCell(0).setText("" + impactParameter.getLevel());
+				row.getCell(1).setText(impactParameter.getAcronym());
+				row.getCell(2).setText(impactParameter.getDescription());
 				Double value = 0.;
-				value = extendedParameter.getValue();
+				value = impactParameter.getValue();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(3), kEuroFormat.format(value));
 				if (countrow % 2 != 0)
 					row.getCell(3).setColor(SUB_HEADER_COLOR);
-				value = extendedParameter.getBounds().getFrom();
+				value = impactParameter.getBounds().getFrom();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(4), kEuroFormat.format(value));
-				if (extendedParameter.getLevel() == 10)
+				if (impactParameter.getLevel() == 10)
 					addCellNumber(row.getCell(5), "+∞");
 				else {
-					value = extendedParameter.getBounds().getTo();
+					value = impactParameter.getBounds().getTo();
 					if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 						value *= 0.001;
 					addCellNumber(row.getCell(5), kEuroFormat.format(value));
@@ -1351,7 +1351,7 @@ public class ExportAnalysisReport {
 		// run = paragraph.getRuns().get(0);
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
 
 		if (paragraph != null && analysisStandards.size() > 0) {
 

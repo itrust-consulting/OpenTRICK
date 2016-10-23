@@ -1,20 +1,22 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.parameter.helper.value;
+package lu.itrust.business.TS.model.parameter.value.impl;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
 
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
 
 /**
  * @author eomar
  *
  */
 @Entity
+@PrimaryKeyJoinColumn(name="idDefaultLevelValue")
 public class DefaultLevelValue extends AbstractNumeric {
 
 	/**
@@ -23,7 +25,7 @@ public class DefaultLevelValue extends AbstractNumeric {
 	public DefaultLevelValue() {
 	}
 
-	public DefaultLevelValue(String name, Integer value, AcronymParameter parameter) {
+	public DefaultLevelValue(String name, Integer value, ILevelParameter parameter) {
 		super(name, value, parameter);
 	}
 
@@ -50,7 +52,7 @@ public class DefaultLevelValue extends AbstractNumeric {
 	 */
 	@Override
 	public Double getReal() {
-		return getParameter().getValue();
+		return getParameter().getValue().doubleValue();
 	}
 
 }

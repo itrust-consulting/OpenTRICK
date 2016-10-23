@@ -109,7 +109,11 @@ function findControllerBySection(section, subSection) {
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
 		"section_soa" : "/Analysis/Standard/SOA",
-		"section_ids" : "/Admin/IDS/Section"
+		"section_ids" : "/Admin/IDS/Section",
+		"section_kb_impact" : "/KnowledgeBase/Scale",
+		"section_kb_scale" : "/KnowledgeBase/Scale",
+		"section_kb_scale_type" : "/KnowledgeBase/Scale/Type"
+		
 	};
 
 	if (section.match("^section_standard_")) {

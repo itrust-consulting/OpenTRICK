@@ -40,8 +40,9 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
@@ -321,17 +322,17 @@ public class ControllerPatch {
 			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
 			ParameterType parameterType = serviceParameterType.get(Constant.PARAMETERTYPE_TYPE_CSSF);
 			if (parameterType == null)
-				serviceParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF, Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
+				serviceParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
 			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
 				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
 					if (!analysis.hasParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME)) {
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
+						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
 					}
-					Parameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD);
+					IParameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD);
 					if (parameter != null && analysis.getParameters().remove(parameter))
 						serviceParameter.delete(parameter);
 					serviceAnalysis.saveOrUpdate(analysis);

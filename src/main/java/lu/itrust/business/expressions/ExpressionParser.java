@@ -3,7 +3,7 @@ package lu.itrust.business.expressions;
 import java.util.Collection;
 import java.util.Map;
 
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 /**
  * Interface for a parser of basic arithmetical expressions containing

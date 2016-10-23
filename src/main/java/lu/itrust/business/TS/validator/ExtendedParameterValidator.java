@@ -3,8 +3,8 @@
  */
 package lu.itrust.business.TS.validator;
 
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 
 /**
  * @author eomar
@@ -78,7 +78,7 @@ public class ExtendedParameterValidator extends ParameterValidator {
 	 */
 	@Override
 	public Class<?> supported() {
-		return ExtendedParameter.class;
+		return ImpactParameter.class;
 	}
 
 }

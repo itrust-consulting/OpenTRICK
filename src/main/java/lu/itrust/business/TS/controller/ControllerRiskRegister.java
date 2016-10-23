@@ -43,8 +43,8 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.helper.ExportType;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -168,7 +168,7 @@ public class ControllerRiskRegister {
 	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request,
 			Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<Parameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
+		List<IParameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
 		serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).forEach(parameter -> {
 			if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 				impacts.add(parameter);
@@ -177,7 +177,7 @@ public class ControllerRiskRegister {
 		});
 
 		model.addAttribute("parameters", serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_CSSF).stream()
-				.collect(Collectors.toMap(Parameter::getDescription, Function.identity())));
+				.collect(Collectors.toMap(IParameter::getDescription, Function.identity())));
 
 		model.addAttribute("owners", serviceAssessment.getDistinctOwnerByIdAnalysis(analysisId));
 

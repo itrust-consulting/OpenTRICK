@@ -1,0 +1,49 @@
+package lu.itrust.business.TS.model.parameter.impl;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
+import lu.itrust.business.TS.constants.Constant;
+
+/**
+ * Represents a parameter whose value is assigned dynamically by external
+ * notifications.
+ * 
+ * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @since Jun 10, 2015
+ */
+@Entity
+@AttributeOverride(name="id", column=@Column(name="idDynamicParameter"))
+public class DynamicParameter extends AbstractProbability {
+
+	@Transient
+	private int level;
+
+	/**
+	 * 
+	 */
+	public DynamicParameter() {
+	}
+
+	public DynamicParameter(String acronym, String description) {
+		setAcronym(acronym);
+		setDescription(description);
+	}
+
+	@Override
+	public Integer getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	@Override
+	public String getTypeName() {
+		return Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME;
+	}
+
+}

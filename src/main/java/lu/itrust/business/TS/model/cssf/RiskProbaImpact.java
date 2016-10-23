@@ -12,8 +12,10 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 
 /**
  * @author eomar
@@ -24,23 +26,23 @@ public class RiskProbaImpact implements Cloneable {
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private ExtendedParameter probability;
+	private LikelihoodParameter probability;
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private ExtendedParameter impactRep;
+	private ImpactParameter impactRep;
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private ExtendedParameter impactOp;
+	private ImpactParameter impactOp;
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private ExtendedParameter impactLeg;
+	private ImpactParameter impactLeg;
 
 	@ManyToOne
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private ExtendedParameter impactFin;
+	private ImpactParameter impactFin;
 
 	/**
 	 * 
@@ -55,7 +57,7 @@ public class RiskProbaImpact implements Cloneable {
 	 * @param impactOp
 	 * @param impactRep
 	 */
-	public RiskProbaImpact(ExtendedParameter probability, ExtendedParameter impactFin, ExtendedParameter impactLeg, ExtendedParameter impactOp, ExtendedParameter impactRep) {
+	public RiskProbaImpact(LikelihoodParameter probability, ImpactParameter impactFin, ImpactParameter impactLeg, ImpactParameter impactOp, ImpactParameter impactRep) {
 		this.probability = probability;
 		this.impactFin = impactFin;
 		this.impactLeg = impactLeg;
@@ -66,7 +68,7 @@ public class RiskProbaImpact implements Cloneable {
 	/**
 	 * @return the probability
 	 */
-	public ExtendedParameter getProbability() {
+	public ILevelParameter getProbability() {
 		return probability;
 	}
 
@@ -74,14 +76,14 @@ public class RiskProbaImpact implements Cloneable {
 	 * @param probability
 	 *            the probability to set
 	 */
-	public void setProbability(ExtendedParameter probabitity) {
+	public void setProbability(LikelihoodParameter probabitity) {
 		this.probability = probabitity;
 	}
 
 	/**
 	 * @return the impactRep
 	 */
-	public ExtendedParameter getImpactRep() {
+	public ILevelParameter getImpactRep() {
 		return impactRep;
 	}
 
@@ -89,14 +91,14 @@ public class RiskProbaImpact implements Cloneable {
 	 * @param impactRep
 	 *            the impactRep to set
 	 */
-	public void setImpactRep(ExtendedParameter impactRep) {
+	public void setImpactRep(ImpactParameter impactRep) {
 		this.impactRep = impactRep;
 	}
 
 	/**
 	 * @return the impactOp
 	 */
-	public ExtendedParameter getImpactOp() {
+	public ILevelParameter getImpactOp() {
 		return impactOp;
 	}
 
@@ -104,14 +106,14 @@ public class RiskProbaImpact implements Cloneable {
 	 * @param impactOp
 	 *            the impactOp to set
 	 */
-	public void setImpactOp(ExtendedParameter impactOp) {
+	public void setImpactOp(ImpactParameter impactOp) {
 		this.impactOp = impactOp;
 	}
 
 	/**
 	 * @return the impactLeg
 	 */
-	public ExtendedParameter getImpactLeg() {
+	public ILevelParameter getImpactLeg() {
 		return impactLeg;
 	}
 
@@ -119,14 +121,14 @@ public class RiskProbaImpact implements Cloneable {
 	 * @param impactLeg
 	 *            the impactLeg to set
 	 */
-	public void setImpactLeg(ExtendedParameter impactLeg) {
+	public void setImpactLeg(ImpactParameter impactLeg) {
 		this.impactLeg = impactLeg;
 	}
 
 	/**
 	 * @return the impactFin
 	 */
-	public ExtendedParameter getImpactFin() {
+	public ILevelParameter getImpactFin() {
 		return impactFin;
 	}
 
@@ -134,7 +136,7 @@ public class RiskProbaImpact implements Cloneable {
 	 * @param impactFin
 	 *            the impactFin to set
 	 */
-	public void setImpactFin(ExtendedParameter impactFin) {
+	public void setImpactFin(ImpactParameter impactFin) {
 		this.impactFin = impactFin;
 	}
 
@@ -169,7 +171,7 @@ public class RiskProbaImpact implements Cloneable {
 	public RiskProbaImpact clone() throws CloneNotSupportedException {
 		RiskProbaImpact probaImpact = (RiskProbaImpact) super.clone();
 		if (probability != null)
-			probaImpact.probability = probability.clone();
+			probaImpact.probability = (LikelihoodParameter) probability.clone();
 		if (impactFin != null)
 			probaImpact.impactFin = impactFin.clone();
 		if (impactRep != null)
@@ -188,11 +190,11 @@ public class RiskProbaImpact implements Cloneable {
 
 	/**
 	 * @param parameters
-	 *            Map< Acronym, Parameter >
+	 *            Map< Acronym, SimpleParameter >
 	 * @return copy
 	 * @throws CloneNotSupportedException
 	 */
-	public RiskProbaImpact duplicate(Map<String, Parameter> parameters) throws CloneNotSupportedException {
+	public RiskProbaImpact duplicate(Map<String, IParameter> parameters) throws CloneNotSupportedException {
 		RiskProbaImpact probaImpact = (RiskProbaImpact) super.clone();
 		probaImpact.updateData(parameters);
 		return probaImpact;
@@ -202,42 +204,42 @@ public class RiskProbaImpact implements Cloneable {
 	 * Replace parameters
 	 * 
 	 * @param parameters
-	 *            Map< Acronym, Parameter >
+	 *            Map< Acronym, SimpleParameter >
 	 */
-	public void updateData(Map<String, Parameter> parameters) {
+	public void updateData(Map<String, IParameter> parameters) {
 		if (probability != null)
-			probability = (ExtendedParameter) parameters.get(probability.getKey());
+			probability = (LikelihoodParameter) parameters.get(probability.getKey());
 		if (impactFin != null)
-			impactFin = (ExtendedParameter) parameters.get(impactFin.getKey());
+			impactFin = (ImpactParameter) parameters.get(impactFin.getKey());
 		if (impactRep != null)
-			impactRep = (ExtendedParameter) parameters.get(ExtendedParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_REP_NAME, impactRep.getAcronym()));
+			impactRep = (ImpactParameter) parameters.get(ImpactParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_REP_NAME, impactRep.getAcronym()));
 		if (impactOp != null)
-			impactOp = (ExtendedParameter) parameters.get(ExtendedParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, impactOp.getAcronym()));
+			impactOp = (ImpactParameter) parameters.get(ImpactParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, impactOp.getAcronym()));
 		if (impactLeg != null)
-			impactLeg = (ExtendedParameter) parameters.get(ExtendedParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_LEG_NAME, impactLeg.getAcronym()));
+			impactLeg = (ImpactParameter) parameters.get(ImpactParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_LEG_NAME, impactLeg.getAcronym()));
 	}
 
-	protected ExtendedParameter getValueOrDefault(ExtendedParameter value, ExtendedParameter defaultValue) {
+	protected ILevelParameter getValueOrDefault(ILevelParameter value, ILevelParameter defaultValue) {
 		return value == null ? defaultValue : value;
 	}
 
-	public ExtendedParameter getImpactFin(ExtendedParameter defaultImpact) {
+	public ILevelParameter getImpactFin(ILevelParameter defaultImpact) {
 		return getValueOrDefault(impactFin, defaultImpact);
 	}
 
-	public ExtendedParameter getImpactOp(ExtendedParameter defaultImpact) {
+	public ILevelParameter getImpactOp(ILevelParameter defaultImpact) {
 		return getValueOrDefault(impactOp, defaultImpact);
 	}
 
-	public ExtendedParameter getImpactLeg(ExtendedParameter defaultImpact) {
+	public ILevelParameter getImpactLeg(ILevelParameter defaultImpact) {
 		return getValueOrDefault(impactLeg, defaultImpact);
 	}
 
-	public ExtendedParameter getImpactRep(ExtendedParameter defaultImpact) {
+	public ILevelParameter getImpactRep(ILevelParameter defaultImpact) {
 		return getValueOrDefault(impactRep, defaultImpact);
 	}
 
-	public ExtendedParameter getProbability(ExtendedParameter defaultValue) {
+	public ILevelParameter getProbability(ILevelParameter defaultValue) {
 		return getValueOrDefault(probability, defaultValue);
 	}
 

@@ -8,8 +8,8 @@ import javax.security.auth.Destroyable;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 public class ComputationHelper implements Destroyable {
 
@@ -38,7 +38,7 @@ public class ComputationHelper implements Destroyable {
 	
 	private ValueFactory factory;
 	
-	public ComputationHelper(List<ExtendedParameter> parameters) {
+	public ComputationHelper(List<ILevelParameter> parameters) {
 		setFactory(new ValueFactory(parameters));
 	}
 

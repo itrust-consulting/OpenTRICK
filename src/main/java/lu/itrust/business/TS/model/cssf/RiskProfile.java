@@ -24,7 +24,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -298,18 +298,18 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
-	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
+	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> simpleParameters) throws CloneNotSupportedException {
 		RiskProfile riskProfile = (RiskProfile) super.clone();
-		riskProfile.updateData(assets, scenarios, parameters);
+		riskProfile.updateData(assets, scenarios, simpleParameters);
 		riskProfile.id = 0;
 		return riskProfile;
 	}
 
-	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
+	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> simpleParameters) throws CloneNotSupportedException {
 		if (rawProbaImpact != null)
-			rawProbaImpact = rawProbaImpact.duplicate(parameters);
+			rawProbaImpact = rawProbaImpact.duplicate(simpleParameters);
 		if (expProbaImpact != null)
-			expProbaImpact = expProbaImpact.duplicate(parameters);
+			expProbaImpact = expProbaImpact.duplicate(simpleParameters);
 		this.asset = assets.get(this.asset.getId());
 		this.scenario = scenarios.get(scenario.getId());
 	}

@@ -38,9 +38,10 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.MaturityParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -120,7 +121,7 @@ public class Duplicator {
 
 		Map<Integer, Asset> assets = new LinkedHashMap<Integer, Asset>(analysis.getAssets().size());
 
-		Map<String, Parameter> parameters = new LinkedHashMap<>(analysis.getParameters().size());
+		Map<String, IParameter> parameters = new LinkedHashMap<>(analysis.getParameters().size());
 
 		double bound = ((double) (maxProgress - minProgress)) / 100.0;
 
@@ -152,8 +153,8 @@ public class Duplicator {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", (int) (minProgress + bound * 12)));
 
-			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
-			for (Parameter parameter : analysis.getParameters()) {
+			copy.setParameters(new ArrayList<IParameter>(analysis.getParameters().size()));
+			for (IParameter simpleParameter : analysis.getParameters()) {
 				// Do not copy dynamic parameters as they might contain
 				// sensitive data.
 				// Note that they might still be referenced in an expression
@@ -162,8 +163,8 @@ public class Duplicator {
 				// evaluator will
 				// assume a default value of 0 for all non-existent dynamic
 				// parameters.
-				if (!(parameter instanceof DynamicParameter)) {
-					Parameter parameter2 = parameter.duplicate();
+				if (!(simpleParameter instanceof DynamicParameter)) {
+					IParameter parameter2 = simpleParameter.duplicate();
 					parameters.put(parameter2.getKey(), parameter2);
 					copy.getParameters().add(parameter2);
 				}
@@ -260,7 +261,7 @@ public class Duplicator {
 	 * @return
 	 * @throws Exception
 	 */
-	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, Map<Integer, Asset> assets,
+	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, IParameter> parameters, Map<Integer, Asset> assets,
 			boolean anonymize) throws Exception {
 
 		if (!analysisStandard.getStandard().isAnalysisOnly()) {
@@ -340,7 +341,7 @@ public class Duplicator {
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<Integer, Asset> assets, Map<String, Parameter> parameters, boolean anonymize)
+	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<Integer, Asset> assets, Map<String, IParameter> parameters, boolean anonymize)
 			throws CloneNotSupportedException, TrickException {
 		Measure copy = measure.duplicate(standard, phase);
 
@@ -361,17 +362,17 @@ public class Duplicator {
 
 		if (copy instanceof MaturityMeasure) {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
-			Parameter parameter = parameters.get(anonymize ? Parameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, Constant.IS_NOT_ACHIEVED)
+			IParameter parameter = parameters.get(anonymize ? SimpleParameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, Constant.IS_NOT_ACHIEVED)
 					: ((MaturityMeasure) measure).getImplementationRate().getKey());
 			if (parameter == null) {
-				for (Parameter param : parameters.values()) {
-					if (param instanceof MaturityParameter && param.getValue() == 0) {
+				for (IParameter param : parameters.values()) {
+					if (param instanceof MaturityParameter && param.getValue().doubleValue() == 0) {
 						parameter = param;
 						break;
 					}
 				}
 			}
-			
+
 			matmeasure.setImplementationRate(parameter);
 			if (anonymize) {
 				matmeasure.setReachedLevel(1);
@@ -436,7 +437,7 @@ public class Duplicator {
 
 		try {
 
-			Map<String, Parameter> parameters = new LinkedHashMap<>();
+			Map<String, IParameter> parameters = new LinkedHashMap<>();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Copy analysis base information", 2));
 
@@ -507,9 +508,9 @@ public class Duplicator {
 
 			// parameters
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
-			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
-			for (Parameter parameter : analysis.getParameters()) {
-				Parameter parameter2 = parameter.duplicate();
+			copy.setParameters(new ArrayList<IParameter>(analysis.getParameters().size()));
+			for (IParameter parameter : analysis.getParameters()) {
+				IParameter parameter2 = parameter.duplicate();
 				parameters.put(parameter2.getKey(), parameter2);
 				copy.getParameters().add(parameter2);
 			}

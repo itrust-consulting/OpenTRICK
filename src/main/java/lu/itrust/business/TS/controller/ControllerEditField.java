@@ -62,12 +62,14 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.MaturityParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
@@ -242,8 +244,8 @@ public class ControllerEditField {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Parameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/SimpleParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String parameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
 
@@ -251,18 +253,18 @@ public class ControllerEditField {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get parameter object
-			Parameter parameter = serviceParameter.getFromAnalysisById(id, elementID);
+			SimpleParameter simpleParameter = serviceParameter.getFromAnalysisById(id, elementID);
 			// validate parameter
-			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
+			ValidatorField validator = serviceDataValidation.findByClass(simpleParameter.getClass());
 			if (validator == null)
 				serviceDataValidation.register(new ParameterValidator());
 			// retireve value
 			Object value = FieldValue(fieldEditor);
 			// validate value
-			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
+			String error = serviceDataValidation.validate(simpleParameter, fieldEditor.getFieldName(), value);
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
-			switch (parameter.getType().getLabel()) {
+			switch (simpleParameter.getType().getName()) {
 			case Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME:
 			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME:
 			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME:
@@ -271,10 +273,10 @@ public class ControllerEditField {
 							String.format("Invalid input: value (%f) should be between 0 and 100", value), locale));
 				break;
 			case Constant.PARAMETERTYPE_TYPE_SINGLE_NAME:
-				if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
+				if (simpleParameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
 					if (((double) value) <= 0)
 						return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0", locale));
-				} else if (parameter.getDescription().equals(Constant.PARAMETER_MAX_RRF) || parameter.getDescription().equals(Constant.SOA_THRESHOLD)) {
+				} else if (simpleParameter.getDescription().equals(Constant.PARAMETER_MAX_RRF) || simpleParameter.getDescription().equals(Constant.SOA_THRESHOLD)) {
 					if (((double) value) < 0 || ((double) value) > 100)
 						return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound", new Object[] { value },
 								String.format("Invalid input: value (%f) should be between 0 and 100", value), locale));
@@ -282,13 +284,13 @@ public class ControllerEditField {
 				break;
 			}
 			// create field
-			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
+			Field field = simpleParameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 			// set field data
-			if (SetFieldData(field, parameter, fieldEditor)) {
+			if (SetFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
-				serviceParameter.saveOrUpdate(parameter);
+				serviceParameter.saveOrUpdate(simpleParameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "SimpleParameter was successfully updated", locale));
 			} else
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -312,8 +314,8 @@ public class ControllerEditField {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/ExtendedParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/ImpactParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
@@ -321,7 +323,7 @@ public class ControllerEditField {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve parameter
-			ExtendedParameter parameter = (ExtendedParameter) serviceParameter.getFromAnalysisById(id, elementID);
+			ImpactParameter parameter = (ImpactParameter) serviceParameter.getFromAnalysisById(id, elementID);
 
 			String acronym = parameter.getAcronym();
 			// set validator and validate parameter
@@ -340,7 +342,7 @@ public class ControllerEditField {
 
 			// set field
 			Field field = null;
-			for (Class<?> clazz = parameter.getClass(); Parameter.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass()) {
+			for (Class<?> clazz = parameter.getClass(); SimpleParameter.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass()) {
 				try {
 					field = clazz.getDeclaredField(fieldEditor.getFieldName());
 					break;
@@ -352,7 +354,7 @@ public class ControllerEditField {
 
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
-				if ("value".equals(fieldEditor.getFieldName()) && Constant.PARAMETERTYPE_TYPE_IMPACT_NAME.equalsIgnoreCase(parameter.getType().getLabel()))
+				if ("value".equals(fieldEditor.getFieldName()) && Constant.PARAMETERTYPE_TYPE_IMPACT_NAME.equalsIgnoreCase(parameter.getType().getName()))
 					parameter.setValue(parameter.getValue() * 1000);
 
 				if (field.getName().equals("acronym")) {
@@ -368,10 +370,10 @@ public class ControllerEditField {
 				serviceParameter.saveOrUpdate(parameter);
 
 				// Update bounds for IMPACT and PROBABILITY
-				if (parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
-						|| parameter.getType().getLabel().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
+				if (parameter.getType().getName().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
+						|| parameter.getType().getName().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
 					// retrieve parameters
-					List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysisAndType(id, parameter.getType());
+					List<ImpactParameter> parameters = serviceParameter.getAllExtendedFromAnalysisAndType(id, parameter.getType());
 
 					// update impact value
 					ParameterManager.ComputeImpactValue(parameters);
@@ -381,7 +383,7 @@ public class ControllerEditField {
 				}
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.extendedParameter.update", null, "Parameter was successfully update", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.extendedParameter.update", null, "SimpleParameter was successfully update", locale));
 			} else
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -397,7 +399,7 @@ public class ControllerEditField {
 	}
 
 	@RequestMapping(value = "/MaturityParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String maturityparameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
 
@@ -426,7 +428,7 @@ public class ControllerEditField {
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "SimpleParameter was successfully updated", locale));
 			} else
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -529,8 +531,8 @@ public class ControllerEditField {
 					probaImpact = new RiskProbaImpact();
 				Field child = FindField(RiskProbaImpact.class, fields[2]);
 				Integer idParameter = (Integer) FieldValue(fieldEditor);
-				Parameter parameter = serviceParameter.getFromAnalysisById(idAnalysis, idParameter);
-				if (SetFieldValue(probaImpact, child, parameter) && SetFieldValue(riskProfile, field, probaImpact))
+				SimpleParameter simpleParameter = serviceParameter.getFromAnalysisById(idAnalysis, idParameter);
+				if (SetFieldValue(probaImpact, child, simpleParameter) && SetFieldValue(riskProfile, field, probaImpact))
 					result.add(new FieldValue(fields[1].startsWith("raw") ? "rawComputedImportance" : "expComputedImportance", probaImpact.getImportance()));
 				else
 					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -576,8 +578,8 @@ public class ControllerEditField {
 			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName())) {
 				String name = fieldEditor.getFieldName().replaceAll("impact|Fin", "").toUpperCase();
 				List<String> impacts = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME + (name.isEmpty() ? "" : "_") + name).stream()
-						.filter(parameter -> parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-						.map(parameter -> ((AcronymParameter) parameter).getAcronym()).collect(Collectors.toList());
+						.filter(parameter -> parameter.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+						.map(parameter -> ((IAcronymParameter) parameter).getAcronym()).collect(Collectors.toList());
 				if (!impacts.contains(fieldEditor.getValue())) {
 					try {
 						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
@@ -591,7 +593,7 @@ public class ControllerEditField {
 					chooses = impacts.toArray();
 				computeAle = true;
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
-				chooses = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis).stream().map(AcronymParameter::getAcronym).toArray();
+				chooses = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis).stream().map(AbstractProbability::getAcronym).toArray();
 				if (fieldEditor.getValue().equals("NA"))
 					fieldEditor.setValue("0");
 				computeAle = true;
@@ -1032,7 +1034,7 @@ public class ControllerEditField {
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 
 				// retrieve parameters
-				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				List<SimpleParameter> simpleParameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 
 				// retrieve single parameters
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -1041,7 +1043,7 @@ public class ControllerEditField {
 				double value = Double.parseDouble(fieldEditor.getValue().toString());
 
 				// parse parameters
-				for (Parameter parameter : parameters) {
+				for (IParameter parameter : simpleParameters) {
 
 					// find the parameter
 					if (Math.abs(parameter.getValue() - value) < 1e-5) {

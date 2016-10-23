@@ -33,13 +33,13 @@ public class ScaleEntry {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name="dtLavel")
+	@Column(name = "dtLavel")
 	private int level;
 
-	@Column(name="dtAcronym")
+	@Column(name = "dtAcronym")
 	private String acronym;
 
-	@Column(name="dtValue")
+	@Column(name = "dtValue")
 	private double value;
 
 	@Embedded
@@ -56,6 +56,25 @@ public class ScaleEntry {
 	 * 
 	 */
 	public ScaleEntry() {
+	}
+
+	/**
+	 * @param level
+	 * @param acronym
+	 */
+	public ScaleEntry(int level, String acronym) {
+		this.level = level;
+		this.acronym = acronym;
+	}
+
+	/**
+	 * @param level
+	 * @param acronym
+	 * @param value
+	 */
+	public ScaleEntry(int level, String acronym, double value) {
+		this(level, acronym);
+		this.value = value;
 	}
 
 	/**
@@ -147,4 +166,13 @@ public class ScaleEntry {
 	public void setQualifications(Map<String, String> qualifications) {
 		this.qualifications = qualifications;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ScaleEntry [id=" + id + ", level=" + level + ", acronym=" + acronym + ", value=" + value + ", bounds=" + bounds + ", qualifications=" + qualifications + "]";
+	}
+	
 }

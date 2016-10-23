@@ -102,7 +102,7 @@ public class ServiceScaleEntryImpl implements ServiceScaleEntry {
 	 */
 	@Transactional
 	@Override
-	public void delete(List<ScaleEntry> scaleEntries) {
+	public void delete(List<Integer> scaleEntries) {
 		daoScaleEntry.delete(scaleEntries);
 	}
 

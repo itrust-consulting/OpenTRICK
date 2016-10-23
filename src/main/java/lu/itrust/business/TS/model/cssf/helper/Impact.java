@@ -1,8 +1,8 @@
 package lu.itrust.business.TS.model.cssf.helper;
 
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.parameter.helper.value.IValue;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 
 /**
  * 
@@ -248,7 +248,7 @@ public class Impact {
 	 * @param financial
 	 */
 	public void setFinancial(String financial) {
-		// check if parameter is a valid acronym -> TRUE: take Parameter; FALSE:
+		// check if parameter is a valid acronym -> TRUE: take SimpleParameter; FALSE:
 		// try to convert to
 		// Real Value
 		this.financial = factory.findImpactFin(financial);

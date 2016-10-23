@@ -25,9 +25,9 @@ import org.hibernate.annotations.CascadeType;
 import bsh.This;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ParameterValue;
-import lu.itrust.business.TS.model.parameter.helper.value.IValue;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.ParameterValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -225,7 +225,7 @@ public class Assessment implements Cloneable {
 	/**
 	 * @return the impacts
 	 */
-	public Map<String, ParameterValue> getImpacts() {
+	public Map<String, ? extends IValue> getImpacts() {
 		return impacts;
 	}
 
@@ -256,7 +256,7 @@ public class Assessment implements Cloneable {
 		return value == null ? 0D : value.getReal();
 	}
 
-	public AcronymParameter getImpactParameter(String name) {
+	public IAcronymParameter getImpactParameter(String name) {
 		IValue value = getImpact(name);
 		return value == null ? null : value.getParameter();
 	}

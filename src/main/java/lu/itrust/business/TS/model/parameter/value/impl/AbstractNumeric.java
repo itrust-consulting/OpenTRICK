@@ -1,12 +1,12 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.parameter.helper.value;
+package lu.itrust.business.TS.model.parameter.value.impl;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
 
 /**
  * @author eomar
@@ -28,7 +28,7 @@ public abstract class AbstractNumeric extends ParameterValue {
 	 * @param value
 	 * @param parameter
 	 */
-	public AbstractNumeric(String name, Number value, AcronymParameter parameter) {
+	public AbstractNumeric(String name, Number value, ILevelParameter parameter) {
 		super(name, parameter);
 		this.number = value;
 	}

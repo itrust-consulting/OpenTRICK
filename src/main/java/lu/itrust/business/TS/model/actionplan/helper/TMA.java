@@ -5,8 +5,8 @@ import java.util.List;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 
@@ -111,7 +111,7 @@ public class TMA {
 	 * ALE * RRF * (1 - ImpRate / 1 - RRF * ImpRate)
 	 * @throws TrickException 
 	 */
-	public void calculateDeltaALE(List<AcronymParameter> expressionParameters) throws TrickException {
+	public void calculateDeltaALE(List<AbstractProbability> expressionParameters) throws TrickException {
 		if(Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
 		if(Double.isNaN(ALE))
@@ -150,7 +150,7 @@ public class TMA {
 	 * Calculates the delta ALE for 27002 measures using the formula <br>
 	 * ALE * RRF * ImpRate * ((maxEffnextSML - maxEffcurrentSML) / 1 - RRF * ImpRate)
 	 */
-	public void calculateDeltaALEMaturity(List<AcronymParameter> expressionParameters) {
+	public void calculateDeltaALEMaturity(List<AbstractProbability> expressionParameters) {
 		double implementationRate = measure.getImplementationRateValue(expressionParameters) / 100.0;
 		this.deltaALEMat =
 			this.ALE * RRF * implementationRate

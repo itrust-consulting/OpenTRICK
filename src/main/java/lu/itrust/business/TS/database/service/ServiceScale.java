@@ -14,18 +14,10 @@ import lu.itrust.business.TS.model.scale.Scale;
 public interface ServiceScale {
 	
 	Scale findOne(int id);
-
-	Scale findByName(String name);
-
-	Scale findByAcronym(String acronym);
-
+	
 	List<Scale> findAll();
 
 	boolean exists(int id);
-
-	boolean hasName(String name);
-
-	boolean hasAcronym(String acronym);
 
 	int save(Scale scale);
 
@@ -33,7 +25,7 @@ public interface ServiceScale {
 
 	void delete(Scale scale);
 
-	void delete(List<Scale> scales);
+	void delete(List<Integer> scales);
 
 	void deleteAll();
 }

@@ -33,8 +33,8 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.expressions.StringExpressionParser;
 
@@ -171,34 +171,34 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void UpdateAcronym(int idAnalysis, AcronymParameter acronymParameter, String acronym) {
+	public void UpdateAcronym(int idAnalysis, AbstractProbability abstractProbability, String acronym) {
 		// retrieve assessments by acronym and analysis
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
 		// parse assessments and update impact value to parameter acronym
 		for (Assessment assessment : assessments) {
-			switch (acronymParameter.getType().getId()) {
+			switch (abstractProbability.getType().getId()) {
 			case PARAMETERTYPE_TYPE_IMPACT:
 				if (acronym.equals(assessment.getImpactFin()))
-					assessment.setImpactFin(acronymParameter.getAcronym());
+					assessment.setImpactFin(abstractProbability.getAcronym());
 				break;
 			case PARAMETERTYPE_TYPE_IMPACT_LEG:
 				if (acronym.equals(assessment.getImpactLeg()))
-					assessment.setImpactLeg(acronymParameter.getAcronym());
+					assessment.setImpactLeg(abstractProbability.getAcronym());
 				break;
 			case PARAMETERTYPE_TYPE_IMPACT_OPE:
 				if (acronym.equals(assessment.getImpactOp()))
-					assessment.setImpactOp(acronymParameter.getAcronym());
+					assessment.setImpactOp(abstractProbability.getAcronym());
 				break;
 			case PARAMETERTYPE_TYPE_IMPACT_REP:
 				if (acronym.equals(assessment.getImpactRep()))
-					assessment.setImpactRep(acronymParameter.getAcronym());
+					assessment.setImpactRep(abstractProbability.getAcronym());
 				break;
 			case PARAMETERTYPE_TYPE_PROPABILITY:
 			case PARAMETERTYPE_TYPE_DYNAMIC:
 				if (acronym.equals(assessment.getLikelihood()))
-					assessment.setLikelihood(acronymParameter.getAcronym());
+					assessment.setLikelihood(abstractProbability.getAcronym());
 				else if (!StringUtils.isEmpty(assessment.getLikelihood()))
-					assessment.setLikelihood(assessment.getLikelihood().replace(acronym, acronymParameter.getAcronym()));
+					assessment.setLikelihood(assessment.getLikelihood().replace(acronym, abstractProbability.getAcronym()));
 				break;
 			}
 			// update assessment
@@ -446,7 +446,7 @@ public class AssessmentAndRiskProfileManager {
 		return assessment;
 	}
 
-	public static void ComputeAlE(List<Assessment> assessments, List<AcronymParameter> parameters, AnalysisType type) {
+	public static void ComputeAlE(List<Assessment> assessments, List<AbstractProbability> parameters, AnalysisType type) {
 		ValueFactory factory = new ValueFactory(parameters);
 		assessments.forEach(assessment -> ComputeAlE(assessment, factory, type));
 	}

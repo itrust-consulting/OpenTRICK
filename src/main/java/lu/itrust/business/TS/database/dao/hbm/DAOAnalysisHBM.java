@@ -19,7 +19,7 @@ import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
@@ -307,9 +307,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 *      java.lang.String)
 	 */
 	@Override
-	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) {
+	public IParameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.description = :parameter";
-		return (Parameter) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("parameter", Parameter).uniqueResult();
+		return (IParameter) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("parameter", Parameter).uniqueResult();
 	}
 
 	/**

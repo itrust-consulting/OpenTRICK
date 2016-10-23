@@ -29,10 +29,10 @@ import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.MaturityParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
@@ -249,7 +249,7 @@ public class ExportAnalysis {
 		// * Export the Risk Register Item by Item
 		// ****************************************************************
 
-		ExtendedParameter defaultImpact = analysis.findExtendedByTypeAndLevel(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, 0),
+		ImpactParameter defaultImpact = analysis.findExtendedByTypeAndLevel(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, 0),
 				defaultProbability = analysis.findExtendedByTypeAndLevel(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME, 0);
 
 		// parse all Risk Register Entries
@@ -272,7 +272,7 @@ public class ExportAnalysis {
 		}
 	}
 
-	private void addRiskProfile(List<Object> params, ExtendedParameter defaultImpact, ExtendedParameter defaultProbability, RiskProfile riskProfile) {
+	private void addRiskProfile(List<Object> params, ImpactParameter defaultImpact, ImpactParameter defaultProbability, RiskProfile riskProfile) {
 		RiskStrategy riskStrategy;
 		params.add(riskProfile.getScenario().getId());
 		params.add(riskProfile.getAsset().getId());
@@ -821,7 +821,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
 		String query = "";
-		Parameter parameter = null;
+		IParameter parameter = null;
 
 		// ****************************************************************
 		// * parse parameters and export simple parameters
@@ -835,14 +835,14 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// check if max efficiency -> YES
-			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getName().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)) {
 
 				// ****************************************************************
 				// * export parameter
 				// ****************************************************************
 
 				// store parameter
-				parameter = (Parameter) this.analysis.getAParameter(index);
+				parameter = (IParameter) this.analysis.getAParameter(index);
 
 				// build query
 				query = DatabaseHandler.generateInsertQuery("maturity_max_eff", 2);
@@ -861,14 +861,14 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// check if implementation rate -> YES
-			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
 
 				// ****************************************************************
 				// * export parameter
 				// ****************************************************************
 
 				// store parameter
-				parameter = (Parameter) this.analysis.getAParameter(index);
+				parameter = (IParameter) this.analysis.getAParameter(index);
 
 				// build query
 				query = DatabaseHandler.generateInsertQuery("maturity_IS", 2);
@@ -911,10 +911,10 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// check if single parameter -> YES
-			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getName().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) {
 
 				// store parameter in object
-				parameter = (Parameter) this.analysis.getAParameter(index);
+				parameter = (IParameter) this.analysis.getAParameter(index);
 
 				// ****************************************************************
 				// * export parameter
@@ -945,10 +945,10 @@ public class ExportAnalysis {
 	private void exportExtendedParameters() throws Exception {
 		// Export all extended parameters of type IMPACT, PROBABILITY and
 		// SEVERITY
-		for (Parameter parameter : this.analysis.getParameters()) {
+		for (IParameter parameter : this.analysis.getParameters()) {
 			// Determine insert query
 			String query = null;
-			switch (parameter.getType().getLabel()) {
+			switch (parameter.getType().getName()) {
 			case Constant.PARAMETERTYPE_TYPE_IMPACT_NAME:
 				query = DatabaseHandler.generateInsertQuery("impact", 7);
 				break;
@@ -962,17 +962,17 @@ public class ExportAnalysis {
 				continue;
 
 			// Cast object (we know it is of the good type)
-			ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
+			ImpactParameter impactParameter = (ImpactParameter) parameter;
 
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id
-			queryParameters.add(extendedParameter.getLevel());
-			queryParameters.add(extendedParameter.getDescription());
-			queryParameters.add(extendedParameter.getAcronym());
-			queryParameters.add(extendedParameter.getValue());
-			queryParameters.add(extendedParameter.getBounds().getFrom());
-			queryParameters.add(extendedParameter.getBounds().getTo());
+			queryParameters.add(impactParameter.getLevel());
+			queryParameters.add(impactParameter.getDescription());
+			queryParameters.add(impactParameter.getAcronym());
+			queryParameters.add(impactParameter.getValue());
+			queryParameters.add(impactParameter.getBounds().getFrom());
+			queryParameters.add(impactParameter.getBounds().getTo());
 
 			// Execute query
 			sqlite.query(query, queryParameters);
@@ -988,22 +988,22 @@ public class ExportAnalysis {
 	 */
 	private void exportDynamicParameters() throws Exception {
 		// Export all acronym parameters of type DYNAMIC
-		for (Parameter parameter : this.analysis.getParameters()) {
-			if (!parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
+		for (IParameter parameter : this.analysis.getParameters()) {
+			if (!parameter.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
 				continue;
 
 			// Determine insert query
 			String query = DatabaseHandler.generateInsertQuery("dynamic_parameter", 4);
 
 			// Cast object (we know it is of the good type)
-			AcronymParameter acronymParameter = (AcronymParameter) parameter;
+			AbstractProbability abstractProbability = (AbstractProbability) parameter;
 
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id
-			queryParameters.add(acronymParameter.getDescription());
-			queryParameters.add(acronymParameter.getAcronym());
-			queryParameters.add(acronymParameter.getValue());
+			queryParameters.add(abstractProbability.getDescription());
+			queryParameters.add(abstractProbability.getAcronym());
+			queryParameters.add(abstractProbability.getValue());
 
 			// Execute query
 			sqlite.query(query, queryParameters);
@@ -1035,7 +1035,7 @@ public class ExportAnalysis {
 		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
 
 			// check if ILPS
-			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME)) {
 
 				// store maturity parameter
 				maturityParameter = (MaturityParameter) this.analysis.getAParameter(index);
@@ -1418,7 +1418,7 @@ public class ExportAnalysis {
 		MaturityMeasure maturity = null;
 		String measurequery = "", specdefaultquery = "";
 		int measurecounter = 0, specdefaultcounter = 0, measureIndex = 1;
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * export standard measures (27001, 27002, custom)
@@ -2338,7 +2338,7 @@ public class ExportAnalysis {
 	 * Adds Risk Categories to the SQL parameter List.
 	 * 
 	 * @param params
-	 *            The SQL Parameter List
+	 *            The SQL SimpleParameter List
 	 * @param criteria
 	 *            The Object containing the Data to add
 	 * @throws TrickException
@@ -2354,10 +2354,10 @@ public class ExportAnalysis {
 
 	/**
 	 * insertScenarioAssetTypeValues: <br>
-	 * Adds all Scenario Asset Type Values to a given SQL Parameter List.
+	 * Adds all Scenario Asset Type Values to a given SQL SimpleParameter List.
 	 * 
 	 * @param params
-	 *            The SQL Parameter List
+	 *            The SQL SimpleParameter List
 	 * @param assetTypeValueList
 	 *            The List of Scenario Asset Type Values
 	 */

@@ -444,6 +444,8 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 		else
 			$item.parent().parent().removeClass("info");
 	}
+	console.log("#section_" + sectionName)
+	console.log("#menu_" + sectionName)
 	updateMenu(undefined, "#section_" + sectionName, "#menu_" + sectionName, appModalVar);
 	return false;
 }

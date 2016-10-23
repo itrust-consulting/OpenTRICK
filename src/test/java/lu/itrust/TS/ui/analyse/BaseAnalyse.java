@@ -418,9 +418,9 @@ public class BaseAnalyse extends BaseUnitTesting {
 			new WebDriverWait(getDriver(), 30).until(ExpectedConditions.visibilityOf(impactScale));
 			click(By.xpath("//div[@id='" + section
 					+ "']//a[contains(@onclick,'displayParameters') and contains(@onclick,'Scale_Impact')]"));
-			waitClick(By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ExtendedParameter']/td[2]"));
+			waitClick(By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ImpactParameter']/td[2]"));
 			for (WebElement acronymElement : getDriver()
-					.findElements(By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ExtendedParameter']/td[2]"))) {
+					.findElements(By.xpath("//div[@id='modalBox']//tr[@data-trick-class='ImpactParameter']/td[2]"))) {
 				acronyms.add(acronymElement.getText());
 			}
 			click(By.xpath("//div[@id='modalBox']//*[@data-dismiss='modal']"));

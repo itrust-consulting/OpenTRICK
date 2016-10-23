@@ -166,7 +166,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
-			case "Parameter": {
+			case "SimpleParameter": {
 				if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;

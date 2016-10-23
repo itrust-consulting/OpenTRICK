@@ -1,29 +1,30 @@
-package lu.itrust.business.TS.model.parameter;
+package lu.itrust.business.TS.model.parameter.impl;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.parameter.IMaturityParameter;
 
 /**
  * MaturityParameter: <br>
- * This class represents a Maturity Parameter and its data
+ * This class represents a Maturity SimpleParameter and its data
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
  * @since 2012-08-21
  */
 @Entity
-@PrimaryKeyJoinColumn(name = "idMaturityParameter")
-public class MaturityParameter extends Parameter implements Cloneable {
+@AttributeOverride(name="id", column=@Column(name="idMaturityParameter"))
+public class MaturityParameter extends Parameter implements IMaturityParameter {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** The Maturity Category of Parameter */
+	/** The Maturity Category of SimpleParameter */
 	@Column(name = "dtCategory", nullable = false)
 	private String category = "";
 
@@ -52,12 +53,14 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * Getters and Setters
 	 **********************************************************************************************/
 
-	/**
-	 * getCategory: <br>
-	 * Returns the "category" field value
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The Maturity Category Name
+	 * @see
+	 * lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#getCategory
+	 * ()
 	 */
+	@Override
 	public String getCategory() {
 		return category;
 	}
@@ -76,12 +79,13 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		this.category = category;
 	}
 
-	/**
-	 * getSMLLevel: <br>
-	 * Returns the "SMLLevel" field value
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The Level of SML
+	 * @see lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#
+	 * getSMLLevel0()
 	 */
+	@Override
 	public double getSMLLevel0() {
 		return SMLLevel0;
 	}
@@ -100,12 +104,13 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		this.SMLLevel0 = SMLLevel;
 	}
 
-	/**
-	 * getSMLLevel: <br>
-	 * Returns the "SMLLevel" field value
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The Level of SML
+	 * @see lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#
+	 * getSMLLevel1()
 	 */
+	@Override
 	public double getSMLLevel1() {
 		return SMLLevel1;
 	}
@@ -124,12 +129,13 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		this.SMLLevel1 = SMLLevel;
 	}
 
-	/**
-	 * getSMLLevel: <br>
-	 * Returns the "SMLLevel" field value
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The Level of SML
+	 * @see lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#
+	 * getSMLLevel2()
 	 */
+	@Override
 	public double getSMLLevel2() {
 		return SMLLevel2;
 	}
@@ -148,12 +154,13 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		this.SMLLevel2 = SMLLevel;
 	}
 
-	/**
-	 * getSMLLevel: <br>
-	 * Returns the "SMLLevel" field value
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The Level of SML
+	 * @see lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#
+	 * getSMLLevel3()
 	 */
+	@Override
 	public double getSMLLevel3() {
 		return SMLLevel3;
 	}
@@ -172,12 +179,13 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		this.SMLLevel3 = SMLLevel;
 	}
 
-	/**
-	 * getSMLLevel: <br>
-	 * Returns the "SMLLevel" field value
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The Level of SML
+	 * @see lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#
+	 * getSMLLevel4()
 	 */
+	@Override
 	public double getSMLLevel4() {
 		return SMLLevel4;
 	}
@@ -196,12 +204,13 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		this.SMLLevel4 = SMLLevel;
 	}
 
-	/**
-	 * getSMLLevel: <br>
-	 * Returns the "SMLLevel" field value
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The Level of SML
+	 * @see lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#
+	 * getSMLLevel5()
 	 */
+	@Override
 	public double getSMLLevel5() {
 		return SMLLevel5;
 	}
@@ -220,12 +229,14 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		this.SMLLevel5 = SMLLevel;
 	}
 
-	/**
-	 * getSMLLevel: <br>
-	 * Returns the sMLLevel field value.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The value of the sMLLevel field
+	 * @see
+	 * lu.itrust.business.TS.model.parameter.impl.IMaturityParameter#getSMLLevel
+	 * ()
 	 */
+	@Override
 	public int getSMLLevel() {
 		return SMLLevel;
 	}
@@ -239,6 +250,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 */
 	public void setSMLLevel(int sMLLevel) {
 		SMLLevel = sMLLevel;
+	}
+
+	@Override
+	public String getTypeName() {
+		return Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME;
 	}
 
 }

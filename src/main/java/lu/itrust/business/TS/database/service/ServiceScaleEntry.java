@@ -25,7 +25,7 @@ public interface ServiceScaleEntry {
 
 	void delete(ScaleEntry scaleEntry);
 
-	void delete(List<ScaleEntry> scaleEntries);
+	void delete(List<Integer> scaleEntries);
 
 	void deleteAll();
 

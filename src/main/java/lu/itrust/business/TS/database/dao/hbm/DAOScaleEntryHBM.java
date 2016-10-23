@@ -90,8 +90,8 @@ public class DAOScaleEntryHBM extends DAOHibernate implements DAOScaleEntry {
 	 * lu.itrust.business.TS.database.dao.DAOScaleEntry#delete(java.util.List)
 	 */
 	@Override
-	public void delete(List<ScaleEntry> scaleEntries) {
-		getSession().createQuery("delete From ScaleEntry where ScaleEntry in :entries").setParameterList("entries", scaleEntries).executeUpdate();
+	public void delete(List<Integer> scaleEntries) {
+		getSession().createQuery("delete From ScaleEntry where id in :entries").setParameterList("entries", scaleEntries).executeUpdate();
 	}
 
 	/*

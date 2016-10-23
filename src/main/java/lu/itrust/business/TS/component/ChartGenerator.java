@@ -47,8 +47,8 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.rrf.RRFAsset;
 import lu.itrust.business.TS.model.rrf.RRFAssetType;
@@ -1130,7 +1130,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
@@ -1165,7 +1165,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAsset> computeRRFByAssetMeasure(AssetMeasure measure, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAsset> rrfs = new LinkedHashMap<String, RRFAsset>(measure.getMeasureAssetValues().size());
 		if (measure.getMeasureAssetValues().size() == 0)
 			throw new TrickException("error.rrf.measure.no_assets", "The measure " + measure.getMeasureDescription().getReference() + " does not have any assets attributed!",
@@ -1193,7 +1193,7 @@ public class ChartGenerator {
 	}
 
 	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
 		if (scenario.getAssetTypeValues().size() == 0)
 			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!",
@@ -1422,7 +1422,7 @@ public class ChartGenerator {
 	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator,
 			Function<TAggregator, String> axisLabelProvider, String chartTitle) throws Exception {
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
-		final List<Parameter> allParameters = analysis.getParameters();
+		final List<IParameter> allParameters = analysis.getParameters();
 		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved

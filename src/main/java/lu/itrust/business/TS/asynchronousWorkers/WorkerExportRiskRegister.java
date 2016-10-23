@@ -47,8 +47,8 @@ import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.WordReport;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -277,13 +277,13 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				netImpact.setProbability(factory.findProbParameter(assessment.getLikelihood()));
 				if (raw == null) {
 					raw = new RiskProbaImpact();
-					raw.setImpactFin((ExtendedParameter) factory.findMaxImpactByLevel(registerItem.getRawEvaluation().getImpact()).getParameter());
+					raw.setImpactFin((ImpactParameter) factory.findMaxImpactByLevel(registerItem.getRawEvaluation().getImpact()).getParameter());
 					raw.setProbability(factory.findProbParameter(registerItem.getRawEvaluation().getProbability()));
 				}
 
 				if (expected == null) {
 					expected = new RiskProbaImpact();
-					expected.setImpactFin((ExtendedParameter) factory.findMaxImpactByLevel(registerItem.getExpectedEvaluation().getImpact()).getParameter());
+					expected.setImpactFin((ImpactParameter) factory.findMaxImpactByLevel(registerItem.getExpectedEvaluation().getImpact()).getParameter());
 					expected.setProbability(factory.findProbParameter(registerItem.getExpectedEvaluation().getProbability()));
 				}
 				

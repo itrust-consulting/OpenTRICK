@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOParameterType;
-import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 
 /**
  * DAOParameterTypeHBM.java: <br>
@@ -53,7 +53,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 */
 	@Override
 	public ParameterType getByName(String parameterTypeName)  {
-		return (ParameterType) getSession().createQuery("From ParameterType where label = :label").setParameter("label", parameterTypeName).uniqueResult();
+		return (ParameterType) getSession().createQuery("From ParameterType where name = :name").setParameter("name", parameterTypeName).uniqueResult();
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#save(lu.itrust.business.TS.model.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#save(lu.itrust.business.TS.model.parameter.type.impl.ParameterType)
 	 */
 	@Override
 	public void save(ParameterType parameterType)  {
@@ -83,7 +83,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#saveOrUpdate(lu.itrust.business.TS.model.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#saveOrUpdate(lu.itrust.business.TS.model.parameter.type.impl.ParameterType)
 	 */
 	@Override
 	public void saveOrUpdate(ParameterType parameterType)  {
@@ -94,7 +94,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#delete(lu.itrust.business.TS.model.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#delete(lu.itrust.business.TS.model.parameter.type.impl.ParameterType)
 	 */
 	@Override
 	public void delete(ParameterType parameterType)  {

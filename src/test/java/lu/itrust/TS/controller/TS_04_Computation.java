@@ -36,7 +36,7 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.OpenMode;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 
 /**
  * @author eomar
@@ -98,16 +98,16 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	public void loadCSSFParameter() {
 		Analysis analysis = serviceAnalysis.get(ANALYSIS_ID);
 		notNull(analysis, "Analysis cannot be found");
-		Parameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
-		notNull(parameter, "Analysis cannot be found");
-		put(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID, parameter.getId());
+		SimpleParameter simpleParameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
+		notNull(simpleParameter, "Analysis cannot be found");
+		put(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID, simpleParameter.getId());
 	}
 
 	@Test(dependsOnMethods = "loadCSSFParameter")
 	public void test_01_UpdateCSSFParameter() throws Exception {
 		int id = getInteger(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Parameter/" + id).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/SimpleParameter/" + id).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", id, "value", "double", -1D)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());

@@ -6,6 +6,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOScale;
 import lu.itrust.business.TS.model.scale.Scale;
@@ -14,6 +15,7 @@ import lu.itrust.business.TS.model.scale.Scale;
  * @author eomar
  *
  */
+@Repository
 public class DAOScaleHBM extends DAOHibernate implements DAOScale {
 
 	/**
@@ -42,28 +44,6 @@ public class DAOScaleHBM extends DAOHibernate implements DAOScale {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.dao.DAOScale#findByName(java.lang.String)
-	 */
-	@Override
-	public Scale findByName(String name) {
-		return (Scale) getSession().createQuery("From Scale where name = :name").setString("name", name).uniqueResult();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOScale#findByAcronym(java.lang.
-	 * String)
-	 */
-	@Override
-	public Scale findByAcronym(String acronym) {
-		return (Scale) getSession().createQuery("From Scale where acronym = :acronym").setString("acronym", acronym).uniqueResult();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOScale#findAll()
 	 */
 	@SuppressWarnings("unchecked")
@@ -79,29 +59,7 @@ public class DAOScaleHBM extends DAOHibernate implements DAOScale {
 	 */
 	@Override
 	public boolean exists(int id) {
-		return (boolean) getSession().createQuery("Select count(*) From Scale where id = :id").setInteger("id", id).uniqueResult();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.dao.DAOScale#hasName(java.lang.String)
-	 */
-	@Override
-	public boolean hasName(String name) {
-		return (boolean) getSession().createQuery("Select count(*) From Scale where name = :name").setString("name", name).uniqueResult();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.dao.DAOScale#hasAcronym(java.lang.String)
-	 */
-	@Override
-	public boolean hasAcronym(String acronym) {
-		return (boolean) getSession().createQuery("Select count(*) From Scale where acronym = :acronym").setString("acronym", acronym).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)>0 From Scale where id = :id").setInteger("id", id).uniqueResult();
 	}
 
 	/*
@@ -146,8 +104,8 @@ public class DAOScaleHBM extends DAOHibernate implements DAOScale {
 	 * @see lu.itrust.business.TS.database.dao.DAOScale#delete(java.util.List)
 	 */
 	@Override
-	public void delete(List<Scale> scales) {
-		getSession().createQuery("Delete From Scale where Scale in :scales").setParameterList("scales", scales).executeUpdate();
+	public void delete(List<Integer> scales) {
+		getSession().createQuery("Delete From Scale where id in :scales").setParameterList("scales", scales).executeUpdate();
 	}
 
 	/*

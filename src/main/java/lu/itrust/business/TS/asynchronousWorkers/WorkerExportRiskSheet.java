@@ -62,10 +62,10 @@ import lu.itrust.business.TS.model.cssf.helper.RiskSheetExportComparator;
 import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.ExportType;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.IValue;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -499,7 +499,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		}
 	}
 
-	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, AcronymParameter impact, AcronymParameter probability) {
+	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, IAcronymParameter impact, IAcronymParameter probability) {
 		addTitle(document, title);
 		XWPFTable table = document.createTable(3, 6);
 		if (probaImpact == null)
@@ -515,11 +515,11 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		getCell(row, 3).setText(getMessage("label.impact_leg", "Legal"));
 		getCell(row, 4).setText(getMessage("label.impact_fin", "Financial"));
 		row = table.getRow(2);
-		getCell(row, 0).setText(probaImpact.getProbability((ExtendedParameter) probability).getLevel() + "");
-		getCell(row, 1).setText(probaImpact.getImpactRep((ExtendedParameter) impact).getLevel() + "");
-		getCell(row, 2).setText(probaImpact.getImpactOp((ExtendedParameter) impact).getLevel() + "");
-		getCell(row, 3).setText(probaImpact.getImpactLeg((ExtendedParameter) impact).getLevel() + "");
-		getCell(row, 4).setText(probaImpact.getImpactFin((ExtendedParameter) impact).getLevel() + "");
+		getCell(row, 0).setText(probaImpact.getProbability((ImpactParameter) probability).getLevel() + "");
+		getCell(row, 1).setText(probaImpact.getImpactRep((ImpactParameter) impact).getLevel() + "");
+		getCell(row, 2).setText(probaImpact.getImpactOp((ImpactParameter) impact).getLevel() + "");
+		getCell(row, 3).setText(probaImpact.getImpactLeg((ImpactParameter) impact).getLevel() + "");
+		getCell(row, 4).setText(probaImpact.getImpactFin((ImpactParameter) impact).getLevel() + "");
 		getCell(row, 5).setText(probaImpact.getImportance() + "");
 	}
 

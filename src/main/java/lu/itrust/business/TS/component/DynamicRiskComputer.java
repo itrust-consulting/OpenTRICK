@@ -16,9 +16,10 @@ import org.springframework.stereotype.Component;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -72,7 +73,7 @@ public class DynamicRiskComputer {
 	 * @throws IllegalArgumentException
 	 */
 	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd,
-			List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability) throws Exception {
+			List<String> cache_sourceUserNames, List<IParameter> allParameters, double minimumProbability) throws Exception {
 		final Map<Assessment, Set<String>> out_involvedVariables = new HashMap<>();
 		final Map<String, Double> out_expressionParameters = new HashMap<>();
 		return computeAleOfAssessments(assessments, standards, timestampBegin, timestampEnd, cache_sourceUserNames, allParameters, minimumProbability, out_involvedVariables,
@@ -115,7 +116,7 @@ public class DynamicRiskComputer {
 	 * @throws IllegalArgumentException
 	 */
 	public Map<Assessment, Double> computeAleOfAssessments(List<Assessment> assessments, List<AnalysisStandard> standards, long timestampBegin, long timestampEnd,
-			List<String> cache_sourceUserNames, List<Parameter> allParameters, double minimumProbability, final Map<Assessment, Set<String>> out_involvedVariables,
+			List<String> cache_sourceUserNames, List<IParameter> allParameters, double minimumProbability, final Map<Assessment, Set<String>> out_involvedVariables,
 			final Map<String, Double> out_expressionParameters) throws Exception {
 		// Find all measures
 		final List<Measure> measures = new LinkedList<>();
@@ -123,11 +124,11 @@ public class DynamicRiskComputer {
 			measures.addAll(standard.getMeasures());
 
 		// Find all static expression parameters ("p0" etc.)
-		Parameter tuningParameter = null;
-		for (Parameter p : allParameters) {
-			if (p instanceof AcronymParameter && !(p instanceof DynamicParameter))
-				out_expressionParameters.put(((AcronymParameter) p).getAcronym(), p.getValue());
-			else if (p.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
+		IParameter tuningParameter = null;
+		for (IParameter p : allParameters) {
+			if (p instanceof LikelihoodParameter)
+				out_expressionParameters.put(((IAcronymParameter) p).getAcronym(), p.getValue().doubleValue());
+			else if ((p instanceof SimpleParameter) && p.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
 				tuningParameter = p;
 		}
 
@@ -210,7 +211,7 @@ public class DynamicRiskComputer {
 	 * @throws Exception
 	 */
 	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, List<AnalysisStandard> standards, List<String> sourceUserNames,
-			List<Parameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints) throws Exception {
+			List<IParameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints) throws Exception {
 		return generateAleEvolutionData(assessments, standards, sourceUserNames, allParameters, aggregator, out_timePoints, null, null);
 	}
 
@@ -247,7 +248,7 @@ public class DynamicRiskComputer {
 	 * @throws Exception
 	 */
 	public <TAggregator> Map<TAggregator, Map<Long, Double>> generateAleEvolutionData(List<Assessment> assessments, List<AnalysisStandard> standards, List<String> sourceUserNames,
-			List<Parameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints,
+			List<IParameter> allParameters, Function<Assessment, TAggregator> aggregator, List<Long> out_timePoints,
 			final Map<Long, Map<Assessment, Set<String>>> out_involvedVariables_or_null, final Map<Long, Map<String, Double>> out_expressionParameters_or_null) throws Exception {
 		// Determine time-related stuff
 		final long timeUpperBound = Instant.now().getEpochSecond();

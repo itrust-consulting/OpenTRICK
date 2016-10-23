@@ -95,7 +95,7 @@ public class CSSFSort {
 	/**
 	 * findGroup:<br>
 	 * Tries to identify the group name [direct, indirect, other]<br>
-	 * Parameter name should meet this convention: Category - Description
+	 * SimpleParameter name should meet this convention: Category - Description
 	 * (example: D1-Strat). Check if the parameter si direct or indirect.
 	 * 
 	 * @param name

@@ -22,6 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -30,6 +31,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.ManyToAny;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
@@ -48,11 +50,14 @@ import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IImpactParameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -182,11 +187,13 @@ public class Analysis implements Cloneable {
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
-	@OneToMany
+	@ManyToAny(metaColumn = @Column(name = "dtParameterType"), metaDef = "PARAMETER_META_DEF")
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	private List<Parameter> parameters = new ArrayList<Parameter>();
+	@JoinTable(name = "AnalysisParameters", joinColumns = @JoinColumn(name = "fiAnalysis"), inverseJoinColumns = @JoinColumn(name = "fiParameter"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"fiAnalysis", "fiParameter" }))
+	private List<IParameter> parameters = new ArrayList<IParameter>();
 
 	/** List of assets */
 	@OneToMany
@@ -723,25 +730,25 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getParameter: <br>
-	 * Returns the Parameter value of a given Parameter.
+	 * Returns the SimpleParameter value of a given SimpleParameter.
 	 * 
 	 * @param parameter
-	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or defaultValue if the
-	 *         parameter was not found
+	 *            The Label of the SimpleParameter
+	 * @return The Value of the SimpleParameter if it exists, or defaultValue if
+	 *         the parameter was not found
 	 */
 	public double getParameter(String type, String name, double defaultValue) {
-		return parameters.stream().filter(parameter -> parameter.isMatch(type, name)).map(parameter -> parameter.getValue()).findAny().orElse(defaultValue);
+		return parameters.stream().filter(parameter -> parameter.isMatch(type, name)).map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
 	}
 
 	/**
 	 * getParameter: <br>
-	 * Returns the Parameter value of a given Parameter.
+	 * Returns the SimpleParameter value of a given SimpleParameter.
 	 * 
 	 * @param parameter
-	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter
-	 *         was not found
+	 *            The Label of the SimpleParameter
+	 * @return The Value of the SimpleParameter if it exists, or -1 if the
+	 *         parameter was not found
 	 */
 	public double getParameter(String name) {
 		return getParameter(name, -1D);
@@ -749,14 +756,14 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getParameter: <br>
-	 * Returns the Parameter value of a given Parameter.
+	 * Returns the SimpleParameter value of a given SimpleParameter.
 	 * 
 	 * @param parameter
-	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter
-	 *         was not found
+	 *            The Label of the SimpleParameter
+	 * @return The Value of the SimpleParameter if it exists, or -1 if the
+	 *         parameter was not found
 	 */
-	public Parameter getParameterObject(String description) {
+	public IParameter getParameterObject(String description) {
 		return this.getParameters().stream().filter(parameter -> parameter.getDescription().equals(description)).findAny().orElse(null);
 	}
 
@@ -773,8 +780,8 @@ public class Analysis implements Cloneable {
 		// ****************************************************************
 		// * Variable initialisation
 		// ****************************************************************
-		ExtendedParameter currentParam = null;
-		ExtendedParameter nextParam = null;
+		ImpactParameter currentParam = null;
+		ImpactParameter nextParam = null;
 		Bounds previousImpactBounds = null;
 		Bounds previousProbaBounds = null;
 
@@ -786,16 +793,16 @@ public class Analysis implements Cloneable {
 			// ****************************************************************
 
 			// check if the parameter is of type impact
-			if (getAParameter(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
+			if (getAParameter(i).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
 
 				// store current parameter
-				currentParam = (ExtendedParameter) getAParameter(i);
+				currentParam = (ImpactParameter) getAParameter(i);
 
 				// check if this is the last impact -> NO
-				if ((i + 1 < parameters.size()) && (getAParameter(i + 1).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))) {
+				if ((i + 1 < parameters.size()) && (getAParameter(i + 1).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))) {
 
 					// store next impact parameter
-					nextParam = (ExtendedParameter) getAParameter(i + 1);
+					nextParam = (ImpactParameter) getAParameter(i + 1);
 
 					// update bounds with the previous bounds (to value) and
 					// current and next values
@@ -819,16 +826,16 @@ public class Analysis implements Cloneable {
 			// ****************************************************************
 
 			// check if the parameter is of type probability
-			if (getAParameter(i).getType().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
+			if (getAParameter(i).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
 
 				// store current probability parameter
-				currentParam = (ExtendedParameter) getAParameter(i);
+				currentParam = (ImpactParameter) getAParameter(i);
 
 				// check if this is the last probability -> NO
-				if ((i + 1 < parameters.size()) && (getAParameter(i + 1).getType().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
+				if ((i + 1 < parameters.size()) && (getAParameter(i + 1).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
 
 					// store next probability parameter
-					nextParam = (ExtendedParameter) getAParameter(i + 1);
+					nextParam = (ImpactParameter) getAParameter(i + 1);
 
 					// update bounds with the previous bounds (to value) and
 					// current and next values
@@ -1082,46 +1089,47 @@ public class Analysis implements Cloneable {
 
 	/**
 	 * getAParameter: <br>
-	 * Returns a Parameter from the List of Parameter at position "index"
+	 * Returns a SimpleParameter from the List of SimpleParameter at position
+	 * "index"
 	 * 
 	 * @param index
 	 *            The Position to retrieve the Object
 	 * 
-	 * @return The Parameter Object at position "index"
+	 * @return The SimpleParameter Object at position "index"
 	 */
-	public Parameter getAParameter(int index) {
+	public IParameter getAParameter(int index) {
 		return parameters.get(index);
 	}
 
 	/**
 	 * getParameterList: <br>
-	 * Returns the Parameter List.
+	 * Returns the SimpleParameter List.
 	 * 
-	 * @return The Parameter Object List
+	 * @return The SimpleParameter Object List
 	 */
-	public List<Parameter> getParameters() {
+	public List<IParameter> getParameters() {
 		return parameters;
 	}
 
 	/**
 	 * addAParameter: <br>
-	 * Adds a Parameter to the List of Parameters
+	 * Adds a SimpleParameter to the List of Parameters
 	 * 
 	 * @param param
-	 *            The Parameter object to Add
+	 *            The SimpleParameter object to Add
 	 */
-	public boolean addAParameter(Parameter param) {
+	public boolean addAParameter(IParameter param) {
 		return this.parameters.add(param);
 	}
 
 	/**
 	 * setParameters: <br>
-	 * Adds a Parameter to the List of Parameters
+	 * Adds a SimpleParameter to the List of Parameters
 	 * 
 	 * @param params
-	 *            The Parameter object to Add
+	 *            The SimpleParameter object to Add
 	 */
-	public void setParameters(List<Parameter> params) {
+	public void setParameters(List<IParameter> params) {
 		this.parameters = params;
 	}
 
@@ -1726,14 +1734,14 @@ public class Analysis implements Cloneable {
 	 * Retrieves parameter by type
 	 * 
 	 * @param parameters
-	 * @return Map<String, Parameter>
+	 * @return Map<String, SimpleParameter>
 	 */
-	public static Map<String, List<Parameter>> SplitParameters(List<? extends Parameter> parameters) {
-		Map<String, List<Parameter>> mappedParameters = new LinkedHashMap<>();
+	public static Map<String, List<IParameter>> SplitParameters(List<? extends IParameter> parameters) {
+		Map<String, List<IParameter>> mappedParameters = new LinkedHashMap<>();
 		parameters.forEach(parameter -> {
-			List<Parameter> currentParameters = mappedParameters.get(parameter.getType().getLabel());
+			List<IParameter> currentParameters = mappedParameters.get(parameter.getTypeName());
 			if (currentParameters == null)
-				mappedParameters.put(parameter.getType().getLabel(), currentParameters = new ArrayList<>());
+				mappedParameters.put(parameter.getTypeName(), currentParameters = new ArrayList<>());
 			currentParameters.add(parameter);
 		});
 
@@ -1940,13 +1948,13 @@ public class Analysis implements Cloneable {
 		return analysis;
 	}
 
-	public List<ExtendedParameter> findExtendedByAnalysis() {
-		List<ExtendedParameter> extendedParameters = new ArrayList<ExtendedParameter>();
-		for (Parameter parameter : parameters) {
-			if (parameter instanceof ExtendedParameter)
-				extendedParameters.add((ExtendedParameter) parameter);
+	public List<ImpactParameter> findExtendedByAnalysis() {
+		List<ImpactParameter> impactParameters = new ArrayList<ImpactParameter>();
+		for (IParameter parameter : parameters) {
+			if (parameter instanceof ImpactParameter)
+				impactParameters.add((ImpactParameter) parameter);
 		}
-		return extendedParameters;
+		return impactParameters;
 	}
 
 	public Map<Integer, List<Assessment>> findAssessmentByAssetAndSelected() {
@@ -2487,13 +2495,13 @@ public class Analysis implements Cloneable {
 	}
 
 	public Map<String, Double> mapAcronymToValue() {
-		return parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter)
-				.collect(Collectors.toMap(ExtendedParameter::getAcronym, ExtendedParameter::getValue));
+		return parameters.stream().filter(parameter -> parameter instanceof ImpactParameter).map(parameter -> (ImpactParameter) parameter)
+				.collect(Collectors.toMap(ImpactParameter::getAcronym, ImpactParameter::getValue));
 	}
 
-	public Map<String, AcronymParameter> mapAcronymParameterByKey() {
-		return parameters.stream().filter(parameter -> parameter instanceof AcronymParameter).map(parameter -> (AcronymParameter) parameter)
-				.collect(Collectors.toMap(AcronymParameter::getKey, Function.identity()));
+	public Map<String, AbstractProbability> mapAcronymParameterByKey() {
+		return parameters.stream().filter(parameter -> parameter instanceof AbstractProbability).map(parameter -> (AbstractProbability) parameter)
+				.collect(Collectors.toMap(AbstractProbability::getKey, Function.identity()));
 	}
 
 	/**
@@ -2502,11 +2510,11 @@ public class Analysis implements Cloneable {
 	 * @param probabilities
 	 * @param impacts
 	 */
-	public void groupExtended(List<ExtendedParameter> probabilities, List<ExtendedParameter> impacts) {
-		parameters.stream().filter(parameter -> parameter instanceof ExtendedParameter).map(parameter -> (ExtendedParameter) parameter).forEach(parameter -> {
-			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+	public void groupExtended(List<ImpactParameter> probabilities, List<ImpactParameter> impacts) {
+		parameters.stream().filter(parameter -> parameter instanceof ImpactParameter).map(parameter -> (ImpactParameter) parameter).forEach(parameter -> {
+			if (parameter.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 				impacts.add(parameter);
-			else if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+			else if (parameter.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 				probabilities.add(parameter);
 		});
 	}
@@ -2560,10 +2568,10 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getScenario().getId(), Function.identity()));
 	}
 
-	public ExtendedParameter findExtendedByTypeAndLevel(String type, int level) {
-		return (ExtendedParameter) parameters.stream()
-				.filter(parameter -> parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(type) && ((ExtendedParameter) parameter).getLevel() == level)
-				.findAny().orElse(null);
+	public IImpactParameter findExtendedByTypeAndLevel(String type, int level) {
+		return (IImpactParameter) parameters.stream()
+				.filter(parameter -> parameter instanceof IImpactParameter && parameter.getTypeName().equals(type) && ((ILevelParameter) parameter).getLevel() == level).findAny()
+				.orElse(null);
 	}
 
 	public Map<Integer, RiskProfile> findRiskProfileByScenarioId(int idScenario) {
@@ -2571,19 +2579,19 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getAsset().getId(), Function.identity()));
 	}
 
-	public List<? extends Parameter> findParametersByType(String type) {
+	public List<? extends IParameter> findParametersByType(String type) {
 		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
 	}
 
-	public Map<String, Parameter> mapParametersByType(String type) {
-		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toMap(Parameter::getDescription, Function.identity()));
+	public Map<String, IParameter> mapParametersByType(String type) {
+		return parameters.stream().filter(parameter -> parameter.isMatch(type)).collect(Collectors.toMap(IParameter::getDescription, Function.identity()));
 	}
 
 	public boolean hasParameterType(String type) {
 		return parameters.stream().anyMatch(parameter -> parameter.isMatch(type));
 	}
 
-	public Parameter findParameter(String type, String description) {
+	public IParameter findParameter(String type, String description) {
 		return parameters.stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
 	}
 
@@ -2602,7 +2610,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public double getParameter(String name, double defaultValue) {
-		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue()).findAny().orElse(defaultValue);
+		return parameters.stream().filter(parameter -> parameter.getDescription().equals(name)).map(parameter -> parameter.getValue().doubleValue()).findAny().orElse(defaultValue);
 	}
 
 	/**
@@ -2613,7 +2621,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
 	 */
-	public List<AcronymParameter> getExpressionParameters() {
+	public List<IProbabilityParameter> getExpressionParameters() {
 		// We assume that all parameters that have an acronym can be used in an
 		// expression
 		// Maybe we want to change this in the future (checking parameter.type);
@@ -2622,12 +2630,12 @@ public class Analysis implements Cloneable {
 		// lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
 		// so in particular
 		// lu.itrust.business.TS.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
-		return this.parameters.stream().filter(parameter -> (parameter instanceof DynamicParameter) || parameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
-				.map(parameter -> (AcronymParameter) parameter).collect(Collectors.toList());
+		return this.parameters.stream().filter(parameter -> (parameter instanceof IProbabilityParameter)).map(parameter -> (IProbabilityParameter) parameter)
+				.collect(Collectors.toList());
 	}
 
 	/**
-	 * Get all Dynamic Parameter
+	 * Get all Dynamic SimpleParameter
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
 	 */
@@ -2648,29 +2656,27 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toMap(parameter -> ((DynamicParameter) parameter).getAcronym(), parameter -> (DynamicParameter) parameter));
 	}
 
-	public Parameter findParameterByTypeAndDescription(String typeLabel, String description) {
-		return parameters.stream().filter(p -> p.getType().getLabel().equals(typeLabel) && p.getDescription().equals(description)).findAny().orElse(null);
+	public IParameter findParameterByTypeAndDescription(String typeLabel, String description) {
+		return parameters.stream().filter(p -> p.getTypeName().equals(typeLabel) && p.getDescription().equals(description)).findAny().orElse(null);
 	}
 
 	public boolean isUserAuthorized(String username, AnalysisRight right) {
 		return userRights.stream().anyMatch(userRight -> userRight.getUser().getLogin().equals(username) && UserAnalysisRight.userIsAuthorized(userRight, right));
 	}
 
-	public AcronymParameter findParameterByTypeAndAcronym(String type, String acronym) {
-		return (AcronymParameter) parameters.stream()
-				.filter(parameter -> (parameter instanceof AcronymParameter) && parameter.isMatch(type) && ((AcronymParameter) parameter).getAcronym().equals(acronym)).findAny()
-				.orElse(null);
+	public IProbabilityParameter findParameterByTypeAndAcronym(String type, String acronym) {
+		return (IProbabilityParameter) parameters.stream()
+				.filter(parameter -> (parameter instanceof IProbabilityParameter) && parameter.isMatch(type) && ((IProbabilityParameter) parameter).getAcronym().equals(acronym))
+				.findAny().orElse(null);
 	}
-	
+
 	public Double findParameterValueByTypeAndAcronym(String type, String acronym, Double defaultValue) {
-		AcronymParameter parameter = findParameterByTypeAndAcronym(type, acronym);
-		return parameter == null ? defaultValue : parameter.getValue();
+		IProbabilityParameter parameter = findParameterByTypeAndAcronym(type, acronym);
+		return parameter == null ? defaultValue : parameter.getValue().doubleValue();
 	}
 
 	public double findParameterValueByTypeAndAcronym(String type, String acronym) {
 		return findParameterValueByTypeAndAcronym(type, acronym, 0D);
 	}
-
-	
 
 }

@@ -23,9 +23,12 @@ import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.Parameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -116,29 +119,29 @@ public class RiskSheetComputation {
 		try {
 
 			System.out.println("Risk Register calculation...");
-			List<ExtendedParameter> extendedParameters = new ArrayList<>(22);
+			List<ILevelParameter> impactParameters = new ArrayList<>(22);
 			CSSFFilter filter = new CSSFFilter();
 			int mandatoryPhase = 0, impactThreshold = Constant.CSSF_IMPACT_THRESHOLD_VALUE, probabilityThreshold = Constant.CSSF_PROBABILITY_THRESHOLD_VALUE;
-			for (Parameter parameter : this.analysis.getParameters()) {
-				if (parameter instanceof ExtendedParameter)
-					extendedParameters.add((ExtendedParameter) parameter);
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE))
-					mandatoryPhase = (int) parameter.getValue();
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE))
-					filter.setCia((int) parameter.getValue());
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_DIRECT_SIZE))
-					filter.setDirect((int) parameter.getValue());
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_INDIRECT_SIZE))
-					filter.setIndirect((int) parameter.getValue());
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_IMPACT_THRESHOLD))
-					impactThreshold = (int) parameter.getValue();
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_PROBABILITY_THRESHOLD))
-					probabilityThreshold = (int) parameter.getValue();
+			for (IParameter simpleParameter : this.analysis.getParameters()) {
+				if (simpleParameter instanceof ILevelParameter)
+					impactParameters.add((ImpactParameter) simpleParameter);
+				else if (simpleParameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE))
+					mandatoryPhase = (int) simpleParameter.getValue().intValue();
+				else if (simpleParameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE))
+					filter.setCia((int) simpleParameter.getValue().intValue());
+				else if (simpleParameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_DIRECT_SIZE))
+					filter.setDirect((int) simpleParameter.getValue().intValue());
+				else if (simpleParameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_INDIRECT_SIZE))
+					filter.setIndirect((int) simpleParameter.getValue().intValue());
+				else if (simpleParameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_IMPACT_THRESHOLD))
+					impactThreshold = (int) simpleParameter.getValue().intValue();
+				else if (simpleParameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_PROBABILITY_THRESHOLD))
+					probabilityThreshold = (int) simpleParameter.getValue().intValue();
 			}
 			// ****************************************************************
 			// * calculate RiskRegister using CSSFComputation
 			// ****************************************************************
-			helper = new ComputationHelper(extendedParameters);
+			helper = new ComputationHelper(impactParameters);
 			filter.setImpact(helper.getFactory().findRealImpactByMaxLevel(impactThreshold));
 			filter.setProbability(helper.getFactory().findExpLevel(probabilityThreshold));
 			setFactory(helper.getFactory());
@@ -248,7 +251,8 @@ public class RiskSheetComputation {
 	 * 
 	 * @see CSSFTools#sortAndConcatenateGroup(Map)
 	 */
-	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final ComputationHelper helper, CSSFFilter cssfFilter) throws TrickException {
+	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final ComputationHelper helper, CSSFFilter cssfFilter)
+			throws TrickException {
 		if (cssfFilter == null)
 			cssfFilter = new CSSFFilter(helper.getFactory().findRealImpactByMaxLevel(6), helper.getFactory().findExpLevel(5));
 		// calculate the NET Evaluation
@@ -409,6 +413,7 @@ public class RiskSheetComputation {
 	 * </ul>
 	 * </li>
 	 * </ul>
+	 * 
 	 * @param tmas
 	 *            List of TMA entries generated from the Analysis
 	 * @param probabilityRelativeImpacts
@@ -579,7 +584,7 @@ public class RiskSheetComputation {
 	 * @param tma
 	 *            The TMA Entry
 	 * @param parameters
-	 *            The Parameter List
+	 *            The SimpleParameter List
 	 */
 	private static void computeRawALE(Map<String, Double> rawALEs, final Map<String, Double> netALEs, final TMA tma, String key, ValueFactory valueFactory) {
 
@@ -825,18 +830,18 @@ public class RiskSheetComputation {
 		ComputationHelper helper = null;
 		try {
 			System.out.println("Risk Register calculation...");
-			List<ExtendedParameter> extendedParameters = new ArrayList<>(22);
+			List<ILevelParameter> impactParameters = new ArrayList<>(22);
 			int mandatoryPhase = 0;
-			for (Parameter parameter : this.analysis.getParameters()) {
-				if (parameter instanceof ExtendedParameter)
-					extendedParameters.add((ExtendedParameter) parameter);
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE))
-					mandatoryPhase = (int) parameter.getValue();
+			for (IParameter simpleParameter : this.analysis.getParameters()) {
+				if (simpleParameter instanceof ILevelParameter)
+					impactParameters.add((ImpactParameter) simpleParameter);
+				else if (simpleParameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.MANDATORY_PHASE))
+					mandatoryPhase = (int) simpleParameter.getValue();
 			}
 			// ****************************************************************
 			// * calculate RiskRegister using CSSFComputation
 			// ****************************************************************
-			helper = new ComputationHelper(extendedParameters);
+			helper = new ComputationHelper(impactParameters);
 			setFactory(helper.getFactory());
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
 			// print risk register into console

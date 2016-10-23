@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.model.parameter.helper.value;
+package lu.itrust.business.TS.model.parameter.value.impl;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,12 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.Any;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 
 /**
  * @author eomar
@@ -31,13 +32,13 @@ public class ParameterValue implements IValue {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name="dtName")
+	@Column(name = "dtName")
 	private String name;
 
-	@ManyToOne
+	@Any(metaColumn = @Column(name = "dtParameterType"),metaDef="PARAMETER_META_DEF")
 	@Cascade(CascadeType.SAVE_UPDATE)
-	@JoinColumn(name="fiParameter")
-	private AcronymParameter parameter;
+	@JoinColumn(name = "fiParameter")
+	private ILevelParameter parameter;
 
 	/**
 	 * 
@@ -49,7 +50,7 @@ public class ParameterValue implements IValue {
 	 * @param name
 	 * @param parameter
 	 */
-	public ParameterValue(String name, AcronymParameter parameter) {
+	public ParameterValue(String name, ILevelParameter parameter) {
 		this.name = name;
 		this.parameter = parameter;
 	}
@@ -62,7 +63,8 @@ public class ParameterValue implements IValue {
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -93,7 +95,7 @@ public class ParameterValue implements IValue {
 	 * lu.itrust.business.TS.model.parameter.helper.value.IValue#getParameter()
 	 */
 	@Override
-	public AcronymParameter getParameter() {
+	public ILevelParameter getParameter() {
 		return parameter;
 	}
 
@@ -101,7 +103,7 @@ public class ParameterValue implements IValue {
 	 * @param parameter
 	 *            the parameter to set
 	 */
-	public void setParameter(AcronymParameter parameter) {
+	public void setParameter(ILevelParameter parameter) {
 		this.parameter = parameter;
 	}
 
@@ -117,7 +119,7 @@ public class ParameterValue implements IValue {
 
 	@Override
 	public Double getReal() {
-		return parameter.getValue();
+		return parameter.getValue().doubleValue();
 	}
 
 }

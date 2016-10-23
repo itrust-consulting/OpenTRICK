@@ -47,9 +47,10 @@ import lu.itrust.business.TS.model.cssf.EvaluationResult;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -203,7 +204,7 @@ public class ControllerAssessment {
 	}
 
 	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis, Assessment assessment) {
-		List<ExtendedParameter> probabilities = new ArrayList<>(11), impacts = new ArrayList<>(11);
+		List<ImpactParameter> probabilities = new ArrayList<>(11), impacts = new ArrayList<>(11);
 		analysis.groupExtended(probabilities, impacts);
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("assessment", assessment);
@@ -472,7 +473,7 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	private Map<String, Double> generateKeyValueMatching(int idAnalysis) throws Exception {
-		return serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis).stream().collect(Collectors.toMap(AcronymParameter::getKey, AcronymParameter::getValue));
+		return serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis).stream().collect(Collectors.toMap(IAcronymParameter::getKey, IAcronymParameter::getValue));
 	}
 
 	/**

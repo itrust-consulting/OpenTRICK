@@ -35,8 +35,8 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
@@ -239,7 +239,7 @@ public class ActionPlanComputation {
 
 		System.out.println("Computing Action Plans...");
 
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
 
 		try {
 
@@ -843,7 +843,7 @@ public class ActionPlanComputation {
 		if (actionPlanType == null)
 			serviceActionPlanType.saveOrUpdate(actionPlanType = new ActionPlanType(mode));
 
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * parse all phases where measures are in
@@ -1648,7 +1648,7 @@ public class ActionPlanComputation {
 		if (!measure.getMeasureDescription().getStandard().isComputable())
 			return;
 
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * parse TMAList to update ALE values
@@ -1719,7 +1719,7 @@ public class ActionPlanComputation {
 		String chapter = "";
 		Assessment assessment = null;
 
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * determine the maturity chapter
@@ -1813,7 +1813,7 @@ public class ActionPlanComputation {
 	 * Generates a list of Measure-Assessment-Threat and Calculates for this
 	 * Triple the deltaALE and if it is a Measure of the AnalysisStandard 27002
 	 * the deltaALE Maturity. <br>
-	 * The Parameter usedMeasures will have a list of Measures that are to be
+	 * The SimpleParameter usedMeasures will have a list of Measures that are to be
 	 * used for the Action Plan Calculation. The Method returns the List of TMA
 	 * Entries and inside the parameter usedMeasures the Measures.
 	 * 
@@ -1841,7 +1841,7 @@ public class ActionPlanComputation {
 		// * initialise variables
 		// ****************************************************************
 		List<TMA> TMAList = new ArrayList<TMA>();
-		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = analysis.getExpressionParameters();
 
 		// ****************************************************************
 		// * clear List
@@ -2048,12 +2048,12 @@ public class ActionPlanComputation {
 		boolean measureFound = false;
 		String tmpReference = "";
 		int matLevel = 0;
-		Parameter param = null;
+		IParameter param = null;
 		double rrf = 0;
 		double cMaxEff = -1;
 		double nMaxEff = -1;
-		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
-		Parameter parameterMaxRRF = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
+		List<AbstractProbability> expressionParameters = analysis.getExpressionParameters();
+		IParameter parameterMaxRRF = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
 				.findAny().orElse(null);
 
 		// ****************************************************************
@@ -2300,7 +2300,7 @@ public class ActionPlanComputation {
 	 * addMaturityChaptersToUsedMeasures: <br>
 	 * Parse Maturity Measure and Add only Chapters of Maturity to
 	 * "usedmeasures" parameter. This is used to identify the Maturity Measures
-	 * to Add to the Action Plan. If Parameter "phase" is not 0 then add
+	 * to Add to the Action Plan. If SimpleParameter "phase" is not 0 then add
 	 * Maturity Chapters for the given Phase.
 	 * 
 	 * @param analysis
@@ -2383,7 +2383,7 @@ public class ActionPlanComputation {
 	 */
 	private static void addAMaturtiyChapterToUsedMeasures(Analysis analysis, List<Measure> usedMeasures, MaturityStandard maturityStandard, MaturityMeasure measure) {
 
-		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = analysis.getExpressionParameters();
 		
 		// extract chapter number from level 1 measure
 		String chapterValue = measure.getMeasureDescription().getReference().substring(2, measure.getMeasureDescription().getReference().length());
@@ -2406,7 +2406,7 @@ public class ActionPlanComputation {
 	 *            The Maturity Chapter Measure Object (Level 1 Measure)
 	 * @return True if the Cost is > 0; False if Cost is 0
 	 */
-	private static final boolean isMaturityChapterTotalCostBiggerThanZero(MaturityStandard maturityStandard, MaturityMeasure chapter, List<AcronymParameter> expressionParameters) {
+	private static final boolean isMaturityChapterTotalCostBiggerThanZero(MaturityStandard maturityStandard, MaturityMeasure chapter, List<AbstractProbability> expressionParameters) {
 
 		// initialise measure cost
 		double totalCost = 0;
@@ -2830,7 +2830,7 @@ public class ActionPlanComputation {
 			}
 		}
 		
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
 
 		// check if first stage -> YES
 		if (firstStage)

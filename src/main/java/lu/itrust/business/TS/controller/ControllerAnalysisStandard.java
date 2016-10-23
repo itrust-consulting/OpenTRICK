@@ -79,8 +79,8 @@ import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
@@ -279,10 +279,10 @@ public class ControllerAnalysisStandard {
 		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
 			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
 			if (maturityStandard != null && maturityStandard.getStandard().isComputable()) {
-				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+				List<IParameter> simpleParameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 						Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 				model.addAttribute("effectImpl27002",
-						MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true, factory));
+						MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), simpleParameters, true, factory));
 			}
 		}
 
@@ -340,7 +340,7 @@ public class ControllerAnalysisStandard {
 		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002, chapters);
 		List<Measure> maturities = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_MATURITY,
 				chapters.stream().map(reference -> "M." + reference).collect(Collectors.toList()));
-		List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+		List<IParameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 				Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, parameters, false, new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis)));
 	}
@@ -364,7 +364,7 @@ public class ControllerAnalysisStandard {
 					model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
 				else {
 					model.addAttribute("hasMaturity", true);
-					List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
+					List<IParameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
 							Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, parameters, factory).get(chapter);
 					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue(factory) * maturity * 0.01);
@@ -470,12 +470,12 @@ public class ControllerAnalysisStandard {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-		Parameter parameter = serviceParameter.getByAnalysisIdAndDescription(idAnalysis, Constant.SOA_THRESHOLD);
+		IParameter parameter = serviceParameter.getByAnalysisIdAndDescription(idAnalysis, Constant.SOA_THRESHOLD);
 
-		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue());
+		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue().doubleValue());
 
 		model.addAttribute("soa", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
-		
+
 		model.addAttribute("valueFactory", new ValueFactory(serviceParameter.findAllDynamicByAnalysisId(idAnalysis)));
 
 		return "analyses/single/components/soa";
@@ -610,8 +610,8 @@ public class ControllerAnalysisStandard {
 			if (standard.getType() == StandardType.MATURITY) {
 				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
-				for (Parameter parameter : analysis.getParameters()) {
-					if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
+				for (IParameter parameter : analysis.getParameters()) {
+					if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue().doubleValue() == 0) {
 						implementationRate = parameter;
 						break;
 					}
@@ -1104,7 +1104,7 @@ public class ControllerAnalysisStandard {
 
 				Map<String, TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
 						.collect(Collectors.toMap(task -> task.getId(), Function.identity()));
-				List<? extends Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				List<? extends IParameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 				model.addAttribute("measures", measures);
 				model.addAttribute("parameters", parameters);
 				model.addAttribute("tasks", tasks);
@@ -1304,18 +1304,18 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		Iterator<Parameter> iterator = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
+		Iterator<IParameter> iterator = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
 		while (iterator.hasNext()) {
-			Parameter parameter = iterator.next();
+			IParameter parameter = iterator.next();
 			switch (parameter.getDescription()) {
 			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
-				internalSetupValue = parameter.getValue();
+				internalSetupValue = parameter.getValue().doubleValue();
 				break;
 			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
-				externalSetupValue = parameter.getValue();
+				externalSetupValue = parameter.getValue().doubleValue();
 				break;
 			case Constant.PARAMETER_LIFETIME_DEFAULT:
-				lifetimeDefault = parameter.getValue();
+				lifetimeDefault = parameter.getValue().doubleValue();
 				break;
 			}
 		}

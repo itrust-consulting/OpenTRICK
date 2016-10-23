@@ -4,17 +4,14 @@
 package lu.itrust.business.TS.model.scale;
 
 import java.util.List;
-import java.util.Map;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.Cascade;
@@ -32,24 +29,12 @@ public class Scale {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name = "dtName", unique = true)
-	private String name;
-
-	@Column(name = "dtAcronym", unique = true)
-	private String acronym;
-
-	@ElementCollection
-	@MapKeyColumn(name = "dtLocale")
-	@Column(name = "dtTranslate")
-	@Cascade(CascadeType.ALL)
-	@CollectionTable(name = "ScaleTranslations", joinColumns = @JoinColumn(name = "fiScale"))
-	private Map<String, String> translations;
+	@ManyToOne
+	@JoinColumn(name = "fiType", unique = true)
+	private ScaleType type;
 
 	@Column(name = "dtLevel")
 	private int level;
-
-	@Column(name = "dtMinValue")
-	private double minValue;
 
 	@Column(name = "dtMaxValue")
 	private double maxValue;
@@ -81,33 +66,17 @@ public class Scale {
 	}
 
 	/**
-	 * @return the name
+	 * @return the type
 	 */
-	public String getName() {
-		return name;
+	public ScaleType getType() {
+		return type;
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param type the type to set
 	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * @return the translations
-	 */
-	public Map<String, String> getTranslations() {
-		return translations;
-	}
-
-	/**
-	 * @param translations
-	 *            the translations to set
-	 */
-	public void setTranslations(Map<String, String> translations) {
-		this.translations = translations;
+	public void setType(ScaleType type) {
+		this.type = type;
 	}
 
 	/**
@@ -123,21 +92,6 @@ public class Scale {
 	 */
 	public void setLevel(int level) {
 		this.level = level;
-	}
-
-	/**
-	 * @return the minValue
-	 */
-	public double getMinValue() {
-		return minValue;
-	}
-
-	/**
-	 * @param minValue
-	 *            the minValue to set
-	 */
-	public void setMinValue(double minValue) {
-		this.minValue = minValue;
 	}
 
 	/**
@@ -170,27 +124,11 @@ public class Scale {
 		this.scaleEntries = scaleEntries;
 	}
 
-	/**
-	 * @return the acronym
-	 */
-	public String getAcronym() {
-		return acronym;
-	}
-
-	/**
-	 * @param acronym
-	 *            the acronym to set
-	 */
-	public void setAcronym(String acronym) {
-		this.acronym = acronym;
-	}
-
 	public void merge(Scale scale) {
-		if(scale.translations != null)
-			scale.translations.forEach((local, translate) -> this.translations.put(local, translate));
+		if (scale.type != null)
+			scale.type.forEach((local, translate) -> this.type.put(local, translate));
 		this.level = scale.level;
 		this.maxValue = scale.maxValue;
-		this.minValue = scale.minValue;
 	}
 
 }

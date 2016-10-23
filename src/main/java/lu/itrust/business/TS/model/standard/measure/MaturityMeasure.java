@@ -15,8 +15,8 @@ import javax.persistence.Transient;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 
 /**
@@ -210,17 +210,18 @@ public class MaturityMeasure extends Measure implements Cloneable {
 
 	/**
 	 * getImplementationRate: <br>
-	 * Returns the implementationRate field value (Parameter Object).
+	 * Returns the implementationRate field value (SimpleParameter Object).
 	 * 
-	 * @return The Object of Parameter representing the implementation rate
+	 * @return The Object of SimpleParameter representing the implementation
+	 *         rate
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRate()
 	 */
 	@Override
 	@ManyToOne
 	@JoinColumn(name = "fiImplementationRateParameter", nullable = false)
 	@Access(AccessType.FIELD)
-	public Parameter getImplementationRate() {
-		return (Parameter) super.getImplementationRate();
+	public SimpleParameter getImplementationRate() {
+		return (SimpleParameter) super.getImplementationRate();
 	}
 
 	@Override
@@ -231,7 +232,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 
 	/**
 	 * setImplementationRate: <br>
-	 * Sets the Field "implementationRate" with a Parameter object.
+	 * Sets the Field "implementationRate" with a SimpleParameter object.
 	 * 
 	 * @param implementationRate
 	 *            The Value to set the implementationRate field PArameter Object
@@ -240,9 +241,9 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof Parameter))
+		if (!(implementationRate instanceof SimpleParameter))
 			throw new TrickException("error.measure.maturity.implementation_rate", "Invalid implementation rate value");
-		super.setImplementationRate((Parameter) implementationRate);
+		super.setImplementationRate((SimpleParameter) implementationRate);
 	}
 
 	/**
@@ -254,7 +255,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	@Override
 	@Transient
 	public double getImplementationRateValue(ValueFactory factory) {
-		return getImplementationRate() != null ? getImplementationRate().getValue() : 0;
+		return getImplementationRate() != null ? getImplementationRate().getValue().intValue() : 0;
 	}
 
 	/**

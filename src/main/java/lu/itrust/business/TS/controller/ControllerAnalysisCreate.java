@@ -70,8 +70,9 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -318,7 +319,7 @@ public class ControllerAnalysisCreate {
 			for (RiskInformation riskInformation : riskInformations)
 				analysis.addARiskInformation(riskInformation.duplicate());
 
-			Map<String, Parameter> mappingParameters = generateParameters(analysis, serviceParameter.getAllFromAnalysis(analysisForm.getParameter()), analysisForm.getType());
+			Map<String, IParameter> mappingParameters = generateParameters(analysis, serviceParameter.getAllFromAnalysis(analysisForm.getParameter()), analysisForm.getType());
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
 
@@ -410,13 +411,13 @@ public class ControllerAnalysisCreate {
 		}
 	}
 
-	private Map<String, Parameter> generateParameters(Analysis analysis, List<Parameter> parameters, AnalysisType analysisType) {
+	private Map<String, IParameter> generateParameters(Analysis analysis, List<IParameter> parameters, AnalysisType analysisType) {
 		if (analysisType == AnalysisType.QUALITATIVE) {
-			Map<String, Parameter> mappedParameters = new LinkedHashMap<>(parameters.size());
-			List<Parameter> finParameters = new LinkedList<>();
+			Map<String, SimpleParameter> mappedParameters = new LinkedHashMap<>(parameters.size());
+			List<SimpleParameter> finParameters = new LinkedList<>();
 			boolean[] presents = { true, true, true };// leg,ope,rep
 			parameters.stream().map(parameter -> parameter.duplicate()).filter(analysis::addAParameter).forEach(parameter -> {
-				switch (parameter.getType().getLabel()) {
+				switch (parameter.getType().getName()) {
 				case PARAMETERTYPE_TYPE_IMPACT_NAME:
 					finParameters.add(parameter);
 					break;
@@ -443,15 +444,15 @@ public class ControllerAnalysisCreate {
 			return parameters.stream()
 					.filter(parameter -> !(parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME) || parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME)
 							|| parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME)))
-					.map(Parameter::duplicate).filter(analysis::addAParameter).collect(Collectors.toMap(Parameter::getKey, Function.identity()));
+					.map(IParameter::duplicate).filter(analysis::addAParameter).collect(Collectors.toMap(IParameter::getKey, Function.identity()));
 	}
 
-	private void copyExtendedParameters(Analysis analysis, List<Parameter> parameters, Map<String, Parameter> mappedParameters, int id, String type) {
+	private void copyExtendedParameters(Analysis analysis, List<SimpleParameter> simpleParameters, Map<String, SimpleParameter> mappedParameters, int id, String type) {
 		ParameterType parameterType = serviceParameterType.getByName(type);
 		if (parameterType == null)
-			parameterType = new ParameterType(id, type);
-		for (Parameter parameter : parameters) {
-			Parameter clone = parameter.clone();
+			parameterType = new ParameterType(type);
+		for (SimpleParameter simpleParameter : simpleParameters) {
+			SimpleParameter clone = simpleParameter.clone();
 			clone.setType(parameterType);
 			mappedParameters.put(clone.getKey(), clone);
 			analysis.addAParameter(clone);

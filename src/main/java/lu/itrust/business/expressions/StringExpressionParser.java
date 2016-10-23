@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lu.itrust.business.TS.model.parameter.helper.value.IValue;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 
 /**
  * Represents a simple expression parser with support for variables and basic

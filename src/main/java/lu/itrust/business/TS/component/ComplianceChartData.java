@@ -6,8 +6,8 @@ package lu.itrust.business.TS.component;
 import java.util.Collections;
 import java.util.List;
 
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
@@ -58,7 +58,7 @@ public class ComplianceChartData {
 	 * @param analysisExpressionParameters
 	 *            The expression parameters of the associated analysis.
 	 */
-	public ComplianceChartData(String standard, String analysis, List<Measure> measures, List<AcronymParameter> analysisExpressionParameters) {
+	public ComplianceChartData(String standard, String analysis, List<Measure> measures, List<IProbabilityParameter> analysisExpressionParameters) {
 		this(standard, analysis, measures, new ValueFactory(analysisExpressionParameters));
 	}
 

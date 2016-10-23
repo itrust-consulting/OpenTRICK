@@ -14,7 +14,7 @@ import lu.itrust.business.TS.model.analysis.helper.AnalysisBaseInfo;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -352,7 +352,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * Description
 	 * 
 	 * @param idAnalysis
-	 * @param Parameter
+	 * @param SimpleParameter
 	 * @return
 	 * @
 	 * 
@@ -361,7 +361,7 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 */
 
 	@Override
-	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter)  {
+	public IParameter getParameterFromAnalysis(Integer idAnalysis, String Parameter)  {
 		return daoAnalysis.getParameterFromAnalysis(idAnalysis, Parameter);
 	}
 

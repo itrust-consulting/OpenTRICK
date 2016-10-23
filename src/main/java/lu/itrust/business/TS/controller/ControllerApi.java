@@ -53,8 +53,8 @@ import lu.itrust.business.TS.model.api.basic.ApiStandard;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.TS.model.general.Customer;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.helper.value.ValueFactory;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.IDS;
@@ -273,7 +273,7 @@ public class ControllerApi {
 		ApiRRF apiRRF = new ApiRRF(idAnalysis, assessment.getImpactReal(), assessment.getLikelihoodReal());
 		apiRRF.setScenario(new ApiNamable(assessment.getScenario().getId(), assessment.getScenario().getName()));
 		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(), assessment.getAsset().getValue()));
-		Parameter rrfTuning = analysis.findParameterByTypeAndDescription(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter rrfTuning = analysis.findParameterByTypeAndDescription(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		ValueFactory factory = new ValueFactory(analysis.getParameters());
 		for (String name : standardNames) {
 			AnalysisStandard analysisStandard = analysisStandards.get(name);

@@ -36,30 +36,6 @@ public class ServiceScaleImpl implements ServiceScale {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.service.ServiceScale#findByName(java.lang.
-	 * String)
-	 */
-	@Override
-	public Scale findByName(String name) {
-		return daoScale.findByName(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.service.ServiceScale#findByAcronym(java.
-	 * lang.String)
-	 */
-	@Override
-	public Scale findByAcronym(String acronym) {
-		return daoScale.findByAcronym(acronym);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceScale#findAll()
 	 */
 	@Override
@@ -75,30 +51,6 @@ public class ServiceScaleImpl implements ServiceScale {
 	@Override
 	public boolean exists(int id) {
 		return daoScale.exists(id);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.service.ServiceScale#hasName(java.lang.
-	 * String)
-	 */
-	@Override
-	public boolean hasName(String name) {
-		return daoScale.hasName(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.TS.database.service.ServiceScale#hasAcronym(java.lang.
-	 * String)
-	 */
-	@Override
-	public boolean hasAcronym(String acronym) {
-		return daoScale.hasAcronym(acronym);
 	}
 
 	/*
@@ -148,7 +100,7 @@ public class ServiceScaleImpl implements ServiceScale {
 	 */
 	@Transactional
 	@Override
-	public void delete(List<Scale> scales) {
+	public void delete(List<Integer> scales) {
 		daoScale.delete(scales);
 	}
 
