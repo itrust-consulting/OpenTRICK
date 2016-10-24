@@ -21,9 +21,6 @@ public class ComputationHelper implements Destroyable {
 	// Inet*Pnet)
 	private Map<String, Double> netALEs = new HashMap<String, Double>();
 
-	// initialise a empty map that contains Impact objects
-	private Map<String, Impact> impacts = new HashMap<String, Impact>();
-
 	// initialise the risk register as an empty list of risk register items
 	private Map<String, RiskRegisterItem> riskRegisters = new HashMap<String, RiskRegisterItem>();
 
@@ -59,25 +56,6 @@ public class ComputationHelper implements Destroyable {
 		if (destroyed)
 			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
 		this.netALEs = netALEs;
-	}
-
-	/**
-	 * @return the impacts
-	 */
-	public Map<String, Impact> getImpacts() {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		return impacts;
-	}
-
-	/**
-	 * @param impacts
-	 *            the impacts to set
-	 */
-	public void setImpacts(Map<String, Impact> impacts) {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		this.impacts = impacts;
 	}
 
 	/**
@@ -170,7 +148,6 @@ public class ComputationHelper implements Destroyable {
 				return;
 			destroyed = true;
 			deltaALEs.clear();
-			impacts.clear();
 			riskRegisters.clear();
 			probabilityRelativeImpacts.clear();
 			rawALEs.clear();

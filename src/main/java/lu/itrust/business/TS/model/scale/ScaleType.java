@@ -42,6 +42,11 @@ public class ScaleType extends AbstractParameterType {
 	public ScaleType() {
 	}
 
+	public ScaleType(String name, String acronym) {
+		super(name);
+		setAcronym(acronym);
+	}
+
 	/**
 	 * @return the acronym
 	 */

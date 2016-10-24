@@ -90,8 +90,9 @@ public class ControllerScale {
 	}
 
 	@RequestMapping(value = "/Type/{id}/Edit", method = RequestMethod.GET)
-	public String edit(@PathVariable String id, Model model, Locale locale) {
+	public String editType(@PathVariable int id, Model model, Locale locale) {
 		model.addAttribute("scaleType", serviceScaleType.findOne(id));
+		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
 		return "knowledgebase/scale/type/form";
 	}
@@ -121,7 +122,6 @@ public class ControllerScale {
 	@RequestMapping(value = "/{id}/Edit", method = RequestMethod.GET)
 	public String edit(@PathVariable int id, Model model, Locale locale) {
 		model.addAttribute("scale", serviceScale.findOne(id));
-		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
 		return "knowledgebase/scale/form";
 	}
@@ -130,7 +130,7 @@ public class ControllerScale {
 	public String add(Model model, Locale locale) {
 		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
-		model.addAttribute("scaleTypes", serviceScaleType.findAll());
+		model.addAttribute("scaleTypes", serviceScaleType.findAllFree());
 		return "knowledgebase/scale/form";
 	}
 

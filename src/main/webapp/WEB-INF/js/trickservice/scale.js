@@ -48,7 +48,16 @@ function processScaleForm(response, textStatus, jqXHR) {
 			$view.remove();
 		});
 
-		var $submitButton = $("form>#scale_form_submit_button", $view);
+		var $submitButton = $("form>#scale_form_submit_button", $view), $scaleType = $("select[id='scale_type_id']", $view);
+
+		if ($scaleType.length) {
+			var $acronym = $("input[id='scale_type_acronym']", $view), $name = $("input[id='scale_type_name']", $view);
+			$scaleType.on("change", function() {
+				var $option = $scaleType.find("option[value='" + this.value + "']");
+				$acronym.val($option.attr("data-acronym"));
+				$name.val($option.attr("data-name"));
+			});
+		}
 
 		$(".modal-footer>#scale_submit_button", $view).on("click", function() {
 			return $submitButton.click();
@@ -72,7 +81,7 @@ function saveScale($view, form) {
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined) {
 				$view.modal("hide");
-				reloadSection("section_kb_impact");
+				reloadSection([ "section_kb_impact", "section_kb_scale" ]);
 			} else {
 				for ( var error in response) {
 					var errorElement = document.createElement("label");
@@ -123,7 +132,7 @@ function deleteScale() {
 				data : JSON.stringify(selectedIDScale),
 				success : function(response, textStatus, jqXHR) {
 					if (response["success"] != undefined)
-						reloadSection("section_kb_impact");
+						reloadSection([ "section_kb_impact", "section_kb_scale" ]);
 					else if (response["error"] != undefined)
 						showDialog("#info-dialog", response["error"]);
 					else
@@ -142,7 +151,7 @@ function deleteScale() {
 }
 
 function addScaleType() {
-	if (findSelectItemIdBySection("section_kb_impact").length > 0)
+	if (findSelectItemIdBySection("section_kb_scale_type").length > 0)
 		return false;
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -158,7 +167,7 @@ function addScaleType() {
 
 function editScaleType(id) {
 	if (id == undefined || id < 1) {
-		var selectedIDScale = findSelectItemIdBySection("section_kb_impact");
+		var selectedIDScale = findSelectItemIdBySection("section_kb_scale_type");
 		if (selectedIDScale.length != 1)
 			return false;
 		id = selectedIDScale[0]

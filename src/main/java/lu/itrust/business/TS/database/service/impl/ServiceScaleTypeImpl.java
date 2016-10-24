@@ -154,4 +154,9 @@ public class ServiceScaleTypeImpl implements ServiceScaleType {
 	public void deleteAll() {
 		daoScaleType.deleteAll();
 	}
+
+	@Override
+	public List<ScaleType> findAllFree() {
+		return daoScaleType.findAllFree();
+	}
 }

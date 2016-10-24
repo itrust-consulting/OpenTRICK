@@ -35,7 +35,7 @@
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.knowledgebase.impacts_scales"
 							text="Impacts / Scales" /><span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="#tab_kb_scale_type" data-toggle="tab"><spring:message code="label.menu.knowledgebase.impact_type" text="Impact type" /></a></li>
+						<li><a href="#tab_kb_scale_type" data-toggle="tab"><spring:message code="label.menu.knowledgebase.impact_type" text="Type" /></a></li>
 						<li><a href="#tab_kb_impact" data-toggle="tab"><spring:message code="label.menu.knowledgebase.impact" text="Impact" /></a></li>
 						<li><a href="#tab_kb_scale" data-toggle="tab"><spring:message code="label.menu.knowledgebase.scales" text="Scales" /></a></li>
 					</ul></li>

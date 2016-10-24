@@ -187,21 +187,21 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	 * ComputeScales: <br>
 	 * Description
 	 * 
-	 * @param impactParameter
-	 * @param extendedParameterPrev
-	 * @param extendedParameterNext
+	 * @param prev
+	 * @param current
+	 * @param next
 	 */
-	public static void ComputeScales(ImpactParameter impactParameter, ImpactParameter extendedParameterPrev, ImpactParameter extendedParameterNext) {
+	public static void ComputeScales(ImpactParameter prev, ImpactParameter current, ImpactParameter next) {
 		// throw new
 		// TrickException("error.compute.scale.extended.parameter.bad.type",
 		// "Scales cannot only compute for probability and financial impact");
-		impactParameter.setValue(Math.sqrt(extendedParameterPrev.getValue() * extendedParameterNext.getValue()));
-		if (extendedParameterPrev.level == 0)
-			extendedParameterPrev.bounds = new Bounds(0, Math.sqrt(impactParameter.getValue() * extendedParameterPrev.getValue()));
+		prev.setValue(Math.sqrt(current.getValue() * next.getValue()));
+		if (current.level == 0)
+			current.bounds = new Bounds(0, Math.sqrt(prev.getValue() * current.getValue()));
 		else
-			extendedParameterPrev.bounds = new Bounds(extendedParameterPrev.bounds.getFrom(), Math.sqrt(impactParameter.getValue() * extendedParameterPrev.getValue()));
-		impactParameter.bounds = new Bounds(extendedParameterPrev.bounds.getTo(), Math.sqrt(impactParameter.getValue() * extendedParameterNext.getValue()));
-		extendedParameterNext.bounds = new Bounds(impactParameter.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
+			current.bounds = new Bounds(current.bounds.getFrom(), Math.sqrt(prev.getValue() * current.getValue()));
+		prev.bounds = new Bounds(current.bounds.getTo(), Math.sqrt(prev.getValue() * next.getValue()));
+		next.bounds = new Bounds(prev.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
 
 	}
 

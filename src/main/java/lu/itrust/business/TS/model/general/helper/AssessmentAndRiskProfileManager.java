@@ -1,11 +1,6 @@
 package lu.itrust.business.TS.model.general.helper;
 
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_DYNAMIC;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_LEG;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_OPE;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_REP;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY;
+import static lu.itrust.business.TS.constants.Constant.*;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,8 +28,10 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.expressions.StringExpressionParser;
 
@@ -171,34 +168,18 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	@Transactional
-	public void UpdateAcronym(int idAnalysis, AbstractProbability abstractProbability, String acronym) {
+	public void UpdateAcronym(int idAnalysis, ILevelParameter parameter, String acronym) {
 		// retrieve assessments by acronym and analysis
 		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
 		// parse assessments and update impact value to parameter acronym
 		for (Assessment assessment : assessments) {
-			switch (abstractProbability.getType().getId()) {
-			case PARAMETERTYPE_TYPE_IMPACT:
-				if (acronym.equals(assessment.getImpactFin()))
-					assessment.setImpactFin(abstractProbability.getAcronym());
-				break;
-			case PARAMETERTYPE_TYPE_IMPACT_LEG:
-				if (acronym.equals(assessment.getImpactLeg()))
-					assessment.setImpactLeg(abstractProbability.getAcronym());
-				break;
-			case PARAMETERTYPE_TYPE_IMPACT_OPE:
-				if (acronym.equals(assessment.getImpactOp()))
-					assessment.setImpactOp(abstractProbability.getAcronym());
-				break;
-			case PARAMETERTYPE_TYPE_IMPACT_REP:
-				if (acronym.equals(assessment.getImpactRep()))
-					assessment.setImpactRep(abstractProbability.getAcronym());
-				break;
-			case PARAMETERTYPE_TYPE_PROPABILITY:
-			case PARAMETERTYPE_TYPE_DYNAMIC:
+			switch (parameter.getTypeName()) {
+			case PARAMETERTYPE_TYPE_PROPABILITY_NAME:
+			case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
 				if (acronym.equals(assessment.getLikelihood()))
-					assessment.setLikelihood(abstractProbability.getAcronym());
+					assessment.setLikelihood(parameter.getAcronym());
 				else if (!StringUtils.isEmpty(assessment.getLikelihood()))
-					assessment.setLikelihood(assessment.getLikelihood().replace(acronym, abstractProbability.getAcronym()));
+					assessment.setLikelihood(assessment.getLikelihood().replace(acronym, parameter.getAcronym()));
 				break;
 			}
 			// update assessment
@@ -433,12 +414,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory, AnalysisType type) {
-		double impactFin = factory.findImpactFinValue(assessment.getImpactFin());
-		if (type == AnalysisType.QUALITATIVE)
-			assessment.setImpactReal(Math.max(factory.findImpactRepValue(assessment.getImpactRep()),
-					Math.max(factory.findImpactOpValue(assessment.getImpactOp()), Math.max(factory.findImpactLegValue(assessment.getImpactLeg()), impactFin))));
-		else
-			assessment.setImpactReal(impactFin);
+		IValue value = type == AnalysisType.QUALITATIVE ? factory.findMaxImpactByLevel(assessment.getImpacts()) : factory.findMaxImpactByReal(assessment.getImpacts());
+		assessment.setImpactReal(value == null ? 0D : value.getReal());
 		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood()).evaluate(factory));
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
 		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());

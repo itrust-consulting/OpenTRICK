@@ -44,6 +44,7 @@ function reloadSection(section, subSection, refreshOnly) {
 				reloadSection(section[i][0], section[i][1], refreshOnly);
 			else
 				reloadSection(section[i], subSection, refreshOnly);
+
 		}
 	} else if (section == "section_standard")
 		location.reload();
@@ -111,16 +112,16 @@ function findControllerBySection(section, subSection) {
 		"section_soa" : "/Analysis/Standard/SOA",
 		"section_ids" : "/Admin/IDS/Section",
 		"section_kb_impact" : "/KnowledgeBase/Scale",
-		"section_kb_scale" : "/KnowledgeBase/Scale",
+		"section_kb_scale" : "/KnowledgeBase/Scale/Entry",
 		"section_kb_scale_type" : "/KnowledgeBase/Scale/Type"
-		
+
 	};
 
 	if (section.match("^section_standard_")) {
 		$("[data-toggle='tooltip']", "#" + section).tooltip('destroy');
 		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
 	}
-	
+
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
 	else

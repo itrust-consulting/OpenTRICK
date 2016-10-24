@@ -253,7 +253,7 @@ public class ControllerEditField {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get parameter object
-			SimpleParameter simpleParameter = serviceParameter.getFromAnalysisById(id, elementID);
+			IParameter simpleParameter = serviceParameter.getFromAnalysisById(id, elementID);
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(simpleParameter.getClass());
 			if (validator == null)
@@ -264,7 +264,7 @@ public class ControllerEditField {
 			String error = serviceDataValidation.validate(simpleParameter, fieldEditor.getFieldName(), value);
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
-			switch (simpleParameter.getType().getName()) {
+			switch (simpleParameter.getTypeName()) {
 			case Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME:
 			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME:
 			case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME:
@@ -531,7 +531,7 @@ public class ControllerEditField {
 					probaImpact = new RiskProbaImpact();
 				Field child = FindField(RiskProbaImpact.class, fields[2]);
 				Integer idParameter = (Integer) FieldValue(fieldEditor);
-				SimpleParameter simpleParameter = serviceParameter.getFromAnalysisById(idAnalysis, idParameter);
+				IParameter simpleParameter = serviceParameter.getFromAnalysisById(idAnalysis, idParameter);
 				if (SetFieldValue(probaImpact, child, simpleParameter) && SetFieldValue(riskProfile, field, probaImpact))
 					result.add(new FieldValue(fields[1].startsWith("raw") ? "rawComputedImportance" : "expComputedImportance", probaImpact.getImportance()));
 				else

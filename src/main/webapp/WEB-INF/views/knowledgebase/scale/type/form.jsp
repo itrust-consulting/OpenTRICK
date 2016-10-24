@@ -37,7 +37,7 @@
 						<label for="acronym" class="col-sm-2 control-label"> <spring:message code="label.scale.acronym" text="Acronym" />
 						</label>
 						<div class="col-sm-10">
-							<input name="acronym" id="scale_type_acronym" class="form-control" value="${empty scale? '': scaleType.acronym}" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
+							<input name="acronym" id="scale_type_acronym" class="form-control" value="${empty scaleType? '': scaleType.acronym}" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
 						</div>
 					</div>
 					

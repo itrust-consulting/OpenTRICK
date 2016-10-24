@@ -3,15 +3,23 @@
  */
 package lu.itrust.business.TS.model.cssf;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
@@ -28,21 +36,12 @@ public class RiskProbaImpact implements Cloneable {
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private LikelihoodParameter probability;
 
-	@ManyToOne
+	@OneToMany
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private ImpactParameter impactRep;
+	private List<ImpactParameter> impacts = new LinkedList<>();
 
-	@ManyToOne
-	@Cascade(CascadeType.SAVE_UPDATE)
-	private ImpactParameter impactOp;
-
-	@ManyToOne
-	@Cascade(CascadeType.SAVE_UPDATE)
-	private ImpactParameter impactLeg;
-
-	@ManyToOne
-	@Cascade(CascadeType.SAVE_UPDATE)
-	private ImpactParameter impactFin;
+	@Transient
+	private Map<String, IImpactParameter> impactMapper = new LinkedHashMap<>();
 
 	/**
 	 * 
@@ -57,18 +56,20 @@ public class RiskProbaImpact implements Cloneable {
 	 * @param impactOp
 	 * @param impactRep
 	 */
-	public RiskProbaImpact(LikelihoodParameter probability, ImpactParameter impactFin, ImpactParameter impactLeg, ImpactParameter impactOp, ImpactParameter impactRep) {
+	public RiskProbaImpact(LikelihoodParameter probability, ImpactParameter... impacts) {
 		this.probability = probability;
-		this.impactFin = impactFin;
-		this.impactLeg = impactLeg;
-		this.impactOp = impactOp;
-		this.impactRep = impactRep;
+		this.impacts = Arrays.asList(impacts);
+	}
+
+	public RiskProbaImpact(LikelihoodParameter probability, List<ImpactParameter> impacts) {
+		this.probability =  probability;
+		this.impacts = impacts;
 	}
 
 	/**
 	 * @return the probability
 	 */
-	public ILevelParameter getProbability() {
+	public LikelihoodParameter getProbability() {
 		return probability;
 	}
 
@@ -81,63 +82,57 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	/**
-	 * @return the impactRep
+	 * @return the impacts
 	 */
-	public ILevelParameter getImpactRep() {
-		return impactRep;
+	public List<? extends IImpactParameter> getImpacts() {
+		return impacts;
 	}
 
 	/**
-	 * @param impactRep
-	 *            the impactRep to set
+	 * @param impacts
+	 *            the impacts to set
 	 */
-	public void setImpactRep(ImpactParameter impactRep) {
-		this.impactRep = impactRep;
+	public void setImpacts(List<ImpactParameter> impacts) {
+		this.impacts = impacts;
 	}
 
 	/**
-	 * @return the impactOp
+	 * @return the impactMapper
 	 */
-	public ILevelParameter getImpactOp() {
-		return impactOp;
+	protected Map<String, IImpactParameter> getImpactMapper() {
+		if (impactMapper == null)
+			setImpactMapper(impacts.stream().collect(Collectors.toMap(ImpactParameter::getTypeName, Function.identity())));
+		return impactMapper;
 	}
 
 	/**
-	 * @param impactOp
-	 *            the impactOp to set
+	 * @param impactMapper
+	 *            the impactMapper to set
 	 */
-	public void setImpactOp(ImpactParameter impactOp) {
-		this.impactOp = impactOp;
+	protected void setImpactMapper(Map<String, IImpactParameter> impactMapper) {
+		this.impactMapper = impactMapper;
 	}
 
 	/**
-	 * @return the impactLeg
+	 * @param key
+	 * @return
+	 * @see java.util.Map#get(java.lang.Object)
 	 */
-	public ILevelParameter getImpactLeg() {
-		return impactLeg;
+	public IImpactParameter get(String key) {
+		return getImpactMapper().get(key);
 	}
 
-	/**
-	 * @param impactLeg
-	 *            the impactLeg to set
-	 */
-	public void setImpactLeg(ImpactParameter impactLeg) {
-		this.impactLeg = impactLeg;
+	public IImpactParameter add(ImpactParameter impact) {
+		IImpactParameter parameter = getImpactMapper().get(impact.getTypeName());
+		if (parameter == null)
+			remove(parameter);
+		impacts.add((ImpactParameter) impact);
+		return getImpactMapper().put(impact.getTypeName(), (ImpactParameter) impact);
 	}
 
-	/**
-	 * @return the impactFin
-	 */
-	public ILevelParameter getImpactFin() {
-		return impactFin;
-	}
-
-	/**
-	 * @param impactFin
-	 *            the impactFin to set
-	 */
-	public void setImpactFin(ImpactParameter impactFin) {
-		this.impactFin = impactFin;
+	private void remove(IImpactParameter impact) {
+		if (impacts.remove(impact) && impactMapper != null)
+			impactMapper.remove(impact.getTypeName());
 	}
 
 	public int getImportance() {
@@ -148,14 +143,7 @@ public class RiskProbaImpact implements Cloneable {
 	 * @return Max of impact level
 	 */
 	public int getImpactLevel() {
-		int max = impactFin == null ? 0 : impactFin.getLevel();
-		if (impactRep != null)
-			max = Math.max(max, impactRep.getLevel());
-		if (impactOp != null)
-			max = Math.max(max, impactOp.getLevel());
-		if (impactLeg != null)
-			max = Math.max(max, impactLeg.getLevel());
-		return max;
+		return impacts.stream().mapToInt(IImpactParameter::getLevel).max().orElse(0);
 	}
 
 	public int getProbabilityLevel() {
@@ -172,14 +160,6 @@ public class RiskProbaImpact implements Cloneable {
 		RiskProbaImpact probaImpact = (RiskProbaImpact) super.clone();
 		if (probability != null)
 			probaImpact.probability = (LikelihoodParameter) probability.clone();
-		if (impactFin != null)
-			probaImpact.impactFin = impactFin.clone();
-		if (impactRep != null)
-			probaImpact.impactRep = impactRep.clone();
-		if (impactOp != null)
-			probaImpact.impactOp = impactOp.clone();
-		if (impactLeg != null)
-			probaImpact.impactLeg = impactLeg.clone();
 		return probaImpact;
 	}
 
@@ -209,34 +189,14 @@ public class RiskProbaImpact implements Cloneable {
 	public void updateData(Map<String, IParameter> parameters) {
 		if (probability != null)
 			probability = (LikelihoodParameter) parameters.get(probability.getKey());
-		if (impactFin != null)
-			impactFin = (ImpactParameter) parameters.get(impactFin.getKey());
-		if (impactRep != null)
-			impactRep = (ImpactParameter) parameters.get(ImpactParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_REP_NAME, impactRep.getAcronym()));
-		if (impactOp != null)
-			impactOp = (ImpactParameter) parameters.get(ImpactParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, impactOp.getAcronym()));
-		if (impactLeg != null)
-			impactLeg = (ImpactParameter) parameters.get(ImpactParameter.key(Constant.PARAMETERTYPE_TYPE_IMPACT_LEG_NAME, impactLeg.getAcronym()));
+		this.impactMapper = null;
+		List<ImpactParameter> impacts = new LinkedList<>();
+		this.impacts.forEach(impact -> impacts.add(impact));
+		setImpacts(impacts);
 	}
 
 	protected ILevelParameter getValueOrDefault(ILevelParameter value, ILevelParameter defaultValue) {
 		return value == null ? defaultValue : value;
-	}
-
-	public ILevelParameter getImpactFin(ILevelParameter defaultImpact) {
-		return getValueOrDefault(impactFin, defaultImpact);
-	}
-
-	public ILevelParameter getImpactOp(ILevelParameter defaultImpact) {
-		return getValueOrDefault(impactOp, defaultImpact);
-	}
-
-	public ILevelParameter getImpactLeg(ILevelParameter defaultImpact) {
-		return getValueOrDefault(impactLeg, defaultImpact);
-	}
-
-	public ILevelParameter getImpactRep(ILevelParameter defaultImpact) {
-		return getValueOrDefault(impactRep, defaultImpact);
 	}
 
 	public ILevelParameter getProbability(ILevelParameter defaultValue) {

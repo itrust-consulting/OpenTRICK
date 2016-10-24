@@ -50,6 +50,12 @@ public class Scale {
 	public Scale() {
 	}
 
+	public Scale(ScaleType type, int level, double maxValue) {
+		setType(type);
+		setLevel(level);
+		setMaxValue(maxValue);
+	}
+
 	/**
 	 * @return the id
 	 */
@@ -73,7 +79,8 @@ public class Scale {
 	}
 
 	/**
-	 * @param type the type to set
+	 * @param type
+	 *            the type to set
 	 */
 	public void setType(ScaleType type) {
 		this.type = type;

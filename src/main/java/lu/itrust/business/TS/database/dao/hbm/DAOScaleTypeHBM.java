@@ -44,7 +44,7 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	 */
 	@Override
 	public ScaleType findOne(String name) {
-		return (ScaleType) getSession().createQuery("From ScaleType where name = :acronym").setString("name", name).uniqueResult();
+		return (ScaleType) getSession().createQuery("From ScaleType where name = :name").setString("name", name).uniqueResult();
 	}
 
 	/*
@@ -162,6 +162,12 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	public void deleteAll() {
 		getSession().createQuery("Delete From ScaleType").executeUpdate();
 
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ScaleType> findAllFree() {
+		return getSession().createQuery("From ScaleType where id not in (Select type.id From Scale) order by name").list();
 	}
 
 }

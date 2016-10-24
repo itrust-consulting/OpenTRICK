@@ -27,8 +27,6 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
-import lu.itrust.business.TS.model.parameter.impl.Parameter;
-import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -259,7 +257,6 @@ public class RiskSheetComputation {
 		// set the impacts of each category (this will parse all assessment and
 		// will make a sum of
 		// each impact category (inside the Impact class) for each Scenario)
-		computeImpactGeneric(helper, assessments);
 		// ********************************************************
 		// * second step: For each Scenario identify the biggest Impact Category
 		// ********************************************************
@@ -277,37 +274,6 @@ public class RiskSheetComputation {
 		// probability as well as 5 indirect and those with acceptable impact
 		// and probability
 		return CSSFSort.sortAndConcatenate(helper, cssfFilter);
-	}
-
-	/**
-	 * computeImpactGeneric: <br>
-	 * This method will parse all Scenarios inside the Assessments List and will
-	 * compute the sum of each category of impact (operational, financial, legal
-	 * and reputation). Each Scenario that has a CSSF type will be checked
-	 * inside the Assessments to make a sum of impact of each Categoryonly on
-	 * CSSF scenarios. This computed List (Index: Scenario ID, Value: Impact
-	 * Class) will be returned.Inside this list one can find the sum of Impacts
-	 * of each CSSF Category of all Scenarios.
-	 * 
-	 * @param assessments
-	 *            The List of Assessments
-	 * @param parameters
-	 *            The List of Parameters
-	 * 
-	 * @return A list of each Impact Category of each Scenario
-	 */
-	private static void computeImpactGeneric(ComputationHelper helper, List<Assessment> assessments) {
-
-		// parse all assessments
-		for (Assessment assessment : assessments) {
-			// check if assessment is usable and if Scenario Type is CSSF
-			if (assessment.isUsable()) {
-				// retrieve corresponding Impact Object of this Scenario from
-				// the Array
-				helper.getImpacts().put(getKey(assessment), new Impact(assessment, helper.getFactory()));
-			}
-		}
-
 	}
 
 	/**
@@ -350,7 +316,7 @@ public class RiskSheetComputation {
 			Double rawALE = helper.getRawALEs().get(key);
 
 			// retrieve for this scenario the impact value
-			double netImpact = helper.getImpacts().get(key).getReal();
+			double netImpact = helper.getNetALEs().get(key);
 
 			// retrieve for this scenario the probability value
 			double netProbability = netALE / netImpact;
@@ -391,11 +357,11 @@ public class RiskSheetComputation {
 		// parse all assessments elements
 		for (Assessment assessment : assessments) {
 			// get scenario id of the assessments scenario
-			String key = getKey(assessment);
 			// check if impacts list has this key (key of impacts= scenario ID)
-			if (helper.getImpacts().containsKey(key)) {
+			if (assessment.isUsable()) {
+				String key = getKey(assessment);
 				// update ALE numerator
-				helper.getNetALEs().put(key, computeALE(helper, assessment));
+				helper.getNetALEs().put(key, helper.getFactory().computeALEByLevel(assessment));
 				helper.getRiskRegisters().put(key, new RiskRegisterItem(assessment.getScenario(), assessment.getAsset()));
 			}
 		}
@@ -462,10 +428,8 @@ public class RiskSheetComputation {
 				// reputation, 1: operational, 2: legal, 3: financial
 
 				String key = getKey(tma.getAssessment());
-
 				// compute deltaALE
-				computeDeltaALEs(helper.getDeltaALEs(), computeALE(helper, tma.getAssessment()), tma, key, helper.getFactory());
-
+				computeDeltaALEs(helper.getDeltaALEs(), helper.getFactory().computeALEByLevel(tma.getAssessment()), tma, key, helper.getFactory());
 				// compute RawALE
 				computeRawALE(helper.getRawALEs(), helper.getNetALEs(), tma, key, helper.getFactory());
 
@@ -483,64 +447,6 @@ public class RiskSheetComputation {
 
 	private static String getKey(Assessment assessment) {
 		return assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
-	}
-
-	/**
-	 * getMaxImpactCode: <br>
-	 * retrieve max impact index:
-	 * <ul>
-	 * <li>{@value #MAX_IMPACT_REPUTATION} = reputation</li>
-	 * <li>{@value #MAX_IMPACT_OPERATIONAL} = operational</li>
-	 * <li>{@value #MAX_IMPACT_LEGAL} = legal</li>
-	 * <li>{@value #MAX_IMPACT_FINANCIAL} = financial</li>
-	 * </ul>
-	 * 
-	 * @param impact
-	 *            The Impact Object with the impact category values to check
-	 * @return code [ {@value #MAX_IMPACT_REPUTATION} = reputation ,
-	 *         {@value #MAX_IMPACT_OPERATIONAL} = operational ,
-	 *         {@value #MAX_IMPACT_LEGAL} = legal,
-	 *         {@value #MAX_IMPACT_FINANCIAL} = financial]
-	 */
-	public static int getMaxImpactCode(Impact impact) {
-		// retrieve impact categories
-		int rep = impact.getReputation().getLevel(), op = impact.getOperational().getLevel(), leg = impact.getLegal().getLevel(), fin = impact.getFinancial().getLevel();
-		// determine biggest impact category
-		if ((rep >= op) && (rep >= leg) && (rep >= fin))
-			return MAX_IMPACT_REPUTATION;
-		else if ((op >= leg) && (op >= fin))
-			return MAX_IMPACT_OPERATIONAL;
-		else if ((leg >= fin))
-			return MAX_IMPACT_LEGAL;
-		else
-			return MAX_IMPACT_FINANCIAL;
-	}
-
-	/**
-	 * computeALE: <br>
-	 * Description
-	 * 
-	 * @param impacts
-	 * @param assessment
-	 * @param parameters
-	 * @return
-	 */
-	private static double computeALE(ComputationHelper helper, Assessment assessment) {
-		// get or initialises the netALE value (numerator = sum(Pnet*Inet))
-		// identify biggest impact and calculate the numerator (ALe using P*I)
-		switch (getMaxImpactCode(helper.getImpacts().get(getKey(assessment)))) {
-		case MAX_IMPACT_REPUTATION:
-			return helper.getFactory().findImpactRepValue(assessment.getImpactRep()) * helper.getFactory().findExpValue(assessment.getLikelihood());
-		case MAX_IMPACT_OPERATIONAL:
-			return helper.getFactory().findImpactOpValue(assessment.getImpactOp()) * helper.getFactory().findExpValue(assessment.getLikelihood());
-		case MAX_IMPACT_LEGAL:
-			return helper.getFactory().findImpactLegValue(assessment.getImpactLeg()) * helper.getFactory().findExpValue(assessment.getLikelihood());
-		case MAX_IMPACT_FINANCIAL:
-			return helper.getFactory().findImpactFinValue(assessment.getImpactFin()) * helper.getFactory().findExpValue(assessment.getLikelihood());
-		default:
-			throw new IllegalArgumentException("RiskRegisterComputation#computeProbability: index should be between 0 and 3");
-		}
-
 	}
 
 	/***********************************************************************************************

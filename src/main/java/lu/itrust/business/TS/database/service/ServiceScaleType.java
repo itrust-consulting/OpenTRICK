@@ -21,6 +21,8 @@ public interface ServiceScaleType {
 
 	List<ScaleType> findAll();
 	
+	List<ScaleType> findAllFree();
+	
 	boolean exists(int id);
 
 	boolean exists(String name);
@@ -36,5 +38,7 @@ public interface ServiceScaleType {
 	void delete(List<Integer> scaleTypes);
 
 	void deleteAll();
+
+	
 
 }

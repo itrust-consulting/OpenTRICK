@@ -49,7 +49,6 @@ import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
@@ -345,14 +344,14 @@ public class ControllerAssessment {
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
 			// parse assessments and initialise impact values to 0 if empty
 			for (Assessment assessment : assessments) {
-				if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
+				/*if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
 					assessment.setImpactFin("0");
 				if (assessment.getImpactOp() == null || assessment.getImpactOp().trim().isEmpty())
 					assessment.setImpactOp("0");
 				if (assessment.getImpactLeg() == null || assessment.getImpactLeg().trim().isEmpty())
 					assessment.setImpactLeg("0");
 				if (assessment.getImpactRep() == null || assessment.getImpactRep().trim().isEmpty())
-					assessment.setImpactRep("0");
+					assessment.setImpactRep("0");*/
 				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
 				// compute ALE
@@ -433,14 +432,14 @@ public class ControllerAssessment {
 
 			// parse assessments and initilaise illegal impact values
 			for (Assessment assessment : assessments) {
-				if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
+				/*if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
 					assessment.setImpactFin("0");
 				if (assessment.getImpactOp() == null || assessment.getImpactOp().trim().isEmpty())
 					assessment.setImpactOp("0");
 				if (assessment.getImpactLeg() == null || assessment.getImpactLeg().trim().isEmpty())
 					assessment.setImpactLeg("0");
 				if (assessment.getImpactRep() == null || assessment.getImpactRep().trim().isEmpty())
-					assessment.setImpactRep("0");
+					assessment.setImpactRep("0");*/
 				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
 				// compute ALE

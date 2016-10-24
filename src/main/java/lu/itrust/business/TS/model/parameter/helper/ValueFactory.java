@@ -109,9 +109,9 @@ public class ValueFactory {
 		return impact == null ? 0 : impact.getLevel();
 	}
 
-	public ILevelParameter findProbParameter(Object value) {
+	public IProbabilityParameter findProbParameter(Object value) {
 		IValue impact = findProb(value);
-		return impact == null ? null : (ImpactParameter) impact.getParameter();
+		return impact == null ? null : (IProbabilityParameter) impact.getParameter();
 	}
 
 	public Double findProbValue(Object value) {
@@ -274,7 +274,7 @@ public class ValueFactory {
 	 * @return importance
 	 * @see IValue#maxByLevel(IValue, IValue)
 	 */
-	public int findImportance(String proba, Map<String, ?extends IValue> impacts) {
+	public int findImportance(String proba, Map<String, ? extends IValue> impacts) {
 		IValue impact = impacts == null ? null : impacts.values().stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 		return impact == null ? 0 : impact.getLevel() * findExpLevel(proba);
 	}
@@ -305,6 +305,10 @@ public class ValueFactory {
 		return iValue == null ? 0 : iValue.getReal();
 	}
 
+	public IValue findMaxImpactByReal(Map<String, ? extends IValue> impacts) {
+		return impacts == null ? null : impacts.values().stream().max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+	}
+
 	/**
 	 * @return the probabilityMapper
 	 */
@@ -333,6 +337,16 @@ public class ValueFactory {
 	 */
 	public void setImpactMapper(Map<String, Map<String, IImpactParameter>> impactMapper) {
 		this.impactMapper = impactMapper;
+	}
+
+	public Double computeALEByLevel(Assessment assessment) {
+		IValue value = findMaxImpactByLevel(assessment.getImpacts());
+		return value == null ? 0 : value.getReal() * findExpValue(assessment.getLikelihood());
+	}
+
+	public IProbabilityParameter findExpParameter(String likelihood) {
+		IValue value = findExp(likelihood);
+		return value == null ? null : (IProbabilityParameter) value.getParameter();
 	}
 
 }

@@ -16,6 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -65,18 +66,12 @@ public class RiskProfile implements Cloneable {
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
-			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiRawImpactRep")),
-			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiRawImpactOp")),
-			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiRawImpactLeg")),
-			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiRawImpactFin")) })
+			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileRawImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiRawImpact"))) })
 	private RiskProbaImpact rawProbaImpact;
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability")),
-			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiExpImpactRep")),
-			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiExpImpactOp")),
-			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiExpImpactLeg")),
-			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiExpImpactFin")) })
+			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileExpImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiExpImpact"))) })
 	private RiskProbaImpact expProbaImpact;
 
 	/**

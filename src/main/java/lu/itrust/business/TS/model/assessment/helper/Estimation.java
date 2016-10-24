@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.assessment.helper;
 
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -11,6 +12,8 @@ import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -45,9 +48,7 @@ public class Estimation {
 	 */
 	public Estimation(Assessment assessment, RiskProfile riskProfile, ValueFactory convertor) {
 		this(assessment.getOwner(), assessment.getComment(), riskProfile,
-				new RiskProbaImpact(convertor.findProbParameter(assessment.getLikelihood()), convertor.findImpactFinParameter(assessment.getImpactFin()),
-						convertor.findImpactLegParameter(assessment.getImpactLeg()), convertor.findImpactOpParameter(assessment.getImpactOp()),
-						convertor.findImpactRepParameter(assessment.getImpactRep())));
+				new RiskProbaImpact((LikelihoodParameter)convertor.findProbParameter(assessment.getLikelihood()), assessment.getImpacts().values().stream().map(impact -> (ImpactParameter) impact.getParameter()).collect(Collectors.toList())));
 	}
 
 	/**

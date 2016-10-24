@@ -38,7 +38,7 @@
 										<select name='type.id' id="scale_type_id" class="form-control">
 											<option value="-1"><spring:message code="label.action.choose" /></option>
 											<c:forEach items="${scaleTypes}" var="type">
-												<option value="${type.id}">
+												<option value="${type.id}" data-acronym='<spring:message text="${type.acronym}" />' data-name='<spring:message text="${type.name}" />' >
 													<spring:message text="${empty type.translations[alpha2]? type.name : type.translations[alpha2] }" />
 												</option>
 											</c:forEach>

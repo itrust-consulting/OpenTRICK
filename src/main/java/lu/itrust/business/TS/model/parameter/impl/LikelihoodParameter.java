@@ -17,14 +17,17 @@ import lu.itrust.business.TS.model.parameter.helper.Bounds;
  *
  */
 @Entity
-@AttributeOverride(name="id", column=@Column(name="idLikelihoodParameter"))
+@AttributeOverride(name = "id", column = @Column(name = "idLikelihoodParameter"))
 public class LikelihoodParameter extends AbstractProbability implements IBoundedParameter {
-	
+
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** The Extended SimpleParameter Level (default: 0-5 or 0-6 -> NOT restricted) */
+	/**
+	 * The Extended SimpleParameter Level (default: 0-5 or 0-6 -> NOT
+	 * restricted)
+	 */
 	@Column(name = "dtLevel", nullable = false)
 	private int level = 0;
 
@@ -32,7 +35,9 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	@Embedded
 	private Bounds bounds = null;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.parameter.ILevelParameter#getLevel()
 	 */
 	@Override
@@ -40,7 +45,9 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 		return level;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.model.parameter.IBoundedParameter#getBounds()
 	 */
 	@Override
@@ -49,14 +56,16 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	}
 
 	/**
-	 * @param level the level to set
+	 * @param level
+	 *            the level to set
 	 */
 	public void setLevel(int level) {
 		this.level = level;
 	}
 
 	/**
-	 * @param bounds the bounds to set
+	 * @param bounds
+	 *            the bounds to set
 	 */
 	public void setBounds(Bounds bounds) {
 		this.bounds = bounds;
@@ -66,5 +75,18 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	public String getTypeName() {
 		return Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
 	}
-	
+
+	public static void ComputeScales(LikelihoodParameter prev, LikelihoodParameter current, LikelihoodParameter next) {
+		// throw new
+		// TrickException("error.compute.scale.extended.parameter.bad.type",
+		// "Scales cannot only compute for probability and financial impact");
+		prev.setValue(Math.sqrt(current.getValue() * next.getValue()));
+		if (current.level == 0)
+			current.bounds = new Bounds(0, Math.sqrt(prev.getValue() * current.getValue()));
+		else
+			current.bounds = new Bounds(current.bounds.getFrom(), Math.sqrt(prev.getValue() * current.getValue()));
+		prev.bounds = new Bounds(current.bounds.getTo(), Math.sqrt(prev.getValue() * next.getValue()));
+		next.bounds = new Bounds(prev.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
+	}
+
 }
