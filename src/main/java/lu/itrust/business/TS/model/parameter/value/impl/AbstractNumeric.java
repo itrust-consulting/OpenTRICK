@@ -13,7 +13,7 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
  *
  */
 @MappedSuperclass
-public abstract class AbstractNumeric extends ParameterValue {
+public abstract class AbstractNumeric extends AbstractValue {
 
 	@Transient
 	protected Number number;
@@ -28,8 +28,8 @@ public abstract class AbstractNumeric extends ParameterValue {
 	 * @param value
 	 * @param parameter
 	 */
-	public AbstractNumeric(String name, Number value, ILevelParameter parameter) {
-		super(name, parameter);
+	public AbstractNumeric(Number value, ILevelParameter parameter) {
+		super( parameter);
 		this.number = value;
 	}
 

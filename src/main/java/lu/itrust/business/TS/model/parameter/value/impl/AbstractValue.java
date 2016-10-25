@@ -1,0 +1,87 @@
+package lu.itrust.business.TS.model.parameter.value.impl;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MappedSuperclass;
+
+import org.hibernate.annotations.Any;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+
+@MappedSuperclass
+public abstract class AbstractValue implements IValue {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+	
+	@Any(metaColumn = @Column(name = "dtParameterType"), metaDef = "PARAMETER_META_DEF")
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@JoinColumn(name = "fiParameter")
+	private ILevelParameter parameter;
+
+	public AbstractValue() {
+	}
+	
+	/**
+	 * @param parameter
+	 */
+	public AbstractValue(ILevelParameter parameter) {
+		this.parameter = parameter;
+	}
+	
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	@Override
+	public String getName() {
+		return parameter.getTypeName();
+	}
+
+	@Override
+	public ILevelParameter getParameter() {
+		return parameter;
+	}
+
+	/**
+	 * @param parameter
+	 *            the parameter to set
+	 */
+	public void setParameter(ILevelParameter parameter) {
+		this.parameter = parameter;
+	}
+
+	@Override
+	public Integer getLevel() {
+		return parameter.getLevel();
+	}
+
+	@Override
+	public String getVariable() {
+		return parameter.getAcronym();
+	}
+
+	@Override
+	public Double getReal() {
+		return parameter.getValue().doubleValue();
+	}
+
+}

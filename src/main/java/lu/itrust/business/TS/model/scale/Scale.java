@@ -31,6 +31,7 @@ public class Scale {
 
 	@ManyToOne
 	@JoinColumn(name = "fiType", unique = true)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private ScaleType type;
 
 	@Column(name = "dtLevel")

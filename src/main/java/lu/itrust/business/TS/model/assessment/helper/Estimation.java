@@ -48,7 +48,7 @@ public class Estimation {
 	 */
 	public Estimation(Assessment assessment, RiskProfile riskProfile, ValueFactory convertor) {
 		this(assessment.getOwner(), assessment.getComment(), riskProfile,
-				new RiskProbaImpact((LikelihoodParameter)convertor.findProbParameter(assessment.getLikelihood()), assessment.getImpacts().values().stream().map(impact -> (ImpactParameter) impact.getParameter()).collect(Collectors.toList())));
+				new RiskProbaImpact((LikelihoodParameter)convertor.findProbParameter(assessment.getLikelihood()), assessment.getImpacts().stream().map(impact -> (ImpactParameter) impact.getParameter()).collect(Collectors.toList())));
 	}
 
 	/**

@@ -45,7 +45,7 @@ public class ValueFactory {
 	public ValueFactory(List<? extends IParameter> parameters) {
 		for (IParameter parameter : parameters) {
 			if (parameter instanceof IProbabilityParameter)
-				add((DynamicParameter) parameter);
+				add((IProbabilityParameter) parameter);
 			else if (parameter instanceof ImpactParameter)
 				add((ImpactParameter) parameter);
 		}
@@ -59,13 +59,13 @@ public class ValueFactory {
 			return null;
 		if (value instanceof Integer) {
 			int index = (int) value, last = dynamicParameters.size() - 1;
-			return new ParameterValue(null, dynamicParameters.get(index < 0 ? 0 : index > last ? last : index));
+			return new ParameterValue(dynamicParameters.get(index < 0 ? 0 : index > last ? last : index));
 		}
 
 		if (value instanceof String) {
 			IProbabilityParameter parameter = (IProbabilityParameter) getParameterMapper(PARAMETERTYPE_TYPE_DYNAMIC_NAME).get(value.toString());
 			if (parameter != null)
-				return new ParameterValue(null, parameter);
+				return new ParameterValue(parameter);
 		}
 		Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
 		if (doubleValue == null)
@@ -143,9 +143,9 @@ public class ValueFactory {
 		int mid = parameters.size() / 2;
 		ILevelParameter parameter = (ILevelParameter) parameters.get(mid);
 		if (parameter.getLevel() == level)
-			return new ParameterValue(null, parameter);
+			return new ParameterValue(parameter);
 		else if (mid == 0)
-			return new DefaultLevelValue(null, level, parameter);
+			return new DefaultLevelValue(level, parameter);
 		else if (parameter.getLevel() > level)
 			return findByLevel(level, parameters.subList(0, mid));
 		else
@@ -156,9 +156,9 @@ public class ValueFactory {
 		int mid = parameters.size() / 2;
 		IBoundedParameter parameter = (IBoundedParameter) parameters.get(mid);
 		if (parameter.getBounds().isInRange(value))
-			return value == parameter.getValue() ? new ParameterValue(null, parameter) : new DefaultRealValue(null, value, parameter);
+			return value == parameter.getValue() ? new ParameterValue(parameter) : new DefaultRealValue(value, parameter);
 		else if (mid == 0)
-			return new DefaultRealValue(null, value, parameter);
+			return new DefaultRealValue(value, parameter);
 		else if (parameter.getBounds().getFrom() > value)
 			return findByValue(value, parameters.subList(0, mid));
 		else
@@ -169,22 +169,22 @@ public class ValueFactory {
 		DynamicParameter minParameter = (DynamicParameter) dynamicParameters.get(0), midParameter = (DynamicParameter) dynamicParameters.get(dynamicParameters.size() / 2),
 				maxParameter = (DynamicParameter) dynamicParameters.get(dynamicParameters.size() - 1);
 		if (minParameter.getValue() == doubleValue)
-			return new ParameterValue(null, minParameter);
+			return new ParameterValue(minParameter);
 		else if (midParameter.getValue() == doubleValue)
-			return new ParameterValue(null, midParameter);
+			return new ParameterValue(midParameter);
 		else if (maxParameter.getValue() == doubleValue)
-			return new ParameterValue(null, maxParameter);
+			return new ParameterValue(maxParameter);
 		else if (doubleValue < minParameter.getValue())
-			return new DefaultRealValue(null, doubleValue, minParameter);
+			return new DefaultRealValue(doubleValue, minParameter);
 		else if (doubleValue > maxParameter.getValue() || dynamicParameters.size() < 2)
-			return new DefaultRealValue(null, doubleValue, maxParameter);
+			return new DefaultRealValue(doubleValue, maxParameter);
 		else if (doubleValue > midParameter.getValue())
 			return findDynamicByValue(doubleValue, dynamicParameters.subList(dynamicParameters.size() / 2, dynamicParameters.size()));
 		else
 			return findDynamicByValue(doubleValue, dynamicParameters.subList(0, dynamicParameters.size() / 2));
 	}
 
-	private IValue findValue(Object value, String type) {
+	public IValue findValue(Object value, String type) {
 		if (value == null)
 			return null;
 		List<? extends ILevelParameter> parameters = getParameters(type);
@@ -195,7 +195,7 @@ public class ValueFactory {
 		if (value instanceof String) {
 			ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(value.toString());
 			if (parameter != null)
-				return new ParameterValue(null, parameter);
+				return new ParameterValue(parameter);
 		}
 		Double doubleValue = (value instanceof Double) ? (Double) value : ToDouble(value.toString(), null);
 		if (doubleValue == null)
@@ -274,8 +274,8 @@ public class ValueFactory {
 	 * @return importance
 	 * @see IValue#maxByLevel(IValue, IValue)
 	 */
-	public int findImportance(String proba, Map<String, ? extends IValue> impacts) {
-		IValue impact = impacts == null ? null : impacts.values().stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
+	public int findImportance(String proba, List< ?extends IValue> impacts) {
+		IValue impact = impacts == null ? null : impacts.stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 		return impact == null ? 0 : impact.getLevel() * findExpLevel(proba);
 	}
 
@@ -305,8 +305,8 @@ public class ValueFactory {
 		return iValue == null ? 0 : iValue.getReal();
 	}
 
-	public IValue findMaxImpactByReal(Map<String, ? extends IValue> impacts) {
-		return impacts == null ? null : impacts.values().stream().max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
+	public IValue findMaxImpactByReal(List< ? extends IValue> impacts) {
+		return impacts == null ? null : impacts.stream().max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
 	}
 
 	/**

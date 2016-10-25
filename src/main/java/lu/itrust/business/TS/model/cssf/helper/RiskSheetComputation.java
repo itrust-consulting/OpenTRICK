@@ -79,7 +79,7 @@ public class RiskSheetComputation {
 		this.analysis = analysis;
 	}
 
-	public List<TMA> generateTMAs(Analysis analysis, int mandatoryPhase) throws TrickException {
+	public List<TMA> generateTMAs(Analysis analysis, ValueFactory factory, int mandatoryPhase) throws TrickException {
 		List<TMA> tmas = new ArrayList<TMA>();
 
 		List<Phase> usePhases = analysis.getPhases();
@@ -89,7 +89,7 @@ public class RiskSheetComputation {
 		for (int i = 0; i < usePhases.size(); i++) {
 			if (usePhases.get(i).getNumber() == 0)
 				continue;
-			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true,
+			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, factory, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true,
 					analysis.getAnalysisStandards()));
 			if (mandatoryPhase == usePhases.get(i).getNumber())
 				break;
@@ -143,7 +143,7 @@ public class RiskSheetComputation {
 			filter.setImpact(helper.getFactory().findRealImpactByMaxLevel(impactThreshold));
 			filter.setProbability(helper.getFactory().findExpLevel(probabilityThreshold));
 			setFactory(helper.getFactory());
-			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
+			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, helper.getFactory(), mandatoryPhase), helper, filter));
 			// print risk register into console
 			// printRegister(this.analysis.getRiskRegisters());
 			return null;
@@ -749,7 +749,7 @@ public class RiskSheetComputation {
 			// ****************************************************************
 			helper = new ComputationHelper(impactParameters);
 			setFactory(helper.getFactory());
-			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, mandatoryPhase), helper, filter));
+			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, helper.getFactory(), mandatoryPhase), helper, filter));
 			// print risk register into console
 			// printRegister(this.analysis.getRiskRegisters());
 			return null;

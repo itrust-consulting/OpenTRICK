@@ -192,8 +192,8 @@ public class Analysis implements Cloneable {
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@JoinTable(name = "AnalysisParameters", joinColumns = @JoinColumn(name = "fiAnalysis"), inverseJoinColumns = @JoinColumn(name = "fiParameter"), uniqueConstraints = @UniqueConstraint(columnNames = {
-			"fiAnalysis", "fiParameter" }))
-	private List<IParameter> parameters = new ArrayList<IParameter>();
+			"fiAnalysis", "fiParameter", "dtParameterType" }))
+	private List<IParameter> parameters = new ArrayList<>();
 
 	/** List of assets */
 	@OneToMany

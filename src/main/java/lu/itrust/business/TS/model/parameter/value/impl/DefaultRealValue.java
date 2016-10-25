@@ -5,9 +5,9 @@ package lu.itrust.business.TS.model.parameter.value.impl;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
 
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 
@@ -16,7 +16,7 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
  *
  */
 @Entity
-@PrimaryKeyJoinColumn(name="idDefaultLevelValue")
+@AttributeOverride(name = "id", column = @Column(name="idDefaultLevelValue"))
 public class DefaultRealValue extends AbstractNumeric {
 
 	/**
@@ -25,8 +25,8 @@ public class DefaultRealValue extends AbstractNumeric {
 	public DefaultRealValue() {
 	}
 
-	public DefaultRealValue(String name, Double value, ILevelParameter parameter) {
-		super(name, value, parameter);
+	public DefaultRealValue(Double value, ILevelParameter parameter) {
+		super(value, parameter);
 	}
 
 	/*

@@ -74,12 +74,16 @@ import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.Parameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.ParameterValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.Scale;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -174,7 +178,13 @@ public class ImportAnalysis {
 
 	private Map<String, IProbabilityParameter> probabilities = null;
 
+	private Map<Integer[], Assessment> assessments;
+
 	private Map<String, ScaleType> impactTypes;
+
+	private boolean compability1X = false;
+
+	private ValueFactory factory = null;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -311,6 +321,9 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", 35));
 			importScenarios();
 
+			// Update value factory
+			factory = new ValueFactory(this.analysis.getParameters());
+
 			// ****************************************************************
 			// * import assessments
 			// ****************************************************************
@@ -361,7 +374,7 @@ public class ImportAnalysis {
 			new DynamicParameterComputer(session, new AssessmentAndRiskProfileManager()).computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
-			new AssessmentAndRiskProfileManager().UpdateRiskDendencies(analysis, null);
+			new AssessmentAndRiskProfileManager().UpdateRiskDendencies(analysis, factory);
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
@@ -390,6 +403,8 @@ public class ImportAnalysis {
 	}
 
 	private void importRiskProfile() throws SQLException {
+		if (analysis.getType() != AnalysisType.QUALITATIVE)
+			return;
 		ResultSet resultSet = sqlite.query("Select * From risk_profile");
 		if (resultSet == null)
 			return;
@@ -403,33 +418,28 @@ public class ImportAnalysis {
 
 			riskProfile.setExpProbaImpact(new RiskProbaImpact());
 			riskProfile.setRawProbaImpact(new RiskProbaImpact());
-
-			/*
-			 * riskProfile.getExpProbaImpact().setImpactFin(impactParameters.get
-			 * (resultSet.getString("exp_impact_fin")));
-			 * riskProfile.getExpProbaImpact().setImpactLeg(impactParameters.get
-			 * (resultSet.getString("exp_impact_leg")));
-			 * riskProfile.getExpProbaImpact().setImpactOp(impactParameters.get(
-			 * resultSet.getString("exp_impact_op")));
-			 * riskProfile.getExpProbaImpact().setImpactRep(impactParameters.get
-			 * (resultSet.getString("exp_impact_rep")));
-			 */
 			riskProfile.getExpProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("exp_probability")));
-
-			/*
-			 * riskProfile.getRawProbaImpact().setImpactFin(impactParameters.get
-			 * (resultSet.getString("raw_impact_fin")));
-			 * riskProfile.getRawProbaImpact().setImpactLeg(impactParameters.get
-			 * (resultSet.getString("raw_impact_leg")));
-			 * riskProfile.getRawProbaImpact().setImpactOp(impactParameters.get(
-			 * resultSet.getString("raw_impact_op")));
-			 * riskProfile.getRawProbaImpact().setImpactRep(impactParameters.get
-			 * (resultSet.getString("raw_impact_rep")));
-			 */
 			riskProfile.getRawProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("raw_probability")));
 
+			if (isCompability1X()) {
+				riskProfile.getExpProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("exp_impact_fin"))));
+				riskProfile.getExpProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("exp_impact_leg"))));
+				riskProfile.getExpProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("exp_impact_op"))));
+				riskProfile.getExpProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("exp_impact_rep"))));
+				riskProfile.getRawProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("raw_impact_fin"))));
+				riskProfile.getRawProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("raw_impact_leg"))));
+				riskProfile.getRawProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("raw_impact_op"))));
+				riskProfile.getRawProbaImpact()
+						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("raw_impact_rep"))));
+			}
 			riskProfiles.add(riskProfile);
-
 		}
 
 		analysis.setRiskProfiles(riskProfiles);
@@ -1107,20 +1117,7 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		Asset tempAsset = null;
-		Scenario tempScenario = null;
-		double likelihoodValue = 0;
-		double impactRep = 0;
-		double impactOp = 0;
-		double impactLeg = 0;
-		double impactFin = 0;
-		double impactValue = 0;
-		double ALE = 0;
-		double ALEO = 0;
-		double ALEP = 0;
 		String query = "";
-		String parameterName = null;
-		Assessment tmpAssessment = null;
 
 		// ****************************************************************
 		// * Query sqlite for all assessment
@@ -1136,74 +1133,17 @@ public class ImportAnalysis {
 		while (rs.next()) {
 
 			// ****************************************************************
-			// retrieve likelihood value
-			// ****************************************************************
-
-			parameterName = rs.getString(Constant.ASSESSMENT_POTENTIALITY);
-
-			if (impactParameters.containsKey(parameterName))
-				likelihoodValue = impactParameters.get(parameterName).getValue();
-
-			// ****************************************************************
-			// * Retrieve Impact values
-			// ****************************************************************
-
-			// Reputation
-			impactRep = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_REP));
-
-			// Financial
-			impactFin = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_FIN));
-
-			// Operational
-			impactOp = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_OP));
-
-			// Legal
-			impactLeg = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_LEG));
-
-			// Determine biggest impact
-			impactValue = Math.max(impactFin, Math.max(impactLeg, Math.max(impactOp, impactRep)));
-
-			// ****************************************************************
-			// ALE calculation
-			// ****************************************************************
-
-			// ALE=Impact * Likelihood
-			ALE = impactValue * likelihoodValue;
-
-			// ALEO=ALE / Uncertainty
-			ALEO = ALE / rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY);
-
-			// ALEP=ALE * Uncertainty
-			ALEP = ALE * rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY);
-
-			// ****************************************************************
 			// * retrieve asset instance
 			// ****************************************************************
-			tempAsset = assets.get(rs.getInt(Constant.ASSET_ID_ASSET));
 
-			// ****************************************************************
-			// * retrieve scenario instance
-			// ****************************************************************
-			tempScenario = scenarios.get(rs.getInt(Constant.THREAT_ID_THREAT));
+			int assetId = rs.getInt(Constant.ASSET_ID_ASSET), scenarioId = rs.getInt(Constant.THREAT_ID_THREAT);
 
 			// ****************************************************************
 			// * create assessment instance
 			// ****************************************************************
-			tmpAssessment = new Assessment();
-			tmpAssessment.setAsset(tempAsset);
-			tmpAssessment.setScenario(tempScenario);
-
-			/*
-			 * tmpAssessment.setImpactRep(rs.getString(Constant.
-			 * ASSESSMENT_IMPACT_REP));
-			 * tmpAssessment.setImpactOp(rs.getString(Constant.
-			 * ASSESSMENT_IMPACT_OP));
-			 * tmpAssessment.setImpactLeg(rs.getString(Constant.
-			 * ASSESSMENT_IMPACT_LEG));
-			 * tmpAssessment.setImpactFin(rs.getString(Constant.
-			 * ASSESSMENT_IMPACT_FIN));
-			 */
-
+			Assessment tmpAssessment = new Assessment();
+			tmpAssessment.setAsset(assets.get(assetId));
+			tmpAssessment.setScenario(scenarios.get(scenarioId));
 			tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
 			tmpAssessment.setLikelihood(rs.getString(Constant.ASSESSMENT_POTENTIALITY));
 			tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
@@ -1211,15 +1151,27 @@ public class ImportAnalysis {
 			tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
 			tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
 			tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
-			tmpAssessment.setALEO(ALEO);
-			tmpAssessment.setALE(ALE);
-			tmpAssessment.setALEP(ALEP);
+
 			tmpAssessment.setSelected(rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
 
-			// System.out.println(tmpAssessment.getALE() + ":::" +
-			// tmpAssessment.getAsset().getName() + ":::" +
-			// tmpAssessment.getScenario().getName());
+			tmpAssessment.setALE(tmpAssessment.getImpactReal() * tmpAssessment.getLikelihoodReal());
 
+			tmpAssessment.setALEO(tmpAssessment.getALE() / tmpAssessment.getUncertainty());
+
+			tmpAssessment.setALEP(tmpAssessment.getALE() * tmpAssessment.getUncertainty());
+
+			if (isCompability1X()) {
+				if (analysis.getType() == AnalysisType.QUANTITATIVE)
+					setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_NAME, getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[0]));
+				else {
+					for (int i = 0; i < Constant.ASSESSMENT_IMPACT_NAMES.length; i++)
+						setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i], getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
+				}
+			} else {
+				if (assessments == null)
+					assessments = new HashMap<>();
+				assessments.put(new Integer[] { assetId, scenarioId }, tmpAssessment);
+			}
 			// ****************************************************************
 			// * add instance to list of assessments
 			// ****************************************************************
@@ -1228,6 +1180,12 @@ public class ImportAnalysis {
 
 		// Close ResultSet
 		rs.close();
+	}
+
+	private void setImpact(Assessment tmpAssessment, String type, String value) {
+		IImpactParameter parameter = impactParameters.get(Parameter.key(type, value));
+		IValue impact = parameter == null ? factory.findValue(value, type) : new ParameterValue(parameter);
+		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
 	}
 
 	/**
@@ -1274,7 +1232,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// retrieve parameter type
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SINGLE);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null)
@@ -1373,7 +1331,7 @@ public class ImportAnalysis {
 		// close result
 		rs.close();
 
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_CSSF);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_CSSF_NAME);
 		if (parameterType == null)
 			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
 
@@ -1403,7 +1361,7 @@ public class ImportAnalysis {
 		// * retrieve parametertype label
 		// ****************************************************************
 
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null)
@@ -1451,7 +1409,7 @@ public class ImportAnalysis {
 		// * retrieve parametertype label
 		// ****************************************************************
 
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
@@ -1519,22 +1477,6 @@ public class ImportAnalysis {
 	}
 
 	private void importDynamicParameters() throws Exception {
-
-		// ****************************************************************
-		// * Create parameter type for dynamic parameters
-		// ****************************************************************
-
-		// Retrieve parameter type if it exists
-		ParameterType parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
-		if (parameterType == null) {
-			// It does not exist; create it
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
-
-			// Save parameter type into database
-			daoParameterType.save(parameterType);
-		}
-
 		// Import dynamic parameters
 		ResultSet rs = null;
 		try {
@@ -1560,23 +1502,19 @@ public class ImportAnalysis {
 			impactTypes = new LinkedHashMap<>();
 			resultSet = sqlite.query("Select * From impact_type");
 			if (resultSet == null) {
-				String[] defaultTypes = { "Financial", "Legal", "Operational", "Reputational" };
-				for (String name : defaultTypes) {
-					ScaleType type = daoScaleType.findOne(name);
-					if (type == null) {
-						type = new ScaleType(name.toUpperCase(), generateAcronym(name, "i" + name.substring(0, 1)));
-						type.put(this.analysis.getLanguage().getAlpha2(), name);
-						Scale scale = new Scale(type, 11, 300000);
-						daoScale.saveOrUpdate(scale);
-					}
-					impactTypes.put(type.getName(), type);
+				setCompability1X(true);
+				if (analysis.getType() == AnalysisType.QUANTITATIVE)
+					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, "");
+				else {
+					for (int i = 0, length = 1; i < length; i++)
+						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], "i");
 				}
 			} else {
 				while (resultSet.next()) {
 					String name = resultSet.getString("name"), acronym = resultSet.getString("acronym");
 					ScaleType type = daoScaleType.findOne(name);
 					if (type == null) {
-						type = new ScaleType(name.toUpperCase(), generateAcronym(name, acronym));
+						type = new ScaleType(name.toUpperCase(), generateAcronym(name, acronym.toLowerCase()));
 						type.put(this.analysis.getLanguage().getAlpha2(), resultSet.getString("translation"));
 						Scale scale = new Scale(type, resultSet.getInt("level"), resultSet.getDouble("max_value"));
 						daoScale.saveOrUpdate(scale);
@@ -1590,12 +1528,23 @@ public class ImportAnalysis {
 		}
 	}
 
+	private void addImpactType(String name, String translate, String prefix) {
+		ScaleType type = daoScaleType.findOne(name);
+		if (type == null) {
+			type = new ScaleType(name, generateAcronym(name, prefix + name.substring(0, 1).toLowerCase()));
+			type.put(this.analysis.getLanguage().getAlpha2(), translate);
+			Scale scale = new Scale(type, 11, 300000);
+			daoScale.saveOrUpdate(scale);
+		}
+		impactTypes.put(type.getName(), type);
+	}
+
 	private String generateAcronym(String name, String acronym) {
 		int length = 1;
 		while (daoScaleType.hasAcronym(acronym)) {
 			if (acronym.equals(name) || length >= name.length())
 				throw new TrickException("error.generate.impact.acronym", "Impact acronym cannot be generated, please contact your support.");
-			acronym = "i" + name.substring(0, length++).toUpperCase();
+			acronym = "i" + name.substring(0, length++).toLowerCase();
 		}
 		return acronym;
 	}
@@ -1618,9 +1567,8 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		ImpactParameter impactParameter = null;
 		String query = "";
-		Bounds parameterbounds = null;
+		String type = null;
 
 		// ****************************************************************
 		// * Import Impact
@@ -1650,12 +1598,15 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create instance of extended parameter
 			// ****************************************************************
-			impactParameter = new ImpactParameter();
+			ImpactParameter impactParameter = new ImpactParameter();
+			type = getString(rs, "type");
+			if (type != null)
+				impactParameter.setType(impactTypes.get(type.toUpperCase()));
 			impactParameter.setDescription(rs.getString(Constant.NAME_IMPACT));
 			impactParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_IMPACT)));
 			impactParameter.setAcronym(rs.getString(Constant.ACRO_IMPACT));
 			impactParameter.setValue(rs.getDouble(Constant.VALUE_IMPACT));
-			parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_IMPACT), rs.getDouble(Constant.VALUE_TO_IMPACT));
+			Bounds parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_IMPACT), rs.getDouble(Constant.VALUE_TO_IMPACT));
 			impactParameter.setBounds(parameterbounds);
 
 			// ****************************************************************
@@ -1667,20 +1618,22 @@ public class ImportAnalysis {
 		// close result
 		rs.close();
 
-		// ****************************************************************
-		// * Import likelihood
-		// ****************************************************************
-
-		// ****************************************************************
-		// * retrieve parameter type label
-		// ****************************************************************
-
-		ParameterManager.ComputeImpactValue(impactParameters);
-
-		this.analysis.getParameters().addAll(impactParameters);
-
-		this.impactParameters = impactParameters.stream().collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
-
+		if (type == null) {
+			ParameterManager.ComputeImpactValue(impactParameters);
+			this.impactParameters = new LinkedHashMap<>();
+			impactTypes.values().forEach(scaleType -> {
+				impactParameters.forEach(parameter -> {
+					ImpactParameter impactParameter = parameter.clone();
+					impactParameter.setType(scaleType);
+					this.impactParameters.put(Parameter.key(scaleType.getName(), scaleType.getAcronym()), impactParameter);
+					impactParameter.setAcronym(scaleType.getAcronym() + impactParameter.getLevel());
+					this.analysis.getParameters().add(impactParameter);
+				});
+			});
+		} else {
+			this.analysis.getParameters().addAll(impactParameters);
+			this.impactParameters = impactParameters.stream().collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
+		}
 		impactParameters.clear();
 	}
 
@@ -2991,31 +2944,6 @@ public class ImportAnalysis {
 		}
 	}
 
-	/**
-	 * convertImpactToDouble: <br>
-	 * Takes a string value (value from SQLite file) and converts it into a
-	 * valid double value.
-	 * 
-	 * @param impact
-	 *            The impact value as string
-	 * @return A valid Double value
-	 */
-	private double convertImpactToDouble(String impact) {
-		// ****************************************************************
-		// * Initialise variables
-		// ****************************************************************
-		// ****************************************************************
-		// * pattern matches a acronym -> YES
-		// ****************************************************************
-		try {
-			if (impactParameters.containsKey(impact))
-				return impactParameters.get(impact).getValue();
-			return Double.parseDouble(impact);
-		} catch (NumberFormatException | NullPointerException e) {
-			return 0;
-		}
-	}
-
 	public void setAnalysis(Analysis analysis2) {
 		this.analysis = analysis2;
 	}
@@ -3234,6 +3162,21 @@ public class ImportAnalysis {
 			this.analysis.setOwner(owner);
 			this.analysis.addUserRight(owner, AnalysisRight.ALL);
 		}
+	}
+
+	/**
+	 * @return the compability1X
+	 */
+	public boolean isCompability1X() {
+		return compability1X;
+	}
+
+	/**
+	 * @param compability1x
+	 *            the compability1X to set
+	 */
+	public void setCompability1X(boolean compability1x) {
+		compability1X = compability1x;
 	}
 
 }

@@ -167,7 +167,7 @@ public class Constant {
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
 	/** Regular expression for SimpleParameter types */
-	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPACT_REP|IMPACT_OPE|IMPACT_LEG|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
+	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
 
 	/** Regular expression for asset types */
 	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl";
@@ -271,8 +271,7 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_IMPACT_REP = 9;
 	public final static int PARAMETERTYPE_TYPE_IMPACT_OPE = 10;
 	public final static int PARAMETERTYPE_TYPE_IMPACT_LEG = 11;
-	public final static Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_IMPACT, PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC, PARAMETERTYPE_TYPE_IMPACT_REP,
-			PARAMETERTYPE_TYPE_IMPACT_OPE, PARAMETERTYPE_TYPE_IMPACT_LEG };
+	public final static Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC };
 
 	/** SimpleParameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
@@ -286,8 +285,28 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_IMPACT_REP_NAME = "IMPACT_REP";
 	public final static String PARAMETERTYPE_TYPE_IMPACT_OPE_NAME = "IMPACT_OPE";
 	public final static String PARAMETERTYPE_TYPE_IMPACT_LEG_NAME = "IMPACT_LEG";
-	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETERTYPE_TYPE_IMPACT_NAME, PARAMETERTYPE_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME,
-			PARAMETERTYPE_TYPE_IMPACT_REP_NAME, PARAMETERTYPE_TYPE_IMPACT_OPE_NAME, PARAMETERTYPE_TYPE_IMPACT_LEG_NAME };
+
+	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETERTYPE_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME };
+
+	/**
+	 * FINANCIAL, LEGAL, OPERATIONAL, REPUTATIONAL
+	 * 
+	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
+	 * @see #ASSESSMENT_IMPACT_NAMES
+	 */
+	public final static String[] DEFAULT_IMPACT_TYPE_NAMES = { "FINANCIAL", "LEGAL", "OPERATIONAL", "REPUTATIONAL" };
+
+	/**
+	 * Financial, Legal, Operational, Reputational
+	 * 
+	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
+	 * @see #ASSESSMENT_IMPACT_NAMES
+	 */
+	public final static String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational", "Reputational" };
+
+	public static final String DEFAULT_IMPACT_NAME = PARAMETERTYPE_TYPE_IMPACT_NAME;
+
+	public static final String DEFAULT_IMPACT_TRANSLATE = "Impact";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
@@ -481,6 +500,14 @@ public class Constant {
 	public static final String ASSESSMENT_POTENTIALITY = "potentiality";
 	public static final String ASSESSMENT_POTENTIALITY_REAL = "potentiality_hidden";
 	public static final String ASSESSMENT_SEL_ASSESSMENT = "selected";
+
+	/**
+	 * Order must be same to {@link #DEFAULT_IMPACT_TYPE_NAMES}
+	 * 
+	 * @see #DEFAULT_IMPACT_TYPE_NAMES
+	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
+	 */
+	public static final String[] ASSESSMENT_IMPACT_NAMES = { ASSESSMENT_IMPACT_FIN, ASSESSMENT_IMPACT_LEG, ASSESSMENT_IMPACT_OP, ASSESSMENT_IMPACT_REP };
 
 	/** List of Constants for the Sqlite Table "history" */
 	public static final String HISTORY_COMMENT = MEASURE_COMMENT;

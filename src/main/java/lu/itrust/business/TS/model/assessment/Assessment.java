@@ -1,7 +1,10 @@
 package lu.itrust.business.TS.model.assessment;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -13,21 +16,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKey;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.ManyToAny;
 
 import bsh.This;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
-import lu.itrust.business.TS.model.parameter.value.impl.ParameterValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -73,12 +74,14 @@ public class Assessment implements Cloneable {
 	@Column(name = "dtOwner")
 	private String owner = "";
 
-	@OneToMany
-	@MapKey(name = "name")
+	@ManyToAny(metaDef = "VALUE_META_DEF", metaColumn = @Column(name = "dtValueType"))
 	@Cascade(CascadeType.ALL)
-	@JoinTable(name = "AssessmentImpacts", joinColumns = @JoinColumn(name = "fiAssessment"), inverseJoinColumns = @JoinColumn(name = "fiParameterValue"), uniqueConstraints = @UniqueConstraint(columnNames = {
-			"fiAssessment", "fiParameterValue" }))
-	private Map<String, ParameterValue> impacts = new LinkedHashMap<>();
+	@JoinTable(name = "AssessmentImpacts", joinColumns = @JoinColumn(name = "fiAssessment"), inverseJoinColumns = @JoinColumn(name = "fiValue"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"fiAssessment", "fiValue" }))
+	private List<IValue> impacts = new LinkedList<>();
+
+	@Transient
+	private Map<String, IValue> impactMapper = null;
 
 	/** The impactFin value of this assessment */
 	@Column(name = "dtImpactReal", nullable = false)
@@ -225,7 +228,7 @@ public class Assessment implements Cloneable {
 	/**
 	 * @return the impacts
 	 */
-	public Map<String, ? extends IValue> getImpacts() {
+	public List<IValue> getImpacts() {
 		return impacts;
 	}
 
@@ -233,12 +236,12 @@ public class Assessment implements Cloneable {
 	 * @param impacts
 	 *            the impacts to set
 	 */
-	public void setImpacts(Map<String, ParameterValue> impacts) {
+	public void setImpacts(List<IValue> impacts) {
 		this.impacts = impacts;
 	}
 
 	public IValue getImpact(String name) {
-		return impacts.get(name);
+		return getImpactMapper().get(name);
 	}
 
 	public String getImpactAcronym(String name) {
@@ -261,12 +264,32 @@ public class Assessment implements Cloneable {
 		return value == null ? null : value.getParameter();
 	}
 
-	public void setImpact(ParameterValue impact) {
-		impacts.put(impact.getName(), impact);
+	public void setImpact(IValue impact) {
+		IValue old = getImpactMapper().get(impact.getName());
+		if (old == null) {
+			getImpactMapper().put(impact.getName(), impact);
+			impacts.add(impact);
+		} else if (!old.equals(impact)) {
+			impacts.remove(getImpactMapper().put(impact.getName(), impact));
+			impacts.add(impact);
+		}
 	}
 
-	public void setImpact(IValue impact) {
-		setImpact((ParameterValue) impact);
+	/**
+	 * @return the impactMapper
+	 */
+	protected Map<String, IValue> getImpactMapper() {
+		if (impactMapper == null)
+			setImpactMapper(impacts.stream().collect(Collectors.toMap(IValue::getName, Function.identity())));
+		return impactMapper;
+	}
+
+	/**
+	 * @param impactMapper
+	 *            the impactMapper to set
+	 */
+	protected void setImpactMapper(Map<String, IValue> impactMapper) {
+		this.impactMapper = impactMapper;
 	}
 
 	public double getImpactReal() {

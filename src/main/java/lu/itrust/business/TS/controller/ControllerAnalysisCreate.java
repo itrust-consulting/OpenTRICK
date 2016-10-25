@@ -413,11 +413,11 @@ public class ControllerAnalysisCreate {
 
 	private Map<String, IParameter> generateParameters(Analysis analysis, List<IParameter> parameters, AnalysisType analysisType) {
 		if (analysisType == AnalysisType.QUALITATIVE) {
-			Map<String, SimpleParameter> mappedParameters = new LinkedHashMap<>(parameters.size());
-			List<SimpleParameter> finParameters = new LinkedList<>();
-			boolean[] presents = { true, true, true };// leg,ope,rep
-			parameters.stream().map(parameter -> parameter.duplicate()).filter(analysis::addAParameter).forEach(parameter -> {
-				switch (parameter.getType().getName()) {
+			Map<String, IParameter> mappedParameters = new LinkedHashMap<>(parameters.size());
+			//List<IParameter> finParameters = new LinkedList<>();
+			//boolean[] presents = { true, true, true };// leg,ope,rep
+			/*parameters.stream().map(parameter -> parameter.duplicate()).filter(analysis::addAParameter).forEach(parameter -> {
+				switch (parameter.) {
 				case PARAMETERTYPE_TYPE_IMPACT_NAME:
 					finParameters.add(parameter);
 					break;
@@ -438,7 +438,7 @@ public class ControllerAnalysisCreate {
 			if (presents[1])
 				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_OPE, PARAMETERTYPE_TYPE_IMPACT_OPE_NAME);
 			if (presents[0])
-				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_LEG, PARAMETERTYPE_TYPE_IMPACT_LEG_NAME);
+				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_LEG, PARAMETERTYPE_TYPE_IMPACT_LEG_NAME);*/
 			return mappedParameters;
 		} else
 			return parameters.stream()
@@ -451,8 +451,8 @@ public class ControllerAnalysisCreate {
 		ParameterType parameterType = serviceParameterType.getByName(type);
 		if (parameterType == null)
 			parameterType = new ParameterType(type);
-		for (SimpleParameter simpleParameter : simpleParameters) {
-			SimpleParameter clone = simpleParameter.clone();
+		for (IParameter simpleParameter : simpleParameters) {
+			IParameter clone = simpleParameter.clone();
 			clone.setType(parameterType);
 			mappedParameters.put(clone.getKey(), clone);
 			analysis.addAParameter(clone);

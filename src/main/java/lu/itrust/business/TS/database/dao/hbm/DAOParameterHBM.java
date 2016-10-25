@@ -1,18 +1,20 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import static lu.itrust.business.TS.constants.Constant.ALL_ACRONYM_TYPE_IDS;
 import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_DYNAMIC;
 import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_NAME;
 import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY;
 import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
 import static lu.itrust.business.TS.constants.Constant.SOA_THRESHOLD;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOParameter;
+import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
@@ -260,13 +262,12 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExtendedParametersFromAnalysisId(int)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<IAcronymParameter> findAllAcronymParameterByAnalysisId(Integer idAnalysis) {
-		return getSession()
-				.createQuery(
-						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and  parameter.type.id in :typeIds")
-				.setParameter("idAnalysis", idAnalysis).setParameterList("typeIds", ALL_ACRONYM_TYPE_IDS).list();
+		Analysis analysis = (Analysis) getSession().createQuery("From Analysis as analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis).uniqueResult();
+		return analysis == null ? Collections.emptyList()
+				: analysis.getParameters().stream().filter(parameter -> parameter instanceof IAcronymParameter).map(parameter -> (IAcronymParameter) parameter)
+						.collect(Collectors.toList());
 	}
 
 	/**
