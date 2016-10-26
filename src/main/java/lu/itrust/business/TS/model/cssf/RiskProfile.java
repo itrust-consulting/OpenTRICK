@@ -66,12 +66,14 @@ public class RiskProfile implements Cloneable {
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
-			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileRawImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiRawImpact"))) })
+			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileRawImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiRawImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
+					"fiRawImpact", "fiRiskProfile" }))) })
 	private RiskProbaImpact rawProbaImpact;
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability")),
-			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileExpImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiExpImpact"))) })
+			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileExpImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiExpImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
+					"fiExpImpact", "fiRiskProfile" }))) })
 	private RiskProbaImpact expProbaImpact;
 
 	/**

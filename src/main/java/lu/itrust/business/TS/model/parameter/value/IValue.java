@@ -11,7 +11,13 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
  */
 public interface IValue {
 
-	String getName();
+	/**
+	 * 
+	 * @return {@link #ILevelParameter}.getTypeName()
+	 */
+	default String getName() {
+		return getParameter().getTypeName();
+	}
 
 	Integer getLevel();
 

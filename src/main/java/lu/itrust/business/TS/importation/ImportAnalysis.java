@@ -83,7 +83,7 @@ import lu.itrust.business.TS.model.parameter.impl.Parameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.TS.model.parameter.value.IValue;
-import lu.itrust.business.TS.model.parameter.value.impl.ParameterValue;
+import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.Scale;
 import lu.itrust.business.TS.model.scale.ScaleType;
@@ -178,7 +178,7 @@ public class ImportAnalysis {
 
 	private Map<String, IProbabilityParameter> probabilities = null;
 
-	private Map<Integer[], Assessment> assessments;
+	private Map<String, Assessment> assessments;
 
 	private Map<String, ScaleType> impactTypes;
 
@@ -331,7 +331,7 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", 40));
 			importAssessments();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", 45));
 			importRiskProfile();
 
 			// ****************************************************************
@@ -352,6 +352,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", 70));
 			importAssetTypeValues();
+
 			importAssetValues();
 
 			// ****************************************************************
@@ -405,44 +406,73 @@ public class ImportAnalysis {
 	private void importRiskProfile() throws SQLException {
 		if (analysis.getType() != AnalysisType.QUALITATIVE)
 			return;
-		ResultSet resultSet = sqlite.query("Select * From risk_profile");
-		if (resultSet == null)
-			return;
-		List<RiskProfile> riskProfiles = new ArrayList<>(analysis.getAssessments().size());
-		while (resultSet.next()) {
-			RiskProfile riskProfile = new RiskProfile(assets.get(resultSet.getInt("id_asset")), scenarios.get(resultSet.getInt("id_threat")));
+		ResultSet resultSet = null;
+		Map<String, RiskProfile> riskProfiles = null;
+		try {
+			resultSet = sqlite.query("Select * From risk_profile");
+			if (resultSet == null)
+				return;
+			riskProfiles = new LinkedHashMap<>(analysis.getAssessments().size());
+			while (resultSet.next()) {
 
-			riskProfile.setActionPlan(resultSet.getString("actionPlan"));
-			riskProfile.setRiskTreatment(resultSet.getString("treatment"));
-			riskProfile.setRiskStrategy(RiskStrategy.valueOf(resultSet.getString("strategy")));
+				int assetId = resultSet.getInt("id_asset"), scenarioId = resultSet.getInt("id_threat");
 
-			riskProfile.setExpProbaImpact(new RiskProbaImpact());
-			riskProfile.setRawProbaImpact(new RiskProbaImpact());
-			riskProfile.getExpProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("exp_probability")));
-			riskProfile.getRawProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("raw_probability")));
+				RiskProfile riskProfile = new RiskProfile(assets.get(assetId), scenarios.get(scenarioId));
 
-			if (isCompability1X()) {
-				riskProfile.getExpProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("exp_impact_fin"))));
-				riskProfile.getExpProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("exp_impact_leg"))));
-				riskProfile.getExpProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("exp_impact_op"))));
-				riskProfile.getExpProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("exp_impact_rep"))));
-				riskProfile.getRawProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("raw_impact_fin"))));
-				riskProfile.getRawProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("raw_impact_leg"))));
-				riskProfile.getRawProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("raw_impact_op"))));
-				riskProfile.getRawProbaImpact()
-						.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("raw_impact_rep"))));
+				riskProfile.setActionPlan(resultSet.getString("actionPlan"));
+				riskProfile.setRiskTreatment(resultSet.getString("treatment"));
+				riskProfile.setRiskStrategy(RiskStrategy.valueOf(resultSet.getString("strategy")));
+
+				riskProfile.setExpProbaImpact(new RiskProbaImpact());
+				riskProfile.setRawProbaImpact(new RiskProbaImpact());
+				riskProfile.getExpProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("exp_probability")));
+				riskProfile.getRawProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("raw_probability")));
+				if (isCompability1X()) {
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("exp_impact_fin"))));
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("exp_impact_leg"))));
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("exp_impact_op"))));
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("exp_impact_rep"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("raw_impact_fin"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("raw_impact_leg"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("raw_impact_op"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("raw_impact_rep"))));
+				}
+				riskProfiles.put(key(assetId, scenarioId), riskProfile);
 			}
-			riskProfiles.add(riskProfile);
-		}
 
-		analysis.setRiskProfiles(riskProfiles);
+			if (!isCompability1X()) {
+				resultSet.close();
+				resultSet = sqlite.query("Select * From risk_profile_impacts");
+				if (resultSet == null)
+					return;
+				while (resultSet.next()) {
+					RiskProfile riskProfile = riskProfiles.get(key(resultSet.getInt("id_asset"), resultSet.getInt("id_threat")));
+					ImpactParameter impact = (ImpactParameter) impactParameters.get(Parameter.key(resultSet.getString("type"), resultSet.getString("value")));
+					switch (resultSet.getString("name")) {
+					case "RAW":
+						riskProfile.getRawProbaImpact().add(impact);
+						break;
+					case "EXP":
+						riskProfile.getExpProbaImpact().add(impact);
+						break;
+					}
+				}
+			}
+			analysis.setRiskProfiles(riskProfiles.values().parallelStream().collect(Collectors.toList()));
+		} finally {
+			if (resultSet != null)
+				resultSet.close();
+			if (riskProfiles != null)
+				riskProfiles.clear();
+		}
 
 	}
 
@@ -463,6 +493,14 @@ public class ImportAnalysis {
 			phases.clear();
 		if (scenarios != null)
 			scenarios.clear();
+		if (impactParameters != null)
+			impactParameters.clear();
+		if (assessments != null)
+			assessments.clear();
+		if (probabilities != null)
+			probabilities.clear();
+		if (impactTypes != null)
+			impactTypes.clear();
 	}
 
 	/**
@@ -1117,74 +1155,96 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		String query = "";
 
 		// ****************************************************************
 		// * Query sqlite for all assessment
 		// ****************************************************************
 
-		// build query
-		query = "SELECT * FROM assessment";
+		try {
+			// build query
+			String query = "SELECT * FROM assessment";
 
-		// execute query
-		rs = sqlite.query(query, null);
+			// execute query
+			rs = sqlite.query(query);
 
-		// Loop assessment
-		while (rs.next()) {
+			// Loop assessment
+			while (rs.next()) {
 
-			// ****************************************************************
-			// * retrieve asset instance
-			// ****************************************************************
+				// ****************************************************************
+				// * retrieve asset instance
+				// ****************************************************************
 
-			int assetId = rs.getInt(Constant.ASSET_ID_ASSET), scenarioId = rs.getInt(Constant.THREAT_ID_THREAT);
+				int assetId = rs.getInt(Constant.ASSET_ID_ASSET), scenarioId = rs.getInt(Constant.THREAT_ID_THREAT);
 
-			// ****************************************************************
-			// * create assessment instance
-			// ****************************************************************
-			Assessment tmpAssessment = new Assessment();
-			tmpAssessment.setAsset(assets.get(assetId));
-			tmpAssessment.setScenario(scenarios.get(scenarioId));
-			tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
-			tmpAssessment.setLikelihood(rs.getString(Constant.ASSESSMENT_POTENTIALITY));
-			tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
-			tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
-			tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
-			tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
-			tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
+				// ****************************************************************
+				// * create assessment instance
+				// ****************************************************************
+				Assessment tmpAssessment = new Assessment();
+				tmpAssessment.setAsset(assets.get(assetId));
+				tmpAssessment.setScenario(scenarios.get(scenarioId));
+				tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
+				tmpAssessment.setLikelihood(rs.getString(Constant.ASSESSMENT_POTENTIALITY));
+				tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
+				tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
+				tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
+				tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
+				tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
 
-			tmpAssessment.setSelected(rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
+				tmpAssessment.setSelected(rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
 
-			tmpAssessment.setALE(tmpAssessment.getImpactReal() * tmpAssessment.getLikelihoodReal());
+				tmpAssessment.setALE(tmpAssessment.getImpactReal() * tmpAssessment.getLikelihoodReal());
 
-			tmpAssessment.setALEO(tmpAssessment.getALE() / tmpAssessment.getUncertainty());
+				tmpAssessment.setALEO(tmpAssessment.getALE() / tmpAssessment.getUncertainty());
 
-			tmpAssessment.setALEP(tmpAssessment.getALE() * tmpAssessment.getUncertainty());
+				tmpAssessment.setALEP(tmpAssessment.getALE() * tmpAssessment.getUncertainty());
 
-			if (isCompability1X()) {
-				if (analysis.getType() == AnalysisType.QUANTITATIVE)
-					setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_NAME, getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[0]));
-				else {
-					for (int i = 0; i < Constant.ASSESSMENT_IMPACT_NAMES.length; i++)
-						setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i], getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
+				if (isCompability1X()) {
+					if (analysis.getType() == AnalysisType.QUANTITATIVE)
+						setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_NAME, getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[0]));
+					else {
+						for (int i = 0; i < Constant.ASSESSMENT_IMPACT_NAMES.length; i++)
+							setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i], getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
+					}
+				} else {
+					if (assessments == null)
+						assessments = new HashMap<>();
+					assessments.put(key(assetId, scenarioId), tmpAssessment);
 				}
-			} else {
-				if (assessments == null)
-					assessments = new HashMap<>();
-				assessments.put(new Integer[] { assetId, scenarioId }, tmpAssessment);
+				// ****************************************************************
+				// * add instance to list of assessments
+				// ****************************************************************
+				this.analysis.addAnAssessment(tmpAssessment);
 			}
-			// ****************************************************************
-			// * add instance to list of assessments
-			// ****************************************************************
-			this.analysis.addAnAssessment(tmpAssessment);
-		}
 
-		// Close ResultSet
-		rs.close();
+			/**
+			 * load impact
+			 */
+
+			if (!(assessments == null || assessments.isEmpty())) {
+				rs.close();
+				// execute query
+				rs = sqlite.query("SELECT * FROM assessment_impacts");
+				if (rs == null)
+					return;
+				while (rs.next())
+					assessments.get(key(rs.getInt(Constant.ASSET_ID_ASSET), rs.getInt(Constant.THREAT_ID_THREAT)))
+							.setImpact(factory.findValue(getDouble(rs, "value"), getString(rs, "name")));
+			}
+
+		} finally {
+			// Close ResultSet
+			if (rs != null)
+				rs.close();
+		}
+	}
+
+	private String key(int assetId, int scenarioId) {
+		return assetId + "_" + scenarioId;
 	}
 
 	private void setImpact(Assessment tmpAssessment, String type, String value) {
 		IImpactParameter parameter = impactParameters.get(Parameter.key(type, value));
-		IValue impact = parameter == null ? factory.findValue(value, type) : new ParameterValue(parameter);
+		IValue impact = parameter == null ? factory.findValue(value, type) : new Value(parameter);
 		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
 	}
 
@@ -1375,7 +1435,7 @@ public class ImportAnalysis {
 		currentSqliteTable = "maturity_max_eff";
 
 		// build and execute query
-		rs = sqlite.query("SELECT * FROM maturity_max_eff", null);
+		rs = sqlite.query("SELECT * FROM maturity_max_eff");
 
 		// retrieve results
 		while (rs.next()) {
@@ -1424,7 +1484,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build and execute query
-		rs = sqlite.query("SELECT * FROM maturity_IS", null);
+		rs = sqlite.query("SELECT * FROM maturity_IS");
 
 		// retrieve results
 		while (rs.next()) {
@@ -1480,7 +1540,9 @@ public class ImportAnalysis {
 		// Import dynamic parameters
 		ResultSet rs = null;
 		try {
-			rs = sqlite.query("SELECT * FROM dynamic_parameter", null);
+			rs = sqlite.query("SELECT * FROM dynamic_parameter");
+			if (rs == null)
+				return;
 			while (rs.next()) {
 				final DynamicParameter dynamicParameter = new DynamicParameter();
 				dynamicParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
@@ -1488,8 +1550,6 @@ public class ImportAnalysis {
 				dynamicParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
 				this.analysis.addAParameter(dynamicParameter);
 			}
-		} catch (SQLException ex) {
-			// Table does not exist, so we are dealing with an old database.
 		} finally {
 			if (rs != null)
 				rs.close();
@@ -1506,7 +1566,7 @@ public class ImportAnalysis {
 				if (analysis.getType() == AnalysisType.QUANTITATIVE)
 					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, "");
 				else {
-					for (int i = 0, length = 1; i < length; i++)
+					for (int i = 0; i < Constant.DEFAULT_IMPACT_TYPE_NAMES.length; i++)
 						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], "i");
 				}
 			} else {
@@ -1568,7 +1628,6 @@ public class ImportAnalysis {
 		// ****************************************************************
 		ResultSet rs = null;
 		String query = "";
-		String type = null;
 
 		// ****************************************************************
 		// * Import Impact
@@ -1584,7 +1643,7 @@ public class ImportAnalysis {
 		query = "SELECT * FROM impact";
 
 		// execute query
-		rs = sqlite.query(query, null);
+		rs = sqlite.query(query);
 
 		List<ImpactParameter> impactParameters = new ArrayList<ImpactParameter>();
 
@@ -1599,9 +1658,8 @@ public class ImportAnalysis {
 			// * create instance of extended parameter
 			// ****************************************************************
 			ImpactParameter impactParameter = new ImpactParameter();
-			type = getString(rs, "type");
-			if (type != null)
-				impactParameter.setType(impactTypes.get(type.toUpperCase()));
+			if (!isCompability1X())
+				impactParameter.setType(impactTypes.get(getString(rs, "type").toUpperCase()));
 			impactParameter.setDescription(rs.getString(Constant.NAME_IMPACT));
 			impactParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_IMPACT)));
 			impactParameter.setAcronym(rs.getString(Constant.ACRO_IMPACT));
@@ -1618,14 +1676,14 @@ public class ImportAnalysis {
 		// close result
 		rs.close();
 
-		if (type == null) {
+		if (isCompability1X()) {
 			ParameterManager.ComputeImpactValue(impactParameters);
 			this.impactParameters = new LinkedHashMap<>();
 			impactTypes.values().forEach(scaleType -> {
 				impactParameters.forEach(parameter -> {
 					ImpactParameter impactParameter = parameter.clone();
 					impactParameter.setType(scaleType);
-					this.impactParameters.put(Parameter.key(scaleType.getName(), scaleType.getAcronym()), impactParameter);
+					this.impactParameters.put(Parameter.key(scaleType.getName(), impactParameter.getAcronym()), impactParameter);
 					impactParameter.setAcronym(scaleType.getAcronym() + impactParameter.getLevel());
 					this.analysis.getParameters().add(impactParameter);
 				});

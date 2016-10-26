@@ -14,20 +14,20 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
  *
  */
 @Entity
-@AttributeOverride(name = "id", column = @Column(name = "idParameterValue"))
-public class ParameterValue extends AbstractValue {
+@AttributeOverride(name = "id", column = @Column(name = "idValue"))
+public class Value extends AbstractValue {
 
 	/**
 	 * 
 	 */
-	public ParameterValue() {
+	public Value() {
 	}
 
 	/**
 	 * @param name
 	 * @param parameter
 	 */
-	public ParameterValue(ILevelParameter parameter) {
+	public Value(ILevelParameter parameter) {
 		super(parameter);
 	}
 

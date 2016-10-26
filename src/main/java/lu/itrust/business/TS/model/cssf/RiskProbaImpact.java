@@ -12,8 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.persistence.Embeddable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cascade;
@@ -36,7 +36,7 @@ public class RiskProbaImpact implements Cloneable {
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private LikelihoodParameter probability;
 
-	@OneToMany
+	@ManyToMany
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private List<ImpactParameter> impacts = new LinkedList<>();
 
@@ -62,7 +62,7 @@ public class RiskProbaImpact implements Cloneable {
 	}
 
 	public RiskProbaImpact(LikelihoodParameter probability, List<ImpactParameter> impacts) {
-		this.probability =  probability;
+		this.probability = probability;
 		this.impacts = impacts;
 	}
 

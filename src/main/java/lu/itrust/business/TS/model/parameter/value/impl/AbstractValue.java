@@ -52,11 +52,6 @@ public abstract class AbstractValue implements IValue {
 	}
 
 	@Override
-	public String getName() {
-		return parameter.getTypeName();
-	}
-
-	@Override
 	public ILevelParameter getParameter() {
 		return parameter;
 	}

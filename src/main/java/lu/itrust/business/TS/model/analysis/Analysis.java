@@ -58,6 +58,7 @@ import lu.itrust.business.TS.model.parameter.helper.Bounds;
 import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -2677,6 +2678,11 @@ public class Analysis implements Cloneable {
 
 	public double findParameterValueByTypeAndAcronym(String type, String acronym) {
 		return findParameterValueByTypeAndAcronym(type, acronym, 0D);
+	}
+
+	public LikelihoodParameter findLikelihoodByTypeAndLevel(int level) {
+		return parameters.stream().filter(parameter -> (parameter instanceof LikelihoodParameter) && ((LikelihoodParameter) parameter).getLevel() == level)
+				.map(parameter -> (LikelihoodParameter) parameter).findAny().orElse(null);
 	}
 
 }

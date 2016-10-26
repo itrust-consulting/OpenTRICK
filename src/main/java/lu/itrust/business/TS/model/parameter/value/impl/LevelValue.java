@@ -16,16 +16,16 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
  *
  */
 @Entity
-@AttributeOverride(name = "id", column = @Column(name = "idDefaultLevelValue"))
-public class DefaultLevelValue extends AbstractNumeric {
+@AttributeOverride(name = "id", column = @Column(name = "idLevelValue"))
+public class LevelValue extends NumericValue {
 
 	/**
 	 * 
 	 */
-	public DefaultLevelValue() {
+	public LevelValue() {
 	}
 
-	public DefaultLevelValue(Integer value, ILevelParameter parameter) {
+	public LevelValue(Integer value, ILevelParameter parameter) {
 		super(value, parameter);
 	}
 
