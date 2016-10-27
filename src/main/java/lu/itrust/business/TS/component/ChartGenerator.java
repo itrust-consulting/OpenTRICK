@@ -1422,7 +1422,7 @@ public class ChartGenerator {
 	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator,
 			Function<TAggregator, String> axisLabelProvider, String chartTitle) throws Exception {
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
-		final List<IParameter> allParameters = analysis.getParameters();
+		final List<IParameter> allParameters = analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_SIMPLE);
 		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved

@@ -46,4 +46,14 @@ public class DynamicParameter extends AbstractProbability {
 		return Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME;
 	}
 
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.parameter.IProbabilityParameter#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC;
+	}
+	
+	
+
 }

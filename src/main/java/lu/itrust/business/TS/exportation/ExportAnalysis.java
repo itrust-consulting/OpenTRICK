@@ -35,12 +35,12 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
-import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
-import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.ScaleEntry;
@@ -127,8 +127,7 @@ public class ExportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.identifier", "Export identifier", 10));
 
-			scaleTypes = analysis.getParameters().stream().filter(parameter -> parameter instanceof ImpactParameter).map(parameter -> ((ImpactParameter) parameter).getType())
-					.distinct().collect(Collectors.toList());
+			scaleTypes = analysis.getImpactParameters().stream().map(ImpactParameter::getType).distinct().collect(Collectors.toList());
 
 			scaleEntries = new HashMap<>(scaleTypes.size());
 
@@ -292,14 +291,14 @@ public class ExportAnalysis {
 		}
 
 		query = "";
-		unionQuery = " UNION Select ?,?,?,?,?";
-		baseQuery = "INSERT INTO risk_profile_impact SELECT ? as id_threat,? as id_asset,? as type,? as name,? as value";
+		unionQuery = " UNION Select ?,?,?,?";
+		baseQuery = "INSERT INTO risk_profile_impact SELECT ? as id_threat,? as id_asset,? as name,? as value";
 		// parse all Risk Register Entries
 		for (RiskProfile riskProfile : analysis.getRiskProfiles()) {
 			// add parameters for the current Risk Register Item
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 10 * scaleTypes.size() > 999) {
+			else if (params.size() + 8 * scaleTypes.size() > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
@@ -307,9 +306,9 @@ public class ExportAnalysis {
 				query += unionQuery;
 			int index = scaleTypes.size();
 			for (ScaleType scaleType : scaleTypes) {
-				addRiskProfileImpact(params, riskProfile, scaleType, "RAW", getImpact(riskProfile.getRawProbaImpact(), scaleType));
+				addRiskProfileImpact(params, riskProfile, "RAW", getImpact(riskProfile.getRawProbaImpact(), scaleType));
 				query += unionQuery;
-				addRiskProfileImpact(params, riskProfile, scaleType, "EXP", getImpact(riskProfile.getExpProbaImpact(), scaleType));
+				addRiskProfileImpact(params, riskProfile, "EXP", getImpact(riskProfile.getExpProbaImpact(), scaleType));
 				if (--index > 0)
 					query += unionQuery;
 			}
@@ -330,10 +329,9 @@ public class ExportAnalysis {
 		return impactParameter == null ? scaleType.getAcronym() + 0 : impactParameter.getAcronym();
 	}
 
-	private void addRiskProfileImpact(List<Object> params, RiskProfile riskProfile, ScaleType scaleType, String name, String value) {
+	private void addRiskProfileImpact(List<Object> params, RiskProfile riskProfile, String name, String value) {
 		params.add(riskProfile.getScenario().getId());
 		params.add(riskProfile.getAsset().getId());
-		params.add(scaleType.getName());
 		params.add(name);
 		params.add(value);
 	}
@@ -873,29 +871,24 @@ public class ExportAnalysis {
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
 		String query = "";
-		IParameter parameter = null;
 
 		// ****************************************************************
 		// * parse parameters and export simple parameters
 		// ****************************************************************
 
 		// parse parameters
-		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
+		for (SimpleParameter parameter : analysis.getSimpleParameters()) {
 
 			// ****************************************************************
 			// * export max effency parameter
 			// ****************************************************************
 
 			// check if max efficiency -> YES
-			if (this.analysis.getAParameter(index).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)) {
+			if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)) {
 
 				// ****************************************************************
 				// * export parameter
 				// ****************************************************************
-
-				// store parameter
-				parameter = (IParameter) this.analysis.getAParameter(index);
-
 				// build query
 				query = DatabaseHandler.generateInsertQuery("maturity_max_eff", 2);
 
@@ -906,22 +899,11 @@ public class ExportAnalysis {
 
 				// execute the query
 				sqlite.query(query, params);
-			}
-
-			// ****************************************************************
-			// * export implementation scale parameter
-			// ****************************************************************
-
-			// check if implementation rate -> YES
-			if (this.analysis.getAParameter(index).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
+			} else if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
 
 				// ****************************************************************
 				// * export parameter
-				// ****************************************************************
-
-				// store parameter
-				parameter = (IParameter) this.analysis.getAParameter(index);
-
+				// ***************************************************************
 				// build query
 				query = DatabaseHandler.generateInsertQuery("maturity_IS", 2);
 
@@ -956,18 +938,7 @@ public class ExportAnalysis {
 
 				// execute the query
 				sqlite.query(query, params);
-			}
-
-			// ****************************************************************
-			// * export simple parameter
-			// ****************************************************************
-
-			// check if single parameter -> YES
-			if (this.analysis.getAParameter(index).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) {
-
-				// store parameter in object
-				parameter = (IParameter) this.analysis.getAParameter(index);
-
+			} else if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) {
 				// ****************************************************************
 				// * export parameter
 				// ****************************************************************
@@ -997,17 +968,14 @@ public class ExportAnalysis {
 	private void exportProbabilityAndImpactParameter() throws Exception {
 		// Export all extended parameters of type IMPACT, PROBABILITY and
 		// SEVERITY
-		for (IParameter parameter : this.analysis.getParameters()) {
+
+		for (IBoundedParameter impactParameter : this.analysis.getBoundedParamters()) {
 			// Determine insert query
 			String query = null;
-			if (parameter instanceof LikelihoodParameter)
+			if (impactParameter instanceof LikelihoodParameter)
 				query = DatabaseHandler.generateInsertQuery("potentiality", 7);
-			else if (parameter instanceof ImpactParameter)
+			else if (impactParameter instanceof ImpactParameter)
 				query = DatabaseHandler.generateInsertQuery("impact", 8);
-			else
-				continue;
-			// Cast object (we know it is of the good type)
-			IBoundedParameter impactParameter = (IBoundedParameter) parameter;
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id
@@ -1042,22 +1010,15 @@ public class ExportAnalysis {
 	 */
 	private void exportDynamicParameters() throws Exception {
 		// Export all acronym parameters of type DYNAMIC
-		for (IParameter parameter : this.analysis.getParameters()) {
-			if (!parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME))
-				continue;
-
+		for (DynamicParameter dynamicParameter : this.analysis.getDynamicParameters()) {
 			// Determine insert query
 			String query = DatabaseHandler.generateInsertQuery("dynamic_parameter", 4);
-
-			// Cast object (we know it is of the good type)
-			AbstractProbability abstractProbability = (AbstractProbability) parameter;
-
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id
-			queryParameters.add(abstractProbability.getDescription());
-			queryParameters.add(abstractProbability.getAcronym());
-			queryParameters.add(abstractProbability.getValue());
+			queryParameters.add(dynamicParameter.getDescription());
+			queryParameters.add(dynamicParameter.getAcronym());
+			queryParameters.add(dynamicParameter.getValue());
 
 			// Execute query
 			sqlite.query(query, queryParameters);
@@ -1078,7 +1039,6 @@ public class ExportAnalysis {
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
 		String query = "";
-		MaturityParameter maturityParameter = null;
 		int counter = 0;
 
 		// ****************************************************************
@@ -1086,101 +1046,91 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// parse parameters
-		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
+		for (MaturityParameter maturityParameter : this.analysis.getMaturityParameters()) {
 
-			// check if ILPS
-			if (this.analysis.getAParameter(index).getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME)) {
+			for (int i = 0; i < 6; i++) {
+				// check if first part -> YES
+				if (query.equals(Constant.EMPTY_STRING)) {
 
-				// store maturity parameter
-				maturityParameter = (MaturityParameter) this.analysis.getAParameter(index);
+					// build query
+					query = "INSERT INTO maturity_required_LIPS SELECT ? as name,? as line,? ";
+					query += "as SML,? as value UNION";
 
-				for (int i = 0; i < 6; i++) {
+					// set limit
+					counter = 4;
+				} else {
 
-					// check if first part -> YES
-					if (query.equals(Constant.EMPTY_STRING)) {
+					// check if first part -> NO
 
-						// build query
-						query = "INSERT INTO maturity_required_LIPS SELECT ? as name,? as line,? ";
-						query += "as SML,? as value UNION";
+					// check if limit is reached -> YES
+					if (counter + 4 >= 999) {
 
-						// set limit
+						// execute query
+						query = query.substring(0, query.length() - 6);
+						sqlite.query(query, params);
+
+						// clean parameters
+						params.clear();
+
+						// reset query and ,limit
+						query = "INSERT INTO maturity_required_LIPS SELECT ? as name,? as ";
+						query += "line,?as SML,? as value UNION";
 						counter = 4;
 					} else {
 
-						// check if first part -> NO
+						// check if limit is reached -> NO
 
-						// check if limit is reached -> YES
-						if (counter + 4 >= 999) {
+						// create value
+						query += " SELECT ?,?,?,? UNION";
 
-							// execute query
-							query = query.substring(0, query.length() - 6);
-							sqlite.query(query, params);
-
-							// clean parameters
-							params.clear();
-
-							// reset query and ,limit
-							query = "INSERT INTO maturity_required_LIPS SELECT ? as name,? as ";
-							query += "line,?as SML,? as value UNION";
-							counter = 4;
-						} else {
-
-							// check if limit is reached -> NO
-
-							// create value
-							query += " SELECT ?,?,?,? UNION";
-
-							// increment limit
-							counter += 4;
-						}
-					}
-
-					// add parameters
-					params.add(maturityParameter.getDescription());
-					params.add(getLinefromMaturityCategory(maturityParameter.getDescription()));
-					params.add(i);
-
-					// System.out.print(maturityParameter.getDescription() +
-					// ":::SML level: " + i +
-					// "::: value: ");
-
-					switch (i) {
-					case 0: {
-						// System.out.println(maturityParameter.getSMLLevel0());
-						params.add(maturityParameter.getSMLLevel0());
-						break;
-					}
-					case 1: {
-						// System.out.println(maturityParameter.getSMLLevel1());
-						params.add(maturityParameter.getSMLLevel1());
-						break;
-					}
-					case 2: {
-						// System.out.println(maturityParameter.getSMLLevel2());
-						params.add(maturityParameter.getSMLLevel2());
-						break;
-					}
-					case 3: {
-						// System.out.println(maturityParameter.getSMLLevel3());
-						params.add(maturityParameter.getSMLLevel3());
-						break;
-					}
-					case 4: {
-						// System.out.println(maturityParameter.getSMLLevel4());
-						params.add(maturityParameter.getSMLLevel4());
-						break;
-					}
-					case 5: {
-						// System.out.println(maturityParameter.getSMLLevel5());
-						params.add(maturityParameter.getSMLLevel5());
-						break;
-					}
+						// increment limit
+						counter += 4;
 					}
 				}
 
+				// add parameters
+				params.add(maturityParameter.getDescription());
+				params.add(getLinefromMaturityCategory(maturityParameter.getDescription()));
+				params.add(i);
+
+				// System.out.print(maturityParameter.getDescription() +
+				// ":::SML level: " + i +
+				// "::: value: ");
+
+				switch (i) {
+				case 0: {
+					// System.out.println(maturityParameter.getSMLLevel0());
+					params.add(maturityParameter.getSMLLevel0());
+					break;
+				}
+				case 1: {
+					// System.out.println(maturityParameter.getSMLLevel1());
+					params.add(maturityParameter.getSMLLevel1());
+					break;
+				}
+				case 2: {
+					// System.out.println(maturityParameter.getSMLLevel2());
+					params.add(maturityParameter.getSMLLevel2());
+					break;
+				}
+				case 3: {
+					// System.out.println(maturityParameter.getSMLLevel3());
+					params.add(maturityParameter.getSMLLevel3());
+					break;
+				}
+				case 4: {
+					// System.out.println(maturityParameter.getSMLLevel4());
+					params.add(maturityParameter.getSMLLevel4());
+					break;
+				}
+				case 5: {
+					// System.out.println(maturityParameter.getSMLLevel5());
+					params.add(maturityParameter.getSMLLevel5());
+					break;
+				}
+				}
 			}
 		}
-
 		// ****************************************************************
 		// * execute last part of maturity parameters
 		// ****************************************************************
@@ -1245,7 +1195,7 @@ public class ExportAnalysis {
 				params.add(11);
 				params.add(300000);
 			} else {
-				params.add(entry.getLevel());
+				params.add(entry.getLevel() + 1);
 				params.add(entry.getValue());
 			}
 			String translate = scaleType.get(analysis.getLanguage().getAlpha2());

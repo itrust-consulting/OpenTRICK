@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<div class="col-md-6">
+<div class="col-md-${type=='QUANTITATIVE' ? '6' : '12' }">
 	<fieldset id="Scale_Probability">
 		<legend>
 			<spring:message code="label.parameter.extended.probability" />
@@ -38,43 +38,46 @@
 							${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} title="${parameterValue}"
 							data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
 						<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" minFractionDigits="2" /></td>
-						<td class="textaligncenter"><c:choose>
-								<c:when test="${status.index!=10}">
-									<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" minFractionDigits="2" />
-								</c:when>
-								<c:otherwise>
-									<span style="font-size: 17px;">+&#8734;</span>
-								</c:otherwise>
-							</c:choose></td>
+						<td class="textaligncenter">
+						<c:choose>
+						<c:when test="${status.index!=10}">
+							<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" minFractionDigits="2" />
+						</c:when>
+						<c:otherwise>
+							<span style="font-size: 17px;">+&#8734;</span>
+						</c:otherwise>
+						</c:choose></td>
 					</tr>
 				</c:forEach>
 			</tbody>
 		</table>
 	</fieldset>
 </div>
-<div class="col-md-6">
-	<fieldset id="DynamicParameters">
-		<legend>
-			<spring:message code="label.parameter.dynamic.probability" />
-		</legend>
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
-					<th class="textaligncenter"><spring:message code="label.parameter.value" /></th>
-				</tr>
-			</thead>
-			<tbody>
-				<fmt:setLocale value="fr" scope="session" />
-				<c:forEach items="${mappedParameters['DYNAMIC']}" var="parameter" varStatus="status">
-					<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
-						<!--<td>${itemInformation.id}</td>-->
-						<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
-						<td class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
+<c:if test="${type == 'QUANTITATIVE'}">
+	<div class="col-md-6">
+		<fieldset id="DynamicParameters">
+			<legend>
+				<spring:message code="label.parameter.dynamic.probability" />
+			</legend>
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+						<th class="textaligncenter"><spring:message code="label.parameter.value" /></th>
 					</tr>
-				</c:forEach>
-				<fmt:setLocale value="${language}" scope="session" />
-			</tbody>
-		</table>
-	</fieldset>
-</div>
+				</thead>
+				<tbody>
+					<fmt:setLocale value="fr" scope="session" />
+					<c:forEach items="${mappedParameters['DYNAMIC']}" var="parameter" varStatus="status">
+						<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
+							<!--<td>${itemInformation.id}</td>-->
+							<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
+							<td class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
+						</tr>
+					</c:forEach>
+					<fmt:setLocale value="${language}" scope="session" />
+				</tbody>
+			</table>
+		</fieldset>
+	</div>
+</c:if>

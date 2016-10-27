@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -450,12 +449,12 @@ public class ImportAnalysis {
 
 			if (!isCompability1X()) {
 				resultSet.close();
-				resultSet = sqlite.query("Select * From risk_profile_impacts");
+				resultSet = sqlite.query("Select * From risk_profile_impact");
 				if (resultSet == null)
 					return;
 				while (resultSet.next()) {
 					RiskProfile riskProfile = riskProfiles.get(key(resultSet.getInt("id_asset"), resultSet.getInt("id_threat")));
-					ImpactParameter impact = (ImpactParameter) impactParameters.get(Parameter.key(resultSet.getString("type"), resultSet.getString("value")));
+					ImpactParameter impact = (ImpactParameter) impactParameters.get(resultSet.getString("value"));
 					switch (resultSet.getString("name")) {
 					case "RAW":
 						riskProfile.getRawProbaImpact().add(impact);
@@ -1313,7 +1312,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * create instance for external setup rate
@@ -1326,7 +1325,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * Insert default lifetime into simple parameter table
@@ -1343,7 +1342,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * Insert tuning into simple parameter table
@@ -1362,14 +1361,14 @@ public class ImportAnalysis {
 			 * // * add instance to list of parameters //
 			 * ****************************************************************
 			 */
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * Insert mandatoryPhase into simple parameter table
 			// ****************************************************************
 
 			simpleParameter = new SimpleParameter(parameterType, Constant.SOA_THRESHOLD, rs.getDouble(Constant.SOA_THRESHOLD));
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * create instance of mandatoryPhase
@@ -1379,7 +1378,7 @@ public class ImportAnalysis {
 			simpleParameter.setDescription(Constant.MANDATORY_PHASE);
 			simpleParameter.setType(parameterType);
 			simpleParameter.setValue(rs.getInt(Constant.MANDATORY_PHASE));
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 
 			/*
 			 * //
@@ -1397,18 +1396,18 @@ public class ImportAnalysis {
 
 		rs = sqlite.query("SELECT cssfImpactThreshold, cssfProbabilityThreshold, cssfDirectSize, cssfIndirectSize, cssfCIASize FROM scope");
 		if (rs == null) {
-			this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
-			this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
-			this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
-			this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
-			this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
 		} else {
 			while (rs.next()) {
-				this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, rs.getDouble(Constant.CSSF_IMPACT_THRESHOLD)));
-				this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, rs.getDouble(Constant.CSSF_PROBABILITY_THRESHOLD)));
-				this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, rs.getDouble(Constant.CSSF_DIRECT_SIZE)));
-				this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, rs.getDouble(Constant.CSSF_INDIRECT_SIZE)));
-				this.analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, rs.getDouble(Constant.CSSF_CIA_SIZE)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, rs.getDouble(Constant.CSSF_IMPACT_THRESHOLD)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, rs.getDouble(Constant.CSSF_PROBABILITY_THRESHOLD)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, rs.getDouble(Constant.CSSF_DIRECT_SIZE)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, rs.getDouble(Constant.CSSF_INDIRECT_SIZE)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, rs.getDouble(Constant.CSSF_CIA_SIZE)));
 			}
 			rs.close();
 		}
@@ -1455,7 +1454,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 		}
 
 		// close result
@@ -1528,7 +1527,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(simpleParameter);
+			this.analysis.add(simpleParameter);
 		}
 
 		// close result
@@ -1548,7 +1547,7 @@ public class ImportAnalysis {
 				dynamicParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
 				dynamicParameter.setAcronym(rs.getString(Constant.ACRO_PARAMETER));
 				dynamicParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
-				this.analysis.addAParameter(dynamicParameter);
+				this.analysis.add(dynamicParameter);
 			}
 		} finally {
 			if (rs != null)
@@ -1645,7 +1644,7 @@ public class ImportAnalysis {
 		// execute query
 		rs = sqlite.query(query);
 
-		List<ImpactParameter> impactParameters = new ArrayList<ImpactParameter>();
+		List<ImpactParameter> impactParameters = new ArrayList<ImpactParameter>(11);
 
 		// retrieve results
 		while (rs.next()) {
@@ -1685,14 +1684,14 @@ public class ImportAnalysis {
 					impactParameter.setType(scaleType);
 					this.impactParameters.put(Parameter.key(scaleType.getName(), impactParameter.getAcronym()), impactParameter);
 					impactParameter.setAcronym(scaleType.getAcronym() + impactParameter.getLevel());
-					this.analysis.getParameters().add(impactParameter);
+					this.analysis.add(impactParameter);
 				});
 			});
+			impactParameters.clear();
 		} else {
-			this.analysis.getParameters().addAll(impactParameters);
+			this.analysis.getParameters().put(Constant.PARAMETER_CATEGORY_IMPACT, impactParameters);
 			this.impactParameters = impactParameters.stream().collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
 		}
-		impactParameters.clear();
 	}
 
 	private void importProbabilities() throws SQLException {
@@ -1718,7 +1717,7 @@ public class ImportAnalysis {
 		// execute query
 		rs = sqlite.query(query, null);
 
-		List<LikelihoodParameter> likelihoodParameters = new LinkedList<>();
+		List<LikelihoodParameter> likelihoodParameters = new ArrayList<>(11);
 
 		// retrieve results
 		while (rs.next()) {
@@ -1749,12 +1748,9 @@ public class ImportAnalysis {
 
 		ParameterManager.ComputeLikehoodValue(likelihoodParameters);
 
-		this.analysis.getParameters().addAll(likelihoodParameters);
+		this.analysis.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, likelihoodParameters);
 
 		this.probabilities = likelihoodParameters.stream().collect(Collectors.toMap(LikelihoodParameter::getAcronym, Function.identity()));
-
-		likelihoodParameters.clear();
-
 	}
 
 	/**
@@ -1881,7 +1877,7 @@ public class ImportAnalysis {
 		}
 
 		for (IMaturityParameter parameter : parameters)
-			this.analysis.addAParameter(parameter);
+			this.analysis.add(parameter);
 
 		// close result
 		rs.close();
@@ -2806,13 +2802,11 @@ public class ImportAnalysis {
 			// System.out.println(implementationRate);
 
 			// parse implmentation rate parameters
-			for (IParameter parameter : analysis.getParameters()) {
-
-				// System.out.println(parameter.getType().getLabel());
+			for (SimpleParameter parameter : analysis.getSimpleParameters()) {
 
 				// find implementation rate parameter and wanted value
 				if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
-					if (parameter.getValue().doubleValue() == implementationRate) {
+					if (parameter.getValue() == implementationRate) {
 						// retrieve object
 						implementationRateParameter = parameter;
 						break;

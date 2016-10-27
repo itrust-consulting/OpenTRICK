@@ -159,4 +159,9 @@ public class ServiceScaleTypeImpl implements ServiceScaleType {
 	public List<ScaleType> findAllFree() {
 		return daoScaleType.findAllFree();
 	}
+
+	@Override
+	public List<ScaleType> findAllExpect(String... names) {
+		return daoScaleType.findAllExpect(names);
+	}
 }

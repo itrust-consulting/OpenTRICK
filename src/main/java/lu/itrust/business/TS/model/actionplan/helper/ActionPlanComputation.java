@@ -37,6 +37,7 @@ import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
@@ -689,7 +690,7 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		// * generate TMA list for normal computation
 		// ****************************************************************
-		TMAList = generateTMAList(this.analysis,factory, usedMeasures, mode, 0, false, this.maturitycomputation, this.standards);
+		TMAList = generateTMAList(this.analysis, factory, usedMeasures, mode, 0, false, this.maturitycomputation, this.standards);
 
 		// ****************************************************************
 		// * parse all measures (to create complete action plan) until no more
@@ -1811,7 +1812,8 @@ public class ActionPlanComputation {
 	 * The SimpleParameter usedMeasures will have a list of Measures that are to
 	 * be used for the Action Plan Calculation. The Method returns the List of
 	 * TMA Entries and inside the parameter usedMeasures the Measures.
-	 * @param factory 
+	 * 
+	 * @param factory
 	 * 
 	 * @param usedMeasures
 	 *            List to store the Measures used for Action Plan Calculation
@@ -1830,14 +1832,13 @@ public class ActionPlanComputation {
 	 *            generate only TMA entries for the given standards)
 	 * @throws TrickException
 	 */
-	public static List<TMA> generateTMAList(Analysis analysis, ValueFactory factory, List<Measure> usedMeasures, ActionPlanMode mode, int phase, boolean isCssf, boolean maturitycomputation,
-			List<AnalysisStandard> standards) throws TrickException {
+	public static List<TMA> generateTMAList(Analysis analysis, ValueFactory factory, List<Measure> usedMeasures, ActionPlanMode mode, int phase, boolean isCssf,
+			boolean maturitycomputation, List<AnalysisStandard> standards) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
 		List<TMA> TMAList = new ArrayList<TMA>();
-
 
 		// ****************************************************************
 		// * clear List
@@ -1903,7 +1904,7 @@ public class ActionPlanComputation {
 							// ****************************************************************
 							// * generate TMA entry -> useful measure
 							// ****************************************************************
-							generateTMAEntry(analysis,factory, TMAList, usedMeasures, mode, normalStandard.getStandard(), normalMeasure, true, maturitycomputation, standards);
+							generateTMAEntry(analysis, factory, TMAList, usedMeasures, mode, normalStandard.getStandard(), normalMeasure, true, maturitycomputation, standards);
 						} else {
 
 							// ****************************************************************
@@ -1923,7 +1924,8 @@ public class ActionPlanComputation {
 								// ****************************************************************
 								// * generate TMA entry -> not a useful measure
 								// ****************************************************************
-								generateTMAEntry(analysis, factory, TMAList, usedMeasures, mode, normalStandard.getStandard(), normalMeasure, false, maturitycomputation, standards);
+								generateTMAEntry(analysis, factory, TMAList, usedMeasures, mode, normalStandard.getStandard(), normalMeasure, false, maturitycomputation,
+										standards);
 							}
 						}
 					} else {
@@ -2001,7 +2003,7 @@ public class ActionPlanComputation {
 
 		if (!isCssf && usedMeasures != null && maturitycomputation) {
 
-			addMaturityChaptersToUsedMeasures(analysis,factory, usedMeasures, phase, standards);
+			addMaturityChaptersToUsedMeasures(analysis, factory, usedMeasures, phase, standards);
 		}
 
 		// return TMAList
@@ -2014,7 +2016,8 @@ public class ActionPlanComputation {
 	 * This method generates for a given Measure TMA (Threat Measure Assessment)
 	 * entries in the List "TMAList". This method adds this measure to the list
 	 * of usedMEasures given as parameter.
-	 * @param factory 
+	 * 
+	 * @param factory
 	 * 
 	 * @param TMAList
 	 *            The List to insert the current TMA Entry
@@ -2033,8 +2036,8 @@ public class ActionPlanComputation {
 	 *            usedMeasures (a valid Measure)
 	 * @throws TrickException
 	 */
-	private static void generateTMAEntry(Analysis analysis, ValueFactory factory, List<TMA> TMAList, List<Measure> usedMeasures, ActionPlanMode mode, Standard standard, Measure measure,
-			boolean usefulMeasure, boolean maturitycomputation, List<AnalysisStandard> standards) throws TrickException {
+	private static void generateTMAEntry(Analysis analysis, ValueFactory factory, List<TMA> TMAList, List<Measure> usedMeasures, ActionPlanMode mode, Standard standard,
+			Measure measure, boolean usefulMeasure, boolean maturitycomputation, List<AnalysisStandard> standards) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2045,12 +2048,11 @@ public class ActionPlanComputation {
 		boolean measureFound = false;
 		String tmpReference = "";
 		int matLevel = 0;
-		IParameter param = null;
 		double rrf = 0;
 		double cMaxEff = -1;
 		double nMaxEff = -1;
-		IParameter parameterMaxRRF = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
-				.findAny().orElse(null);
+		IParameter parameterMaxRRF = analysis.getSimpleParameters().stream()
+				.filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF)).findAny().orElse(null);
 
 		// ****************************************************************
 		// * parse assesments to generate TMA entries
@@ -2225,18 +2227,15 @@ public class ActionPlanComputation {
 							// ****************************************************************
 
 							// parse params
-							for (int i = 0; i < analysis.getParameters().size(); i++) {
-
-								// temporary store current parameter
-								param = analysis.getAParameter(i);
+							for (MaturityParameter parameter : analysis.getMaturityParameters()) {
 
 								// check if it is current maxeffency -> YES
-								if (param.getDescription().equals("SML" + String.valueOf(matLevel))) {
+								if (parameter.getDescription().equals("SML" + String.valueOf(matLevel))) {
 
 									// ****************************************************************
 									// * store current max effency value
 									// ****************************************************************
-									cMaxEff = param.getValue().doubleValue();
+									cMaxEff = parameter.getValue();
 
 									// check if both parameters were found ->
 									// YES
@@ -2250,12 +2249,12 @@ public class ActionPlanComputation {
 									// check if it is current maxeffency -> NO
 
 									// check if it is next maxeffency -> YES
-									if (param.getDescription().equals("SML" + String.valueOf(matLevel + 1))) {
+									if (parameter.getDescription().equals("SML" + String.valueOf(matLevel + 1))) {
 
 										// *************************************************************
 										// * store next max effency value
 										// *************************************************************
-										nMaxEff = param.getValue().doubleValue();
+										nMaxEff = parameter.getValue().doubleValue();
 
 										// check if both parameters were found
 										// -> YES
@@ -2301,7 +2300,7 @@ public class ActionPlanComputation {
 	 * 
 	 * @param analysis
 	 *            analysis object
-	 * @param factory 
+	 * @param factory
 	 * @param usedMeasures
 	 *            list of measures to use on the action plan
 	 * @param phase
@@ -2358,7 +2357,7 @@ public class ActionPlanComputation {
 						&& (((phase > 0) && (maturityStandard.getMeasure(matmeasc).getPhase().getNumber() == phase)) || (phase == 0))) {
 
 					// add Maturity Chapter as nessesary
-					addAMaturtiyChapterToUsedMeasures(analysis,factory, usedMeasures, maturityStandard, maturityStandard.getMeasure(matmeasc));
+					addAMaturtiyChapterToUsedMeasures(analysis, factory, usedMeasures, maturityStandard, maturityStandard.getMeasure(matmeasc));
 				}
 			}
 		}
@@ -2370,7 +2369,8 @@ public class ActionPlanComputation {
 	 * chapter, there is at least 1 measure of 27002 applicable for this
 	 * chapter. When both costrains are met, the measure will be added to the
 	 * list "usedMeasures" given as parameter.
-	 * @param factory 
+	 * 
+	 * @param factory
 	 * 
 	 * @param usedMeasures
 	 *            The List of Measure to add the valid Maturity Chapter to
@@ -2379,7 +2379,8 @@ public class ActionPlanComputation {
 	 * @param measure
 	 *            The Measure which represents the Maturity Chapter
 	 */
-	private static void addAMaturtiyChapterToUsedMeasures(Analysis analysis, ValueFactory factory, List<Measure> usedMeasures, MaturityStandard maturityStandard, MaturityMeasure measure) {
+	private static void addAMaturtiyChapterToUsedMeasures(Analysis analysis, ValueFactory factory, List<Measure> usedMeasures, MaturityStandard maturityStandard,
+			MaturityMeasure measure) {
 
 		// extract chapter number from level 1 measure
 		String chapterValue = measure.getMeasureDescription().getReference().substring(2, measure.getMeasureDescription().getReference().length());
@@ -2402,8 +2403,7 @@ public class ActionPlanComputation {
 	 *            The Maturity Chapter Measure Object (Level 1 Measure)
 	 * @return True if the Cost is > 0; False if Cost is 0
 	 */
-	private static final boolean isMaturityChapterTotalCostBiggerThanZero(MaturityStandard maturityStandard, MaturityMeasure chapter,
-			ValueFactory factory) {
+	private static final boolean isMaturityChapterTotalCostBiggerThanZero(MaturityStandard maturityStandard, MaturityMeasure chapter, ValueFactory factory) {
 
 		// initialise measure cost
 		double totalCost = 0;

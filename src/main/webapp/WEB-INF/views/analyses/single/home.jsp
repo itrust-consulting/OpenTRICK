@@ -8,7 +8,7 @@
 <c:set var="language" value="${analysis.language.alpha2}" scope="request" />
 <c:set var="isProfile" value="${analysis.profile}" scope="request" />
 <c:if test="${empty locale }">
-	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
 <!DOCTYPE html>
 <html lang="${locale.language}">
@@ -18,7 +18,7 @@
 <body>
 	<div id="wrap" class="wrap">
 		<c:set var="isEditable" value="${canModify && open!='READ'}" scope="request" />
-		<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request"/>
+		<c:set var="isLinkedToProject" value="${allowedTicketing and analysis.hasProject()}" scope="request" />
 		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="menu.jsp" />
@@ -32,6 +32,9 @@
 				<c:if test="${!isProfile}">
 					<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
 					<jsp:include page="./components/itemInformation.jsp" />
+				</c:if>
+				<c:if test="${type=='QUALITATIVE' }">
+					<c:set var="impactTypes" value="${analysis.impacts}" scope="request" />
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
 				<jsp:include page="./components/parameters/home.jsp" />
@@ -93,8 +96,14 @@
 	<script type="text/javascript">
 	<!--
 		application.openMode = OPEN_MODE.valueOf('${open}');
-		application.isLinkedToProject = ${isLinkedToProject};
-		application.hasMaturity = ${hasMaturity};
+		application.isLinkedToProject = $
+		{
+			isLinkedToProject
+		};
+		application.hasMaturity = $
+		{
+			hasMaturity
+		};
 		-->
 	</script>
 </body>

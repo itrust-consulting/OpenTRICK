@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.model.assessment.Assessment;
-import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
@@ -127,7 +126,7 @@ public class DynamicRiskComputer {
 		IParameter tuningParameter = null;
 		for (IParameter p : allParameters) {
 			if (p instanceof LikelihoodParameter)
-				out_expressionParameters.put(((IAcronymParameter) p).getAcronym(), p.getValue().doubleValue());
+				out_expressionParameters.put(((LikelihoodParameter) p).getAcronym(), p.getValue().doubleValue());
 			else if ((p instanceof SimpleParameter) && p.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF))
 				tuningParameter = p;
 		}

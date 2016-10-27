@@ -119,7 +119,7 @@ public class DynamicParameterComputer {
 				// within TRICK service,
 				// we will set a value nevertheless to ease the work for a
 				// database maintainer. :-)
-				analysis.getParameters().add(parameter = new DynamicParameter(parameterName,String.format("dynamic:%s", parameterName)));
+				analysis.add(parameter = new DynamicParameter(parameterName,String.format("dynamic:%s", parameterName)));
 			}
 
 			// Remove entry from parameter map so that we know it has been

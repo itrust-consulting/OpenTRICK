@@ -21,6 +21,8 @@ public interface ServiceScaleType {
 
 	List<ScaleType> findAll();
 	
+	List<ScaleType> findAllExpect(String ... names);
+	
 	List<ScaleType> findAllFree();
 	
 	boolean exists(int id);
@@ -38,6 +40,8 @@ public interface ServiceScaleType {
 	void delete(List<Integer> scaleTypes);
 
 	void deleteAll();
+
+	
 
 	
 

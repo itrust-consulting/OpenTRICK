@@ -23,7 +23,17 @@ public interface IParameter extends Cloneable {
 	 */
 	Number getValue();
 
+	/**
+	 * Get parameter name.
+	 * @return typeName
+	 */
 	String getTypeName();
+	
+	/**
+	 * Parameters are grouped by a category
+	 * @return category
+	 */
+	String getGroup();
 
 	/**
 	 * getId: <br>

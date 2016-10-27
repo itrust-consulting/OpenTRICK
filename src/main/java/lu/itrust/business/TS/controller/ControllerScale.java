@@ -118,6 +118,17 @@ public class ControllerScale {
 		serviceScaleType.saveOrUpdate(scaleType);
 		return JsonMessage.Success(messageSource.getMessage("success.save.scale_type", null, "Scale type has been successfully saved", locale));
 	}
+	
+	@RequestMapping(value = "/Type/Delete", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object deleteType(@RequestBody List<Integer> ids, Locale locale) {
+		ids.forEach(id -> {
+			ScaleType scaleType = serviceScaleType.findOne(id);
+			if (scaleType != null)
+				serviceScaleType.delete(scaleType);
+		});
+
+		return JsonMessage.Success(messageSource.getMessage("success.delete.scale_type", null, "Scale type has been successfully deleted", locale));
+	}
 
 	@RequestMapping(value = "/{id}/Edit", method = RequestMethod.GET)
 	public String edit(@PathVariable int id, Model model, Locale locale) {

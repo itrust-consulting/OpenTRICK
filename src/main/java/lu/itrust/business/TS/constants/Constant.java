@@ -345,6 +345,20 @@ public class Constant {
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_STRING = "S";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_INTEGER = "I";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_DOUBLE = "D";
+	
+	/** Parameter Category**/
+	
+	public final static String PARAMETER_CATEGORY_IMPACT = "IMPACT";
+	
+	public final static String PARAMETER_CATEGORY_PROBABILITY = "PROBABILITY";
+	
+	public final static String PARAMETER_CATEGORY_PROBABILITY_DYNAMIC = "DYNAMIC";
+	
+	public final static String PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD = "LIKELIHOOD";
+	
+	public final static String PARAMETER_CATEGORY_MATURITY = "MATURITY";
+	
+	public final static String PARAMETER_CATEGORY_SIMPLE = "SIMPLE";
 
 	/** CIA */
 	public static final String CONFIDENTIALITY_RISK = "Confidentiality";

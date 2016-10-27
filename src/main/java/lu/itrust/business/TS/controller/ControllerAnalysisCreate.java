@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
@@ -51,6 +52,8 @@ import lu.itrust.business.TS.database.service.ServiceParameterType;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
+import lu.itrust.business.TS.database.service.ServiceScale;
+import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -147,6 +150,9 @@ public class ControllerAnalysisCreate {
 	private ServiceParameterType serviceParameterType;
 
 	@Autowired
+	private ServiceScaleType serviceScaleType;
+
+	@Autowired
 	private Duplicator duplicator;
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -158,6 +164,8 @@ public class ControllerAnalysisCreate {
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 
 		model.addAttribute("profiles", serviceAnalysis.getAllProfiles());
+
+		model.addAttribute("impacts", serviceScaleType.findAllExpect(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME));
 		// set author as the username
 
 		User user = serviceUser.get(principal.getName());
@@ -165,6 +173,8 @@ public class ControllerAnalysisCreate {
 		model.addAttribute("author", user.getFirstName() + " " + user.getLastName());
 
 		model.addAttribute("types", AnalysisType.values());
+
+		model.addAttribute("locale", locale.getLanguage().toUpperCase());
 
 		return "analyses/all/forms/buildAnalysis";
 
@@ -414,37 +424,35 @@ public class ControllerAnalysisCreate {
 	private Map<String, IParameter> generateParameters(Analysis analysis, List<IParameter> parameters, AnalysisType analysisType) {
 		if (analysisType == AnalysisType.QUALITATIVE) {
 			Map<String, IParameter> mappedParameters = new LinkedHashMap<>(parameters.size());
-			//List<IParameter> finParameters = new LinkedList<>();
-			//boolean[] presents = { true, true, true };// leg,ope,rep
-			/*parameters.stream().map(parameter -> parameter.duplicate()).filter(analysis::addAParameter).forEach(parameter -> {
-				switch (parameter.) {
-				case PARAMETERTYPE_TYPE_IMPACT_NAME:
-					finParameters.add(parameter);
-					break;
-				case PARAMETERTYPE_TYPE_IMPACT_LEG_NAME:
-					presents[0] &= false;
-					break;
-				case PARAMETERTYPE_TYPE_IMPACT_OPE_NAME:
-					presents[1] &= false;
-					break;
-				case PARAMETERTYPE_TYPE_IMPACT_REP_NAME:
-					presents[2] &= false;
-				}
-				mappedParameters.put(parameter.getKey(), parameter);
-			});
-
-			if (presents[2])
-				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_REP, PARAMETERTYPE_TYPE_IMPACT_REP_NAME);
-			if (presents[1])
-				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_OPE, PARAMETERTYPE_TYPE_IMPACT_OPE_NAME);
-			if (presents[0])
-				copyExtendedParameters(analysis, finParameters, mappedParameters, PARAMETERTYPE_TYPE_IMPACT_LEG, PARAMETERTYPE_TYPE_IMPACT_LEG_NAME);*/
+			// List<IParameter> finParameters = new LinkedList<>();
+			// boolean[] presents = { true, true, true };// leg,ope,rep
+			/*
+			 * parameters.stream().map(parameter ->
+			 * parameter.duplicate()).filter(analysis::addAParameter).forEach(
+			 * parameter -> { switch (parameter.) { case
+			 * PARAMETERTYPE_TYPE_IMPACT_NAME: finParameters.add(parameter);
+			 * break; case PARAMETERTYPE_TYPE_IMPACT_LEG_NAME: presents[0] &=
+			 * false; break; case PARAMETERTYPE_TYPE_IMPACT_OPE_NAME:
+			 * presents[1] &= false; break; case
+			 * PARAMETERTYPE_TYPE_IMPACT_REP_NAME: presents[2] &= false; }
+			 * mappedParameters.put(parameter.getKey(), parameter); });
+			 * 
+			 * if (presents[2]) copyExtendedParameters(analysis, finParameters,
+			 * mappedParameters, PARAMETERTYPE_TYPE_IMPACT_REP,
+			 * PARAMETERTYPE_TYPE_IMPACT_REP_NAME); if (presents[1])
+			 * copyExtendedParameters(analysis, finParameters, mappedParameters,
+			 * PARAMETERTYPE_TYPE_IMPACT_OPE,
+			 * PARAMETERTYPE_TYPE_IMPACT_OPE_NAME); if (presents[0])
+			 * copyExtendedParameters(analysis, finParameters, mappedParameters,
+			 * PARAMETERTYPE_TYPE_IMPACT_LEG,
+			 * PARAMETERTYPE_TYPE_IMPACT_LEG_NAME);
+			 */
 			return mappedParameters;
 		} else
 			return parameters.stream()
 					.filter(parameter -> !(parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME) || parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME)
 							|| parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME)))
-					.map(IParameter::duplicate).filter(analysis::addAParameter).collect(Collectors.toMap(IParameter::getKey, Function.identity()));
+					.map(IParameter::duplicate).filter(analysis::add).collect(Collectors.toMap(IParameter::getKey, Function.identity()));
 	}
 
 	private void copyExtendedParameters(Analysis analysis, List<SimpleParameter> simpleParameters, Map<String, SimpleParameter> mappedParameters, int id, String type) {
@@ -455,7 +463,7 @@ public class ControllerAnalysisCreate {
 			IParameter clone = simpleParameter.clone();
 			clone.setType(parameterType);
 			mappedParameters.put(clone.getKey(), clone);
-			analysis.addAParameter(clone);
+			analysis.add(clone);
 		}
 	}
 

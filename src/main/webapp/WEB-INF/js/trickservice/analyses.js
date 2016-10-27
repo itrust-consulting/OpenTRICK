@@ -580,6 +580,10 @@ function customAnalysis(element) {
 									checkProfile : function() {
 										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
 												this.assessmentDisable || this.analysisType != 'QUALITATIVE');
+										$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", this.analysisType == 'QUALITATIVE');
+										$modalBody.find("select[name='impacts']").val('-1').prop("disabled", this.analysisType != 'QUALITATIVE');
+										$modalBody.find("input[name='scale.level']").val('11').prop("disabled", this.analysisType != 'QUALITATIVE');
+										$modalBody.find("input[name='scale.maxValue']").val('300').prop("disabled", this.analysisType != 'QUALITATIVE');
 										return this;
 									},
 									checkAssetStandard : function() {

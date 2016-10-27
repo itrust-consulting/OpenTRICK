@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.parameter.ITypedParameter;
 import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 
@@ -74,6 +75,11 @@ public class SimpleParameter extends Parameter implements ITypedParameter {
 	@Override
 	public String getTypeName() {
 		return this.type.getName();
+	}
+
+	@Override
+	public String getGroup() {
+		return Constant.PARAMETER_CATEGORY_SIMPLE;
 	}
 
 }

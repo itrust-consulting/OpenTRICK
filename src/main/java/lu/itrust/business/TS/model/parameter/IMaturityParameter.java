@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.model.parameter;
 
+import lu.itrust.business.TS.constants.Constant;
+
 public interface IMaturityParameter  extends IParameter{
 
 	/**
@@ -65,5 +67,13 @@ public interface IMaturityParameter  extends IParameter{
 	 * @return The value of the sMLLevel field
 	 */
 	int getSMLLevel();
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.model.parameter.IParameter#getGroup()
+	 */
+	@Override
+	default String getGroup() {
+		return Constant.PARAMETER_CATEGORY_MATURITY;
+	}
 
 }

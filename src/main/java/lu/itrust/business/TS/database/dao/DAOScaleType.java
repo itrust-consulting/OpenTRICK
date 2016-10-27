@@ -21,6 +21,8 @@ public interface DAOScaleType {
 
 	List<ScaleType> findAll();
 	
+	List<ScaleType> findAllExpect(String[] names);
+	
 	List<ScaleType> findAllFree();
 	
 	boolean exists(int id);
@@ -38,11 +40,4 @@ public interface DAOScaleType {
 	void delete(List<Integer> scaleTypes);
 
 	void deleteAll();
-
-	
-
-	
-
-	
-
 }

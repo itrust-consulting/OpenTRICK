@@ -76,6 +76,16 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 		return Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.model.parameter.IParameter#getCategory()
+	 */
+	@Override
+	public String getGroup() {
+		return Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD;
+	}
+
 	public static void ComputeScales(LikelihoodParameter prev, LikelihoodParameter current, LikelihoodParameter next) {
 		// throw new
 		// TrickException("error.compute.scale.extended.parameter.bad.type",

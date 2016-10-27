@@ -326,11 +326,11 @@ public class ControllerPatch {
 			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
 				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
 					if (!analysis.hasParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME)) {
-						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
-						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
-						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
-						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
-						analysis.addAParameter(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
 					}
 					IParameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD);
 					if (parameter != null && analysis.getParameters().remove(parameter))

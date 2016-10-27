@@ -16,6 +16,7 @@ import javax.persistence.MapKeyColumn;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.model.parameter.type.impl.AbstractParameterType;
 
@@ -107,7 +108,10 @@ public class ScaleType extends AbstractParameterType {
 	@Override
 	public void setName(String name) {
 		this.name = name;
+	}
 
+	public String getDisplayName() {
+		return StringUtils.capitalize(name.toLowerCase());
 	}
 
 }

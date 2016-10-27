@@ -29,7 +29,7 @@
 						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scale.name" text="Name" />
 						</label>
 						<div class="col-sm-10">
-							<input name="name" id="scale_type_name" class="form-control" value="${empty scaleType? '': scaleType.name }" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
+							<input name="name" id="scale_type_name" style="text-transform:uppercase" class="form-control" value="${empty scaleType? '': scaleType.name }" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
 						</div>
 					</div>
 

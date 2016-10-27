@@ -231,8 +231,8 @@ public class MeasureManager {
 				implementationRate = new Double(0);
 			} else if (astandard instanceof MaturityStandard) {
 				measure = new MaturityMeasure();
-				for (IParameter parameter : analysis.getParameters()) {
-					if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue().doubleValue() == 0) {
+				for (SimpleParameter parameter : analysis.getSimpleParameters()) {
+					if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
 						implementationRate = parameter;
 						break;
 					}
@@ -391,16 +391,16 @@ public class MeasureManager {
 	 * Compute Maturity by Chapter
 	 * 
 	 * @param maturityMeasures
-	 * @param simpleParameters
+	 * @param parameters
 	 *            : MaturityParameter +
 	 *            {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
 	 * @return Map<Chapter, Maturity rate>
 	 */
-	public static Map<String, Double> ComputeMaturityByChapter(List<Measure> maturityMeasures, List<IParameter> simpleParameters, ValueFactory factory) {
+	public static Map<String, Double> ComputeMaturityByChapter(List<Measure> maturityMeasures, List<IParameter> parameters, ValueFactory factory) {
 		Map<String, Double> maturities = new HashMap<>();
 		Map<String, IMaturityParameter> mappedMaturityParameters = new HashMap<>(23);
 		Map<String, IParameter> efficiencyRates = new HashMap<>(6);
-		simpleParameters.forEach(parameter -> {
+		parameters.forEach(parameter -> {
 			if (parameter instanceof IMaturityParameter)
 				mappedMaturityParameters.put(parameter.getDescription(), (MaturityParameter) parameter);
 			else if ((parameter instanceof SimpleParameter) && parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
@@ -43,12 +44,21 @@ public class ValueFactory {
 	private Map<String, Map<String, IImpactParameter>> impactMapper;
 
 	public ValueFactory(List<? extends IParameter> parameters) {
-		for (IParameter parameter : parameters) {
-			if (parameter instanceof IProbabilityParameter)
-				add((IProbabilityParameter) parameter);
-			else if (parameter instanceof ImpactParameter)
-				add((ImpactParameter) parameter);
-		}
+		parameters.forEach(parameter -> add(parameter));
+	}
+
+	public ValueFactory(Map<String, List<? extends IParameter>> parameters) {
+		parameters.entrySet().parallelStream()
+				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_IMPACT) || entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC)
+						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD))
+				.flatMap(entry -> entry.getValue().parallelStream()).forEach(parameter -> add(parameter));
+	}
+
+	private void add(IParameter parameter) {
+		if (parameter instanceof IProbabilityParameter)
+			add((IProbabilityParameter) parameter);
+		else if (parameter instanceof ImpactParameter)
+			add((ImpactParameter) parameter);
 	}
 
 	public IValue findDyn(Object value) {
@@ -136,7 +146,6 @@ public class ValueFactory {
 		if (parameters == null)
 			impacts.put(parameter.getTypeName(), parameters = new ArrayList<>());
 		parameters.add(parameter);
-
 	}
 
 	private IValue findByLevel(Integer level, List<? extends ILevelParameter> parameters) {
@@ -188,7 +197,7 @@ public class ValueFactory {
 		if (value == null)
 			return null;
 		List<? extends ILevelParameter> parameters = getParameters(type);
-		if (parameters == null){
+		if (parameters == null) {
 			return null;
 		}
 		if (value instanceof Integer)
@@ -275,7 +284,7 @@ public class ValueFactory {
 	 * @return importance
 	 * @see IValue#maxByLevel(IValue, IValue)
 	 */
-	public int findImportance(String proba, List< ?extends IValue> impacts) {
+	public int findImportance(String proba, List<? extends IValue> impacts) {
 		IValue impact = impacts == null ? null : impacts.stream().max((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 		return impact == null ? 0 : impact.getLevel() * findExpLevel(proba);
 	}
@@ -306,7 +315,7 @@ public class ValueFactory {
 		return iValue == null ? 0 : iValue.getReal();
 	}
 
-	public IValue findMaxImpactByReal(List< ? extends IValue> impacts) {
+	public IValue findMaxImpactByReal(List<? extends IValue> impacts) {
 		return impacts == null ? null : impacts.stream().max((v1, v2) -> IValue.compareByReal(v1, v2)).orElse(null);
 	}
 
@@ -330,6 +339,10 @@ public class ValueFactory {
 	 */
 	public Map<String, Map<String, IImpactParameter>> getImpactMapper() {
 		return impactMapper;
+	}
+
+	public Collection<String> getImpactNames() {
+		return impacts == null ? Collections.emptyList() : impacts.keySet();
 	}
 
 	/**

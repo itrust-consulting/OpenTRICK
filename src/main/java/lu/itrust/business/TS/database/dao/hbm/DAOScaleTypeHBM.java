@@ -69,7 +69,7 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	public List<ScaleType> findAll() {
 		return getSession().createQuery("From ScaleType").list();
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -168,6 +168,12 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	@Override
 	public List<ScaleType> findAllFree() {
 		return getSession().createQuery("From ScaleType where id not in (Select type.id From Scale) order by name").list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ScaleType> findAllExpect(String[] names) {
+		return getSession().createQuery("From ScaleType where name not in (:names) order by name").setParameterList("names", names).list();
 	}
 
 }

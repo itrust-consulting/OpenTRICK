@@ -39,7 +39,6 @@ import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManage
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -134,10 +133,8 @@ public class Duplicator {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.right", "Copy rights", (int) (minProgress + bound * 4)));
 
 			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
-			for (UserAnalysisRight uar : analysis.getUserRights()) {
-				UserAnalysisRight uarcopy = uar.duplicate();
-				copy.addUserRight(uarcopy);
-			}
+			for (UserAnalysisRight uar : analysis.getUserRights())
+				copy.addUserRight(uar.duplicate());
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.history", "Copy history", (int) (minProgress + bound * 7)));
 
@@ -153,22 +150,13 @@ public class Duplicator {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", (int) (minProgress + bound * 12)));
 
-			copy.setParameters(new ArrayList<IParameter>(analysis.getParameters().size()));
-			for (IParameter simpleParameter : analysis.getParameters()) {
-				// Do not copy dynamic parameters as they might contain
-				// sensitive data.
-				// Note that they might still be referenced in an expression
-				// somewhere in the analysis,
-				// but this does not cause any misbehaviour since the expression
-				// evaluator will
-				// assume a default value of 0 for all non-existent dynamic
-				// parameters.
-				if (!(simpleParameter instanceof DynamicParameter)) {
-					IParameter parameter2 = simpleParameter.duplicate();
-					parameters.put(parameter2.getKey(), parameter2);
-					copy.getParameters().add(parameter2);
-				}
-			}
+			copy.setParameters(new LinkedHashMap<>(analysis.getParameters().size()));
+
+			copy.getParameters().forEach((group, parameterList) -> parameterList.stream().forEach(parameter -> {
+				IParameter duplicate = parameter.duplicate();
+				copy.add(duplicate);
+				parameters.put(parameter.getKey(), duplicate);
+			}));
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", (int) (minProgress + bound * 15)));
 
@@ -498,6 +486,7 @@ public class Duplicator {
 			// actionplans
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.actionplan", "Clear actionplans and summaries", 35));
 			copy.setActionPlans(null);
+			
 			copy.setSummaries(null);
 
 			// risk register
@@ -508,13 +497,14 @@ public class Duplicator {
 
 			// parameters
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
-			copy.setParameters(new ArrayList<IParameter>(analysis.getParameters().size()));
-			for (IParameter parameter : analysis.getParameters()) {
-				IParameter parameter2 = parameter.duplicate();
-				parameters.put(parameter2.getKey(), parameter2);
-				copy.getParameters().add(parameter2);
-			}
-
+			
+			copy.setParameters(new LinkedHashMap<>(analysis.getParameters().size()));
+			
+			copy.getParameters().forEach((group, parameterList) -> parameterList.stream().forEach(parameter -> {
+				IParameter duplicate = parameter.duplicate();
+				copy.add(duplicate);
+				parameters.put(parameter.getKey(), duplicate);
+			}));
 			// phases
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.phase", "Clear phases", 50));
 

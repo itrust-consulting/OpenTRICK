@@ -105,9 +105,11 @@ import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.helper.StandardComparator;
@@ -236,6 +238,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping("/{analysisId}/Select")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "edit") String open,
@@ -279,7 +282,7 @@ public class ControllerAnalysis {
 				}
 				if (hasMaturity)
 					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002),
-							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(), true, valueFactory));
+							measures.get(Constant.STANDARD_MATURITY), analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
 				break;
 			case EDIT_MEASURE:
 				standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty())
@@ -293,8 +296,8 @@ public class ControllerAnalysis {
 			case READ_ESTIMATION:
 				model.addAttribute("assets", analysis.findSelectedAssets());
 				model.addAttribute("scenarios", analysis.findSelectedScenarios());
-				List<ImpactParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
-				analysis.groupExtended(probabilities, impacts);
+				List<? extends IBoundedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
+				analysis.groupExtended((List<LikelihoodParameter>) probabilities, (List<ImpactParameter>) impacts);
 				model.addAttribute("impacts", impacts);
 				model.addAttribute("probabilities", probabilities);
 				break;
@@ -497,7 +500,7 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			assessmentAndRiskProfileManager.UpdateAssetALE(analysis,null);
+			assessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1264,7 +1267,7 @@ public class ControllerAnalysis {
 			analysis.setLanguage(language);
 			analysis.setUncertainty(uncertainty);
 			if (update)
-				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis,null);
+				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {
