@@ -115,7 +115,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							model.put("user", user);
 							message.setText(
 									FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerConfiguration
-											.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8"), model),
+											.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.ftl" : "new-user-admin-en.ftl"), "UTF-8"), model),
 									true);
 							message.setTo(admin.getEmail());
 						}
@@ -151,7 +151,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					model.put("hostname", hotname);
 					model.put("username", password.getUser().getLogin());
 					message.setText(FreeMarkerTemplateUtils.processTemplateIntoString(
-							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.vm" : "reset-password-en.vm"), "UTF-8"),
+							freemarkerConfiguration.getTemplate((locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.ftl" : "reset-password-en.ftl"), "UTF-8"),
 							model), true);
 					message.setTo(password.getUser().getEmail());
 				}
