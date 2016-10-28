@@ -122,7 +122,7 @@
 								<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.impacts" text="Impacts" /></label>
 								<div class="col-sm-10">
 									<select name="impacts" id="analysis_impacts" class="form-control" multiple="multiple" style="height: 70px; resize: vertical;">
-										<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.select.impact" text="From parameters (Default)" /></option>
+										<option value="-1" selected="selected"><spring:message code="label.select.impact" text="From profile (Default)" /></option>
 										<c:forEach items="${impacts}" var="impact">
 											<option value="${impact.id}"><spring:message code="label.impact.type.${fn:toLowerCase(impact.name)}"
 													text="${empty impact.translations[locale]? impact.displayName :  impact.translations[locale]}" /></option>

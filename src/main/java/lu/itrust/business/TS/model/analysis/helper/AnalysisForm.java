@@ -9,6 +9,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.history.History;
+import lu.itrust.business.TS.model.scale.Scale;
 
 /**
  * @author eomar
@@ -46,6 +47,10 @@ public class AnalysisForm {
 
 	private List<AnalysisStandardBaseInfo> standards;
 
+	private List<Integer> impacts;
+
+	private Scale scale;
+
 	private String version;
 
 	private boolean uncertainty;
@@ -59,7 +64,7 @@ public class AnalysisForm {
 	}
 
 	public boolean isAssessment() {
-		return assessment && asset > 0 && asset == scenario;
+		return assessment && asset > 0 && asset == scenario && asset == parameter;
 	}
 
 	public void setAssessment(boolean assessment) {
@@ -70,7 +75,7 @@ public class AnalysisForm {
 	 * @return the riskProfile
 	 */
 	public boolean isRiskProfile() {
-		return riskProfile && type == AnalysisType.QUALITATIVE  && asset > 0 && asset == scenario;
+		return riskProfile && type == AnalysisType.QUALITATIVE && asset > 0 && asset == scenario && asset == parameter;
 	}
 
 	/**
@@ -236,7 +241,8 @@ public class AnalysisForm {
 	}
 
 	/**
-	 * @param type the type to set
+	 * @param type
+	 *            the type to set
 	 */
 	public void setType(AnalysisType type) {
 		this.type = type;
@@ -263,5 +269,35 @@ public class AnalysisForm {
 	 */
 	public void setStandards(List<AnalysisStandardBaseInfo> standards) {
 		this.standards = standards;
+	}
+
+	/**
+	 * @return the impacts
+	 */
+	public List<Integer> getImpacts() {
+		return impacts;
+	}
+
+	/**
+	 * @param impacts
+	 *            the impacts to set
+	 */
+	public void setImpacts(List<Integer> impacts) {
+		this.impacts = impacts;
+	}
+
+	/**
+	 * @return the scale
+	 */
+	public Scale getScale() {
+		return scale;
+	}
+
+	/**
+	 * @param scale
+	 *            the scale to set
+	 */
+	public void setScale(Scale scale) {
+		this.scale = scale;
 	}
 }
