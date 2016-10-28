@@ -15,7 +15,6 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceScale;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 
@@ -48,9 +47,6 @@ public class ControllerKnowledgeBase {
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
-	private ServiceScale serviceScale;
-	
-	@Autowired
 	private ServiceScaleType serviceScaleType;
 
 	@RequestMapping
@@ -59,7 +55,6 @@ public class ControllerKnowledgeBase {
 		model.put("languages", serviceLanguage.getAll());
 		model.put("standards", serviceStandard.getAllNotBoundToAnalysis());
 		model.put("analyses", serviceAnalysis.getAllProfiles());
-		model.put("scales", serviceScale.findAll());
 		model.put("scaleTypes", serviceScaleType.findAll());
 		return "knowledgebase/knowledgebase";
 	}

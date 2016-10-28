@@ -427,10 +427,7 @@ function customAnalysis(element) {
 									$old.replaceWith($modalContent);
 								else
 									$modalContent.appendTo("#widget");
-								var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
-								var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
-								var $removeText = MessageResolver("label.action.delete", "Delete");
-								var $lockText = MessageResolver("label.action.lock", "Lock");
+								var modal = new Modal($modalContent), $modalBody = $(modal.modal_body), $emptyText = $modalBody.find("*[dropzone='true']>div:first").text(),$removeText = MessageResolver("label.action.delete", "Delete"), $lockText = MessageResolver("label.action.lock", "Lock"), $analysisSelector =  $("#selector-analysis",$modalContent);
 								// load data from database and manage caching
 
 								analysesCaching = {
@@ -504,13 +501,13 @@ function customAnalysis(element) {
 										});
 									},
 									updateVersionSelector : function(identifier) {
-										var instance = this;
-										var versions = this.identifiers[identifier];
-										var $analysisVersions = $("#analysis-versions", $modalBody);
+										var instance = this, versions = this.identifiers[identifier], $analysisVersions = $("#analysis-versions", $modalBody);
 										for (var i = 0; i < versions.length; i++) {
-											var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' title='" + versions[i].label + " v."
-													+ versions[i].version + "'>" + versions[i].version + "</li>");
-											$li.appendTo($analysisVersions);
+											if (versions[i].type == instance.analysisType) {
+												var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' data-trick-analysis-type='" + instance.analysisType
+														+ "' title='" + versions[i].label + " v." + versions[i].version + "'>" + versions[i].version + "</li>");
+												$li.appendTo($analysisVersions);
+											}
 										}
 
 										$("#analysis-versions li", $modalBody).hover(function() {
@@ -572,8 +569,9 @@ function customAnalysis(element) {
 										return this;
 									},
 									checkRiskDependancies : function() {
-										var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well")
-												.attr("data-trick-id"), estimation = trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
+										var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_parameter = $("#analysis-build-parameters .well")
+												.attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well").attr("data-trick-id"), estimation = trick_id_parameter == undefined
+												|| trick_id_parameter != trick_id_asset || trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
 										$modalBody.find("input[name='assessment']").prop("disabled", this.assessmentDisable = estimation).prop("checked", false);
 										return this.checkProfile();
 									},
@@ -584,6 +582,8 @@ function customAnalysis(element) {
 										$modalBody.find("select[name='impacts']").val('-1').prop("disabled", this.analysisType != 'QUALITATIVE');
 										$modalBody.find("input[name='scale.level']").val('11').prop("disabled", this.analysisType != 'QUALITATIVE');
 										$modalBody.find("input[name='scale.maxValue']").val('300').prop("disabled", this.analysisType != 'QUALITATIVE');
+										$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType + "']").trigger("click");
+										$analysisSelector.trigger("change");
 										return this;
 									},
 									checkAssetStandard : function() {
@@ -640,11 +640,12 @@ function customAnalysis(element) {
 										analysesCaching.updateAnalysisIdentifiers(idCustomer);
 								});
 
-								$("#selector-analysis").on("change", function(e) {
+								$analysisSelector.on("change", function(e) {
 									$("#analysis-versions li[class!='disabled']", $modalBody).remove();
 									var identifier = $(e.target).val();
 									if (identifier != -1)
 										analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
+									
 								});
 
 								$analysisType.on("change", function(e) {
@@ -654,6 +655,7 @@ function customAnalysis(element) {
 									}
 								});
 
+								$("#analysis-build-parameters").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
 								$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
 								$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkRiskDependancies().checkAssetStandard()");
 								$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
@@ -671,7 +673,8 @@ function customAnalysis(element) {
 												$parent.find('input[name]').attr("value", ui.draggable.attr("data-trick-id"));
 												var callback = $parent.attr("data-trick-callback");
 												$(
-														"<a href='#' class='pull-right text-danger' title='" + $removeText
+														"<a href='#' data-trick-type-control='" + ui.draggable.attr("data-trick-analysis-type")
+																+ "' class='pull-right text-danger' title='" + $removeText
 																+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(
 														function() {
 															var $newParent = $(this).parent();
@@ -717,9 +720,9 @@ function customAnalysis(element) {
 																					+ "<input data-trick-field='name' hidden>"
 																					+ "<input data-trick-field='version' hidden>"
 																					+ "<input data-trick-field='type' hidden>");
-																			$content.attr("data-trick-name", data.name).attr("data-trick-version", data.version);
-																			$content.attr("data-trick-id", data.idAnalysis).attr("data-trick-type", data.type);
-																			$content.attr("data-trick-owner-id", data.idAnalysisStandard).text(
+																			$content.attr("data-trick-name", data.name).attr("data-trick-version", data.version).attr(
+																					"data-trick-id", data.idAnalysis).attr("data-trick-type", data.type).attr(
+																					"data-trick-owner-id", data.idAnalysisStandard).text(
 																					ui.draggable.attr("title") + " - " + data.name + " v" + data.version);
 																			$inputs.attr("data-trick-id", data.idAnalysis).attr("data-trick-owner-id", data.idAnalysisStandard)
 																					.appendTo($parent);
@@ -731,7 +734,9 @@ function customAnalysis(element) {
 																			} else
 																				$content.appendTo($this);
 																			$(
-																					"<a href='#' class='pull-right text-danger' title='"
+																					"<a href='#' class='pull-right text-danger' data-trick-type-control='"
+																							+ ui.draggable.attr("data-trick-analysis-type")
+																							+ "' title='"
 																							+ $removeText
 																							+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
 																					.appendTo($content).click(
@@ -790,12 +795,12 @@ function customAnalysis(element) {
 											var response = parseJson(data);
 											if (typeof response == 'object') {
 												if (response.error != undefined)
-													$(showError($("#build-analysis-modal-error",$modalBody)[0], response.error)).css({
+													$(showError($("#build-analysis-modal-error", $modalBody)[0], response.error)).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});
 												else if (response.success != undefined) {
-													$(showSuccess($("#build-analysis-modal-error",$modalBody)[0], response.success)).css({
+													$(showSuccess($("#build-analysis-modal-error", $modalBody)[0], response.success)).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});

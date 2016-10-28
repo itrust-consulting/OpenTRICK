@@ -5,114 +5,64 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-
-<div class="modal fade" id="formScaleModal" tabindex="-1" role="dialog" data-aria-labelledby="formScaleModal" data-aria-hidden="true" data-backdrop="static" data-keyboard="true">
+<div class="modal fade" id="formScaleTypeModal" tabindex="-1" role="dialog" data-aria-labelledby="formTypeScaleModal" data-aria-hidden="true" data-backdrop="static" data-keyboard="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="label.title.scale.${empty scale? 'add':'edit'}" text="${empty scale? 'Add new impact':'Edit impact'}" />
+					<spring:message code="label.title.scale_type.${empty scaleType? 'add':'edit'}" text="${empty scaleType? 'Add new impact':'Edit impact type'}" />
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="scale" action="${pageContext.request.contextPath}/KnowledgeBase/Scale/Save" class="form-horizontal" id="scale_form" style="height: 360px;">
+				<form name="scale" action="${pageContext.request.contextPath}/KnowledgeBase/ScaleType/Save" class="form-horizontal" id="scale_type_form" style="height: 360px;">
 					<c:choose>
-						<c:when test="${empty scale}">
+						<c:when test="${empty scaleType}">
 							<input name="id" value="0" type="hidden">
 						</c:when>
 						<c:otherwise>
-							<input name="id" value="${scale.id}" type="hidden">
+							<input name="id" value="${scaleType.id}" type="hidden">
 						</c:otherwise>
 					</c:choose>
 
-					<c:choose>
-						<c:when test="${empty scale}">
-							<c:set var="alpha2" value="${fn:toUpperCase(locale) }" />
-							<fieldset>
-								<legend>
-									<spring:message code="label.scale.type" text="Type" />
-								</legend>
-								<div class="form-group">
-									<div class="col-sm-12">
-										<select name='type.id' id="scale_type_id" class="form-control">
-											<option value="-1"><spring:message code="label.action.choose" /></option>
-											<c:forEach items="${scaleTypes}" var="type">
-												<option value="${type.id}" data-acronym='<spring:message text="${type.acronym}" />' data-name='<spring:message text="${type.name}" />' >
-													<spring:message text="${empty type.translations[alpha2]? type.name : type.translations[alpha2] }" />
-												</option>
-											</c:forEach>
-										</select>
-									</div>
-								</div>
-								<div class="form-group">
-									<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scale.name" text="Name" />
-									</label>
-									<div class="col-sm-10">
-										<input name="name" id="scale_type_name" class="form-control" required="required" readonly="readonly" />
-									</div>
-								</div>
-								<div class="form-group">
-									<label for="type.acronym" class="col-sm-2 control-label"> <spring:message code="label.scale.acronym" text="Acronym" />
-									</label>
-									<div class="col-sm-10">
-										<input name="type.acronym" id="scale_type_acronym" class="form-control" required="required" readonly="readonly" />
-									</div>
-								</div>
-							</fieldset>
-						</c:when>
-						<c:otherwise>
-							<div class="form-group">
-								<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scale.name" text="Name" />
-								</label>
-								<div class="col-sm-10">
-									<input name="name" id="scale_type_name" class="form-control" value="${scale.type.name}" required="required" readonly="readonly" />
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="type.acronym" class="col-sm-2 control-label"> <spring:message code="label.scale.acronym" text="Acronym" />
-								</label>
-								<div class="col-sm-10">
-									<input name="type.acronym" id="scale_type_acronym" class="form-control" value="${scale.type.acronym}" required="required" readonly="readonly" />
-								</div>
-							</div>
-						</c:otherwise>
-					</c:choose>
-					<fieldset>
-						<legend><spring:message code="label.scale" text="Scale" /></legend>
-						<div class="form-group">
-							<label for="level" class="col-sm-2 control-label"> <spring:message code="label.scale.level" text="Level" />
-							</label>
-							<div class="col-sm-10">
-								<input name="level" id="scale_level" class="form-control" value="${empty scale? '3': scale.level}" type="number" min="3" required="required" />
-							</div>
+					<div class="form-group">
+						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scale.name" text="Name" />
+						</label>
+						<div class="col-sm-10">
+							<input name="name" id="scale_type_name" style="text-transform:uppercase" class="form-control" value="${empty scaleType? '': scaleType.name }" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
 						</div>
+					</div>
 
-						<div class="form-group">
-							<label for="maxValue" class="col-sm-2 control-label"> <spring:message code="label.scale.max_value" text="Max value" />
-							</label>
-							<div class="col-sm-10">
-								<div class="input-group">
-									<c:choose>
-										<c:when test="${empty(scale)}">
-											<input name="maxValue" id="scale_maxValue" class="form-control" type="number" min="1" required="required">
-										</c:when>
-										<c:otherwise>
-											<input name="maxValue" id="scale_maxValue" class="form-control" value='<fmt:formatNumber value="${scale.maxValue*0.001}" maxFractionDigits="1" />' type="number" min="1"
-												required="required">
-										</c:otherwise>
-									</c:choose>
-									<span class="input-group-addon">k&euro;</span>
+					<div class="form-group">
+						<label for="acronym" class="col-sm-2 control-label"> <spring:message code="label.scale.acronym" text="Acronym" />
+						</label>
+						<div class="col-sm-10">
+							<input name="acronym" id="scale_type_acronym" class="form-control" value="${empty scaleType? '': scaleType.acronym}" required="required" ${empty scaleType? '': 'readonly="readonly" '} />
+						</div>
+					</div>
+					
+					<fieldset style="height: 180px; overflow-y: auto; overflow-x: hidden;">
+						<legend>
+							<spring:message code="label.scale.translations" text="Translations" />
+						</legend>
+						<c:forEach items="${languages}" var="language">
+							<c:set var="alpha2" value="${language.alpha2}" />
+							<div class="form-group">
+								<label for="translations['${alpha2}']" class="col-sm-2 control-label"> <spring:message text="${locale == fn:toLowerCase(alpha2)? language.name : language.altName}" />
+								</label>
+								<div class="col-sm-10">
+									<input name="translations['${alpha2}']" id="scale_type_translations_${alpha2}" class="form-control" value="${empty scaleType? '': scaleType.translations[alpha2]}" required="required" />
 								</div>
 							</div>
-						</div>
+
+						</c:forEach>
 					</fieldset>
-					<button type="submit" hidden="hidden" id="scale_form_submit_button"></button>
+					<button type="submit" hidden="hidden" id="scale_type_form_submit_button"></button>
 				</form>
-				<div id="scale-error-container"></div>
+				<div id="scale-type-error-container"></div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" id="scale_submit_button">
+				<button type="button" class="btn btn-primary" id="scale_type_submit_button">
 					<spring:message code="label.action.save" />
 				</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">

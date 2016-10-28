@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -43,7 +42,6 @@ import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
-import lu.itrust.business.TS.model.scale.ScaleEntry;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
@@ -87,8 +85,6 @@ public class ExportAnalysis {
 
 	private List<ScaleType> scaleTypes;
 
-	private Map<String, ScaleEntry> scaleEntries;
-
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
@@ -128,8 +124,6 @@ public class ExportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.identifier", "Export identifier", 10));
 
 			scaleTypes = analysis.getImpactParameters().stream().map(ImpactParameter::getType).distinct().collect(Collectors.toList());
-
-			scaleEntries = new HashMap<>(scaleTypes.size());
 
 			// ****************************************************************
 			// * export Identifier
@@ -979,17 +973,8 @@ public class ExportAnalysis {
 			// Determine insert query parameters
 			final List<Object> queryParameters = new ArrayList<Object>();
 			queryParameters.add(null); // id
-			if (impactParameter instanceof ImpactParameter) {
-				ScaleType type = ((ImpactParameter) impactParameter).getType();
-				queryParameters.add(type.getName());
-				ScaleEntry entry = scaleEntries.get(type.getName());
-				if (entry == null)
-					scaleEntries.put(type.getName(), new ScaleEntry(impactParameter.getLevel(), type.getAcronym(), impactParameter.getValue()));
-				else {
-					entry.setLevel(Math.max(entry.getLevel(), impactParameter.getLevel()));
-					entry.setValue(Math.max(entry.getValue(), impactParameter.getValue()));
-				}
-			}
+			if (impactParameter instanceof ImpactParameter)
+				queryParameters.add(impactParameter.getTypeName());
 			queryParameters.add(impactParameter.getLevel());
 			queryParameters.add(impactParameter.getDescription());
 			queryParameters.add(impactParameter.getAcronym());
@@ -1178,31 +1163,23 @@ public class ExportAnalysis {
 
 	private void exportImpactType() throws SQLException {
 		List<Object> params = new ArrayList<Object>();
-		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?", baseQuery = "INSERT INTO impact_type SELECT ? as name, ? as acronym,? as level, ? as max_value,? as translation";
+		String query = "", unionQuery = " UNION SELECT ?,?,?", baseQuery = "INSERT INTO impact_type SELECT ? as name, ? as acronym,? as translation";
 		for (ScaleType scaleType : scaleTypes) {
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 5 > 999) {
+			else if (params.size() + 3 > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
 			} else
 				query += unionQuery;
-			ScaleEntry entry = scaleEntries.get(scaleType.getName());
 			params.add(scaleType.getName());
 			params.add(scaleType.getAcronym());
-			if (entry == null) {
-				params.add(11);
-				params.add(300000);
-			} else {
-				params.add(entry.getLevel() + 1);
-				params.add(entry.getValue());
-			}
 			String translate = scaleType.get(analysis.getLanguage().getAlpha2());
 			if (translate == null) {
 				translate = scaleType.get("EN");
 				if (translate == null)
-					translate = StringUtils.capitalize(scaleType.getName().toLowerCase());
+					translate = scaleType.getDisplayName();
 			}
 			params.add(translate);
 		}

@@ -31,7 +31,7 @@ CREATE TABLE risk_register (id_threat INTEGER NOT NULL , id_asset INTEGER NOT NU
 CREATE TABLE risk_profile (`id_threat` INTEGER NOT NULL , `id_asset` INTEGER NOT NULL, `actionPlan` TEXT,`treatment` TEXT, `strategy` VARCHAR, `exp_probability` VARCHAR, `raw_probability` VARCHAR, PRIMARY KEY (`id_threat`, `id_asset`));
 CREATE TABLE risk_profile_impact (`id_threat` INTEGER NOT NULL , `id_asset` INTEGER NOT NULL,`name` VARCHAR(255), `value` VARCHAR(255), PRIMARY KEY (`id_threat`, `id_asset`,`name`,`value`));
 CREATE TABLE dynamic_parameter (id_parameter INTEGER PRIMARY KEY NOT NULL, name_parameter TEXT DEFAULT '', acro_parameter TEXT DEFAULT '', value_parameter DOUBLE DEFAULT 0);
-CREATE TABLE impact_type (`name` VARCHAR(255) PRIMARY KEY NOT NULL, `acronym` VARCHAR(255) NOT NULL, `level` INTEGER NOT NULL, `max_value` DOUBLE NOT NULL,`translation` VARCHAR(255) NOT NULL);
+CREATE TABLE impact_type (`name` VARCHAR(255) PRIMARY KEY NOT NULL, `acronym` VARCHAR(255) NOT NULL,`translation` VARCHAR(255) NOT NULL);
 CREATE TABLE assessment_impacts ( `id_asset` INTEGER NOT NULL,`id_threat` INTEGER NOT NULL ,`name` VARCHAR(255), `value` DOUBLE, PRIMARY KEY (`id_threat`, `id_asset`,`name`));
  -- INDEX CREATION
  

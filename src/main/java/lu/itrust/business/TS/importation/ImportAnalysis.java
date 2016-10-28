@@ -30,7 +30,6 @@ import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
-import lu.itrust.business.TS.database.dao.DAOScale;
 import lu.itrust.business.TS.database.dao.DAOScaleType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
@@ -40,7 +39,6 @@ import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOScaleHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOScaleTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
@@ -84,7 +82,6 @@ import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
-import lu.itrust.business.TS.model.scale.Scale;
 import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
@@ -138,8 +135,6 @@ public class ImportAnalysis {
 	private DAOUserAnalysisRight daoUserAnalysisRight;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
-
-	private DAOScale daoScale;
 
 	private DAOScaleType daoScaleType;
 
@@ -1575,8 +1570,7 @@ public class ImportAnalysis {
 					if (type == null) {
 						type = new ScaleType(name.toUpperCase(), generateAcronym(name, acronym.toLowerCase()));
 						type.put(this.analysis.getLanguage().getAlpha2(), resultSet.getString("translation"));
-						Scale scale = new Scale(type, resultSet.getInt("level"), resultSet.getDouble("max_value"));
-						daoScale.saveOrUpdate(scale);
+						daoScaleType.saveOrUpdate(type);
 					}
 					impactTypes.put(type.getName(), type);
 				}
@@ -1592,8 +1586,7 @@ public class ImportAnalysis {
 		if (type == null) {
 			type = new ScaleType(name, generateAcronym(name, prefix + name.substring(0, 1).toLowerCase()));
 			type.put(this.analysis.getLanguage().getAlpha2(), translate);
-			Scale scale = new Scale(type, 11, 300000);
-			daoScale.saveOrUpdate(scale);
+			daoScaleType.saveOrUpdate(type);
 		}
 		impactTypes.put(type.getName(), type);
 	}
@@ -3030,7 +3023,6 @@ public class ImportAnalysis {
 		setDaoParameterType(new DAOParameterTypeHBM(session));
 		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
 		setDaoScaleType(new DAOScaleTypeHBM(session));
-		setDaoScale(new DAOScaleHBM(session));
 	}
 
 	public static String getString(ResultSet rs, String name) {
@@ -3151,21 +3143,6 @@ public class ImportAnalysis {
 
 	public void setDaoUserAnalysisRight(DAOUserAnalysisRight daoUserAnalysisRight) {
 		this.daoUserAnalysisRight = daoUserAnalysisRight;
-	}
-
-	/**
-	 * @return the daoScale
-	 */
-	public DAOScale getDaoScale() {
-		return daoScale;
-	}
-
-	/**
-	 * @param daoScale
-	 *            the daoScale to set
-	 */
-	public void setDaoScale(DAOScale daoScale) {
-		this.daoScale = daoScale;
 	}
 
 	/**

@@ -33,6 +33,8 @@ public class AnalysisBaseInfo {
 	/** flag to determine if analysis has data */
 	private boolean empty;
 
+	private String type;
+
 	private List<AnalysisStandardBaseInfo> analysisStandardBaseInfo;
 
 	/**
@@ -49,8 +51,10 @@ public class AnalysisBaseInfo {
 		setVersion(analysis.getVersion());
 		setLabel(analysis.getLabel());
 		setEmpty(!analysis.hasData());
+		setType(analysis.getType().name());
 		setAnalysisStandardBaseInfo(new LinkedList<AnalysisStandardBaseInfo>());
 		analysis.getAnalysisStandards().forEach(analysisStandard -> analysisStandardBaseInfo.add(new AnalysisStandardBaseInfo(analysis.getId(), analysisStandard)));
+
 	}
 
 	public AnalysisBaseInfo(int idAnalysis) {
@@ -131,6 +135,21 @@ public class AnalysisBaseInfo {
 	 */
 	public void setAnalysisStandardBaseInfo(List<AnalysisStandardBaseInfo> analysisStandardBaseInfo) {
 		this.analysisStandardBaseInfo = analysisStandardBaseInfo;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 
 }

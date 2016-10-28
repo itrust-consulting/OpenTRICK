@@ -3,9 +3,6 @@
  */
 package lu.itrust.business.TS.controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -27,12 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceScale;
-import lu.itrust.business.TS.database.service.ServiceScaleEntry;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
-import lu.itrust.business.TS.model.parameter.helper.Bounds;
-import lu.itrust.business.TS.model.scale.Scale;
-import lu.itrust.business.TS.model.scale.ScaleEntry;
 import lu.itrust.business.TS.model.scale.ScaleType;
 
 /**
@@ -41,14 +33,8 @@ import lu.itrust.business.TS.model.scale.ScaleType;
  */
 @PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @Controller
-@RequestMapping("/KnowledgeBase/Scale")
+@RequestMapping("/KnowledgeBase/ScaleType")
 public class ControllerScale {
-
-	@Autowired
-	private ServiceScale serviceScale;
-
-	@Autowired
-	private ServiceScaleEntry serviceScaleEntry;
 
 	@Autowired
 	private ServiceScaleType serviceScaleType;
@@ -61,47 +47,33 @@ public class ControllerScale {
 
 	@RequestMapping
 	public String home(Model model, Locale locale) {
-		model.addAttribute("scales", serviceScale.findAll());
 		model.addAttribute("scaleTypes", serviceScaleType.findAll());
 		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
 		return "knowledgebase/scale/home";
 	}
 
-	@RequestMapping("/Entry")
-	public String entryHome(Model model, Locale locale) {
-		home(model, locale);
-		return "knowledgebase/scale/entry/home";
-	}
-
-	@RequestMapping("/Type")
-	public String typeHome(Model model, Locale locale) {
-		model.addAttribute("scaleTypes", serviceScaleType.findAll());
-		model.addAttribute("languages", serviceLanguage.getAll());
-		model.addAttribute("locale", locale.getLanguage());
-		return "knowledgebase/scale/type/home";
-	}
-
-	@RequestMapping(value = "/Type/Add", method = RequestMethod.GET)
+	@RequestMapping(value = "/Add", method = RequestMethod.GET)
 	public String addType(Model model, Locale locale) {
 		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
-		return "knowledgebase/scale/type/form";
+		return "knowledgebase/scale/form";
 	}
 
-	@RequestMapping(value = "/Type/{id}/Edit", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/Edit", method = RequestMethod.GET)
 	public String editType(@PathVariable int id, Model model, Locale locale) {
 		model.addAttribute("scaleType", serviceScaleType.findOne(id));
 		model.addAttribute("languages", serviceLanguage.getAll());
 		model.addAttribute("locale", locale.getLanguage());
-		return "knowledgebase/scale/type/form";
+		return "knowledgebase/scale/form";
 	}
 
-	@RequestMapping(value = "/Type/Save", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object save(@ModelAttribute ScaleType scaleType, BindingResult result, Locale locale) {
 		if (result.hasFieldErrors())
 			return result.getAllErrors().stream().collect(
 					Collectors.toMap(ObjectError::getObjectName, error -> messageSource.getMessage(error.getCode(), error.getArguments(), error.getDefaultMessage(), locale)));
+		scaleType.setName(scaleType.getName().trim().toUpperCase());
 		if (scaleType.getId() < 1) {
 			if (serviceScaleType.hasAcronym(scaleType.getAcronym()))
 				result.rejectValue("acronym", "error.scale.acronym.in_used", null, "Acronym is already in used");
@@ -119,7 +91,7 @@ public class ControllerScale {
 		return JsonMessage.Success(messageSource.getMessage("success.save.scale_type", null, "Scale type has been successfully saved", locale));
 	}
 	
-	@RequestMapping(value = "/Type/Delete", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Delete", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object deleteType(@RequestBody List<Integer> ids, Locale locale) {
 		ids.forEach(id -> {
 			ScaleType scaleType = serviceScaleType.findOne(id);
@@ -130,43 +102,7 @@ public class ControllerScale {
 		return JsonMessage.Success(messageSource.getMessage("success.delete.scale_type", null, "Scale type has been successfully deleted", locale));
 	}
 
-	@RequestMapping(value = "/{id}/Edit", method = RequestMethod.GET)
-	public String edit(@PathVariable int id, Model model, Locale locale) {
-		model.addAttribute("scale", serviceScale.findOne(id));
-		model.addAttribute("locale", locale.getLanguage());
-		return "knowledgebase/scale/form";
-	}
-
-	@RequestMapping(value = "/Add", method = RequestMethod.GET)
-	public String add(Model model, Locale locale) {
-		model.addAttribute("languages", serviceLanguage.getAll());
-		model.addAttribute("locale", locale.getLanguage());
-		model.addAttribute("scaleTypes", serviceScaleType.findAllFree());
-		return "knowledgebase/scale/form";
-	}
-
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object save(@ModelAttribute Scale scale, BindingResult result, Locale locale) {
-		if (result.hasFieldErrors())
-			return result.getAllErrors().stream().collect(
-					Collectors.toMap(ObjectError::getObjectName, error -> messageSource.getMessage(error.getCode(), error.getArguments(), error.getDefaultMessage(), locale)));
-		scale.setMaxValue(scale.getMaxValue() * 1000);
-		return scale.getId() > 0 ? updateSave(scale, result, locale) : checkSave(scale, result, locale);
-	}
-
-	private Object checkSave(Scale scale, BindingResult result, Locale locale) {
-		if (result.hasFieldErrors())
-			return result.getAllErrors().stream().collect(
-					Collectors.toMap(ObjectError::getObjectName, error -> messageSource.getMessage(error.getCode(), error.getArguments(), error.getDefaultMessage(), locale)));
-		ScaleType type = serviceScaleType.findOne(scale.getType().getId());
-		if (type == null)
-			return JsonMessage.Field("type", messageSource.getMessage("error.scale_type.not_found", null, "Scale type cannot be found", locale));
-		else
-			scale.setType(type);
-		return computeSave(scale, result, locale);
-	}
-
-	private Object computeSave(Scale scale, BindingResult result, Locale locale) {
+	/*private Object computeSave(Scale scale, BindingResult result, Locale locale) {
 		scale.setScaleEntries(new ArrayList<>(scale.getLevel()));
 		double currentValue = scale.getMaxValue();
 		if (scale.getLevel() % 2 == 0) {
@@ -226,28 +162,7 @@ public class ControllerScale {
 		}
 		serviceScale.saveOrUpdate(scale);
 		return JsonMessage.Success(messageSource.getMessage("success.save.scale", null, "Scale has been successfully saved", locale));
-	}
+	}*/
 
-	private Object updateSave(Scale scale, BindingResult result, Locale locale) {
-		Scale persisted = serviceScale.findOne(scale.getId());
-		Iterator<ScaleEntry> iterator = persisted.getScaleEntries().iterator();
-		persisted.merge(scale);
-		while (iterator.hasNext()) {
-			ScaleEntry scaleEntry = iterator.next();
-			iterator.remove();
-			serviceScaleEntry.delete(scaleEntry);
-		}
-		return computeSave(persisted, result, locale);
-	}
 
-	@RequestMapping(value = "/Delete", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object delete(@RequestBody List<Integer> ids, Locale locale) {
-		ids.forEach(id -> {
-			Scale scale = serviceScale.findOne(id);
-			if (scale != null)
-				serviceScale.delete(scale);
-		});
-
-		return JsonMessage.Success(messageSource.getMessage("success.delete.scale", null, "Scale has been successfully deleted", locale));
-	}
 }

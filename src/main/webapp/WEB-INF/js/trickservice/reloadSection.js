@@ -111,9 +111,7 @@ function findControllerBySection(section, subSection) {
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
 		"section_soa" : "/Analysis/Standard/SOA",
 		"section_ids" : "/Admin/IDS/Section",
-		"section_kb_impact" : "/KnowledgeBase/Scale",
-		"section_kb_scale" : "/KnowledgeBase/Scale/Entry",
-		"section_kb_scale_type" : "/KnowledgeBase/Scale/Type"
+		"section_kb_scale_type" : "/KnowledgeBase/ScaleType"
 
 	};
 
