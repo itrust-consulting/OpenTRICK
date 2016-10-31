@@ -269,7 +269,7 @@ public class ControllerAsset {
 				return errors;
 			} else {
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
-				analysis.addAnAsset(asset);
+				analysis.add(asset);
 				serviceAnalysis.saveOrUpdate(analysis);
 			}
 

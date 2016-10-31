@@ -52,7 +52,6 @@ import lu.itrust.business.TS.database.service.ServiceParameterType;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
-import lu.itrust.business.TS.database.service.ServiceScale;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -202,7 +201,8 @@ public class ControllerAnalysisCreate {
 
 			validateStandards(analysisForm.getStandards(), errors, principal, defaultProfileId, locale);
 
-			if (analysisForm.isAssessment() && (analysisForm.getScenario() < 1 || analysisForm.getScenario() != analysisForm.getAsset()))
+			if (analysisForm.isAssessment()
+					&& (analysisForm.getScenario() < 1 || analysisForm.getScenario() != analysisForm.getAsset() || analysisForm.getParameter() != analysisForm.getAsset()))
 				errors.put("assessment", messageSource.getMessage("error.analysis_custom.assessment.invalid", null, "Risk estimation cannot be selected", locale));
 
 			if (analysisForm.getScope() < 1) {
@@ -323,11 +323,11 @@ public class ControllerAnalysisCreate {
 			history.setComment(history.getComment() + baseAnalysis);
 			List<ItemInformation> itemInformations = serviceItemInformation.getAllFromAnalysis(analysisForm.getScope());
 			for (ItemInformation itemInformation : itemInformations)
-				analysis.addAnItemInformation(itemInformation.duplicate());
+				analysis.add(itemInformation.duplicate());
 
 			List<RiskInformation> riskInformations = serviceRiskInformation.getAllFromAnalysis(analysisForm.getRiskInformation());
 			for (RiskInformation riskInformation : riskInformations)
-				analysis.addARiskInformation(riskInformation.duplicate());
+				analysis.add(riskInformation.duplicate());
 
 			Map<String, IParameter> mappingParameters = generateParameters(analysis, serviceParameter.getAllFromAnalysis(analysisForm.getParameter()), analysisForm.getType());
 
@@ -337,7 +337,7 @@ public class ControllerAnalysisCreate {
 
 			for (Asset asset : assets) {
 				Asset duplication = asset.duplicate();
-				analysis.addAnAsset(duplication);
+				analysis.add(duplication);
 				mappingAssets.put(asset.getId(), duplication);
 			}
 
@@ -346,7 +346,7 @@ public class ControllerAnalysisCreate {
 			Map<Integer, Scenario> mappingScenarios = scenarios.isEmpty() || assets.isEmpty() ? null : new LinkedHashMap<Integer, Scenario>(scenarios.size());
 			for (Scenario scenario : scenarios) {
 				Scenario duplication = scenario.duplicate();
-				analysis.addAScenario(duplication);
+				analysis.add(duplication);
 				if (mappingScenarios != null)
 					mappingScenarios.put(scenario.getId(), duplication);
 			}
@@ -359,7 +359,7 @@ public class ControllerAnalysisCreate {
 						Assessment duplication = assessment.duplicate();
 						duplication.setScenario(mappingScenarios.get(assessment.getScenario().getId()));
 						duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
-						analysis.addAnAssessment(duplication);
+						analysis.add(duplication);
 					}
 				}
 
@@ -377,7 +377,7 @@ public class ControllerAnalysisCreate {
 				mappingPhases = new LinkedHashMap<Integer, Phase>(phases.size());
 				for (Phase phase : phases) {
 					Phase phase1 = phase.duplicate(analysis);
-					analysis.addPhase(phase1);
+					analysis.add(phase1);
 					mappingPhases.put(phase.getNumber(), phase1);
 				}
 			} else {
@@ -389,20 +389,20 @@ public class ControllerAnalysisCreate {
 				calendar.add(Calendar.YEAR, 1);
 				phase.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));
 				mappingPhases.put(PHASE_DEFAULT, phase);
-				analysis.addPhase(phase);
+				analysis.add(phase);
 			}
 
 			if (analysisForm.getStandards().size() == 1) {
 				AnalysisStandardBaseInfo standardBaseInfo = analysisForm.getStandards().get(0);
 				if (standardBaseInfo.getIdAnalysis() == defaultProfileId && standardBaseInfo.getIdAnalysisStandard() < 1) {
 					for (AnalysisStandard analysisStandard : serviceAnalysisStandard.getAllFromAnalysis(standardBaseInfo.getIdAnalysis()))
-						analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, mappingAssets, false));
+						analysis.add(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, mappingAssets, false));
 				} else
-					analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
+					analysis.add(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
 							mappingParameters, mappingAssets, false));
 			} else {
 				for (AnalysisStandardBaseInfo standardBaseInfo : analysisForm.getStandards())
-					analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
+					analysis.add(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
 							mappingParameters, mappingAssets, false));
 			}
 

@@ -208,7 +208,7 @@ public class Duplicator {
 
 			for (Phase phase : analysis.getPhases()) {
 				phases.put(phase.getNumber(), phase.duplicate(copy));
-				copy.addPhase(phases.get(phase.getNumber()));
+				copy.add(phases.get(phase.getNumber()));
 			}
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * 60)));
@@ -225,7 +225,7 @@ public class Duplicator {
 					copycounter++;
 					serviceTaskFeedback.send(idTask,
 							new MessageHandler("info.analysis.duplication.measure", "Copy standards", (int) (minProgress + bound * (60 + (percentageperstandard * copycounter)))));
-					copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
+					copy.add(duplicateAnalysisStandard(analysisStandard, phases, parameters, assets, false));
 				}
 			}
 			return copy;
@@ -521,7 +521,7 @@ public class Duplicator {
 			} else
 				tmpPhase = tmpPhase.duplicate(copy);
 			phases.put(Constant.PHASE_DEFAULT, tmpPhase);
-			copy.addPhase(tmpPhase);
+			copy.add(tmpPhase);
 
 			// scenarios
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 55));
@@ -541,7 +541,7 @@ public class Duplicator {
 					copycounter++;
 					AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
 					if (standard != null) {
-						copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, null, true));
+						copy.add(duplicateAnalysisStandard(standard, phases, parameters, null, true));
 						serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60 + (percentageperstandard * copycounter)));
 					}
 				}

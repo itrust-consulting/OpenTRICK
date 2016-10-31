@@ -535,14 +535,14 @@ public class ControllerAnalysisStandard {
 				standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 				switch (standard.getType()) {
 				case ASSET:
-					analysis.addAnalysisStandard(new AssetStandard(standard));
+					analysis.add(new AssetStandard(standard));
 					break;
 				case MATURITY:
-					analysis.addAnalysisStandard(new MaturityStandard(standard));
+					analysis.add(new MaturityStandard(standard));
 					break;
 				case NORMAL:
 				default:
-					analysis.addAnalysisStandard(new NormalStandard(standard));
+					analysis.add(new NormalStandard(standard));
 					break;
 				}
 				serviceAnalysis.saveOrUpdate(analysis);
@@ -632,7 +632,7 @@ public class ControllerAnalysisStandard {
 			if (phase == null) {
 				phase = new Phase(Constant.PHASE_DEFAULT);
 				phase.setAnalysis(analysis);
-				analysis.addPhase(phase);
+				analysis.add(phase);
 			}
 
 			analysisStandard.setStandard(standard);
@@ -645,7 +645,7 @@ public class ControllerAnalysisStandard {
 				analysisStandard.getMeasures().add(measure2);
 			}
 
-			analysis.addAnalysisStandard(analysisStandard);
+			analysis.add(analysisStandard);
 
 			serviceAnalysis.saveOrUpdate(analysis);
 

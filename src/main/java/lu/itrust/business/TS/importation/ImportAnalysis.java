@@ -823,7 +823,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of risk information
 			// ****************************************************************
-			this.analysis.addARiskInformation(tempRI);
+			this.analysis.add(tempRI);
 		}
 
 		// Close ResultSet
@@ -863,7 +863,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of risk information
 			// ****************************************************************
-			this.analysis.addARiskInformation(tempRI);
+			this.analysis.add(tempRI);
 		}
 
 		// Close ResultSet
@@ -904,7 +904,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of risk information
 			// ****************************************************************
-			this.analysis.addARiskInformation(tempRI);
+			this.analysis.add(tempRI);
 		}
 
 		// Close ResultSet
@@ -1014,7 +1014,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of assets
 			// ****************************************************************
-			this.analysis.addAnAsset(tempAsset);
+			this.analysis.add(tempAsset);
 		}
 
 		// Close ResultSet
@@ -1123,7 +1123,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of scenarios
 			// ****************************************************************
-			this.analysis.addAScenario(tempScenario);
+			this.analysis.add(tempScenario);
 		}
 
 		// Close ResultSet
@@ -1207,7 +1207,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * add instance to list of assessments
 				// ****************************************************************
-				this.analysis.addAnAssessment(tmpAssessment);
+				this.analysis.add(tmpAssessment);
 			}
 
 			/**
@@ -1946,7 +1946,7 @@ public class ImportAnalysis {
 
 		// populate usedPhases list
 		for (Phase phase2 : phases.values())
-			this.analysis.addPhase(phase2);
+			this.analysis.add(phase2);
 
 		// order phases by phase number
 		this.analysis.initialisePhases();
@@ -2500,7 +2500,7 @@ public class ImportAnalysis {
 					// ****************************************************************
 					// * add instance to list of item information
 					// ****************************************************************
-					this.analysis.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i))));
+					this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i))));
 				}
 			}
 		}
@@ -2511,7 +2511,7 @@ public class ImportAnalysis {
 		// Add missing scope
 		for (String scopeName : extendedScopes) {
 			if (!this.analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
-				this.analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
+				this.analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 		}
 
 		// ****************************************************************
@@ -2554,7 +2554,7 @@ public class ImportAnalysis {
 				// * add instance to list of item information
 				// ****************************************************************
 				this.analysis
-						.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
+						.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
 			}
 		}
 	}
@@ -2743,7 +2743,7 @@ public class ImportAnalysis {
 					tempPhase.setAnalysis(analysis);
 					phases.put(numPhase, tempPhase);
 
-					analysis.addPhase(tempPhase);
+					analysis.add(tempPhase);
 				}
 
 			}
@@ -2850,7 +2850,7 @@ public class ImportAnalysis {
 
 		// add analysis standards from map to the analysis
 		for (AnalysisStandard analysisStandard2 : analysisStandards.values())
-			analysis.addAnalysisStandard(analysisStandard2);
+			analysis.add(analysisStandard2);
 	}
 
 	/**

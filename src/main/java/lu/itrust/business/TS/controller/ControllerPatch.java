@@ -189,12 +189,12 @@ public class ControllerPatch {
 				Analysis analysis = analyses.remove(0);
 				if (analysis.getRiskInformations().isEmpty()) {
 					for (RiskInformation riskInformation : profile.getRiskInformations())
-						analysis.addARiskInformation(riskInformation.duplicate());
+						analysis.add(riskInformation.duplicate());
 				}
 
 				if (analysis.getItemInformations().isEmpty()) {
 					for (ItemInformation itemInformation : profile.getItemInformations())
-						analysis.addAnItemInformation(itemInformation.duplicate());
+						analysis.add(itemInformation.duplicate());
 				}
 
 				serviceAnalysis.saveOrUpdate(analysis);
@@ -232,7 +232,7 @@ public class ControllerPatch {
 					saveRequired = false;
 					for (String scopeName : extendedScopes) {
 						if (!analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName))) {
-							analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
+							analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 							saveRequired = true;
 						}
 					}

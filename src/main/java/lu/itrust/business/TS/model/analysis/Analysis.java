@@ -331,7 +331,7 @@ public class Analysis implements Cloneable {
 	 * 
 	 * @param analysisStandard
 	 */
-	public void addAnalysisStandard(AnalysisStandard analysisStandard) {
+	public void add(AnalysisStandard analysisStandard) {
 		this.analysisStandards.add(analysisStandard);
 	}
 
@@ -346,7 +346,7 @@ public class Analysis implements Cloneable {
 	 * @param assessment
 	 *            The Assessment Object to Add
 	 */
-	public void addAnAssessment(Assessment assessment) {
+	public void add(Assessment assessment) {
 		if (this.assessments.contains(assessment))
 			throw new IllegalArgumentException("error.assessment.duplicate");
 		this.assessments.add(assessment);
@@ -360,7 +360,7 @@ public class Analysis implements Cloneable {
 	 *            The asset Object to Add
 	 * @throws TrickException
 	 */
-	public void addAnAsset(Asset asset) throws TrickException {
+	public void add(Asset asset) throws TrickException {
 		if (this.assets.contains(asset))
 			throw new TrickException("error.asset.duplicate", String.format("Asset (%s) is duplicated", asset.getName()), asset.getName());
 		this.assets.add(asset);
@@ -373,7 +373,7 @@ public class Analysis implements Cloneable {
 	 * @param iteminformation
 	 *            The Item Information Object to Add
 	 */
-	public void addAnItemInformation(ItemInformation itemInformation) {
+	public void add(ItemInformation itemInformation) {
 		this.itemInformations.add(itemInformation);
 	}
 
@@ -384,7 +384,7 @@ public class Analysis implements Cloneable {
 	 * @param riskInfo
 	 *            The Risk Information Object to Add
 	 */
-	public void addARiskInformation(RiskInformation riskInfo) {
+	public void add(RiskInformation riskInfo) {
 		this.riskInformations.add(riskInfo);
 	}
 
@@ -406,14 +406,14 @@ public class Analysis implements Cloneable {
 	 * @param scenario
 	 *            The Scenario Object to Add
 	 */
-	public void addAScenario(Scenario scenario) {
+	public void add(Scenario scenario) {
 		if (this.scenarios.contains(scenario)) {
 			throw new IllegalArgumentException("error.scenario.duplicate");
 		}
 		this.scenarios.add(scenario);
 	}
 
-	public void addPhase(Phase phase) {
+	public void add(Phase phase) {
 		if (this.phases == null)
 			phases = new ArrayList<Phase>();
 		if (!phases.contains(phase))
@@ -1769,7 +1769,7 @@ public class Analysis implements Cloneable {
 				int phaseNumber = normalStandards.get(i).getMeasure(j).getPhase().getNumber();
 
 				if (this.getPhaseByNumber(phaseNumber) == null)
-					this.addPhase(normalStandards.get(i).getMeasure(j).getPhase());
+					this.add(normalStandards.get(i).getMeasure(j).getPhase());
 
 			}
 		}
@@ -1782,7 +1782,7 @@ public class Analysis implements Cloneable {
 				int phaseNumber = maturityStandard.getLevel1Measures().get(i).getPhase().getNumber();
 
 				if (this.getPhaseByNumber(phaseNumber) == null)
-					this.addPhase(maturityStandard.getLevel1Measures().get(i).getPhase());
+					this.add(maturityStandard.getLevel1Measures().get(i).getPhase());
 
 			}
 		}
@@ -2470,57 +2470,57 @@ public class Analysis implements Cloneable {
 		analysis.getItemInformations().clear();
 		ItemInformation iteminfo;
 		iteminfo = new ItemInformation(Constant.TYPE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.TYPE_PROFIT_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.NAME_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.PRESENTATION_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.SECTOR_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.RESPONSIBLE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.STAFF_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.ACTIVITIES_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.EXCLUDED_ASSETS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.OCCUPATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.FUNCTIONAL, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.JURIDIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.POL_ORGANISATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.MANAGEMENT_ORGANISATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.PREMISES, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.REQUIREMENTS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.EXPECTATIONS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.ENVIRONMENT, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.INTERFACE, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.STRATEGIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.PROCESSUS_DEVELOPMENT, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.STAKEHOLDER_IDENTIFICATION, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.ROLE_RESPONSABILITY, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.STAKEHOLDER_RELATION, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.ESCALATION_WAY, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 		iteminfo = new ItemInformation(Constant.DOCUMENT_CONSERVE, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
-		analysis.addAnItemInformation(iteminfo);
+		analysis.add(iteminfo);
 	}
 
 	/**
