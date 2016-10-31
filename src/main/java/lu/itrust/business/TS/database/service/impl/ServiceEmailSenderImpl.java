@@ -49,10 +49,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Autowired
 	private JavaMailSender javaMailSender;
-
-	private String domain;
-
-	private String emailDomain;
+	
+	@Value("${app.settings.smtp.username}")
+	private String emailSender;
 	
 	@Autowired
 	private TaskExecutor emailTaskExecutor;
@@ -75,7 +74,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { emailDomain }, "no-reply", locale));
+					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
@@ -100,7 +99,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 								ParseException, IOException, TemplateException {
 							Locale locale = admin.getLocaleObject();
 							MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-							message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { emailDomain }, "no-reply", locale));
+							message.setFrom(emailSender);
 							message.setSubject(messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
 							Map<String, Object> model = new LinkedHashMap<String, Object>();
 							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
@@ -131,7 +130,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = password.getUser().getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { emailDomain }, "no-reply", locale));
+					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
@@ -148,27 +147,4 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			TrickLogManager.Persist(e);
 		}
 	}
-
-	@Value("${app.settings.domain}")
-	public void setDomain(String domain) {
-		this.domain = domain;
-		if (this.domain != null)
-			setEmailDomain(String.format("@%s", this.domain));
-	}
-
-	/**
-	 * @return the emailDomain
-	 */
-	public String getEmailDomain() {
-		return emailDomain;
-	}
-
-	/**
-	 * @param emailDomain
-	 *            the emailDomain to set
-	 */
-	public void setEmailDomain(String emailDomain) {
-		this.emailDomain = emailDomain;
-	}
-
 }
