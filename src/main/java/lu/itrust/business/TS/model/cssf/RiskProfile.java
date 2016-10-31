@@ -295,18 +295,18 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
-	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> simpleParameters) throws CloneNotSupportedException {
+	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters) throws CloneNotSupportedException {
 		RiskProfile riskProfile = (RiskProfile) super.clone();
-		riskProfile.updateData(assets, scenarios, simpleParameters);
+		riskProfile.updateData(assets, scenarios, parameters);
 		riskProfile.id = 0;
 		return riskProfile;
 	}
 
-	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> simpleParameters) throws CloneNotSupportedException {
+	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters) throws CloneNotSupportedException {
 		if (rawProbaImpact != null)
-			rawProbaImpact = rawProbaImpact.duplicate(simpleParameters);
+			rawProbaImpact = rawProbaImpact.duplicate(parameters);
 		if (expProbaImpact != null)
-			expProbaImpact = expProbaImpact.duplicate(simpleParameters);
+			expProbaImpact = expProbaImpact.duplicate(parameters);
 		this.asset = assets.get(this.asset.getId());
 		this.scenario = scenarios.get(scenario.getId());
 	}

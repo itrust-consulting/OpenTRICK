@@ -57,7 +57,6 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
-import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
@@ -136,9 +135,6 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
-
-	@Autowired
-	private ServiceParameter serviceParameter;
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
@@ -470,7 +466,7 @@ public class ControllerAnalysisStandard {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-		IParameter parameter = serviceParameter.getByAnalysisIdAndDescription(idAnalysis, Constant.SOA_THRESHOLD);
+		IParameter parameter = serviceParameter.findSimpleParameterByDescription(idAnalysis, Constant.SOA_THRESHOLD);
 
 		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue().doubleValue());
 

@@ -4,7 +4,6 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.security.Principal;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,7 +35,9 @@ import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
-import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServiceImpactParameter;
+import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -78,7 +79,13 @@ public class ControllerRiskRegister {
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
+	private ServiceSimpleParameter serviceSimpleParameter;
+
+	@Autowired
+	private ServiceImpactParameter serviceImpactParameter;
+
+	@Autowired
+	private ServiceLikelihoodParameter serviceLikelihoodParameter;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -104,7 +111,7 @@ public class ControllerRiskRegister {
 		model.put("riskregister", analysis.getRiskRegisters());
 
 		model.put("valueFactory", new ValueFactory(analysis.getParameters()));
-		
+
 		model.put("type", analysis.getType());
 
 		model.put("language", analysis.getLanguage().getAlpha2());
@@ -112,7 +119,7 @@ public class ControllerRiskRegister {
 		model.put("riskProfileMapping", analysis.mapRiskProfile());
 
 		model.put("estimationMapping", analysis.mapAssessment());
-		
+
 		// return view
 		return "analyses/single/components/riskRegister/home";
 	}
@@ -168,15 +175,9 @@ public class ControllerRiskRegister {
 	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request,
 			Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<IParameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
-		serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).forEach(parameter -> {
-			if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				impacts.add(parameter);
-			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
-				probabilities.add(parameter);
-		});
+		List<? extends IParameter> impacts = serviceImpactParameter.findByAnalysisId(analysisId), probabilities = serviceLikelihoodParameter.findByAnalysisId(analysisId);
 
-		model.addAttribute("parameters", serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_CSSF).stream()
+		model.addAttribute("parameters", serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, analysisId).stream()
 				.collect(Collectors.toMap(IParameter::getDescription, Function.identity())));
 
 		model.addAttribute("owners", serviceAssessment.getDistinctOwnerByIdAnalysis(analysisId));

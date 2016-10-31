@@ -69,6 +69,23 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	@Embedded
 	private Bounds bounds = null;
 
+	/**
+	 * 
+	 */
+	public ImpactParameter() {
+	}
+
+	public ImpactParameter(ScaleType type,int level, String acronym) {
+		setType(type);
+		setLevel(level);
+		setAcronym(acronym);
+	}
+
+	public ImpactParameter(ScaleType type, int level, String acronym, double value) {
+		this(type,level, acronym);
+		setValue(value);
+	}
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/

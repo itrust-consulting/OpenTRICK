@@ -86,6 +86,36 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 		return Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD;
 	}
 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.model.parameter.impl.SimpleParameter#clone()
+	 */
+	@Override
+	public LikelihoodParameter clone() {
+		LikelihoodParameter parameter = (LikelihoodParameter) super.clone();
+		parameter.bounds = (Bounds) this.bounds.clone();
+		return parameter;
+	}
+
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.model.parameter.impl.SimpleParameter#duplicate()
+	 */
+	@Override
+	public LikelihoodParameter duplicate() {
+		LikelihoodParameter parameter = (LikelihoodParameter) super.duplicate();
+		parameter.bounds = (Bounds) this.bounds.clone();
+		return parameter;
+	}
+
 	public static void ComputeScales(LikelihoodParameter prev, LikelihoodParameter current, LikelihoodParameter next) {
 		// throw new
 		// TrickException("error.compute.scale.extended.parameter.bad.type",

@@ -42,17 +42,7 @@ public abstract class AbstractProbability extends Parameter implements IProbabil
 	public void setAcronym(String acronym) {
 		this.acronym = acronym;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see lu.itrust.business.TS.model.parameter.impl.SimpleParameter#duplicate()
-	 */
-	@Override
-	public AbstractProbability duplicate() {
-		return (AbstractProbability) super.clone();
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 

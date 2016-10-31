@@ -13,6 +13,7 @@ import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
  * @since Jan 16, 2013
  */
 public interface ServiceParameterType {
+	
 	public ParameterType get(Integer id);
 
 	public ParameterType getByName(String parameterTypeName);

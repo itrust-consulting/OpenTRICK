@@ -237,6 +237,8 @@ public class Assessment implements Cloneable {
 	 *            the impacts to set
 	 */
 	public void setImpacts(List<IValue> impacts) {
+		if (impactMapper != null)
+			impactMapper = null;
 		this.impacts = impacts;
 	}
 

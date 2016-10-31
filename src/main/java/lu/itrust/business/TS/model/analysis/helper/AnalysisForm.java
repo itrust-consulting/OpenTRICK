@@ -4,6 +4,7 @@
 package lu.itrust.business.TS.model.analysis.helper;
 
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class AnalysisForm {
 
 	private List<AnalysisStandardBaseInfo> standards;
 
-	private List<Integer> impacts;
+	private List<Integer> impacts = Collections.emptyList();
 
 	private Scale scale;
 

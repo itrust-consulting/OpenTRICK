@@ -9,7 +9,7 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
  * @author eomar
  *
  */
-public interface IValue {
+public interface IValue extends Cloneable{
 
 	/**
 	 * 
@@ -18,7 +18,7 @@ public interface IValue {
 	default String getName() {
 		return getParameter().getTypeName();
 	}
-
+	
 	Integer getLevel();
 
 	String getVariable();
@@ -26,6 +26,12 @@ public interface IValue {
 	Double getReal();
 
 	ILevelParameter getParameter();
+	
+	/**
+	 * Create copy of object instance, id will be reset but parameter must be updated.
+	 * @return copy
+	 */
+	IValue duplicate();
 
 	static IValue maxByLevel(IValue v1, IValue v2) {
 		return (v1 == null ? v2 : (v2 == null ? v1 : (v1.getLevel() == v2.getLevel() ? (v1.getReal() > v2.getReal() ? v1 : v2) : v1.getLevel() > v2.getLevel() ? v1 : v2)));

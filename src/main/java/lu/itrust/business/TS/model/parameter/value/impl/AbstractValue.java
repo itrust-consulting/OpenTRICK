@@ -11,6 +11,7 @@ import org.hibernate.annotations.Any;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 
@@ -20,7 +21,7 @@ public abstract class AbstractValue implements IValue {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	
+
 	@Any(metaColumn = @Column(name = "dtParameterType"), metaDef = "PARAMETER_META_DEF")
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "fiParameter")
@@ -28,14 +29,14 @@ public abstract class AbstractValue implements IValue {
 
 	public AbstractValue() {
 	}
-	
+
 	/**
 	 * @param parameter
 	 */
 	public AbstractValue(ILevelParameter parameter) {
 		this.parameter = parameter;
 	}
-	
+
 	/**
 	 * @return the id
 	 */
@@ -77,6 +78,32 @@ public abstract class AbstractValue implements IValue {
 	@Override
 	public Double getReal() {
 		return parameter.getValue().doubleValue();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public AbstractValue clone() {
+		try {
+			return (AbstractValue) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.value", "Value canot be copied", e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.model.parameter.value.IValue#duplicate()
+	 */
+	@Override
+	public IValue duplicate() {
+		AbstractValue value = this.clone();
+		value.id = 0;
+		return value;
 	}
 
 }

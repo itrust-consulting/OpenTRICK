@@ -31,7 +31,6 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
-import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
@@ -77,9 +76,6 @@ public class ControllerAssessment {
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
-
-	@Autowired
-	private ServiceParameter serviceParameter;
 
 	@Autowired
 	private MessageSource messageSource;

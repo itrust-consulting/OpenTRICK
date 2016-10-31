@@ -1211,7 +1211,7 @@ public class Analysis implements Cloneable {
 	 * <b>Updated by eomar 06/10/2016: <br>
 	 * Add filter by Type: Dynamic + likelihood</b>
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameter#findExpressionParameterByAnalysis(Integer)
 	 */
 	public List<IProbabilityParameter> getExpressionParameters() {
 		// We assume that all parameters that have an acronym can be used in an
@@ -2610,6 +2610,25 @@ public class Analysis implements Cloneable {
 		return mappedParameters;
 
 	}
+	
+	/**
+	 * Retrieves parameter by type
+	 * 
+	 * @param parameters
+	 * @return Map<String, SimpleParameter>
+	 */
+	public static Map<String, List<IParameter>> SplitParameters(List<? extends IParameter> parameters) {
+		Map<String, List<IParameter>> mappedParameters = new LinkedHashMap<>();
+		parameters.parallelStream().forEach(parameter -> {
+			List<IParameter> currentParameters = mappedParameters.get(parameter.getTypeName());
+			if (currentParameters == null)
+				mappedParameters.put(parameter.getTypeName(), currentParameters = new ArrayList<>());
+			currentParameters.add(parameter);
+		});
+
+		return mappedParameters;
+
+	}
 
 	public List<IBoundedParameter> getBoundedParamters() {
 		List<IBoundedParameter> parameters = getImpactParameters().stream().collect(Collectors.toList());
@@ -2624,6 +2643,10 @@ public class Analysis implements Cloneable {
 				parameters.addAll(this.parameters.get(group));
 		}
 		return parameters;
+	}
+
+	public SimpleParameter findSimpleParameter(String type, String description) {
+		return getSimpleParameters().stream().filter(parameter -> parameter.isMatch(type, description)).findAny().orElse(null);
 	}
 
 }

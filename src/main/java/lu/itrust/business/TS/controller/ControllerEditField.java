@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -40,14 +41,18 @@ import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceHistory;
+import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
+import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceMaturityParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.analysis.Analysis;
@@ -63,7 +68,9 @@ import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManage
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
@@ -108,7 +115,19 @@ public class ControllerEditField {
 	private ServiceItemInformation serviceItemInformation;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
+	private ServiceSimpleParameter serviceSimpleParameter;
+
+	@Autowired
+	private ServiceDynamicParameter serviceDynamicParameter;
+
+	@Autowired
+	private ServiceLikelihoodParameter serviceLikelihoodParameter;
+
+	@Autowired
+	private ServiceImpactParameter serviceImpactParameter;
+
+	@Autowired
+	private ServiceMaturityParameter serviceMaturityParameter;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -251,9 +270,9 @@ public class ControllerEditField {
 
 		try {
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get parameter object
-			IParameter simpleParameter = serviceParameter.getFromAnalysisById(id, elementID);
+			SimpleParameter simpleParameter = serviceSimpleParameter.findOne(elementID, idAnalysis);
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(simpleParameter.getClass());
 			if (validator == null)
@@ -288,7 +307,7 @@ public class ControllerEditField {
 			// set field data
 			if (SetFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
-				serviceParameter.saveOrUpdate(simpleParameter);
+				serviceSimpleParameter.saveOrUpdate(simpleParameter);
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "SimpleParameter was successfully updated", locale));
 			} else
@@ -323,7 +342,7 @@ public class ControllerEditField {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve parameter
-			ImpactParameter parameter = (ImpactParameter) serviceParameter.getFromAnalysisById(id, elementID);
+			ImpactParameter parameter = (ImpactParameter) serviceParameter.findImpactParameterByIdAndAnalysisID(id, elementID);
 
 			String acronym = parameter.getAcronym();
 			// set validator and validate parameter
@@ -373,7 +392,7 @@ public class ControllerEditField {
 				if (parameter.getType().getName().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
 						|| parameter.getType().getName().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
 					// retrieve parameters
-					List<ImpactParameter> parameters = serviceParameter.getAllExtendedFromAnalysisAndType(id, parameter.getType());
+					List<? extends IBoundedParameter> parameters = serviceParameter.findBoundedParameterByAnalysisId(id);
 
 					// update impact value
 					ParameterManager.ComputeImpactValue(parameters);
@@ -407,9 +426,9 @@ public class ControllerEditField {
 			if (!smlPatten.matcher(fieldEditor.getFieldName()).matches())
 				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get parameter object
-			MaturityParameter parameter = (MaturityParameter) serviceParameter.getFromAnalysisById(id, elementID);
+			MaturityParameter parameter = (MaturityParameter) serviceMaturityParameter.findOne(elementID, idAnalysis);
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
 			if (validator == null)
@@ -426,7 +445,7 @@ public class ControllerEditField {
 			// set field data
 			if (SetFieldValue(parameter, field, (Double) value * 0.01)) {
 				// update field
-				serviceParameter.saveOrUpdate(parameter);
+				serviceMaturityParameter.saveOrUpdate(parameter);
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "SimpleParameter was successfully updated", locale));
 			} else
@@ -531,7 +550,7 @@ public class ControllerEditField {
 					probaImpact = new RiskProbaImpact();
 				Field child = FindField(RiskProbaImpact.class, fields[2]);
 				Integer idParameter = (Integer) FieldValue(fieldEditor);
-				IParameter simpleParameter = serviceParameter.getFromAnalysisById(idAnalysis, idParameter);
+				IParameter simpleParameter = serviceParameter.findImpactParameterByIdAndAnalysisID(idAnalysis, idParameter);
 				if (SetFieldValue(probaImpact, child, simpleParameter) && SetFieldValue(riskProfile, field, probaImpact))
 					result.add(new FieldValue(fields[1].startsWith("raw") ? "rawComputedImportance" : "expComputedImportance", probaImpact.getImportance()));
 				else
@@ -593,7 +612,7 @@ public class ControllerEditField {
 					chooses = impacts.toArray();
 				computeAle = true;
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
-				chooses = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis).stream().map(AbstractProbability::getAcronym).toArray();
+				chooses = serviceParameter.findExpressionParameterByAnalysis(idAnalysis).stream().map(AbstractProbability::getAcronym).toArray();
 				if (fieldEditor.getValue().equals("NA"))
 					fieldEditor.setValue("0");
 				computeAle = true;
@@ -615,7 +634,9 @@ public class ControllerEditField {
 			// compute new ALE
 			if (computeAle) {
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-				ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
+				List<IProbabilityParameter> parameters = new LinkedList<>(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+				parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+				ValueFactory factory = new ValueFactory(parameters);
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
 				if (netImportance && type == AnalysisType.QUALITATIVE)
 					result.add(new FieldValue("computedNextImportance", factory.findImportance(assessment)));
@@ -825,7 +846,9 @@ public class ControllerEditField {
 						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
-						if (!(new StringExpressionParser((String) value)).isValid(new ValueFactory(serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis))))
+						List<String> acronyms = serviceLikelihoodParameter.findAcronymByAnalysisId(idAnalysis);
+						acronyms.addAll(serviceDynamicParameter.findAcronymByAnalysisId(idAnalysis));
+						if (!(new StringExpressionParser((String) value)).isValid(acronyms))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null,
 									"Invalid expression. Check the syntax and make sure that all used parameters exist.", locale));
 					}
@@ -1034,7 +1057,7 @@ public class ControllerEditField {
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 
 				// retrieve parameters
-				List<SimpleParameter> simpleParameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				List<SimpleParameter> simpleParameters = serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, idAnalysis);
 
 				// retrieve single parameters
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -1046,7 +1069,7 @@ public class ControllerEditField {
 				for (IParameter parameter : simpleParameters) {
 
 					// find the parameter
-					if (Math.abs(parameter.getValue() - value) < 1e-5) {
+					if (Math.abs(parameter.getValue().doubleValue() - value) < 1e-5) {
 
 						// set new implementation rate
 						measure.setImplementationRate(parameter);
@@ -1091,7 +1114,7 @@ public class ControllerEditField {
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 				Object value = null;
 				if (measure instanceof MaturityMeasure)
-					value = serviceParameter.getFromAnalysisById(idAnalysis, (Integer) FieldValue(fieldEditor));
+					value = serviceSimpleParameter.findOne((Integer) FieldValue(fieldEditor), idAnalysis);
 				else
 					value = FieldValue(fieldEditor);
 				measure.setImplementationRate(value);

@@ -1,24 +1,20 @@
 package lu.itrust.business.TS.controller;
 
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_LEG;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_LEG_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_OPE;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_OPE_NAME;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_REP;
-import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_IMPACT_REP_NAME;
 import static lu.itrust.business.TS.constants.Constant.PHASE_DEFAULT;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,15 +41,18 @@ import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
+import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.database.service.ServiceParameter;
-import lu.itrust.business.TS.database.service.ServiceParameterType;
+import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceMaturityParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
@@ -72,10 +71,14 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
-import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
+import lu.itrust.business.TS.model.parameter.helper.Bounds;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.value.impl.AbstractValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
+import lu.itrust.business.TS.model.scale.Scale;
+import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.usermanagement.User;
@@ -128,7 +131,19 @@ public class ControllerAnalysisCreate {
 	private ServiceScenario serviceScenario;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
+	private ServiceDynamicParameter serviceDynamicParameter;
+
+	@Autowired
+	private ServiceImpactParameter serviceImpactParameter;
+
+	@Autowired
+	private ServiceMaturityParameter serviceMaturityParameter;
+
+	@Autowired
+	private ServiceSimpleParameter serviceSimpleParameter;
+
+	@Autowired
+	private ServiceLikelihoodParameter serviceLikelihoodParameter;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -144,9 +159,6 @@ public class ControllerAnalysisCreate {
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
-
-	@Autowired
-	private ServiceParameterType serviceParameterType;
 
 	@Autowired
 	private ServiceScaleType serviceScaleType;
@@ -184,9 +196,12 @@ public class ControllerAnalysisCreate {
 		try {
 			if (!serviceDataValidation.isRegistred(AnalysisForm.class))
 				serviceDataValidation.register(new CustomAnalysisValidator());
+
 			Map<String, String> errors = serviceDataValidation.validate(analysisForm);
 			for (String error : errors.keySet())
 				errors.put(error, serviceDataValidation.ParseError(errors.get(error), messageSource, locale));
+
+			analysisForm.getImpacts().removeIf(id -> id < 1);
 
 			int defaultProfileId = analysisForm.getProfile() < 1 ? serviceAnalysis.getDefaultProfileId() : analysisForm.getProfile();
 
@@ -329,7 +344,23 @@ public class ControllerAnalysisCreate {
 			for (RiskInformation riskInformation : riskInformations)
 				analysis.add(riskInformation.duplicate());
 
-			Map<String, IParameter> mappingParameters = generateParameters(analysis, serviceParameter.getAllFromAnalysis(analysisForm.getParameter()), analysisForm.getType());
+			Map<String, IParameter> mappingParameters = serviceSimpleParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
+					.collect(Collectors.toMap(IParameter::getKey, Function.identity()));
+
+			mappingParameters.putAll(serviceMaturityParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
+					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
+
+			mappingParameters.putAll(serviceLikelihoodParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
+					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
+
+			mappingParameters.putAll(serviceDynamicParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
+					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
+
+			if (analysisForm.getImpacts().isEmpty())
+				mappingParameters.putAll(serviceImpactParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
+						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
+			else
+				analysisForm.getImpacts().forEach(generateImpactParameters(analysis, mappingParameters, analysisForm.getScale()));
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
 
@@ -359,6 +390,12 @@ public class ControllerAnalysisCreate {
 						Assessment duplication = assessment.duplicate();
 						duplication.setScenario(mappingScenarios.get(assessment.getScenario().getId()));
 						duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
+						duplication.setImpacts(new LinkedList<>());
+						assessment.getImpacts().forEach(impact -> {
+							AbstractValue value = (AbstractValue) impact.duplicate();
+							value.setParameter((ILevelParameter) mappingParameters.get(value.getParameter().getKey()));
+							duplication.setImpact(value);
+						});
 						analysis.add(duplication);
 					}
 				}
@@ -398,12 +435,12 @@ public class ControllerAnalysisCreate {
 					for (AnalysisStandard analysisStandard : serviceAnalysisStandard.getAllFromAnalysis(standardBaseInfo.getIdAnalysis()))
 						analysis.add(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, mappingAssets, false));
 				} else
-					analysis.add(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
-							mappingParameters, mappingAssets, false));
+					analysis.add(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases, mappingParameters,
+							mappingAssets, false));
 			} else {
 				for (AnalysisStandardBaseInfo standardBaseInfo : analysisForm.getStandards())
-					analysis.add(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases,
-							mappingParameters, mappingAssets, false));
+					analysis.add(duplicator.duplicateAnalysisStandard(serviceAnalysisStandard.get(standardBaseInfo.getIdAnalysisStandard()), mappingPhases, mappingParameters,
+							mappingAssets, false));
 			}
 
 			while (serviceAnalysis.countByIdentifier(analysis.getIdentifier()) > 1)
@@ -421,50 +458,73 @@ public class ControllerAnalysisCreate {
 		}
 	}
 
-	private Map<String, IParameter> generateParameters(Analysis analysis, List<IParameter> parameters, AnalysisType analysisType) {
-		if (analysisType == AnalysisType.QUALITATIVE) {
-			Map<String, IParameter> mappedParameters = new LinkedHashMap<>(parameters.size());
-			// List<IParameter> finParameters = new LinkedList<>();
-			// boolean[] presents = { true, true, true };// leg,ope,rep
-			/*
-			 * parameters.stream().map(parameter ->
-			 * parameter.duplicate()).filter(analysis::addAParameter).forEach(
-			 * parameter -> { switch (parameter.) { case
-			 * PARAMETERTYPE_TYPE_IMPACT_NAME: finParameters.add(parameter);
-			 * break; case PARAMETERTYPE_TYPE_IMPACT_LEG_NAME: presents[0] &=
-			 * false; break; case PARAMETERTYPE_TYPE_IMPACT_OPE_NAME:
-			 * presents[1] &= false; break; case
-			 * PARAMETERTYPE_TYPE_IMPACT_REP_NAME: presents[2] &= false; }
-			 * mappedParameters.put(parameter.getKey(), parameter); });
-			 * 
-			 * if (presents[2]) copyExtendedParameters(analysis, finParameters,
-			 * mappedParameters, PARAMETERTYPE_TYPE_IMPACT_REP,
-			 * PARAMETERTYPE_TYPE_IMPACT_REP_NAME); if (presents[1])
-			 * copyExtendedParameters(analysis, finParameters, mappedParameters,
-			 * PARAMETERTYPE_TYPE_IMPACT_OPE,
-			 * PARAMETERTYPE_TYPE_IMPACT_OPE_NAME); if (presents[0])
-			 * copyExtendedParameters(analysis, finParameters, mappedParameters,
-			 * PARAMETERTYPE_TYPE_IMPACT_LEG,
-			 * PARAMETERTYPE_TYPE_IMPACT_LEG_NAME);
-			 */
-			return mappedParameters;
-		} else
-			return parameters.stream()
-					.filter(parameter -> !(parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME) || parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME)
-							|| parameter.isMatch(PARAMETERTYPE_TYPE_IMPACT_REP_NAME)))
-					.map(IParameter::duplicate).filter(analysis::add).collect(Collectors.toMap(IParameter::getKey, Function.identity()));
+	private Consumer<? super Integer> generateImpactParameters(Analysis analysis, Map<String, IParameter> mappingParameters, Scale scale) {
+		return id -> {
+			ScaleType scaleType = serviceScaleType.findOne(id);
+			List<ImpactParameter> impacts = new ArrayList<>(scale.getLevel());
+			double currentValue = scale.getMaxValue() * 1000;
+			if (scale.getLevel() % 2 == 0) {
+				for (int level = scale.getLevel() - 1; level >= 0; level--) {
+					if (impacts.isEmpty())
+						impacts.add(new ImpactParameter(scaleType, level, scaleType.getAcronym() + level, currentValue));
+					else
+						impacts.add(new ImpactParameter(scaleType, level, scaleType.getAcronym() + level, currentValue *= 0.5));
+				}
+				Collections.reverse(impacts);
+				for (int level = 0, maxLevel = scale.getLevel() - 1; level < scale.getLevel(); level++) {
+					if (level == 0) {
+						ImpactParameter current = impacts.get(level);
+						if (level == maxLevel)
+							current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
+						else
+							current.setBounds(new Bounds(0, Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
+					} else if (level == maxLevel)
+						impacts.get(level).setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+					else {
+						ImpactParameter current = impacts.get(level);
+						current.setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
+					}
+				}
+			} else {
+				ImpactParameter prev = null;
+				for (int level = scale.getLevel() - 2; level > 0; level -= 2) {
+					ImpactParameter current = new ImpactParameter(scaleType, level, scaleType.getAcronym() + level),
+							next = prev == null ? new ImpactParameter(scaleType, level + 1, scaleType.getAcronym() + (level + 1), currentValue) : prev;
+					if (prev == null)
+						impacts.add(next);
+					prev = new ImpactParameter(scaleType, level - 1, scaleType.getAcronym() + (level - 1));
+					prev.setValue(currentValue *= 0.5);
+					impacts.add(current);
+					impacts.add(prev);
+					current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
+				}
+				Collections.reverse(impacts);
+				for (int level = 1, maxLevel = scale.getLevel() - 1; level < maxLevel; level += 2) {
+					ImpactParameter current = impacts.get(level), next = impacts.get(level + 1);
+					prev = impacts.get(level - 1);
+					if (prev.getLevel() == 0)
+						prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() * prev.getValue())));
+					else
+						prev.setBounds(new Bounds(prev.getBounds().getFrom(), Math.sqrt(current.getValue() * prev.getValue())));
+
+					current.setBounds(new Bounds(prev.getBounds().getTo(), Math.sqrt(current.getValue() * next.getValue())));
+
+					next.setBounds(new Bounds(current.getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+				}
+			}
+			impacts.forEach(parameter -> {
+				analysis.add(parameter);
+				mappingParameters.put(parameter.getKey(), parameter);
+			});
+		};
 	}
 
-	private void copyExtendedParameters(Analysis analysis, List<SimpleParameter> simpleParameters, Map<String, SimpleParameter> mappedParameters, int id, String type) {
-		ParameterType parameterType = serviceParameterType.getByName(type);
-		if (parameterType == null)
-			parameterType = new ParameterType(type);
-		for (IParameter simpleParameter : simpleParameters) {
-			IParameter clone = simpleParameter.clone();
-			clone.setType(parameterType);
-			mappedParameters.put(clone.getKey(), clone);
+	private Function<? super IParameter, ? extends IParameter> duplicateParameter(Analysis analysis) {
+		return parameter -> {
+			IParameter clone = parameter.duplicate();
 			analysis.add(clone);
-		}
+			return clone;
+		};
 	}
 
 	private String generateStandardLog(String baseAnalysis, AnalysisForm analysisForm, int defaultProfileId, Locale analysisLocale) throws Exception {

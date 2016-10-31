@@ -81,5 +81,7 @@ public class SimpleParameter extends Parameter implements ITypedParameter {
 	public String getGroup() {
 		return Constant.PARAMETER_CATEGORY_SIMPLE;
 	}
+	
+	
 
 }

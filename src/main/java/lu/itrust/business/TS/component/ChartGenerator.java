@@ -28,10 +28,11 @@ import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
+import lu.itrust.business.TS.database.dao.DAODynamicParameter;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
-import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.dao.DAOScenario;
+import lu.itrust.business.TS.database.dao.DAOSimpleParameter;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.exception.TrickException;
@@ -95,7 +96,10 @@ public class ChartGenerator {
 	private DAOAssetType daoAssetType;
 
 	@Autowired
-	private DAOParameter daoParameter;
+	private DAODynamicParameter daoDynamicParameter;
+
+	@Autowired
+	private DAOSimpleParameter daoSimpleParameter;
 
 	@Autowired
 	private DAOAnalysisStandard daoAnalysisStandard;
@@ -518,7 +522,7 @@ public class ChartGenerator {
 
 		List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
 
-		ValueFactory factory = new ValueFactory(daoParameter.findAllDynamicByAnalysisId(idAnalysis));
+		ValueFactory factory = new ValueFactory(daoDynamicParameter.findByAnalysisId(idAnalysis));
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, factory);
 
@@ -1130,7 +1134,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		IParameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
@@ -1165,7 +1169,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAsset> computeRRFByAssetMeasure(AssetMeasure measure, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		IParameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAsset> rrfs = new LinkedHashMap<String, RRFAsset>(measure.getMeasureAssetValues().size());
 		if (measure.getMeasureAssetValues().size() == 0)
 			throw new TrickException("error.rrf.measure.no_assets", "The measure " + measure.getMeasureDescription().getReference() + " does not have any assets attributed!",
@@ -1193,7 +1197,7 @@ public class ChartGenerator {
 	}
 
 	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis) throws Exception {
-		IParameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
 		if (scenario.getAssetTypeValues().size() == 0)
 			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!",
