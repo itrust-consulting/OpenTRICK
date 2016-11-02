@@ -8,7 +8,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,7 +72,6 @@ import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.helper.Bounds;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.value.impl.AbstractValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -201,20 +199,18 @@ public class ControllerAnalysisCreate {
 			for (String error : errors.keySet())
 				errors.put(error, serviceDataValidation.ParseError(errors.get(error), messageSource, locale));
 
+			analysisForm.updateProfile();
+
 			analysisForm.getImpacts().removeIf(id -> id < 1);
-
-			int defaultProfileId = analysisForm.getProfile() < 1 ? serviceAnalysis.getDefaultProfileId() : analysisForm.getProfile();
-
-			analysisForm.setDefaultProfile(defaultProfileId);
 
 			if (analysisForm.getAsset() > 0 && !serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getAsset(), principal.getName(), AnalysisRight.EXPORT))
 				errors.put("asset", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (analysisForm.getScenario() > 0 && !(analysisForm.getScenario() == defaultProfileId
+			if (analysisForm.getScenario() > 0 && !(analysisForm.getScenario() == analysisForm.getProfile()
 					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScenario(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("scenario", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			validateStandards(analysisForm.getStandards(), errors, principal, defaultProfileId, locale);
+			validateStandards(analysisForm.getStandards(), errors, principal, analysisForm.getProfile(), locale);
 
 			if (analysisForm.isAssessment()
 					&& (analysisForm.getScenario() < 1 || analysisForm.getScenario() != analysisForm.getAsset() || analysisForm.getParameter() != analysisForm.getAsset()))
@@ -224,15 +220,27 @@ public class ControllerAnalysisCreate {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("scope", messageSource.getMessage("error.analysis_custom.scope.empty", null, "No default profile, scope cannot be empty", locale));
-			} else if (!(analysisForm.getScope() == defaultProfileId
+			} else if (!(analysisForm.getScope() == analysisForm.getProfile()
 					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getScope(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+			if (!analysisForm.getImpacts().isEmpty()) {
+				if (analysisForm.getScale() == null) {
+					errors.put("scale.level", messageSource.getMessage("error.scale.level.empty", null, "Level cannot be empty", locale));
+					errors.put("scale.maxValue", messageSource.getMessage("error.scale.max_value.empty", null, "Max value cannot be empty", locale));
+				} else {
+					if (analysisForm.getScale().getLevel() < 2)
+						errors.put("scale.level", messageSource.getMessage("error.scale.level.bad_value", new Object[] { 2 }, "Level must be 2 or great", locale));
+					if (analysisForm.getScale().getMaxValue() < 1)
+						errors.put("scale.maxValue", messageSource.getMessage("error.scale.max_value.bad_value", new Object[] { 1 }, "Max value must be 1 or great", locale));
+				}
+			}
 
 			if (analysisForm.getParameter() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("parameter", messageSource.getMessage("error.analysis_custom.parameter.empty", null, "No default profile, parameter cannot be empty", locale));
-			} else if (!(analysisForm.getParameter() == defaultProfileId
+			} else if (!(analysisForm.getParameter() == analysisForm.getProfile()
 					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getParameter(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("parameter", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
@@ -241,7 +249,7 @@ public class ControllerAnalysisCreate {
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("riskInformation",
 						messageSource.getMessage("error.analysis_custom.risk_information.empty", null, "No default profile, risk information cannot be empty", locale));
-			} else if (!(analysisForm.getRiskInformation() == defaultProfileId
+			} else if (!(analysisForm.getRiskInformation() == analysisForm.getProfile()
 					|| serviceUserAnalysisRight.hasRightOrOwner(analysisForm.getRiskInformation(), principal.getName(), AnalysisRight.EXPORT)))
 				errors.put("riskInformation", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
@@ -295,7 +303,7 @@ public class ControllerAnalysisCreate {
 						String.format("Assets based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (analysisForm.getScenario() > 1 && analysisForm.getScenario() != defaultProfileId) {
+			if (analysisForm.getScenario() > 1 && analysisForm.getScenario() != analysisForm.getProfile()) {
 				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getScenario());
 				String label = serviceAnalysis.getLabelFromId(analysisForm.getScenario());
 				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getScenario());
@@ -309,7 +317,7 @@ public class ControllerAnalysisCreate {
 							String.format("Risk profile based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (analysisForm.getParameter() > 1 && analysisForm.getParameter() != defaultProfileId) {
+			if (analysisForm.getParameter() > 1 && analysisForm.getParameter() != analysisForm.getProfile()) {
 				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getParameter());
 				String label = serviceAnalysis.getLabelFromId(analysisForm.getParameter());
 				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getParameter());
@@ -317,7 +325,7 @@ public class ControllerAnalysisCreate {
 						String.format("Parameters based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (analysisForm.getRiskInformation() > 1 && analysisForm.getRiskInformation() != defaultProfileId) {
+			if (analysisForm.getRiskInformation() > 1 && analysisForm.getRiskInformation() != analysisForm.getProfile()) {
 				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getRiskInformation());
 				String label = serviceAnalysis.getLabelFromId(analysisForm.getRiskInformation());
 				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getRiskInformation());
@@ -325,7 +333,7 @@ public class ControllerAnalysisCreate {
 						String.format("Risk information based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			if (analysisForm.getScope() > 1 && analysisForm.getScope() != defaultProfileId) {
+			if (analysisForm.getScope() > 1 && analysisForm.getScope() != analysisForm.getProfile()) {
 				String company = serviceAnalysis.getCustomerNameFromId(analysisForm.getScope());
 				String label = serviceAnalysis.getLabelFromId(analysisForm.getScope());
 				String version = serviceAnalysis.getVersionOfAnalysis(analysisForm.getScope());
@@ -333,7 +341,7 @@ public class ControllerAnalysisCreate {
 						String.format("Scope based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
-			baseAnalysis = generateStandardLog(baseAnalysis, analysisForm, defaultProfileId, analysisLocale);
+			baseAnalysis = generateStandardLog(baseAnalysis, analysisForm, analysisForm.getProfile(), analysisLocale);
 
 			history.setComment(history.getComment() + baseAnalysis);
 			List<ItemInformation> itemInformations = serviceItemInformation.getAllFromAnalysis(analysisForm.getScope());
@@ -431,7 +439,7 @@ public class ControllerAnalysisCreate {
 
 			if (analysisForm.getStandards().size() == 1) {
 				AnalysisStandardBaseInfo standardBaseInfo = analysisForm.getStandards().get(0);
-				if (standardBaseInfo.getIdAnalysis() == defaultProfileId && standardBaseInfo.getIdAnalysisStandard() < 1) {
+				if (standardBaseInfo.getIdAnalysis() == analysisForm.getProfile() && standardBaseInfo.getIdAnalysisStandard() < 1) {
 					for (AnalysisStandard analysisStandard : serviceAnalysisStandard.getAllFromAnalysis(standardBaseInfo.getIdAnalysis()))
 						analysis.add(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, mappingAssets, false));
 				} else
@@ -470,21 +478,6 @@ public class ControllerAnalysisCreate {
 					else
 						impacts.add(new ImpactParameter(scaleType, level, scaleType.getAcronym() + level, currentValue *= 0.5));
 				}
-				Collections.reverse(impacts);
-				for (int level = 0, maxLevel = scale.getLevel() - 1; level < scale.getLevel(); level++) {
-					if (level == 0) {
-						ImpactParameter current = impacts.get(level);
-						if (level == maxLevel)
-							current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
-						else
-							current.setBounds(new Bounds(0, Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
-					} else if (level == maxLevel)
-						impacts.get(level).setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
-					else {
-						ImpactParameter current = impacts.get(level);
-						current.setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
-					}
-				}
 			} else {
 				ImpactParameter prev = null;
 				for (int level = scale.getLevel() - 2; level > 0; level -= 2) {
@@ -498,20 +491,8 @@ public class ControllerAnalysisCreate {
 					impacts.add(prev);
 					current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
 				}
-				Collections.reverse(impacts);
-				for (int level = 1, maxLevel = scale.getLevel() - 1; level < maxLevel; level += 2) {
-					ImpactParameter current = impacts.get(level), next = impacts.get(level + 1);
-					prev = impacts.get(level - 1);
-					if (prev.getLevel() == 0)
-						prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() * prev.getValue())));
-					else
-						prev.setBounds(new Bounds(prev.getBounds().getFrom(), Math.sqrt(current.getValue() * prev.getValue())));
-
-					current.setBounds(new Bounds(prev.getBounds().getTo(), Math.sqrt(current.getValue() * next.getValue())));
-
-					next.setBounds(new Bounds(current.getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
-				}
 			}
+			ImpactParameter.ComputeScales(impacts);
 			impacts.forEach(parameter -> {
 				analysis.add(parameter);
 				mappingParameters.put(parameter.getKey(), parameter);

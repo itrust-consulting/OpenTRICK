@@ -23,6 +23,8 @@ public interface TemplateDAOService<T, ID extends Serializable> {
 	T merge(T entity);
 	
 	void saveOrUpdate(T entity);
+	
+	void saveOrUpdate(List<T> entities);
 
 	/**
 	 * Saves all given entities.
@@ -33,6 +35,8 @@ public interface TemplateDAOService<T, ID extends Serializable> {
 	 *             in case the given entity is (@literal null}.
 	 */
 	 List<ID> save(List<T> entities);
+	 
+	 
 
 	/**
 	 * Retrives an entity by its id.

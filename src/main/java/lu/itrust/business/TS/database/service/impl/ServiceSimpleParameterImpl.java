@@ -241,4 +241,10 @@ public class ServiceSimpleParameterImpl implements lu.itrust.business.TS.databas
 		return daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, type, description);
 	}
 
+	@Transactional
+	@Override
+	public void saveOrUpdate(List<SimpleParameter> entities) {
+		daoSimpleParameter.saveOrUpdate(entities);
+	}
+
 }

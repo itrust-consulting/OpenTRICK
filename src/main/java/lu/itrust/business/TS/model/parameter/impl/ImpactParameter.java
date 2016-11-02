@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.model.parameter.impl;
 
+import java.util.List;
+
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
@@ -75,14 +77,14 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	public ImpactParameter() {
 	}
 
-	public ImpactParameter(ScaleType type,int level, String acronym) {
+	public ImpactParameter(ScaleType type, int level, String acronym) {
 		setType(type);
 		setLevel(level);
 		setAcronym(acronym);
 	}
 
 	public ImpactParameter(ScaleType type, int level, String acronym, double value) {
-		this(type,level, acronym);
+		this(type, level, acronym);
 		setValue(value);
 	}
 
@@ -208,17 +210,36 @@ public class ImpactParameter extends Parameter implements ITypedParameter, IImpa
 	 * @param current
 	 * @param next
 	 */
-	public static void ComputeScales(ImpactParameter prev, ImpactParameter current, ImpactParameter next) {
-		// throw new
-		// TrickException("error.compute.scale.extended.parameter.bad.type",
-		// "Scales cannot only compute for probability and financial impact");
-		prev.setValue(Math.sqrt(current.getValue() * next.getValue()));
-		if (current.level == 0)
-			current.bounds = new Bounds(0, Math.sqrt(prev.getValue() * current.getValue()));
-		else
-			current.bounds = new Bounds(current.bounds.getFrom(), Math.sqrt(prev.getValue() * current.getValue()));
-		prev.bounds = new Bounds(current.bounds.getTo(), Math.sqrt(prev.getValue() * next.getValue()));
-		next.bounds = new Bounds(prev.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
+	public static void ComputeScales(List<ImpactParameter> impacts) {
+		impacts.sort((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()));
+		if (impacts.size() % 2 == 0) {
+			for (int level = 0, maxLevel = impacts.size() - 1; level < impacts.size(); level++) {
+				if (level == 0) {
+					ImpactParameter current = impacts.get(level);
+					if (level == maxLevel)
+						current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
+					else
+						current.setBounds(new Bounds(0, Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
+				} else if (level == maxLevel)
+					impacts.get(level).setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+				else {
+					ImpactParameter current = impacts.get(level);
+					current.setBounds(new Bounds(impacts.get(level - 1).getBounds().getTo(), Math.sqrt(current.getValue() * impacts.get(level + 1).getValue())));
+				}
+			}
+		} else {
+			ImpactParameter prev = null;
+			for (int level = 1, maxLevel = impacts.size() - 1; level < maxLevel; level += 2) {
+				ImpactParameter current = impacts.get(level), next = impacts.get(level + 1);
+				prev = impacts.get(level - 1);
+				if (prev.getLevel() == 0)
+					prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() * prev.getValue())));
+				else
+					prev.setBounds(new Bounds(prev.getBounds().getFrom(), Math.sqrt(current.getValue() * prev.getValue())));
+				current.setBounds(new Bounds(prev.getBounds().getTo(), Math.sqrt(current.getValue() * next.getValue())));
+				next.setBounds(new Bounds(current.getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+			}
+		}
 
 	}
 

@@ -39,7 +39,6 @@ import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManage
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -352,14 +351,9 @@ public class Duplicator {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
 			IParameter parameter = parameters.get(anonymize ? SimpleParameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, Constant.IS_NOT_ACHIEVED)
 					: ((MaturityMeasure) measure).getImplementationRate().getKey());
-			if (parameter == null) {
-				for (IParameter param : parameters.values()) {
-					if (param instanceof MaturityParameter && param.getValue().doubleValue() == 0) {
-						parameter = param;
-						break;
-					}
-				}
-			}
+			if (parameter == null)
+				parameter = parameters.values().stream().filter(param -> (param.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)
+						&& (param.getValue().doubleValue() == 0 || param.getDescription().equals(Constant.IS_NOT_ACHIEVED)))).findAny().orElse(null);
 
 			matmeasure.setImplementationRate(parameter);
 			if (anonymize) {
@@ -486,7 +480,7 @@ public class Duplicator {
 			// actionplans
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.actionplan", "Clear actionplans and summaries", 35));
 			copy.setActionPlans(null);
-			
+
 			copy.setSummaries(null);
 
 			// risk register
@@ -497,10 +491,10 @@ public class Duplicator {
 
 			// parameters
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
-			
+
 			copy.setParameters(new LinkedHashMap<>(analysis.getParameters().size()));
-			
-			copy.getParameters().forEach((group, parameterList) -> parameterList.stream().forEach(parameter -> {
+
+			analysis.getParameters().forEach((group, parameterList) -> parameterList.stream().forEach(parameter -> {
 				IParameter duplicate = parameter.duplicate();
 				copy.add(duplicate);
 				parameters.put(parameter.getKey(), duplicate);

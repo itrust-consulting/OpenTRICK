@@ -5,6 +5,7 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -24,6 +25,7 @@ import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 
 /**
  * @author eom
@@ -31,7 +33,7 @@ import lu.itrust.business.TS.model.parameter.IParameter;
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
-@RequestMapping("/Analysis/SimpleParameter")
+@RequestMapping("/Analysis/Parameter")
 public class ControllerParameter {
 
 	@Autowired
@@ -40,8 +42,10 @@ public class ControllerParameter {
 	@Autowired
 	private ServiceDynamicParameter serviceDynamicParameter;
 
+	@Autowired
 	private ServiceImpactParameter serviceImpactParameter;
 
+	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
 
 	@Autowired
@@ -70,6 +74,46 @@ public class ControllerParameter {
 	}
 
 	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Impact/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String impactSection(Model model, HttpSession session, Principal principal) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		List<ImpactParameter> parameters = serviceImpactParameter.findByAnalysisId(idAnalysis);
+		model.addAttribute("impactTypes", parameters.parallelStream().map(ImpactParameter::getType).distinct().collect(Collectors.toList()));
+		model.addAttribute("mappedParameters", Analysis.SplitParameters(parameters));
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
+		return "analyses/single/components/parameters/impact/home";
+	}
+
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Probability/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public String probabilitySection(Model model, HttpSession session, Principal principal) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		model.addAttribute("mappedParameters", Analysis.SplitParameters(serviceLikelihoodParameter.findByAnalysisId(idAnalysis)));
+		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
+		return "analyses/single/components/parameters/probability/home";
+	}
+
+	/**
 	 * maturityImplementationRate: <br>
 	 * Description
 	 * 
@@ -80,7 +124,6 @@ public class ControllerParameter {
 	 */
 	@RequestMapping(value = "/Maturity/ImplementationRate", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-
 	public @ResponseBody Object maturityImplementationRate(Model model, HttpSession session, Principal principal) throws Exception {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);

@@ -147,7 +147,7 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LikelihoodParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From LikelihoodParameter where id in (:ids) order by type, level").setParameterList("ids", ids).list();
+		return getSession().createQuery("From LikelihoodParameter where id in (:ids) order by level").setParameterList("ids", ids).list();
 	}
 
 	/*
@@ -219,8 +219,13 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LikelihoodParameter> findByAnalysisId(Integer idAnalysis) {
-		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.likelihoodParameters as parameter  where analysis.id = :idAnalysis order by parameter.level")
+		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.likelihoodParameters as parameter  where analysis.id = :idAnalysis order by parameter.level asc")
 		.setInteger("idAnalysis", idAnalysis).list();
+	}
+
+	@Override
+	public void saveOrUpdate(List<LikelihoodParameter> entities) {
+		entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
 }

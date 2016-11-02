@@ -165,4 +165,10 @@ public class ServiceDynamicParameterImpl implements ServiceDynamicParameter {
 		return daoDynamicParameter.findByAnalysisId(idAnalysis);
 	}
 
+	@Transactional
+	@Override
+	public void saveOrUpdate(List<DynamicParameter> entities) {
+		daoDynamicParameter.saveOrUpdate(entities);
+	}
+
 }

@@ -148,7 +148,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SimpleParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From SimpleParameter where id in (:ids) order by type, level").setParameterList("ids", ids).list();
+		return getSession().createQuery("From SimpleParameter where id in (:ids)").setParameterList("ids", ids).list();
 	}
 
 	/*
@@ -262,6 +262,11 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 				.createQuery(
 						"Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type and parameter.description = :description").setString("type", type)
 			.setParameter("description", description).setInteger("idAnalysis", idAnalysis).uniqueResult();
+	}
+
+	@Override
+	public void saveOrUpdate(List<SimpleParameter> entities) {
+		entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
 }

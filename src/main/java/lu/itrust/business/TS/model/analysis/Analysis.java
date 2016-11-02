@@ -2619,7 +2619,7 @@ public class Analysis implements Cloneable {
 	 */
 	public static Map<String, List<IParameter>> SplitParameters(List<? extends IParameter> parameters) {
 		Map<String, List<IParameter>> mappedParameters = new LinkedHashMap<>();
-		parameters.parallelStream().forEach(parameter -> {
+		parameters.stream().forEach(parameter -> {
 			List<IParameter> currentParameters = mappedParameters.get(parameter.getTypeName());
 			if (currentParameters == null)
 				mappedParameters.put(parameter.getTypeName(), currentParameters = new ArrayList<>());

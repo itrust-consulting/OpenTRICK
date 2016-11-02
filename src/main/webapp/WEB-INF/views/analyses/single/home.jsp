@@ -95,15 +95,10 @@
 	</c:if>
 	<script type="text/javascript">
 	<!--
+		application.analysisType = '${type}'
 		application.openMode = OPEN_MODE.valueOf('${open}');
-		application.isLinkedToProject = $
-		{
-			isLinkedToProject
-		};
-		application.hasMaturity = $
-		{
-			hasMaturity
-		};
+		application.isLinkedToProject = '${isLinkedToProject}';
+		application.hasMaturity = '${hasMaturity}';
 		-->
 	</script>
 </body>

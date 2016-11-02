@@ -16,21 +16,16 @@ public class ParameterManager {
 
 	/**
 	 * Sort + compute scales
+	 * 
 	 * @param parameters
 	 */
 	public static void ComputeImpactValue(List<ImpactParameter> parameters) {
-		parameters.sort((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()));
-		int limit = parameters.size() - 1;
-		for (int i = 0; i < limit; i++) {
-			if ((i % 2) != 0)
-				ImpactParameter.ComputeScales(parameters.get(i),
-						parameters.get(i - 1), parameters.get(i + 1));
-		}
-
+		ImpactParameter.ComputeScales(parameters);
 	}
-	
+
 	/**
 	 * Sort + compute scales
+	 * 
 	 * @param parameters
 	 */
 	public static void ComputeLikehoodValue(List<LikelihoodParameter> parameters) {
@@ -38,12 +33,9 @@ public class ParameterManager {
 		int limit = parameters.size() - 1;
 		for (int i = 0; i < limit; i++) {
 			if ((i % 2) != 0)
-				LikelihoodParameter.ComputeScales(parameters.get(i),
-						parameters.get(i - 1), parameters.get(i + 1));
+				LikelihoodParameter.ComputeScales(parameters.get(i), parameters.get(i - 1), parameters.get(i + 1));
 		}
 
 	}
 
-
-	
 }

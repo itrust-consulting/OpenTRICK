@@ -147,7 +147,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<DynamicParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From DynamicParameter where id in (:ids) order by type, level").setParameterList("ids", ids).list();
+		return getSession().createQuery("From DynamicParameter where id in (:ids)").setParameterList("ids", ids).list();
 	}
 
 	/*
@@ -221,6 +221,11 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	public List<DynamicParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.dynamicParameters as parameter where analysis.id = :idAnalysis")
 				.setInteger("idAnalysis", idAnalysis).list();
+	}
+
+	@Override
+	public void saveOrUpdate(List<DynamicParameter> entities) {
+		 entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
 }

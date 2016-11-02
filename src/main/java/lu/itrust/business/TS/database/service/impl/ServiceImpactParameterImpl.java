@@ -194,4 +194,10 @@ public class ServiceImpactParameterImpl implements ServiceImpactParameter {
 		return daoImpactParameter.findByAnalysisId(idAnalysis);
 	}
 
+	@Transactional
+	@Override
+	public void saveOrUpdate(List<ImpactParameter> entities) {
+		daoImpactParameter.saveOrUpdate(entities);
+	}
+
 }

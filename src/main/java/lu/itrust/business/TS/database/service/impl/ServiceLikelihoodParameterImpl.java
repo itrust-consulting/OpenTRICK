@@ -164,4 +164,10 @@ public class ServiceLikelihoodParameterImpl implements ServiceLikelihoodParamete
 		return daoLikelihoodParameter.findByAnalysisId(idAnalysis);
 	}
 
+	@Transactional
+	@Override
+	public void saveOrUpdate(List<LikelihoodParameter> entities) {
+		daoLikelihoodParameter.saveOrUpdate(entities);
+	}
+
 }

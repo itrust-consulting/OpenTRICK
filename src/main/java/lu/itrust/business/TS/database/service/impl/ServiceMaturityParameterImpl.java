@@ -197,4 +197,10 @@ public class ServiceMaturityParameterImpl implements ServiceMaturityParameter {
 		return daoMaturiyParameter.findByAnalysisId(idAnalysis);
 	}
 
+	@Transactional
+	@Override
+	public void saveOrUpdate(List<MaturityParameter> entities) {
+		daoMaturiyParameter.saveOrUpdate(entities);
+	}
+
 }

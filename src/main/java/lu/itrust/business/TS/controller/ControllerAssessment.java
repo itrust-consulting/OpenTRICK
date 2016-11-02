@@ -5,10 +5,9 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -31,6 +30,9 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
+import lu.itrust.business.TS.database.service.ServiceImpactParameter;
+import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
@@ -46,8 +48,8 @@ import lu.itrust.business.TS.model.cssf.EvaluationResult;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
-import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
@@ -73,6 +75,15 @@ public class ControllerAssessment {
 
 	@Autowired
 	private ServiceAsset serviceAsset;
+	
+	@Autowired
+	private ServiceImpactParameter serviceImpactParameter;
+	
+	@Autowired
+	private ServiceLikelihoodParameter serviceLikelihoodParameter;
+	
+	@Autowired
+	private ServiceDynamicParameter serviceDynamicParameter;
 
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
@@ -330,10 +341,10 @@ public class ControllerAssessment {
 			Asset asset = serviceAsset.get(elementID);
 
 			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-
+			
 			// retrieve parameters which are considered in the expression
 			// evaluation
-			ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
+			ValueFactory factory = new ValueFactory(loadParameters(idAnalysis));
 
 			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
@@ -362,6 +373,13 @@ public class ControllerAssessment {
 					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
 		}
 		return "redirect:/Error";
+	}
+
+	private List<ILevelParameter> loadParameters(Integer idAnalysis) {
+		List<ILevelParameter> parameters = new LinkedList<>(serviceImpactParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+		return parameters;
 	}
 
 	/**
@@ -412,7 +430,7 @@ public class ControllerAssessment {
 
 			// retrieve parameters which are considered in the expression
 			// evaluation
-			ValueFactory factory = new ValueFactory(serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis));
+			ValueFactory factory = new ValueFactory(loadParameters(idAnalysis));
 
 			model.addAttribute("valueFactory", factory);
 
@@ -455,18 +473,6 @@ public class ControllerAssessment {
 	}
 
 	/**
-	 * generateAcronymValueMatching: <br>
-	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @return
-	 * @throws Exception
-	 */
-	private Map<String, Double> generateKeyValueMatching(int idAnalysis) throws Exception {
-		return serviceParameter.findAllAcronymParameterByAnalysisId(idAnalysis).stream().collect(Collectors.toMap(IAcronymParameter::getKey, IAcronymParameter::getValue));
-	}
-
-	/**
 	 * assessmentByAsset: <br>
 	 * Description
 	 * 
@@ -485,7 +491,7 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("asset", asset);
-		model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
+		//model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
 		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
@@ -518,7 +524,7 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
-		model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
+		//model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
 		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);

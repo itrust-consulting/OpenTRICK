@@ -116,7 +116,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MaturityParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From MaturityParameter where id in (:ids) order by type, level").setParameterList("ids", ids).list();
+		return getSession().createQuery("From MaturityParameter where id in (:ids)").setParameterList("ids", ids).list();
 	}
 
 	/* (non-Javadoc)
@@ -164,6 +164,11 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	public List<MaturityParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession()
 		.createQuery("Select parameter From Analysis analysis inner join analysis.maturityParameters as parameter where analysis.id = :idAnalysis").setInteger("idAnalysis", idAnalysis).list();
+	}
+
+	@Override
+	public void saveOrUpdate(List<MaturityParameter> entities) {
+		entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
 }

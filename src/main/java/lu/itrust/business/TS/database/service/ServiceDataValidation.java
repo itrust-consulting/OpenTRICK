@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.context.MessageSource;
 
+import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**
@@ -38,4 +39,5 @@ public interface ServiceDataValidation {
 	public Map<String, String> validate(Object object);
 
 	public Map<String, String> validate(Object o, Map<Object, Object> choose);
+
 }

@@ -5,7 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
 <div class="tab-pane" id="tabParameterImpact">
-	<div class='section row' id='section_parameter_extended'>
+	<div class='section row' id='section_parameter_impact'>
 		<c:if test="${isEditable}">
 			<ul class="nav nav-pills bordered-bottom" id="menu_parameter_extended" style="margin-bottom: 10px;">
 				<li><a href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
@@ -35,6 +35,8 @@
 							</tr>
 						</thead>
 						<tbody>
+							<c:set var="length" value="${mappedParameters[type].size()-1}" />
+							<c:set var="AllEditable" value="${mappedParameters[type].size() mod 2 == 0}" />
 							<c:forEach items="${mappedParameters[type]}" var="parameter" varStatus="status">
 								<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
@@ -44,11 +46,11 @@
 									<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
 									<td data-trick-field="value" data-trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
-										${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber
+										${AllEditable or (parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber
 											value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
 									<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
 									<td class="textaligncenter"><c:choose>
-											<c:when test="${status.index!=10}">
+											<c:when test="${status.index!=length}">
 												<fmt:formatNumber value="${parameter.bounds.to*0.001}" maxFractionDigits="0" />
 											</c:when>
 											<c:otherwise>

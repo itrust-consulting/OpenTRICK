@@ -192,7 +192,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	public List<ImpactParameter> findByTypeAndAnalysisId(String type, Integer idAnalysis) {
 		return getSession()
 				.createQuery(
-						"Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis  parameter.type.name = :type order parameter.level")
+						"Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type order by parameter.level")
 				.setString("type", type).setInteger("idAnalysis", idAnalysis).list();
 	}
 
@@ -208,7 +208,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	public List<ImpactParameter> findByTypeAndAnalysisId(ScaleType type, Integer idAnalysis) {
 		return getSession()
 				.createQuery(
-						"Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis  parameter.type = :type order parameter.level")
+						"Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.type = :type order by parameter.level")
 				.setParameter("type", type).setInteger("idAnalysis", idAnalysis).list();
 	}
 
@@ -230,6 +230,11 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	public List<ImpactParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis order by parameter.level")
 				.setInteger("idAnalysis", idAnalysis).list();
+	}
+
+	@Override
+	public void saveOrUpdate(List<ImpactParameter> entities) {
+		entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
 	

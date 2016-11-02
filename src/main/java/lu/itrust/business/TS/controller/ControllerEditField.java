@@ -74,7 +74,9 @@ import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -87,7 +89,8 @@ import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.validator.AssessmentValidator;
 import lu.itrust.business.TS.validator.AssetValidator;
-import lu.itrust.business.TS.validator.ExtendedParameterValidator;
+import lu.itrust.business.TS.validator.BounedParameterValidator;
+
 import lu.itrust.business.TS.validator.HistoryValidator;
 import lu.itrust.business.TS.validator.MaturityParameterValidator;
 import lu.itrust.business.TS.validator.MeasureValidator;
@@ -152,9 +155,6 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceRiskInformation serviceRiskInformation;
-
-	@Autowired
-	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
 	private ServicePhase servicePhase;
@@ -263,7 +263,7 @@ public class ControllerEditField {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/SimpleParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Parameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String parameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
@@ -324,7 +324,7 @@ public class ControllerEditField {
 	}
 
 	/**
-	 * extendedParameter: <br>
+	 * Impact: <br>
 	 * Description
 	 * 
 	 * @param fieldEditor
@@ -334,75 +334,103 @@ public class ControllerEditField {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/ImpactParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'ImpactParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
+			throws Exception {
+		try {
+			// retrieve analysis id
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			// retrieve parameter
+			ImpactParameter parameter = serviceImpactParameter.findOne(elementID, idAnalysis);
+			// set validator and validate parameter
+			if (!serviceDataValidation.isRegistred(IBoundedParameter.class))
+				serviceDataValidation.register(new BounedParameterValidator());
+			// retireve value
+			Object value = FieldValue(fieldEditor, null);
+			// validate
+			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
+			// return error validation
+			if (error != null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+			// set field
+			Field field = FindField(ImpactParameter.class, fieldEditor.getFieldName());
+			if (field == null)
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+			field.setAccessible(true);
+			// set field data
+			if (SetFieldData(field, parameter, fieldEditor, null)) {
+				if ("value".equals(fieldEditor.getFieldName())) {
+					parameter.setValue(parameter.getValue() * 1000);
+					List<ImpactParameter> parameters = serviceImpactParameter.findByTypeAndAnalysisId(parameter.getType(), idAnalysis);
+					ImpactParameter.ComputeScales(parameters);
+					serviceImpactParameter.saveOrUpdate(parameters);
+				} else
+					serviceImpactParameter.saveOrUpdate(parameter);
+				// return success message
+				return JsonMessage.Success(messageSource.getMessage("success.impact.update", null, "Impact was successfully update", locale));
+			} else
+				// return error message
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			// return error
+			TrickLogManager.Persist(e);
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
+		}
+	}
+
+	/**
+	 * extendedParameter: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param session
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/LikelihoodParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'LikelihoodParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String likelihoodParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
 
 			// retrieve analysis id
-			Integer id = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve parameter
-			ImpactParameter parameter = (ImpactParameter) serviceParameter.findImpactParameterByIdAndAnalysisID(id, elementID);
-
-			String acronym = parameter.getAcronym();
+			LikelihoodParameter parameter = serviceLikelihoodParameter.findOne(elementID, idAnalysis);
 			// set validator and validate parameter
-			if (!serviceDataValidation.isRegistred(parameter.getClass()))
-				serviceDataValidation.register(new ExtendedParameterValidator());
-
+			if (!serviceDataValidation.isRegistred(IBoundedParameter.class))
+				serviceDataValidation.register(new BounedParameterValidator());
 			// retireve value
 			Object value = FieldValue(fieldEditor, null);
-
 			// validate
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
-
 			// return error validation
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
-
 			// set field
-			Field field = null;
-			for (Class<?> clazz = parameter.getClass(); SimpleParameter.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass()) {
-				try {
-					field = clazz.getDeclaredField(fieldEditor.getFieldName());
-					break;
-				} catch (NoSuchFieldException ex) {
-					// continue
-				}
-			}
+			Field field = FindField(LikelihoodParameter.class, fieldEditor.getFieldName());
+
+			if (field == null)
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			field.setAccessible(true);
 
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
-				if ("value".equals(fieldEditor.getFieldName()) && Constant.PARAMETERTYPE_TYPE_IMPACT_NAME.equalsIgnoreCase(parameter.getType().getName()))
+				if ("value".equals(fieldEditor.getFieldName())) {
 					parameter.setValue(parameter.getValue() * 1000);
-
-				if (field.getName().equals("acronym")) {
-					try {
-						assessmentAndRiskProfileManager.UpdateAcronym(id, parameter, acronym);
-					} catch (Exception e) {
-						TrickLogManager.Persist(e);
-						return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, parameter.getAcronym() },
-								"Assessment acronym (" + acronym + ") cannot be updated to (" + parameter.getAcronym() + ")", locale));
-					}
-				}
-				// update field
-				serviceParameter.saveOrUpdate(parameter);
-
-				// Update bounds for IMPACT and PROBABILITY
-				if (parameter.getType().getName().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
-						|| parameter.getType().getName().equalsIgnoreCase(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
-					// retrieve parameters
-					List<? extends IBoundedParameter> parameters = serviceParameter.findBoundedParameterByAnalysisId(id);
-
-					// update impact value
-					ParameterManager.ComputeImpactValue(parameters);
-
-					// update parameters
-					serviceParameter.saveOrUpdate(parameters);
-				}
+					List<LikelihoodParameter> parameters = serviceLikelihoodParameter.findByAnalysisId(idAnalysis);
+					ParameterManager.ComputeLikehoodValue(parameters);
+					serviceLikelihoodParameter.saveOrUpdate(parameters);
+				} else
+					serviceLikelihoodParameter.saveOrUpdate(parameter);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.extendedParameter.update", null, "SimpleParameter was successfully update", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.likelihood.update", null, "Likelihood was successfully update", locale));
 			} else
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -593,26 +621,22 @@ public class ControllerEditField {
 				serviceDataValidation.register(new AssessmentValidator());
 			boolean computeAle = false;
 			// retrieve all acronyms of impact and likelihood
-			Object[] chooses = null;
+			List<Object> chooses = new LinkedList<>();
 			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName())) {
-				String name = fieldEditor.getFieldName().replaceAll("impact|Fin", "").toUpperCase();
-				List<String> impacts = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME + (name.isEmpty() ? "" : "_") + name).stream()
-						.filter(parameter -> parameter.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-						.map(parameter -> ((IAcronymParameter) parameter).getAcronym()).collect(Collectors.toList());
-				if (!impacts.contains(fieldEditor.getValue())) {
+				chooses = serviceImpactParameter.findByAnalysisId(idAnalysis).stream().map(ImpactParameter::getAcronym).collect(Collectors.toList());
+				if (!chooses.contains(fieldEditor.getValue())) {
 					try {
 						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
 						if (value < 0)
 							return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
 						fieldEditor.setValue(value + "");
 					} catch (ParseException e) {
-						chooses = impacts.toArray();
 					}
-				} else
-					chooses = impacts.toArray();
+				}
 				computeAle = true;
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
-				chooses = serviceParameter.findExpressionParameterByAnalysis(idAnalysis).stream().map(AbstractProbability::getAcronym).toArray();
+				chooses = serviceLikelihoodParameter.findByAnalysisId(idAnalysis).stream().map(LikelihoodParameter::getAcronym).collect(Collectors.toList());
+				chooses.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis).stream().map(DynamicParameter::getAcronym).collect(Collectors.toList()));
 				if (fieldEditor.getValue().equals("NA"))
 					fieldEditor.setValue("0");
 				computeAle = true;

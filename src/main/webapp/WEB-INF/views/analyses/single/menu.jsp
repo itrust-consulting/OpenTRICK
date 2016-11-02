@@ -133,7 +133,6 @@
 						</a></li>
 					</c:if>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
-					<%-- <li><a href="#" onclick="return exportAnalysis('${analysis.id}');"> <spring:message code="label.sqlite_data" /></a></li> --%>
 					<li class="divider"></li>
 				</c:if>
 			</c:if>

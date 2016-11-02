@@ -48,10 +48,10 @@ public class ValueFactory {
 	}
 
 	public ValueFactory(Map<String, List<? extends IParameter>> parameters) {
-		parameters.entrySet().parallelStream()
+		parameters.entrySet().stream()
 				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_CATEGORY_IMPACT) || entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_DYNAMIC)
 						|| entry.getKey().equals(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD))
-				.flatMap(entry -> entry.getValue().parallelStream()).forEach(parameter -> add(parameter));
+				.flatMap(entry -> entry.getValue().stream()).forEach(parameter -> add(parameter));
 	}
 
 	private void add(IParameter parameter) {

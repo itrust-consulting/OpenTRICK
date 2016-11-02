@@ -582,6 +582,14 @@ function customAnalysis(element) {
 												this.assessmentDisable || this.analysisType != 'QUALITATIVE');
 										$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", this.analysisType == 'QUALITATIVE');
 										$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType + "']").trigger("click");
+										var type = this.analysisType;
+										$modalBody.find("select[name='profile']").val("-1").find("option[value!='-1']").each(function() {
+											if (this.getAttribute("data-type") == type)
+												this.removeAttribute("hidden");
+											else
+												this.setAttribute("hidden", "hidden")
+										});
+
 										$analysisSelector.trigger("change");
 										return this.checkParameter();
 									},
@@ -845,8 +853,13 @@ function customAnalysis(element) {
 														case "version":
 														case "assessment":
 														case "profile":
+														case "impacts":
+														case "scale.level":
 														case "name":
 															$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent());
+															break;
+														case "scale.maxValue":
+															$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent().parent());
 															break;
 														case "riskInformation":
 														case "scope":

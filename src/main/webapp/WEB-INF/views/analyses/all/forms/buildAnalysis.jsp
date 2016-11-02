@@ -43,7 +43,7 @@
 								</label>
 								<div class="col-sm-10">
 									<select class="form-control" name="customer" required="required">
-										<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
+										<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." />
 											<c:forEach items="${customers}" var="customer">
 												<option value="${customer.id}">${customer.organisation}</option>
 											</c:forEach>
@@ -55,7 +55,7 @@
 								</label>
 								<div class="col-sm-10">
 									<select name="language" class="form-control" required="required">
-										<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
+										<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." />
 											<c:forEach items="${languages}" var="language">
 												<option value="${language.id}">${language.name}</option>
 											</c:forEach>
@@ -66,10 +66,10 @@
 								<label for="profile" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile_analysis" text="Profile" />
 								</label>
 								<div class="col-sm-10">
-									<select name="profile" id="analysis_profile" class="form-control">
-										<option value="-1"><spring:message code="label.action.choose.analysis_profile" text="Choose..." /></option>
+									<select name="profile" id="analysis_profile" class="form-control" required="required">
+										<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose.analysis_profile" text="Choose..." /></option>
 										<c:forEach items="${profiles}" var="profile">
-											<option value="${profile.id }" data-default='${profile.defaultProfile}' data-type='${profile.type}'><spring:message text="${profile.label}" /></option>
+											<option value="${profile.id }" data-type='${profile.type}'><spring:message text="${profile.label}" /></option>
 										</c:forEach>
 									</select>
 								</div>
@@ -122,7 +122,7 @@
 								<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.impacts" text="Impacts" /></label>
 								<div class="col-sm-10">
 									<select name="impacts" id="analysis_impacts" class="form-control" multiple="multiple" style="height: 70px; resize: vertical;">
-										<option value="-1" selected="selected"><spring:message code="label.select.impact" text="From profile (Default)" /></option>
+										<option value="-1" selected="selected"><spring:message code="label.select.impact" text="From profile" /></option>
 										<c:forEach items="${impacts}" var="impact">
 											<option value="${impact.id}"><spring:message code="label.impact.type.${fn:toLowerCase(impact.name)}"
 													text="${empty impact.translations[locale]? impact.displayName :  impact.translations[locale]}" /></option>

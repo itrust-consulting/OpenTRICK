@@ -96,7 +96,6 @@ function reloadSection(section, subSection, refreshOnly) {
 function findControllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Analysis/Asset/Section",
-		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
 		"section_scenario" : "/Analysis/Scenario/Section",
 		"section_phase" : "/Analysis/Phase/Section",
 		"section_analysis" : "/Analysis/Section",
@@ -111,7 +110,10 @@ function findControllerBySection(section, subSection) {
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
 		"section_soa" : "/Analysis/Standard/SOA",
 		"section_ids" : "/Admin/IDS/Section",
-		"section_kb_scale_type" : "/KnowledgeBase/ScaleType"
+		"section_kb_scale_type" : "/KnowledgeBase/ScaleType",
+		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
+		"section_parameter_probability" : "/Analysis/Parameter/Probability/Section",
+		"section_parameter_impact" : "/Analysis/Parameter/Impact/Section"
 
 	};
 

@@ -10,6 +10,7 @@ function Application() {
 	this.localesMessages = {};
 	this.fixedOffset = 0
 	this.shownScrollTop = true;
+	this.analysisType='';
 }
 
 if (!String.prototype.capitalize) {
@@ -444,8 +445,6 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 		else
 			$item.parent().parent().removeClass("info");
 	}
-	console.log("#section_" + sectionName)
-	console.log("#menu_" + sectionName)
 	updateMenu(undefined, "#section_" + sectionName, "#menu_" + sectionName, appModalVar);
 	return false;
 }

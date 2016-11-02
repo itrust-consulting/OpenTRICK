@@ -186,23 +186,21 @@ public class AnalysisForm {
 		return new History(version, new Timestamp(System.currentTimeMillis()), author, comment);
 	}
 
-	public void setDefaultProfile(int defaultProfileId) {
-		if (profile < 1)
-			profile = defaultProfileId;
+	public void updateProfile() {
 		if (scope < 1)
-			scope = defaultProfileId;
+			scope = profile;
 		if (riskInformation < 1)
-			riskInformation = defaultProfileId;
+			riskInformation = profile;
 		if (parameter < 1)
-			parameter = defaultProfileId;
+			parameter = profile;
 		if (standards == null || standards.isEmpty()) {
 			if (standards == null)
 				standards = new LinkedList<AnalysisStandardBaseInfo>();
-			standards.add(new AnalysisStandardBaseInfo(defaultProfileId));
+			standards.add(new AnalysisStandardBaseInfo(profile));
 		}
 
 		if (scenario < 1)
-			scenario = defaultProfileId;
+			scenario = profile;
 	}
 
 	public int getProfile() {

@@ -27,9 +27,9 @@
 				</tr>
 			</thead>
 			<tbody>
-
+				<c:set var="length" value="${mappedParameters[IMPACT].size()-1}" />
 				<c:forEach items="${mappedParameters['IMPACT'] }" var="parameter" varStatus="status">
-					<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
+					<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
 						<!--<td>${itemInformation.id}</td>-->
 						<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 						<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
@@ -41,7 +41,7 @@
 								value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
 						<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
 						<td class="textaligncenter"><c:choose>
-								<c:when test="${status.index!=mappedParameters['IMPACT'].size()-1}">
+								<c:when test="${status.index != length}">
 									<fmt:formatNumber value="${parameter.bounds.to*0.001}" maxFractionDigits="0" />
 								</c:when>
 								<c:otherwise>

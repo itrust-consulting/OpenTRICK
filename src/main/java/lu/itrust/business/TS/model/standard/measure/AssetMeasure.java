@@ -244,7 +244,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof String) && !(implementationRate instanceof Double))
+		if (!(implementationRate instanceof String || implementationRate instanceof Double))
 			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
 		super.setImplementationRate(implementationRate.toString());
 	}
@@ -258,7 +258,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
 	 */
-	public void setImplementationRate(double implementationRate) throws TrickException {
+	public void setImplementationRate(String implementationRate) throws TrickException {
 		super.setImplementationRate(implementationRate);
 	}
 

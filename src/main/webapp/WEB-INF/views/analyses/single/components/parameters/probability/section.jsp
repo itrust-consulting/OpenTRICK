@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<div class="col-md-${type=='QUANTITATIVE' ? '6' : '12' }">
+<div class="${type=='QUANTITATIVE' ? 'col-md-6' : 'col-lg-6' }">
 	<fieldset id="Scale_Probability">
 		<legend>
 			<spring:message code="label.parameter.extended.probability" />
@@ -20,12 +20,12 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr data-trick-class="ExtendedParameter" hidden="true">
+				<tr data-trick-class="LikelihoodParameter" hidden="true">
 					<td data-trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
 					<td data-trick-field="value" colspan="3">0</td>
 				</tr>
 				<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
-					<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
+					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
 						<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 						<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 								text="${parameter.acronym}" /></td>
