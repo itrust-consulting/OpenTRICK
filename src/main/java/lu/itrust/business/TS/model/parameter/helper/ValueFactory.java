@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -44,7 +45,7 @@ public class ValueFactory {
 	private Map<String, Map<String, IImpactParameter>> impactMapper;
 
 	public ValueFactory(List<? extends IParameter> parameters) {
-		parameters.forEach(parameter -> add(parameter));
+		add(parameters);
 	}
 
 	public ValueFactory(Map<String, List<? extends IParameter>> parameters) {
@@ -58,7 +59,7 @@ public class ValueFactory {
 		if (parameter instanceof IProbabilityParameter)
 			add((IProbabilityParameter) parameter);
 		else if (parameter instanceof ImpactParameter)
-			add((ImpactParameter) parameter);
+			add((IImpactParameter) parameter);
 	}
 
 	public IValue findDyn(Object value) {
@@ -131,7 +132,7 @@ public class ValueFactory {
 
 	private void add(IProbabilityParameter parameter) {
 		if (probabilities == null)
-			probabilities = new HashMap<>();
+			probabilities = new LinkedHashMap<>();
 		List<IProbabilityParameter> parameters = probabilities.get(parameter.getTypeName());
 		if (parameters == null)
 			probabilities.put(parameter.getTypeName(), parameters = new ArrayList<>());
@@ -141,7 +142,7 @@ public class ValueFactory {
 
 	private void add(IImpactParameter parameter) {
 		if (impacts == null)
-			impacts = new HashMap<>();
+			impacts = new LinkedHashMap<>();
 		List<IImpactParameter> parameters = impacts.get(parameter.getTypeName());
 		if (parameters == null)
 			impacts.put(parameter.getTypeName(), parameters = new ArrayList<>());
@@ -197,9 +198,8 @@ public class ValueFactory {
 		if (value == null)
 			return null;
 		List<? extends ILevelParameter> parameters = getParameters(type);
-		if (parameters == null) {
+		if (parameters == null)
 			return null;
-		}
 		if (value instanceof Integer)
 			return findByLevel((Integer) value, parameters);
 		if (value instanceof String) {
@@ -211,6 +211,12 @@ public class ValueFactory {
 		if (doubleValue == null)
 			return null;
 		return findByValue(doubleValue, parameters);
+	}
+
+	public boolean hasAcronym(String value, String type) {
+		if (value == null || type == null)
+			return false;
+		return getParameterMapper(type).containsKey(value);
 	}
 
 	private List<? extends ILevelParameter> getParameters(String type) {
@@ -363,4 +369,11 @@ public class ValueFactory {
 		return value == null ? null : (IProbabilityParameter) value.getParameter();
 	}
 
+	public void add(List<? extends IParameter> parameters) {
+		parameters.forEach(parameter -> add(parameter));
+	}
+
+	public Collection<String> findAcronyms(String type) {
+		return getParameterMapper(type).keySet();
+	}
 }

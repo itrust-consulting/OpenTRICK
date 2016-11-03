@@ -18,4 +18,6 @@ public interface ServiceImpactParameter extends TemplateDAOService<ImpactParamet
 	List<ImpactParameter> findByTypeAndAnalysisId(String type, Integer idAnalysis);
 	
 	List<ImpactParameter> findByTypeAndAnalysisId(ScaleType type, Integer idAnalysis);
+
+	List<String> findAcronymByTypeAndAnalysisId(String type, Integer idAnalysis);
 }

@@ -114,4 +114,8 @@ public class ScaleType extends AbstractParameterType {
 		return StringUtils.capitalize(name.toLowerCase());
 	}
 
+	public String getSortName() {
+		return StringUtils.capitalize(name.length() > 3 ? acronym.length() < 3 ? name.substring(0, 3).toLowerCase() : acronym.toLowerCase() : acronym.toLowerCase());
+	}
+
 }

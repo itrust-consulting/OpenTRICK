@@ -237,6 +237,11 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 		entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
+	@Override
+	public List<String> findAcronymByTypeAndAnalysisId(String type, Integer idAnalysis) {
+		return null;
+	}
+
 	
 	
 	

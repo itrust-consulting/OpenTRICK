@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.model.assessment;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -266,14 +267,19 @@ public class Assessment implements Cloneable {
 		return value == null ? null : value.getParameter();
 	}
 
+	public boolean hasImpact(String name) {
+		return getImpactMapper().containsKey(name);
+	}
+
 	public void setImpact(IValue impact) {
 		IValue old = getImpactMapper().get(impact.getName());
 		if (old == null) {
+			impacts.add(impact);
 			getImpactMapper().put(impact.getName(), impact);
-			impacts.add(impact);
 		} else if (!old.equals(impact)) {
-			impacts.remove(getImpactMapper().put(impact.getName(), impact));
+			impacts.remove(old);
 			impacts.add(impact);
+			getImpactMapper().put(impact.getName(), impact);
 		}
 	}
 
@@ -281,6 +287,8 @@ public class Assessment implements Cloneable {
 	 * @return the impactMapper
 	 */
 	protected Map<String, IValue> getImpactMapper() {
+		if (impacts == null || impacts.isEmpty())
+			return Collections.emptyMap();
 		if (impactMapper == null)
 			setImpactMapper(impacts.stream().collect(Collectors.toMap(IValue::getName, Function.identity())));
 		return impactMapper;

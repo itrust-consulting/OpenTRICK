@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -75,13 +76,13 @@ public class ControllerAssessment {
 
 	@Autowired
 	private ServiceAsset serviceAsset;
-	
+
 	@Autowired
 	private ServiceImpactParameter serviceImpactParameter;
-	
+
 	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
-	
+
 	@Autowired
 	private ServiceDynamicParameter serviceDynamicParameter;
 
@@ -152,7 +153,6 @@ public class ControllerAssessment {
 			model.addAttribute("ale", ale);
 			model.addAttribute("aleo", aleo);
 			model.addAttribute("alep", alep);
-			// model.addAttribute("parameters", analysis.mapAcronymToValue());
 			model.addAttribute("assessments", assessments);
 		} else {
 			Scenario scenario = analysis.findScenario(idScenario);
@@ -186,7 +186,6 @@ public class ControllerAssessment {
 			model.addAttribute("ale", ale);
 			model.addAttribute("aleo", aleo);
 			model.addAttribute("alep", alep);
-			// model.addAttribute("parameters", analysis.mapAcronymToValue());
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
 			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 			assessments.sort(new AssessmentAssetComparator().reversed());
@@ -214,7 +213,7 @@ public class ControllerAssessment {
 	@SuppressWarnings("unchecked")
 	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis, Assessment assessment) {
 		List<? extends IBoundedParameter> probabilities = new ArrayList<>(11), impacts = new ArrayList<>(11);
-		analysis.groupExtended((List<LikelihoodParameter>)probabilities, (List<ImpactParameter>) impacts);
+		analysis.groupExtended((List<LikelihoodParameter>) probabilities, (List<ImpactParameter>) impacts);
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("assessment", assessment);
 		model.addAttribute("probabilities", probabilities);
@@ -310,76 +309,14 @@ public class ControllerAssessment {
 	 */
 	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String loadAssessmentsOfAsset(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
+	public String loadAssessmentsOfAsset(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		// get analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
+		loadAssessmentData(model, locale, idAnalysis);
 		// retrieve asset
 		Asset asset = serviceAsset.get(elementID);
 		// load assessments by asset into model
 		return assessmentByAsset(model, asset, serviceAssessment.getAllSelectedFromAsset(asset), idAnalysis, true);
-	}
-
-	/**
-	 * updateAsset: <br>
-	 * Description
-	 * 
-	 * @param assetId
-	 * @param model
-	 * @param session
-	 * @param locale
-	 * @return
-	 */
-	@RequestMapping(value = "/Asset/{elementID}/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String updateAsset(@PathVariable int elementID, Model model, RedirectAttributes attributes, HttpSession session, Locale locale, Principal principal) {
-
-		try {
-			// retrieve analysis id
-			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-			// retrieve asset by id
-			Asset asset = serviceAsset.get(elementID);
-
-			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-			
-			// retrieve parameters which are considered in the expression
-			// evaluation
-			ValueFactory factory = new ValueFactory(loadParameters(idAnalysis));
-
-			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-
-			model.addAttribute("valueFactory", factory);
-
-			// retrieve assessments of analysis
-			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
-			// parse assessments and initialise impact values to 0 if empty
-			for (Assessment assessment : assessments) {
-				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
-					assessment.setLikelihood("0");
-				// compute ALE
-				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
-				// update assessments
-				serviceAssessment.saveOrUpdate(assessment);
-				// add assessments of asset to model
-			}
-			return assessmentByAsset(model, asset, assessments, idAnalysis, false);
-		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		} catch (Exception e) {
-			// return null
-			TrickLogManager.Persist(e);
-			attributes.addFlashAttribute("error",
-					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
-		}
-		return "redirect:/Error";
-	}
-
-	private List<ILevelParameter> loadParameters(Integer idAnalysis) {
-		List<ILevelParameter> parameters = new LinkedList<>(serviceImpactParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-		return parameters;
 	}
 
 	/**
@@ -395,13 +332,47 @@ public class ControllerAssessment {
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String loadByScenario(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
+	public String loadByScenario(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		// retrieve scenario from given id
+		loadAssessmentData(model,locale, idAnalysis);
 		Scenario scenario = serviceScenario.get(elementID);
 		// load all assessments by scenario to model
 		return assessmentByScenario(model, scenario, serviceAssessment.getAllFromScenario(scenario), idAnalysis, true);
+	}
+
+	/**
+	 * updateAsset: <br>
+	 * Description
+	 * 
+	 * @param assetId
+	 * @param model
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
+	@RequestMapping(value = "/Asset/{elementID}/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String updateAsset(@PathVariable int elementID, Model model, RedirectAttributes attributes, HttpSession session, Locale locale, Principal principal) {
+		try {
+			// retrieve analysis id
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			// retrieve asset by id
+			Asset asset = serviceAsset.get(elementID);
+			// retrieve assessments of analysis
+			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
+			updateAssessments(idAnalysis, model, locale, assessments);
+			return assessmentByAsset(model, asset, assessments, idAnalysis, false);
+		} catch (TrickException e) {
+			TrickLogManager.Persist(e);
+			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			// return null
+			TrickLogManager.Persist(e);
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
+		}
+		return "redirect:/Error";
 	}
 
 	/**
@@ -417,47 +388,14 @@ public class ControllerAssessment {
 	@RequestMapping(value = "/Scenario/{elementID}/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String updateByScenario(@PathVariable int elementID, Model model, RedirectAttributes attributes, HttpSession session, Locale locale, Principal principal) {
-
 		try {
 			// load analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// load scenario
 			Scenario scenario = serviceScenario.get(elementID);
-			if (scenario == null)
-				return null;
-
-			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
-
 			// retrieve parameters which are considered in the expression
-			// evaluation
-			ValueFactory factory = new ValueFactory(loadParameters(idAnalysis));
-
-			model.addAttribute("valueFactory", factory);
-
-			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-
-			// load assessments
 			List<Assessment> assessments = serviceAssessment.getAllSelectedFromScenario(scenario);
-
-			// parse assessments and initilaise illegal impact values
-			for (Assessment assessment : assessments) {
-				/*if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
-					assessment.setImpactFin("0");
-				if (assessment.getImpactOp() == null || assessment.getImpactOp().trim().isEmpty())
-					assessment.setImpactOp("0");
-				if (assessment.getImpactLeg() == null || assessment.getImpactLeg().trim().isEmpty())
-					assessment.setImpactLeg("0");
-				if (assessment.getImpactRep() == null || assessment.getImpactRep().trim().isEmpty())
-					assessment.setImpactRep("0");*/
-				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
-					assessment.setLikelihood("0");
-				// compute ALE
-				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
-				// update assessments
-				serviceAssessment.saveOrUpdate(assessments);
-				// load assessments of scenario to model
-			}
-
+			updateAssessments(idAnalysis, model,locale, assessments);
 			return assessmentByScenario(model, scenario, assessments, idAnalysis, false);
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -470,6 +408,49 @@ public class ControllerAssessment {
 		}
 		return "redirect:/Error";
 
+	}
+	
+	private void loadAssessmentData(Model model, Locale locale, Integer idAnalysis) {
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+		List<ILevelParameter> parameters = loadParameters(idAnalysis);
+		if (type != AnalysisType.QUALITATIVE)
+			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
+		model.addAttribute("type", type);
+		model.addAttribute("valueFactory", new ValueFactory(parameters));
+		model.addAttribute("impactTypes", parameters.stream().filter(parameter -> parameter instanceof ImpactParameter).map(parameter -> ((ImpactParameter) parameter).getType())
+				.distinct().collect(Collectors.toList()));
+		model.addAttribute("langue", locale.getLanguage().toUpperCase());
+	}
+
+	private void updateAssessments(Integer idAnalysis, Model model, Locale locale, List<Assessment> assessments) {
+		List<ILevelParameter> parameters = loadParameters(idAnalysis);
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+		ValueFactory factory = new ValueFactory(parameters);
+		if (type != AnalysisType.QUALITATIVE)
+			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
+		model.addAttribute("type", type);
+		model.addAttribute("langue", locale.getLanguage().toUpperCase());
+		model.addAttribute("impactTypes", parameters.stream().filter(parameter -> parameter instanceof ImpactParameter).map(parameter -> ((ImpactParameter) parameter).getType())
+				.distinct().collect(Collectors.toList()));
+		model.addAttribute("valueFactory", factory);
+		// parse assessments and initialise impact values to 0 if empty
+		for (Assessment assessment : assessments) {
+			if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
+				assessment.setLikelihood("0");
+			factory.getImpactNames().stream().filter(name -> !assessment.hasImpact(name)).forEach(name -> assessment.setImpact(factory.findValue(0D, name)));
+			// compute ALE
+			AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+			// update assessments
+			serviceAssessment.saveOrUpdate(assessment);
+			// add assessments of asset to model
+		}
+	}
+
+	private List<ILevelParameter> loadParameters(Integer idAnalysis) {
+		List<ILevelParameter> parameters = new LinkedList<>(serviceImpactParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+		return parameters;
 	}
 
 	/**
@@ -491,13 +472,10 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("asset", asset);
-		//model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
 		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
@@ -524,9 +502,6 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
-		//model.addAttribute("parameters", generateKeyValueMatching(idAnalysis));
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());

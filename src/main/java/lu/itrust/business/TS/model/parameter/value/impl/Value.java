@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 
 /**
  * @author eomar
@@ -31,4 +32,11 @@ public class Value extends AbstractValue {
 		super(parameter);
 	}
 
+	@Override
+	public boolean merge(IValue value) {
+		if (value == null || !(value instanceof Value))
+			return false;
+		setParameter(value.getParameter());
+		return true;
+	}
 }

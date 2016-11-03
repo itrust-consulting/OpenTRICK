@@ -21,7 +21,7 @@
 				<fieldset id="Scale_Impact_${type}">
 					<legend>
 						<spring:message code="label.title.parameter.extended.impact.${fn:toLowerCase(type)}"
-							text="${empty impactType.translations[language]? impactType.translations['EN']  :  impactType.translations[language]}" />
+							text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[language]}" />
 					</legend>
 					<table class="table table-hover table-condensed">
 						<thead>

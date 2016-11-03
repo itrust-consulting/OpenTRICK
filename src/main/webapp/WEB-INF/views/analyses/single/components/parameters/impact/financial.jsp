@@ -27,7 +27,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<c:set var="length" value="${mappedParameters[IMPACT].size()-1}" />
+				<c:set var="length" value="${mappedParameters['IMPACT'].size()-1}" />
 				<c:forEach items="${mappedParameters['IMPACT'] }" var="parameter" varStatus="status">
 					<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
 						<!--<td>${itemInformation.id}</td>-->

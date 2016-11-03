@@ -13,6 +13,12 @@
 <spring:message code="label.action.previous" var="prevSelected" />
 <spring:message code="label.menu.show.dynamic_parameters_list" var="dynamicParametersTitle" />
 <spring:message code="label.menu.show.dynamic_parameters_list" var="dynamicParametersMenu" />
+<c:if test="${empty locale }">
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
+</c:if>
+<c:if test="${empty langue}">
+	<c:set var="langue" value="${fn:toUpperCase(locale.language) }" scope="request"/>
+</c:if>
 <c:set var="impactScaleTitle">
 	${fn:replace(impactScaleTitle,"'", "\\'" )}
 </c:set>

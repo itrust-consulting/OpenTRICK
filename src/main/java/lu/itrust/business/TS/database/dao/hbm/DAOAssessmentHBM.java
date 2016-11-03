@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -311,5 +312,10 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 				.createQuery(
 						"Select distinct assessment.owner From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true and assessment.owner<>''")
 				.setInteger("idAnalysis", analysisId).list();
+	}
+
+	@Override
+	public void delete(IValue impact) {
+		getSession().delete(impact);
 	}
 }

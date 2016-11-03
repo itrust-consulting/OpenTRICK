@@ -29,7 +29,7 @@ public abstract class NumericValue extends AbstractValue {
 	 * @param parameter
 	 */
 	public NumericValue(Number value, ILevelParameter parameter) {
-		super( parameter);
+		super(parameter);
 		this.number = value;
 	}
 
@@ -41,11 +41,12 @@ public abstract class NumericValue extends AbstractValue {
 	}
 
 	/**
-	 * @param number the number to set
+	 * @param number
+	 *            the number to set
 	 */
 	protected void setNumber(Number number) {
 		this.number = number;
 	}
-	
-	
+
+
 }

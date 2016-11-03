@@ -200,4 +200,9 @@ public class ServiceImpactParameterImpl implements ServiceImpactParameter {
 		daoImpactParameter.saveOrUpdate(entities);
 	}
 
+	@Override
+	public List<String> findAcronymByTypeAndAnalysisId(String type, Integer idAnalysis) {
+		return daoImpactParameter.findAcronymByTypeAndAnalysisId(type,idAnalysis);
+	}
+
 }

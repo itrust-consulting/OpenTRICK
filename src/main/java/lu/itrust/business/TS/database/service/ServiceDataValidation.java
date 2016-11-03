@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.context.MessageSource;
 
-import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
 /**

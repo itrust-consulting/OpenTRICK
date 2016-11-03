@@ -9,6 +9,8 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -79,6 +81,7 @@ import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
@@ -171,6 +174,8 @@ public class ControllerEditField {
 	private Pattern computeCostPattern = Pattern.compile("internalWL|externalWL|investment|lifetime|internalMaintenance|externalMaintenance|recurrentInvestment");
 
 	private Pattern riskProfileNoFieldPattern = Pattern.compile("^*\\.id$|^\\*.asset\\.*$|^*.scenario\\.*");
+
+	private Pattern assessmentEditableField = Pattern.compile("comment|hiddenComment|likelihood|uncertainty|owner");
 
 	private Pattern smlPatten = Pattern.compile("^SMLLevel[0-5]{1}$");
 
@@ -613,54 +618,67 @@ public class ControllerEditField {
 	}
 
 	private Result updateAssessment(FieldEditor fieldEditor, Assessment assessment, Integer idAnalysis, Locale locale, boolean netImportance) {
+
 		try {
 			if (assessment == null)
 				return Result.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", locale));
+			if (!(assessment.hasImpact(fieldEditor.getFieldName()) || assessmentEditableField.matcher(fieldEditor.getFieldName()).find()))
+				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			// set validator
 			if (!serviceDataValidation.isRegistred(Assessment.class))
 				serviceDataValidation.register(new AssessmentValidator());
-			boolean computeAle = false;
+			ValueFactory factory = null;
+			IValue impactToDelete = null;
 			// retrieve all acronyms of impact and likelihood
-			List<Object> chooses = new LinkedList<>();
-			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName())) {
-				chooses = serviceImpactParameter.findByAnalysisId(idAnalysis).stream().map(ImpactParameter::getAcronym).collect(Collectors.toList());
-				if (!chooses.contains(fieldEditor.getValue())) {
-					try {
-						double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
-						if (value < 0)
-							return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
-						fieldEditor.setValue(value + "");
-					} catch (ParseException e) {
-					}
+			if (assessment.hasImpact(fieldEditor.getFieldName())) {
+				try {
+					double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000;
+					if (value < 0)
+						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null, "Impact cannot be negative", locale));
+					fieldEditor.setValue(value + "");
+				} catch (ParseException e) {
 				}
-				computeAle = true;
+				factory = createFactoryForAssessment(idAnalysis);
+				IValue oldValue = assessment.getImpact(fieldEditor.getFieldName()), newValue = factory.findValue(fieldEditor.getValue(), fieldEditor.getFieldName());
+				if (newValue == null)
+					return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null, "Given value is not supported", locale));
+				if (!oldValue.merge(newValue)) {
+					assessment.setImpact(newValue);
+					impactToDelete = oldValue;
+				}
 			} else if ("likelihood".equals(fieldEditor.getFieldName())) {
-				chooses = serviceLikelihoodParameter.findByAnalysisId(idAnalysis).stream().map(LikelihoodParameter::getAcronym).collect(Collectors.toList());
-				chooses.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis).stream().map(DynamicParameter::getAcronym).collect(Collectors.toList()));
+				factory = createFactoryForAssessment(idAnalysis);
+				List<Object> acronyms = Collections.emptyList();
 				if (fieldEditor.getValue().equals("NA"))
-					fieldEditor.setValue("0");
-				computeAle = true;
+					assessment.setLikelihood("0");
+				else {
+					acronyms = new LinkedList<>(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
+					acronyms.addAll(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME));
+					String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), fieldEditor.getValue(), acronyms);
+					if (error != null)
+						// return error message
+						return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+					assessment.setLikelihood(fieldEditor.getValue().toString());
+				}
+			} else {
+				// get value
+				Object value = FieldValue(fieldEditor);
+				// validate new value
+				String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value);
+				if (error != null)
+					// return error message
+					return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				// init field
+				Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
+				// set data to field
+				if (!SetFieldData(field, assessment, fieldEditor))
+					// return error message
+					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			}
-			// get value
-			Object value = FieldValue(fieldEditor);
-			// validate new value
-			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses);
-			if (error != null)
-				// return error message
-				return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
-			// init field
-			Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
-			// set data to field
-			if (!SetFieldData(field, assessment, fieldEditor))
-				// return error message
-				return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Result result = Result.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
 			// compute new ALE
-			if (computeAle) {
+			if (factory != null) {
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-				List<IProbabilityParameter> parameters = new LinkedList<>(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-				parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-				ValueFactory factory = new ValueFactory(parameters);
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
 				if (netImportance && type == AnalysisType.QUALITATIVE)
 					result.add(new FieldValue("computedNextImportance", factory.findImportance(assessment)));
@@ -669,7 +687,8 @@ public class ControllerEditField {
 				result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2), format(assessment.getALEO(), numberFormat, 0) + " €"));
 				result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2), format(assessment.getALEP(), numberFormat, 0) + " €"));
 			}
-			// update assessment
+			if (impactToDelete != null)
+				serviceAssessment.delete(impactToDelete);
 			serviceAssessment.saveOrUpdate(assessment);
 			// return success message
 			return result;
@@ -681,6 +700,13 @@ public class ControllerEditField {
 			TrickLogManager.Persist(e);
 			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null, "An unknown error occurred while updating field", locale));
 		}
+	}
+
+	private ValueFactory createFactoryForAssessment(Integer idAnalysis) {
+		ValueFactory factory = new ValueFactory(serviceImpactParameter.findByAnalysisId(idAnalysis));
+		factory.add(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
+		factory.add(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+		return factory;
 	}
 
 	/**

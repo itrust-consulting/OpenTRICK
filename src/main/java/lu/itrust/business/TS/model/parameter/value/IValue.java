@@ -9,7 +9,7 @@ import lu.itrust.business.TS.model.parameter.ILevelParameter;
  * @author eomar
  *
  */
-public interface IValue extends Cloneable{
+public interface IValue extends Cloneable {
 
 	/**
 	 * 
@@ -18,7 +18,7 @@ public interface IValue extends Cloneable{
 	default String getName() {
 		return getParameter().getTypeName();
 	}
-	
+
 	Integer getLevel();
 
 	String getVariable();
@@ -27,8 +27,12 @@ public interface IValue extends Cloneable{
 
 	ILevelParameter getParameter();
 	
+	boolean merge(IValue value);
+
 	/**
-	 * Create copy of object instance, id will be reset but parameter must be updated.
+	 * Create copy of object instance, id will be reset but parameter must be
+	 * updated.
+	 * 
 	 * @return copy
 	 */
 	IValue duplicate();
@@ -48,7 +52,7 @@ public interface IValue extends Cloneable{
 	static IValue minByReal(IValue v1, IValue v2) {
 		return (v1 == null ? v2 : (v2 == null ? v1 : (v1.getReal() == v2.getReal() ? (v1.getLevel() < v2.getLevel() ? v1 : v2) : v1.getReal() < v2.getReal() ? v1 : v2)));
 	}
-	
+
 	static int compareByLevel(IValue v1, IValue v2) {
 		return (v1 == null ? -1 : (v2 == null ? 1 : (v1.getLevel() == v2.getLevel() ? v1.getReal().compareTo(v2.getReal()) : v1.getLevel() > v2.getLevel() ? 1 : -1)));
 	}
@@ -56,5 +60,4 @@ public interface IValue extends Cloneable{
 	static int compareByReal(IValue v1, IValue v2) {
 		return (v1 == null ? -1 : (v2 == null ? 1 : (v1.getReal() == v2.getReal() ? Integer.compare(v1.getLevel(), v2.getLevel()) : v1.getReal() > v2.getReal() ? 1 : -1)));
 	}
-
 }

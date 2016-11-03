@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 
 /**
  * @author eomar
@@ -52,7 +53,16 @@ public class LevelValue extends NumericValue {
 	 */
 	@Override
 	public Double getReal() {
-		return getParameter().getValue().doubleValue();
+		return getParameter().getValue();
+	}
+
+	@Override
+	public boolean merge(IValue value) {
+		if (value == null || !(value instanceof LevelValue))
+			return false;
+		setLevel(value.getLevel());
+		setParameter(value.getParameter());
+		return true;
 	}
 
 }
