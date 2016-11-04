@@ -91,7 +91,7 @@
 						</ul>
 					</div>
 				</div>
-				<jsp:include page="asset.jsp" />
+				<jsp:include page="asset/home.jsp" />
 			</div>
 		</div>
 		<jsp:include page="../../../../template/footer.jsp" />

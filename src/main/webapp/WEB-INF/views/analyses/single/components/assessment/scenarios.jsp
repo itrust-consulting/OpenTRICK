@@ -70,11 +70,11 @@
 									<c:set var="impact" value="${assessment.getImpact(impactName)}" />
 									<c:choose>
 										<c:when test="${empty impact}">
-											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(0,0)}" /> €'
+											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(0,0)}" /> &euro;'
 												onclick="return editField(this);">${impactType.acronym}0</td>
 										</c:when>
 										<c:otherwise>
-											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(impact.real,0)}" /> €'
+											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(impact.real,0)}" /> &euro;'
 												onclick="return editField(this);">${impact.variable}</td>
 										</c:otherwise>
 									</c:choose>

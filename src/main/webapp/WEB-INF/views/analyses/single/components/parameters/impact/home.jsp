@@ -6,15 +6,15 @@
 <fmt:setLocale value="fr" scope="session" />
 <div class="tab-pane" id="tabParameterImpact">
 	<div class='section row' id='section_parameter_impact'>
-		<c:if test="${isEditable}">
-			<ul class="nav nav-pills bordered-bottom" id="menu_parameter_extended" style="margin-bottom: 10px;">
-				<li><a href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
-				<li class="disabled" data-trick-selectable="true"><a onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
-							code="label.action.edit" /> </a></li>
-				<li class="disabled pull-right" data-trick-selectable="multi"><a class="text-danger"><span class="glyphicon glyphicon-remove"></span> <spring:message
-							code="label.action.delete" /> </a></li>
-			</ul>
-		</c:if>
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<spring:message code='label.title.impact_scales' text="Impact scales" />
+					</h3>
+				</div>
+			</div>
+		</div>
 		<c:forEach items="${impactTypes}" var="impactType">
 			<spring:message text="${impactType.name}" var="type" />
 			<div class="col-md-6">
@@ -23,7 +23,7 @@
 						<spring:message code="label.title.parameter.extended.impact.${fn:toLowerCase(type)}"
 							text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[language]}" />
 					</legend>
-					<table class="table table-hover table-condensed">
+					<table class="table table-hover table-fixed-header-analysis table-condensed">
 						<thead>
 							<tr>
 								<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>

@@ -7,8 +7,13 @@
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
-<spring:message code="label.assessment.for.asset" arguments="${asset.name}" var="title" />
-<div class="section" id="section_asset_assessment" data-type='asset' data-trick-id='${asset.id}' data-trick-name='${title}'>
+<div id="estimation-ui" class='col-lg-10 trick-ui' data-trick-asset-id='${asset.id}' data-trick-scenario-id='-1' data-trick-content='asset'>
+	<fieldset style="display: block; width: 100%; clear: left;">
+		<legend>
+			<spring:message text='${asset.name}' />
+		</legend>
+		<div id="description" class='well well-sm' style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 40px;"><spring:message text="${fn:trim(asset.comment)}" /></div>
+	</fieldset>
 	<table class="table table-hover table-condensed table-fixed-header-analysis">
 		<thead>
 			<c:choose>
@@ -57,7 +62,7 @@
 		<tbody>
 			<c:if test="${not empty asset}">
 				<c:forEach items="${assessments}" var="assessment">
-					<tr data-trick-class="Assessment" data-trick-id="${assessment.id}" data-trick-callback="chartALE()">
+					<tr>
 						<td style="height: 32px;"><spring:message text="${assessment.scenario.name}" /></td>
 						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
 						<c:choose>
@@ -67,23 +72,22 @@
 									<c:set var="impact" value="${assessment.getImpact(impactName)}" />
 									<c:choose>
 										<c:when test="${empty impact}">
-											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(0,0)}" /> &euro;'
-												onclick="return editField(this);">${impactType.acronym}0</td>
+											<td data-trick-field="${impactName}"   title='<fmt:formatNumber value="${fct:round(0,0)}" /> &euro;'
+												>${impactType.acronym}0</td>
 										</c:when>
 										<c:otherwise>
-											<td data-trick-field="${impactName}" data-trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(impact.real,0)}" /> &euro;'
-												onclick="return editField(this);">${impact.variable}</td>
+											<td data-trick-field="${impactName}"   title='<fmt:formatNumber value="${fct:round(impact.real,0)}" /> &euro;'
+												>${impact.variable}</td>
 										</c:otherwise>
 									</c:choose>
 								</c:forEach>
 								<c:choose>
 									<c:when test="${empty likelihood}">
 										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
+										<td title='${likelihood}' >${likelihood}</td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);"
-											title='<fmt:formatNumber value="${fct:round(likelihood.real,2)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
+										<td title='<fmt:formatNumber value="${fct:round(likelihood.real,2)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
 												text="${likelihood.variable}" /></td>
 									</c:otherwise>
 								</c:choose>
@@ -93,10 +97,10 @@
 								<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
 								<c:choose>
 									<c:when test="${empty impact}">
-										<td data-trick-field="IMPACT" data-trick-field-type="string" class="success" title='0 &euro;' onclick="return editField(this);">0</td>
+										<td title='0 &euro;' >0</td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="IMPACT" data-trick-field-type="string" class="success" onclick="return editField(this);" title='${impact.variable}'><c:choose>
+										<td title='${impact.variable}'><c:choose>
 												<c:when test="${impact.real < 10000}">
 													<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" />
 												</c:when>
@@ -109,17 +113,14 @@
 								<c:choose>
 									<c:when test="${empty likelihood}">
 										<spring:message text="${assessment.likelihood}" var="likelihood" />
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" title='${likelihood}' onclick="return editField(this);">${likelihood}</td>
+										<td title='${likelihood}' >${likelihood}</td>
 									</c:when>
 									<c:otherwise>
-										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);"
-											title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,2)}" /></td>
+										<td title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,2)}" /></td>
 									</c:otherwise>
 								</c:choose>
 								<c:if test="${show_uncertainty}">
-									<td data-trick-field="uncertainty" data-trick-field-type="double" class="success" data-trick-min-value="1.0000000000001"
-										data-real-value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />' onclick="return editField(this);"><fmt:formatNumber
-											value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
+									<td><fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
 									<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
 								</c:if>
 								<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></td>
@@ -128,9 +129,9 @@
 								</c:if>
 							</c:otherwise>
 						</c:choose>
-						<td class="success" onclick="return editField(this);" data-trick-field="owner" data-trick-field-type="string"><spring:message text="${assessment.owner}" /></td>
-						<td onclick="return editField(this.firstChild);" class="success"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${assessment.comment}" /></pre></td>
-						<td onclick="return editField(this.firstChild);" class="success"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${assessment.hiddenComment}" /></pre></td>
+						<td><spring:message text="${assessment.owner}" /></td>
+						<td><pre><spring:message text="${assessment.comment}" /></pre></td>
+						<td><pre><spring:message text="${assessment.hiddenComment}" /></pre></td>
 					</tr>
 				</c:forEach>
 				<tr class="panel-footer" style="font-weight: bold;">

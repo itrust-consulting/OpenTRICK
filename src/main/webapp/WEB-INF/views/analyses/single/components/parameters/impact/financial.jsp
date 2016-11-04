@@ -15,7 +15,7 @@
 				</c:otherwise>
 			</c:choose>
 		</legend>
-		<table class="table table-hover table-condensed">
+		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
 					<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>

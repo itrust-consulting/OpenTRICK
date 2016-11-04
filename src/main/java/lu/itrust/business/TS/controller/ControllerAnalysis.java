@@ -281,8 +281,9 @@ public class ControllerAnalysis {
 					model.addAttribute("estimationMapping", analysis.mapAssessment());
 				}
 				if (hasMaturity)
-					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002),
-							measures.get(Constant.STANDARD_MATURITY), analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
+					model.addAttribute("effectImpl27002",
+							MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
+									analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
 				break;
 			case EDIT_MEASURE:
 				standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty())
@@ -1265,7 +1266,7 @@ public class ControllerAnalysis {
 			boolean update = analysis.getId() > 0 && !analysis.isProfile();
 			analysis.setLabel(comment);
 			analysis.setLanguage(language);
-			analysis.setUncertainty(uncertainty);
+			analysis.setUncertainty(analysis.getType() == AnalysisType.QUALITATIVE ? false : uncertainty);
 			if (update)
 				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
 			serviceAnalysis.saveOrUpdate(analysis);

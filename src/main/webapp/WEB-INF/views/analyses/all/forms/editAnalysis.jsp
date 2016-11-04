@@ -108,7 +108,13 @@
 				<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
 				</label>
 				<div class="col-sm-10" align="center">
-					<input type="checkbox" name="uncertainty" class="checkbox" ${analysis.uncertainty?"checked='checked'":''}>
+					<c:choose>
+						<c:when test="${ analysis.type=='QUALITATIVE'}">
+							<input type="checkbox" name="uncertainty" class="checkbox" disabled="disabled" >
+						</c:when>
+						<c:otherwise><input type="checkbox" name="uncertainty" class="checkbox" ${analysis.uncertainty?"checked='checked'":''}></c:otherwise>
+					</c:choose>
+					
 				</div>
 			</div>
 

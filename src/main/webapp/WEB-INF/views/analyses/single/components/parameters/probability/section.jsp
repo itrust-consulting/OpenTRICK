@@ -6,9 +6,17 @@
 <div class="${type=='QUANTITATIVE' ? 'col-md-6' : 'col-lg-6' }">
 	<fieldset id="Scale_Probability">
 		<legend>
-			<spring:message code="label.parameter.extended.probability" />
+			<c:choose>
+				<c:when test="${type=='QUANTITATIVE'}">
+					<spring:message code="label.parameter.extended.probability" />
+				</c:when>
+				<c:otherwise>
+					<spring:message code="label.title.parameter.probability" />
+				</c:otherwise>
+			</c:choose>
+
 		</legend>
-		<table class="table table-hover table-condensed">
+		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>
 				<tr>
 					<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
@@ -38,15 +46,14 @@
 							${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} title="${parameterValue}"
 							data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
 						<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" minFractionDigits="2" /></td>
-						<td class="textaligncenter">
-						<c:choose>
-						<c:when test="${status.index!=10}">
-							<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" minFractionDigits="2" />
-						</c:when>
-						<c:otherwise>
-							<span style="font-size: 17px;">+&#8734;</span>
-						</c:otherwise>
-						</c:choose></td>
+						<td class="textaligncenter"><c:choose>
+								<c:when test="${status.index!=10}">
+									<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" minFractionDigits="2" />
+								</c:when>
+								<c:otherwise>
+									<span style="font-size: 17px;">+&#8734;</span>
+								</c:otherwise>
+							</c:choose></td>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -69,10 +76,9 @@
 				<tbody>
 					<fmt:setLocale value="fr" scope="session" />
 					<c:forEach items="${mappedParameters['DYNAMIC']}" var="parameter" varStatus="status">
-						<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
-							<!--<td>${itemInformation.id}</td>-->
+						<tr data-trick-class="DynamicParameter" data-trick-id="${parameter.id}">
 							<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message text="${parameter.acronym}" /></td>
-							<td class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
+							<td data-trick-field="value" class="textaligncenter"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
 						</tr>
 					</c:forEach>
 					<fmt:setLocale value="${language}" scope="session" />
