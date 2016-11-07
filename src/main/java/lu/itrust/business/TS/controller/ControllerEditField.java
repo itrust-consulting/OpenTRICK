@@ -9,13 +9,11 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
@@ -69,14 +67,10 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.IAcronymParameter;
 import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
-import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
-import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
@@ -93,7 +87,6 @@ import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.validator.AssessmentValidator;
 import lu.itrust.business.TS.validator.AssetValidator;
 import lu.itrust.business.TS.validator.BounedParameterValidator;
-
 import lu.itrust.business.TS.validator.HistoryValidator;
 import lu.itrust.business.TS.validator.MaturityParameterValidator;
 import lu.itrust.business.TS.validator.MeasureValidator;
@@ -581,13 +574,22 @@ public class ControllerEditField {
 				RiskProbaImpact probaImpact = (RiskProbaImpact) field.get(riskProfile);
 				if (probaImpact == null)
 					probaImpact = new RiskProbaImpact();
-				Field child = FindField(RiskProbaImpact.class, fields[2]);
-				Integer idParameter = (Integer) FieldValue(fieldEditor);
-				IParameter simpleParameter = serviceParameter.findImpactParameterByIdAndAnalysisID(idAnalysis, idParameter);
-				if (SetFieldValue(probaImpact, child, simpleParameter) && SetFieldValue(riskProfile, field, probaImpact))
-					result.add(new FieldValue(fields[1].startsWith("raw") ? "rawComputedImportance" : "expComputedImportance", probaImpact.getImportance()));
-				else
+				Object id = FieldValue(fieldEditor);
+				if (id instanceof Integer) {
+					if (fields[2].equals("probability")) {
+						LikelihoodParameter parameter = serviceLikelihoodParameter.findOne((Integer) id, idAnalysis);
+						if(parameter == null)
+							return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+						probaImpact.setProbability(parameter);
+					} else {
+						ImpactParameter parameter = serviceImpactParameter.findOne((Integer) id, idAnalysis);
+						if(parameter == null)
+							return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+						probaImpact.add(parameter);
+					}
+				} else
 					return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				result.add(new FieldValue(fields[1].startsWith("raw") ? "rawComputedImportance" : "expComputedImportance", probaImpact.getImportance()));
 			} else if (field.getType().isAssignableFrom(RiskStrategy.class))
 				riskProfile.setRiskStrategy(RiskStrategy.valueOf(fieldEditor.getValue().toString()));
 			else if (field.getName().equals("identifier")) {

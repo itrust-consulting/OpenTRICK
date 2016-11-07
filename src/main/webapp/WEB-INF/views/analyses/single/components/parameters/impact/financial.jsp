@@ -6,14 +6,7 @@
 <div class="col-md-6">
 	<fieldset id="Scale_Impact">
 		<legend>
-			<c:choose>
-				<c:when test="${type == 'QUALITATIVE' }">
-					<spring:message code="label.title.parameter.extended.impact.financial" />
-				</c:when>
-				<c:otherwise>
-					<spring:message code="label.title.parameter.extended.impact" />
-				</c:otherwise>
-			</c:choose>
+			<spring:message code="label.title.parameter.extended.impact" />
 		</legend>
 		<table class="table table-hover table-fixed-header-analysis table-condensed">
 			<thead>

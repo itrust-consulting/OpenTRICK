@@ -376,4 +376,32 @@ public class ValueFactory {
 	public Collection<String> findAcronyms(String type) {
 		return getParameterMapper(type).keySet();
 	}
+
+	/**
+	 * @return the impacts
+	 */
+	public Map<String, List<IImpactParameter>> getImpacts() {
+		return impacts;
+	}
+
+	/**
+	 * @param impacts the impacts to set
+	 */
+	public void setImpacts(Map<String, List<IImpactParameter>> impacts) {
+		this.impacts = impacts;
+	}
+
+	/**
+	 * @return the probabilities
+	 */
+	public Map<String, List<IProbabilityParameter>> getProbabilities() {
+		return probabilities;
+	}
+
+	/**
+	 * @param probabilities the probabilities to set
+	 */
+	public void setProbabilities(Map<String, List<IProbabilityParameter>> probabilities) {
+		this.probabilities = probabilities;
+	}
 }

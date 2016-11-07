@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -37,6 +38,7 @@ import org.springframework.context.MessageSource;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
@@ -54,9 +56,10 @@ import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManage
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -272,13 +275,14 @@ public class ExportAnalysisReport {
 	}
 
 	private void updateProperties() {
-		Optional<SimpleParameter> maxImplParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findAny();
+		Optional<SimpleParameter> maxImplParameter = analysis.getSimpleParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD))
+				.findAny();
 		if (maxImplParameter.isPresent()) {
 			CTProperty soaThresholdProperty = document.getProperties().getCustomProperties().getProperty(MAX_IMPL);
 			if (soaThresholdProperty == null)
-				document.getProperties().getCustomProperties().addProperty(MAX_IMPL, (int) maxImplParameter.get().getValue());
+				document.getProperties().getCustomProperties().addProperty(MAX_IMPL, maxImplParameter.get().getValue().intValue());
 			else
-				soaThresholdProperty.setLpwstr(String.valueOf((int) maxImplParameter.get().getValue()));
+				soaThresholdProperty.setLpwstr(maxImplParameter.get().getValue().intValue() + "");
 		}
 
 		CTProperty nonApplicable = document.getProperties().getCustomProperties().getProperty(_27001_NA_MEASURES);
@@ -306,14 +310,6 @@ public class ExportAnalysisReport {
 			return result.get();
 		}
 		return null;
-	}
-
-	private String formatedImpact(String impactFin) {
-		try {
-			return kEuroFormat.format(Double.parseDouble(impactFin) * 0.001);
-		} catch (Exception e) {
-			return impactFin;
-		}
 	}
 
 	private String formatLikelihood(String likelihood) {
@@ -897,7 +893,10 @@ public class ExportAnalysisReport {
 					while (row.getTableCells().size() < 6)
 						row.addNewTableCell();
 					row.getCell(0).setText(assessment.getScenario().getName());
-					setCellText(row.getCell(1), formatedImpact(assessment.getImpactFin()), ParagraphAlignment.CENTER);
+					IValue impact = assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+					if (impact == null)
+						throw new TrickException("error.analysis.repport.unsupported", "Analysis cannot export repport");
+					setCellText(row.getCell(1), kEuroFormat.format(impact.getReal() * 0.001), ParagraphAlignment.CENTER);
 					setCellText(row.getCell(2), formatLikelihood(assessment.getLikelihood()), ParagraphAlignment.CENTER);
 					addCellNumber(row.getCell(3), kEuroFormat.format(assessment.getALE() * 0.001));
 					addCellParagraph(row.getCell(4), assessment.getOwner());
@@ -1351,7 +1350,8 @@ public class ExportAnalysisReport {
 		// run = paragraph.getRuns().get(0);
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
-		List<AbstractProbability> expressionParameters = this.analysis.getExpressionParameters();
+		Map<String, Double> expressionParameters = this.analysis.getDynamicParameters().stream()
+				.collect(Collectors.toMap(DynamicParameter::getAcronym, DynamicParameter::getValue));
 
 		if (paragraph != null && analysisStandards.size() > 0) {
 

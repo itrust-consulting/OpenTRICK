@@ -16,11 +16,11 @@
 			</div>
 		</div>
 		<c:forEach items="${impactTypes}" var="impactType">
-			<spring:message text="${impactType.name}" var="type" />
+			<spring:message text="${impactType.name}" var="impactName" />
 			<div class="col-md-6">
-				<fieldset id="Scale_Impact_${type}">
+				<fieldset id="Scale_Impact_${impactName}">
 					<legend>
-						<spring:message code="label.title.parameter.extended.impact.${fn:toLowerCase(type)}"
+						<spring:message code="label.title.parameter.extended.impact.${fn:toLowerCase(impactName)}"
 							text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[language]}" />
 					</legend>
 					<table class="table table-hover table-fixed-header-analysis table-condensed">
@@ -35,11 +35,10 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:set var="length" value="${mappedParameters[type].size()-1}" />
-							<c:set var="AllEditable" value="${mappedParameters[type].size() mod 2 == 0}" />
-							<c:forEach items="${mappedParameters[type]}" var="parameter" varStatus="status">
+							<c:set var="length" value="${mappedParameters[impactName].size()-1}" />
+							<c:set var="AllEditable" value="${mappedParameters[impactName].size() mod 2 == 0}" />
+							<c:forEach items="${mappedParameters[impactName]}" var="parameter" varStatus="status">
 								<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
-									<!--<td>${itemInformation.id}</td>-->
 									<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 									<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 											text="${parameter.acronym}" /></td>

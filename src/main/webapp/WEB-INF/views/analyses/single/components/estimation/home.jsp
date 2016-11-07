@@ -4,9 +4,9 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <c:if test="${empty locale }">
-	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
 <!DOCTYPE html>
 <html lang="${locale.language}">
@@ -61,7 +61,8 @@
 									<spring:message text="${scenario.name}" var="scenarioName" />
 									<spring:message text="${scenario.assetTypeString()}" var="scenarioAssetTypeNames" />
 									<a href="#" title="${scenarioName}" data-trick-id='${scenario.id}' data-trick-type='${scenarioAssetTypeNames}'
-										style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${not empty currentAssetType and scenarioAssetTypeNames.contains(currentAssetType)?'':'none'};" class="list-group-item">${scenarioName}</a>
+										style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: ${not empty currentAssetType and scenarioAssetTypeNames.contains(currentAssetType)?'':'none'};"
+										class="list-group-item">${scenarioName}</a>
 								</c:forEach>
 							</div>
 						</div>
@@ -80,14 +81,16 @@
 							</div>
 						</div>
 
-						<spring:url value="?open=${open.readOnly?'read-only' : 'edit'}"  var="returnUrl"/>
+						<spring:url value="?open=${open.readOnly?'read-only' : 'edit'}" var="returnUrl" />
 						<ul class="nav nav-pills" style="font-size: 20px;" data-trick-role='nav-estimation'>
-							<li><a  accesskey="A" href='${returnUrl}' data-base-ul='${returnUrl}' title='<spring:message code="label.action.close.view"/>' class="text-danger"><i class="fa fa-sign-in fa-rotate-180"></i> </a></li>
+							<li><a accesskey="A" href='${returnUrl}' data-base-ul='${returnUrl}' title='<spring:message code="label.action.close.view"/>' class="text-danger"><i
+									class="fa fa-sign-in fa-rotate-180"></i> </a></li>
 							<li><a accesskey="T" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-selector'><i class="fa fa-angle-double-left"></i> </a></li>
 							<li><a accesskey="F" href="#" title='<spring:message code="label.action.previous" />' data-trick-nav='previous-assessment'><i class="fa fa-angle-left"></i> </a></li>
 							<li><a accesskey="H" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-assessment'><i class="fa fa-angle-right"></i> </a></li>
 							<li><a accesskey="G" href="#" title='<spring:message code="label.action.next" />' data-trick-nav='next-selector'><i class="fa fa-angle-double-right"></i> </a></li>
-							<li class="back-btn-bottom"><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close.analysis" />' class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
+							<li class="back-btn-bottom"><a accesskey="Q" href='<spring:url value="/Analysis/All"/>' title='<spring:message code="label.action.close.analysis" />'
+								class="text-danger"><i class="fa fa-sign-out"></i> </a></li>
 						</ul>
 					</div>
 				</div>
@@ -96,6 +99,36 @@
 		</div>
 		<jsp:include page="../../../../template/footer.jsp" />
 		<div id="widgets">
+			<c:choose>
+				<c:when test="${type=='QUALITATIVE' }">
+					<c:forEach items="${impactTypes}" var="impactType">
+						<spring:message text='${impactType.name}' var="impactName" />
+						<datalist id="impact${impactName}List">
+							<c:forEach items="${impacts[impactType.name]}" var="parameter">
+								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;"><spring:message
+										text="${parameter.acronym}" /> (<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" />)
+								</option>
+							</c:forEach>
+						</datalist>
+					</c:forEach>
+				</c:when>
+				<c:otherwise>
+					<datalist id="likelihoodList">
+						<c:forEach items="${probabilities}" var="parameter">
+							<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" />${probaUnit}"><spring:message
+									text="${parameter.acronym}" /></option>
+						</c:forEach>
+					</datalist>
+					<datalist id="impactList">
+						<c:forEach items="${impacts['IMPACT']}" var="parameter">
+						<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" var="impactValue"/>
+							<option value='${impactValue}' title="<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;">${impactValue} (<spring:message text="${parameter.acronym}" />)
+							</option>
+						</c:forEach>
+					</datalist>
+				</c:otherwise>
+			</c:choose>
+
 			<div class="modal fade" id="probaScale" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="probaScaleModal">
 				<div class="modal-dialog">
 					<div class="modal-content">
@@ -149,58 +182,69 @@
 					</div>
 				</div>
 			</div>
-
-			<div class="modal fade" id="impactScale" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="impactScaleModal">
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-							<h4 class="modal-title">
-								<spring:message code="label.title.parameter.extended.impact"/>
-							</h4>
-						</div>
-						<div class="modal-body">
-							<table class="table">
-								<thead>
-									<tr>
-										<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
-										<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
-										<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
-										<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
-										<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
-										<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
-									</tr>
-								</thead>
-								<tbody>
-									<c:forEach items="${impacts}" var="parameter" varStatus="status">
-										<tr style="text-align: center;">
-											<td><spring:message text="${parameter.level}" /></td>
-											<td><spring:message text="${parameter.acronym}" /></td>
-											<td><spring:message text="${parameter.description}" /></td>
-											<td title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'><fmt:formatNumber value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
-											<td><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
-											<td><c:choose>
-													<c:when test="${status.index!=10}">
-														<fmt:formatNumber value="${parameter.bounds.to*0.001}" maxFractionDigits="0" />
-													</c:when>
-													<c:otherwise>
-														<span style="font-size: 17px;">+&#8734;</span>
-													</c:otherwise>
-												</c:choose></td>
+			<c:forEach items="${impactTypes}" var="impactType">
+				<c:choose>
+					<c:when test="${type == 'QUALITATIVE'}">
+						<spring:message var="modalId" text="impact${impactType.name}Scale" />
+						<spring:message code="label.title.parameter.extended.impact.${fn:toLowerCase(impactScale.name)}"
+							text="${empty impactType.translations[language]? impactType.displayName  :  impactType.translations[language]}" var="impactTitle" />
+					</c:when>
+					<c:otherwise>
+						<spring:message var="modalId" text="impactScale" />
+						<spring:message code="label.title.parameter.extended.impact" var="impactTitle" />
+					</c:otherwise>
+				</c:choose>
+				<div class="modal fade" id="${modalId}" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="${modalId}Modal">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+								<h4 class="modal-title">${impactTitle}</h4>
+							</div>
+							<div class="modal-body">
+								<table class="table">
+									<thead>
+										<tr>
+											<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
+											<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
+											<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
+											<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
+											<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
+											<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
 										</tr>
-									</c:forEach>
-									<fmt:setLocale value="${language}" scope="session" />
-								</tbody>
-							</table>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-default" data-dismiss="modal">
-								<spring:message code="label.action.close" />
-							</button>
+									</thead>
+									<tbody>
+										<c:set var="length" value="${impacts[impactName].size()-1}" />
+										<c:forEach items="${impacts[impactType.name]}" var="parameter" varStatus="status">
+											<tr style="text-align: center;">
+												<td><spring:message text="${parameter.level}" /></td>
+												<td><spring:message text="${parameter.acronym}" /></td>
+												<td><spring:message text="${parameter.description}" /></td>
+												<td title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'><fmt:formatNumber value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
+												<td><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
+												<td><c:choose>
+														<c:when test="${status.index!=length}">
+															<fmt:formatNumber value="${parameter.bounds.to*0.001}" maxFractionDigits="0" />
+														</c:when>
+														<c:otherwise>
+															<span style="font-size: 17px;">+&#8734;</span>
+														</c:otherwise>
+													</c:choose></td>
+											</tr>
+										</c:forEach>
+										<fmt:setLocale value="${language}" scope="session" />
+									</tbody>
+								</table>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">
+									<spring:message code="label.action.close" />
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			</c:forEach>
 		</div>
 	</div>
 	<jsp:include page="../../../../template/scripts.jsp" />

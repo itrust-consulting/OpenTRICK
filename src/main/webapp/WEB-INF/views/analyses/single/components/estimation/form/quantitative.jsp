@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
-<c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}"/>
+<c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
 <div class="form-group">
 	<table class='table'>
 		<thead>
@@ -37,50 +37,42 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td style="border-right: 2px solid #ddd;text-align: center;"><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}"/></strong></td>
+				<td style="border-right: 2px solid #ddd; text-align: center;"><strong><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}"
+							text="${scenarioType}" /></strong></td>
 				<td>
 					<div class="input-group">
-						<c:catch>
-							<fmt:formatNumber value="${fct:round(assessment.impactFin*0.001,2)}" var="impactFin" />
-						</c:catch>
-						<c:if test="${empty impactFin}">
-							<spring:message text="${assessment.impactFin}" var="impactFin" />
-						</c:if>
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name="impactScale">k&euro;</button></span> <input name="impactFin"
-							class="form-control" value="${impactFin}" list="impactList" placeholder="${impactFin}" data-trick-type='string'>
-						<datalist id="impactList">
-							<c:forEach items="${impacts}" var="parameter">
-								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" /> k&euro;"><spring:message
-										text="${parameter.acronym}" /></option>
-							</c:forEach>
-						</datalist>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="impactScale">k&euro;</button></span>
+						<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
+						<c:choose>
+							<c:when test="${empty impact}">
+								<input name="IMPACT" class="form-control" value='0' list="impactList" placeholder="0" data-trick-type='string' title="${impactTypes[0].acronym}0">
+							</c:when>
+							<c:otherwise>
+								<c:choose>
+									<c:when test="${impact.real<10000}">
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,3)}" var="impactValue" />
+									</c:when>
+									<c:otherwise>
+										<fmt:formatNumber value="${fct:round(impact.real*0.001,0)}" var="impactValue" />
+									</c:otherwise>
+								</c:choose>
+								<input name="IMPACT" class="form-control" value="${impactValue}" list="impactList" placeholder="${impactValue}" data-trick-type='string' title="${impact.variable}">
+							</c:otherwise>
+						</c:choose>
+
 					</div>
 				</td>
 				<td>
 					<div class="input-group" align="right">
 						<spring:message text="${assessment.likelihood}" var="likelihood" />
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" name="probaScale">${probaUnit}</button></span>
-						<input name="likelihood" class="form-control" value="${likelihood}" list="likelihoodList" placeholder="${likelihood}" data-trick-type='string'>
-						<datalist id="likelihoodList">
-							<c:forEach items="${probabilities}" var="parameter">
-								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" />${probaUnit}"><spring:message text="${parameter.acronym}" /></option>
-							</c:forEach>
-						</datalist>
-						<!--
-						<select class="form-control" name="likelihood" data-trick-type='string' data-trick-value='${likelihood}'>
-							<option value="NA" title='0 ${probaUnit}'><spring:message code="label.na" text="NA" /></option>
-							<c:forEach items="${probabilities}" var="parameter">
-								<option value="${parameter.acronym}" ${likelihood == parameter.acronym? "selected='selected'" : ""}
-									title="<fmt:formatNumber value="${fct:round(parameter.value,2)}" />${probaUnit}">${parameter.acronym}</option>
-							</c:forEach>
-						</select>
-						-->
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="probaScale">${probaUnit}</button></span> <input
+							name="likelihood" class="form-control" value="${likelihood}" list="likelihoodList" placeholder="${likelihood}" data-trick-type='string'>
 					</div>
 				</td>
 				<spring:message text="${assessment.owner}" var="owner" />
 				<c:choose>
 					<c:when test="${show_uncertainty}">
-						<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty"/>
+						<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
 						<td><input name="uncertainty" class="form-control numeric" data-trick-type='double' value='${uncertainty}' placeholder="${uncertainty}"></td>
 						<td style="border-right: 2px solid #ddd;"><input name="owner" class="form-control" value="${owner}" placeholder="${owner}" data-trick-type='string'></td>
 						<td>
@@ -126,5 +118,6 @@
 	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
 	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
 	<label class='label-control'>${hiddenComment}</label>
-	<textarea rows="${rowLength}" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
+	<textarea rows="${rowLength}" class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}"
+		data-trick-type='string'>${hiddenCommentContent}</textarea>
 </div>

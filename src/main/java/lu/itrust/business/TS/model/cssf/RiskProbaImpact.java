@@ -4,7 +4,6 @@
 package lu.itrust.business.TS.model.cssf;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ public class RiskProbaImpact implements Cloneable {
 	private List<ImpactParameter> impacts = new LinkedList<>();
 
 	@Transient
-	private Map<String, IImpactParameter> impactMapper = new LinkedHashMap<>();
+	private Map<String, IImpactParameter> impactMapper;
 
 	/**
 	 * 
@@ -124,7 +123,7 @@ public class RiskProbaImpact implements Cloneable {
 
 	public IImpactParameter add(ImpactParameter impact) {
 		IImpactParameter parameter = getImpactMapper().get(impact.getTypeName());
-		if (parameter == null)
+		if (parameter != null)
 			remove(parameter);
 		impacts.add((ImpactParameter) impact);
 		return getImpactMapper().put(impact.getTypeName(), (ImpactParameter) impact);

@@ -3,7 +3,6 @@ package lu.itrust.business.TS.controller;
 import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -43,15 +42,11 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.cssf.EvaluationResult;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
-import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
-import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -477,31 +472,18 @@ public class ControllerAssessment {
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 	}
 
-	@SuppressWarnings("unchecked")
+
 	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis, Assessment assessment) {
-		List<? extends IBoundedParameter> probabilities = new ArrayList<>(11), impacts = new ArrayList<>(11);
-		analysis.groupExtended((List<LikelihoodParameter>) probabilities, (List<ImpactParameter>) impacts);
-		model.addAttribute("impacts", impacts);
+		ValueFactory factory = (ValueFactory) model.asMap().get("valueFactory");
+		model.addAttribute("impacts", factory.getImpacts());
 		model.addAttribute("assessment", assessment);
-		model.addAttribute("probabilities", probabilities);
+		model.addAttribute("probabilities", analysis.getLikelihoodParameters());
+		model.addAttribute("dynamics", analysis.getLikelihoodParameters());
 		if (analysis.getType() == AnalysisType.QUALITATIVE) {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
-			ValueFactory factory = (ValueFactory) model.asMap().get("valueFactory");
-			RiskRegisterItem registerItem = analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario);
+			
 			model.addAttribute("computeNextImportance", factory.findImportance(assessment));
-			if (registerItem != null) {
-				int rawImpact = factory.findImpactLevelByMaxLevel(registerItem.getRawEvaluation().getImpact()),
-						rawProbability = factory.findExpLevel(registerItem.getRawEvaluation().getProbability()),
-						netProbability = factory.findExpLevel(registerItem.getNetEvaluation().getProbability()),
-						expImpact = factory.findExpLevel(registerItem.getExpectedEvaluation().getImpact()),
-						expProbability = factory.findExpLevel(registerItem.getExpectedEvaluation().getProbability()),
-						netImpact = factory.findImpactLevelByMaxLevel(registerItem.getNetEvaluation().getImpact());
-				model.addAttribute("rawModelling", new EvaluationResult(rawProbability, rawImpact));
-				model.addAttribute("netModelling", new EvaluationResult(netProbability, netImpact));
-				model.addAttribute("expModelling", new EvaluationResult(expProbability, expImpact));
-				model.addAttribute("riskRegister", registerItem);
-			}
 		}
 	}
 

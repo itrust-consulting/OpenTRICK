@@ -105,11 +105,8 @@ import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
-import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
-import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.helper.StandardComparator;
@@ -238,7 +235,6 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping("/{analysisId}/Select")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId, @RequestParam(value = "open", defaultValue = "edit") String open,
@@ -264,7 +260,6 @@ public class ControllerAnalysis {
 			case READ:
 			case EDIT:
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-
 				standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
 						.collect(Collectors.toList());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
@@ -295,12 +290,16 @@ public class ControllerAnalysis {
 				break;
 			case EDIT_ESTIMATION:
 			case READ_ESTIMATION:
+				model.addAttribute("type", analysis.getType());
 				model.addAttribute("assets", analysis.findSelectedAssets());
 				model.addAttribute("scenarios", analysis.findSelectedScenarios());
-				List<? extends IBoundedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
-				analysis.groupExtended((List<LikelihoodParameter>) probabilities, (List<ImpactParameter>) impacts);
-				model.addAttribute("impacts", impacts);
-				model.addAttribute("probabilities", probabilities);
+				model.addAttribute("impacts", valueFactory.getImpacts());
+				model.addAttribute("probabilities", analysis.getLikelihoodParameters());
+				if (analysis.getType() != AnalysisType.QUALITATIVE) {
+					model.addAttribute("dynamics", analysis.getDynamicParameters());
+					model.addAttribute("show_uncertainty", analysis.isUncertainty());
+				}
+				model.addAttribute("impactTypes", analysis.getImpacts());
 				break;
 			}
 			model.addAttribute("valueFactory", valueFactory);
