@@ -25,7 +25,7 @@
 					<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
 						<!--<td>${itemInformation.id}</td>-->
 						<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-						<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
+						<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message
 								text="${parameter.acronym}" /></td>
 						<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 								text="${parameter.description}" /></td>

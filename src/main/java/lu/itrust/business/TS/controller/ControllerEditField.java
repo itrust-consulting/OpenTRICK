@@ -336,6 +336,8 @@ public class ControllerEditField {
 	public @ResponseBody String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
+			if(fieldEditor.getFieldName().equals("acronym"))
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve parameter
@@ -395,7 +397,8 @@ public class ControllerEditField {
 	public @ResponseBody String likelihoodParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
-
+			if(fieldEditor.getFieldName().equals("acronym"))
+				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// retrieve parameter
@@ -473,7 +476,7 @@ public class ControllerEditField {
 				// update field
 				serviceMaturityParameter.saveOrUpdate(parameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "SimpleParameter was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
 			} else
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -578,12 +581,12 @@ public class ControllerEditField {
 				if (id instanceof Integer) {
 					if (fields[2].equals("probability")) {
 						LikelihoodParameter parameter = serviceLikelihoodParameter.findOne((Integer) id, idAnalysis);
-						if(parameter == null)
+						if (parameter == null)
 							return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 						probaImpact.setProbability(parameter);
 					} else {
 						ImpactParameter parameter = serviceImpactParameter.findOne((Integer) id, idAnalysis);
-						if(parameter == null)
+						if (parameter == null)
 							return Result.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 						probaImpact.add(parameter);
 					}
@@ -656,10 +659,19 @@ public class ControllerEditField {
 				else {
 					acronyms = new LinkedList<>(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
 					acronyms.addAll(factory.findAcronyms(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME));
-					String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), fieldEditor.getValue(), acronyms);
-					if (error != null)
-						// return error message
-						return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+					if (!acronyms.contains(fieldEditor.getValue())) {
+						try {
+							double value = NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue();
+							if (value < 0)
+								return Result.Error(messageSource.getMessage("error.negatif.probability.value", null, "Probability cannot be negative", locale));
+							fieldEditor.setValue(value + "");
+						} catch (ParseException e) {
+						}
+						String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), fieldEditor.getValue(), acronyms);
+						if (error != null)
+							// return error message
+							return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+					}
 					assessment.setLikelihood(fieldEditor.getValue().toString());
 				}
 			} else {

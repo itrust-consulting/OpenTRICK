@@ -64,9 +64,19 @@
 				</td>
 				<td>
 					<div class="input-group" align="right">
-						<spring:message text="${assessment.likelihood}" var="likelihood" />
-						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="probaScale">${probaUnit}</button></span> <input
-							name="likelihood" class="form-control" value="${likelihood}" list="likelihoodList" placeholder="${likelihood}" data-trick-type='string'>
+						<span class="input-group-addon" style="padding: 1px;"><button class="btn btn-default" style="padding: 3px" data-scale-modal="probaScale">${probaUnit}</button></span>
+						<c:set var="likelihood" value="${valueFactory.findExp(assessment.likelihood)}" />
+						<c:choose>
+							<c:when test="${empty likelihood}">
+								<spring:message text="${assessment.likelihood}" var="probaValue" />
+								<input name="likelihood" class="form-control" value="${probaValue}" list="likelihoodList" title="${probaValue}" placeholder="${probaValue}" data-trick-type='string'>
+							</c:when>
+							<c:otherwise>
+								<fmt:formatNumber value="${fct:round(likelihood.real,3)}" var="probaValue" />
+								<input name="likelihood" class="form-control" value="${probaValue}" list="likelihoodList" title="${likelihood.variable}" placeholder="${probaValue}" data-trick-type='string'>
+							</c:otherwise>
+						</c:choose>
+
 					</div>
 				</td>
 				<spring:message text="${assessment.owner}" var="owner" />

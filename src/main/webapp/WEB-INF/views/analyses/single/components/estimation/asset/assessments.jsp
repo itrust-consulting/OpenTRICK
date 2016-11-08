@@ -87,7 +87,7 @@
 										<td title='${likelihood}' >${likelihood}</td>
 									</c:when>
 									<c:otherwise>
-										<td title='<fmt:formatNumber value="${fct:round(likelihood.real,2)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
+										<td title='<fmt:formatNumber value="${fct:round(likelihood.real,3)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
 												text="${likelihood.variable}" /></td>
 									</c:otherwise>
 								</c:choose>
@@ -116,7 +116,7 @@
 										<td title='${likelihood}' >${likelihood}</td>
 									</c:when>
 									<c:otherwise>
-										<td title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,2)}" /></td>
+										<td title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,3)}" /></td>
 									</c:otherwise>
 								</c:choose>
 								<c:if test="${show_uncertainty}">

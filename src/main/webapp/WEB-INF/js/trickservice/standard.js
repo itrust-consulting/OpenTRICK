@@ -144,9 +144,6 @@ function importNewStandard() {
 						setTimeout(function() {
 							progressBar.Destroy();
 						}, 2000);
-						// $("#updateStandardNotification").text(MessageResolver("error.unknown.task.execution",
-						// "An unknown error occurred during the execution of
-						// the task"));
 					},
 					success : function() {
 
@@ -185,7 +182,6 @@ function newStandard() {
 	$("#standard_label").prop("value", "");
 	$("#standard_version").prop("value", "");
 	$("#standard_description").prop("value", "");
-	// $("#addStandardModel input[name='type']").removeAttr("checked");
 	$("#addStandardModel input[name='type'][value='NORMAL']").prop("checked", true);
 	$("#standard_computable").prop("checked", false);
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.add", "Add a new Standard"));

@@ -780,10 +780,12 @@ public class ControllerAnalysisStandard {
 			}
 
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
+			
+			model.addAttribute("type", type);
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure,type, language.getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -842,18 +844,20 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
 			}
 
-			if (type != AnalysisType.QUALITATIVE) {
+			if (type == AnalysisType.QUANTITATIVE) {
 				Map<String, Boolean> excludes = new HashMap<>();
 				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 					excludes.put(category, true);
 				model.addAttribute("cssfExcludes", excludes);
 			}
 
+			model.addAttribute("type", type);
+
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure,type, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -876,6 +880,7 @@ public class ControllerAnalysisStandard {
 		try {
 
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			if (analysisStandard == null) {
 				errors.put("standard", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not belong to analysis!", locale));
@@ -924,7 +929,7 @@ public class ControllerAnalysisStandard {
 				measure.setAnalysisStandard(analysisStandard);
 			}
 
-			if (measureForm.getProperties() == null) {
+			if (type == AnalysisType.QUANTITATIVE && measureForm.getProperties() == null) {
 				errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 				return errors;
 			}
@@ -933,7 +938,7 @@ public class ControllerAnalysisStandard {
 				validate(measureForm, errors, locale);
 				if (!errors.isEmpty())
 					return errors;
-				if (!update(measure, measureForm, idAnalysis, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
+				if (!update(measure, measureForm, idAnalysis, type, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
 					return errors;
 			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
 				if (measure.getId() < 1)
@@ -1383,8 +1388,8 @@ public class ControllerAnalysisStandard {
 			errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
 	}
 
-	private Map<String, String> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, Language language, Locale locale, Map<String, String> errors)
-			throws Exception {
+	private Map<String, String> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, AnalysisType type, Language language, Locale locale,
+			Map<String, String> errors) throws Exception {
 		if (errors == null)
 			errors = new LinkedHashMap<String, String>();
 		MeasureDescription description = measure.getMeasureDescription();
@@ -1421,7 +1426,7 @@ public class ControllerAnalysisStandard {
 
 		description.setComputable(measureForm.isComputable());
 
-		if (measureForm.getProperties() == null) {
+		if (type == AnalysisType.QUANTITATIVE && measureForm.getProperties() == null) {
 			errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 			return errors;
 		}
@@ -1431,7 +1436,8 @@ public class ControllerAnalysisStandard {
 			if (assetMeasure.getMeasurePropertyList() == null)
 				assetMeasure.setMeasurePropertyList(new MeasureProperties());
 
-			measureForm.getProperties().copyTo(assetMeasure.getMeasurePropertyList());
+			if (type == AnalysisType.QUANTITATIVE)
+				measureForm.getProperties().copyTo(assetMeasure.getMeasurePropertyList());
 
 			List<MeasureAssetValue> assetValues = new ArrayList<MeasureAssetValue>(measureForm.getAssetValues().size());
 			for (MeasureAssetValueForm assetValueForm : measureForm.getAssetValues()) {
@@ -1460,7 +1466,8 @@ public class ControllerAnalysisStandard {
 			NormalMeasure normalMeasure = (NormalMeasure) measure;
 			if (normalMeasure.getMeasurePropertyList() == null)
 				normalMeasure.setMeasurePropertyList(new MeasureProperties());
-			measureForm.getProperties().copyTo(normalMeasure.getMeasurePropertyList());
+			if (type == AnalysisType.QUANTITATIVE)
+				measureForm.getProperties().copyTo(normalMeasure.getMeasurePropertyList());
 			updateAssetTypeValues(normalMeasure, measureForm.getAssetValues(), errors, locale);
 		}
 

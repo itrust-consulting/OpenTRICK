@@ -423,7 +423,7 @@ function ExtendedFieldEditor(section, element) {
 							} finally {
 								if (that.fieldName == "value") {
 									updateAssessmentAle(true);
-									$("datalist[id^='dataList-parameter-*']").remove();
+									$("datalist[id^='dataList-parameter-']").remove();
 									reloadSection([ that.section, "section_asset", "section_scenario" ]);
 								}
 							}
@@ -608,8 +608,6 @@ function AssessmentExtendedParameterEditor(element) {
 		return false;
 	};
 
-
-	
 	AssessmentExtendedParameterEditor.prototype.__generateDataList = function() {
 		if(!this.dataListName)
 			return this;

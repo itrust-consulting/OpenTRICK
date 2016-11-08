@@ -51,7 +51,7 @@ $(document).ready(function() {
 		loadChartDynamicParameterEvolution();
 		loadChartDynamicAleEvolutionByAssetType();
 		loadChartDynamicAleEvolutionByScenario();
-	}, 30000); // every 30s
+	}, 300000); // every 30s
 });
 
 $.fn.loadOrUpdateChart = function(parameters) {

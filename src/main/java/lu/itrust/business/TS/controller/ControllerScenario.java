@@ -230,12 +230,7 @@ public class ControllerScenario {
 	@RequestMapping("/Add")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer analysisID = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (serviceAnalysis.getAnalysisTypeById(analysisID) == AnalysisType.QUALITATIVE)
-			model.addAttribute("scenariotypes", ScenarioType.getAll());
-		else
-			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
-		model.addAttribute("assetTypes", serviceAssetType.getAll());
+		loadFormData(model, session);
 		return "analyses/single/components/scenario/manageScenario";
 	}
 
@@ -251,17 +246,11 @@ public class ControllerScenario {
 	@RequestMapping("/Edit/{elementID}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
-
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		if (serviceAnalysis.getAnalysisTypeById(idAnalysis) == AnalysisType.QUALITATIVE)
-			model.addAttribute("scenariotypes", ScenarioType.getAll());
-		else
-			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
-		// add scenario to model
+		Integer idAnalysis = loadFormData(model, session);
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());
 		model.addAttribute("scenario", scenario);
-		model.addAttribute("assetTypes", serviceAssetType.getAll());
+
 		return "analyses/single/components/scenario/manageScenario";
 	}
 
@@ -426,22 +415,18 @@ public class ControllerScenario {
 			ScenarioType scenarioType = null;
 
 			try {
-
 				Integer i = node.get("id").asInt();
-
 				if (i == -1)
 					throw new TrickException("error.scenario_type.not_selected", "You need to select a scenario type");
-
 				scenarioType = ScenarioType.valueOf(i);
-
 				returnvalue.setType(scenarioType);
-
 				// set category according to value of scenario type
 				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenarioType(scenarioType.getName()), 1);
 
 			} catch (TrickException e) {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			}
+			
 			String description = jsonNode.get("description").asText();
 
 			error = validator.validate(returnvalue, "name", name);
@@ -459,24 +444,6 @@ public class ControllerScenario {
 				returnvalue.setDescription(description);
 			}
 
-			returnvalue.setAccidental(jsonNode.get("accidental").asInt());
-
-			returnvalue.setEnvironmental(jsonNode.get("environmental").asInt());
-
-			returnvalue.setExternalThreat(jsonNode.get("externalThreat").asInt());
-
-			returnvalue.setInternalThreat(jsonNode.get("internalThreat").asInt());
-
-			returnvalue.setIntentional(jsonNode.get("intentional").asInt());
-
-			returnvalue.setDetective(jsonNode.get("detective").asDouble());
-
-			returnvalue.setCorrective(jsonNode.get("corrective").asDouble());
-
-			returnvalue.setLimitative(jsonNode.get("limitative").asDouble());
-
-			returnvalue.setPreventive(jsonNode.get("preventive").asDouble());
-
 			for (AssetType assetType : assetTypes) {
 
 				AssetTypeValue atv = null;
@@ -492,10 +459,32 @@ public class ControllerScenario {
 					returnvalue.addAssetTypeValue(new AssetTypeValue(assetType, value));
 
 			}
-			if (!returnvalue.hasThreatSource())
-				throw new TrickException("error.scenario.threat.source", "Please define a threat source.");
-			if (!returnvalue.hasControlCharacteristics())
-				throw new TrickException("error.scenario.control.characteristic", "Sum of the control characteristics must be equal to 1.");
+			
+			if (!cssf) {
+				returnvalue.setAccidental(jsonNode.get("accidental").asInt());
+
+				returnvalue.setEnvironmental(jsonNode.get("environmental").asInt());
+
+				returnvalue.setExternalThreat(jsonNode.get("externalThreat").asInt());
+
+				returnvalue.setInternalThreat(jsonNode.get("internalThreat").asInt());
+
+				returnvalue.setIntentional(jsonNode.get("intentional").asInt());
+
+				returnvalue.setDetective(jsonNode.get("detective").asDouble());
+
+				returnvalue.setCorrective(jsonNode.get("corrective").asDouble());
+
+				returnvalue.setLimitative(jsonNode.get("limitative").asDouble());
+
+				returnvalue.setPreventive(jsonNode.get("preventive").asDouble());
+
+				if (!returnvalue.hasThreatSource())
+					throw new TrickException("error.scenario.threat.source", "Please define a threat source.");
+				if (!returnvalue.hasControlCharacteristics())
+					throw new TrickException("error.scenario.control.characteristic", "Sum of the control characteristics must be equal to 1.");
+			}
+			
 			return returnvalue;
 
 		} catch (TrickException e) {
@@ -509,5 +498,17 @@ public class ControllerScenario {
 
 		return null;
 
+	}
+
+	private Integer loadFormData(Model model, HttpSession session) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+		if (type == AnalysisType.QUALITATIVE)
+			model.addAttribute("scenariotypes", ScenarioType.getAll());
+		else
+			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
+		model.addAttribute("type", type);
+		model.addAttribute("assetTypes", serviceAssetType.getAll());
+		return idAnalysis;
 	}
 }

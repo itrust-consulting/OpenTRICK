@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.standard.StandardType;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
@@ -48,7 +49,7 @@ public class MeasureForm {
 	public MeasureForm() {
 	}
 
-	public static final MeasureForm Build(Measure measure, String language) throws TrickException {
+	public static final MeasureForm Build(Measure measure, AnalysisType analysisType, String language) throws TrickException {
 		MeasureForm form = new MeasureForm();
 		if (measure == null)
 			return form;
@@ -57,7 +58,7 @@ public class MeasureForm {
 			form.setIdStandard(measure.getAnalysisStandard().getStandard().getId());
 			form.setType(measure.getAnalysisStandard().getStandard().getType());
 		}
-		
+
 		if (measure.getMeasureDescription() != null) {
 			form.setComputable(measure.getMeasureDescription().isComputable());
 			form.setReference(measure.getMeasureDescription().getReference());
@@ -74,19 +75,23 @@ public class MeasureForm {
 		}
 
 		MeasureProperties properties = new MeasureProperties();
-		if (measure instanceof NormalMeasure){
-			((NormalMeasure) measure).getMeasurePropertyList().copyTo(properties);
+		
+		if (measure instanceof NormalMeasure) {
+			if (analysisType == AnalysisType.QUANTITATIVE)
+				((NormalMeasure) measure).getMeasurePropertyList().copyTo(properties);
 			form.assetValues = new ArrayList<MeasureAssetValueForm>(((NormalMeasure) measure).getAssetTypeValues().size());
-			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues()) 
-				form.assetValues.add(new MeasureAssetValueForm(assetTypeValue.getAssetType().getId(),assetTypeValue.getAssetType().getType(), assetTypeValue.getValue()));
-		}
-		else if (measure instanceof AssetMeasure) {
-			((AssetMeasure) measure).getMeasurePropertyList().copyTo(properties);
+			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
+				form.assetValues.add(new MeasureAssetValueForm(assetTypeValue.getAssetType().getId(), assetTypeValue.getAssetType().getType(), assetTypeValue.getValue()));
+		} else if (measure instanceof AssetMeasure) {
+			if (analysisType == AnalysisType.QUANTITATIVE)
+				((AssetMeasure) measure).getMeasurePropertyList().copyTo(properties);
 			form.setAssetValues(new ArrayList<MeasureAssetValueForm>(((AssetMeasure) measure).getMeasureAssetValues().size()));
 			for (MeasureAssetValue assetValue : ((AssetMeasure) measure).getMeasureAssetValues())
 				form.assetValues.add(new MeasureAssetValueForm(assetValue));
 		}
-		form.setProperties(properties);
+		
+		if (analysisType == AnalysisType.QUANTITATIVE)
+			form.setProperties(properties);
 		return form;
 	}
 
@@ -111,7 +116,7 @@ public class MeasureForm {
 	}
 
 	public void setReference(String reference) {
-		this.reference = reference == null? null : reference.trim();
+		this.reference = reference == null ? null : reference.trim();
 	}
 
 	public int getLevel() {

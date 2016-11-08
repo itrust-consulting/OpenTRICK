@@ -86,7 +86,7 @@
 									</c:when>
 									<c:otherwise>
 										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);"
-											title='<fmt:formatNumber value="${fct:round(likelihood.real,2)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
+											title='<fmt:formatNumber value="${fct:round(likelihood.real,3)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
 												text="${likelihood.variable}" /></td>
 									</c:otherwise>
 								</c:choose>
@@ -116,7 +116,7 @@
 									</c:when>
 									<c:otherwise>
 										<td data-trick-field="likelihood" data-trick-field-type="string" class="success" onclick="return editField(this);"
-											title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,2)}" /></td>
+											title='<spring:message text="${likelihood.variable}" />'><fmt:formatNumber value="${fct:round(likelihood.real,3)}" /></td>
 									</c:otherwise>
 								</c:choose>
 								<c:if test="${show_uncertainty}">
