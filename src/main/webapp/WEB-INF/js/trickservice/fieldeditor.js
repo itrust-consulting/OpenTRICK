@@ -96,7 +96,7 @@ function FieldEditor(element, validator) {
 				$td = $element;
 			else {
 				$td = $element.closest("td");
-				rows = $element.text().split(/\n/).length;
+				rows = $element.text().split("\n").length;
 				if (rows == 1)
 					rows = 2;
 			}
@@ -110,6 +110,12 @@ function FieldEditor(element, validator) {
 					this.realValue = this.element.getAttribute("data-real-value");
 				if (minValue != undefined || maxValue != undefined)
 					this.validator = new FieldBoundedValidator(minValue, maxValue);
+				var dataList = $element.attr("data-trick-list-value");
+				if (dataList){
+					this.fieldEditor.setAttribute("list", dataList);
+					if(width<60)
+						width=100;
+				}
 			}
 			$fieldEditor = $(this.fieldEditor)
 
@@ -571,16 +577,17 @@ AssessmentExtendedParameterEditor.prototype = new AssessmentFieldEditor();
 
 /**
  * Data list must be remove when parameter value change.
+ * 
  * @See ExtendedFieldEditor
  */
 function AssessmentExtendedParameterEditor(element) {
 
 	AssessmentFieldEditor.call(this, element);
-	
+
 	this.dataListName = undefined;
 
 	this.acromyms = [];
-	
+
 	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
 		var that = this, $element = $(this.element);
 		if ($element.find("select,input,textarea").length)
@@ -609,17 +616,17 @@ function AssessmentExtendedParameterEditor(element) {
 	};
 
 	AssessmentExtendedParameterEditor.prototype.__generateDataList = function() {
-		if(!this.dataListName)
+		if (!this.dataListName)
 			return this;
 		var dataList = document.getElementById(this.dataListName);
-		if(dataList != null)
+		if (dataList != null)
 			return this;
 		dataList = document.createElement("datalist");
-		dataList.setAttribute("id",this.dataListName);
-		for (var i = 0; i < this.choose.length; i++){
+		dataList.setAttribute("id", this.dataListName);
+		for (var i = 0; i < this.choose.length; i++) {
 			var option = document.createElement("option");
-			option.setAttribute("value",this.acromyms[i]);
-			option.innerText = this.acromyms[i] + " ("+this.choose[i]+")";
+			option.setAttribute("value", this.acromyms[i]);
+			option.innerText = this.acromyms[i] + " (" + this.choose[i] + ")";
 			dataList.appendChild(option);
 		}
 		$(dataList).hide().appendTo("#widgets");
@@ -635,7 +642,7 @@ function AssessmentImpactFieldEditor(element) {
 	AssessmentImpactFieldEditor.prototype.LoadData = function() {
 		var name = this.element.getAttribute("data-trick-field"), id = "IMPACT" == name ? "#Scale_Impact" : "#Scale_Impact_" + name, $acronyms = $(
 				"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
-		this.dataListName = "dataList-parameter-impact-"+name.toLowerCase();
+		this.dataListName = "dataList-parameter-impact-" + name.toLowerCase();
 		for (var i = 0; i < $values.length; i++) {
 			this.acromyms[i] = $acronyms[i].innerText;
 			this.choose[i] = $values[i].innerText;
@@ -653,8 +660,9 @@ function AssessmentProbaFieldEditor(element) {
 	AssessmentExtendedParameterEditor.call(this, element);
 
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
-		this.dataListName="dataList-parameter-probability";
-		var $acronyms = $("td[data-trick-field='acronym']","#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']","#Scale_Probability,#DynamicParameters");
+		this.dataListName = "dataList-parameter-probability";
+		var $acronyms = $("td[data-trick-field='acronym']", "#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']",
+				"#Scale_Probability,#DynamicParameters");
 		for (var i = 0; i < $values.length; i++) {
 			this.acromyms[i] = $acronyms[i].innerText;
 			this.choose[i] = $values[i].innerText;

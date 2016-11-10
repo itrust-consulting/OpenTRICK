@@ -42,9 +42,10 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	 * @see
 	 * lu.itrust.business.TS.database.dao.DAOScaleType#findOne(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ScaleType findOne(String name) {
-		return (ScaleType) getSession().createQuery("From ScaleType where name = :name").setString("name", name).uniqueResult();
+		return (ScaleType) getSession().createQuery("From ScaleType where name = :name").setParameter("name", name).uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -54,9 +55,10 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	 * lu.itrust.business.TS.database.dao.DAOScaleType#findByAcronym(java.lang.
 	 * String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ScaleType findByAcronym(String acronym) {
-		return (ScaleType) getSession().createQuery("From ScaleType where acronym = :acronym").setString("acronym", acronym).uniqueResult();
+		return (ScaleType) getSession().createQuery("From ScaleType where acronym = :acronym").setParameter("acronym", acronym).uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -67,7 +69,7 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ScaleType> findAll() {
-		return getSession().createQuery("From ScaleType").list();
+		return getSession().createQuery("From ScaleType").getResultList();
 	}
 
 	/*
@@ -78,7 +80,7 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	 */
 	@Override
 	public boolean exists(int id) {
-		return (boolean) getSession().createQuery("Select count(*)> 0 From ScaleType where id = :id").setInteger("id", id).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)> 0 From ScaleType where id = :id").setParameter("id", id).getSingleResult();
 	}
 
 	/*
@@ -89,7 +91,7 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	 */
 	@Override
 	public boolean exists(String name) {
-		return (boolean) getSession().createQuery("Select count(*)> 0 From ScaleType where name = :name").setString("name", name).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)> 0 From ScaleType where name = :name").setParameter("name", name).getSingleResult();
 	}
 
 	/*
@@ -101,7 +103,7 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	 */
 	@Override
 	public boolean hasAcronym(String acronym) {
-		return (boolean) getSession().createQuery("Select count(*)> 0 From ScaleType where acronym = :acronym").setString("acronym", acronym).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)> 0 From ScaleType where acronym = :acronym").setParameter("acronym", acronym).getSingleResult();
 	}
 
 	/*
@@ -167,13 +169,13 @@ public class DAOScaleTypeHBM extends DAOHibernate implements DAOScaleType {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ScaleType> findAllFree() {
-		return getSession().createQuery("From ScaleType where id not in (Select type.id From Scale) order by name").list();
+		return getSession().createQuery("From ScaleType where id not in (Select type.id From Scale) order by name").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ScaleType> findAllExpect(String[] names) {
-		return getSession().createQuery("From ScaleType where name not in (:names) order by name").setParameterList("names", names).list();
+		return getSession().createQuery("From ScaleType where name not in (:names) order by name").setParameterList("names", names).getResultList();
 	}
 
 }

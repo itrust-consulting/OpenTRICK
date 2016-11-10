@@ -25,7 +25,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.ManyToAny;
 
-import bsh.This;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.IAcronymParameter;
@@ -272,21 +271,23 @@ public class Assessment implements Cloneable {
 	}
 
 	public void setImpact(IValue impact) {
-		IValue old = getImpactMapper().get(impact.getName());
-		if (old == null) {
-			impacts.add(impact);
-			getImpactMapper().put(impact.getName(), impact);
-		} else if (!old.equals(impact)) {
-			impacts.remove(old);
-			impacts.add(impact);
-			getImpactMapper().put(impact.getName(), impact);
+		synchronized (this) {
+			IValue old = getImpactMapper().get(impact.getName());
+			if (old == null) {
+				impacts.add(impact);
+				getImpactMapper().put(impact.getName(), impact);
+			} else if (!old.equals(impact)) {
+				impacts.remove(old);
+				impacts.add(impact);
+				getImpactMapper().put(impact.getName(), impact);
+			}
 		}
 	}
 
 	/**
 	 * @return the impactMapper
 	 */
-	protected Map<String, IValue> getImpactMapper() {
+	protected synchronized Map<String, IValue> getImpactMapper() {
 		if (impacts == null || impacts.isEmpty())
 			return Collections.emptyMap();
 		if (impactMapper == null)

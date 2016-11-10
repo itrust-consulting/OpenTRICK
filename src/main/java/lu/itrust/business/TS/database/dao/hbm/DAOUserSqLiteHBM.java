@@ -56,9 +56,10 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByFilename(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public UserSQLite getByFilename(String filename)  {
-		return (UserSQLite) getSession().createQuery("From UserSQLite where filename = :filename").setParameter("filename", filename).uniqueResult();
+		return (UserSQLite) getSession().createQuery("From UserSQLite where filename = :filename").setParameter("filename", filename).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -68,10 +69,11 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByUserSQLiteIdAndUserLogin(long,
 	 *      java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public UserSQLite getByIdAndUser(Integer idFile, String username)  {
 		String query = "From UserSQLite where id = :idFile and user.login = :username";
-		return (UserSQLite) getSession().createQuery(query).setParameter("idFile", idFile).setParameter("username", username).uniqueResult();
+		return (UserSQLite) getSession().createQuery(query).setParameter("idFile", idFile).setParameter("username", username).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -83,7 +85,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserSQLite> getAllFromUser(String username)  {
-		return getSession().createQuery("From UserSQLite where user.login = :username order by exportTime desc").setParameter("username", username).list();
+		return getSession().createQuery("From UserSQLite where user.login = :username order by exportTime desc").setParameter("username", username).getResultList();
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@Override
 	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize)  {
 		String query = "From UserSQLite where user.login = :username order by exportTime desc";
-		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
+		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).getResultList();
 	}
 
 	/**
@@ -169,7 +171,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getDistinctIdentifierByUser(User user) {
-		return getSession().createQuery("Select distinct identifier From UserSQLite where user = :user order by identifier desc").setParameter("user", user).list();
+		return getSession().createQuery("Select distinct identifier From UserSQLite where user = :user order by identifier desc").setParameter("user", user).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -179,12 +181,12 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 			throw new IllegalArgumentException();
 		if ("ALL".equalsIgnoreCase(filter.getFilter()))
 			return getSession().createQuery(String.format("From UserSQLite where user.login = :username order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
+					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();
 		else
 			return getSession()
 					.createQuery(String.format("From UserSQLite where user.login = :username and identifier = :filter order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setString("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
-					.list();
+					.setParameter("username", username).setParameter("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
+					.getResultList();
 	}
 
 	@Override

@@ -353,7 +353,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		notNull(assessment, "Assessment cannot be found");
 		assertTrue("Assessment should be selected", assessment.isSelected());
 		assessment = serviceAssessment.get(assessment.getId());
-		assertEquals("impactFin should be i9", "i9", assessment.getImpactFin());
+		assertEquals("impactFin should be i9", "i9", assessment.getImpactAcronym("IMPACT"));
 		assertEquals("likelihood should be p9", "p9", assessment.getLikelihood());
 	}
 

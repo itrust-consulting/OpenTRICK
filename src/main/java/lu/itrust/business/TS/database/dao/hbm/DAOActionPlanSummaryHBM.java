@@ -57,10 +57,11 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanSummary#getFromAnalysisById(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.id = :idSummaryStage";
-		return (SummaryStage) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idSummaryStage", idSummaryStage).uniqueResult();
+		return (SummaryStage) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idSummaryStage", idSummaryStage).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -71,8 +72,8 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId)  {
-		String query = "Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = :actionPlanSummaryId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanSummaryId", actionPlanSummaryId).uniqueResult()).intValue() > 0;
+		String query = "Select count(summary)>0 From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = :actionPlanSummaryId";
+		return (boolean) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanSummaryId", actionPlanSummaryId).getSingleResult();
 	}
 
 	/**
@@ -84,7 +85,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SummaryStage> getAll()  {
-		return getSession().createQuery("From SummaryStage").list();
+		return getSession().createQuery("From SummaryStage").getResultList();
 	}
 
 	/**
@@ -97,7 +98,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@Override
 	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis order by summary.id";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/**
@@ -123,7 +124,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType ";
 		query += "order by summary.id";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).getResultList();
 	}
 
 	/**
@@ -188,7 +189,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@Override
 	public void deleteAllFromAnalysis(Integer analysisID)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis";
-		List<SummaryStage> summaries = (List<SummaryStage>) getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
+		List<SummaryStage> summaries = (List<SummaryStage>) getSession().createQuery(query).setParameter("idAnalysis", analysisID).getResultList();
 		for(SummaryStage summary : summaries){
 			for(SummaryStandardConformance conformance : summary.getConformances())
 				getSession().delete(conformance);

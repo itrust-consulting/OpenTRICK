@@ -11,6 +11,7 @@ function EstimationHelper(name, id) {
 	this.name = name;
 	this.id = id;
 	this.outOfDate = true;
+	this.updateLocked = false;
 	this.navSelector = "tr[data-trick-selected='true']:first";
 	this.isReadOnly = application.openMode.value.startsWith("read-only");
 }
@@ -152,7 +153,7 @@ EstimationHelper.prototype = {
 				return instance.updateContent(reponse);
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$progress.hide();
 		});
 		return this;
@@ -160,19 +161,27 @@ EstimationHelper.prototype = {
 	update : function() {
 		if (this.isReadOnly)
 			return this.load();
-		var instance = this;
-		var $progress = $("#loading-indicator").show();
-		$.ajax({
-			url : instance.updateUrl(),
-			contentType : "application/json;charset=UTF-8",
-			type : "post",
-			success : function(reponse) {
-				return instance.updateContent(reponse);
-			},
-			error : unknowError
-		}).complete(function(){
-			$progress.hide();
-		});
+		if (!this.updateLocked) {
+			var instance = this, $progress = $("#loading-indicator").show();
+			this.updateLocked = true;
+			try {
+				$.ajax({
+					url : instance.updateUrl(),
+					contentType : "application/json;charset=UTF-8",
+					type : "post",
+					success : function(reponse) {
+						return instance.updateContent(reponse);
+					},
+					error : unknowError
+				}).complete(function() {
+					$progress.hide();
+					instance.updateLocked = false;
+				});
+			} catch (e) {
+				instance.updateLocked = false;
+				console.log(e);
+			}
+		}
 		return this;
 
 	},
@@ -295,7 +304,7 @@ function computeAssessment(silent) {
 				return false;
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$progress.hide();
 		});
 	} else
@@ -325,7 +334,7 @@ function refreshAssessment() {
 					return false;
 				},
 				error : unknowError
-			}).complete(function(){
+			}).complete(function() {
 				$progress.hide();
 			});
 		});
@@ -357,7 +366,7 @@ function updateAssessmentAle(silent) {
 				return false;
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$progress.hide();
 		});
 	} else

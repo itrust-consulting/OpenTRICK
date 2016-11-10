@@ -72,11 +72,12 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#findOne(java.io.
 	 * Serializable, java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ImpactParameter findOne(Integer id, Integer idAnalysis) {
 		return (ImpactParameter) getSession()
 				.createQuery("Select parameter From Analysis analysis inner join analysis.impactParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", idAnalysis).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -91,7 +92,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(parameter) > 0 From Analysis analysis inner join analysis.impactParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", analysisId).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", analysisId).getSingleResult();
 	}
 
 	/*
@@ -102,7 +103,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	 */
 	@Override
 	public boolean exists(Integer id) {
-		return (boolean) getSession().createQuery("Select count(*)>0 From ImpactParameter where id = :id").setInteger("id", id).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)>0 From ImpactParameter where id = :id").setParameter("id", id).getSingleResult();
 	}
 
 	/*
@@ -113,7 +114,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ImpactParameter> findAll() {
-		return getSession().createCriteria(ImpactParameter.class).list();
+		return getSession().createQuery("From ImpactParameter").getResultList();
 	}
 
 	/*
@@ -125,7 +126,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ImpactParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From ImpactParameter where id in (:ids) order by type, level").setParameterList("ids", ids).list();
+		return getSession().createQuery("From ImpactParameter where id in (:ids) order by type, level").setParameterList("ids", ids).getResultList();
 	}
 
 	/*
@@ -135,7 +136,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	 */
 	@Override
 	public long count() {
-		return (long) getSession().createQuery("Select count(*) From ImpactParameter").uniqueResult();
+		return (long) getSession().createQuery("Select count(*) From ImpactParameter").getSingleResult();
 	}
 
 	/*
@@ -146,7 +147,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	 */
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete From ImpactParameter where id = :id").setInteger("id", id).executeUpdate();
+		getSession().createQuery("Delete From ImpactParameter where id = :id").setParameter("id", id).executeUpdate();
 	}
 
 	/*
@@ -193,7 +194,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 		return getSession()
 				.createQuery(
 						"Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type order by parameter.level")
-				.setString("type", type).setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("type", type).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/*
@@ -209,7 +210,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 		return getSession()
 				.createQuery(
 						"Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.type = :type order by parameter.level")
-				.setParameter("type", type).setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("type", type).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@Override
@@ -229,7 +230,7 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 	@Override
 	public List<ImpactParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis order by parameter.level")
-				.setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@Override
@@ -237,9 +238,13 @@ public class DAOImpactParameterHBM extends DAOHibernate implements DAOImpactPara
 		entities.stream().forEach(entity -> saveOrUpdate(entity));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> findAcronymByTypeAndAnalysisId(String type, Integer idAnalysis) {
-		return null;
+		return getSession()
+				.createQuery(
+						"Select parameter.acronym From Analysis analysis inner join analysis.impactParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type")
+				.setParameter("type", type).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	

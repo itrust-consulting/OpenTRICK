@@ -32,6 +32,7 @@
 					<td data-trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
 					<td data-trick-field="value" colspan="3">0</td>
 				</tr>
+				<c:set var="length" value="${mappedParameters['PROBA'].size()-1}" />
 				<c:forEach items="${mappedParameters['PROBA']}" var="parameter" varStatus="status">
 					<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
 						<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
@@ -47,7 +48,7 @@
 							data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
 						<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" minFractionDigits="2" /></td>
 						<td class="textaligncenter"><c:choose>
-								<c:when test="${status.index!=10}">
+								<c:when test="${status.index!=length}">
 									<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" minFractionDigits="2" />
 								</c:when>
 								<c:otherwise>

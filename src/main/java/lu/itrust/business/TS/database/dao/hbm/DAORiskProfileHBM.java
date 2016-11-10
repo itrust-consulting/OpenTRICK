@@ -54,7 +54,7 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(riskProfile)>0 From Analysis analysis inner join analysis.riskProfiles riskProfile where analysis.id = :idAnalysis and riskProfile.id = :idRiskProfile")
-				.setInteger("idAnalysis", analysisId).setInteger("idRiskProfile", idRiskProfile).uniqueResult();
+				.setParameter("idAnalysis", analysisId).setParameter("idRiskProfile", idRiskProfile).getSingleResult();
 	}
 
 	/*
@@ -68,7 +68,7 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 	@Override
 	public List<RiskProfile> getAllFromAnalysis(Integer analysisId) {
 		return getSession().createQuery("Select riskProfile From Analysis analysis inner join analysis.riskProfiles riskProfile where analysis.id = :idAnalysis")
-				.setInteger("idAnalysis", analysisId).list();
+				.setParameter("idAnalysis", analysisId).getResultList();
 	}
 
 	/*
@@ -126,7 +126,7 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 	 */
 	@Override
 	public void delete(Integer idRiskProfile) {
-		getSession().createQuery("Delete From RiskProfile where id = :id").setInteger("id", idRiskProfile).executeUpdate();
+		getSession().createQuery("Delete From RiskProfile where id = :id").setParameter("id", idRiskProfile).executeUpdate();
 	}
 
 	/*
@@ -142,8 +142,8 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 
 	@Override
 	public RiskProfile getByAssetAndScanrio(int idAsset, int idScenario) {
-		return (RiskProfile) getSession().createQuery("From RiskProfile where asset.id = :idAsset and scenario.id = :idScenario").setInteger("idAsset", idAsset)
-				.setInteger("idScenario", idScenario).uniqueResult();
+		return (RiskProfile) getSession().createQuery("From RiskProfile where asset.id = :idAsset and scenario.id = :idScenario").setParameter("idAsset", idAsset)
+				.setParameter("idScenario", idScenario).getSingleResult();
 	}
 
 	@Override
@@ -151,7 +151,7 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 		return (RiskProfile) getSession()
 				.createQuery(
 						"Select riskProfile From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.id = :idRiskProfile")
-				.setInteger("idRiskProfile", idRiskProfile).setInteger("idAnalysis", idAnalysis).uniqueResult();
+				.setParameter("idRiskProfile", idRiskProfile).setParameter("idAnalysis", idAnalysis).getSingleResult();
 	}
 
 	@Override
@@ -159,7 +159,7 @@ public class DAORiskProfileHBM extends DAOHibernate implements DAORiskProfile {
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(*)>0 From Analysis as analysis inner join analysis.riskProfiles as riskProfile where analysis.id = :idAnalysis and riskProfile.identifier = :identifier")
-				.setString("identifier", identifier).setInteger("idAnalysis", idAnalysis).uniqueResult();
+				.setParameter("identifier", identifier).setParameter("idAnalysis", idAnalysis).getSingleResult();
 	}
 
 }

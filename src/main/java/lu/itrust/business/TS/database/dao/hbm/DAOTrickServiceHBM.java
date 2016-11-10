@@ -51,7 +51,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 */
 	@Override
 	public TrickService getStatus()  {
-		return (TrickService) getSession().createQuery("From TrickService").uniqueResult();
+		return (TrickService) getSession().createQuery("From TrickService").getSingleResult();
 	}
 
 	/**

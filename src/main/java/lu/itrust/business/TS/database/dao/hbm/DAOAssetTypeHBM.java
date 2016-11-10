@@ -2,7 +2,6 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -52,10 +51,10 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOAssetType#getByName(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public AssetType getByName(String assetTypeName)  {
-		Query query = getSession().createQuery("From AssetType where type= :type").setParameter("type", assetTypeName);
-		return (AssetType) query.uniqueResult();
+		return (AssetType) getSession().createQuery("From AssetType where type= :type").setParameter("type", assetTypeName).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -67,7 +66,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AssetType> getAll()  {
-		return (List<AssetType>) getSession().createQuery("From AssetType order by type").list();
+		return (List<AssetType>) getSession().createQuery("From AssetType order by type").getResultList();
 	}
 
 	/**
@@ -80,7 +79,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	@Override
 	public List<AssetType> getAllFromAnalysis(Integer idAnalysis)  {
 		String query = "Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.type asc";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/**

@@ -186,14 +186,14 @@
 								</tr>
 							</c:when>
 							<c:otherwise>
-								<tr ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)" data-trick-level="${measure.measureDescription.level}" 
+								<tr ${isAnalysisOnly?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)" data-trick-level="${measure.measureDescription.level}" 
 									data-trick-class="Measure" data-is-linked='${hasTicket}'
 									data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
 										<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
 											onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-									<td>
+									<td ${not isAnalysisOnly ?dblclickaction:''} >
 										<c:choose>
 											<c:when test="${hasTicket}">
 												<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />

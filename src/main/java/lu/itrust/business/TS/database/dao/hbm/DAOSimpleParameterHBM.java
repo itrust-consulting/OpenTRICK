@@ -95,11 +95,12 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#findOne(java.io.
 	 * Serializable, java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public SimpleParameter findOne(Integer id, Integer idAnalysis) {
 		return (SimpleParameter) getSession()
 				.createQuery("Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", idAnalysis).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -114,7 +115,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(parameter) > 0 From Analysis analysis inner join analysis.simpleParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", analysisId).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", analysisId).getSingleResult();
 	}
 
 	/*
@@ -125,7 +126,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 */
 	@Override
 	public boolean exists(Integer id) {
-		return (boolean) getSession().createQuery("Select count(*)>0 From SimpleParameter where id = :id").setInteger("id", id).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)>0 From SimpleParameter where id = :id").setParameter("id", id).getSingleResult();
 	}
 
 	/*
@@ -136,7 +137,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SimpleParameter> findAll() {
-		return getSession().createCriteria(SimpleParameter.class).list();
+		return getSession().createQuery("From SimpleParameter").getResultList();
 	}
 
 	/*
@@ -148,7 +149,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SimpleParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From SimpleParameter where id in (:ids)").setParameterList("ids", ids).list();
+		return getSession().createQuery("From SimpleParameter where id in (:ids)").setParameterList("ids", ids).getResultList();
 	}
 
 	/*
@@ -158,7 +159,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 */
 	@Override
 	public long count() {
-		return (long) getSession().createQuery("Select count(*) From SimpleParameter").uniqueResult();
+		return (long) getSession().createQuery("Select count(*) From SimpleParameter").getSingleResult();
 	}
 
 	/*
@@ -169,7 +170,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 */
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete From ImpactParameter where id = :id").setInteger("id", id).executeUpdate();
+		getSession().createQuery("Delete From ImpactParameter where id = :id").setParameter("id", id).executeUpdate();
 	}
 
 	/*
@@ -216,7 +217,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 		return getSession()
 				.createQuery(
 						"Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type")
-				.setString("type", type).setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("type", type).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/*
@@ -232,7 +233,7 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 		return getSession()
 				.createQuery(
 						"Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type")
-				.setParameter("type", type).setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("type", type).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/*
@@ -241,27 +242,29 @@ public class DAOSimpleParameterHBM extends DAOHibernate implements DAOSimplePara
 	 * @see lu.itrust.business.TS.database.dao.DAOSimpleParameter#
 	 * findByAnalysisIdAndDescription(java.lang.String, java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public SimpleParameter findByAnalysisIdAndDescription(Integer idAnalysis, String description) {
 		return (SimpleParameter) getSession()
 				.createQuery(
 						"Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter  where analysis.id = :idAnalysis and parameter.description = :description")
-				.setParameter("description", description).setInteger("idAnalysis", idAnalysis).uniqueResult();
+				.setParameter("description", description).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SimpleParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession()
-		.createQuery("Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter where analysis.id = :idAnalysis").setInteger("idAnalysis", idAnalysis).list();
+		.createQuery("Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public SimpleParameter findByAnalysisIdAndTypeAndDescription(Integer idAnalysis, String type, String description) {
 		return (SimpleParameter) getSession()
 				.createQuery(
-						"Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type and parameter.description = :description").setString("type", type)
-			.setParameter("description", description).setInteger("idAnalysis", idAnalysis).uniqueResult();
+						"Select parameter From Analysis analysis inner join analysis.simpleParameters as parameter  where analysis.id = :idAnalysis and parameter.type.name = :type and parameter.description = :description").setParameter("type", type)
+			.setParameter("description", description).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	@Override

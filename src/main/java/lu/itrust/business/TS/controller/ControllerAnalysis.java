@@ -500,7 +500,7 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			assessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
+			assessmentAndRiskProfileManager.updateAssetALE(analysis, null);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -1267,7 +1267,7 @@ public class ControllerAnalysis {
 			analysis.setLanguage(language);
 			analysis.setUncertainty(analysis.getType() == AnalysisType.QUALITATIVE ? false : uncertainty);
 			if (update)
-				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
+				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {

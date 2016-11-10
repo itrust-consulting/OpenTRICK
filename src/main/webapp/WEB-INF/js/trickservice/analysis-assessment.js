@@ -287,9 +287,9 @@ AssessmentHelder.prototype = {
 	updateContent : function() {
 		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-id!='-1']");
 		if (activeSelector == "asset") {
-			$elements.each(function(i) {
-				var $this = $(this);
-				if ($this.attr("data-trick-type").search(type) != -1)
+			$elements.each(function() {
+				var $this = $(this), scenarioType = $this.attr("data-trick-type");
+				if (scenarioType && scenarioType.search(type) != -1)
 					$this.show();
 				else
 					$this.hide();

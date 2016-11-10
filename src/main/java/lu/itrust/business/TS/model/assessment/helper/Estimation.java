@@ -4,13 +4,20 @@
 package lu.itrust.business.TS.model.assessment.helper;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lu.itrust.business.TS.component.NaturalOrderComparator;
+import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
+import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
@@ -47,8 +54,11 @@ public class Estimation {
 	 * @param riskProfile
 	 */
 	public Estimation(Assessment assessment, RiskProfile riskProfile, ValueFactory convertor) {
-		this(assessment.getOwner(), assessment.getComment(), riskProfile,
-				new RiskProbaImpact((LikelihoodParameter)convertor.findProbParameter(assessment.getLikelihood()), assessment.getImpacts().stream().map(impact -> (ImpactParameter) impact.getParameter()).collect(Collectors.toList())));
+		setOwner(assessment.getOwner());
+		setRiskProfile(riskProfile);
+		setArgumentation(assessment.getComment());
+		setNetEvaluation(new RiskProbaImpact((LikelihoodParameter) convertor.findProbParameter(assessment.getLikelihood()),
+				assessment.getImpacts().stream().map(impact -> (ImpactParameter) impact.getParameter()).collect(Collectors.toList())));
 	}
 
 	/**
@@ -229,6 +239,54 @@ public class Estimation {
 	 */
 	public void setArgumentation(String argumentation) {
 		this.argumentation = argumentation;
+	}
+
+	public static void GenerateEstimation(Analysis analysis, CSSFFilter cssfFilter, ValueFactory valueFactory, List<Estimation> directs, List<Estimation> indirects,
+			List<Estimation> cias) {
+		int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
+		Map<String, Assessment> mappedAssessment = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+		analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
+				.map(riskProfile -> new Estimation(mappedAssessment.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario())), riskProfile, valueFactory))
+				.sorted(Estimation.Comparator().reversed()).forEach(estimation -> {
+					switch (CSSFSort.findGroup(estimation.getScenario().getType().getName())) {
+					case CSSFSort.DIRECT:
+						if (direct == -1
+								|| direct > -1 && (cssfFilter.getDirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
+							directs.add(estimation);
+							if (direct > 0)
+								cssfFilter.setDirect(cssfFilter.getDirect() - 1);
+						}
+						break;
+					case CSSFSort.INDIRECT:
+						if (inderect == -1
+								|| inderect > -1 && (cssfFilter.getIndirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
+							indirects.add(estimation);
+							if (inderect > 0)
+								cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
+						}
+						break;
+					default:
+						if (cia == -1 || cia > -1 && (cssfFilter.getCia() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
+							cias.add(estimation);
+							if (cia > 0)
+								cssfFilter.setCia(cssfFilter.getCia() - 1);
+						}
+						break;
+					}
+				});
+		mappedAssessment.clear();
+	}
+
+	public static Comparator<? super Estimation> IdComparator() {
+		return (o1, o2) -> {
+			if (o1.getIdentifier() == null || o1.getIdentifier().isEmpty()) {
+				if (o2.getIdentifier() == null || o2.getIdentifier().isEmpty())
+					return 0;
+				return -1;
+			} else if (o2.getIdentifier() == null)
+				return 1;
+			return NaturalOrderComparator.compareTo(o1.getIdentifier(), o2.getIdentifier());
+		};
 	}
 
 }

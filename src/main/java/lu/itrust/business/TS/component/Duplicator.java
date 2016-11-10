@@ -199,7 +199,7 @@ public class Duplicator {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies", "Update risk dependencies", (int) (minProgress + bound * 45)));
 
-			assessmentAndRiskProfileManager.UpdateRiskDendencies(copy, null);
+			assessmentAndRiskProfileManager.updateRiskDendencies(copy, null);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "Copy phases", (int) (minProgress + bound * 50)));
 

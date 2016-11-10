@@ -54,8 +54,8 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) {
-		String query = "Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = :assetid";
-		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("assetid", assetId).uniqueResult()).intValue() > 0;
+		String query = "Select count(asset) > 0 From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = :assetid";
+		return (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("assetid", assetId).getSingleResult();
 	}
 
 	/**
@@ -67,10 +67,11 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * @see lu.itrust.business.TS.database.dao.DAOAsset#getFromAnalysisByName(java.lang.Integer,
 	 *      java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Asset getFromAnalysisByName(Integer analysisId, String name) {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.name = :name";
-		return (Asset) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("name", name).uniqueResult();
+		return (Asset) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("name", name).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -82,7 +83,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Asset> getAll() {
-		return getSession().createQuery("From Asset").list();
+		return getSession().createQuery("From Asset").getResultList();
 	}
 
 	/**
@@ -95,7 +96,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Asset> getByPageAndSize(Integer pageIndex, Integer pageSize) {
-		return getSession().createQuery("From Asset").setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
+		return getSession().createQuery("From Asset").setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).getResultList();
 	}
 
 	/**
@@ -109,7 +110,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@Override
 	public List<Asset> getFromAnalysisByPageAndSize(Integer analysisId, Integer pageIndex, Integer pageSize) {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId";
-		return getSession().createQuery(query).setParameter("analysisId", analysisId).setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
+		return getSession().createQuery(query).setParameter("analysisId", analysisId).setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).getResultList();
 	}
 
 	/**
@@ -122,7 +123,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@Override
 	public List<Asset> getAllFromAnalysis(Integer analysisId) {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.selected desc, asset.value desc, asset.ALE asc, asset.name asc";
-		return getSession().createQuery(query).setParameter("analysisId", analysisId).list();
+		return getSession().createQuery(query).setParameter("analysisId", analysisId).getResultList();
 	}
 
 	/**
@@ -136,7 +137,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	public List<Asset> getAllFromAnalysisIdAndSelected(Integer idAnalysis) {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.value desc, ";
 		query += "asset.name asc";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/**
@@ -150,7 +151,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	public List<Asset> getSelectedFromAnalysisAndOrderByALE(Integer idAnalysis) {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.ALE asc, ";
 		query += "asset.ALEO asc, asset.ALEP asc , asset.name asc, asset.value asc";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/**
@@ -212,26 +213,26 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	public boolean exist(Integer idAnalysis, String name) {
 		return 0 < (Long) getSession()
 				.createQuery("Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.name = :name")
-				.setInteger("idAnalysis", idAnalysis).setString("name", name).uniqueResult();
+				.setParameter("idAnalysis", idAnalysis).setParameter("name", name).getSingleResult();
 	}
 
 	@Override
 	public Integer getAnalysisIdFromAsset(Integer assetId) {
 		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.assets asset where asset.id = :assetID").setParameter("assetID", assetId)
-				.uniqueResult();
+				.getSingleResult();
 	}
 
 	@Override
 	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset) {
 		return (Asset) getSession()
 				.createQuery("Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.id = :idAsset")
-				.setInteger("idAnalysis", idAnalysis).setInteger("idAsset", idAsset).uniqueResult();
+				.setParameter("idAnalysis", idAnalysis).setParameter("idAsset", idAsset).getSingleResult();
 	}
 
 	@Override
 	public Asset getByNameAndAnlysisId(String name, int idAnalysis) {
 		return (Asset) getSession().createQuery("Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.name = :name")
-				.setInteger("idAnalysis", idAnalysis).setString("name", name).uniqueResult();
+				.setParameter("idAnalysis", idAnalysis).setParameter("name", name).getSingleResult();
 	}
 
 	@Override
@@ -240,7 +241,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 			return true;
 		Long count = (Long) getSession()
 				.createQuery("Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id in (:assetIds)")
-				.setInteger("analysisid", idAnalysis).setParameterList("assetIds", assetIds).uniqueResult();
+				.setParameter("analysisid", idAnalysis).setParameterList("assetIds", assetIds).getSingleResult();
 		return count == assetIds.size();
 	}
 }

@@ -1,7 +1,5 @@
 package lu.itrust.business.TS.model.general.helper;
 
-import static lu.itrust.business.TS.constants.Constant.*;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -13,7 +11,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
@@ -28,7 +25,6 @@ import lu.itrust.business.TS.model.assessment.helper.AssessmentComparator;
 import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
-import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.AbstractProbability;
 import lu.itrust.business.TS.model.parameter.value.IValue;
@@ -63,10 +59,10 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (asset.getId() < 1)
 			analysis.add(asset);
-		if (analysis.getType() != AnalysisType.QUALITATIVE && analysis.getRiskProfiles().isEmpty())
-			buildAssessment(asset, analysis);
+		if (analysis.getType() == AnalysisType.QUALITATIVE)
+			createAssessmentAndRiskProfile(asset, analysis);
 		else
-			build(asset, analysis);
+			createAssessment(asset, analysis);
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
@@ -83,10 +79,10 @@ public class AssessmentAndRiskProfileManager {
 			return;
 		if (scenario.getId() < 1)
 			analysis.add(scenario);
-		if (analysis.getType() != AnalysisType.QUALITATIVE && analysis.getRiskProfiles().isEmpty())
-			buildAssessment(scenario, analysis);
+		if (analysis.getType() == AnalysisType.QUALITATIVE)
+			createAssessmentAndRiskProfile(scenario, analysis);
 		else
-			build(scenario, analysis);
+			createAssessment(scenario, analysis);
 	}
 
 	@Transactional
@@ -129,6 +125,79 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	/**
+	 * @param daoAnalysis
+	 *            the daoAnalysis to set
+	 */
+	@Autowired
+	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
+		this.daoAnalysis = daoAnalysis;
+	}
+
+	/**
+	 * @param daoAssessment
+	 *            the daoAssessment to set
+	 */
+	@Autowired
+	public void setDaoAssessment(DAOAssessment daoAssessment) {
+		this.daoAssessment = daoAssessment;
+	}
+
+	/**
+	 * @param daoAsset
+	 *            the daoAsset to set
+	 */
+	@Autowired
+	public void setDaoAsset(DAOAsset daoAsset) {
+		this.daoAsset = daoAsset;
+	}
+
+	/**
+	 * @param daoRiskProfile
+	 *            the daoRiskProfile to set
+	 */
+	@Autowired
+	public void setDaoRiskProfile(DAORiskProfile daoRiskProfile) {
+		this.daoRiskProfile = daoRiskProfile;
+	}
+
+	/**
+	 * @param daoScenario
+	 *            the daoScenario to set
+	 */
+	@Autowired
+	public void setDaoScenario(DAOScenario daoScenario) {
+		this.daoScenario = daoScenario;
+	}
+
+	@Transactional
+	public void toggledAsset(int idAsset) {
+		Asset asset = daoAsset.get(idAsset);
+		if (asset.isSelected())
+			unSelectAsset(asset);
+		else
+			selectAsset(asset);
+	}
+
+	@Transactional
+	public void toggledAssets(List<Integer> ids) {
+		ids.forEach(idAsset -> toggledAsset(idAsset));
+	}
+
+	@Transactional
+	public void toggledScenario(int idScenario) {
+		Scenario scenario = daoScenario.get(idScenario);
+		if (scenario.isSelected())
+			unSelectScenario(scenario);
+		else
+			selectScenario(scenario);
+	}
+
+	@Transactional
+	public void toggledScenarios(List<Integer> ids) {
+		ids.forEach(idScenario -> toggledScenario(idScenario));
+	}
+
 	@Transactional
 	public void unSelectAsset(Asset asset) {
 		asset.setSelected(false);
@@ -158,49 +227,28 @@ public class AssessmentAndRiskProfileManager {
 	@Transactional
 	public void unSelectScenario(Scenario scenario) {
 		scenario.setSelected(false);
-		List<Assessment> assessments = daoAssessment.getAllSelectedFromScenario(scenario);
-		for (Assessment assessment : assessments) {
+		daoAssessment.getAllSelectedFromScenario(scenario).forEach(assessment -> {
 			if (assessment.isSelected()) {
 				assessment.setSelected(false);
 				daoAssessment.saveOrUpdate(assessment);
 			}
-		}
+		});
 	}
 
 	@Transactional
-	public void UpdateAcronym(int idAnalysis, ILevelParameter parameter, String acronym) {
-		// retrieve assessments by acronym and analysis
-		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
-		// parse assessments and update impact value to parameter acronym
-		for (Assessment assessment : assessments) {
-			switch (parameter.getTypeName()) {
-			case PARAMETERTYPE_TYPE_PROPABILITY_NAME:
-			case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
-				if (acronym.equals(assessment.getLikelihood()))
-					assessment.setLikelihood(parameter.getAcronym());
-				else if (!StringUtils.isEmpty(assessment.getLikelihood()))
-					assessment.setLikelihood(assessment.getLikelihood().replace(acronym, parameter.getAcronym()));
-				break;
-			}
-			// update assessment
-			daoAssessment.saveOrUpdate(assessment);
-		}
-	}
-
-	@Transactional
-	public void UpdateAssessment() {
+	public void updateAssessment() {
 		int size = daoAnalysis.countNotEmpty(), pageSize = 30;
 		for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++)
 			for (Analysis analysis : daoAnalysis.getAllNotEmpty(pageIndex, pageSize))
-				UpdateAssessment(analysis, null);
+				updateAssessment(analysis, null);
 	}
 
 	@Transactional
-	public void UpdateAssessment(Analysis analysis, ValueFactory factory) {
+	public void updateAssessment(Analysis analysis, ValueFactory factory) {
 		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
-		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
+		if (analysis.getType() == AnalysisType.QUALITATIVE) {
 			Map<String, RiskProfile> riskProfiles = analysis.mapRiskProfile();
 			for (Asset asset : analysis.getAssets()) {
 				for (Scenario scenario : analysis.getScenarios()) {
@@ -208,9 +256,9 @@ public class AssessmentAndRiskProfileManager {
 					RiskProfile riskProfile = riskProfiles.get(RiskProfile.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
 						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
+							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
 						if (riskProfile == null)
-							analysis.getRiskProfiles().add(riskProfile);
+							analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
 					} else {
 						if (assessment != null) {
 							analysis.getAssessments().remove(assessment);
@@ -229,7 +277,7 @@ public class AssessmentAndRiskProfileManager {
 					Assessment assessment = assessmentMapper.get(Assessment.key(asset, scenario));
 					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
 						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
+							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
 					} else {
 						if (assessment != null) {
 							analysis.getAssessments().remove(assessment);
@@ -239,49 +287,7 @@ public class AssessmentAndRiskProfileManager {
 				}
 			}
 		}
-		UpdateAssetALE(analysis, factory);
-	}
-
-	public void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
-		if (factory == null)
-			factory = new ValueFactory(analysis.getParameters());
-		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
-		if (analysis.getType() == AnalysisType.QUALITATIVE || !analysis.getRiskProfiles().isEmpty()) {
-			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
-			for (Asset asset : analysis.getAssets()) {
-				for (Scenario scenario : analysis.getScenarios()) {
-					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
-					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
-					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
-						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
-						if (riskProfile == null)
-							analysis.getRiskProfiles().add(riskProfile);
-					} else {
-						if (assessment != null)
-							analysis.getAssessments().remove(assessment);
-						if (riskProfile != null)
-							analysis.getRiskProfiles().remove(riskProfile);
-
-					}
-				}
-			}
-		} else {
-			for (Asset asset : analysis.getAssets()) {
-				for (Scenario scenario : analysis.getScenarios()) {
-					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
-					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
-						if (assessment == null)
-							analysis.getAssessments().add(ComputeAlE(new Assessment(asset, scenario), factory, analysis.getType()));
-					} else {
-						if (assessment != null)
-							analysis.getAssessments().remove(assessment);
-					}
-
-				}
-			}
-		}
-		UpdateAssetALE(analysis, factory);
+		updateAssetALE(analysis, factory);
 	}
 
 	/**
@@ -293,7 +299,7 @@ public class AssessmentAndRiskProfileManager {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void UpdateAssetALE(Analysis analysis, ValueFactory factory) {
+	public void updateAssetALE(Analysis analysis, ValueFactory factory) {
 		List<Asset> assets = analysis.findAssessmentBySelected();
 		Map<Integer, List<Assessment>> assessmentsByAsset = analysis.findAssessmentByAssetAndSelected();
 		try {
@@ -322,82 +328,129 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	public void updateRiskDendencies(Analysis analysis, ValueFactory factory) {
+		if (factory == null)
+			factory = new ValueFactory(analysis.getParameters());
+		Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKeyName, Function.identity()));
+		if (analysis.getType() == AnalysisType.QUALITATIVE) {
+			Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream().collect(Collectors.toMap(RiskProfile::getKeyName, Function.identity()));
+			for (Asset asset : analysis.getAssets()) {
+				for (Scenario scenario : analysis.getScenarios()) {
+					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
+					RiskProfile riskProfile = riskProfiles.get(RiskProfile.keyName(asset, scenario));
+					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+						if (assessment == null)
+							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+						if (riskProfile == null)
+							analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
+					} else {
+						if (assessment != null)
+							analysis.getAssessments().remove(assessment);
+						if (riskProfile != null)
+							analysis.getRiskProfiles().remove(riskProfile);
+
+					}
+				}
+			}
+		} else {
+			for (Asset asset : analysis.getAssets()) {
+				for (Scenario scenario : analysis.getScenarios()) {
+					Assessment assessment = assessmentMapper.get(Assessment.keyName(asset, scenario));
+					if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+						if (assessment == null)
+							generateAssessment(analysis.getAssessments(), factory, asset, scenario);
+					} else {
+						if (assessment != null)
+							analysis.getAssessments().remove(assessment);
+					}
+
+				}
+			}
+		}
+		updateAssetALE(analysis, factory);
+	}
+
 	@Transactional
 	public void WipeAssessment(Analysis analysis) {
 		while (!analysis.getAssessments().isEmpty())
 			daoAssessment.delete(analysis.getAssessments().remove(0));
 	}
 
-	private void build(Asset asset, Analysis analysis) {
+	private void createAssessment(Asset asset, Analysis analysis) {
 		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
-		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByAssetId(asset.getId());
-		analysis.getScenarios().forEach(scenario -> {
-			Assessment assessment = assetAssessments.get(scenario.getId());
-			RiskProfile riskProfile = riskProfiles.get(scenario.getId());
-			Update(assessment, scenario, asset, riskProfile, analysis);
-		});
-
+		ValueFactory valueFactory = new ValueFactory(analysis.getImpactParameters());
+		analysis.getScenarios().forEach(scenario -> createOrRemoveAssessment(scenario.getId(), asset, scenario, analysis.getAssessments(), assetAssessments, valueFactory));
 	}
 
-	private void build(Scenario scenario, Analysis analysis) {
-		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
-		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByScenarioId(scenario.getId());
-		analysis.getAssets().forEach(asset -> Update(assetAssessments.get(asset.getId()), scenario, asset, riskProfiles.get(asset.getId()), analysis));
-	}
-
-	private void buildAssessment(Asset asset, Analysis analysis) {
-		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
-		analysis.getScenarios().forEach(scenario -> buildAssessment(asset, scenario, analysis.getAssessments(), assetAssessments));
-	}
-
-	/**
-	 * 
-	 * @param asset
-	 * @param scenario
-	 * @param assessments
-	 * @param assetAssessments
-	 *            mapped by scenario.id
-	 */
-	private void buildAssessment(Asset asset, Scenario scenario, List<Assessment> assessments, Map<Integer, Assessment> assetAssessments) {
-		if (!assetAssessments.containsKey(scenario.getId())) {
-			if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
-				assessments.add(new Assessment(asset, scenario));
-		} else if (!scenario.hasInfluenceOnAsset(asset.getAssetType())) {
-			Assessment assessment = assetAssessments.get(scenario.getId());
-			assessments.remove(assessment);
-			daoAssessment.delete(assessment);
-		}
-	}
-
-	private void buildAssessment(Scenario scenario, Analysis analysis) {
+	private void createAssessment(Scenario scenario, Analysis analysis) {
 		Map<Integer, Assessment> sceanrioAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
-		analysis.getAssets().forEach(asset -> buildAssessment(scenario, asset, analysis.getAssessments(), sceanrioAssessments));
+		ValueFactory valueFactory = new ValueFactory(analysis.getImpactParameters());
+		analysis.getAssets().forEach(asset -> createOrRemoveAssessment(asset.getId(), asset, scenario, analysis.getAssessments(), sceanrioAssessments, valueFactory));
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	private void createAssessmentAndRiskProfile(Asset asset, Analysis analysis) {
+		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
+		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByAssetId(asset.getId());
+		ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
+		analysis.getScenarios().forEach(scenario -> createOrRemoveAssessmentAndRiskProfile(assetAssessments.get(scenario.getId()), scenario, asset,
+				riskProfiles.get(scenario.getId()), analysis, valueFactory));
+	}
+
+	private void createAssessmentAndRiskProfile(Scenario scenario, Analysis analysis) {
+		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
+		Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByScenarioId(scenario.getId());
+		ValueFactory valueFactory = new ValueFactory(analysis.getBoundedParamters());
+		analysis.getAssets().forEach(
+				asset -> createOrRemoveAssessmentAndRiskProfile(assetAssessments.get(asset.getId()), scenario, asset, riskProfiles.get(asset.getId()), analysis, valueFactory));
+	}
+
 	/**
-	 * @param scenario
+	 * Add or remove assessment Only for QUANTITATIVE Analysis.
+	 * 
+	 * @param id
+	 *            asset or scenario
 	 * @param asset
+	 * @param scenario
 	 * @param assessments
-	 * @param sceanrioAssessments
-	 *            mapped by asset.id
-	 * @throws Exception
+	 * @param mappedAssessments
+	 *            mapped by scenario.id
+	 * @param valueFactory
+	 *            impacts only
 	 */
-	private void buildAssessment(Scenario scenario, Asset asset, List<Assessment> assessments, Map<Integer, Assessment> sceanrioAssessments) {
-		if (!sceanrioAssessments.containsKey(asset.getId())) {
+	private void createOrRemoveAssessment(Integer id, Asset asset, Scenario scenario, List<Assessment> assessments, Map<Integer, Assessment> mappedAssessments,
+			ValueFactory valueFactory) {
+		if (!mappedAssessments.containsKey(id)) {
 			if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
-				assessments.add(new Assessment(asset, scenario));
+				generateAssessment(assessments, valueFactory, asset, scenario);
 		} else if (!scenario.hasInfluenceOnAsset(asset.getAssetType())) {
-			Assessment assessment = sceanrioAssessments.get(asset.getId());
+			Assessment assessment = mappedAssessments.get(id);
 			assessments.remove(assessment);
 			daoAssessment.delete(assessment);
 		}
 	}
 
-	private void Update(Assessment assessment, Scenario scenario, Asset asset, RiskProfile riskProfile, Analysis analysis) {
+	/**
+	 * Add or remove assessment and riskProfile<br>
+	 * Only for QUALITATIVE Analysis.
+	 * 
+	 * @param assessment
+	 * @param scenario
+	 * @param asset
+	 * @param riskProfile
+	 * @param analysis
+	 * @param valueFactory
+	 *            impacts + likelihood
+	 */
+	private void createOrRemoveAssessmentAndRiskProfile(Assessment assessment, Scenario scenario, Asset asset, RiskProfile riskProfile, Analysis analysis,
+			ValueFactory valueFactory) {
 		if (scenario.hasInfluenceOnAsset(asset.getAssetType())) {
-			if (assessment == null)
-				analysis.getAssessments().add(new Assessment(asset, scenario));
+			if (assessment == null) {
+				assessment = new Assessment(asset, scenario);
+				for (String impact : valueFactory.getImpactNames())
+					assessment.setImpact(valueFactory.findValue(0, impact));
+				analysis.getAssessments().add(assessment);
+			}
 			if (riskProfile == null)
 				analysis.getRiskProfiles().add(new RiskProfile(asset, scenario));
 		} else {
@@ -405,7 +458,6 @@ public class AssessmentAndRiskProfileManager {
 				analysis.getAssessments().remove(assessment);
 				daoAssessment.delete(assessment);
 			}
-
 			if (riskProfile != null) {
 				analysis.getRiskProfiles().remove(riskProfile);
 				daoRiskProfile.delete(riskProfile);
@@ -413,13 +465,22 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	private void generateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset, Scenario scenario) {
+		Assessment assessment;
+		assessment = new Assessment(asset, scenario);
+		factory.getImpactNames().forEach(impact -> assessment.setImpact(factory.findValue(0D, impact)));
+		assessments.add(assessment);
+	}
+
 	public static Assessment ComputeAlE(Assessment assessment, ValueFactory factory, AnalysisType type) {
 		IValue value = type == AnalysisType.QUALITATIVE ? factory.findMaxImpactByLevel(assessment.getImpacts()) : factory.findMaxImpactByReal(assessment.getImpacts());
 		assessment.setImpactReal(value == null ? 0D : value.getReal());
 		assessment.setLikelihoodReal(new StringExpressionParser(assessment.getLikelihood()).evaluate(factory));
 		assessment.setALE(assessment.getImpactReal() * assessment.getLikelihoodReal());
-		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
-		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
+		if (type == AnalysisType.QUANTITATIVE) {
+			assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
+			assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
+		}
 		return assessment;
 	}
 
@@ -566,79 +627,6 @@ public class AssessmentAndRiskProfileManager {
 			assessments.addAll(assessmentByAssets.get(ale.getAssetName()));
 		}
 		return assessments;
-	}
-
-	@Transactional
-	public void toggledAsset(int idAsset) {
-		Asset asset = daoAsset.get(idAsset);
-		if (asset.isSelected())
-			unSelectAsset(asset);
-		else
-			selectAsset(asset);
-	}
-
-	@Transactional
-	public void toggledAssets(List<Integer> ids) {
-		ids.forEach(idAsset -> toggledAsset(idAsset));
-	}
-
-	@Transactional
-	public void toggledScenario(int idScenario) {
-		Scenario scenario = daoScenario.get(idScenario);
-		if (scenario.isSelected())
-			unSelectScenario(scenario);
-		else
-			selectScenario(scenario);
-	}
-
-	@Transactional
-	public void toggledScenarios(List<Integer> ids) {
-		ids.forEach(idScenario -> toggledScenario(idScenario));
-	}
-
-	/**
-	 * @param daoAnalysis
-	 *            the daoAnalysis to set
-	 */
-	@Autowired
-	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
-		this.daoAnalysis = daoAnalysis;
-	}
-
-	/**
-	 * @param daoAssessment
-	 *            the daoAssessment to set
-	 */
-	@Autowired
-	public void setDaoAssessment(DAOAssessment daoAssessment) {
-		this.daoAssessment = daoAssessment;
-	}
-
-	/**
-	 * @param daoAsset
-	 *            the daoAsset to set
-	 */
-	@Autowired
-	public void setDaoAsset(DAOAsset daoAsset) {
-		this.daoAsset = daoAsset;
-	}
-
-	/**
-	 * @param daoRiskProfile
-	 *            the daoRiskProfile to set
-	 */
-	@Autowired
-	public void setDaoRiskProfile(DAORiskProfile daoRiskProfile) {
-		this.daoRiskProfile = daoRiskProfile;
-	}
-
-	/**
-	 * @param daoScenario
-	 *            the daoScenario to set
-	 */
-	@Autowired
-	public void setDaoScenario(DAOScenario daoScenario) {
-		this.daoScenario = daoScenario;
 	}
 
 }

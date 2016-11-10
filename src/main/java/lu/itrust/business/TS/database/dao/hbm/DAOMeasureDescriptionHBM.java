@@ -54,10 +54,11 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#getByReferenceAndStandard(java.lang.String,
 	 *      lu.itrust.business.TS.model.standard.Standard)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard)  {
 		String query = "From MeasureDescription where standard = :standard and reference = :reference";
-		return (MeasureDescription) getSession().createQuery(query).setParameter("standard", standard).setParameter("reference", reference).uniqueResult();
+		return (MeasureDescription) getSession().createQuery(query).setParameter("standard", standard).setParameter("reference", reference).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -71,8 +72,8 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 */
 	@Override
 	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard)  {
-		String query = "Select count(*) From MeasureDescription where standard.id = :idStandard and reference = :reference";
-		return (Long) getSession().createQuery(query).setParameter("idStandard", idStandard).setParameter("reference", reference).uniqueResult() >= 1;
+		String query = "Select count(*)>0 From MeasureDescription where standard.id = :idStandard and reference = :reference";
+		return (boolean) getSession().createQuery(query).setParameter("idStandard", idStandard).setParameter("reference", reference).getSingleResult();
 	}
 
 	/**
@@ -98,7 +99,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MeasureDescription> getAll()  {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription").list();
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription").getResultList();
 	}
 
 	/**
@@ -112,7 +113,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MeasureDescription> getAllByStandard(Integer idStandard)  {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard.id = :idStandard").setParameter("idStandard", idStandard).list();
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard.id = :idStandard").setParameter("idStandard", idStandard).getResultList();
 	}
 
 	/**
@@ -126,7 +127,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MeasureDescription> getAllByStandard(String label)  {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard.label = :label").setParameter("label", label).list();
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard.label = :label").setParameter("label", label).getResultList();
 	}
 
 	/**
@@ -141,7 +142,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	@Override
 	public List<MeasureDescription> getAllByStandard(Standard standard)  {
 		return (List<MeasureDescription>) getSession().createQuery("FROM MeasureDescription mesDesc where standard.label = :label and standard.version = :version and standard.type = :type")
-				.setParameter("label", standard.getLabel()).setParameter("version", standard.getVersion()).setParameter("type", standard.getType()).list();
+				.setParameter("label", standard.getLabel()).setParameter("version", standard.getVersion()).setParameter("type", standard.getType()).getResultList();
 	}
 
 	/**
@@ -188,7 +189,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(measure)>0 From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.id = :idAnalysisStandard and measure.measureDescription.reference = :reference ")
-				.setInteger("idAnalysisStandard", idAnalysisStandard).setString("reference", reference).uniqueResult();
+				.setParameter("idAnalysisStandard", idAnalysisStandard).setParameter("reference", reference).getSingleResult();
 	}
 
 	@Override
@@ -196,6 +197,6 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(*) > 0 From MeasureDescription where id = :idMeasureDescription and standard.id = :idStandard")
-				.setInteger("idMeasureDescription", idMeasureDescription).setInteger("idStandard", idStandard).uniqueResult();
+				.setParameter("idMeasureDescription", idMeasureDescription).setParameter("idStandard", idStandard).getSingleResult();
 	}
 }

@@ -98,7 +98,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	public void loadCSSFParameter() {
 		Analysis analysis = serviceAnalysis.get(ANALYSIS_ID);
 		notNull(analysis, "Analysis cannot be found");
-		SimpleParameter simpleParameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
+		SimpleParameter simpleParameter = (SimpleParameter) analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
 		notNull(simpleParameter, "Analysis cannot be found");
 		put(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID, simpleParameter.getId());
 	}

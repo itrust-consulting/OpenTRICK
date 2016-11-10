@@ -56,9 +56,9 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 *      java.lang.Integer)
 	 */
 	public boolean belongsToAnalysis(Integer analysisId,Integer riskregisterItemId)  {
-		String query = "Select count(riskregisterItem) From Analysis as analysis inner join analysis.riskRegisters as riskregisterItem where analysis.id = :analysisid and riskregisterItem.id = ";
+		String query = "Select count(riskregisterItem)>0 From Analysis as analysis inner join analysis.riskRegisters as riskregisterItem where analysis.id = :analysisid and riskregisterItem.id = ";
 		query += ":riskregisterItemId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskregisterItemId", riskregisterItemId).uniqueResult()).intValue() > 0;
+		return (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskregisterItemId", riskregisterItemId).getSingleResult();
 	}
 
 	/*
@@ -77,7 +77,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	@Override
 	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId)  {
 		String query = "SELECT riskregister FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregister WHERE analysis.id= :analysisID order by riskregister.netEvaluation.importance desc, riskregister.expectedEvaluation.importance desc, riskregister.rawEvaluation.importance desc";
-		return (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisId).list();
+		return (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisId).getResultList();
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete From RiskRegisterItem where id = :id").setInteger("id", id).uniqueResult();
+		getSession().createQuery("Delete From RiskRegisterItem where id = :id").setParameter("id", id).executeUpdate();
 		
 	}
 

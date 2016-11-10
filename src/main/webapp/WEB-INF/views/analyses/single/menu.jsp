@@ -124,7 +124,7 @@
 					<li class="divider"></li>
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
-					<c:if test="${show_cssf}">
+					<c:if test="${type=='QUALITATIVE'}">
 						<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
 						</a></li>
 						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />

@@ -52,10 +52,11 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAORiskInformation#getFromAnalysisById(int, int)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id)  {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.id = :id";
-		return (RiskInformation) getSession().createQuery(query).setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResult();
+		return (RiskInformation) getSession().createQuery(query).setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -66,9 +67,9 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 *      java.lang.Integer)
 	 */
 	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId)  {
-		String query = "Select count(riskinformation) From Analysis as analysis inner join analysis.riskInformations as riskinformation where analysis.id = :analysisid and riskinformation.id = ";
+		String query = "Select count(riskinformation)>0 From Analysis as analysis inner join analysis.riskInformations as riskinformation where analysis.id = :analysisid and riskinformation.id = ";
 		query += ":riskinformationId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskinformationId", riskinformationId).uniqueResult()).intValue() > 0;
+		return  (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskinformationId", riskinformationId).getSingleResult();
 	}
 
 	/**
@@ -80,7 +81,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RiskInformation> getAll()  {
-		return getSession().createQuery("From RiskInformation").list();
+		return getSession().createQuery("From RiskInformation").getResultList();
 	}
 
 	/**
@@ -92,7 +93,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RiskInformation> getAllByChapter(String chapter)  {
-		return getSession().createQuery("From RiskInformation where chapter = :chapter").setString("chapter", chapter).list();
+		return getSession().createQuery("From RiskInformation where chapter = :chapter").setParameter("chapter", chapter).getResultList();
 	}
 
 	/**
@@ -104,7 +105,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RiskInformation> getAllByCategory(String category)  {
-		return getSession().createQuery("From RiskInformation where category = :category").setString("category", category).list();
+		return getSession().createQuery("From RiskInformation where category = :category").setParameter("category", category).getResultList();
 	}
 
 	/**
@@ -117,7 +118,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	@Override
 	public List<RiskInformation> getAllFromAnalysis(Integer analysisID)  {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis";
-		return getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", analysisID).getResultList();
 	}
 
 	/**

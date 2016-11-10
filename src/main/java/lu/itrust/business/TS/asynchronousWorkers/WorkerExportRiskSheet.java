@@ -37,11 +37,9 @@ import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
-import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAORiskRegisterHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -53,19 +51,15 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
-import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
-import lu.itrust.business.TS.model.cssf.helper.RiskSheetExportComparator;
 import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.ExportType;
-import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.IImpactParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
-import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -84,8 +78,6 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
-	private DAORiskRegister daoRiskRegister;
-
 	private DAOWordReport daoWordReport;
 
 	private MessageSource messageSource;
@@ -95,6 +87,8 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	private DAOUser daoUser;
 
 	private CSSFExportForm cssfExportForm;
+
+	private String alpha2 = "EN";
 
 	public static String FR_TEMPLATE;
 
@@ -128,7 +122,6 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			daoAnalysis = new DAOAnalysisHBM(session);
 			daoWordReport = new DAOWordReportHBM(session);
 			daoUser = new DAOUserHBM(session);
-			daoRiskRegister = new DAORiskRegisterHBM(session);
 			session.beginTransaction();
 			long reportId = getCssfExportForm().getType() == ExportType.RAW ? exportData() : exportReport();
 			session.getTransaction().commit();
@@ -212,55 +205,25 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			workbook = new XSSFWorkbook();
 			XSSFSheet sheet = workbook.createSheet();
 			Analysis analysis = daoAnalysis.get(idAnalysis);
+
+			List<ScaleType> scaleTypes = analysis.getImpacts();
 			CSSFFilter cssfFilter = cssfExportForm.getFilter();
-			ValueFactory factory = new ValueFactory(analysis.getParameters());
-			Map<String, Assessment> mappedAssessment = analysis.getAssessments().stream().filter(Assessment::isSelected)
-					.collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 			List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
-			int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.xlsx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
-					.map(riskProfile -> new Estimation(mappedAssessment.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario())), riskProfile, factory))
-					.sorted(Estimation.Comparator().reversed()).forEach(estimation -> {
-						switch (CSSFSort.findGroup(estimation.getScenario().getType().getName())) {
-						case CSSFSort.DIRECT:
-							if (direct == -1
-									|| direct > -1 && (cssfFilter.getDirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
-								directs.add(estimation);
-								if (direct > 0)
-									cssfFilter.setDirect(cssfFilter.getDirect() - 1);
-							}
-							break;
-						case CSSFSort.INDIRECT:
-							if (inderect == -1
-									|| inderect > -1 && (cssfFilter.getIndirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
-								indirects.add(estimation);
-								if (inderect > 0)
-									cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
-							}
-							break;
-						default:
-							if (cia == -1 || cia > -1 && (cssfFilter.getCia() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
-								cias.add(estimation);
-								if (cia > 0)
-									cssfFilter.setCia(cssfFilter.getCia() - 1);
-							}
-							break;
-						}
-					});
-			mappedAssessment.clear();
+			generateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
-			addHeader(sheet);
+			addHeader(sheet, scaleTypes);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
-			addEstimation(sheet, directs, "Direct", 2);
+			addEstimation(sheet, directs, scaleTypes, "Direct", 2);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
 			if (!indirects.isEmpty())
-				addEstimation(sheet, indirects, "Indirect", directs.size() + 3);
+				addEstimation(sheet, indirects, scaleTypes, "Indirect", directs.size() + 3);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 80));
 			if (!cias.isEmpty())
-				addEstimation(sheet, cias, "CIA", directs.size() + indirects.size() + 3);
-			serviceTaskFeedback.send(getId(),new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
+				addEstimation(sheet, cias, scaleTypes, "CIA", directs.size() + indirects.size() + 3);
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
 			workbook.write(outputStream = new FileOutputStream(workFile));
 			outputStream.flush();
 			WordReport report = WordReport.BuildRawRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), daoUser.get(username), workFile.getName(),
@@ -289,92 +252,137 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	}
 
-	private void addEstimation(XSSFSheet sheet, List<Estimation> estimations, String title, int startIndex) {
+	private void generateEstimation(Analysis analysis, CSSFFilter cssfFilter, ValueFactory valueFactory, List<Estimation> directs, List<Estimation> indirects,
+			List<Estimation> cias) {
+		alpha2 = analysis.getLanguage().getAlpha2();
+		locale = new Locale(alpha2);
+		int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
+		Map<String, Assessment> mappedAssessment = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+		analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
+				.map(riskProfile -> new Estimation(mappedAssessment.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario())), riskProfile, valueFactory))
+				.sorted(Estimation.Comparator().reversed()).forEach(estimation -> {
+					switch (CSSFSort.findGroup(estimation.getScenario().getType().getName())) {
+					case CSSFSort.DIRECT:
+						if (direct == -1
+								|| direct > -1 && (cssfFilter.getDirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
+							directs.add(estimation);
+							if (direct > 0)
+								cssfFilter.setDirect(cssfFilter.getDirect() - 1);
+						}
+						break;
+					case CSSFSort.INDIRECT:
+						if (inderect == -1
+								|| inderect > -1 && (cssfFilter.getIndirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
+							indirects.add(estimation);
+							if (inderect > 0)
+								cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
+						}
+						break;
+					default:
+						if (cia == -1 || cia > -1 && (cssfFilter.getCia() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
+							cias.add(estimation);
+							if (cia > 0)
+								cssfFilter.setCia(cssfFilter.getCia() - 1);
+						}
+						break;
+					}
+				});
+		mappedAssessment.clear();
+	}
+
+	private void addEstimation(XSSFSheet sheet, List<Estimation> estimations, List<ScaleType> types, String title, int startIndex) {
 		XSSFRow row = getRow(sheet, startIndex++);
-		for (int i = 0; i < 28; i++) {
+		int size = 16 + types.size() * 3;
+		for (int i = 0; i < size; i++) {
 			if (row.getCell(i) == null)
 				row.createCell(i, Cell.CELL_TYPE_STRING);
 		}
 		// setCellString(row, 0, title);
-		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, 27));
+		sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, size - 1));
 		for (Estimation estimation : estimations) {
 			String scenarioType = estimation.getScenario().getType().getName();
 			String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType);
+			int index = 0;
 			row = getRow(sheet, startIndex++);
-			setCellString(row, 0, estimation.getIdentifier());
-			setCellString(row, 1, category);
-			setCellString(row, 2, estimation.getScenario().getName());
-			setCellString(row, 3, estimation.getOwner());
-			printRiskProba(row, 4, estimation.getRawProbaImpact());
-			printRiskProba(row, 10, estimation.getNetEvaluation());
-			printRiskProba(row, 16, estimation.getExpProbaImpact());
-			setCellString(row, 22, estimation.getScenario().getDescription());
-			setCellString(row, 23, estimation.getArgumentation());
-			setCellString(row, 24, estimation.getAsset().getName());
-			setCellString(row, 25, estimation.getRiskTreatment());
+			setCellString(row, index++, estimation.getIdentifier());
+			setCellString(row, index++, category);
+			setCellString(row, index++, estimation.getScenario().getName());
+			setCellString(row, index++, estimation.getOwner());
+			printRiskProba(row, index++, types, estimation.getRawProbaImpact());
+			index += types.size() + 1;
+			printRiskProba(row, index++, types, estimation.getNetEvaluation());
+			index += types.size() + 1;
+			printRiskProba(row, index++, types, estimation.getExpProbaImpact());
+			index += types.size() + 1;
+			setCellString(row, index++, estimation.getScenario().getDescription());
+			setCellString(row, index++, estimation.getArgumentation());
+			setCellString(row, index++, estimation.getAsset().getName());
+			setCellString(row, index++, estimation.getRiskTreatment());
 			RiskStrategy strategy = estimation.getRiskStrategy();
 			if (strategy == null)
 				strategy = RiskStrategy.ACCEPT;
 			String response = strategy.getNameToLower();
-			setCellString(row, 26, getMessage("label.risk_register.strategy." + response, response));
-			setCellString(row, 27, estimation.getActionPlan());
+			setCellString(row, index++, getMessage("label.risk_register.strategy." + response, response));
+			setCellString(row, index++, estimation.getActionPlan());
 		}
 	}
 
-	private void addHeader(XSSFSheet sheet) {
+	private void addHeader(XSSFSheet sheet, List<ScaleType> types) {
+		int rowCount = types.size() * 3 + 16;
 		XSSFRow row = sheet.getRow(0), row1 = sheet.getRow(1);
 		if (row == null)
 			row = sheet.createRow(0);
 		if (row1 == null)
 			row1 = sheet.createRow(1);
-		for (int i = 0; i < 28; i++) {
+		for (int i = 0; i < rowCount; i++) {
 			if (row.getCell(i) == null)
 				row.createCell(i, Cell.CELL_TYPE_STRING);
 			if (row1.getCell(i) == null)
 				row1.createCell(i, Cell.CELL_TYPE_STRING);
 		}
 
+		int size = types.size() + 2, netIndex = 6 + types.size(), expIndex = netIndex + types.size() + 2, index = expIndex + types.size() + 2;
 		row.getCell(0).setCellValue(getMessage("report.risk_sheet.risk_id", "Risk ID"));
 		row.getCell(1).setCellValue(getMessage("report.risk_sheet.risk_category", "Category"));
 		row.getCell(2).setCellValue(getMessage("report.risk_sheet.title", "Title"));
 		row.getCell(3).setCellValue(getMessage("report.risk_sheet.risk_owner", "Risk owner"));
 		row.getCell(4).setCellValue(getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"));
-		row.getCell(10).setCellValue(getMessage("report.risk_sheet.net_evaluation", "Net evaluation"));
-		row.getCell(16).setCellValue(getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"));
-		row.getCell(22).setCellValue(getMessage("report.risk_sheet.risk_description", "Risk description"));
-		row.getCell(23).setCellValue(getMessage("report.risk_sheet.argumentation", "Argumentation"));
-		row.getCell(24).setCellValue(getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"));
-		row.getCell(25).setCellValue(getMessage("report.risk_sheet.risk_treatment", "Risk treatment"));
-		row.getCell(26).setCellValue(getMessage("report.risk_sheet.response", "Response strategy"));
-		row.getCell(27).setCellValue(getMessage("report.risk_sheet.action_plan", "Action plan"));
-		printEvaluationHeader(row1, 4);
-		printEvaluationHeader(row1, 10);
-		printEvaluationHeader(row1, 16);
+		row.getCell(netIndex).setCellValue(getMessage("report.risk_sheet.net_evaluation", "Net evaluation"));
+		row.getCell(expIndex).setCellValue(getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"));
+		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.risk_description", "Risk description"));
+		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.argumentation", "Argumentation"));
+		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"));
+		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.risk_treatment", "Risk treatment"));
+		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.response", "Response strategy"));
+		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.action_plan", "Action plan"));
+		printEvaluationHeader(row1, types, 4);
+		printEvaluationHeader(row1, types, netIndex);
+		printEvaluationHeader(row1, types, expIndex);
 		for (int i = 0; i < 4; i++)
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, i, i));
-		for (int i = 4; i < 17; i += 6)
-			sheet.addMergedRegion(new CellRangeAddress(0, 0, i, i + 5));
-		for (int i = 22; i < 28; i++)
+		for (int i = 4; i <= expIndex; i += size)
+			sheet.addMergedRegion(new CellRangeAddress(0, 0, i, i + size - 1));
+		for (int i = expIndex + types.size() + 2; i < index; i++)
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, i, i));
 	}
 
-	private void printRiskProba(XSSFRow row, int index, RiskProbaImpact probaImpact) {
+	private void printRiskProba(XSSFRow row, int index, List<ScaleType> scaleTypes, RiskProbaImpact probaImpact) {
 		if (probaImpact == null)
 			probaImpact = new RiskProbaImpact();
 		setCellInt(row, index++, probaImpact.getProbabilityLevel());
-		setCellInt(row, index++, probaImpact.getImpactFin() == null ? 0 : probaImpact.getImpactFin().getLevel());
-		setCellInt(row, index++, probaImpact.getImpactLeg() == null ? 0 : probaImpact.getImpactLeg().getLevel());
-		setCellInt(row, index++, probaImpact.getImpactOp() == null ? 0 : probaImpact.getImpactOp().getLevel());
-		setCellInt(row, index++, probaImpact.getImpactRep() == null ? 0 : probaImpact.getImpactRep().getLevel());
+		for (ScaleType scaleType : scaleTypes) {
+			IImpactParameter parameter = probaImpact.get(scaleType.getName());
+			setCellInt(row, index++, parameter == null ? 0 : parameter.getLevel());
+		}
+
 		setCellInt(row, index++, probaImpact.getImportance());
 	}
 
-	private void printEvaluationHeader(XSSFRow row, int index) {
+	private void printEvaluationHeader(XSSFRow row, List<ScaleType> types, int index) {
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.probability", "Probability (P)"));
-		row.getCell(index++).setCellValue(getMessage("label.impact_rep", "Reputation"));
-		row.getCell(index++).setCellValue(getMessage("label.impact_op", "Operation"));
-		row.getCell(index++).setCellValue(getMessage("label.impact_leg", "Legal"));
-		row.getCell(index++).setCellValue(getMessage("label.impact_fin", "Financial"));
+		for (ScaleType scaleType : types)
+			row.getCell(index++).setCellValue(getMessage("label.impact." + scaleType.getName().toLowerCase(),
+					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2) : scaleType.getDisplayName()));
 		row.getCell(index++).setCellValue(getMessage("report.risk_sheet.importance", "Importance"));
 	}
 
@@ -385,41 +393,20 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
-		int progress = 2, max = 60, size, index = 0;
-		RiskSheetComputation computation = new RiskSheetComputation(analysis);
+		int progress = 2, max = 60, index = 0;
 		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;
 		File workFile = null;
+		MessageHandler messageHandler = null;
+		boolean isFirst = true;
 		try {
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
-			Map<String, RiskRegisterItem> oldRiskRegister = analysis.getRiskRegisters().stream().collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
-			MessageHandler messageHandler = computation.computeRiskRegister(getCssfExportForm().getFilter());
-			if (messageHandler != null)
-				throw messageHandler.getException();
-			ValueFactory factory = computation.getFactory();
-			Map<String, RiskProfile> riskProfilesMap = analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
-					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
-			List<RiskProfile> riskProfiles = new LinkedList<>();
-			if (!oldRiskRegister.isEmpty()) {
-				List<RiskRegisterItem> registerItems = analysis.getRiskRegisters();
-				for (int i = 0; i < registerItems.size(); i++) {
-					RiskRegisterItem current = registerItems.get(i);
-					riskProfiles.add(riskProfilesMap.get(RiskProfile.key(current.getAsset(), current.getScenario())));
-					RiskRegisterItem registerItem = oldRiskRegister.remove(current.getKey());
-					if (registerItem == null)
-						continue;
-					registerItems.set(i, registerItem.merge(current));
-				}
-				if (!oldRiskRegister.isEmpty()) {
-					oldRiskRegister.values().forEach(riskRegister -> daoRiskRegister.delete(riskRegister));
-					oldRiskRegister.clear();
-				}
-			} else
-				analysis.getRiskRegisters().forEach(current -> riskProfiles.add(riskProfilesMap.get(RiskProfile.key(current.getAsset(), current.getScenario()))));
-
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
+			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
+			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
+			List<Estimation> directs = new LinkedList<>(), cias = new LinkedList<>(), indirects = new LinkedList<>();
+			generateEstimation(analysis, cssfExportForm.getFilter(), valueFactory, directs, indirects, cias);
+			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
@@ -427,48 +414,39 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			opcPackage.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
 			opcPackage.save(workFile);
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
-			Map<String, Assessment> assessments = getCssfExportForm().hasOwner()
-					? analysis.getAssessments().stream().filter(assessment -> assessment.isSelected() && getCssfExportForm().getOwner().equals(assessment.getOwner()))
-							.collect(Collectors.toMap(Assessment::getKey, Function.identity()))
-					: analysis.getAssessments().stream().filter(assessment -> assessment.isSelected()).collect(Collectors.toMap(Assessment::getKey, Function.identity()));
+			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
-			size = riskProfiles.size();
-			boolean isFirst = true;
-			riskProfiles.sort(new RiskSheetExportComparator());
-			IValue minImpact = factory.findMinImpactByLevel(0), probability = factory.findExp(0);
-			for (RiskProfile riskProfile : riskProfiles) {
-				Assessment assessment = assessments.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario()));
-				if (assessment == null)
-					continue;
-				addRiskSheetHeader(document, riskProfile, isFirst);
+			directs.addAll(indirects);
+			directs.addAll(cias);
+			if (cssfExportForm.hasOwner())
+				directs.removeIf(estimation -> !cssfExportForm.getOwner().equals(estimation.getOwner()));
+			directs.sort(Estimation.IdComparator());
+
+			List<ScaleType> types = analysis.getImpacts();
+			for (Estimation estimation : directs) {
+				RiskProfile riskProfile = estimation.getRiskProfile();
+				addRiskSheetHeader(document, estimation.getRiskProfile(), isFirst);
 				if (isFirst) {
-					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner());
+					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), estimation.getOwner());
 					isFirst = false;
 				} else
-					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), assessment.getOwner());
+					addField(document, getMessage("report.risk_sheet.risk_owner", "Risk owner"), estimation.getOwner());
 				addField(document, getMessage("report.risk_sheet.risk_description", "Risk description"), riskProfile.getScenario().getDescription());
-				RiskProbaImpact netImpact = new RiskProbaImpact();
-				netImpact.setImpactFin(factory.findImpactFinParameter(assessment.getImpactFin()));
-				netImpact.setImpactLeg(factory.findImpactLegParameter(assessment.getImpactLeg()));
-				netImpact.setImpactOp(factory.findImpactOpParameter(assessment.getImpactOp()));
-				netImpact.setImpactRep(factory.findImpactRepParameter(assessment.getImpactRep()));
-				netImpact.setProbability(factory.findProbParameter(assessment.getLikelihood()));
-				addTable(document, getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"), riskProfile.getRawProbaImpact(), minImpact.getParameter(), probability.getParameter());
-				addField(document, getMessage("report.risk_sheet.argumentation", "Argumentation"), assessment.getComment());
+				addTable(document, getMessage("report.risk_sheet.raw_evaluation", "Raw evaluation"), estimation.getRawProbaImpact(), types);
+				addField(document, getMessage("report.risk_sheet.argumentation", "Argumentation"), estimation.getArgumentation());
 				addField(document, getMessage("report.risk_sheet.customer_concerned", "Financial customers concerned"), riskProfile.getAsset().getName());
-				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"), riskProfile.getRiskTreatment());
-				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"), netImpact, minImpact.getParameter(), probability.getParameter());
+				addField(document, getMessage("report.risk_sheet.risk_treatment", "Risk treatment"), estimation.getRiskTreatment());
+				addTable(document, getMessage("report.risk_sheet.net_evaluation", "Net evaluation"), estimation.getNetEvaluation(), types);
 				RiskStrategy strategy = riskProfile.getRiskStrategy();
 				if (strategy == null)
 					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
 				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
-				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), minImpact.getParameter(), probability.getParameter());
-				messageHandler.setProgress((int) (progress + (++index / (double) size) * (max - progress)));
+				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), types);
+				messageHandler.setProgress((int) (progress + (++index / (double) directs.size()) * (max - progress)));
 			}
-			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
+			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
 			document.write(outputStream = new FileOutputStream(workFile));
 			outputStream.flush();
 			WordReport report = WordReport.BuildRiskSheet(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, workFile.getName(), workFile.length(),
@@ -499,28 +477,35 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		}
 	}
 
-	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, IAcronymParameter impact, IAcronymParameter probability) {
+	
+
+	private void addTable(XWPFDocument document, String title, RiskProbaImpact probaImpact, List<ScaleType> types) {
 		addTitle(document, title);
-		XWPFTable table = document.createTable(3, 6);
+		XWPFTable table = document.createTable(3, 2 + types.size());
 		if (probaImpact == null)
 			probaImpact = new RiskProbaImpact();
 		table.setStyleID("TSTABLEEVALUATION");
 		XWPFTableRow row = table.getRow(0);
 		getCell(row, 0).setText(getMessage("report.risk_sheet.probability", "Probability (P)"));
 		getCell(row, 1).setText(getMessage("report.risk_sheet.impact", "Impact (i)"));
-		getCell(row, 5).setText(getMessage("report.risk_sheet.importance", "Importance"));
+		getCell(row, types.size() + 1).setText(getMessage("report.risk_sheet.importance", "Importance"));
 		row = table.getRow(1);
-		getCell(row, 1).setText(getMessage("label.impact_rep", "Reputation"));
-		getCell(row, 2).setText(getMessage("label.impact_op", "Operation"));
-		getCell(row, 3).setText(getMessage("label.impact_leg", "Legal"));
-		getCell(row, 4).setText(getMessage("label.impact_fin", "Financial"));
+		int index = 1;
+		for (ScaleType scaleType : types)
+			getCell(row, index++).setText(getMessage("label.impact." + scaleType.getName().toLowerCase(),
+					scaleType.getTranslations().containsKey(alpha2) ? scaleType.getTranslations().get(alpha2) : scaleType.getDisplayName()));
 		row = table.getRow(2);
-		getCell(row, 0).setText(probaImpact.getProbability((ImpactParameter) probability).getLevel() + "");
-		getCell(row, 1).setText(probaImpact.getImpactRep((ImpactParameter) impact).getLevel() + "");
-		getCell(row, 2).setText(probaImpact.getImpactOp((ImpactParameter) impact).getLevel() + "");
-		getCell(row, 3).setText(probaImpact.getImpactLeg((ImpactParameter) impact).getLevel() + "");
-		getCell(row, 4).setText(probaImpact.getImpactFin((ImpactParameter) impact).getLevel() + "");
-		getCell(row, 5).setText(probaImpact.getImportance() + "");
+		if (probaImpact.getProbability() == null)
+			getCell(row, 0).setText("0");
+		else
+			getCell(row, 0).setText(probaImpact.getProbability().getLevel().toString());
+
+		index = 1;
+		for (ScaleType scaleType : types) {
+			IImpactParameter impact = probaImpact.get(scaleType.getName());
+			getCell(row, index++).setText(impact == null ? "0" : impact.getLevel() + "");
+		}
+		getCell(row, index).setText(probaImpact.getImportance() + "");
 	}
 
 	private void addTitle(XWPFDocument document, String title) {

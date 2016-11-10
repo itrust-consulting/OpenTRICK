@@ -136,7 +136,7 @@ public class ControllerPatch {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-			assessmentAndRiskProfileManager.UpdateAssessment();
+			assessmentAndRiskProfileManager.updateAssessment();
 			errors.put("success", messageSource.getMessage("success.assessments.update.all", null, "All assessments were successfully updated", locale));
 			return errors;
 		} catch (Exception e) {

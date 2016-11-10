@@ -75,11 +75,12 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#findOne(java.io.Serializable, java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public MaturityParameter findOne(Integer id, Integer idAnalysis) {
 		return (MaturityParameter) getSession()
 			.createQuery("Select parameter From Analysis analysis inner join analysis.maturityParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-			.setInteger("id", id).setInteger("idAnalysis", idAnalysis).uniqueResult();
+			.setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	/* (non-Javadoc)
@@ -90,7 +91,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 		return (boolean) getSession()
 		.createQuery(
 				"Select count(parameter) > 0 From Analysis analysis inner join analysis.maturityParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-		.setInteger("id", id).setInteger("idAnalysis", analysisId).uniqueResult();
+		.setParameter("id", id).setParameter("idAnalysis", analysisId).getSingleResult();
 	}
 
 	/* (non-Javadoc)
@@ -98,7 +99,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	 */
 	@Override
 	public boolean exists(Integer id) {
-		return (boolean) getSession().createQuery("Select count(*)>0 From MaturityParameter where id = :id").setInteger("id", id).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)>0 From MaturityParameter where id = :id").setParameter("id", id).getSingleResult();
 	}
 
 	/* (non-Javadoc)
@@ -107,7 +108,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MaturityParameter> findAll() {
-		return getSession().createCriteria(MaturityParameter.class).list();
+		return getSession().createQuery("From MaturityParameter").getResultList();
 	}
 
 	/* (non-Javadoc)
@@ -116,7 +117,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MaturityParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From MaturityParameter where id in (:ids)").setParameterList("ids", ids).list();
+		return getSession().createQuery("From MaturityParameter where id in (:ids)").setParameterList("ids", ids).getResultList();
 	}
 
 	/* (non-Javadoc)
@@ -124,7 +125,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	 */
 	@Override
 	public long count() {
-		return (long) getSession().createQuery("Select count(*) From MaturityParameter").uniqueResult();
+		return (long) getSession().createQuery("Select count(*) From MaturityParameter").getSingleResult();
 	}
 
 	/* (non-Javadoc)
@@ -132,7 +133,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	 */
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete From MaturityParameter where id = :id").setInteger("id", id).executeUpdate();
+		getSession().createQuery("Delete From MaturityParameter where id = :id").setParameter("id", id).executeUpdate();
 	}
 
 	/* (non-Javadoc)
@@ -163,7 +164,7 @@ public class DAOMaturityParameterHBM extends DAOHibernate implements DAOMaturity
 	@Override
 	public List<MaturityParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession()
-		.createQuery("Select parameter From Analysis analysis inner join analysis.maturityParameters as parameter where analysis.id = :idAnalysis").setInteger("idAnalysis", idAnalysis).list();
+		.createQuery("Select parameter From Analysis analysis inner join analysis.maturityParameters as parameter where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@Override

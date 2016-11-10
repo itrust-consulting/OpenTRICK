@@ -50,7 +50,7 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	 */
 	@Override
 	public IDS get(String prefix) {
-		return (IDS) getSession().createQuery("From IDS where prefix = :prefix").setString("prefix", prefix).uniqueResult();
+		return (IDS) getSession().createQuery("From IDS where prefix = :prefix").setParameter("prefix", prefix).getSingleResult();
 	}
 
 	/*
@@ -63,7 +63,7 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	public List<IDS> getByAnalysisId(int idAnalysis) {
 		return getSession()
 				.createQuery("Select ids From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
-				.setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/*
@@ -118,19 +118,19 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getAllByState(boolean enabled) {
-		return getSession().createQuery("From IDS ids where ids.enable = :enabled order by ids.prefix").setBoolean("enabled", enabled).list();
+		return getSession().createQuery("From IDS ids where ids.enable = :enabled order by ids.prefix").setParameter("enabled", enabled).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getAllNoSubscribers() {
-		return getSession().createQuery("From IDS ids where ids.subscribers IS EMPTY order by ids.prefix").list();
+		return getSession().createQuery("From IDS ids where ids.subscribers IS EMPTY order by ids.prefix").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<IDS> getAll() {
-		return getSession().createQuery("From IDS order by prefix").list();
+		return getSession().createQuery("From IDS order by prefix").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -138,7 +138,7 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 	public List<String> getPrefixesByAnalysisId(int idAnalysis) {
 		return getSession()
 				.createQuery("Select ids.prefix From IDS ids inner join ids.subscribers as subscriber  where ids.enable = true and subscriber.id = :idAnalysis order by ids.prefix")
-				.setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@Override
@@ -150,18 +150,17 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 
 	@Override
 	public boolean existByPrefix(String prefix) {
-
-		return (boolean) getSession().createQuery("Select count(*)> 0 From IDS where prefix = :prefix").setString("prefix", prefix).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)> 0 From IDS where prefix = :prefix").setParameter("prefix", prefix).getSingleResult();
 	}
 
 	@Override
 	public boolean exists(String token) {
-		return (boolean) getSession().createQuery("Select count(*)> 0 From IDS where token = :token").setString("token", token).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)> 0 From IDS where token = :token").setParameter("token", token).getSingleResult();
 	}
 
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete IDS where id = :id").setInteger("id", id).executeUpdate();
+		getSession().createQuery("Delete IDS where id = :id").setParameter("id", id).executeUpdate();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -170,12 +169,13 @@ public class DAOIDSHBM extends DAOHibernate implements DAOIDS {
 		return getSession()
 				.createQuery(
 						"Select ids From IDS ids where ids.enable = true and ids not in ( Select subIds From IDS subIds inner join subIds.subscribers as subscriber where subIds.enable = true and subscriber.id = :idAnalysis) order by ids.prefix")
-				.setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public IDS getByToken(String token) {
-		return (IDS) getSession().createQuery("From IDS ids where ids.token = :token ").setString("token",token).uniqueResult();
+		return (IDS) getSession().createQuery("From IDS ids where ids.token = :token ").setParameter("token",token).uniqueResultOptional().orElse(null);
 	}
 
 }

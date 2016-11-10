@@ -145,7 +145,7 @@ public class DynamicParameterComputer {
 		*/
 
 		// Update assessment to reflect the new values of the dynamic parameters
-		assessmentManager.UpdateAssessment(analysis, null);
+		assessmentManager.updateAssessment(analysis, null);
 
 		// Save everything
 		daoAnalysis.saveOrUpdate(analysis);

@@ -94,11 +94,12 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#findOne(java.io.
 	 * Serializable, java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public LikelihoodParameter findOne(Integer id, Integer idAnalysis) {
 		return (LikelihoodParameter) getSession()
 				.createQuery("Select parameter From Analysis analysis inner join analysis.likelihoodParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", idAnalysis).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -113,7 +114,7 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(parameter) > 0 From Analysis analysis inner join analysis.likelihoodParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", analysisId).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", analysisId).getSingleResult();
 	}
 
 	/*
@@ -124,7 +125,7 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	 */
 	@Override
 	public boolean exists(Integer id) {
-		return (boolean) getSession().createQuery("Select count(*)>0 From LikelihoodParameter where id = :id").setInteger("id", id).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)>0 From LikelihoodParameter where id = :id").setParameter("id", id).getSingleResult();
 	}
 
 	/*
@@ -135,7 +136,7 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LikelihoodParameter> findAll() {
-		return getSession().createCriteria(LikelihoodParameter.class).list();
+		return getSession().createQuery("From LikelihoodParameter").getResultList();
 	}
 
 	/*
@@ -147,7 +148,7 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LikelihoodParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From LikelihoodParameter where id in (:ids) order by level").setParameterList("ids", ids).list();
+		return getSession().createQuery("From LikelihoodParameter where id in (:ids) order by level").setParameterList("ids", ids).getResultList();
 	}
 
 	/*
@@ -157,7 +158,7 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	 */
 	@Override
 	public long count() {
-		return (long) getSession().createQuery("Select count(*) From LikelihoodParameter").uniqueResult();
+		return (long) getSession().createQuery("Select count(*) From LikelihoodParameter").getSingleResult();
 	}
 
 	/*
@@ -168,7 +169,7 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	 */
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete From LikelihoodParameter where id = :id").setInteger("id", id).executeUpdate();
+		getSession().createQuery("Delete From LikelihoodParameter where id = :id").setParameter("id", id).executeUpdate();
 	}
 
 	/*
@@ -213,14 +214,14 @@ public class DAOLikelihoodParameterHBM extends DAOHibernate implements DAOLikeli
 	@Override
 	public List<String> findAcronymByAnalysisId(Integer idAnalysis) {
 		return getSession().createQuery("Select parameter.acronym From Analysis analysis inner join analysis.likelihoodParameters as parameter  where analysis.id = :idAnalysis")
-				.setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LikelihoodParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.likelihoodParameters as parameter  where analysis.id = :idAnalysis order by parameter.level asc")
-		.setInteger("idAnalysis", idAnalysis).list();
+		.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@Override

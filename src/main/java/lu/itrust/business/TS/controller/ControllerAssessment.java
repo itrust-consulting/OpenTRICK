@@ -226,7 +226,7 @@ public class ControllerAssessment {
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
 			// update assessments of analysis
 			assessmentAndRiskProfileManager.WipeAssessment(analysis);
-			assessmentAndRiskProfileManager.UpdateAssessment(analysis, null);
+			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -251,7 +251,7 @@ public class ControllerAssessment {
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 			// update assessments of analysis
-			assessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
+			assessmentAndRiskProfileManager.updateAssetALE(analysis, null);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message
@@ -284,7 +284,7 @@ public class ControllerAssessment {
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 			// update assessments of analysis
-			assessmentAndRiskProfileManager.UpdateAssessment(analysis, null);
+			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message

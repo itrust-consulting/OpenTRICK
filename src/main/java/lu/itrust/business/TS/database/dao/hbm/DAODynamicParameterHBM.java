@@ -94,11 +94,12 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	 * @see lu.itrust.business.TS.database.TemplateDAOService#findOne(java.io.
 	 * Serializable, java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public DynamicParameter findOne(Integer id, Integer idAnalysis) {
 		return (DynamicParameter) getSession()
 				.createQuery("Select parameter From Analysis analysis inner join analysis.dynamicParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", idAnalysis).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -113,7 +114,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 		return (boolean) getSession()
 				.createQuery(
 						"Select count(parameter) > 0 From Analysis analysis inner join analysis.dynamicParameters as parameter where analysis.id = :idAnalysis and parameter.id = :id")
-				.setInteger("id", id).setInteger("idAnalysis", analysisId).uniqueResult();
+				.setParameter("id", id).setParameter("idAnalysis", analysisId).getSingleResult();
 	}
 
 	/*
@@ -124,7 +125,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	 */
 	@Override
 	public boolean exists(Integer id) {
-		return (boolean) getSession().createQuery("Select count(*)>0 From DynamicParameter where id = :id").setInteger("id", id).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)>0 From DynamicParameter where id = :id").setParameter("id", id).getSingleResult();
 	}
 
 	/*
@@ -135,7 +136,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<DynamicParameter> findAll() {
-		return getSession().createCriteria(DynamicParameter.class).list();
+		return getSession().createQuery("From DynamicParameter").getResultList();
 	}
 
 	/*
@@ -147,7 +148,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<DynamicParameter> findAll(List<Integer> ids) {
-		return getSession().createQuery("From DynamicParameter where id in (:ids)").setParameterList("ids", ids).list();
+		return getSession().createQuery("From DynamicParameter where id in (:ids)").setParameterList("ids", ids).getResultList();
 	}
 
 	/*
@@ -157,7 +158,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	 */
 	@Override
 	public long count() {
-		return (long) getSession().createQuery("Select count(*) From DynamicParameter").uniqueResult();
+		return (long) getSession().createQuery("Select count(*) From DynamicParameter").getSingleResult();
 	}
 
 	/*
@@ -168,7 +169,7 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	 */
 	@Override
 	public void delete(Integer id) {
-		getSession().createQuery("Delete From DynamicParameter where id = :id").setInteger("id", id).executeUpdate();
+		getSession().createQuery("Delete From DynamicParameter where id = :id").setParameter("id", id).executeUpdate();
 	}
 
 	/*
@@ -213,14 +214,14 @@ public class DAODynamicParameterHBM extends DAOHibernate implements DAODynamicPa
 	@Override
 	public List<String> findAcronymByAnalysisId(Integer idAnalysis) {
 		return getSession().createQuery("Select parameter.acronym From Analysis analysis inner join analysis.dynamicParameters as parameter  where analysis.id = :idAnalysis")
-				.setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<DynamicParameter> findByAnalysisId(Integer idAnalysis) {
 		return getSession().createQuery("Select parameter From Analysis analysis inner join analysis.dynamicParameters as parameter where analysis.id = :idAnalysis")
-				.setInteger("idAnalysis", idAnalysis).list();
+				.setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	@Override

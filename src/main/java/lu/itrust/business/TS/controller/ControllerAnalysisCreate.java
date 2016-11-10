@@ -413,7 +413,7 @@ public class ControllerAnalysisCreate {
 					for (RiskProfile riskProfile : riskProfiles)
 						analysis.getRiskProfiles().add(riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters));
 				}
-				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
+				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
 			}
 
 			Map<Integer, Phase> mappingPhases;

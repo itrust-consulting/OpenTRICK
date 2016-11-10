@@ -67,7 +67,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Role> getAll()  {
-		return getSession().createQuery("From Role").list();
+		return getSession().createQuery("From Role").getResultList();
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 */
 	@Override
 	public List<Role> getAllFromUser(String login)  {
-		User aUser = (User) getSession().createQuery("From User where login = :user").setParameter("user", login).uniqueResult();
+		User aUser = (User) getSession().createQuery("From User where login = :user").setParameter("user", login).getSingleResult();
 		List<Role> roles = aUser.getRoles();
 		return roles;
 	}
@@ -162,8 +162,9 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 			delete(role);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Role getByType(RoleType type) {
-		return (Role) getSession().createQuery("FROM Role role WHERE role.type = :type").setParameter("type",type).uniqueResult();
+		return (Role) getSession().createQuery("FROM Role role WHERE role.type = :type").setParameter("type",type).uniqueResultOptional().orElse(null);
 	}
 }

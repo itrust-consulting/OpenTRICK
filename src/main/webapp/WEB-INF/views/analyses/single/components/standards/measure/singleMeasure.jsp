@@ -80,14 +80,14 @@
 		</tr>
 	</c:when>
 	<c:otherwise>
-		<tr ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''} data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
+		<tr ${isAnalysisOnly?dblclickaction:''} data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" 
 			data-is-linked='${isLinkedToProject and not empty measure.ticket}' >
 			<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
 					onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td>
+			<td ${not isAnalysisOnly?dblclickaction:''}>
 				<c:choose>
 					<c:when test="${hasTicket}">
 						<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(),ticketingURL,measure.ticket)" var="ticketLink" />
