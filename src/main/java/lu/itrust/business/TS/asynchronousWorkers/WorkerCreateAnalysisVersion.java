@@ -178,8 +178,11 @@ public class WorkerCreateAnalysisVersion implements Worker {
 
 				session.getTransaction().commit();
 
-				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", 100));
-
+				MessageHandler handler = new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", 100);
+				
+				handler.setAsyncCallback(new AsyncCallback("reloadSection", "section_analysis"));
+				
+				serviceTaskFeedback.send(id, handler);
 				/**
 				 * Log
 				 */

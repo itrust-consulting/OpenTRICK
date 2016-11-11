@@ -231,37 +231,29 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
-		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-		$("#deleteAnalysisModel .btn").unbind();
-		$("#deleteanalysisbuttonNo").click(function() {
-			$("#deleteAnalysisModel .btn").unbind();
-			$("#deleteAnalysisModel").modal("hide");
-		});
-		$("#deleteanalysisbuttonYes").one("click", function() {
-			$("#deleteprogressbar").show();
-			$("#deleteAnalysisModel .btn").prop("disabled", true);
+		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
+		$("button[data-action='delete']", $modal).one("click", function() {
+			var $progress = $("#loading-indicator").show(), $buttons = $(".btn", $modal).prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "POST",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					$("#deleteprogressbar").hide();
-					$("#deleteAnalysisModel").modal('hide');
 					if (response.success != undefined) {
 						reloadSection("section_analysis");
-					} else if (response.error != undefined) {
-						$("#alert-dialog .modal-body").html(response.error);
-						$("#alert-dialog").modal("toggle");
-					}
+					} else if (response.error != undefined)
+						showDialog("#alert-dialog", response.error)
 					return false;
 				},
 				error : unknowError
 			}).complete(function() {
-				$("#deleteanalysisbuttonYes").prop("disabled", false);
+				$buttons.prop("disabled", false);
+				$modal.modal("hide");
+				$progress.hide();
 			});
 			return false;
 		});
-		$("#deleteAnalysisModel").modal('show');
+
 	} else
 		permissionError();
 	return false;
@@ -322,28 +314,16 @@ function createAnalysisProfile(analysisId, section_analysis) {
 }
 
 function saveAnalysisProfile(form) {
+	var $modal = $("#analysisProfileModal"), $progress = $("#loading-indicator").show(), $form = $("#" + form), data = {
+		"id" : $form.find("#id").val(),
+		"description" : $form.find("#name").val()
+	};
 
-	var data = {};
+	$(".label-danger", $form).remove();
 
-	var id = $("#" + form).find("#id").val();
-
-	var description = $("#" + form).find("#name").val();
-
-	data["id"] = id;
-
-	data["description"] = description;
-
-	$("#" + form).find("select[name='standards'] option").each(function() {
-
-		var name = $(this).attr("value");
-
-		var value = $(this).is(":checked");
-
-		data[name] = value;
-
+	$form.find("select[name='standards'] option").each(function() {
+		data[this.value] = $(this).is(":checked");
 	});
-
-	var $progress = $("#loading-indicator").show();
 
 	$.ajax({
 		url : context + "/AnalysisProfile/Save",
@@ -351,51 +331,26 @@ function saveAnalysisProfile(form) {
 		data : JSON.stringify(data),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-
-			var alert = $("#analysisProfileform .label-danger");
-			if (alert.length)
-				alert.remove();
 			for ( var error in response) {
 				if (error === "taskid")
 					continue;
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
-
 				$(errorElement).text(response[error]);
 				switch (error) {
 				case "description":
-					$(errorElement).appendTo($("#analysisProfileform #name").parent());
+					$(errorElement).appendTo($("#name", $form).parent());
 					break;
 				case "analysisprofile":
 				default:
-					$(errorElement).appendTo($("#analysisProfileform").parent());
+					$(errorElement).appendTo($form.parent());
 					break;
 				}
 			}
 
-			if (!$("#analysisProfileform .label-danger").length) {
-				var progressBar = new ProgressBar();
-				progressBar.Initialise();
-				$(progressBar.progress).appendTo($("#" + form).parent());
-				$(progressBar.progress).css("width", "100%");
-				$(progressBar.progress).css("display", "inline-block");
-				callback = {
-					failed : function() {
-						progressBar.Destroy();
-						$("#analysisProfileModal").modal("toggle");
-						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
-						$("#alert-dialog").modal("toggle");
-					},
-					success : function() {
-						setTimeout(function() {
-							progressBar.Destroy();
-							$("#analysisProfileModal").modal("toggle");
-						}, 2000);
-
-					}
-				};
-				progressBar.OnComplete(callback.success);
-				updateStatus(progressBar, response["taskid"], callback, undefined);
+			if (!$(".label-danger", $form).length) {
+				application["taskManager"].Start();
+				$modal.modal("hide");
 			}
 			return false;
 
@@ -1003,15 +958,10 @@ function calculateActionPlan(analysisId) {
 	}
 
 	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-
-		var data = {};
-
-		data["id"] = analysisID;
-
 		$.ajax({
 			url : context + "/Analyis/ActionPlan/Compute",
 			type : "post",
-			data : JSON.stringify(data),
+			data : JSON.stringify({"id" : analysisID}),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
@@ -1052,15 +1002,12 @@ function calculateRiskRegister(analysisId) {
 	}
 
 	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-
-		var data = {};
-
-		data["id"] = analysisID;
-
 		$.ajax({
 			url : context + "/Analyis/RiskRegister/Compute",
 			type : "post",
-			data : JSON.stringify(data),
+			data : JSON.stringify({
+				"id" : analysisID
+			}),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
@@ -1080,82 +1027,53 @@ function calculateRiskRegister(analysisId) {
 }
 
 function duplicateAnalysis(form, analyisId) {
-	var oldVersion = $("#history_oldVersion").prop("value");
-	/*
-	 * $(".progress-striped").show(); $(".progress-striped").addClass("active");
-	 */
-	var labels = $("#addHistoryModal .label-danger");
-	if (labels.length)
-		labels.remove();
-
-	var alert = $("#addHistoryModal [class='alert alert-warning']");
-	if (alert.length)
-		alert.remove();
-
+	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal"), oldVersion = $("#history_oldVersion", $modal).prop("value"), $buttons = $modal.find(
+			"[data-action!='cancel']").prop("disabled", true);
+	$(".label-danger", $modal).remove();
+	$("[class='alert alert-warning']", $modal);
 	$.ajax({
 		url : context + "/Analysis/Duplicate/" + analyisId,
 		type : "post",
-		aync : true,
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-
-			$("#history_oldVersion").attr("value", oldVersion);
-
+			$("#history_oldVersion", $modal).attr("value", oldVersion);
 			var errorcounter = 0;
-
 			for ( var error in response) {
-				$(".progress-striped").removeClass("active");
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
-
 				$(errorElement).text(response[error]);
-
 				switch (error) {
 				case "author":
 					errorcounter++;
-					$(errorElement).appendTo($("#addHistoryModal #history_author").parent());
+					$(errorElement).appendTo($("#history_author", $modal).parent());
 					break;
 				case "version":
-					$(errorElement).appendTo($("#addHistoryModal #history_version").parent());
+					$(errorElement).appendTo($("#history_version", $modal).parent());
 					errorcounter++;
 					break;
 				case "comment":
 					errorcounter++;
-					$(errorElement).appendTo($("#addHistoryModal #history_comment").parent());
+					$(errorElement).appendTo($("#history_comment", $modal).parent());
 					break;
 				case "analysis":
 					errorcounter++;
 					var alertElement = document.createElement("div");
 					alertElement.setAttribute("class", "alert alert-warning");
 					$(alertElement).text($(errorElement).text());
-					$("#addHistoryModal .modal-body").prepend($(alertElement));
+					$(".modal-body", $modal).prepend($(alertElement));
 					break;
 				}
-
 			}
 			if (errorcounter == 0) {
-				progressBar = new ProgressBar();
-				progressBar.Initialise();
-				$(progressBar.progress).appendTo($("#history_form").parent());
-				callback = {
-					failed : function() {
-						progressBar.Destroy();
-						$("#addHistoryModal").modal("hide");
-						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
-						$("#alert-dialog").modal("show");
-					},
-					success : function() {
-						progressBar.Destroy();
-						setTimeout("location.reload()", 1000);
-						$("#addHistoryModal").modal("hide");
-					}
-				};
-				progressBar.OnComplete(callback.success);
-				updateStatus(progressBar, response["analysis_task_id"], callback, undefined);
+				$modal.modal("hide");
+				application["taskManager"].Start();
 			}
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
+		$buttons.prop("disabled", false);
 	});
 	return false;
 }
@@ -1169,7 +1087,7 @@ function customerChange(customer, nameFilter) {
 		contentType : "application/json;charset=UTF-8",
 		data : $(nameFilter).val(),
 		success : function(response, textStatus, jqXHR) {
-			var $newSection = $(new DOMParser().parseFromString(response, "text/html")).find("#section_analysis");
+			var $newSection = $("#section_analysis", new DOMParser().parseFromString(response, "text/html"));
 			if ($newSection.length) {
 				$("#section_analysis").replaceWith($newSection);
 				$(document).ready(function() {

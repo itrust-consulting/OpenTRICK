@@ -299,4 +299,5 @@ public class AnalysisForm {
 	public void setScale(Scale scale) {
 		this.scale = scale;
 	}
+
 }

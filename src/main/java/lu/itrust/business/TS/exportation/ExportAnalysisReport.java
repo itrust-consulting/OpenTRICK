@@ -55,9 +55,9 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
+import lu.itrust.business.TS.model.parameter.IBoundedParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
@@ -1173,9 +1173,9 @@ public class ExportAnalysisReport {
 
 		paragraph = findTableAnchor("<" + parmetertype + ">");
 
-		List<ImpactParameter> impactParameters = (List<ImpactParameter>) analysis.findParametersByType(type);
+		List<IBoundedParameter> parameters = (List<IBoundedParameter>) analysis.findParametersByType(type);
 
-		if (paragraph != null && impactParameters.size() > 0) {
+		if (paragraph != null && parameters.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);
@@ -1214,38 +1214,37 @@ public class ExportAnalysisReport {
 			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
 			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
 
-			int countrow = 0;
+			int countrow = 0, length = parameters.size()-1;
 			// set data
-			for (ImpactParameter impactParameter : impactParameters) {
+			for (IBoundedParameter parameter : parameters) {
 				row = table.createRow();
 
 				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
-				row.getCell(0).setText("" + impactParameter.getLevel());
-				row.getCell(1).setText(impactParameter.getAcronym());
-				row.getCell(2).setText(impactParameter.getDescription());
+				row.getCell(0).setText("" + parameter.getLevel());
+				row.getCell(1).setText(parameter.getAcronym());
+				row.getCell(2).setText(parameter.getDescription());
 				Double value = 0.;
-				value = impactParameter.getValue();
+				value = parameter.getValue();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(3), kEuroFormat.format(value));
 				if (countrow % 2 != 0)
 					row.getCell(3).setColor(SUB_HEADER_COLOR);
-				value = impactParameter.getBounds().getFrom();
+				value = parameter.getBounds().getFrom();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(4), kEuroFormat.format(value));
-				if (impactParameter.getLevel() == 10)
+				if (parameter.getLevel() == length)
 					addCellNumber(row.getCell(5), "+∞");
 				else {
-					value = impactParameter.getBounds().getTo();
+					value = parameter.getBounds().getTo();
 					if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 						value *= 0.001;
 					addCellNumber(row.getCell(5), kEuroFormat.format(value));
 				}
 				for (int i = 4; i < 6; i++)
 					row.getCell(i).setColor(SUB_HEADER_COLOR);
-
 				countrow++;
 			}
 		}

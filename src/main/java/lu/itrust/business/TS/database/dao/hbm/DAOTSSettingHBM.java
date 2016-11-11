@@ -59,7 +59,7 @@ public class DAOTSSettingHBM extends DAOHibernate implements DAOTSSetting {
 	public boolean isAllowed(TSSettingName name, boolean defaultValue) {
 		if (!name.name().startsWith("SETTING_ALLOWED"))
 			return defaultValue;
-		return (boolean) getSession().createQuery("Select value = 'true' From TSSetting where name = :name").setParameter("name", name).uniqueResultOptional().orElse(true);
+		return (boolean) getSession().createQuery("Select value = 'true' From TSSetting where name = :name").setParameter("name", name).uniqueResultOptional().orElse(defaultValue);
 	}
 
 }

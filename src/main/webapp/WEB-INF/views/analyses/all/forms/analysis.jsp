@@ -43,19 +43,12 @@
 				<div id="deleteAnalysisBody" class="text-center">Your question here...</div>
 			</div>
 			<div class="modal-footer">
-				<div class="col-sm-8">
-					<div id="deleteprogressbar" class="progress progress-striped active" hidden="true" style="margin-bottom: 0">
-						<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-					</div>
-				</div>
-				<div class="col-sm-4">
-					<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger">
-						<spring:message code="label.yes_no.true" text="Yes" />
-					</button>
-					<button id="deleteanalysisbuttonNo" type="button" class="btn btn-default">
-						<spring:message code="label.yes_no.false" text="No" />
-					</button>
-				</div>
+				<button type="button" data-action="delete" class="btn btn-danger">
+					<spring:message code="label.yes_no.true" text="Yes" />
+				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal" data-action="cancel" >
+					<spring:message code="label.yes_no.false" text="No" />
+				</button>
 			</div>
 		</div>
 	</div>

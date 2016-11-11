@@ -114,7 +114,6 @@ function findControllerBySection(section, subSection) {
 		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
 		"section_parameter_probability" : "/Analysis/Parameter/Probability/Section",
 		"section_parameter_impact" : "/Analysis/Parameter/Impact/Section"
-
 	};
 
 	if (section.match("^section_standard_")) {

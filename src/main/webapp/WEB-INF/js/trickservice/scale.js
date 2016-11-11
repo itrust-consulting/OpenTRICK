@@ -48,11 +48,35 @@ function processScaleTypeForm(response, textStatus, jqXHR) {
 			$view.remove();
 		});
 
-		var $submitButton = $("form>#scale_type_form_submit_button", $view);
+		var $submitButton = $("form>#scale_type_form_submit_button", $view), $acronym = $("input[name='acronym']", $view), $name = $("input[name='name']", $view), acronyms = [];
+
+		$("#section_kb_scale_type table td[data-field-name='acronym']").each(function(i) {
+			acronyms[i] = $(this).text();
+		});
 
 		$(".modal-footer>#scale_type_submit_button", $view).on("click", function() {
 			return $submitButton.click();
 		});
+
+		$name.on("blur", function() {
+			var name = $name.val().toLowerCase(), acronym = "i";
+			if ($acronym.val() == "") {
+				if (name == "impact") {
+					while (acronyms.indexOf(acronym) != -1) {
+						if (acronym.length >= name.length)
+							return false;
+						acronym = name.substring(0, acronym.length + 1);
+					}
+				} else {
+					do {
+						if (acronym.length > name.length)
+							return false;
+						acronym = "i" + name.substring(0, acronym.length);
+					} while (acronyms.indexOf(acronym) != -1);
+				}
+			}
+			$acronym.val(acronym);
+		})
 
 		$("form", $view).on("submit", function(e) {
 			return saveScaleType($view, e.target);

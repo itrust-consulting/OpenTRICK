@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,8 +39,10 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.value.impl.AbstractValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -151,7 +154,7 @@ public class Duplicator {
 
 			copy.setParameters(new LinkedHashMap<>(analysis.getParameters().size()));
 
-			copy.getParameters().forEach((group, parameterList) -> parameterList.stream().forEach(parameter -> {
+			analysis.getParameters().forEach((group, parameterList) -> parameterList.stream().forEach(parameter -> {
 				IParameter duplicate = parameter.duplicate();
 				copy.add(duplicate);
 				parameters.put(parameter.getKey(), duplicate);
@@ -187,6 +190,12 @@ public class Duplicator {
 				Assessment clone = assessment.duplicate();
 				clone.setScenario(scenarios.get(assessment.getScenario().getId()));
 				clone.setAsset(assets.get(assessment.getAsset().getId()));
+				clone.setImpacts(new LinkedList<>());
+				assessment.getImpacts().forEach(impact -> {
+					AbstractValue value = (AbstractValue) impact.duplicate();
+					value.setParameter((ILevelParameter) parameters.get(value.getParameter().getKey()));
+					clone.setImpact(value);
+				});
 				copy.getAssessments().add(clone);
 			}
 
@@ -216,7 +225,7 @@ public class Duplicator {
 
 			if (!analysis.getAnalysisStandards().isEmpty()) {
 
-				Integer percentageperstandard = (int) 40 / analysis.getAnalysisStandards().size();
+				Integer percentageperstandard = (int) 60 / analysis.getAnalysisStandards().size();
 
 				int copycounter = 0;
 
@@ -352,8 +361,9 @@ public class Duplicator {
 			IParameter parameter = parameters.get(anonymize ? SimpleParameter.key(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, Constant.IS_NOT_ACHIEVED)
 					: ((MaturityMeasure) measure).getImplementationRate().getKey());
 			if (parameter == null)
-				parameter = parameters.values().stream().filter(param -> (param.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)
-						&& (param.getValue().doubleValue() == 0 || param.getDescription().equals(Constant.IS_NOT_ACHIEVED)))).findAny().orElse(null);
+				parameter = parameters.values().stream().filter(param -> (param.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME))).min((p1, p2) -> {
+					return Double.compare(p1.getValue().doubleValue(), p1.getValue().doubleValue());
+				}).orElse(null);
 
 			matmeasure.setImplementationRate(parameter);
 			if (anonymize) {

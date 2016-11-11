@@ -1,8 +1,10 @@
 function displayParameters(name, title) {
-	var view = new Modal().Intialise();
+	var view = new Modal(undefined, $(name).html()), $legend = $(view.modal_body).find("legend").remove();
 	$(view.modal_footer).remove();
-	view.setTitle(title).setBody($(name).find(".panel-body").html());
 	$(view.modal_body).find("td").removeAttributes();
+	if (!title)
+		title = $legend.text();
+	view.setTitle(title);
 	view.Show();
 	return false;
 }

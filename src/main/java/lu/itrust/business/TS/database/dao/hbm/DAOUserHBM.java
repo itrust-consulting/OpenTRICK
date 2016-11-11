@@ -86,7 +86,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@Override
 	public boolean noUsers()  {
-		return (boolean) getSession().createQuery("Select count(*)>0 From User").getSingleResult();
+		return (boolean) getSession().createQuery("Select count(*) = 0 From User").getSingleResult();
 	}
 
 	/**

@@ -49,9 +49,10 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#getStatus()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public TrickService getStatus()  {
-		return (TrickService) getSession().createQuery("From TrickService").getSingleResult();
+		return (TrickService) getSession().createQuery("From TrickService").uniqueResultOptional().orElse(null);
 	}
 
 	/**
