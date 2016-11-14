@@ -14,9 +14,6 @@ import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
@@ -47,14 +44,12 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
-import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.model.general.WordReport;
 import lu.itrust.business.TS.model.general.helper.ExportType;
 import lu.itrust.business.TS.model.parameter.IImpactParameter;
@@ -212,7 +207,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.xlsx", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
-			generateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
+			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 10));
 			addHeader(sheet, scaleTypes);
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
@@ -252,43 +247,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	}
 
-	private void generateEstimation(Analysis analysis, CSSFFilter cssfFilter, ValueFactory valueFactory, List<Estimation> directs, List<Estimation> indirects,
-			List<Estimation> cias) {
-		alpha2 = analysis.getLanguage().getAlpha2();
-		locale = new Locale(alpha2);
-		int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
-		Map<String, Assessment> mappedAssessment = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
-		analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
-				.map(riskProfile -> new Estimation(mappedAssessment.get(Assessment.key(riskProfile.getAsset(), riskProfile.getScenario())), riskProfile, valueFactory))
-				.sorted(Estimation.Comparator().reversed()).forEach(estimation -> {
-					switch (CSSFSort.findGroup(estimation.getScenario().getType().getName())) {
-					case CSSFSort.DIRECT:
-						if (direct == -1
-								|| direct > -1 && (cssfFilter.getDirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
-							directs.add(estimation);
-							if (direct > 0)
-								cssfFilter.setDirect(cssfFilter.getDirect() - 1);
-						}
-						break;
-					case CSSFSort.INDIRECT:
-						if (inderect == -1
-								|| inderect > -1 && (cssfFilter.getIndirect() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
-							indirects.add(estimation);
-							if (inderect > 0)
-								cssfFilter.setIndirect(cssfFilter.getIndirect() - 1);
-						}
-						break;
-					default:
-						if (cia == -1 || cia > -1 && (cssfFilter.getCia() > 0 || estimation.isCompliant((int) cssfFilter.getImpact(), (int) cssfFilter.getProbability()))) {
-							cias.add(estimation);
-							if (cia > 0)
-								cssfFilter.setCia(cssfFilter.getCia() - 1);
-						}
-						break;
-					}
-				});
-		mappedAssessment.clear();
-	}
+	
 
 	private void addEstimation(XSSFSheet sheet, List<Estimation> estimations, List<ScaleType> types, String title, int startIndex) {
 		XSSFRow row = getRow(sheet, startIndex++);
@@ -403,9 +362,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		boolean isFirst = true;
 		try {
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.risk_register.compute", "Computing risk register", progress));
-			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
-			List<Estimation> directs = new LinkedList<>(), cias = new LinkedList<>(), indirects = new LinkedList<>();
-			generateEstimation(analysis, cssfExportForm.getFilter(), valueFactory, directs, indirects, cias);
+			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), cssfExportForm.getFilter(),Estimation.IdComparator());
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.loading.risk_sheet.template", "Loading risk sheet template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_SHEET_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
@@ -416,14 +373,10 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", progress += 8));
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", progress += 8));
-			directs.addAll(indirects);
-			directs.addAll(cias);
 			if (cssfExportForm.hasOwner())
-				directs.removeIf(estimation -> !cssfExportForm.getOwner().equals(estimation.getOwner()));
-			directs.sort(Estimation.IdComparator());
-
+				estimations.removeIf(estimation -> !cssfExportForm.getOwner().equals(estimation.getOwner()));
 			List<ScaleType> types = analysis.getImpacts();
-			for (Estimation estimation : directs) {
+			for (Estimation estimation : estimations) {
 				RiskProfile riskProfile = estimation.getRiskProfile();
 				addRiskSheetHeader(document, estimation.getRiskProfile(), isFirst);
 				if (isFirst) {
@@ -444,7 +397,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 				addField(document, getMessage("report.risk_sheet.response", "Response strategy"), getMessage("label.risk_register.strategy." + response, response));
 				addField(document, getMessage("report.risk_sheet.action_plan", "Action plan"), riskProfile.getActionPlan());
 				addTable(document, getMessage("report.risk_sheet.exp_evaluation", "Expected evaluation"), riskProfile.getExpProbaImpact(), types);
-				messageHandler.setProgress((int) (progress + (++index / (double) directs.size()) * (max - progress)));
+				messageHandler.setProgress((int) (progress + (++index / (double) estimations.size()) * (max - progress)));
 			}
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", max));
 			document.write(outputStream = new FileOutputStream(workFile));

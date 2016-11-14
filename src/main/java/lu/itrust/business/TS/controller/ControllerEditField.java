@@ -233,7 +233,7 @@ public class ControllerEditField {
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
-			Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
+			Field field = FindField(Asset.class, fieldEditor.getFieldName());
 			// check if field is a phase
 			if (!SetFieldValue(asset, field, value))
 				JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
@@ -261,7 +261,7 @@ public class ControllerEditField {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Parameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/SimpleParameter/{elementID}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'SimpleParameter', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String parameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal)
 			throws Exception {
@@ -301,7 +301,7 @@ public class ControllerEditField {
 				break;
 			}
 			// create field
-			Field field = simpleParameter.getClass().getDeclaredField(fieldEditor.getFieldName());
+			Field field = FindField(SimpleParameter.class, fieldEditor.getFieldName());
 			// set field data
 			if (SetFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
@@ -336,7 +336,7 @@ public class ControllerEditField {
 	public @ResponseBody String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
-			if(fieldEditor.getFieldName().equals("acronym"))
+			if (fieldEditor.getFieldName().equals("acronym"))
 				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -397,7 +397,7 @@ public class ControllerEditField {
 	public @ResponseBody String likelihoodParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
 			throws Exception {
 		try {
-			if(fieldEditor.getFieldName().equals("acronym"))
+			if (fieldEditor.getFieldName().equals("acronym"))
 				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null, "Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -469,7 +469,7 @@ public class ControllerEditField {
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// create field
-			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
+			Field field = FindField(MaturityParameter.class, fieldEditor.getFieldName());
 			// set value /100 to save as values between 0 and 1
 			// set field data
 			if (SetFieldValue(parameter, field, (Double) value * 0.01)) {
@@ -754,7 +754,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 			// set field
-			Field field = history.getClass().getDeclaredField(fieldEditor.getFieldName());
+			Field field = FindField(History.class, fieldEditor.getFieldName());
 
 			// set field data
 			if (SetFieldData(field, history, fieldEditor)) {
@@ -1072,7 +1072,8 @@ public class ControllerEditField {
 			NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 
 			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
-			Field field = mesprep.getClass().getDeclaredField(fieldEditor.getFieldName());
+
+			Field field = FindField(MeasureProperties.class, fieldEditor.getFieldName());
 
 			// check if field is a phase
 			if (!SetFieldData(field, mesprep, fieldEditor))
@@ -1312,7 +1313,7 @@ public class ControllerEditField {
 			// retireve phase
 			Phase phase = servicePhase.getFromAnalysisById(idAnalysis, elementID);
 			// set field
-			Field field = phase.getClass().getDeclaredField(fieldEditor.getFieldName());
+			Field field = FindField(Phase.class, fieldEditor.getFieldName());
 			field.setAccessible(true);
 			// set field date
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -1340,7 +1341,7 @@ public class ControllerEditField {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			RiskInformation riskInformation = serviceRiskInformation.getFromAnalysisById(idAnalysis, elementID);
 			// set field
-			Field field = riskInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
+			Field field = FindField(RiskInformation.class, fieldEditor.getFieldName());
 			ValidatorField validatorField = serviceDataValidation.findByClass(RiskInformation.class);
 			if (validatorField == null)
 				serviceDataValidation.register(validatorField = new RiskInformationValidator());

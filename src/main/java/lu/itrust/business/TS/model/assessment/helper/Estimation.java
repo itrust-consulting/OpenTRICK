@@ -4,12 +4,14 @@
 package lu.itrust.business.TS.model.assessment.helper;
 
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.component.NaturalOrderComparator;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -18,6 +20,7 @@ import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.cssf.tools.CSSFSort;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
@@ -37,11 +40,13 @@ public class Estimation {
 
 	private RiskProfile riskProfile;
 
+	private int assessmentId;
+
 	/**
 	 * @param riskProfile
 	 * @param netEvaluation
 	 */
-	public Estimation(String owner, String argumentation, RiskProfile riskProfile, RiskProbaImpact netEvaluation) {
+	public Estimation(String owner, String argumentation, int assessmentId, RiskProfile riskProfile, RiskProbaImpact netEvaluation) {
 		this.owner = owner;
 		this.argumentation = argumentation;
 		this.netEvaluation = netEvaluation;
@@ -57,6 +62,7 @@ public class Estimation {
 		setOwner(assessment.getOwner());
 		setRiskProfile(riskProfile);
 		setArgumentation(assessment.getComment());
+		setAssessmentId(assessment.getId());
 		setNetEvaluation(new RiskProbaImpact((LikelihoodParameter) convertor.findProbParameter(assessment.getLikelihood()),
 				assessment.getImpacts().stream().map(impact -> (ImpactParameter) impact.getParameter()).collect(Collectors.toList())));
 	}
@@ -241,8 +247,19 @@ public class Estimation {
 		this.argumentation = argumentation;
 	}
 
+	/**
+	 * Group estimation by group and applies filter.
+	 * 
+	 * @param analysis
+	 * @param cssfFilter
+	 * @param valueFactory
+	 * @param directs
+	 * @param indirects
+	 * @param cias
+	 */
 	public static void GenerateEstimation(Analysis analysis, CSSFFilter cssfFilter, ValueFactory valueFactory, List<Estimation> directs, List<Estimation> indirects,
 			List<Estimation> cias) {
+		System.out.println(cssfFilter);
 		int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
 		Map<String, Assessment> mappedAssessment = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 		analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
@@ -277,6 +294,90 @@ public class Estimation {
 		mappedAssessment.clear();
 	}
 
+	/**
+	 * Generate risk estimation
+	 * 
+	 * @param analysis
+	 * @param valueFactory
+	 * @param filter
+	 * @param comparator
+	 * @return Estimation
+	 * @see #GenerateEstimation(Analysis, CSSFFilter, ValueFactory, List, List,
+	 *      List)
+	 */
+	public static List<Estimation> GenerateEstimation(Analysis analysis, ValueFactory valueFactory, CSSFFilter filter, Comparator<? super Estimation> comparator) {
+		if (filter == null) {
+			filter = new CSSFFilter();
+			int impactThreshold = Constant.CSSF_IMPACT_THRESHOLD_VALUE, probabilityThreshold = Constant.CSSF_PROBABILITY_THRESHOLD_VALUE;
+			for (IParameter parameter : analysis.getSimpleParameters()) {
+				if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE))
+					filter.setCia((int) parameter.getValue().intValue());
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_DIRECT_SIZE))
+					filter.setDirect((int) parameter.getValue().intValue());
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_INDIRECT_SIZE))
+					filter.setIndirect((int) parameter.getValue().intValue());
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_IMPACT_THRESHOLD))
+					impactThreshold = (int) parameter.getValue().intValue();
+				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_PROBABILITY_THRESHOLD))
+					probabilityThreshold = (int) parameter.getValue().intValue();
+			}
+			filter.setImpact(impactThreshold);
+			filter.setProbability(probabilityThreshold);
+		}
+		List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
+		GenerateEstimation(analysis, filter, valueFactory, directs, indirects, cias);
+		directs.addAll(indirects);
+		directs.addAll(cias);
+		if (comparator != null)
+			directs.sort(comparator);
+		return directs;
+	}
+
+	/**
+	 * Generate risk estimation sorted by group direct -> indirect -> cia
+	 * 
+	 * @param analysis
+	 * @param valueFactory
+	 * @param filter
+	 * @return Estimation sorted by group
+	 * @see #GenerateEstimation(Analysis, ValueFactory, CSSFFilter, Comparator)
+	 * @see #GenerateEstimation(Analysis, CSSFFilter, ValueFactory, List, List,
+	 *      List)
+	 */
+	public static List<Estimation> GenerateEstimation(Analysis analysis, ValueFactory valueFactory, CSSFFilter filter) {
+		return GenerateEstimation(analysis, valueFactory, filter, null);
+	}
+
+	/**
+	 * Generate risk estimation
+	 * 
+	 * @param analysis
+	 * @param valueFactory
+	 * @param comparator
+	 * @return estimations
+	 * @see #GenerateEstimation(Analysis, ValueFactory, CSSFFilter, Comparator)
+	 * @see #GenerateEstimation(Analysis, CSSFFilter, ValueFactory, List, List,
+	 *      List)
+	 */
+	public static List<Estimation> GenerateEstimation(Analysis analysis, ValueFactory valueFactory, Comparator<? super Estimation> comparator) {
+		return GenerateEstimation(analysis, valueFactory, null, comparator);
+	}
+
+	/**
+	 * Generate risk estimation sorted by group direct -> indirect -> cia
+	 * 
+	 * @param analysis
+	 * @param valueFactory
+	 * @param filter
+	 * @return Estimation sorted by group
+	 * @see #GenerateEstimation(Analysis, ValueFactory, CSSFFilter, Comparator)
+	 * @see #GenerateEstimation(Analysis, CSSFFilter, ValueFactory, List, List,
+	 *      List)
+	 */
+	public static List<Estimation> GenerateEstimation(Analysis analysis, ValueFactory valueFactory) {
+		return GenerateEstimation(analysis, valueFactory, null, null);
+	}
+
 	public static Comparator<? super Estimation> IdComparator() {
 		return (o1, o2) -> {
 			if (o1.getIdentifier() == null || o1.getIdentifier().isEmpty()) {
@@ -287,6 +388,21 @@ public class Estimation {
 				return 1;
 			return NaturalOrderComparator.compareTo(o1.getIdentifier(), o2.getIdentifier());
 		};
+	}
+
+	/**
+	 * @return the assessmentId
+	 */
+	public int getAssessmentId() {
+		return assessmentId;
+	}
+
+	/**
+	 * @param assessmentId
+	 *            the assessmentId to set
+	 */
+	public void setAssessmentId(int assessmentId) {
+		this.assessmentId = assessmentId;
 	}
 
 }

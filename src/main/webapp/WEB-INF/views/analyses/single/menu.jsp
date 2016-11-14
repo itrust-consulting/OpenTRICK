@@ -26,7 +26,7 @@
 					<li><a href="#tabParameterImpactProba" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.impact_probability" /></a></li>
 				</c:otherwise>
 			</c:choose>
-			
+
 			<li><a href="#tabParameterOther" data-toggle="tab"><spring:message code="label.menu.analysis.parameter.various" /></a></li>
 		</ul></li>
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_analysis" /> <span class="caret"></span></a>
@@ -110,29 +110,38 @@
 		<ul class="dropdown-menu" id="actionmenu">
 			<c:if test="${not isProfile}">
 				<li class="dropdown-header"><spring:message code="label.title.computation" /></li>
-				<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" />
-				</a></li>
+				<%-- <li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" /></a></li> --%>
 				<c:choose>
 					<c:when test="${type=='QUALITATIVE'}">
-						<li><a href="#" onclick="return calculateRiskRegister();"> <spring:message code="label.menu.analysis.risk_register" /></a></li>
+						<li><a href="#"> <spring:message code="label.menu.analysis.action_plan" /> (coming soon)</a></li>
 					</c:when>
-					<c:when test="${not isEditable}">
-						<li class="divider"></li>
-					</c:when>
+					<c:otherwise>
+						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.menu.analysis.action_plan" /></a></li>
+						<c:if test="${not isEditable}">
+							<li class="divider"></li>
+						</c:if>
+					</c:otherwise>
 				</c:choose>
 				<c:if test="${canExport and isEditable}">
 					<li class="divider"></li>
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
-					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
-					<c:if test="${type=='QUALITATIVE'}">
-						<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
-						</a></li>
-						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />
-						</a></li>
-						<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','RAW')"> <spring:message code="label.raw_risk_sheet" />
-						</a></li>
-					</c:if>
-					<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
+					<c:choose>
+						<c:when test="${type=='QUALITATIVE'}">
+							<li><a href="#"><spring:message code="label.word_report" /> (coming soon)</a></li>
+							<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
+							</a></li>
+							<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','REPORT')"> <spring:message code="label.risk_sheet" />
+							</a></li>
+							<li><a href="#" onclick="return exportRiskSheet('${analysis.id}','RAW')"> <spring:message code="label.raw_risk_sheet" />
+							</a></li>
+							<li><a href="#"><spring:message code="label.raw_action_plan" /> (coming soon)</a></li>
+						</c:when>
+						<c:otherwise>
+							<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
+							<li><a href="${pageContext.request.contextPath}/Analysis/Export/Raw-Action-plan/${analysis.id}" download><spring:message code="label.raw_action_plan" /></a></li>
+						</c:otherwise>
+					</c:choose>
+					
 					<li class="divider"></li>
 				</c:if>
 			</c:if>

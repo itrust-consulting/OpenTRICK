@@ -430,7 +430,7 @@ function ExtendedFieldEditor(section, element) {
 								if (that.fieldName == "value") {
 									updateAssessmentAle(true);
 									$("datalist[id^='dataList-parameter-']").remove();
-									reloadSection([ that.section, "section_asset", "section_scenario" ]);
+									reloadSection([ that.section, "section_asset", "section_scenario"]);
 								}
 							}
 						} else if (response["error"] != undefined) {
@@ -550,7 +550,7 @@ function AssessmentFieldEditor(element) {
 							that.UpdateUI();
 							if (application["estimation-helper"] != undefined) {
 								application["estimation-helper"].tryUpdate(that.classId);
-								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
+								reloadSection([ "section_asset", "section_scenario","section_riskregister"], undefined, true);
 								chartALE();
 							}
 						} else {

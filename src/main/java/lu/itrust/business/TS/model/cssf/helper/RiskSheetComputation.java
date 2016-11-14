@@ -140,8 +140,8 @@ public class RiskSheetComputation {
 			// * calculate RiskRegister using CSSFComputation
 			// ****************************************************************
 			helper = new ComputationHelper(impactParameters);
-			filter.setImpact(helper.getFactory().findRealImpactByMaxLevel(impactThreshold));
-			filter.setProbability(helper.getFactory().findExpLevel(probabilityThreshold));
+			filter.setImpact(impactThreshold);
+			filter.setProbability(probabilityThreshold);
 			setFactory(helper.getFactory());
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, helper.getFactory(), mandatoryPhase), helper, filter));
 			// print risk register into console
@@ -252,7 +252,7 @@ public class RiskSheetComputation {
 	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final ComputationHelper helper, CSSFFilter cssfFilter)
 			throws TrickException {
 		if (cssfFilter == null)
-			cssfFilter = new CSSFFilter(helper.getFactory().findRealImpactByMaxLevel(6), helper.getFactory().findExpLevel(5));
+			cssfFilter = new CSSFFilter(6, 5);
 		// calculate the NET Evaluation
 		// set the impacts of each category (this will parse all assessment and
 		// will make a sum of

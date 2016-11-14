@@ -46,7 +46,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#get(long)
 	 */
 	@Override
-	public UserSQLite get(Integer id)  {
+	public UserSQLite get(Long id)  {
 		return (UserSQLite) getSession().get(UserSQLite.class, id);
 	}
 
@@ -71,7 +71,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public UserSQLite getByIdAndUser(Integer idFile, String username)  {
+	public UserSQLite getByIdAndUser(Long idFile, String username)  {
 		String query = "From UserSQLite where id = :idFile and user.login = :username";
 		return (UserSQLite) getSession().createQuery(query).setParameter("idFile", idFile).setParameter("username", username).uniqueResultOptional().orElse(null);
 	}
@@ -142,7 +142,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(long)
 	 */
 	@Override
-	public void delete(Integer idUserSqLite)  {
+	public void delete(Long idUserSqLite)  {
 		delete(get(idUserSqLite));
 	}
 

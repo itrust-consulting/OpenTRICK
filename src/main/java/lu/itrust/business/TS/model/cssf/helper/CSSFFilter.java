@@ -18,9 +18,9 @@ public class CSSFFilter {
 	 */
 	private int cia = -1;
 
-	private double impact;
+	private int impact;
 
-	private double probability;
+	private int probability;
 	
 
 	/**
@@ -34,7 +34,7 @@ public class CSSFFilter {
 	 * @param indirect
 	 * @param cia
 	 */
-	public CSSFFilter(int direct, int indirect, int cia, double impact, double probability) {
+	public CSSFFilter(int direct, int indirect, int cia, int impact, int probability) {
 		this.direct = direct;
 		this.indirect = indirect;
 		this.cia = cia;
@@ -42,7 +42,7 @@ public class CSSFFilter {
 		this.probability = probability;
 	}
 
-	public CSSFFilter(double impactValue, double probabiltyValue) {
+	public CSSFFilter(int impactValue, int probabiltyValue) {
 		this.impact = impactValue;
 		this.probability = probabiltyValue;
 	}
@@ -124,7 +124,7 @@ public class CSSFFilter {
 	 * @param impact
 	 *            the impact to set
 	 */
-	public void setImpact(double impact) {
+	public void setImpact(int impact) {
 		this.impact = impact;
 	}
 
@@ -139,7 +139,7 @@ public class CSSFFilter {
 	 * @param probability
 	 *            the probability to set
 	 */
-	public void setProbability(double probability) {
+	public void setProbability(int probability) {
 		this.probability = probability;
 	}
 

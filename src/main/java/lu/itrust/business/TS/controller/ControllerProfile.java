@@ -204,7 +204,7 @@ public class ControllerProfile {
 	}
 
 	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String deleteSqlite(@PathVariable Integer id, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String deleteSqlite(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
 		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 		if (userSQLite == null)
 			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
@@ -213,7 +213,7 @@ public class ControllerProfile {
 	}
 
 	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String deleteReport(@PathVariable Integer id, Principal principal, Locale locale) {
+	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
 		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
 		if (report == null)
 			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
@@ -233,7 +233,7 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Sqlite/{idFile}/Download")
-	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	public String downloadSqlite(@PathVariable Long idFile, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
@@ -284,7 +284,7 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Report/{id}/Download")
-	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());

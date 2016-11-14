@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,7 +24,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
@@ -40,9 +38,7 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
-import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.WordReport;
-import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -212,28 +208,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.backup", "Backup of user changes", progress));
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
-			ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
-			CSSFFilter filter = new CSSFFilter();
-			int impactThreshold = Constant.CSSF_IMPACT_THRESHOLD_VALUE, probabilityThreshold = Constant.CSSF_PROBABILITY_THRESHOLD_VALUE;
-			for (IParameter parameter : analysis.getSimpleParameters()) {
-				if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE))
-					filter.setCia((int) parameter.getValue().intValue());
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_DIRECT_SIZE))
-					filter.setDirect((int) parameter.getValue().intValue());
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_INDIRECT_SIZE))
-					filter.setIndirect((int) parameter.getValue().intValue());
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_IMPACT_THRESHOLD))
-					impactThreshold = (int) parameter.getValue().intValue();
-				else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_PROBABILITY_THRESHOLD))
-					probabilityThreshold = (int) parameter.getValue().intValue();
-			}
-			filter.setImpact(valueFactory.findRealImpactByMaxLevel(impactThreshold));
-			filter.setProbability(valueFactory.findExpLevel(probabilityThreshold));
-			List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(), cias = new LinkedList<>();
-			Estimation.GenerateEstimation(analysis, filter, valueFactory, directs, indirects, cias);
-			directs.addAll(indirects);
-			directs.addAll(cias);
-			directs.sort(Estimation.IdComparator());
+			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_register.template", "Loading risk register template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_REGISTER_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
@@ -248,7 +223,7 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			XWPFTable table = getTable(document, 0);// lib contains a bug
 			if (table == null)
 				throw new IllegalArgumentException(String.format("Please check risk register template: %s", doctemplate.getPath()));
-			for (Estimation estimation : directs) {
+			for (Estimation estimation : estimations) {
 				XWPFTableRow row = index == 0 ? table.getRow(table.getRows().size() - 1) : table.createRow();
 				String scenarioType = estimation.getScenario().getType().getName();
 				addInt(index + 1, row, 0);

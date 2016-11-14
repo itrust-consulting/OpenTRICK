@@ -40,7 +40,7 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 * lu.itrust.business.TS.database.dao.DAOWordReport#get(java.lang.Integer)
 	 */
 	@Override
-	public WordReport get(Integer id) {
+	public WordReport get(Long id) {
 		return (WordReport) getSession().get(WordReport.class, id);
 	}
 
@@ -66,7 +66,7 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public WordReport getByIdAndUser(Integer id, String username) {
+	public WordReport getByIdAndUser(Long id, String username) {
 		return (WordReport) getSession().createQuery("From WordReport where id = :id and user.login = :username").setParameter("id", id).setParameter("username", username)
 				.uniqueResultOptional().orElse(null);
 	}
@@ -156,7 +156,7 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 * )
 	 */
 	@Override
-	public void delete(Integer id) {
+	public void delete(Long id) {
 		delete(get(id));
 	}
 

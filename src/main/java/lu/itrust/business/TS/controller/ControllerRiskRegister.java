@@ -41,6 +41,7 @@ import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.helper.ExportType;
@@ -103,23 +104,16 @@ public class ControllerRiskRegister {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping
 	public String showRiskRegister(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
-
 		// retrieve analysis ID
 		Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		// load all actionplans from the selected analysis
 		// prepare model
-		model.put("riskregister", analysis.getRiskRegisters());
-
-		model.put("valueFactory", new ValueFactory(analysis.getParameters()));
-
+		ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
+		model.put("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
 		model.put("type", analysis.getType());
-
+		model.put("riskregister", analysis.getRiskRegisters());
+		model.put("valueFactory", valueFactory);
 		model.put("language", analysis.getLanguage().getAlpha2());
-
-		model.put("riskProfileMapping", analysis.mapRiskProfile());
-
-		model.put("estimationMapping", analysis.mapAssessment());
-
 		// return view
 		return "analyses/single/components/riskRegister/home";
 	}
@@ -159,6 +153,7 @@ public class ControllerRiskRegister {
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@Deprecated
 	public @ResponseBody String computeRiskRegister(HttpSession session, Principal principal) throws Exception {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());

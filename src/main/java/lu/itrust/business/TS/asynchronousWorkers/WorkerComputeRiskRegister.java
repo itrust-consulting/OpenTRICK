@@ -30,6 +30,7 @@ import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
  * @version
  * @since Feb 17, 2014
  */
+@Deprecated
 public class WorkerComputeRiskRegister implements Worker {
 
 	private String id = String.valueOf(System.nanoTime());

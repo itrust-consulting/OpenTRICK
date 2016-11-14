@@ -122,17 +122,18 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
+							<tr data-trick-callback="reloadSection('section_riskregister');" data-trick-class="SimpleParameter" >
+							
 								<c:forEach items="${mappedParameters['CSSF']}" var="parameter">
 									<c:choose>
 										<c:when test="${parameter.description=='cssfImpactThreshold' or parameter.description=='cssfProbabilityThreshold'}">
-											<td data-trick-class="SimpleParameter" data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1'
+											<td data-trick-id="${parameter.id}" data-trick-min-value='0' data-trick-max-value='10' data-trick-step-value='1'
 												class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 													value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 										</c:when>
 										<c:when test="${parameter.description== 'cssfCIASize' or parameter.description== 'cssfDirectSize' or parameter.description== 'cssfIndirectSize'}">
 											<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" pattern="#" var="cssfSize" />
-											<td data-trick-class="Parameter" data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all},${compliant}' data-trick-min-value='-2'
+											<td data-trick-id="${parameter.id}" data-trick-choose-translate='${nil},${all},${compliant}' data-trick-min-value='-2'
 												data-trick-step-value='1' data-trick-max-value='1000' class="success textaligncenter" data-trick-field="value" data-trick-field-type="double"
 												onclick="return editField(this);"><c:choose>
 													<c:when test="${parameter.value <= -2 }">

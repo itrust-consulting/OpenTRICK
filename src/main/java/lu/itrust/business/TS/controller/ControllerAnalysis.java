@@ -94,6 +94,7 @@ import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -271,10 +272,8 @@ public class ControllerAnalysis {
 				model.addAttribute("type", analysis.getType());
 				model.addAttribute("standards", standards);
 				model.addAttribute("hasMaturity", hasMaturity);
-				if (analysis.getType() == AnalysisType.QUALITATIVE) {
-					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
-					model.addAttribute("estimationMapping", analysis.mapAssessment());
-				}
+				if (analysis.getType() == AnalysisType.QUALITATIVE)
+					model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
 				if (hasMaturity)
 					model.addAttribute("effectImpl27002",
 							MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),

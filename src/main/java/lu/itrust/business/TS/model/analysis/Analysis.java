@@ -1894,11 +1894,9 @@ public class Analysis implements Cloneable {
 	 * @return
 	 */
 	public boolean isUserAuthorized(User user, AnalysisRight right) {
-
 		for (UserAnalysisRight uar : userRights) {
-			if (uar.getUser().equals(user)) {
+			if (uar.getUser().equals(user))
 				return UserAnalysisRight.userIsAuthorized(uar, right);
-			}
 		}
 		return false;
 	}

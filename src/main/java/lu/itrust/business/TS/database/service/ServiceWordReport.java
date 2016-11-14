@@ -15,11 +15,11 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public interface ServiceWordReport {
 
-	WordReport get(Integer id);
+	WordReport get(Long id);
 
 	WordReport getByFilename(String fileName);
 
-	WordReport getByIdAndUser(Integer id, String username);
+	WordReport getByIdAndUser(Long id, String username);
 
 	List<WordReport> getAllFromUser(String username);
 
@@ -35,7 +35,7 @@ public interface ServiceWordReport {
 
 	WordReport merge(WordReport wordReport);
 
-	void delete(Integer id);
+	void delete(Long id);
 	
 	void delete(String filename);
 
