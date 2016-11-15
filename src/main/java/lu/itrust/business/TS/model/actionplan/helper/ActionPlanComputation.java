@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.naming.directory.InvalidAttributesException;
 
 import org.springframework.context.MessageSource;
+import org.springframework.util.StringUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
@@ -45,6 +47,7 @@ import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
+import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
 /**
@@ -79,6 +82,8 @@ public class ActionPlanComputation {
 
 	/** Analysis Object */
 	private Analysis analysis = null;
+
+	private Locale locale = null;
 
 	/** List of standards to compute */
 	private List<AnalysisStandard> standards = null;
@@ -165,16 +170,6 @@ public class ActionPlanComputation {
 		this.idTask = idTask;
 		this.analysis = analysis;
 		this.messageSource = messageSource;
-		AnalysisStandard tmp27002standard = null;
-
-		// determine standard 27002
-		for (AnalysisStandard analysisStandard : this.analysis.getAnalysisStandards()) {
-
-			if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002) && analysisStandard.getStandard().isComputable()) {
-				tmp27002standard = analysisStandard;
-				break;
-			}
-		}
 
 		// check if standards to compute is empty -> YES: take all standards;
 		// NO: use
@@ -182,17 +177,14 @@ public class ActionPlanComputation {
 		if (standards == null || standards.isEmpty())
 			this.standards = this.analysis.getAnalysisStandards();
 		else
-			this.standards = standards;
+			this.standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> analysisStandard.isSoaEnabled() || standards.contains(analysisStandard))
+					.collect(Collectors.toList());
 
-		// check if maturity standard is to compute -> check if 27002 is
-		// selected,
-		// if no: select 27002
-		for (AnalysisStandard analysisStandard : this.standards) {
-			if (analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable()) {
-				this.maturitycomputation = tmp27002standard != null;
-				if (this.maturitycomputation && !this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002)))
-					this.standards.add(tmp27002standard);
-				break;
+		if (this.standards.stream().anyMatch(analysisStandard -> analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable())) {
+			if (!this.standards.stream().anyMatch(checkStandard -> checkStandard.getStandard().is(Constant.STANDARD_27002))) {
+				AnalysisStandard analysisStandard = analysis.getAnalysisStandardByLabel(Constant.STANDARD_27002);
+				if (analysisStandard != null)
+					this.standards.add(analysisStandard);
 			}
 		}
 		this.uncertainty = uncertainty;
@@ -233,6 +225,8 @@ public class ActionPlanComputation {
 		// check if uncertainty to adopt the progress factor
 		if (!uncertainty)
 			progress = 20;
+		if (locale == null)
+			locale = new Locale(this.analysis.getLanguage().getAlpha2());
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", progress));
 
@@ -1032,10 +1026,10 @@ public class ActionPlanComputation {
 		report = -1;
 		asm = null;
 
-		if (!entry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
+		if (!entry.getMeasure().getAnalysisStandard().isSoaEnabled() || entry.getMeasure() instanceof MaturityMeasure)
 			return;
 
-		NormalMeasure measure = ((NormalMeasure) entry.getMeasure());
+		Measure measure = entry.getMeasure();
 
 		for (TMA tma : TMAList) {
 
@@ -1055,8 +1049,6 @@ public class ActionPlanComputation {
 			}
 		}
 
-		Locale locale = new Locale(this.analysis.getLanguage().getAlpha2());
-
 		String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + " \n ";
 		soarisk += messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + " \n ";
 
@@ -1073,7 +1065,16 @@ public class ActionPlanComputation {
 		}
 
 		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(val);
-		measure.getMeasurePropertyList().setSoaRisk(soarisk);
+
+		MeasureProperties measureProperties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
+				: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
+
+		if (measureProperties != null) {
+			measureProperties.setSoaRisk(soarisk);
+			if (StringUtils.isEmpty(measureProperties.getSoaExport()))
+				measureProperties.setSoaExport(soarisk);
+		}
+
 	}
 
 	/***********************************************************************************************
@@ -2825,7 +2826,7 @@ public class ActionPlanComputation {
 			isFirstValidPhase = START_P0.equals(tmpval.previousStage.getStage());
 		} else
 			tmpval.measureCount = 0;
-		
+
 		tmpval.notCompliantMeasure27001Count = 0;
 		tmpval.notCompliantMeasure27002Count = 0;
 

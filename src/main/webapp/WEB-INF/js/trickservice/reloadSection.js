@@ -108,7 +108,8 @@ function findControllerBySection(section, subSection) {
 		"section_actionplans" : "/Analysis/ActionPlan/Section",
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
-		"section_soa" : "/Analysis/Standard/SOA"
+		"section_soa" : "/Analysis/Standard/SOA",
+		"section_soa_content" : "/Analysis/Standard/SOA"
 	};
 
 	if (section.match("^section_standard_")) {

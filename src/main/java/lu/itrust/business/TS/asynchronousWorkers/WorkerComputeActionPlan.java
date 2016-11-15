@@ -7,14 +7,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.MessageSource;
 
 import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.TS.database.dao.DAOActionPlanType;
@@ -35,6 +33,7 @@ import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
+import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 
 /**
@@ -149,8 +148,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 			assessmentAndRiskProfileManager.UpdateAssessment(analysis);
 
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, getId(), analysis, analysisStandards, this.uncertainty,
-					this.messageSource);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, getId(), analysis, analysisStandards,
+					this.uncertainty, this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
@@ -244,17 +243,19 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	 * @param analysisStandards
 	 */
 	private void initAnalysis(Analysis analysis, List<AnalysisStandard> analysisStandards) {
-		Hibernate.initialize(analysis);
-		Hibernate.initialize(analysis.getLanguage());
-		Hibernate.initialize(analysis.getHistories());
-		Hibernate.initialize(analysis.getAssets());
-		Hibernate.initialize(analysis.getScenarios());
-		Hibernate.initialize(analysis.getAssessments());
-		Hibernate.initialize(analysis.getItemInformations());
-		Hibernate.initialize(analysis.getRiskInformations());
-		Hibernate.initialize(analysis.getParameters());
-		Hibernate.initialize(analysis.getPhases());
-		Hibernate.initialize(analysis.getAnalysisStandards());
+		/*
+		 * Hibernate.initialize(analysis);
+		 * Hibernate.initialize(analysis.getLanguage());
+		 * Hibernate.initialize(analysis.getHistories());
+		 * Hibernate.initialize(analysis.getAssets());
+		 * Hibernate.initialize(analysis.getScenarios());
+		 * Hibernate.initialize(analysis.getAssessments());
+		 * Hibernate.initialize(analysis.getItemInformations());
+		 * Hibernate.initialize(analysis.getRiskInformations());
+		 * Hibernate.initialize(analysis.getParameters());
+		 * Hibernate.initialize(analysis.getPhases());
+		 * Hibernate.initialize(analysis.getAnalysisStandards());
+		 */
 
 		for (Integer id : this.standards) {
 			for (AnalysisStandard aStandard : analysis.getAnalysisStandards()) {
@@ -286,8 +287,13 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 		serviceTaskFeedback.send(getId(), new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 
-		analysis.getAnalysisStandards().stream().filter(standard -> standard.getStandard().getLabel().equals(Constant.STANDARD_27002)).map(standard -> standard.getMeasures())
-				.findFirst().ifPresent(measures -> measures.forEach(measure -> ((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+		analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).flatMap(analysisStandard -> analysisStandard.getMeasures().stream()).forEach(measure -> {
+			if (measure instanceof NormalMeasure)
+				((NormalMeasure) measure).getMeasurePropertyList().setSoaRisk("");
+			else if (measure instanceof AssetMeasure)
+				((AssetMeasure) measure).getMeasurePropertyList().setSoaRisk("");
+
+		});
 	}
 
 	/*

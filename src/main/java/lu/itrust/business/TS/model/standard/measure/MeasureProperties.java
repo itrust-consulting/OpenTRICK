@@ -37,6 +37,8 @@ public class MeasureProperties extends SecurityCriteria {
 
 	/** SOA Risk */
 	private String soaRisk = "";
+	
+	private String soaExport="";
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -106,6 +108,21 @@ public class MeasureProperties extends SecurityCriteria {
 	 */
 	public void setSoaRisk(String soaRisk) {
 		this.soaRisk = soaRisk;
+	}
+
+	/**
+	 * @return the soaExport
+	 */
+	@Column(name = "dtSoaExport", nullable = false)
+	public String getSoaExport() {
+		return soaExport;
+	}
+
+	/**
+	 * @param soaExport the soaExport to set
+	 */
+	public void setSoaExport(String soaExport) {
+		this.soaExport = soaExport;
 	}
 
 	/**

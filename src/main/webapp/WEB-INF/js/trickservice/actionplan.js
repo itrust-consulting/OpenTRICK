@@ -32,7 +32,12 @@ function calculateActionPlanWithOptions(form) {
 		data[name] = value;
 
 	});
-	
+
+	return calculateAction(data);
+}
+
+function calculateAction(data) {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/Compute",
 		type : "post",
@@ -40,19 +45,17 @@ function calculateActionPlanWithOptions(form) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
-				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan"))
-						.Start();
-			else if (response["error"]) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			} else
+				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan")).Start();
+			else if (response["error"])
+				showDialog("#alert-dialog", response['error']);
+			else
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
-
 	return false;
-
 }
 
 function hideActionplanAssets(sectionactionplan, menu) {
@@ -65,7 +68,6 @@ function hideActionplanAssets(sectionactionplan, menu) {
 	return false;
 
 }
-
 
 function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({
@@ -119,7 +121,7 @@ function displayActionPlanAssets() {
 				unknowError();
 		},
 		error : unknowError,
-		complete:function(){
+		complete : function() {
 			$progress.hide();
 		}
 	});

@@ -52,4 +52,5 @@ public interface ServiceStandard {
 	public boolean belongToAnalysis(Integer idStandard, int analysis);
 
 	public boolean isUsed(Standard tmpStandard);
+
 }

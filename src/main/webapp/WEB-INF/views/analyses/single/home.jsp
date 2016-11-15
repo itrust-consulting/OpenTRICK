@@ -51,7 +51,7 @@
 				<jsp:include page="./components/phase/phase.jsp" />
 				<jsp:include page="./components/standards/standard/standards.jsp" />
 				<c:if test="${!isProfile}">
-					<jsp:include page="./components/soa.jsp" />
+					<jsp:include page="./components/soa/home.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 					<jsp:include page="./components/actionPlan/section.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />

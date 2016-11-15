@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -85,6 +86,7 @@ import lu.itrust.business.TS.model.standard.MaturityStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.StandardType;
+import lu.itrust.business.TS.model.standard.helper.SOAForm;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -92,6 +94,7 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureAssetValueForm;
+import lu.itrust.business.TS.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureForm;
 import lu.itrust.business.TS.model.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
@@ -454,7 +457,6 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public String getSOA(HttpSession session, Principal principal, Model model) throws Exception {
-
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -462,9 +464,49 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue());
 
-		model.addAttribute("soa", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
+		Comparator<Measure> comparator = new MeasureComparator();
 
-		return "analyses/single/components/soa";
+		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream().map(analysisStandard -> {
+			analysisStandard.getMeasures().sort(comparator);
+			return analysisStandard;
+		}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures)));
+
+		return "analyses/single/components/soa/home";
+	}
+
+	/**
+	 * manageForm: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/SOA/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String manageSOA(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
+		model.addAttribute("analysisStandards", serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS),
+				NormalStandard.class.getSimpleName(), AssetStandard.class.getSimpleName()));
+		return "analyses/single/components/soa/form";
+	}
+
+	@RequestMapping(value = "/SOA/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object saveSOA(@RequestBody List<SOAForm> soaForms, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
+			throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		soaForms.forEach(form -> {
+			AnalysisStandard analysisStandard = serviceAnalysisStandard.findOne(form.getId(), idAnalysis);
+			if (analysisStandard != null) {
+				analysisStandard.setSoaEnabled(form.isEnabled());
+				serviceAnalysisStandard.saveOrUpdate(analysisStandard);
+			}
+		});
+		return JsonMessage.Success(messageSource.getMessage("success.update.soa", null, "SOA has been successfully updated", locale));
 	}
 
 	/**
@@ -968,7 +1010,7 @@ public class ControllerAnalysisStandard {
 		return "analyses/single/components/standards/measure";
 
 	}
-	
+
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String generateTickets(@RequestBody TicketingForm form, Principal principal, HttpSession session, Locale locale) {
@@ -1283,6 +1325,7 @@ public class ControllerAnalysisStandard {
 		}
 		return allowedTicketing;
 	}
+
 	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateCost(HttpSession session, Principal principal, Locale locale) {
