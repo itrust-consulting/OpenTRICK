@@ -21,10 +21,12 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,6 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerGenerateTickets;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerSOAExport;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -456,7 +459,7 @@ public class ControllerAnalysisStandard {
 	 */
 	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	public String getSOA(HttpSession session, Principal principal, Model model) throws Exception {
+	public String loadSOA(HttpSession session, Principal principal, Model model) throws Exception {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -472,6 +475,29 @@ public class ControllerAnalysisStandard {
 		}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures)));
 
 		return "analyses/single/components/soa/home";
+	}
+
+	/**
+	 * getSOA: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/SOA/Export", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
+	public @ResponseBody String exportSOA(@RequestParam("idAnalysis") Integer idAnalysis, Principal principal, HttpServletRequest request, Model model, Locale locale)
+			throws Exception {
+		Worker worker = new WorkerSOAExport(principal.getName(), request.getServletContext().getRealPath("/WEB-INF"), idAnalysis, messageSource, serviceTaskFeedback,
+				workersPoolManager, sessionFactory);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+		// execute task
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.exporting.soa", null, "SOA exporting was successfully started", locale));
 	}
 
 	/**
@@ -1579,6 +1605,16 @@ public class ControllerAnalysisStandard {
 			TrickLogManager.Persist(e);
 		}
 		return null;
+	}
+
+	@Value("${app.settings.soa.french.template.name}")
+	public void setSoaFrenchTemplate(String template) {
+		WorkerSOAExport.FR_TEMPLATE = template;
+	}
+
+	@Value("${app.settings.soa.english.template.name}")
+	public void setSoaEnglishTemplate(String template) {
+		WorkerSOAExport.ENG_TEMPLATE = template;
 	}
 
 }

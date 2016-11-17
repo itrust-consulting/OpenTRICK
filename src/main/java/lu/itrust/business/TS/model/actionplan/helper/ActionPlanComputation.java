@@ -1,8 +1,6 @@
 package lu.itrust.business.TS.model.actionplan.helper;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,6 +102,8 @@ public class ActionPlanComputation {
 
 	private List<Phase> phases = new ArrayList<Phase>();
 
+	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+
 	private double parameterExternalSetupRate = 0;
 	private double parameterInternalSetupRate = 0;
 
@@ -177,7 +177,7 @@ public class ActionPlanComputation {
 		if (standards == null || standards.isEmpty())
 			this.standards = this.analysis.getAnalysisStandards();
 		else
-			this.standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> analysisStandard.isSoaEnabled() || standards.contains(analysisStandard))
+			this.standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> standards.contains(analysisStandard))
 					.collect(Collectors.toList());
 
 		if (this.standards.stream().anyMatch(analysisStandard -> analysisStandard instanceof MaturityStandard && analysisStandard.getStandard().isComputable())) {
@@ -227,6 +227,8 @@ public class ActionPlanComputation {
 			progress = 20;
 		if (locale == null)
 			locale = new Locale(this.analysis.getLanguage().getAlpha2());
+
+		numberFormat.setMaximumFractionDigits(2);
 		// send feedback
 		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", progress));
 
@@ -1017,14 +1019,11 @@ public class ActionPlanComputation {
 
 	private void setSOARisk(ActionPlanEntry entry, List<TMA> TMAList) throws TrickException {
 
-		double report = 0;
+		double report = -1;
 
 		double tmpreport = 0;
 
 		Assessment asm = null;
-
-		report = -1;
-		asm = null;
 
 		if (!entry.getMeasure().getAnalysisStandard().isSoaEnabled() || entry.getMeasure() instanceof MaturityMeasure)
 			return;
@@ -1049,30 +1048,19 @@ public class ActionPlanComputation {
 			}
 		}
 
-		String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + " \n ";
-		soarisk += messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + " \n ";
+		if (asm != null) {
+			String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + "\n"
+					+ messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + "\n"
+					+ messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + numberFormat.format(report);
 
-		double val = report;
+			MeasureProperties measureProperties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
+					: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
 
-		NumberFormat nf = new DecimalFormat();
-		nf.setMaximumFractionDigits(2);
-
-		try {
-			val = nf.parse(nf.format(val)).doubleValue();
-		} catch (ParseException e) {
-			TrickLogManager.Persist(e);
-			throw new TrickException("error.number.format", e.getMessage());
-		}
-
-		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(val);
-
-		MeasureProperties measureProperties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
-				: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
-
-		if (measureProperties != null) {
-			measureProperties.setSoaRisk(soarisk);
-			if (StringUtils.isEmpty(measureProperties.getSoaExport()))
-				measureProperties.setSoaExport(soarisk);
+			if (measureProperties != null) {
+				measureProperties.setSoaRisk(soarisk);
+				if (StringUtils.isEmpty(measureProperties.getSoaExport()))
+					measureProperties.setSoaExport(soarisk);
+			}
 		}
 
 	}

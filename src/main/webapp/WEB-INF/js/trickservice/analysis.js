@@ -120,12 +120,12 @@ function updateMeasuresCost() {
 
 // reload measures
 function reloadMeasureRow(idMeasure, standard) {
-	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']")
+	var $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']");
 	if (!$currentRow.find("input[type!='checkbox'],select,textarea").length) {
+		var $progress = $("#loading-indicator").show();
 		$.ajax({
 			url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
 			type : "get",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				var $newRow = $("tr", $("<div/>").html(response));
@@ -141,6 +141,8 @@ function reloadMeasureRow(idMeasure, standard) {
 				}
 			},
 			error : unknowError
+		}).complete(function() {
+			$progress.hide();
 		});
 	} else
 		$currentRow.attr("data-force-callback", true).addClass("warning").attr("title",
@@ -151,6 +153,8 @@ function reloadMeasureRow(idMeasure, standard) {
 function reloadMeasureAndCompliance(standard, idMeasure) {
 	reloadMeasureRow(idMeasure, standard);
 	compliance(standard);
+	if (document.getElementById("table_SOA_" + standard))
+		reloadSection("section_soa");
 	return false;
 }
 

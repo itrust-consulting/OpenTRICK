@@ -34,9 +34,9 @@
 				<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_SOA_${standard.id}">
 					<thead>
 						<tr>
-							<th style="width: 5%;" title='<spring:message code="label.title.sao.measure.ref" />' ><spring:message code="label.measure.ref" /></th>
+							<th style="width: 3%;" title='<spring:message code="label.title.sao.measure.ref" />' ><spring:message code="label.measure.ref" /></th>
 							<th style="width: 15%;" title='<spring:message code="label.measure.domain" />' ><spring:message code="label.measure.domain" /></th>
-							<th style="width: 5%;" title='<spring:message code="label.measure.phase" />' ><spring:message code="label.measure.phase" /></th>
+							<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />' ><spring:message code="label.measure.phase" /></th>
 							<th style="width: 15%;" title='<spring:message code="label.measure.soa.risk" />' ><spring:message code="label.measure.soa.risk" /></th>
 							<th style="width: 15%;" title='<spring:message code="label.comment" />' ><spring:message code="label.comment"/></th>
 							<th title='<spring:message code="label.justification" />' ><spring:message code="label.justification" /></th>
@@ -82,9 +82,12 @@
 											</c:choose>
 										</td>
 										<td><pre><spring:message text="${measure.measurePropertyList.soaRisk}" /></pre></td>
-										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaExport" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaExport}" /></pre></td>
-										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaComment}" /></pre></td>
-										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaReference" data-trick-content="text" data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaReference}" /></pre></td>
+										<td ${empty css? empty measure.measurePropertyList.soaExport? 'class="warning"' : '' : css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaExport" data-trick-content="text" data-trick-field-type="string" 
+											data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.measurePropertyList.soaExport}" /></pre></td>
+										<td ${empty css? empty measure.measurePropertyList.soaComment? 'class="warning"' : '' : css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" 
+											data-trick-content="text" data-trick-field-type="string" data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.measurePropertyList.soaComment}" /></pre></td>
+										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaReference" data-trick-content="text" 
+											data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaReference}" /></pre></td>
 									</tr>
 								</c:otherwise>
 							</c:choose>

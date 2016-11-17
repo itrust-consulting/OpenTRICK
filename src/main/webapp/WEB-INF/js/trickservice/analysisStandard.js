@@ -151,10 +151,10 @@ function importStandard(e) {
 }
 
 function reloadStandardTable() {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/Standard/Manage",
 		type : "get",
-		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
@@ -167,7 +167,10 @@ function reloadStandardTable() {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
+	return false;
 }
 
 // rewritten by @eomar 24/05/2016
@@ -583,5 +586,15 @@ function manageSOA() {
 			$progress.hide();
 		});
 	}
+	return false;
+}
+
+function validateSOAState(idStandard,idMeasure){
+	$("tr[data-trick-id='"+idMeasure+"']>td:not(.success)>pre[data-trick-field!='soaReference'][data-trick-field]","#table_SOA_"+idStandard).each(function(){
+		var $this = $(this), $td = $this.parent();
+		if($this.text().trim() =="")
+			$td.addClass("warning");
+		else $td.removeClass("warning");
+	});
 	return false;
 }
