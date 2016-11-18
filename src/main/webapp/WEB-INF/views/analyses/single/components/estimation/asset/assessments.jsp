@@ -22,7 +22,6 @@
 						<th rowspan="2" style="width: 10%" title='<spring:message code="label.assessment.scenario" />'><spring:message code="label.assessment.scenario" /></th>
 						<th style="text-align: center;" colspan="${impactTypes.size()}"><spring:message code="label.title.impact" /></th>
 						<th rowspan="2" style="width: 2%" title='<spring:message code="label.title.likelihood" />'><spring:message code="label.assessment.likelihood" /></th>
-						<th rowspan="2" style="width: 2%" title='<spring:message code="label.title.ale" />'><spring:message code="label.assessment.ale" /></th>
 						<th rowspan="2" width="2%"><spring:message code="label.title.owner" text="Owner" /></th>
 						<th rowspan="2" style="width: 30%" title='<spring:message code="label.assessment.comment" />'><spring:message code="label.assessment.comment" /></th>
 						<th rowspan="2" style="width: 30%" title='<spring:message code="label.assessment.hidden_comment" />'><spring:message code="label.assessment.hidden_comment" /></th>
@@ -72,12 +71,11 @@
 									<c:set var="impact" value="${assessment.getImpact(impactName)}" />
 									<c:choose>
 										<c:when test="${empty impact}">
-											<td data-trick-field="${impactName}"   title='<fmt:formatNumber value="${fct:round(0,0)}" /> &euro;'
-												>${impactType.acronym}0</td>
+											<td data-trick-field="${impactName}"   title='<spring:message text="${impactType.acronym}"/>0' >0</td>
 										</c:when>
 										<c:otherwise>
-											<td data-trick-field="${impactName}"   title='<fmt:formatNumber value="${fct:round(impact.real,0)}" /> &euro;'
-												>${impact.variable}</td>
+											<td data-trick-field="${impactName}"   title='<spring:message text="${impact.variable}"/>'
+												>${impact.level}</td>
 										</c:otherwise>
 									</c:choose>
 								</c:forEach>
@@ -87,11 +85,10 @@
 										<td title='${likelihood}' >${likelihood}</td>
 									</c:when>
 									<c:otherwise>
-										<td title='<fmt:formatNumber value="${fct:round(likelihood.real,3)}" /> <spring:message code="label.assessment.likelihood.unit" />'><spring:message
-												text="${likelihood.variable}" /></td>
+										<td title='<spring:message text="${likelihood.variable}"/>' ><spring:message
+												text="${likelihood.level}" /></td>
 									</c:otherwise>
 								</c:choose>
-								<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></td>
 							</c:when>
 							<c:otherwise>
 								<c:set var="impact" value="${assessment.getImpact('IMPACT')}" />
@@ -134,29 +131,23 @@
 						<td><pre><spring:message text="${assessment.hiddenComment}" /></pre></td>
 					</tr>
 				</c:forEach>
-				<tr class="panel-footer" style="font-weight: bold;">
-					<c:choose>
-						<c:when test="${type == 'QUALITATIVE'}">
-							<td colspan="${impactTypes.size()+2}"><spring:message code="label.total.ale" /></td>
-							<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
-						</c:when>
-						<c:otherwise>
-							<c:choose>
-								<c:when test="${show_uncertainty}">
-									<td colspan="4"><spring:message code="label.total.ale" /></td>
-									<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,1)}" /></td>
-									<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
-									<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,1)}" /></td>
-								</c:when>
-								<c:otherwise>
-									<td colspan="3"><spring:message code="label.total.ale" /></td>
-									<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
-								</c:otherwise>
-							</c:choose>
-						</c:otherwise>
-					</c:choose>
-					<td colspan="3">&nbsp;</td>
-				</tr>
+				<c:if test="${type == 'QUANTITATIVE'}">
+					<tr class="panel-footer" style="font-weight: bold;">
+						<c:choose>
+							<c:when test="${show_uncertainty}">
+								<td colspan="4"><spring:message code="label.total.ale" /></td>
+								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,1)}" /></td>
+							</c:when>
+							<c:otherwise>
+								<td colspan="3"><spring:message code="label.total.ale" /></td>
+								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
+							</c:otherwise>
+						</c:choose>
+						<td colspan="3">&nbsp;</td>
+					</tr>
+				</c:if>
 			</c:if>
 		</tbody>
 	</table>

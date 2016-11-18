@@ -53,16 +53,18 @@
 					<th style="width:3%"><spring:message code="label.row.index" /></th>
 					<th style="width:25%"><spring:message code="label.scenario.name" /></th>
 					<th style="width:5%"><spring:message code="label.scenario.type" /></th>
-					<c:choose>
-						<c:when test="${show_uncertainty}">
-							<th style="width:5%"><spring:message code="label.scenario.aleo" /></th>
-							<th style="width:5%"><spring:message code="label.scenario.ale" /></th>
-							<th style="width:5%"><spring:message code="label.scenario.alep" /></th>
-						</c:when>
-						<c:otherwise>
-							<th style="width:5%"><spring:message code="label.scenario.ale" /></th>
-						</c:otherwise>
-					</c:choose>
+					<c:if test="${type == 'QUANTITATIVE'}">
+						<c:choose>
+							<c:when test="${show_uncertainty}">
+								<th style="width:5%"><spring:message code="label.scenario.aleo" /></th>
+								<th style="width:5%"><spring:message code="label.scenario.ale" /></th>
+								<th style="width:5%"><spring:message code="label.scenario.alep" /></th>
+							</c:when>
+							<c:otherwise>
+								<th style="width:5%"><spring:message code="label.scenario.ale" /></th>
+							</c:otherwise>
+						</c:choose>
+					</c:if>
 					<th><spring:message code="label.scenario.description" /></th>
 				</tr>
 			</thead>
@@ -76,26 +78,27 @@
 						<td>${status.index+1}</td>
 						<td><spring:message text="${scenario.name}" /></td>
 						<td><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
-						<c:choose>
-							<c:when test="${show_uncertainty}">
-								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[0].value*0.001,1)}"  /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}"  /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[2].value*0.001,1)}"  /></td>
-							</c:when>
-							<c:otherwise>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
-							</c:otherwise>
-						</c:choose>
-						
+						<c:if test="${type == 'QUANTITATIVE'}">
+							<c:choose>
+								<c:when test="${show_uncertainty}">
+									<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[0].value*0.001,1)}"  /></td>
+									<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[1].value*0.001,1)}"  /></td>
+									<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}"  /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[2].value*0.001,1)}"  /></td>
+								</c:when>
+								<c:otherwise>
+									<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[1].value*0.001,1)}"  /></td>
+								</c:otherwise>
+							</c:choose>
+						</c:if>
 						<td onclick="editField(this.firstElementChild);"><pre  data-trick-field="description" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.description}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>
-			<c:if test="${!isProfile}">
+			<c:if test="${!isProfile and type == 'QUANTITATIVE'}">
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(scenarioALE)" var="ale" />

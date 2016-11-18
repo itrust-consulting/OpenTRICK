@@ -111,10 +111,10 @@ function FieldEditor(element, validator) {
 				if (minValue != undefined || maxValue != undefined)
 					this.validator = new FieldBoundedValidator(minValue, maxValue);
 				var dataList = $element.attr("data-trick-list-value");
-				if (dataList){
+				if (dataList) {
 					this.fieldEditor.setAttribute("list", dataList);
-					if(width<60)
-						width=100;
+					if (width < 60)
+						width = 100;
 				}
 			}
 			$fieldEditor = $(this.fieldEditor)
@@ -430,7 +430,7 @@ function ExtendedFieldEditor(section, element) {
 								if (that.fieldName == "value") {
 									updateAssessmentAle(true);
 									$("datalist[id^='dataList-parameter-']").remove();
-									reloadSection([ that.section, "section_asset", "section_scenario"]);
+									reloadSection([ that.section, "section_asset", "section_scenario" ]);
 								}
 							}
 						} else if (response["error"] != undefined) {
@@ -550,7 +550,7 @@ function AssessmentFieldEditor(element) {
 							that.UpdateUI();
 							if (application["estimation-helper"] != undefined) {
 								application["estimation-helper"].tryUpdate(that.classId);
-								reloadSection([ "section_asset", "section_scenario","section_riskregister"], undefined, true);
+								reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
 								chartALE();
 							}
 						} else {
@@ -584,53 +584,55 @@ function AssessmentExtendedParameterEditor(element) {
 
 	AssessmentFieldEditor.call(this, element);
 
-	this.dataListName = undefined;
+	if (this.analysisType == "QUANTITATIVE") {
+		this.dataListName = undefined;
 
-	this.acromyms = [];
+		this.acromyms = [];
 
-	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
-		var that = this, $element = $(this.element);
-		if ($element.find("select,input,textarea").length)
-			return true;
-		if (!this.LoadData())
-			return true;
-		this.fieldEditor = document.createElement("input");
-		this.fieldEditor.setAttribute("list", this.dataListName);
-		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("placeholder", this.defaultValue);
-		this.fieldEditor.setAttribute("value", this.defaultValue);
-		this.fieldEditor.setAttribute("style", "padding: 4px; width:100px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
-		this.backupData.width = $element.width();
-		this.backupData.orginalStyle = $element.attr("style");
-		$element.css({
-			"padding" : 0,
-			"width" : this.backupData.width
-		});
+		AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
+			var that = this, $element = $(this.element);
+			if ($element.find("select,input,textarea").length)
+				return true;
+			if (!this.LoadData())
+				return true;
+			this.fieldEditor = document.createElement("input");
+			this.fieldEditor.setAttribute("list", this.dataListName);
+			this.fieldEditor.setAttribute("class", "form-control");
+			this.fieldEditor.setAttribute("class", "form-control");
+			this.fieldEditor.setAttribute("placeholder", this.defaultValue);
+			this.fieldEditor.setAttribute("value", this.defaultValue);
+			this.fieldEditor.setAttribute("style", "padding: 4px; width:100px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
+			this.backupData.width = $element.width();
+			this.backupData.orginalStyle = $element.attr("style");
+			$element.css({
+				"padding" : 0,
+				"width" : this.backupData.width
+			});
 
-		$(this.fieldEditor).blur(function() {
-			return that.Save(that);
-		});
+			$(this.fieldEditor).blur(function() {
+				return that.Save(that);
+			});
 
-		return false;
-	};
+			return false;
+		};
 
-	AssessmentExtendedParameterEditor.prototype.__generateDataList = function() {
-		if (!this.dataListName)
-			return this;
-		var dataList = document.getElementById(this.dataListName);
-		if (dataList != null)
-			return this;
-		dataList = document.createElement("datalist");
-		dataList.setAttribute("id", this.dataListName);
-		for (var i = 0; i < this.choose.length; i++) {
-			var option = document.createElement("option");
-			option.setAttribute("value", this.acromyms[i]);
-			option.innerText = this.acromyms[i] + " (" + this.choose[i] + ")";
-			dataList.appendChild(option);
-		}
-		$(dataList).hide().appendTo("#widgets");
-	};
+		AssessmentExtendedParameterEditor.prototype.__generateDataList = function() {
+			if (!this.dataListName)
+				return this;
+			var dataList = document.getElementById(this.dataListName);
+			if (dataList != null)
+				return this;
+			dataList = document.createElement("datalist");
+			dataList.setAttribute("id", this.dataListName);
+			for (var i = 0; i < this.choose.length; i++) {
+				var option = document.createElement("option");
+				option.setAttribute("value", this.acromyms[i]);
+				option.innerText = this.acromyms[i] + " (" + this.choose[i] + ")";
+				dataList.appendChild(option);
+			}
+			$(dataList).hide().appendTo("#widgets");
+		};
+	}
 }
 
 AssessmentImpactFieldEditor.prototype = new AssessmentExtendedParameterEditor();
@@ -639,17 +641,30 @@ function AssessmentImpactFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
 
-	AssessmentImpactFieldEditor.prototype.LoadData = function() {
-		var name = this.element.getAttribute("data-trick-field"), id = "IMPACT" == name ? "#Scale_Impact" : "#Scale_Impact_" + name, $acronyms = $(
-				"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
-		this.dataListName = "dataList-parameter-impact-" + name.toLowerCase();
-		for (var i = 0; i < $values.length; i++) {
-			this.acromyms[i] = $acronyms[i].innerText;
-			this.choose[i] = $values[i].innerText;
-		}
-		this.__generateDataList();
-		return this.choose.length;
-	};
+	if (this.analysisType == "QUANTITATIVE") {
+		AssessmentImpactFieldEditor.prototype.LoadData = function() {
+			var name = this.element.getAttribute("data-trick-field"), id = "IMPACT" == name ? "#Scale_Impact" : "#Scale_Impact_" + name, $acronyms = $(
+					"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
+			this.dataListName = "dataList-parameter-impact-" + name.toLowerCase();
+			for (var i = 0; i < $values.length; i++) {
+				this.acromyms[i] = $acronyms[i].innerText;
+				this.choose[i] = $values[i].innerText;
+			}
+			this.__generateDataList();
+			return this.choose.length;
+		};
+	} else {
+		AssessmentImpactFieldEditor.prototype.LoadData = function() {
+			var name = this.element.getAttribute("data-trick-field"), id = "#Scale_Impact_" + name, $acronyms = $("td[data-trick-field='acronym']", id), $values = $(
+					"td[data-trick-field='level']", id), $title = $("td[data-trick-field='description']", id);
+			for (var i = 0; i < $values.length; i++) {
+				this.choose[i] = $acronyms[i].innerText;
+				this.chooseTranslate[i] = $values[i].innerText;
+				this.chooseTitle[i] = $title[i].innerText;
+			}
+			return this.choose.length;
+		};
+	}
 
 }
 
@@ -658,19 +673,30 @@ AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 function AssessmentProbaFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
-
-	AssessmentProbaFieldEditor.prototype.LoadData = function() {
-		this.dataListName = "dataList-parameter-probability";
-		var $acronyms = $("td[data-trick-field='acronym']", "#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']",
-				"#Scale_Probability,#DynamicParameters");
-		for (var i = 0; i < $values.length; i++) {
-			this.acromyms[i] = $acronyms[i].innerText;
-			this.choose[i] = $values[i].innerText;
-		}
-		this.__generateDataList();
-		return this.choose.length;
-	};
-
+	if (this.analysisType == "QUANTITATIVE") {
+		AssessmentProbaFieldEditor.prototype.LoadData = function() {
+			this.dataListName = "dataList-parameter-probability";
+			var $acronyms = $("td[data-trick-field='acronym']", "#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']",
+					"#Scale_Probability,#DynamicParameters");
+			for (var i = 0; i < $values.length; i++) {
+				this.acromyms[i] = $acronyms[i].innerText;
+				this.choose[i] = $values[i].innerText;
+			}
+			this.__generateDataList();
+			return this.choose.length;
+		};
+	} else {
+		AssessmentProbaFieldEditor.prototype.LoadData = function() {
+			var id = "#Scale_Probability", $acronyms = $("td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='level']", id), $title = $(
+					"td[data-trick-field='description']", id);
+			for (var i = 0; i < $values.length; i++) {
+				this.choose[i] = $acronyms[i].innerText;
+				this.chooseTranslate[i] = $values[i].innerText;
+				this.chooseTitle[i] = $title[i].innerText;
+			}
+			return this.choose.length;
+		};
+	}
 }
 
 function disableEditMode() {

@@ -54,16 +54,18 @@
 					<th style="width:25%"><spring:message code="label.asset.name" /></th>
 					<th style="width:5%"><spring:message code="label.asset.type" /></th>
 					<th style="width:6%"><spring:message code="label.asset.value" /></th>
-					<c:choose>
-						<c:when test="${show_uncertainty}">
-							<th style="width:5%"><spring:message code="label.asset.aleo" /></th>
-							<th style="width:5%"><spring:message code="label.asset.ale" /></th>
-							<th style="width:5%"><spring:message code="label.asset.alep" /></th>
-						</c:when>
-						<c:otherwise>
-							<th style="width:5%"><spring:message code="label.asset.ale" /></th>
-						</c:otherwise>
-					</c:choose>
+					<c:if test="${type == 'QUANTITATIVE'}">
+						<c:choose>
+							<c:when test="${show_uncertainty}">
+								<th style="width:5%"><spring:message code="label.asset.aleo" /></th>
+								<th style="width:5%"><spring:message code="label.asset.ale" /></th>
+								<th style="width:5%"><spring:message code="label.asset.alep" /></th>
+							</c:when>
+							<c:otherwise>
+								<th style="width:5%"><spring:message code="label.asset.ale" /></th>
+							</c:otherwise>
+						</c:choose>
+					</c:if>
 					<th><spring:message code="label.asset.comment" /></th>
 					<th><spring:message code="label.asset.hidden_comment" /></th>
 				</tr>
@@ -82,20 +84,22 @@
 						<td><spring:message text="${asset.assetType.type}" /></td>
 						<td title='<fmt:formatNumber value="${fct:round(asset.value,0)}" /> &euro;'><fmt:formatNumber
 								value="${fct:round(asset.value*0.001,0)}" /></td>
-						<c:choose>
-							<c:when test="${show_uncertainty}">
-								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[0].value*0.001,1)}" /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,1)}"  /></td>
-								<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[2].value*0.001,1)}"/></td>
-							</c:when>
-							<c:otherwise>
-								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber
-										value="${fct:round(ale[1].value*0.001,1)}" /></td>
-							</c:otherwise>
-						</c:choose>
+						<c:if test="${type == 'QUANTITATIVE'}">
+							<c:choose>
+								<c:when test="${show_uncertainty}">
+									<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[0].value*0.001,1)}" /></td>
+									<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[1].value*0.001,1)}"  /></td>
+									<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[2].value*0.001,1)}"/></td>
+								</c:when>
+								<c:otherwise>
+									<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber
+											value="${fct:round(ale[1].value*0.001,1)}" /></td>
+								</c:otherwise>
+							</c:choose>
+						</c:if>
 						<td onclick="editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.comment}" /></pre></td>
 						<td onclick="editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></pre></td>
 					</tr>
@@ -106,16 +110,18 @@
 					<spring:eval expression="T(lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager).ComputeTotalALE(assetALE)" var="ale" />
 					<td colspan="4"><spring:message code="label.total.ale" /></td>
 					<td title='<fmt:formatNumber value="${fct:round(totalAssetValue,0)}" /> &euro;'><fmt:formatNumber value="${fct:round(totalAssetValue*0.001,0)}" /></td>
-					<c:choose>
-						<c:when test="${show_uncertainty}">
-							<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
-							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"/> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
-							<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[2].value*0.001,1)}" /></td>
-						</c:when>
-						<c:otherwise>
-							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
-						</c:otherwise>
-					</c:choose>
+					<c:if test="${type == 'QUANTITATIVE'}">
+						<c:choose>
+							<c:when test="${show_uncertainty}">
+								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"/> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[2].value*0.001,1)}" /></td>
+							</c:when>
+							<c:otherwise>
+								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
+							</c:otherwise>
+						</c:choose>
+					</c:if>
 					<td colspan="2"></td>
 				</tr>
 			</tfoot>

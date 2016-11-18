@@ -41,7 +41,6 @@
 								</c:forEach>
 							</select>
 						</div>
-
 						<div class='form-group input-group'>
 							<span class="input-group-addon">${scenarioText}</span><select name="scenario" class="form-control">
 								<option value='-1' title="${allText}">${allText}</option>
@@ -100,50 +99,35 @@
 		<jsp:include page="../../../../template/footer.jsp" />
 		<div id="widgets">
 			<spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
-			<c:choose>
-				<c:when test="${type=='QUALITATIVE' }">
-					<c:forEach items="${impactTypes}" var="impactType">
-						<spring:message text='${impactType.name}' var="impactName" />
-						<datalist id="impact${impactName}List">
-							<c:forEach items="${impacts[impactType.name]}" var="parameter">
-								<option value='<spring:message text="${parameter.acronym}"/>' title="<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;"><spring:message
-										text="${parameter.acronym}" /> (
-									<fmt:formatNumber value="${fct:round(parameter.value*0.001,2)}" />)
-								</option>
-							</c:forEach>
-						</datalist>
+			<c:if test="${type=='QUANTITATIVE' }">
+				<datalist id="likelihoodList">
+					<c:forEach items="${probabilities}" var="parameter">
+						<fmt:formatNumber value="${fct:round(parameter.value,3)}" var="probaValue" />
+						<option value='${probaValue}' title="${probaValue} ${probaUnit}"><spring:message text="${parameter.acronym}" /> (${probaValue})
+						</option>
 					</c:forEach>
-				</c:when>
-				<c:otherwise>
-					<datalist id="likelihoodList">
-						<c:forEach items="${probabilities}" var="parameter">
-							<fmt:formatNumber value="${fct:round(parameter.value,3)}" var="probaValue" />
-							<option value='${probaValue}' title="${probaValue} ${probaUnit}"><spring:message text="${parameter.acronym}" /> (${probaValue})
-							</option>
-						</c:forEach>
-						<c:forEach items="${dynamics}" var="parameter">
-							<fmt:formatNumber value="${fct:round(parameter.value,3)}" var="probaValue" />
-							<option value='${probaValue}' title="${probaValue} ${probaUnit}"><spring:message text="${parameter.acronym}" /> (${probaValue})
-							</option>
-						</c:forEach>
-					</datalist>
-					<datalist id="impactList">
-						<c:forEach items="${impacts['IMPACT']}" var="parameter">
-							<c:choose>
-								<c:when test="${parameter.value<10000}">
-									<fmt:formatNumber value="${fct:round(parameter.value*0.001,3)}" var="impactValue" />
-								</c:when>
-								<c:otherwise>
-									<fmt:formatNumber value="${fct:round(parameter.value*0.001,0)}" var="impactValue" />
-								</c:otherwise>
-							</c:choose>
-							<option value='${impactValue}' title="<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;"><spring:message text="${parameter.acronym}" />
-								(${impactValue})
-							</option>
-						</c:forEach>
-					</datalist>
-				</c:otherwise>
-			</c:choose>
+					<c:forEach items="${dynamics}" var="parameter">
+						<fmt:formatNumber value="${fct:round(parameter.value,3)}" var="probaValue" />
+						<option value='${probaValue}' title="${probaValue} ${probaUnit}"><spring:message text="${parameter.acronym}" /> (${probaValue})
+						</option>
+					</c:forEach>
+				</datalist>
+				<datalist id="impactList">
+					<c:forEach items="${impacts['IMPACT']}" var="parameter">
+						<c:choose>
+							<c:when test="${parameter.value<10000}">
+								<fmt:formatNumber value="${fct:round(parameter.value*0.001,3)}" var="impactValue" />
+							</c:when>
+							<c:otherwise>
+								<fmt:formatNumber value="${fct:round(parameter.value*0.001,0)}" var="impactValue" />
+							</c:otherwise>
+						</c:choose>
+						<option value='${impactValue}' title="<fmt:formatNumber value="${fct:round(parameter.value,0)}" /> &euro;"><spring:message text="${parameter.acronym}" />
+							(${impactValue})
+						</option>
+					</c:forEach>
+				</datalist>
+			</c:if>
 
 			<div class="modal fade" id="probaScale" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="probaScaleModal">
 				<div class="modal-dialog" ${type == 'QUALITATIVE' or empty dynamics? '' : 'style="width:900px"' }>
@@ -221,9 +205,11 @@
 											<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 											<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
 											<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
-											<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
-											<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
-											<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
+											<c:if test="${type == 'QUANTITATIVE'}">
+												<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
+												<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
+												<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
+											</c:if>
 										</tr>
 									</thead>
 									<tbody>
@@ -233,16 +219,18 @@
 												<td><spring:message text="${parameter.level}" /></td>
 												<td><spring:message text="${parameter.acronym}" /></td>
 												<td><spring:message text="${parameter.description}" /></td>
-												<td title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'><fmt:formatNumber value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
-												<td><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
-												<td><c:choose>
-														<c:when test="${status.index!=length}">
-															<fmt:formatNumber value="${parameter.bounds.to*0.001}" maxFractionDigits="0" />
-														</c:when>
-														<c:otherwise>
-															<span style="font-size: 17px;">+&#8734;</span>
-														</c:otherwise>
-													</c:choose></td>
+												<c:if test="${type == 'QUANTITATIVE'}">
+													<td title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'><fmt:formatNumber value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
+													<td><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
+													<td><c:choose>
+															<c:when test="${status.index!=length}">
+																<fmt:formatNumber value="${parameter.bounds.to*0.001}" maxFractionDigits="0" />
+															</c:when>
+															<c:otherwise>
+																<span style="font-size: 17px;">+&#8734;</span>
+															</c:otherwise>
+														</c:choose></td>
+												</c:if>
 											</tr>
 										</c:forEach>
 										<fmt:setLocale value="${language}" scope="session" />

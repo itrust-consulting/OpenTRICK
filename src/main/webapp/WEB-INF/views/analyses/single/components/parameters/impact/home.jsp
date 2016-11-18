@@ -29,33 +29,16 @@
 								<th class="textaligncenter"><spring:message code="label.parameter.level" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.acronym" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.qualification" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.value" /> k&euro;</th>
-								<th class="textaligncenter"><spring:message code="label.parameter.range.min" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.range.max" /></th>
 							</tr>
 						</thead>
 						<tbody>
-							<c:set var="length" value="${mappedParameters[impactName].size()-1}" />
-							<c:set var="AllEditable" value="${mappedParameters[impactName].size() mod 2 == 0}" />
-							<c:forEach items="${mappedParameters[impactName]}" var="parameter" varStatus="status">
+							<c:forEach items="${mappedParameters[impactName]}" var="parameter">
 								<tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
-									<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
+									<td data-trick-field="level"  class="textaligncenter"><spring:message text="${parameter.level}" /></td>
 									<td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter"><spring:message
 											text="${parameter.acronym}" /></td>
 									<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
-									<td data-trick-field="value" data-trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
-										${AllEditable or (parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber
-											value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
-									<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
-									<td class="textaligncenter"><c:choose>
-											<c:when test="${status.index!=length}">
-												<fmt:formatNumber value="${parameter.bounds.to*0.001}" maxFractionDigits="0" />
-											</c:when>
-											<c:otherwise>
-												<span style="font-size: 17px;">+&#8734;</span>
-											</c:otherwise>
-										</c:choose></td>
 								</tr>
 							</c:forEach>
 						</tbody>
