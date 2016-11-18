@@ -17,10 +17,10 @@
 			<div class="modal-body" style="padding: 0;">
 				<div style="padding: 5px 20px;">
 					<div>
-						<h4 class="col-xs-2 bordered-bottom" style="padding-left: 0">
+						<h4 class="col-xs-3 bordered-bottom" style="padding-left: 0">
 							<spring:message code="label.norm.label" text="Name" />
 						</h4>
-						<h4 class="col-xs-7 bordered-bottom" style="padding-left: 0">
+						<h4 class="col-xs-6 bordered-bottom" style="padding-left: 0">
 							<spring:message code="label.description"/>
 						</h4>
 						<h4 class="col-xs-3 bordered-bottom text-center">
@@ -33,11 +33,11 @@
 				<div class="form-horizontal" style="padding: 5px 20px; height: 500px; overflow-x: hidden; clear: both;">
 					<c:forEach items="${analysisStandards}" var="analysisStandard">
 						<div class="form-group" data-default-value='${analysisStandard.soaEnabled}' data-trick-id="${analysisStandard.id}">
-							<div class="col-xs-2">
+							<div class="col-xs-3">
 								<strong style="vertical-align: middle; text-transform: capitalize;"><spring:message text="${analysisStandard.standard.label}" /> <spring:message
 										text="${analysisStandard.standard.version}" /></strong>
 							</div>
-							<div class="col-xs-7">
+							<div class="col-xs-6">
 								<p style="padding-left: 0; font-size: 12px;text-transform: capitalize;">
 									<spring:message code="label.norm.standard_type.${fn:toLowerCase(analysisStandard.standard.type)}" var="type"/>
 									<spring:message code="label.${analysisStandard.standard.computable?'yes':'no'}" var="computable"/>
