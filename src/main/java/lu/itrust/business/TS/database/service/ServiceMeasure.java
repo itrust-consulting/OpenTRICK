@@ -27,8 +27,6 @@ public interface ServiceMeasure {
 
 	public List<Measure> getAllFromAnalysis(Integer idAnalysis) ;
 
-	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) ;
-
 	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) ;
 
 	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) ;

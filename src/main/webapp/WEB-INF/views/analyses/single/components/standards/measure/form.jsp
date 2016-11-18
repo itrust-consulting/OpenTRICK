@@ -158,12 +158,12 @@
 											<c:choose>
 												<c:when test="${measureForm.type == 'ASSET' }">
 													<c:forEach items="${measureForm.assetValues}" var="assetValue">
-														<th data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><spring:message text='${assetValue.name}' /></th>
+														<th data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}" style="min-width: 65px;" ><spring:message text='${assetValue.name}' /></th>
 													</c:forEach>
 												</c:when>
 												<c:when test="${measureForm.type == 'NORMAL' }">
 													<c:forEach items="${measureForm.assetValues}" var="assetValue">
-														<th ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><spring:message text='${assetValue.name}' /></th>
+														<th ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''} style="min-width: 65px;" ><spring:message text='${assetValue.name}' /></th>
 													</c:forEach>
 												</c:when>
 											</c:choose>
@@ -261,14 +261,14 @@
 												<c:when test="${measureForm.type == 'ASSET' }">
 													<c:forEach items="${measureForm.assetValues}" var="assetValue">
 														<td data-trick-class="MeasureAssetValue" data-trick-asset-id="${assetValue.id}"><input type="text" style="text-align: center;"
-															id='property_asset_<spring:message text="${assetValue.id}"/>_value' style="min-width: 50px;" readonly="readonly" class="form-control" value="${assetValue.value}"
+															id='property_asset_<spring:message text="${assetValue.id}"/>_value' readonly="readonly" class="form-control" value="${assetValue.value}"
 															name="<spring:message text="${assetValue.id}" />"></td>
 													</c:forEach>
 												</c:when>
 												<c:when test="${measureForm.type == 'NORMAL' }">
 													<c:forEach items="${measureForm.assetValues}" var="assetValue">
 														<td ${not empty hiddenAssetTypes[assetValue.type]? 'hidden="hidden"' :''}><input type="text" style="text-align: center;"
-															id='property_asset_type_<spring:message text="${assetValue.id}"/>_value' style="min-width: 50px;" readonly="readonly" class="form-control"
+															id='property_asset_type_<spring:message text="${assetValue.id}"/>_value' readonly="readonly" class="form-control"
 															value="${assetValue.value}" name="<spring:message text="${assetValue.id}" />"></td>
 													</c:forEach>
 												</c:when>

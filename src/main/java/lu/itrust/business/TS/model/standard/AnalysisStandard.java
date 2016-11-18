@@ -22,6 +22,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 
@@ -36,7 +37,7 @@ import lu.itrust.business.TS.model.standard.measure.Measure;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtDiscriminator")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }))
 public abstract class AnalysisStandard implements Cloneable {
 
 	/***********************************************************************************************
@@ -45,7 +46,7 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	/** AnalysisStandard id */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAnalysisStandard")
 	private int id = -1;
 
@@ -61,6 +62,9 @@ public abstract class AnalysisStandard implements Cloneable {
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Measure> measures = new ArrayList<Measure>();
+
+	@Column(name = "dtSOAEnabled",nullable = false)
+	private boolean soaEnabled = false;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -174,6 +178,23 @@ public abstract class AnalysisStandard implements Cloneable {
 	 */
 	public void setMeasures(List<Measure> measures) {
 		this.measures = measures;
+	}
+
+	/**
+	 * @return the soaEnabled
+	 */
+	public boolean isSoaEnabled() {
+		return soaEnabled;
+	}
+
+	/**
+	 * @param soaEnabled
+	 *            the soaEnabled to set
+	 */
+	public void setSoaEnabled(Boolean soaEnabled) {
+		if (soaEnabled == null)
+			soaEnabled = standard != null && standard.getLabel().equals(Constant.STANDARD_27002);
+		this.soaEnabled = soaEnabled;
 	}
 
 	/**

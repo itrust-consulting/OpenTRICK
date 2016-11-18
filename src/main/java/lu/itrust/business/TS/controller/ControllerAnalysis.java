@@ -264,7 +264,8 @@ public class ControllerAnalysis {
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
 				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
-				model.addAttribute("soa", measures.get(Constant.STANDARD_27002));
+				model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(
+						Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measures.get(analysisStandard.getStandard().getLabel()))));
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());

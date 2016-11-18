@@ -53,10 +53,10 @@ function reloadSection(section, subSection, refreshOnly) {
 			var controller = findControllerBySection(section, subSection);
 			if (controller == null || controller == undefined)
 				return false;
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + controller,
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					if (subSection != null && subSection != undefined)
@@ -81,6 +81,8 @@ function reloadSection(section, subSection, refreshOnly) {
 					return false;
 				},
 				error : unknowError
+			}).complete(function(){
+				$progress.hide();
 			});
 		} else {
 			var $tab = $section.closest(".tab-pane");
@@ -108,7 +110,8 @@ function findControllerBySection(section, subSection) {
 		"section_actionplans" : "/Analysis/ActionPlan/Section",
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
-		"section_soa" : "/Analysis/Standard/SOA"
+		"section_soa" : "/Analysis/Standard/SOA",
+		"section_soa_content" : "/Analysis/Standard/SOA"
 	};
 
 	if (section.match("^section_standard_")) {
@@ -255,6 +258,3 @@ SectionSmartUpdate.prototype = {
 	}
 
 }
-
-/*
- */

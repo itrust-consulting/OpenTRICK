@@ -109,22 +109,6 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	}
 
 	/**
-	 * getSOAMeasuresFromAnalysis: <br>
-	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @return
-	 * @
-	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getSOAMeasuresFromAnalysis(int)
-	 */
-
-	@Override
-	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis)  {
-		return daoMeasure.getSOAMeasuresFromAnalysis(idAnalysis);
-	}
-
-	/**
 	 * getAllMeasuresFromAnalysisIdAndComputable: <br>
 	 * Description
 	 * 

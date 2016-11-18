@@ -202,4 +202,19 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	public Boolean hasStandard(Integer idAnalysis, String standard) {
 		return daoAnalysisStandard.hasStandard(idAnalysis,standard);
 	}
+
+	@Override
+	public List<AnalysisStandard> findBySOAEnabledAndAnalysisId(boolean state, Integer idAnalysis) {
+		return daoAnalysisStandard.findBySOAEnabledAndAnalysisId(state,idAnalysis);
+	}
+
+	@Override
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, String... classes) {
+		return daoAnalysisStandard.findByAndAnalysisIdAndTypeIn(analysisId, classes);
+	}
+
+	@Override
+	public AnalysisStandard findOne(int id, int analysisId) {
+		return daoAnalysisStandard.findOne(id, analysisId);
+	}
 }

@@ -46,4 +46,10 @@ public interface ServiceAnalysisStandard {
 	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String standard);
 
 	public Boolean hasStandard(Integer idAnalysis, String standard);
+
+	public List<AnalysisStandard> findBySOAEnabledAndAnalysisId(boolean b, Integer idAnalysis);
+
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, String ... classes);
+
+	public AnalysisStandard findOne(int id, int analysisId);
 }

@@ -9,7 +9,34 @@ function exportAnalysis(analysisId) {
 		$.ajax({
 			url : context + "/Analysis/Export/" + analysisId,
 			type : "get",
-			async : true,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				if (response["success"] != undefined) {
+					application["taskManager"].Start();
+				} else if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				} else
+					unknowError();
+			},
+			error : unknowError
+		});
+	} else
+		permissionError();
+	return false;
+}
+
+function exportAnalysisSOA(analysisId) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection("section_analysis");
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+	}
+	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
+		$.ajax({
+			url : context + "/Analysis/Standard/SOA/Export?idAnalysis="+analysisId,
+			type : "POST",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined) {
@@ -38,7 +65,6 @@ function exportAnalysisReport(analysisId) {
 		$.ajax({
 			url : context + "/Analysis/Export/Report/" + analysisId,
 			type : "get",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined)
@@ -85,12 +111,12 @@ function exportRiskSheet(idAnalysis, report) {
 						var data = $("form", $modal).serializeJSON();
 						data.filter = {};
 						for ( var field in data) {
-							if (field.indexOf("filter.")!=-1) {
+							if (field.indexOf("filter.") != -1) {
 								data['filter'][field.replace("filter.", "")] = data[field];
 								delete data[field];
 							}
 						}
-						
+
 						$.ajax({
 							url : context + "/Analysis/RiskRegister/RiskSheet/Export",
 							type : "post",
@@ -138,7 +164,7 @@ function exportRiskSheet(idAnalysis, report) {
 					unknowError();
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$progress.hide();
 		})
 	} else
@@ -157,7 +183,6 @@ function exportRiskRegister(analysisId) {
 		$.ajax({
 			url : context + "/Analysis/RiskRegister/Export",
 			type : "get",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
 				if (response["success"] != undefined)
