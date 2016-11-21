@@ -93,9 +93,10 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		isNull(worker.getError(), "An error occured while compute action plan");
 	}
 
-	@Test
+	@Deprecated
+	//@Test
 	@Transactional(readOnly = true)
-	public void loadCSSFParameter() {
+	protected void loadCSSFParameter() {
 		Analysis analysis = serviceAnalysis.get(ANALYSIS_ID);
 		notNull(analysis, "Analysis cannot be found");
 		SimpleParameter simpleParameter = (SimpleParameter) analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
@@ -103,8 +104,9 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		put(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID, simpleParameter.getId());
 	}
 
-	@Test(dependsOnMethods = "loadCSSFParameter")
-	public void test_01_UpdateCSSFParameter() throws Exception {
+	@Deprecated
+	//@Test(dependsOnMethods = "loadCSSFParameter")
+	protected void test_01_UpdateCSSFParameter() throws Exception {
 		int id = getInteger(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID);
 		this.mockMvc
 				.perform(post("/Analysis/EditField/SimpleParameter/" + id).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
@@ -113,8 +115,9 @@ public class TS_04_Computation extends SpringTestConfiguration {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
-	@Test(timeOut = 120000, dependsOnMethods = { "test_01_UpdateCSSFParameter", "loadCSSFParameter" })
-	public synchronized void test_01_RiskRegister() throws Exception {
+	@Deprecated
+	//@Test(timeOut = 120000, dependsOnMethods = { "test_01_UpdateCSSFParameter", "loadCSSFParameter" })
+	protected synchronized void test_01_RiskRegister() throws Exception {
 		this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
@@ -148,9 +151,10 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		notEmpty(actionPlans, "Action plan is empty");
 	}
 
-	@Test(dependsOnMethods = "test_01_RiskRegister")
+	@Deprecated
+	//@Test(dependsOnMethods = "test_01_RiskRegister")
 	@Transactional(readOnly = true)
-	public void test_03_CheckRiskRegister() throws Exception {
+	protected void test_03_CheckRiskRegister() throws Exception {
 
 		List<RiskRegisterItem> riskRegisterItems = serviceRiskRegister.getAllFromAnalysis(ANALYSIS_ID);
 		notEmpty(riskRegisterItems, "Risk register is empty");

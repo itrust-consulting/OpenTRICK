@@ -169,6 +169,7 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	}
 
 	public static void ComputeScales(List<LikelihoodParameter> parameters) {
+		parameters.sort((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()));
 		if (parameters.size() % 2 == 0) {
 			for (int level = 0, maxLevel = parameters.size() - 1; level < parameters.size(); level++) {
 				if (level == 0) {
