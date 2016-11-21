@@ -384,7 +384,7 @@ function customAnalysis(element) {
 									$modalContent.appendTo("#widget");
 								var modal = new Modal($modalContent), $modalBody = $(modal.modal_body), $emptyText = $modalBody.find("*[dropzone='true']>div:first").text(), $removeText = MessageResolver(
 										"label.action.delete", "Delete"), $lockText = MessageResolver("label.action.lock", "Lock"), $analysisSelector = $("#selector-analysis",
-										$modalBody), $impacts = $("select[name='impacts']", $modalBody);
+										$modalBody), $impacts = $("select[name='impacts']", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2");
 								// load data from database and manage caching
 
 								analysesCaching = {
@@ -506,10 +506,9 @@ function customAnalysis(element) {
 									},
 									checkPhase : function() {
 										var $phaseInput = $("input[name='phase']", $modalBody), $standards = $("#analysis-build-standards>div>label");
-										if (!$standards.length) {
-											$phaseInput.prop("disabled", true);
-											$phaseInput.prop("checked", false);
-										} else {
+										if (!$standards.length)
+											$phaseInput.prop("disabled", true).prop("checked", false);
+										else {
 											$phaseInput.prop("disabled", false);
 											var idAnalysis = -1;
 											for (var i = 0; i < $standards.length; i++) {
@@ -517,8 +516,7 @@ function customAnalysis(element) {
 												if (i == 0)
 													idAnalysis = currentIdAnalysis;
 												else if (currentIdAnalysis != idAnalysis) {
-													$phaseInput.prop("disabled", true);
-													$phaseInput.prop("checked", false);
+													$phaseInput.prop("disabled", true).prop("checked", false);
 													break;
 												}
 											}
@@ -577,7 +575,6 @@ function customAnalysis(element) {
 									changeImpactState : function(enable) {
 										$impacts.val('-1').prop("disabled", enable);
 										$modalBody.find("input[name='scale.level']").val('11').prop("disabled", enable);
-										$modalBody.find("input[name='scale.maxValue']").val('300').prop("disabled", enable);
 										return this;
 									},
 									nameAnalysisStandard : function() {
@@ -757,9 +754,8 @@ function customAnalysis(element) {
 													}
 												});
 
-								var $saveButton = $(modal.modal_footer).find("button[name='save']");
-								var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
-								var $progress_bar = $modalBody.find(".progress");
+								var $saveButton = $(modal.modal_footer).find("button[name='save']"), $cancelButton = $(modal.modal_footer).find("button[name='cancel']"), $progress_bar = $modalBody
+										.find(".progress");
 								$cancelButton.click(function() {
 									if (!$cancelButton.is(":disabled"))
 										modal.Destroy();
@@ -813,9 +809,6 @@ function customAnalysis(element) {
 														case "name":
 															$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent());
 															break;
-														case "scale.maxValue":
-															$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent().parent());
-															break;
 														case "riskInformation":
 														case "scope":
 														case "asset":
@@ -832,10 +825,13 @@ function customAnalysis(element) {
 														}
 													}
 
-													if ($("#group_1:hidden .label-danger", $modalContent).length)
-														$("a[href='#group_1']", $modalContent).tab("show");
-													else if ($("#group_2:hidden  .label-danger", $modalContent).length)
-														$("a[href='#group_2']", $modalContent).tab("show");
+													if ($(".label-danger", $generalTab).length) {
+														if ($generalTab.is(":hidden"))
+															$("a[href='#group_1']", $modalContent).tab("show");
+													} else if ($(".label-danger", $advanceTab).length) {
+														if ($advanceTab.is(":hidden"))
+															$("a[href='#group_2']", $modalContent).tab("show");
+													}
 												}
 											} else
 												unknowError();
@@ -961,7 +957,9 @@ function calculateActionPlan(analysisId) {
 		$.ajax({
 			url : context + "/Analyis/ActionPlan/Compute",
 			type : "post",
-			data : JSON.stringify({"id" : analysisID}),
+			data : JSON.stringify({
+				"id" : analysisID
+			}),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {

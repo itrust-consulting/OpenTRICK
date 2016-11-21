@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.model.parameter.impl;
 
+import java.util.List;
+
 import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -34,6 +36,43 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 	/** Extended SimpleParameter From And To values */
 	@Embedded
 	private Bounds bounds = null;
+
+	/**
+	 * 
+	 */
+	public LikelihoodParameter() {
+	}
+
+	/**
+	 * @param level
+	 * @param acronym
+	 */
+	public LikelihoodParameter(int level, String acronym) {
+		setLevel(level);
+		setAcronym(acronym);
+	}
+
+	/**
+	 * @param level
+	 * @param acronym
+	 * @param value
+	 */
+	public LikelihoodParameter(int level, String acronym, double value) {
+		this(level, acronym);
+		setValue(value);
+
+	}
+
+	/**
+	 * @param level
+	 * @param acronym
+	 * @param value
+	 * @param bounds
+	 */
+	public LikelihoodParameter(int level, String acronym, double value, Bounds bounds) {
+		this(level, acronym, value);
+		setBounds(bounds);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -127,6 +166,37 @@ public class LikelihoodParameter extends AbstractProbability implements IBounded
 			current.bounds = new Bounds(current.bounds.getFrom(), Math.sqrt(prev.getValue() * current.getValue()));
 		prev.bounds = new Bounds(current.bounds.getTo(), Math.sqrt(prev.getValue() * next.getValue()));
 		next.bounds = new Bounds(prev.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
+	}
+
+	public static void ComputeScales(List<LikelihoodParameter> parameters) {
+		if (parameters.size() % 2 == 0) {
+			for (int level = 0, maxLevel = parameters.size() - 1; level < parameters.size(); level++) {
+				if (level == 0) {
+					LikelihoodParameter current = parameters.get(level);
+					if (level == maxLevel)
+						current.setBounds(new Bounds(0, Constant.DOUBLE_MAX_VALUE));
+					else
+						current.setBounds(new Bounds(0, Math.sqrt(current.getValue() * parameters.get(level + 1).getValue())));
+				} else if (level == maxLevel)
+					parameters.get(level).setBounds(new Bounds(parameters.get(level - 1).getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+				else {
+					LikelihoodParameter current = parameters.get(level);
+					current.setBounds(new Bounds(parameters.get(level - 1).getBounds().getTo(), Math.sqrt(current.getValue() * parameters.get(level + 1).getValue())));
+				}
+			}
+		} else {
+			LikelihoodParameter prev = null;
+			for (int level = 1, maxLevel = parameters.size() - 1; level < maxLevel; level += 2) {
+				LikelihoodParameter current = parameters.get(level), next = parameters.get(level + 1);
+				prev = parameters.get(level - 1);
+				if (prev.getLevel() == 0)
+					prev.setBounds(new Bounds(0, Math.sqrt(current.getValue() * prev.getValue())));
+				else
+					prev.setBounds(new Bounds(prev.getBounds().getFrom(), Math.sqrt(current.getValue() * prev.getValue())));
+				current.setBounds(new Bounds(prev.getBounds().getTo(), Math.sqrt(current.getValue() * next.getValue())));
+				next.setBounds(new Bounds(current.getBounds().getTo(), Constant.DOUBLE_MAX_VALUE));
+			}
+		}
 	}
 
 }

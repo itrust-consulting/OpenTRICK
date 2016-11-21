@@ -29,13 +29,7 @@ public class ParameterManager {
 	 * @param parameters
 	 */
 	public static void ComputeLikehoodValue(List<LikelihoodParameter> parameters) {
-		parameters.sort((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()));
-		int limit = parameters.size() - 1;
-		for (int i = 0; i < limit; i++) {
-			if ((i % 2) != 0)
-				LikelihoodParameter.ComputeScales(parameters.get(i), parameters.get(i - 1), parameters.get(i + 1));
-		}
-
+		LikelihoodParameter.ComputeScales(parameters);
 	}
 
 }

@@ -17,22 +17,14 @@ function displayActionPlanOptions(analysisId) {
 
 function calculateActionPlanWithOptions(form) {
 
-	var form = $("#" + form);
+	var $form = $("#" + form), data = {
+		"id" : $form.find("input[name='id']").val()
+	};
 
-	var data = {};
-
-	data["id"] = form.find("input[name='id']").val();
-
-	form.find("input[name^='standard_']").each(function() {
-
-		var name = $(this).attr("name");
-
-		var value = $(this).is(":checked");
-
-		data[name] = value;
-
+	$form.find("input[name^='standard_']").each(function() {
+		data[this.name] = this.checked;
 	});
-	
+
 	$.ajax({
 		url : context + "/Analysis/ActionPlan/Compute",
 		type : "post",
@@ -40,8 +32,7 @@ function calculateActionPlanWithOptions(form) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			if (response["success"] != undefined)
-				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan"))
-						.Start();
+				application["taskManager"].SetTitle(MessageResolver("title.actionplan.compute", "Compute Action Plan")).Start();
 			else if (response["error"]) {
 				$("#alert-dialog .modal-body").html(response["error"]);
 				$("#alert-dialog").modal("toggle");
@@ -65,7 +56,6 @@ function hideActionplanAssets(sectionactionplan, menu) {
 	return false;
 
 }
-
 
 function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({
@@ -119,7 +109,7 @@ function displayActionPlanAssets() {
 				unknowError();
 		},
 		error : unknowError,
-		complete:function(){
+		complete : function() {
 			$progress.hide();
 		}
 	});

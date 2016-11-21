@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskRegister;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.TS.component.JsonMessage;
@@ -139,32 +138,7 @@ public class ControllerRiskRegister {
 	// *****************************************************************
 	// * compute risk register
 	// *****************************************************************
-
-	/**
-	 * computeRiskRegister: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param principal
-	 * @param locale
-	 * @param value
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@Deprecated
-	public @ResponseBody String computeRiskRegister(HttpSession session, Principal principal) throws Exception {
-		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, true);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
-		// execute task
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", analysisLocale));
-	}
-
+	
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/RiskSheet/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request,

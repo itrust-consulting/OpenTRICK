@@ -416,7 +416,7 @@ function saveMeasure() {
 			$("#modalMeasureForm a[href='#tab_asset']").tab("show");
 			return false;
 		}
-		
+
 	} else
 		data.type = "NORMAL";
 
@@ -473,19 +473,20 @@ function deleteMeasure(measureId, standardid) {
 	if (standardid == null || standardid == undefined)
 		return false;
 
+	var selectedMeasures = [];
+
 	if (measureId == null || measureId == undefined) {
-		var selectedMeasures = findSelectItemIdBySection("section_standard_" + standardid);
+		selectedMeasures = findSelectItemIdBySection("section_standard_" + standardid);
 		if (!selectedMeasures.length)
 			return false;
-	}
+	} else
+		selectedMeasures.push(measureId);
 
 	var standard = $("#section_standard_" + standardid + " #menu_standard_" + standardid + " li:first-child").text();
 
 	if (selectedMeasures.length == 1) {
-		measureId = selectedMeasures[0];
-		var measure = $("#section_standard_" + standardid + " tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
+		var measure = $("#section_standard_" + standardid + " tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)");
 		reference = $(measure[0]).text();
-
 		$("#confirm-dialog .modal-body").html(
 				MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
 						+ "</strong> from the standard <strong>" + standard
@@ -501,14 +502,10 @@ function deleteMeasure(measureId, standardid) {
 		var errors = false;
 
 		while (selectedMeasures.length) {
-
 			if (errors)
 				break;
-
-			rowTrickId = selectedMeasures.pop();
-
 			$.ajax({
-				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + rowTrickId,
+				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + selectedMeasures.pop(),
 				async : false,
 				type : "POST",
 				contentType : "application/json;charset=UTF-8",

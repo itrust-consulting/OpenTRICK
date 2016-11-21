@@ -73,6 +73,7 @@ import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.TS.model.parameter.value.impl.AbstractValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scale.Scale;
@@ -225,14 +226,13 @@ public class ControllerAnalysisCreate {
 				errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (!analysisForm.getImpacts().isEmpty()) {
-				if (analysisForm.getScale() == null) {
+				if (analysisForm.getScale() == null)
 					errors.put("scale.level", messageSource.getMessage("error.scale.level.empty", null, "Level cannot be empty", locale));
-					errors.put("scale.maxValue", messageSource.getMessage("error.scale.max_value.empty", null, "Max value cannot be empty", locale));
-				} else {
+				else {
 					if (analysisForm.getScale().getLevel() < 2)
 						errors.put("scale.level", messageSource.getMessage("error.scale.level.bad_value", new Object[] { 2 }, "Level must be 2 or great", locale));
 					if (analysisForm.getScale().getMaxValue() < 1)
-						errors.put("scale.maxValue", messageSource.getMessage("error.scale.max_value.bad_value", new Object[] { 1 }, "Max value must be 1 or great", locale));
+						analysisForm.getScale().setMaxValue(300000);
 				}
 			}
 
@@ -358,22 +358,21 @@ public class ControllerAnalysisCreate {
 			mappingParameters.putAll(serviceMaturityParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 
-			mappingParameters.putAll(serviceLikelihoodParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
-					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-
 			mappingParameters.putAll(serviceDynamicParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 
-			if (analysisForm.getImpacts().isEmpty())
+			if (analysisForm.getImpacts().isEmpty()) {
+				mappingParameters.putAll(serviceLikelihoodParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
+						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
 				mappingParameters.putAll(serviceImpactParameter.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 						.collect(Collectors.toMap(IParameter::getKey, Function.identity())));
-			else
+			} else {
+				generateLikelihoodParameters(analysis, mappingParameters, 12, analysisForm.getScale().getLevel());
 				analysisForm.getImpacts().forEach(generateImpactParameters(analysis, mappingParameters, analysisForm.getScale()));
+			}
 
 			List<Asset> assets = serviceAsset.getAllFromAnalysis(analysisForm.getAsset());
-
 			Map<Integer, Asset> mappingAssets = assets.isEmpty() ? null : new LinkedHashMap<Integer, Asset>(assets.size());
-
 			for (Asset asset : assets) {
 				Asset duplication = asset.duplicate();
 				analysis.add(duplication);
@@ -464,6 +463,41 @@ public class ControllerAnalysisCreate {
 			TrickLogManager.Persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.create.analysis", null, "An unknown error occurred while saving analysis", locale));
 		}
+	}
+
+	private void generateLikelihoodParameters(Analysis analysis, Map<String, IParameter> mappingParameters, int maxValue, int maxlevel) {
+
+		double currentValue = maxValue < 0 ? 12 : maxValue;
+
+		List<LikelihoodParameter> likelihoodParameters = new ArrayList<>(maxlevel);
+
+		if (maxlevel % 2 == 0) {
+			for (int level = maxlevel - 1; level >= 0; level--) {
+				if (likelihoodParameters.isEmpty())
+					likelihoodParameters.add(new LikelihoodParameter(level, "p" + level, currentValue));
+				else
+					likelihoodParameters.add(new LikelihoodParameter(level, "p" + level, currentValue *= 0.5));
+			}
+		} else {
+			LikelihoodParameter prev = null;
+			for (int level = maxlevel - 2; level > 0; level -= 2) {
+				LikelihoodParameter current = new LikelihoodParameter(level, "p" + level),
+						next = prev == null ? new LikelihoodParameter(level + 1, "p" + (level + 1), currentValue) : prev;
+				if (prev == null)
+					likelihoodParameters.add(next);
+				prev = new LikelihoodParameter(level - 1, "p" + (level - 1));
+				prev.setValue(currentValue *= 0.5);
+				likelihoodParameters.add(current);
+				likelihoodParameters.add(prev);
+				current.setValue(Math.sqrt(next.getValue() * prev.getValue()));
+			}
+		}
+
+		LikelihoodParameter.ComputeScales(likelihoodParameters);
+		likelihoodParameters.forEach(parameter -> {
+			analysis.add(parameter);
+			mappingParameters.put(parameter.getKey(), parameter);
+		});
 	}
 
 	private Consumer<? super Integer> generateImpactParameters(Analysis analysis, Map<String, IParameter> mappingParameters, Scale scale) {

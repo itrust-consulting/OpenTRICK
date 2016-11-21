@@ -117,15 +117,17 @@ public class ControllerAssessment {
 		Asset asset = analysis.findAsset(idAsset);
 		loadAssessmentData(model, locale, analysis);
 		if (idScenario < 1) {
-			ALE ale = new ALE(asset.getName(), 0);
-			ALE aleo = new ALE(asset.getName(), 0);
-			ALE alep = new ALE(asset.getName(), 0);
 			List<Assessment> assessments = analysis.findSelectedAssessmentByAsset(idAsset);
-			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+			if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+				ALE ale = new ALE(asset.getName(), 0);
+				ALE aleo = new ALE(asset.getName(), 0);
+				ALE alep = new ALE(asset.getName(), 0);
+				model.addAttribute("ale", ale);
+				model.addAttribute("aleo", aleo);
+				model.addAttribute("alep", alep);
+				AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+			}
 			assessments.sort(assessmentScenarioComparator().reversed());
-			model.addAttribute("ale", ale);
-			model.addAttribute("aleo", aleo);
-			model.addAttribute("alep", alep);
 			model.addAttribute("assessments", assessments);
 		} else {
 			Scenario scenario = analysis.findScenario(idScenario);
@@ -172,14 +174,16 @@ public class ControllerAssessment {
 		Scenario scenario = analysis.findScenario(idScenario);
 		loadAssessmentData(model, locale, analysis);
 		if (idAsset < 1) {
-			ALE ale = new ALE(scenario.getName(), 0);
-			ALE aleo = new ALE(scenario.getName(), 0);
-			ALE alep = new ALE(scenario.getName(), 0);
-			model.addAttribute("ale", ale);
-			model.addAttribute("aleo", aleo);
-			model.addAttribute("alep", alep);
 			List<Assessment> assessments = analysis.findSelectedAssessmentByScenario(idScenario);
-			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+			if (analysis.getType() == AnalysisType.QUANTITATIVE) {
+				ALE ale = new ALE(scenario.getName(), 0);
+				ALE aleo = new ALE(scenario.getName(), 0);
+				ALE alep = new ALE(scenario.getName(), 0);
+				model.addAttribute("ale", ale);
+				model.addAttribute("aleo", aleo);
+				model.addAttribute("alep", alep);
+				AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+			}
 			assessments.sort(assessmentAssetComparator().reversed());
 			model.addAttribute("assessments", assessments);
 		} else {
@@ -407,20 +411,23 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis, boolean sort) throws Exception {
-		ALE ale = new ALE(asset.getName(), 0);
-		ALE aleo = new ALE(asset.getName(), 0);
-		ALE alep = new ALE(asset.getName(), 0);
-		model.addAttribute("ale", ale);
-		model.addAttribute("aleo", aleo);
-		model.addAttribute("alep", alep);
-		model.addAttribute("asset", asset);
-		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+		AnalysisType type = (AnalysisType) model.asMap().get("type");
+		if (type == AnalysisType.QUANTITATIVE) {
+			ALE ale = new ALE(asset.getName(), 0);
+			ALE aleo = new ALE(asset.getName(), 0);
+			ALE alep = new ALE(asset.getName(), 0);
+			model.addAttribute("ale", ale);
+			model.addAttribute("aleo", aleo);
+			model.addAttribute("alep", alep);
+			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+			asset.setALE(ale.getValue());
+			asset.setALEO(aleo.getValue());
+			asset.setALEP(alep.getValue());
+		}
 		if (sort)
 			Collections.sort(assessments, assessmentScenarioComparator().reversed());
+		model.addAttribute("asset", asset);
 		model.addAttribute("assessments", assessments);
-		asset.setALE(ale.getValue());
-		asset.setALEO(aleo.getValue());
-		asset.setALEP(alep.getValue());
 		serviceAsset.saveOrUpdate(asset);
 		return "analyses/single/components/assessment/assets";
 	}
@@ -437,16 +444,20 @@ public class ControllerAssessment {
 	 * @throws Exception
 	 */
 	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments, int idAnalysis, boolean sort) throws Exception {
-		ALE ale = new ALE(scenario.getName(), 0);
-		ALE aleo = new ALE(scenario.getName(), 0);
-		ALE alep = new ALE(scenario.getName(), 0);
-		model.addAttribute("ale", ale);
-		model.addAttribute("aleo", aleo);
-		model.addAttribute("alep", alep);
-		model.addAttribute("scenario", scenario);
-		AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+		AnalysisType type = (AnalysisType) model.asMap().get("type");
+		if (type == AnalysisType.QUANTITATIVE) {
+			ALE ale = new ALE(scenario.getName(), 0);
+			ALE aleo = new ALE(scenario.getName(), 0);
+			ALE alep = new ALE(scenario.getName(), 0);
+			model.addAttribute("ale", ale);
+			model.addAttribute("aleo", aleo);
+			model.addAttribute("alep", alep);
+			
+			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
+		}
 		if (sort)
 			Collections.sort(assessments, assessmentAssetComparator().reversed());
+		model.addAttribute("scenario", scenario);
 		model.addAttribute("assessments", assessments);
 		return "analyses/single/components/assessment/scenarios";
 	}
@@ -472,7 +483,6 @@ public class ControllerAssessment {
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 	}
 
-
 	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis, Assessment assessment) {
 		ValueFactory factory = (ValueFactory) model.asMap().get("valueFactory");
 		model.addAttribute("impacts", factory.getImpacts());
@@ -482,7 +492,6 @@ public class ControllerAssessment {
 		if (analysis.getType() == AnalysisType.QUALITATIVE) {
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario));
-			
 			model.addAttribute("computeNextImportance", factory.findImportance(assessment));
 		}
 	}
@@ -509,9 +518,13 @@ public class ControllerAssessment {
 		for (Assessment assessment : assessments) {
 			if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 				assessment.setLikelihood("0");
-			factory.getImpactNames().stream().filter(name -> !assessment.hasImpact(name)).forEach(name -> assessment.setImpact(factory.findValue(0D, name)));
-			// compute ALE
-			AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+			if (type == AnalysisType.QUALITATIVE)
+				factory.getImpactNames().stream().filter(name -> !assessment.hasImpact(name)).forEach(name -> assessment.setImpact(factory.findValue(0, name)));
+			else {
+				factory.getImpactNames().stream().filter(name -> !assessment.hasImpact(name)).forEach(name -> assessment.setImpact(factory.findValue(0D, name)));
+				// compute ALE
+				AssessmentAndRiskProfileManager.ComputeAlE(assessment, factory, type);
+			}
 			// update assessments
 			serviceAssessment.saveOrUpdate(assessment);
 			// add assessments of asset to model

@@ -1,7 +1,9 @@
 function displayParameters(name, title) {
 	var view = new Modal(undefined, $(name).html()), $legend = $(view.modal_body).find("legend").remove();
 	$(view.modal_footer).remove();
-	$(view.modal_body).find("td").removeAttributes();
+	$(view.modal_body).find("tbody").css({
+		"text-align" : "center"
+	}).find("td").removeAttributes();
 	if (!title)
 		title = $legend.text();
 	view.setTitle(title);

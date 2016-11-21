@@ -445,7 +445,7 @@ function displayChart(id, response) {
 }
 
 function loadChartAsset() {
-
+	
 	if ($('#chart_ale_asset').length) {
 		if ($('#chart_ale_asset').is(":visible")) {
 			var $progress = $("#loading-indicator").show();

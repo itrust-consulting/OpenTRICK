@@ -119,32 +119,22 @@
 								<spring:message code="label.manage.impact" text="Manage impact (Qualitative only)" />
 							</legend>
 							<div class="form-group">
-								<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.impacts" text="Impacts" /></label>
-								<div class="col-sm-10">
-									<select name="impacts" id="analysis_impacts" class="form-control" multiple="multiple" style="height: 70px; resize: vertical;">
+								<label for="impacts" class="col-sm-2 control-label"> <spring:message code="label.analysis.impacts" text="Impacts" /></label>
+								<div class="col-sm-4">
+									<select name="impacts" id="analysis_impacts" class="form-control" multiple="multiple" style="resize: vertical;">
 										<option value="-1" selected="selected"><spring:message code="label.select.impact" text="From profile" /></option>
 										<c:forEach items="${impacts}" var="impact">
 											<option value="${impact.id}"><spring:message code="label.impact.type.${fn:toLowerCase(impact.name)}"
 													text="${empty impact.translations[locale]? impact.displayName :  impact.translations[locale]}" /></option>
 										</c:forEach>
 									</select>
-
 								</div>
-							</div>
-							<div class="form-group">
 								<label for="scale.level" class="col-sm-2 control-label"> <spring:message code="label.scale.leve" text="Level" />
 								</label>
 								<div class="col-sm-4">
 									<input name="scale.level" id="scale_level" class="form-control" type="number" required="required" value="11" min="2">
 								</div>
-								<label for="scale.maxValue" class="col-sm-2 control-label"> <spring:message code="label.scale.max_value" text="Max value" />
-								</label>
-								<div class="col-sm-4">
-									<div class="input-group">
-										<input name="scale.maxValue" id="scale_maxValue" value="300" class="form-control" type="number" min="1" required="required"> <span class="input-group-addon">k&euro;</span>
-									</div>
-								</div>
-
+								<input name="scale.maxValue" hidden="hidden" style="display: none;" id="scale_maxValue" value="300" class="form-control" type="number" min="1" required="required">
 							</div>
 						</fieldset>
 					</div>

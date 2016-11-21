@@ -21,13 +21,23 @@
 			</div>
 		</div>
 		<ul id="menu_summary" class="nav nav-pills bordered-bottom">
-			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
-				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
-					onclick="return navToogled('#section_summary','#menu_summary,#tabOption','${actionPlanType.name}', true);"><fmt:message
-							key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
-			</c:forEach>
-			<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <fmt:message
-						key="label.action.compute" /></a></li>
+			
+			<c:choose>
+				<c:when test="${type=='QUANTITATIVE' }">
+					<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
+						<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
+							onclick="return navToogled('#section_summary','#menu_summary,#tabOption','${actionPlanType.name}', true);"><spring:message
+									code="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
+					</c:forEach>
+					<li class="pull-right"><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"><i class="glyphicon glyphicon-expand"></i> <spring:message
+						code="label.action.compute" /></a></li>
+				</c:when>
+				<c:otherwise>
+					<li><a href="#"><i class="glyphicon glyphicon-expand"></i> <spring:message
+						code="label.action.compute" /> (Coming soon)</a></li>
+				</c:otherwise>
+			</c:choose>
+			
 		</ul>
 		<c:set var="euroByYear">
 			<spring:message code="label.metric.euro_by_year" />
@@ -53,11 +63,13 @@
 						<c:set var="implementedcounts" value="${summaryStages.get('label.characteristic.count.measure.implemented')}"></c:set>
 						<c:set var="nonCompliantMeasure27001" value="${summaryStages.get('label.characteristic.count.not_compliant_measure_27001')}"></c:set>
 						<c:set var="nonCompliantMeasure27002" value="${summaryStages.get('label.characteristic.count.not_compliant_measure_27002')}"></c:set>
-						<c:set var="totalales" value="${summaryStages.get('label.profitability.ale.until.end')}"></c:set>
-						<c:set var="deltaales" value="${summaryStages.get('label.profitability.risk.reduction')}"></c:set>
-						<c:set var="costOfMeasures" value="${summaryStages.get('label.profitability.average_yearly_cost_of_phase')}"></c:set>
-						<c:set var="rosis" value="${summaryStages.get('label.profitability.rosi')}"></c:set>
-						<c:set var="relativerosis" value="${summaryStages.get('label.profitability.rosi.relatif')}"></c:set>
+						<c:if test="${type=='QUANTITATIVE' }">
+							<c:set var="totalales" value="${summaryStages.get('label.profitability.ale.until.end')}"></c:set>
+							<c:set var="deltaales" value="${summaryStages.get('label.profitability.risk.reduction')}"></c:set>
+							<c:set var="costOfMeasures" value="${summaryStages.get('label.profitability.average_yearly_cost_of_phase')}"></c:set>
+							<c:set var="rosis" value="${summaryStages.get('label.profitability.rosi')}"></c:set>
+							<c:set var="relativerosis" value="${summaryStages.get('label.profitability.rosi.relatif')}"></c:set>
+						</c:if>
 						<c:set var="internalworkloads" value="${summaryStages.get('label.resource.planning.internal.workload')}"></c:set>
 						<c:set var="externalworkloads" value="${summaryStages.get('label.resource.planning.external.workload')}"></c:set>
 						<c:set var="investments" value="${summaryStages.get('label.resource.planning.investment')}"></c:set>
@@ -125,54 +137,58 @@
 								<td class="text-right"><spring:message text="${value}" /></td>
 							</c:forEach>
 						</tr>
-				
+						<c:set var="currentIndex" value="1" />
+						<c:if test="${type=='QUANTITATIVE' }">
+							<tr class="active">
+								<td colspan="${columncount+5}">${currentIndex}. <spring:message code="label.profitability" /></td>
+							</tr>
+							<tr>
+								<td style="padding-left: 15px">${currentIndex}.1. <spring:message code="label.profitability.ale.until.end" /></td>
+								<c:forEach var="i" begin="0" end="${columncount-1}">
+									<fmt:formatNumber value="${fct:round(totalales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
+									<td class="text-right" title='<fmt:formatNumber value="${totalales.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
+								</c:forEach>
+							</tr>
+							<tr>
+								<td style="padding-left: 15px">${currentIndex}.2. <spring:message code="label.profitability.risk.reduction" /></td>
+								<c:forEach var="i" begin="0" end="${columncount-1}">
+									<fmt:formatNumber value="${fct:round(deltaales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
+									<td class="text-right" title='<fmt:formatNumber value="${deltaales.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
+								</c:forEach>
+							</tr>
+							<tr>
+								<td style="padding-left: 15px">${currentIndex}.3. <spring:message code="label.profitability.average_yearly_cost_of_phase" /></td>
+								<c:forEach var="i" begin="0" end="${columncount-1}">
+									<fmt:formatNumber value="${fct:round(costOfMeasures.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
+									<td class="text-right" title='<fmt:formatNumber value="${costOfMeasures.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
+								</c:forEach>
+							</tr>
+							<tr>
+								<td style="padding-left: 15px">${currentIndex}.4. <spring:message code="label.profitability.rosi" /></td>
+								
+								<c:forEach var="i" begin="0" end="${columncount-1}">
+									<fmt:formatNumber value="${fct:round(rosis.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
+									<td class="text-right" title='<fmt:formatNumber value="${rosis.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
+								</c:forEach>
+							</tr>
+							<tr>
+								<td style="padding-left: 15px">${currentIndex}.5. <spring:message code="label.profitability.rosi.relatif" /></td>
+								<c:forEach var="i" begin="0" end="${columncount-1}">
+									<fmt:formatNumber value="${fct:round(relativerosis.get(i),2)}" var="value" />
+									<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" />'><spring:message text="${value}" /></td>
+								</c:forEach>
+								
+							</tr>
+							<c:set var="currentIndex" value="${currentIndex+1}" />
+						</c:if>
 						<tr class="active">
-							<td colspan="${columncount+5}">1. <spring:message code="label.profitability" /></td>
-						</tr>
-						<tr>
-							<td style="padding-left: 15px">1.1. <spring:message code="label.profitability.ale.until.end" /></td>
-							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${fct:round(totalales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${totalales.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
-							</c:forEach>
-						</tr>
-						<tr>
-							<td style="padding-left: 15px">1.2. <spring:message code="label.profitability.risk.reduction" /></td>
-							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${fct:round(deltaales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${deltaales.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
-							</c:forEach>
-						</tr>
-						<tr>
-							<td style="padding-left: 15px">1.3. <spring:message code="label.profitability.average_yearly_cost_of_phase" /></td>
-							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${fct:round(costOfMeasures.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${costOfMeasures.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
-							</c:forEach>
-						</tr>
-						<tr>
-							<td style="padding-left: 15px">1.4. <spring:message code="label.profitability.rosi" /></td>
-							
-							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${fct:round(rosis.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${rosis.get(i)}" maxFractionDigits="2" /> ${euroByYear}'><spring:message text="${value}" /></td>
-							</c:forEach>
-						</tr>
-						<tr>
-							<td style="padding-left: 15px">1.5. <spring:message code="label.profitability.rosi.relatif" /></td>
-							<c:forEach var="i" begin="0" end="${columncount-1}">
-								<fmt:formatNumber value="${fct:round(relativerosis.get(i),2)}" var="value" />
-								<td class="text-right" title='<fmt:formatNumber value="${relativerosis.get(i)}" />'><spring:message text="${value}" /></td>
-							</c:forEach>
-						</tr>
-						<tr class="active">
-							<td colspan="${columncount+5}">2. <spring:message code="label.resource.planning" /></td>
+							<td colspan="${columncount+5}">${currentIndex}. <spring:message code="label.resource.planning" /></td>
 						</tr>
 						<tr class="warning">
-							<td style="padding-left: 15px" colspan="${columncount+5}">2.1. <spring:message code="label.resource.implementation.cost" /></td>
+							<td style="padding-left: 15px" colspan="${columncount+5}">${currentIndex}.1. <spring:message code="label.resource.implementation.cost" /></td>
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.1.1. <spring:message code="label.resource.planning.internal.workload" /></td>
+							<td style="padding-left: 30px">${currentIndex}.1.1. <spring:message code="label.resource.planning.internal.workload" /></td>
 							
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${internalworkloads.get(i)}" maxFractionDigits="2" var="value" />
@@ -180,7 +196,7 @@
 							</c:forEach>
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.1.2. <spring:message code="label.resource.planning.external.workload" /></td>
+							<td style="padding-left: 30px">${currentIndex}.1.2. <spring:message code="label.resource.planning.external.workload" /></td>
 							
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${externalworkloads.get(i)}" maxFractionDigits="2" var="value" />
@@ -189,7 +205,7 @@
 							
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.1.3. <spring:message code="label.resource.planning.investment" /></td>
+							<td style="padding-left: 30px">${currentIndex}.1.3. <spring:message code="label.resource.planning.investment" /></td>
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(investments.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
 								<td class="text-right" title='<fmt:formatNumber value="${investments.get(i)}" maxFractionDigits="2" /> &euro;'><spring:message text="${value}" /></td>
@@ -205,10 +221,10 @@
 							
 						</tr>
 						<tr class="warning">
-							<td style="padding-left: 15px" colspan="${columncount+5}">2.2. <spring:message code="label.resource.planning.recurrent.cost" /></td>
+							<td style="padding-left: 15px" colspan="${columncount+5}">${currentIndex}.2. <spring:message code="label.resource.planning.recurrent.cost" /></td>
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.2.1. <spring:message code="label.resource.planning.internal.maintenance" /></td>
+							<td style="padding-left: 30px">${currentIndex}.2.1. <spring:message code="label.resource.planning.internal.maintenance" /></td>
 							
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(internalmaintenances.get(i),0)}" maxFractionDigits="0" var="value" />
@@ -216,7 +232,7 @@
 							</c:forEach>
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.2.2. <spring:message code="label.resource.planning.external.maintenance" /></td>
+							<td style="padding-left: 30px">${currentIndex}.2.2. <spring:message code="label.resource.planning.external.maintenance" /></td>
 							
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(externalmaintenances.get(i),0)}" maxFractionDigits="0" var="value" />
@@ -224,7 +240,7 @@
 							</c:forEach>
 						</tr>
 						<tr>
-							<td style="padding-left: 30px">2.2.3. <spring:message code="label.resource.planning.recurrent.investment" /></td>
+							<td style="padding-left: 30px">${currentIndex}.2.3. <spring:message code="label.resource.planning.recurrent.investment" /></td>
 							
 							<c:forEach var="i" begin="0" end="${columncount-1}">
 								<fmt:formatNumber value="${fct:round(recurrentinvestments.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />

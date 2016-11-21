@@ -259,7 +259,6 @@ public class Estimation {
 	 */
 	public static void GenerateEstimation(Analysis analysis, CSSFFilter cssfFilter, ValueFactory valueFactory, List<Estimation> directs, List<Estimation> indirects,
 			List<Estimation> cias) {
-		System.out.println(cssfFilter);
 		int cia = cssfFilter.getCia(), direct = cssfFilter.getDirect(), inderect = cssfFilter.getIndirect();
 		Map<String, Assessment> mappedAssessment = analysis.getAssessments().stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 		analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
