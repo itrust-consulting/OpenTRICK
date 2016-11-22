@@ -12,7 +12,6 @@ import static lu.itrust.TS.helper.TestSharingData.put;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
@@ -258,7 +257,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 						.param("author", "Admin Admin").param("name", TEST_ANALYSIS_FROM_TEST_PROFILE).param("version", TestConstant.SIMPLE_ANALYSIS_VERSION)
 						.param("comment", "comment").param("customer", getStringValue(CUSTOMER_MEME_ID)).param("language", getStringValue(LANGUAGE_DEU_ID))
 						.param("type", AnalysisType.QUANTITATIVE.name()).param("profile", idProfile + ""))
-				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
 	@Test(dependsOnMethods = "test_04_CreateAnalysisUsedCustomerLanguageAndProfile")
