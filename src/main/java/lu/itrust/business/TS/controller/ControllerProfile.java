@@ -204,7 +204,7 @@ public class ControllerProfile {
 	}
 
 	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String deleteSqlite(@PathVariable Long id, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String deleteSqlite(@PathVariable Integer id, Principal principal, Locale locale) throws Exception {
 		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 		if (userSQLite == null)
 			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
@@ -232,11 +232,13 @@ public class ControllerProfile {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Sqlite/{idFile}/Download")
-	public String downloadSqlite(@PathVariable Long idFile, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	@RequestMapping("/Sqlite/{id}/Download")
+	public String downloadSqlite(@PathVariable Integer id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
+		
+		
 		// get user file by given file id and username
-		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
+		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)

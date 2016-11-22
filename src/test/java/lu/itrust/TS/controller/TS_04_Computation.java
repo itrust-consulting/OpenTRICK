@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -118,7 +118,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	@Deprecated
 	//@Test(timeOut = 120000, dependsOnMethods = { "test_01_UpdateCSSFParameter", "loadCSSFParameter" })
 	protected synchronized void test_01_RiskRegister() throws Exception {
-		this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+		/*this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
@@ -141,7 +141,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
-		isNull(worker.getError(), "An error occured while compute risk register");
+		isNull(worker.getError(), "An error occured while compute risk register");*/
 	}
 
 	@Test(dependsOnMethods = "test_00_ActionPlan")

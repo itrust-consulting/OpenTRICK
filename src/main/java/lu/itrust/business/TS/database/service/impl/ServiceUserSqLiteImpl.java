@@ -37,7 +37,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#get(long)
 	 */
 	@Override
-	public UserSQLite get(Long id)  {
+	public UserSQLite get(Integer id)  {
 		return daoUserSqLite.get(id);
 	}
 
@@ -69,8 +69,8 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 *      java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByIdAndUser(Long idFile, String username)  {
-		return daoUserSqLite.getByIdAndUser(idFile, username);
+	public UserSQLite getByIdAndUser(Integer id, String username)  {
+		return daoUserSqLite.getByIdAndUser(id, username);
 	}
 
 	/**
@@ -164,8 +164,8 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 */
 	@Transactional
 	@Override
-	public void delete(Long idUserSqLite)  {
-		daoUserSqLite.delete(idUserSqLite);
+	public void delete(Integer id)  {
+		daoUserSqLite.delete(id);
 	}
 
 	/**

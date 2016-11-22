@@ -20,7 +20,7 @@
 					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.advance" text="Advance" /></a></li>
 					<li class="col-sm-8 pull-right" id="build-analysis-modal-error"></li>
 				</ul>
-				<form action="#" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 630px;">
+				<form action="#" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 640px;">
 					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
 						<div class="form-group" style="margin-bottom: 2px;">
 							<label for="type" class="col-sm-2 control-label"> <spring:message code="label.analysis.type" text="Type" /></label>
@@ -120,7 +120,7 @@
 							</legend>
 							<div class="form-group">
 								<label for="impacts" class="col-sm-2 control-label"> <spring:message code="label.analysis.impacts" text="Impacts" /></label>
-								<div class="col-sm-4">
+								<div class="col-sm-10">
 									<select name="impacts" id="analysis_impacts" class="form-control" multiple="multiple" style="resize: vertical;">
 										<option value="-1" selected="selected"><spring:message code="label.select.impact" text="From profile" /></option>
 										<c:forEach items="${impacts}" var="impact">
@@ -129,12 +129,14 @@
 										</c:forEach>
 									</select>
 								</div>
+								<input name="scale.maxValue" hidden="hidden" style="display: none;" id="scale_maxValue" value="300" class="form-control" type="number" min="1" required="required">
+							</div>
+							<div class="form-group">
 								<label for="scale.level" class="col-sm-2 control-label"> <spring:message code="label.scale.leve" text="Level" />
 								</label>
-								<div class="col-sm-4">
+								<div class="col-sm-10">
 									<input name="scale.level" id="scale_level" class="form-control" type="number" required="required" value="11" min="2">
 								</div>
-								<input name="scale.maxValue" hidden="hidden" style="display: none;" id="scale_maxValue" value="300" class="form-control" type="number" min="1" required="required">
 							</div>
 						</fieldset>
 					</div>
@@ -229,7 +231,7 @@
 							<div class="form-group">
 								<label for="standards" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
-									<div class="well well-sm" style="height: 180px; overflow-y: auto">
+									<div class="well well-sm" style="height: 195px; overflow-y: auto; resize: vertical;">
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
 								</div>

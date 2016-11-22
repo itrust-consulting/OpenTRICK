@@ -248,7 +248,7 @@ public class Assessment implements Cloneable {
 
 	public String getImpactAcronym(String name) {
 		IValue value = getImpact(name);
-		return value == null ? null : value.getName();
+		return value == null ? null : value.getVariable();
 	}
 
 	public int getImpactLevel(String name) {

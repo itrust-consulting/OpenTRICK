@@ -554,7 +554,10 @@ public class ImportAnalysis {
 			else
 				analysis.setType(AnalysisType.valueOf(type));
 
-			analysis.setUncertainty(getBoolean(rs, "uncertainty"));
+			if (analysis.getType() == AnalysisType.QUANTITATIVE)
+				analysis.setUncertainty(getBoolean(rs, "uncertainty"));
+			else
+				analysis.setUncertainty(false);
 		}
 
 		// close result
@@ -1194,7 +1197,7 @@ public class ImportAnalysis {
 
 				if (isCompability1X()) {
 					if (analysis.getType() == AnalysisType.QUANTITATIVE)
-						setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_NAME, getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[0]));
+						setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_NAME, tmpAssessment.getImpactReal());
 					else {
 						for (int i = 0; i < Constant.ASSESSMENT_IMPACT_NAMES.length; i++)
 							setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i], getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
@@ -1239,6 +1242,11 @@ public class ImportAnalysis {
 	private void setImpact(Assessment tmpAssessment, String type, String value) {
 		IImpactParameter parameter = impactParameters.get(Parameter.key(type, value));
 		IValue impact = parameter == null ? factory.findValue(value, type) : new Value(parameter);
+		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
+	}
+
+	private void setImpact(Assessment tmpAssessment, String type, Double value) {
+		IValue impact = factory.findValue(value, type);
 		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
 	}
 
@@ -2553,8 +2561,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * add instance to list of item information
 				// ****************************************************************
-				this.analysis
-						.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
+				this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
 			}
 		}
 	}

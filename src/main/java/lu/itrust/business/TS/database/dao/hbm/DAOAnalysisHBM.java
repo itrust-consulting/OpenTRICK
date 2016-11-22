@@ -507,7 +507,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Customer> getCustomersByIdAnalysis(int analysisId) {
 		return getSession()
 				.createQuery(
-						"Select distinct analysis.customer From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2 = :analysisId)")
+						"Select distinct analysis.customer From Analysis analysis where analysis.identifier = (select analysis2.identifier From Analysis as analysis2 where analysis2.id = :analysisId)")
 				.setParameter("analysisId", analysisId).getResultList();
 	}
 

@@ -12,7 +12,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -124,7 +123,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
 				.param("author", "Admin Admin").param("name", SIMPLE_ANALYSIS_NAME).param("version", SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
 				.param("customer", String.valueOf(CUSTOMER_ID)).param("language", String.valueOf(LANGUAGE_ID)).param("profile", String.valueOf(DEFAULT_PROFILE))
-				.param("type", AnalysisType.QUANTITATIVE.name())).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+				.param("type", AnalysisType.QUANTITATIVE.name())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 	}
 

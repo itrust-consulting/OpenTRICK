@@ -15,11 +15,11 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 16, 2013
  */
 public interface ServiceUserSqLite {
-	public UserSQLite get(Long id);
+	public UserSQLite get(Integer id);
 
 	public UserSQLite getByFilename(String filename);
 
-	public UserSQLite getByIdAndUser(Long idFile, String username);
+	public UserSQLite getByIdAndUser(Integer id, String username);
 
 	public List<UserSQLite> getAllFromUser(String username);
 
@@ -31,7 +31,7 @@ public interface ServiceUserSqLite {
 
 	public UserSQLite merge(UserSQLite userSqLite);
 
-	public void delete(Long idUserSqLite);
+	public void delete(Integer id);
 
 	public void delete(String filename);
 
