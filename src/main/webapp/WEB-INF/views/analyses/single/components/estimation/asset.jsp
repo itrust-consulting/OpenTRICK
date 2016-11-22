@@ -34,9 +34,9 @@
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<th style="width: 2.6%" title='<spring:message code="label.title.uncertainty" />'><spring:message code="label.assessment.uncertainty" /></th>
-								<th style="width: 2.6%" title='<spring:message code="label.title.alep" />'><spring:message code="label.assessment.alep" /></th>
-								<th style="width: 2.6%" title='<spring:message code="label.title.ale" />'><spring:message code="label.assessment.ale" /></th>
 								<th style="width: 2.6%" title='<spring:message code="label.title.aleo" />'><spring:message code="label.assessment.aleo" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.ale" />'><spring:message code="label.assessment.ale" /></th>
+								<th style="width: 2.6%" title='<spring:message code="label.title.alep" />'><spring:message code="label.assessment.alep" /></th>
 							</c:when>
 							<c:otherwise>
 								<th style="width: 2.6%" title='<spring:message code="label.title.ale" />'><spring:message code="label.assessment.ale" /></th>
@@ -141,11 +141,11 @@
 							</c:choose>
 							<c:if test="${show_uncertainty}">
 								<td><fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
-								<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
 							</c:if>
 							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALE*0.001,1)}" /></td>
 							<c:if test="${show_uncertainty}">
-								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEP*0.001,1)}" /></td>
 							</c:if>
 							<td><spring:message text="${assessment.owner}" /></td>
 							<td><pre><spring:message text="${assessment.comment}" /></pre></td>
@@ -163,9 +163,9 @@
 										<td colspan="4"><spring:message code="label.total.ale" /></td>
 									</c:otherwise>
 								</c:choose>
-								<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,1)}" /></td>
-								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
 								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,1)}" /></td>
+								<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,1)}" /></td>
 							</c:when>
 							<c:otherwise>
 								<c:choose>

@@ -171,6 +171,10 @@ public class WordReport {
 	public static WordReport BuildReport(String identifier, String label, String version, User user, String name, long length, byte[] file) {
 		return new WordReport(identifier, ReportType.STA, label, version, user, name, length, file);
 	}
+	
+	public static WordReport BuildSOA(String identifier, String label, String version, User user, String name, long length, byte[] file) {
+		return new WordReport(identifier, ReportType.SOA, label, version, user, name, length, file);
+	}
 
 	public static WordReport BuildRiskSheet(String identifier, String label, String version, User user, String name, long length, byte[] file) {
 		return new WordReport(identifier, ReportType.RISK_SHEET, label, version, user, name, length, file);

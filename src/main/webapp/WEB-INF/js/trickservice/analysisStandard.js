@@ -151,10 +151,10 @@ function importStandard(e) {
 }
 
 function reloadStandardTable() {
+	var $progress = $("#loading-indicator").show();
 	$.ajax({
 		url : context + "/Analysis/Standard/Manage",
 		type : "get",
-		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
 			var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
@@ -167,7 +167,10 @@ function reloadStandardTable() {
 				unknowError();
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
 	});
+	return false;
 }
 
 // rewritten by @eomar 24/05/2016
@@ -510,5 +513,88 @@ function deleteMeasure(measureId, standardid) {
 		return false;
 	});
 	$("#confirm-dialog").modal("show");
+	return false;
+}
+
+function manageSOA() {
+	var idAnalysis = -1;
+	if (userCan(idAnalysis = findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		var $progress = $("#loading-indicator").show();
+		$.ajax({
+			url : context + "/Analysis/Standard/SOA/Manage",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response, textStatus, jqXHR) {
+				var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#manageSAOModel");
+				if ($content.length) {
+					if ($("#manageSAOModel").length)
+						$("#manageSAOModel").replaceWith($content);
+					else
+						$content.appendTo($("#widgets"));
+					$content.modal("show");
+					$content.find("[name='save']").on("click", function() {
+						var data = [];
+						$content.find(".form-group[data-trick-id][data-default-value]").each(function() {
+							var $this = $(this), newState = $this.find("input[type='radio']:checked").val(), oldState = $this.attr("data-default-value");
+							if (newState != oldState) {
+								data.push({
+									"id" : $this.attr('data-trick-id'),
+									"enabled" : newState
+								});
+							}
+						});
+
+						if (data.length) {
+							$.ajax({
+								url : context + "/Analysis/Standard/SOA/Save",
+								type : "post",
+								data : JSON.stringify(data),
+								contentType : "application/json;charset=UTF-8",
+								success : function(response, textStatus, jqXHR) {
+									if (response.error != undefined)
+										showDialog("#alert-dialog", response.error);
+									else if (response.success != undefined) {
+										calculateAction({
+											"id" : idAnalysis
+										});
+										
+										setTimeout(function() {
+											$progress.show();
+											setTimeout(function name() {
+												location.reload();
+											}, 600);
+										}, 100);
+
+									} else
+										unknowError();
+								},
+								error : unknowError
+							}).complete(function() {
+								$progress.hide();
+							});
+						}
+
+					});
+
+				} else if (response["error"] != undefined)
+					showDialog("#info-dialog", response["error"]);
+				else
+					unknowError()
+			},
+			error : unknowError
+		}).complete(function() {
+			$progress.hide();
+		});
+	}
+	return false;
+}
+
+function validateSOAState(idStandard,idMeasure){
+	$("tr[data-trick-id='"+idMeasure+"']>td>pre[data-trick-field!='soaReference'][data-trick-field]","#table_SOA_"+idStandard).each(function(){
+		var $this = $(this), $td = $this.parent();
+		if($this.text().trim() =="")
+			$td.addClass("warning");
+		else $td.removeClass("warning");
+	});
 	return false;
 }

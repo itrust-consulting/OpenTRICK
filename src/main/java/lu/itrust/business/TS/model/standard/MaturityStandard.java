@@ -90,7 +90,6 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setMeasures(List<Measure> measures) {
-
 		if (measures instanceof HibernateProxy) {
 			List<Measure> deproxiedmeasures = (List<Measure>) ((HibernateProxy) measures).getHibernateLazyInitializer().getImplementation();
 			super.setMeasures(deproxiedmeasures);

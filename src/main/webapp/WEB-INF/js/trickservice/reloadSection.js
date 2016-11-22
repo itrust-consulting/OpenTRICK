@@ -53,10 +53,10 @@ function reloadSection(section, subSection, refreshOnly) {
 			var controller = findControllerBySection(section, subSection);
 			if (controller == null || controller == undefined)
 				return false;
+			var $progress = $("#loading-indicator").show();
 			$.ajax({
 				url : context + controller,
 				type : "get",
-				async : true,
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
 					if (subSection != null && subSection != undefined)
@@ -81,6 +81,8 @@ function reloadSection(section, subSection, refreshOnly) {
 					return false;
 				},
 				error : unknowError
+			}).complete(function(){
+				$progress.hide();
 			});
 		} else {
 			var $tab = $section.closest(".tab-pane");
@@ -257,6 +259,3 @@ SectionSmartUpdate.prototype = {
 	}
 
 }
-
-/*
- */

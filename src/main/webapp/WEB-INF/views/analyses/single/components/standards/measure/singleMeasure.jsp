@@ -91,8 +91,9 @@
 				</c:choose>
 			</td>
 			<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}' data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);">
-				<c:choose>
+			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}'
+				data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"
+				data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"><c:choose>
 					<c:when test="${measure.status=='NA'}">
 						${statusNA}
 					</c:when>
@@ -102,8 +103,7 @@
 					<c:otherwise>
 						${statusM}
 					</c:otherwise>
-				</c:choose>
-			</td>
+				</c:choose></td>
 			<c:choose>
 				<c:when test="${standardType.name.equals('MATURITY')}">
 					<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
@@ -115,7 +115,7 @@
 						data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 							value="${measure.getImplementationRate()}" /></td>
 					<c:if test="${selectedStandard.label=='27002' and hasMaturity}">
-						<td data-trick-field='mer' ><c:choose>
+						<td data-trick-field='mer'><c:choose>
 								<c:when test="${empty effectImpl27002}">0</c:when>
 								<c:otherwise>
 									<fmt:formatNumber value="${effectImpl27002}" maxFractionDigits="0" minFractionDigits="0" />

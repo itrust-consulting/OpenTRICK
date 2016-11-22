@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.Properties;
-
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
@@ -50,11 +47,15 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	@Autowired
 	private Configuration freemarkerConfiguration;
 
-	@Value("${app.settings.smtp.host}")
-	private String mailserver;
+	@Autowired
+	private JavaMailSender javaMailSender;
+	
+	@Value("${app.settings.smtp.username}")
+	private String emailSender;
 	
 	@Autowired
 	private TaskExecutor emailTaskExecutor;
+
 
 	/**
 	 * sendRegistrationMail: <br>
@@ -67,22 +68,13 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	 */
 	@Override
 	public void sendRegistrationMail(final List<User> recipients, final User user) {
-		
-
-		JavaMailSenderImpl sender = new JavaMailSenderImpl();
-		Properties p = new Properties();
-		p.put("mail.smtp.host", mailserver);
-		p.put("mail.smtp.localhost", "itrust.lu");
-		Session con = Session.getInstance(p, null);
-		sender.setSession(con);
-
 		try {
 			MimeMessagePreparator preparator= new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = user.getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
+					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
@@ -94,7 +86,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 				}
 			};
 			
-			emailTaskExecutor.execute(() -> sender.send(preparator));
+			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 			
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -107,7 +99,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 								ParseException, IOException, TemplateException {
 							Locale locale = admin.getLocaleObject();
 							MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-							message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
+							message.setFrom(emailSender);
 							message.setSubject(messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
 							Map<String, Object> model = new LinkedHashMap<String, Object>();
 							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
@@ -120,7 +112,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							message.setTo(admin.getEmail());
 						}
 					};
-					emailTaskExecutor.execute(() -> sender.send(preparator));
+					
+					emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
+					
 				} catch (Exception e) {
 					TrickLogManager.Persist(e);
 				}
@@ -130,21 +124,13 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 
 	@Override
 	public void sendResetPassword(final ResetPassword password, final String hotname) {
-
-		JavaMailSenderImpl sender = new JavaMailSenderImpl();
-		Properties p = new Properties();
-		p.put("mail.smtp.host", mailserver);
-		p.put("mail.smtp.localhost", "itrust.lu");
-		Session con = Session.getInstance(p, null);
-		sender.setSession(con);
-
 		try {
 			MimeMessagePreparator preparator = new MimeMessagePreparator() {
 				public void prepare(MimeMessage mimeMessage) throws MessagingException, TemplateNotFoundException, MalformedTemplateNameException, ParseException,
 						MissingResourceException, IOException, TemplateException {
 					Locale locale = password.getUser().getLocaleObject();
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
+					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 					Map<String, Object> model = new LinkedHashMap<String, Object>();
 					model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
@@ -156,10 +142,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					message.setTo(password.getUser().getEmail());
 				}
 			};
-			emailTaskExecutor.execute(() -> sender.send(preparator));
+			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (MailException e) {
 			TrickLogManager.Persist(e);
 		}
 	}
-
 }

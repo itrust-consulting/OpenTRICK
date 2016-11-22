@@ -49,4 +49,10 @@ public interface DAOAnalysisStandard {
 	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String name);
 
 	public Boolean hasStandard(Integer idAnalysis, String standard);
+
+	public List<AnalysisStandard> findBySOAEnabledAndAnalysisId(boolean state, Integer idAnalysis);
+	
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, String ... classes);
+
+	public AnalysisStandard findOne(int id, int analysisId);
 }

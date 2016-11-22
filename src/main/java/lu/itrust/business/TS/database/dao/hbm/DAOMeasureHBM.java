@@ -9,7 +9,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.standard.Standard;
@@ -106,19 +105,6 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).list();
 	}
 
-	/**
-	 * getSOAMeasuresFromAnalysis: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#getSOAMeasuresFromAnalysis(Integer)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) {
-		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysisStandard.standard.label = :standard and analysis.id";
-		query += "= :analysis order by analysisStandard.standard.label ASC, measure.id ASC";
-		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("standard", Constant.STANDARD_27002).list();
-	}
 
 	/**
 	 * getAllMeasuresFromAnalysisIdAndComputable: <br>

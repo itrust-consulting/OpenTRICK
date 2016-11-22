@@ -71,7 +71,7 @@
 		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.risk_communication" /><span
 				class="caret"></span></a>
 			<ul class="dropdown-menu">
-				<c:if test="${!empty(soa)}">
+				<c:if test="${not empty soas}">
 					<li><a href="#tabSOA" data-toggle="tab"> <spring:message code="label.menu.analysis.soa" /></a></li>
 				</c:if>
 				<li><a href="#tabSummary" data-toggle="tab"> <spring:message code="label.menu.analysis.summary" /></a></li>
@@ -91,6 +91,7 @@
 				<li class="divider"></li>
 				<li class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 				<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" /></a></li>
+				<li><a href="#" onclick="return manageSOA();"> <spring:message code="label.action.manage.soa" /></a></li>
 			</ul></li>
 	</c:if>
 	<li class="pull-right"><a id='nav_menu_analysis_close' href="${pageContext.request.contextPath}/Analysis/Deselect" class="text-muted" title='<spring:message code="label.action.close.analysis" />'
@@ -109,6 +110,7 @@
 				<c:if test="${analysis.getRightsforUserString(login).right.ordinal()<2 and isEditable}">
 					<li class="dropdown-header"><spring:message code="label.action.export" /></li>
 					<li><a href="#" onclick="return exportAnalysisReport('${analysis.id}')"> <spring:message code="label.word_report" /></a></li>
+					<li><a href="#" onclick="return exportAnalysisSOA('${analysis.id}')"> <spring:message code="label.word_report_soa" /></a></li>
 					<c:if test="${show_cssf}">
 					<li><a href="#" onclick="return exportRiskRegister('${analysis.id}')"> <spring:message code="label.risk_register" />
 						</a></li>

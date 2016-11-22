@@ -196,7 +196,8 @@
 									</td>
 									<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate="${statusM},${statusAP},${statusNA}"
-										data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"><c:choose>
+										data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"
+										data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"><c:choose>
 											<c:when test="${measure.status=='NA'}">
 												${statusNA}
 											</c:when>
