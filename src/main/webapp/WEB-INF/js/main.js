@@ -10,6 +10,7 @@ function Application() {
 	this.localesMessages = {};
 	this.fixedOffset = 0
 	this.shownScrollTop = true;
+	this.analysisType='';
 }
 
 if (!String.prototype.capitalize) {

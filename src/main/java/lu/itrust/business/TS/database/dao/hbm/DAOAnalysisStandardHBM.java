@@ -39,6 +39,65 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 		super(session);
 	}
 
+	@Override
+	public boolean belongsToAnalysis(Integer idAnalysis, int id) {
+		return (Boolean) getSession()
+				.createQuery(
+						"select count(analysisStandard) > 0 From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.id = :id")
+				.setParameter("idAnalysis", idAnalysis).setParameter("id", id).getSingleResult();
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#delete(lu.itrust.business.TS.model.standard.AnalysisStandard)
+	 */
+	@Override
+	public void delete(AnalysisStandard analysisStandard) {
+		getSession().delete(analysisStandard);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void deleteAllFromAnalysis(Integer analysisId) {
+		Analysis analysis = (Analysis) getSession().createQuery("select analysis from Analysis analysis where analysis.id = :analysis").setParameter("analysis", analysisId)
+				.uniqueResultOptional().orElse(null);
+
+		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
+
+		for (AnalysisStandard standard : analysis.getAnalysisStandards()) {
+
+			getSession().delete(standard);
+
+			if (standard.getStandard().isAnalysisOnly())
+				standards.add(standard);
+
+		}
+
+		analysis.getAnalysisStandards().clear();
+
+		getSession().saveOrUpdate(analysis);
+
+		for (AnalysisStandard standard : standards) {
+
+			Standard tmpstandard = standard.getStandard();
+
+			List<MeasureDescription> mesDescs = (List<MeasureDescription>) getSession()
+					.createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).getResultList();
+
+			for (MeasureDescription mesDesc : mesDescs) {
+				for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts())
+					getSession().delete(mesDescText);
+				getSession().delete(mesDesc);
+			}
+			getSession().delete(tmpstandard);
+		}
+
+	}
+
 	/**
 	 * get: <br>
 	 * Description
@@ -59,22 +118,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAll() {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard order by standard.label").list();
-	}
-
-	/**
-	 * getAllFromAnalysis: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getAllFromAnalysis(java.lang.Integer)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) {
-		return (List<AnalysisStandard>) getSession()
-				.createQuery(
-						"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label  ASC")
-				.setParameter("analysis", analysisID).list();
+		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard order by standard.label").getResultList();
 	}
 
 	/**
@@ -89,7 +133,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 		return (List<AnalysisStandard>) getSession()
 				.createQuery(
 						"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = true ORDER BY analysisStandard.standard.label ASC")
-				.setParameter("analysis", analysisID).list();
+				.setParameter("analysis", analysisID).getResultList();
 	}
 
 	/**
@@ -104,7 +148,22 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 		return (List<AnalysisStandard>) getSession()
 				.createQuery(
 						"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis = :analysis order by analysisStandard.standard.label")
-				.setParameter("analysis", analysis).list();
+				.setParameter("analysis", analysis).getResultList();
+	}
+
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getAllFromAnalysis(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) {
+		return (List<AnalysisStandard>) getSession()
+				.createQuery(
+						"SELECT analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label  ASC")
+				.setParameter("analysis", analysisID).getResultList();
 	}
 
 	/**
@@ -118,7 +177,64 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAllFromStandard(Standard standard) {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where standard = :standard").setParameter("standard", standard).list();
+		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where standard = :standard").setParameter("standard", standard).getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) {
+		return (Integer) getSession()
+				.createQuery("SELECT analysis.id From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
+				.setParameter("analysisstandard", analysisStandard).uniqueResultOptional().orElse(-1);
+	}
+
+	/**
+	 * getFromAnalysisIdAndStandardId: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getFromAnalysisIdAndStandardId(java.lang.Integer,
+	 *      int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard) {
+		return (AnalysisStandard) getSession()
+				.createQuery(
+						"select analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
+				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResultOptional().orElse(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String name) {
+		return (AnalysisStandard) getSession()
+				.createQuery(
+						"select analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.label = :standardName")
+				.setParameter("idAnalysis", idAnalysis).setParameter("standardName", name).uniqueResultOptional().orElse(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Standard getStandardById(int idAnalysisStandard) {
+		return (Standard) getSession().createQuery("Select analysisStandard.standard From AnalysisStandard analysisStandard where analysisStandard.id = :id")
+				.setParameter("id", idAnalysisStandard).uniqueResultOptional().orElse(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public String getStandardNameById(int idAnalysisStandard) {
+		return (String) getSession().createQuery("Select analysisStandard.standard.label From AnalysisStandard analysisStandard where analysisStandard.id = :id")
+				.setParameter("id", idAnalysisStandard).uniqueResultOptional().orElse(null);
+	}
+
+	@Override
+	public Boolean hasStandard(Integer idAnalysis, String standard) {
+		return (Boolean) getSession()
+				.createQuery(
+						"select count(analysisStandard)>0 From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.label = :standardName")
+				.setParameter("idAnalysis", idAnalysis).setParameter("standardName", standard).getSingleResult();
 	}
 
 	/**
@@ -147,124 +263,13 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 		getSession().saveOrUpdate(analysisStandard);
 	}
 
-	/**
-	 * delete: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#delete(lu.itrust.business.TS.model.standard.AnalysisStandard)
-	 */
-	@Override
-	public void delete(AnalysisStandard analysisStandard) {
-		getSession().delete(analysisStandard);
-	}
-
-	/**
-	 * getFromAnalysisIdAndStandardId: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getFromAnalysisIdAndStandardId(java.lang.Integer,
-	 *      int)
-	 */
-	@Override
-	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard) {
-		return (AnalysisStandard) getSession()
-				.createQuery(
-						"select analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
-				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResult();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void deleteAllFromAnalysis(Integer analysisId) {
-		Analysis analysis = (Analysis) getSession().createQuery("select analysis from Analysis analysis where analysis.id = :analysis").setParameter("analysis", analysisId)
-				.uniqueResult();
-
-		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
-
-		for (AnalysisStandard standard : analysis.getAnalysisStandards()) {
-
-			getSession().delete(standard);
-
-			if (standard.getStandard().isAnalysisOnly())
-				standards.add(standard);
-
-		}
-
-		analysis.getAnalysisStandards().clear();
-
-		getSession().saveOrUpdate(analysis);
-
-		for (AnalysisStandard standard : standards) {
-
-			Standard tmpstandard = standard.getStandard();
-
-			List<MeasureDescription> mesDescs = (List<MeasureDescription>) getSession()
-					.createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).list();
-
-			for (MeasureDescription mesDesc : mesDescs) {
-				for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts())
-					getSession().delete(mesDescText);
-				getSession().delete(mesDesc);
-			}
-			getSession().delete(tmpstandard);
-		}
-
-	}
-
-	@Override
-	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) {
-		return (Integer) getSession()
-				.createQuery("SELECT analysis.id From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
-				.setParameter("analysisstandard", analysisStandard).uniqueResult();
-	}
-
-	@Override
-	public boolean belongsToAnalysis(Integer idAnalysis, int id) {
-		return (Boolean) getSession()
-				.createQuery(
-						"select count(analysisStandard) > 0 From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.id = :id")
-				.setParameter("idAnalysis", idAnalysis).setParameter("id", id).uniqueResult();
-	}
-
-	@Override
-	public Standard getStandardById(int idAnalysisStandard) {
-		return (Standard) getSession().createQuery("Select analysisStandard.standard From AnalysisStandard analysisStandard where analysisStandard.id = :id")
-				.setParameter("id", idAnalysisStandard).uniqueResult();
-	}
-
-	@Override
-	public String getStandardNameById(int idAnalysisStandard) {
-		return (String) getSession().createQuery("Select analysisStandard.standard.label From AnalysisStandard analysisStandard where analysisStandard.id = :id")
-				.setParameter("id", idAnalysisStandard).uniqueResult();
-	}
-
-	@Override
-	public AnalysisStandard getFromAnalysisIdAndStandardName(Integer idAnalysis, String name) {
-		return (AnalysisStandard) getSession()
-				.createQuery(
-						"select analysisStandard From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.label = :standardName")
-				.setParameter("idAnalysis", idAnalysis).setParameter("standardName", name).uniqueResult();
-	}
-
-	@Override
-	public Boolean hasStandard(Integer idAnalysis, String standard) {
-		return (Boolean) getSession()
-				.createQuery(
-						"select count(analysisStandard)>0 From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.label = :standardName")
-				.setParameter("idAnalysis", idAnalysis).setParameter("standardName", standard).uniqueResult();
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> findBySOAEnabledAndAnalysisId(boolean state, Integer idAnalysis) {
 		return getSession()
 				.createQuery(
 						"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.soaEnabled = :state order by analysisStandard.standard.label ASC")
-				.setParameter("analysis", idAnalysis).setParameter("state", state).list();
+				.setParameter("analysis", idAnalysis).setParameter("state", state).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -273,14 +278,15 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 		return getSession()
 				.createQuery(
 						"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.class in :types order by analysisStandard.standard.label ASC")
-				.setParameter("analysis", analysisId).setParameterList("types", classes).list();
+				.setParameter("analysis", analysisId).setParameterList("types", classes).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public AnalysisStandard findOne(int id, int analysisId) {
 		return (AnalysisStandard) getSession()
 				.createQuery(
 						"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.id = :id")
-				.setParameter("analysis", analysisId).setParameter("id", id).uniqueResult();
+				.setParameter("analysis", analysisId).setParameter("id", id).uniqueResultOptional().orElse(null);
 	}
 }

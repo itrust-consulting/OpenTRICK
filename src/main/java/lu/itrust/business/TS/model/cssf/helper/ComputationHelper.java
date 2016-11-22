@@ -7,9 +7,9 @@ import java.util.Map;
 import javax.security.auth.Destroyable;
 
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.cssf.Impact;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 public class ComputationHelper implements Destroyable {
 
@@ -20,9 +20,6 @@ public class ComputationHelper implements Destroyable {
 	// Integer: Scenario ID, Double: ALE of the Scenario, calculated by
 	// Inet*Pnet)
 	private Map<String, Double> netALEs = new HashMap<String, Double>();
-
-	// initialise a empty map that contains Impact objects
-	private Map<String, Impact> impacts = new HashMap<String, Impact>();
 
 	// initialise the risk register as an empty list of risk register items
 	private Map<String, RiskRegisterItem> riskRegisters = new HashMap<String, RiskRegisterItem>();
@@ -36,11 +33,10 @@ public class ComputationHelper implements Destroyable {
 	// initialise an empty map for delta ALEs
 	private Map<String, Double> deltaALEs = new HashMap<String, Double>();
 	
-	private ParameterConvertor parameterConvertor;
+	private ValueFactory factory;
 	
-
-	public ComputationHelper(List<ExtendedParameter> parameters) {
-		setParameterConvertor(new ParameterConvertor(parameters));
+	public ComputationHelper(List<ILevelParameter> parameters) {
+		setFactory(new ValueFactory(parameters));
 	}
 
 	/**
@@ -60,25 +56,6 @@ public class ComputationHelper implements Destroyable {
 		if (destroyed)
 			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
 		this.netALEs = netALEs;
-	}
-
-	/**
-	 * @return the impacts
-	 */
-	public Map<String, Impact> getImpacts() {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		return impacts;
-	}
-
-	/**
-	 * @param impacts
-	 *            the impacts to set
-	 */
-	public void setImpacts(Map<String, Impact> impacts) {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		this.impacts = impacts;
 	}
 
 	/**
@@ -156,24 +133,6 @@ public class ComputationHelper implements Destroyable {
 			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
 		this.deltaALEs = deltaALEs;
 	}
-	
-	/**
-	 * @return the parameterConvertor
-	 */
-	public ParameterConvertor getParameterConvertor() {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		return parameterConvertor;
-	}
-
-	/**
-	 * @param parameterConvertor the parameterConvertor to set
-	 */
-	public void setParameterConvertor(ParameterConvertor parameterConvertor) {
-		if (destroyed)
-			throw new TrickException("error.use.destroyed.object", "Data cannot be used");
-		this.parameterConvertor = parameterConvertor;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -189,7 +148,6 @@ public class ComputationHelper implements Destroyable {
 				return;
 			destroyed = true;
 			deltaALEs.clear();
-			impacts.clear();
 			riskRegisters.clear();
 			probabilityRelativeImpacts.clear();
 			rawALEs.clear();
@@ -205,6 +163,20 @@ public class ComputationHelper implements Destroyable {
 	@Override
 	public boolean isDestroyed() {
 		return destroyed;
+	}
+
+	/**
+	 * @return the factory
+	 */
+	public ValueFactory getFactory() {
+		return factory;
+	}
+
+	/**
+	 * @param factory the factory to set
+	 */
+	public void setFactory(ValueFactory factory) {
+		this.factory = factory;
 	}
 
 	

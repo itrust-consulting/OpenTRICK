@@ -33,9 +33,11 @@ import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.MaturityParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IMaturityParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.rrf.ImportRRFForm;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
@@ -50,9 +52,7 @@ import lu.itrust.business.TS.model.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.model.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.model.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
-
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptionText;
-
 
 /**
  * MeasureManager.java: <br>
@@ -231,8 +231,8 @@ public class MeasureManager {
 				implementationRate = new Double(0);
 			} else if (astandard instanceof MaturityStandard) {
 				measure = new MaturityMeasure();
-				for (Parameter parameter : analysis.getParameters()) {
-					if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
+				for (SimpleParameter parameter : analysis.getSimpleParameters()) {
+					if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
 						implementationRate = parameter;
 						break;
 					}
@@ -362,16 +362,18 @@ public class MeasureManager {
 	 * @param measures27002
 	 * @param maturityMeasures
 	 * @param parameters
-	 *            : require Maturity parameters + {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
+	 *            : require Maturity parameters +
+	 *            {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
 	 * @param reference:
 	 *            mapped by reference
 	 * @return Map<27002 Reference or id, efficiency implementation Rate>
 	 */
-	public static Map<Object, Double> ComputeMaturiyEfficiencyRate(List<Measure> measures27002, List<Measure> maturityMeasures, List<Parameter> parameters, boolean reference, List<AcronymParameter> expressionParameters) {
+	public static Map<Object, Double> ComputeMaturiyEfficiencyRate(List<Measure> measures27002, List<Measure> maturityMeasures, List<IParameter> parameters, boolean reference,
+			ValueFactory factory) {
 		Map<Object, Double> effectiveImpelementationRate = new HashMap<>();
 		if (measures27002 == null || maturityMeasures == null || parameters == null)
 			return effectiveImpelementationRate;
-		Map<String, Double> maturities = ComputeMaturityByChapter(maturityMeasures, parameters, expressionParameters);
+		Map<String, Double> maturities = ComputeMaturityByChapter(maturityMeasures, parameters, factory);
 		if (maturities.isEmpty())
 			return effectiveImpelementationRate;
 		for (Measure measure : measures27002) {
@@ -379,7 +381,7 @@ public class MeasureManager {
 				Double maturity = maturities.get(measure.getMeasureDescription().getReference().split("[.]", 2)[0]);
 				if (maturity != null)
 					effectiveImpelementationRate.put(reference ? measure.getMeasureDescription().getReference() : measure.getId(),
-							measure.getImplementationRateValue(expressionParameters) * maturity * 0.01);
+							measure.getImplementationRateValue(factory) * maturity * 0.01);
 			}
 		}
 		return effectiveImpelementationRate;
@@ -387,18 +389,21 @@ public class MeasureManager {
 
 	/**
 	 * Compute Maturity by Chapter
+	 * 
 	 * @param maturityMeasures
-	 * @param parameters :  MaturityParameter + {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
+	 * @param parameters
+	 *            : MaturityParameter +
+	 *            {@link Constant#PARAMETERTYPE_TYPE_MAX_EFF_NAME}
 	 * @return Map<Chapter, Maturity rate>
 	 */
-	public static Map<String, Double> ComputeMaturityByChapter(List<Measure> maturityMeasures, List<Parameter> parameters, List<AcronymParameter> expressionParameters) {
+	public static Map<String, Double> ComputeMaturityByChapter(List<Measure> maturityMeasures, List<IParameter> parameters, ValueFactory factory) {
 		Map<String, Double> maturities = new HashMap<>();
-		Map<String, MaturityParameter> mappedMaturityParameters = new HashMap<>(23);
-		Map<String, Parameter> efficiencyRates = new HashMap<>(6);
+		Map<String, IMaturityParameter> mappedMaturityParameters = new HashMap<>(23);
+		Map<String, IParameter> efficiencyRates = new HashMap<>(6);
 		parameters.forEach(parameter -> {
-			if (parameter instanceof MaturityParameter)
+			if (parameter instanceof IMaturityParameter)
 				mappedMaturityParameters.put(parameter.getDescription(), (MaturityParameter) parameter);
-			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
+			else if ((parameter instanceof SimpleParameter) && parameter.isMatch(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME))
 				efficiencyRates.put(parameter.getDescription(), parameter);
 		});
 
@@ -415,8 +420,8 @@ public class MeasureManager {
 			MeasureDescriptionText descriptionText = measure.getMeasureDescription().findByAlph3("eng");
 			if (descriptionText == null || !mappedMaturityParameters.containsKey(descriptionText.getDomain()))
 				continue;
-			MaturityParameter maturityMeasure = mappedMaturityParameters.get(descriptionText.getDomain());
-			double implementation = measure.getImplementationRateValue(expressionParameters) * 0.01;
+			IMaturityParameter maturityMeasure = mappedMaturityParameters.get(descriptionText.getDomain());
+			double implementation = measure.getImplementationRateValue(factory) * 0.01;
 			switch (chapters[1]) {
 			case "1":
 				complainces[0] &= implementation >= maturityMeasure.getSMLLevel1();
@@ -444,9 +449,9 @@ public class MeasureManager {
 				else
 					break;
 			}
-			Parameter parameter = efficiencyRates.get(sml);
+			IParameter parameter = efficiencyRates.get(sml);
 			if (parameter != null)
-				maturities.put(chapter, parameter.getValue());
+				maturities.put(chapter, parameter.getValue().doubleValue());
 		});
 		return maturities;
 	}

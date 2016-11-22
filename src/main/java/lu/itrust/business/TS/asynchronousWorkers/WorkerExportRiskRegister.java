@@ -11,9 +11,6 @@ import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
@@ -28,11 +25,9 @@ import org.springframework.util.FileCopyUtils;
 
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
-import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAORiskRegisterHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -40,14 +35,11 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
-import lu.itrust.business.TS.model.assessment.Assessment;
+import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.RiskProbaImpact;
-import lu.itrust.business.TS.model.cssf.RiskProfile;
-import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
-import lu.itrust.business.TS.model.cssf.helper.ParameterConvertor;
-import lu.itrust.business.TS.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.TS.model.general.WordReport;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -71,8 +63,6 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 	private DAOAnalysis daoAnalysis;
 
 	private DAOWordReport daoWordReport;
-
-	private DAORiskRegister daoRiskRegister;
 
 	private MessageSource messageSource;
 
@@ -160,7 +150,6 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			daoAnalysis = new DAOAnalysisHBM(session);
 			daoWordReport = new DAOWordReportHBM(session);
 			daoUser = new DAOUserHBM(session);
-			daoRiskRegister = new DAORiskRegisterHBM(session);
 			session.beginTransaction();
 			long reportId = processing();
 			session.getTransaction().commit();
@@ -209,38 +198,17 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		int progress = 2, max = 90, size, index = 0;
-		RiskSheetComputation computation = new RiskSheetComputation(analysis);
 		InputStream inputStream = null;
 		XWPFDocument document = null;
 		OutputStream outputStream = null;
 		OPCPackage opcPackage = null;
+		MessageHandler messageHandler = null;
 		File workFile = null;
 		try {
 			Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.backup", "Backup of user changes", progress));
-			Map<String, RiskRegisterItem> oldRiskRegister = analysis.getRiskRegisters().stream().collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
-			MessageHandler messageHandler = computation.computeRiskRegister();
-			if (messageHandler != null)
-				throw messageHandler.getException();
-			ParameterConvertor convertor = computation.getConvertor();
-			Map<String, RiskProfile> riskProfilesMap = analysis.getRiskProfiles().stream().filter(RiskProfile::isSelected)
-					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
-			if (!oldRiskRegister.isEmpty()) {
-				List<RiskRegisterItem> registerItems = analysis.getRiskRegisters();
-				for (int i = 0; i < registerItems.size(); i++) {
-					RiskRegisterItem current = registerItems.get(i);
-					RiskRegisterItem registerItem = oldRiskRegister.remove(current.getKey());
-					if (registerItem == null)
-						continue;
-					registerItems.set(i, registerItem.merge(current));
-				}
-				if (!oldRiskRegister.isEmpty()) {
-					oldRiskRegister.values().forEach(riskRegister -> daoRiskRegister.delete(riskRegister));
-					oldRiskRegister.clear();
-				}
-			}
-
+			List<Estimation> estimations = Estimation.GenerateEstimation(analysis, new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.risk_register.template", "Loading risk register template", progress += 5));
 			workFile = new File(
 					String.format("%s/tmp/RISK_REGISTER_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
@@ -250,52 +218,31 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 					"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
 			opcPackage.save(workFile);
 			document = new XWPFDocument(inputStream = new FileInputStream(workFile));
-			serviceTaskFeedback.send(getId(), new MessageHandler("info.preparing.risk_register.data", "Preparing risk register template", progress += 8));
-			Map<String, Assessment> assessments = analysis.getAssessments().stream().filter(assessment -> assessment.isSelected())
-					.collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.generating.risk_register", "Generating risk register", progress += 8));
 			size = analysis.getRiskRegisters().size();
 			XWPFTable table = getTable(document, 0);// lib contains a bug
 			if (table == null)
 				throw new IllegalArgumentException(String.format("Please check risk register template: %s", doctemplate.getPath()));
-			for (RiskRegisterItem registerItem : analysis.getRiskRegisters()) {
-				Assessment assessment = assessments.get(Assessment.key(registerItem.getAsset(), registerItem.getScenario()));
-				RiskProfile riskProfile = riskProfilesMap.get(RiskProfile.key(registerItem.getAsset(), registerItem.getScenario()));
+			for (Estimation estimation : estimations) {
 				XWPFTableRow row = index == 0 ? table.getRow(table.getRows().size() - 1) : table.createRow();
-				String scenarioType = riskProfile.getScenario().getType().getName();
+				String scenarioType = estimation.getScenario().getType().getName();
 				addInt(index + 1, row, 0);
-				addString(riskProfile.getIdentifier(), row, 1);
+				addString(estimation.getIdentifier(), row, 1);
 				addString(getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(), scenarioType, locale), row, 2);
-				addString(riskProfile.getScenario().getName(), row, 3);
-				addString(riskProfile.getAsset().getName(), row, 4);
-				RiskProbaImpact netImpact = new RiskProbaImpact(), raw = riskProfile.getExpProbaImpact(), expected = riskProfile.getExpProbaImpact();
-				netImpact.setImpactFin(convertor.getImpact(assessment.getImpactFin()));
-				netImpact.setImpactLeg(convertor.getImpact(assessment.getImpactLeg()));
-				netImpact.setImpactOp(convertor.getImpact(assessment.getImpactOp()));
-				netImpact.setImpactRep(convertor.getImpact(assessment.getImpactRep()));
-				netImpact.setProbability(convertor.getProbability(assessment.getLikelihood()));
-				if (raw == null) {
-					raw = new RiskProbaImpact();
-					raw.setImpactFin(convertor.getImpact(registerItem.getRawEvaluation().getImpact()));
-					raw.setProbability(convertor.getProbability(registerItem.getRawEvaluation().getProbability()));
-				}
+				addString(estimation.getScenario().getName(), row, 3);
+				addString(estimation.getAsset().getName(), row, 4);
 
-				if (expected == null) {
-					expected = new RiskProbaImpact();
-					expected.setImpactFin(convertor.getImpact(registerItem.getExpectedEvaluation().getImpact()));
-					expected.setProbability(convertor.getProbability(registerItem.getExpectedEvaluation().getProbability()));
-				}
+				addField(estimation.getRawProbaImpact(), row, 5);
+				addField(estimation.getNetEvaluation(), row, 8);
+				addField(estimation.getExpProbaImpact(), row, 11);
 
-				addField(raw, row, 5);
-				addField(netImpact, row, 8);
-				addField(expected, row, 11);
-				RiskStrategy strategy = riskProfile.getRiskStrategy();
+				RiskStrategy strategy = estimation.getRiskStrategy();
 				if (strategy == null)
 					strategy = RiskStrategy.ACCEPT;
 				String response = strategy.getNameToLower();
 				addString(getMessage("label.risk_register.strategy." + response, response, locale), row, 14);
-				addString(assessment.getOwner(), row, 15);
-				messageHandler.setProgress((int) (progress + (++index / (double) size) * (max-progress)));
+				addString(estimation.getOwner(), row, 15);
+				messageHandler.setProgress((int) (progress + (++index / (double) size) * (max - progress)));
 			}
 			serviceTaskFeedback.send(getId(), messageHandler = new MessageHandler("info.saving.risk_register", "Saving risk register", max));
 			document.write(outputStream = new FileOutputStream(workFile));
@@ -324,8 +271,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 			if (workFile != null && workFile.exists() && !workFile.delete())
 				workFile.deleteOnExit();
-			
-			if(opcPackage!=null)
+
+			if (opcPackage != null)
 				opcPackage.close();
 		}
 	}

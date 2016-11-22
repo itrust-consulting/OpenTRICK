@@ -28,10 +28,11 @@ import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
+import lu.itrust.business.TS.database.dao.DAODynamicParameter;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
-import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.dao.DAOScenario;
+import lu.itrust.business.TS.database.dao.DAOSimpleParameter;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.exception.TrickException;
@@ -47,8 +48,8 @@ import lu.itrust.business.TS.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.rrf.RRF;
 import lu.itrust.business.TS.model.rrf.RRFAsset;
 import lu.itrust.business.TS.model.rrf.RRFAssetType;
@@ -95,7 +96,10 @@ public class ChartGenerator {
 	private DAOAssetType daoAssetType;
 
 	@Autowired
-	private DAOParameter daoParameter;
+	private DAODynamicParameter daoDynamicParameter;
+
+	@Autowired
+	private DAOSimpleParameter daoSimpleParameter;
 
 	@Autowired
 	private DAOAnalysisStandard daoAnalysisStandard;
@@ -398,7 +402,7 @@ public class ChartGenerator {
 	 * @param measures
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures, List<AcronymParameter> expressionParameters) {
+	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures, ValueFactory factory) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
 			if (measure.getMeasureDescription().isComputable()) {
@@ -408,7 +412,7 @@ public class ChartGenerator {
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
 
 				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
-					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue(expressionParameters);
+					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue(factory);
 					compliance[0] = (Integer) compliance[0] + 1;
 				}
 			}
@@ -426,11 +430,11 @@ public class ChartGenerator {
 	 * @return
 	 * @throws Exception
 	 */
-	public String compliance(Locale locale, ComplianceChartData... measureChartDatas)  {
+	public String compliance(Locale locale, ComplianceChartData... measureChartDatas) {
 
 		ComplianceChartData reference = measureChartDatas[0];
 
-		Map<String, Object[]> compliances = ComputeComplianceBefore(reference.getMeasures(), reference.getAnalysisExpressionParameters());
+		Map<String, Object[]> compliances = ComputeComplianceBefore(reference.getMeasures(), reference.getFactory());
 
 		JsonChart chart = new JsonChart("\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}",
 				"\"title\": { \"marginLeft\": -50, \"text\":\""
@@ -451,15 +455,15 @@ public class ChartGenerator {
 			for (String key : compliances.keySet()) {
 				Object[] compliance = compliances.get(key);
 				data += (data.isEmpty() ? "" : ",") + (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
-				categories += (categories.isEmpty() ? "" : ",") + "\""+key+"\"";
+				categories += (categories.isEmpty() ? "" : ",") + "\"" + key + "\"";
 			}
-			
+
 			series += (series.isEmpty() ? "" : ",") + "{\"name\":\"" + reference.getAnalysisKey() + "\", \"data\":[" + data + "],\"valueDecimals\": 0}";
-			
+
 			if (measureChartDatas.length > 1) {
 				Collection<String> keys = compliances.keySet();
 				for (int i = 1; i < measureChartDatas.length; i++) {
-					compliances = ComputeComplianceBefore(measureChartDatas[i].getMeasures(), measureChartDatas[i].getAnalysisExpressionParameters());
+					compliances = ComputeComplianceBefore(measureChartDatas[i].getMeasures(), measureChartDatas[i].getFactory());
 					data = "";
 					for (String key : keys) {
 						Object[] compliance = compliances.get(key);
@@ -474,7 +478,7 @@ public class ChartGenerator {
 			chart.setxAxis(String.format("\"xAxis\":{\"categories\":[%s]}", categories));
 			chart.setSeries(String.format("\"series\":[%s]", series));
 		}
-		
+
 		return chart.toString();
 	}
 
@@ -489,9 +493,8 @@ public class ChartGenerator {
 	 * @return
 	 */
 	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase, Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences,
-			List<AcronymParameter> expressionParameters) {
+			ValueFactory factory) {
 		Map<String, Object[]> compliances = previouscompliences;
-
 		for (Measure measure : measures) {
 			if (measure.getPhase().getNumber() == phase.getNumber() && measure.getMeasureDescription().isComputable()) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
@@ -499,7 +502,7 @@ public class ChartGenerator {
 				if (compliance == null)
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
 				if (actionPlanMeasures.containsKey(measure.getId()) && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue(expressionParameters));
+					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue(factory));
 			}
 		}
 		return compliances;
@@ -516,11 +519,12 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	public String compliance(int idAnalysis, String standard, Locale locale) throws Exception {
+
 		List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
 
-		List<AcronymParameter> expressionParameters = daoParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+		ValueFactory factory = new ValueFactory(daoDynamicParameter.findByAnalysisId(idAnalysis));
 
-		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, expressionParameters);
+		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, factory);
 
 		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
@@ -589,7 +593,7 @@ public class ChartGenerator {
 
 				Map<String, Object[]> compliances = null;
 
-				compliances = ComputeCompliance(measures, phase, actionPlanMeasures, previouscompliances, expressionParameters);
+				compliances = ComputeCompliance(measures, phase, actionPlanMeasures, previouscompliances, factory);
 
 				previouscompliances = compliances;
 
@@ -1130,7 +1134,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
@@ -1165,7 +1169,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAsset> computeRRFByAssetMeasure(AssetMeasure measure, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAsset> rrfs = new LinkedHashMap<String, RRFAsset>(measure.getMeasureAssetValues().size());
 		if (measure.getMeasureAssetValues().size() == 0)
 			throw new TrickException("error.rrf.measure.no_assets", "The measure " + measure.getMeasureDescription().getReference() + " does not have any assets attributed!",
@@ -1193,7 +1197,7 @@ public class ChartGenerator {
 	}
 
 	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
+		IParameter parameter = daoSimpleParameter.findByAnalysisIdAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
 		if (scenario.getAssetTypeValues().size() == 0)
 			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!",
@@ -1270,7 +1274,14 @@ public class ChartGenerator {
 				.filter(user -> user.hasRole(RoleType.ROLE_IDS)).map(user -> user.getLogin()).collect(Collectors.toList());
 
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter returns -1 in case of a failure
+		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0")); // getParameter
+																						// returns
+																						// -1
+																						// in
+																						// case
+																						// of
+																						// a
+																						// failure
 
 		// Determine time-related stuff
 		final long timeUpperBound = Instant.now().getEpochSecond();
@@ -1322,7 +1333,9 @@ public class ChartGenerator {
 		jsonSeries = jsonSeries.substring(0, jsonSeries.length() - 1) + "]";
 
 		// Build JSON data
-		//final String unitPerYear = messageSource.getMessage("label.assessment.likelihood.unit", null, "/y", locale); // use with JSONObject.escape(unitPerYear)
+		// final String unitPerYear =
+		// messageSource.getMessage("label.assessment.likelihood.unit", null,
+		// "/y", locale); // use with JSONObject.escape(unitPerYear)
 		final String jsonChart = "\"chart\": {\"type\": \"column\", \"zoomType\": \"xy\", \"marginTop\": 50}, \"scrollbar\": {\"enabled\": false}";
 		final String jsonTitle = "\"title\": {\"text\":\""
 				+ JSONObject.escape(messageSource.getMessage("label.title.chart.dynamic", null, "Evolution of dynamic parameters", locale)) + "\"}";
@@ -1413,7 +1426,7 @@ public class ChartGenerator {
 	private <TAggregator> String aleEvolution(Analysis analysis, List<Assessment> assessments, Locale locale, Function<Assessment, TAggregator> aggregator,
 			Function<TAggregator, String> axisLabelProvider, String chartTitle) throws Exception {
 		final List<AnalysisStandard> standards = analysis.getAnalysisStandards();
-		final List<Parameter> allParameters = analysis.getParameters();
+		final List<IParameter> allParameters = analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_SIMPLE);
 		final long now = Instant.now().getEpochSecond();
 
 		// Find the user names of all sources involved

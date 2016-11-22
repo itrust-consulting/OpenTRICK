@@ -2,6 +2,7 @@ package lu.itrust.TS.controller;
 
 import static lu.itrust.TS.controller.TS_02_InstallApplication.ME_CUSTOMER;
 import static lu.itrust.TS.helper.TestSharingData.getInteger;
+import static lu.itrust.TS.helper.TestSharingData.getLong;
 import static lu.itrust.TS.helper.TestSharingData.put;
 import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE;
 import static lu.itrust.business.TS.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED;
@@ -58,10 +59,8 @@ import org.testng.annotations.Test;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
-import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
@@ -190,9 +189,10 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		isNull(worker.getError(), "An error occured while compute action plan");
 	}
 
-	@Test(timeOut = 120000, dependsOnMethods = "test_01_CheckImportedAnalysis")
-	public synchronized void test_03_ComputeRiskRegister() throws Exception {
-		Integer idAnalysis = getInteger(ANALYSIS_KEY);
+	//@Test(timeOut = 120000, dependsOnMethods = "test_01_CheckImportedAnalysis")
+	@Deprecated
+	protected synchronized void test_03_ComputeRiskRegister() throws Exception {
+		/*Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis)
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
@@ -215,7 +215,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
-		isNull(worker.getError(), "An error occured while compute risk register");
+		isNull(worker.getError(), "An error occured while compute risk register");*/
 	}
 
 	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
@@ -319,9 +319,10 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			assertEquals((double) expectedData[i], (double) actualData.get(i), 1E-2);
 	}
 
-	@Test(dependsOnMethods = "test_03_ComputeRiskRegister")
+	//@Test(dependsOnMethods = "test_03_ComputeRiskRegister")
+	@Deprecated
 	@Transactional(readOnly = true)
-	public void test_05_CheckRiskRegister() throws Exception {
+	protected void test_05_CheckRiskRegister() throws Exception {
 		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
 		notNull(analysis, String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
 		List<Object[]> data = new ArrayList<Object[]>(6);
@@ -352,7 +353,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 	}
 
-	@Test(dependsOnMethods = { "test_02_ComputeActionPlan", "test_03_ComputeRiskRegister" })
+	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
 	public synchronized void test_04_ExportSQLite() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
@@ -393,21 +394,27 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		notEmpty(messageHandler.getAsyncCallback().getArgs(), "AsyncCallback args should not be empty");
 
-		put("key_sql_export", Integer.parseInt(messageHandler.getAsyncCallback().getArgs().get(0)));
+		put("key_sql_export", Long.parseLong(messageHandler.getAsyncCallback().getArgs().get(0)));
 	}
 
 	@Test(dependsOnMethods = "test_04_ExportSQLite")
 	public void test_05_DownloadSQLite() throws Exception {
-		MvcResult result = this.mockMvc.perform(get(String.format("/Profile/Sqlite/%d/Download", getInteger("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
-				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
-		notNull(result, "No result");
-		MockHttpServletResponse response = result.getResponse();
-		assertTrue("Bad length", response.getContentLength() / 1048576.0 >= 1E-2);
-		assertEquals("Bad content-disposition", "attachment; filename=\"ENG_2015_07_13_07_31_14.sqlite\"", response.getHeaderValue("Content-Disposition"));
-		assertEquals("Bad contentType", "sqlite", response.getContentType());
+		try {
+			MvcResult result = this.mockMvc.perform(get(String.format("/Profile/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+					.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andReturn();
+			notNull(result, "No result");
+			MockHttpServletResponse response = result.getResponse();
+			assertTrue("Bad length", response.getContentLength() / 1048576.0 >= 1E-2);
+			assertEquals("Bad content-disposition", "attachment; filename=\"ENG_2015_07_13_07_31_14.sqlite\"", response.getHeaderValue("Content-Disposition"));
+			assertEquals("Bad contentType", "sqlite", response.getContentType());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
-	@Test(dependsOnMethods = { "test_02_ComputeActionPlan", "test_03_ComputeRiskRegister" })
+	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
 	public synchronized void test_06_ExportReport() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");

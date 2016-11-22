@@ -25,9 +25,9 @@ import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
-import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceParameterType;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
@@ -40,8 +40,8 @@ import lu.itrust.business.TS.model.general.LogLevel;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.NormalStandard;
@@ -86,7 +86,7 @@ public class ControllerPatch {
 	private ServiceParameterType serviceParameterType;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
+	private ServiceSimpleParameter serviceSimpleParameter;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -136,7 +136,7 @@ public class ControllerPatch {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-			assessmentAndRiskProfileManager.UpdateAssessment();
+			assessmentAndRiskProfileManager.updateAssessment();
 			errors.put("success", messageSource.getMessage("success.assessments.update.all", null, "All assessments were successfully updated", locale));
 			return errors;
 		} catch (Exception e) {
@@ -188,12 +188,12 @@ public class ControllerPatch {
 				Analysis analysis = analyses.remove(0);
 				if (analysis.getRiskInformations().isEmpty()) {
 					for (RiskInformation riskInformation : profile.getRiskInformations())
-						analysis.addARiskInformation(riskInformation.duplicate());
+						analysis.add(riskInformation.duplicate());
 				}
 
 				if (analysis.getItemInformations().isEmpty()) {
 					for (ItemInformation itemInformation : profile.getItemInformations())
-						analysis.addAnItemInformation(itemInformation.duplicate());
+						analysis.add(itemInformation.duplicate());
 				}
 
 				serviceAnalysis.saveOrUpdate(analysis);
@@ -231,7 +231,7 @@ public class ControllerPatch {
 					saveRequired = false;
 					for (String scopeName : extendedScopes) {
 						if (!analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName))) {
-							analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
+							analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 							saveRequired = true;
 						}
 					}
@@ -321,19 +321,19 @@ public class ControllerPatch {
 			int size = serviceAnalysis.countNotEmpty(), pageSize = 30;
 			ParameterType parameterType = serviceParameterType.get(Constant.PARAMETERTYPE_TYPE_CSSF);
 			if (parameterType == null)
-				serviceParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF, Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
+				serviceParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
 			for (int pageIndex = 1, pageCount = (size / pageSize) + 1; pageIndex <= pageCount; pageIndex++) {
 				for (Analysis analysis : serviceAnalysis.getAllNotEmpty(pageIndex, pageSize)) {
 					if (!analysis.hasParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME)) {
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
-						analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+						analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
 					}
-					Parameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD);
-					if (parameter != null && analysis.getParameters().remove(parameter))
-						serviceParameter.delete(parameter);
+					SimpleParameter parameter = analysis.findSimpleParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.IMPORTANCE_THRESHOLD);
+					if (parameter != null && analysis.getSimpleParameters().remove(parameter))
+						serviceSimpleParameter.delete(parameter);
 					serviceAnalysis.saveOrUpdate(analysis);
 				}
 			}

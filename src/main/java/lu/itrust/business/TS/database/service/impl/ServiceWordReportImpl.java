@@ -29,7 +29,7 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#get(java.lang.Integer)
 	 */
 	@Override
-	public WordReport get(Integer id) {
+	public WordReport get(Long id) {
 		return daoWordReport.get(id);
 	}
 
@@ -45,7 +45,7 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	 * @see lu.itrust.business.TS.database.service.ServiceWordReport#getByIdAndUser(java.lang.Integer, java.lang.String)
 	 */
 	@Override
-	public WordReport getByIdAndUser(Integer id, String username) {
+	public WordReport getByIdAndUser(Long id, String username) {
 		return daoWordReport.getByIdAndUser(id, username);
 	}
 
@@ -105,7 +105,7 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer id) {
+	public void delete(Long id) {
 		daoWordReport.delete(id);
 	}
 

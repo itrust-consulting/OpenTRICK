@@ -69,8 +69,8 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 *      java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByIdAndUser(Integer idFile, String username)  {
-		return daoUserSqLite.getByIdAndUser(idFile, username);
+	public UserSQLite getByIdAndUser(Integer id, String username)  {
+		return daoUserSqLite.getByIdAndUser(id, username);
 	}
 
 	/**
@@ -164,8 +164,8 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 */
 	@Transactional
 	@Override
-	public void delete(Integer idUserSqLite)  {
-		daoUserSqLite.delete(idUserSqLite);
+	public void delete(Integer id)  {
+		daoUserSqLite.delete(id);
 	}
 
 	/**

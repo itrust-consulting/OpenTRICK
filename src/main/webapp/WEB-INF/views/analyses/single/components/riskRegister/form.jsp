@@ -25,7 +25,7 @@
 						<div class='col-xs-3'>
 							<select name="filter.impact" class="form-control">
 								<c:forEach items="${impacts}" var="impact">
-									<option value="${type == 'RAW'? impact.level :  impact.value}" ${impact.level==cssfImpactThreshold.value?'selected':''}><spring:message code='label.level.index'
+									<option value="${impact.level}" ${impact.level==cssfImpactThreshold.value?'selected':''}><spring:message code='label.level.index'
 											arguments="${impact.level}" /></option>
 								</c:forEach>
 							</select>
@@ -37,7 +37,7 @@
 						<div class='col-xs-3'>
 							<select name="filter.probability" class="form-control">
 								<c:forEach items="${probabilities}" var="probability">
-									<option value="${type == 'RAW'? probability.level : probability.value}" ${probability.level==cssfProbabilityThreshold.value?'selected':''}><spring:message
+									<option value="${probability.level}" ${probability.level==cssfProbabilityThreshold.value?'selected':''}><spring:message
 											code='label.level.index' arguments="${probability.level}" /></option>
 								</c:forEach>
 							</select>

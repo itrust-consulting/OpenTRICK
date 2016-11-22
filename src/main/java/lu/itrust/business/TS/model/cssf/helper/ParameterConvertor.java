@@ -12,49 +12,52 @@ import java.util.stream.Collectors;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.ILevelParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 
 /**
  * @author eomar
  *
  */
+@Deprecated
 public class ParameterConvertor {
 
-	private List<ExtendedParameter> impactsParameters;
+	private List<ImpactParameter> impactsParameters;
 
-	private List<ExtendedParameter> probabilityParameters;
+	private List<ImpactParameter> probabilityParameters;
 
-	private Map<String, ExtendedParameter> mapProbabilities;
+	private Map<String, ImpactParameter> mapProbabilities;
 
-	private Map<String, ExtendedParameter> mapImpacts;
+	private Map<String, ImpactParameter> mapImpacts;
 
-	public ParameterConvertor(List<ExtendedParameter> impacts, List<ExtendedParameter> probabilities) {
+	public ParameterConvertor(List<ImpactParameter> impacts, List<ImpactParameter> probabilities) {
 		setImpactsParameters(impacts);
 		setProbabilityParameters(probabilities);
 	}
 
-	public ParameterConvertor(List<? extends Parameter> parameters) {
-		setImpactsParameters(new ArrayList<ExtendedParameter>(11));
-		setProbabilityParameters(new ArrayList<ExtendedParameter>(11));
-		for (Parameter parameter : parameters) {
-			if (parameter instanceof ExtendedParameter) {
-				ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
-				if (extendedParameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
-					probabilityParameters.add(extendedParameter);
-				else if (extendedParameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					impactsParameters.add(extendedParameter);
+	public ParameterConvertor(List<? extends SimpleParameter> simpleParameters) {
+		setImpactsParameters(new ArrayList<ImpactParameter>(11));
+		setProbabilityParameters(new ArrayList<ImpactParameter>(11));
+		for (IParameter parameter : simpleParameters) {
+			if (parameter instanceof ImpactParameter) {
+				ImpactParameter impactParameter = (ImpactParameter) parameter;
+				if (impactParameter.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+					probabilityParameters.add(impactParameter);
+				else if (impactParameter.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+					impactsParameters.add(impactParameter);
 			}
 		}
 		impactsParameters.sort(Comporator());
 		probabilityParameters.sort(Comporator());
 	}
 
-	private Comparator<? super ExtendedParameter> Comporator() {
+	private Comparator<? super ImpactParameter> Comporator() {
 		return (P1, P2) -> Integer.compare(P1.getLevel(), P2.getLevel());
 	}
 
-	public List<ExtendedParameter> getImpactsParameters() {
+	public List<ImpactParameter> getImpactsParameters() {
 		return impactsParameters;
 	}
 
@@ -62,25 +65,25 @@ public class ParameterConvertor {
 		if (probabilityParameters == null)
 			throw new TrickException("error.data.not_initialise", "Data does not initialise");
 		if (mapProbabilities == null || mapProbabilities.size() != probabilityParameters.size())
-			mapProbabilities = probabilityParameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
+			mapProbabilities = probabilityParameters.stream().collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
 	}
 
 	protected synchronized void initialiseMapImpact() {
 		if (impactsParameters == null)
 			throw new TrickException("error.data.not_initialise", "Data does not initialise");
 		if (mapImpacts == null || mapImpacts.size() != impactsParameters.size())
-			mapImpacts = impactsParameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
+			mapImpacts = impactsParameters.stream().collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
 	}
 
-	protected void setImpactsParameters(List<ExtendedParameter> impactsParameters) {
+	protected void setImpactsParameters(List<ImpactParameter> impactsParameters) {
 		this.impactsParameters = impactsParameters;
 	}
 
-	public List<ExtendedParameter> getProbabilityParameters() {
+	public List<ImpactParameter> getProbabilityParameters() {
 		return probabilityParameters;
 	}
 
-	protected void setProbabilityParameters(List<ExtendedParameter> probabilityParameters) {
+	protected void setProbabilityParameters(List<ImpactParameter> probabilityParameters) {
 		this.probabilityParameters = probabilityParameters;
 	}
 
@@ -132,7 +135,7 @@ public class ParameterConvertor {
 		return findByAcronym(acronym, getMapProbabilities()).getValue();
 	}
 
-	private ExtendedParameter findByValue(double value, List<ExtendedParameter> parameters) {
+	private ImpactParameter findByValue(double value, List<ImpactParameter> parameters) {
 		int mid = parameters.size() / 2;
 		if (parameters.get(mid).getBounds().isInRange(value))
 			return parameters.get(mid);
@@ -142,7 +145,7 @@ public class ParameterConvertor {
 			return findByValue(value, parameters.subList(mid, parameters.size()));
 	}
 
-	private ExtendedParameter findByLevel(int level, List<ExtendedParameter> parameters) {
+	private ImpactParameter findByLevel(int level, List<ImpactParameter> parameters) {
 		int mid = parameters.size() / 2;
 		if (parameters.get(mid).getLevel() == level)
 			return parameters.get(mid);
@@ -152,14 +155,14 @@ public class ParameterConvertor {
 			return findByLevel(level, parameters.subList(mid, parameters.size()));
 	}
 
-	private ExtendedParameter findByAcronym(String acronym, Map<String, ExtendedParameter> parameters) throws TrickException {
-		ExtendedParameter parameter = parameters.get(acronym);
+	private ImpactParameter findByAcronym(String acronym, Map<String, ImpactParameter> parameters) throws TrickException {
+		ImpactParameter parameter = parameters.get(acronym);
 		if (parameter == null)
 			throw new TrickException("error.acronym.not_found", String.format("Acronym (%s) cannot be resolve", acronym), acronym);
 		return parameter;
 	}
 
-	public ExtendedParameter getImpact(String impact) {
+	public ILevelParameter getImpact(String impact) {
 		try {
 			return findByValue(Double.parseDouble(impact), impactsParameters);
 		} catch (NumberFormatException e) {
@@ -167,11 +170,11 @@ public class ParameterConvertor {
 		}
 	}
 
-	public ExtendedParameter getImpact(double impact) {
+	public ILevelParameter getImpact(double impact) {
 		return findByValue(impact, impactsParameters);
 	}
 
-	public ExtendedParameter getProbability(String likelihood) {
+	public ILevelParameter getProbability(String likelihood) {
 		try {
 			return findByAcronym(likelihood, getMapProbabilities());
 		} catch (TrickException e) {
@@ -183,7 +186,7 @@ public class ParameterConvertor {
 		}
 	}
 
-	public ExtendedParameter getProbability(double likelihood) {
+	public ILevelParameter getProbability(double likelihood) {
 		return findByValue(likelihood, probabilityParameters);
 	}
 
@@ -210,7 +213,7 @@ public class ParameterConvertor {
 	/**
 	 * @return the mapProbabilities
 	 */
-	public Map<String, ExtendedParameter> getMapProbabilities() {
+	public Map<String, ImpactParameter> getMapProbabilities() {
 		if (mapProbabilities == null)
 			initialiseMapProbrabilities();
 		return mapProbabilities;
@@ -220,14 +223,14 @@ public class ParameterConvertor {
 	 * @param mapProbabilities
 	 *            the mapProbabilities to set
 	 */
-	public void setMapProbabilities(Map<String, ExtendedParameter> mapProbabilities) {
+	public void setMapProbabilities(Map<String, ImpactParameter> mapProbabilities) {
 		this.mapProbabilities = mapProbabilities;
 	}
 
 	/**
 	 * @return the mapImpacts
 	 */
-	public Map<String, ExtendedParameter> getMapImpacts() {
+	public Map<String, ImpactParameter> getMapImpacts() {
 		if (mapImpacts == null)
 			initialiseMapImpact();
 		return mapImpacts;
@@ -237,7 +240,7 @@ public class ParameterConvertor {
 	 * @param mapImpacts
 	 *            the mapImpacts to set
 	 */
-	public void setMapImpacts(Map<String, ExtendedParameter> mapImpacts) {
+	public void setMapImpacts(Map<String, ImpactParameter> mapImpacts) {
 		this.mapImpacts = mapImpacts;
 	}
 

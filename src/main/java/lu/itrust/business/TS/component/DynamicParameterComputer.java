@@ -10,18 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOIDS;
-import lu.itrust.business.TS.database.dao.DAOParameterType;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOIDSHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.TS.database.service.ServiceExternalNotification;
 import lu.itrust.business.TS.database.service.impl.ServiceExternalNotificationImpl;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.LogAction;
 import lu.itrust.business.TS.model.general.LogType;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
 
 /**
  * Component which allows to compute the values of dynamic parameters.
@@ -37,9 +34,6 @@ public class DynamicParameterComputer {
 	private DAOAnalysis daoAnalysis;
 
 	@Autowired
-	private DAOParameterType daoParameterType;
-
-	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
 
 	@Autowired
@@ -53,7 +47,6 @@ public class DynamicParameterComputer {
 
 	public DynamicParameterComputer(Session session, AssessmentAndRiskProfileManager assessmentManager) {
 		this.daoAnalysis = new DAOAnalysisHBM(session);
-		this.daoParameterType = new DAOParameterTypeHBM(session);
 		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
 		this.daoIDS = new DAOIDSHBM(session);
 		this.assessmentManager = assessmentManager;
@@ -93,22 +86,14 @@ public class DynamicParameterComputer {
 	 *            The analysis for which parameters shall be recomputed.
 	 */
 	private void computeForAnalysisAndSource(String userName, Analysis analysis) {
-		// Fetch the 'DYNAMIC' parameter type or create it, if if does not exist
-		// yet/anymore
-		ParameterType dynamicParameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
-		if (dynamicParameterType == null) {
-			dynamicParameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_DYNAMIC, Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
-			dynamicParameterType.setId(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
-		}
-
 		// Log
 		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.compute.dynamicparameters",
 				String.format("Updating dynamic parameters for analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), userName, LogAction.UPDATE,
 				analysis.getIdentifier(), analysis.getVersion());
 
 		// Get parameters
-		final double minimumProbability = Math.max(0.0, analysis.getParameter("p0"));
-
+		final double minimumProbability = Math.max(0.0, analysis.findParameterValueByTypeAndAcronym(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME,"p0"));
+		
 		/**
 		 * The maximum timestamp for all notifications to consider. Points to
 		 * NOW.
@@ -130,15 +115,11 @@ public class DynamicParameterComputer {
 		for (String parameterName : likelihoods.keySet()) {
 			DynamicParameter parameter = dynamicParameters.get(parameterName);
 			if (parameter == null) {
-				parameter = new DynamicParameter();
-				parameter.setAcronym(parameterName);
 				// The description/label of dynamic parameters is never used
 				// within TRICK service,
 				// we will set a value nevertheless to ease the work for a
 				// database maintainer. :-)
-				parameter.setDescription(String.format("dynamic:%s", parameterName));
-				parameter.setType(dynamicParameterType);
-				analysis.getParameters().add(parameter);
+				analysis.add(parameter = new DynamicParameter(parameterName,String.format("dynamic:%s", parameterName)));
 			}
 
 			// Remove entry from parameter map so that we know it has been
@@ -164,7 +145,7 @@ public class DynamicParameterComputer {
 		*/
 
 		// Update assessment to reflect the new values of the dynamic parameters
-		assessmentManager.UpdateAssessment(analysis);
+		assessmentManager.updateAssessment(analysis, null);
 
 		// Save everything
 		daoAnalysis.saveOrUpdate(analysis);

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -37,6 +38,7 @@ import org.springframework.context.MessageSource;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
@@ -53,9 +55,11 @@ import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IBoundedParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
 import lu.itrust.business.TS.model.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.model.scenario.Scenario;
@@ -271,13 +275,14 @@ public class ExportAnalysisReport {
 	}
 
 	private void updateProperties() {
-		Optional<Parameter> maxImplParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD)).findAny();
+		Optional<SimpleParameter> maxImplParameter = analysis.getSimpleParameters().stream().filter(parameter -> parameter.getDescription().equals(Constant.SOA_THRESHOLD))
+				.findAny();
 		if (maxImplParameter.isPresent()) {
 			CTProperty soaThresholdProperty = document.getProperties().getCustomProperties().getProperty(MAX_IMPL);
 			if (soaThresholdProperty == null)
-				document.getProperties().getCustomProperties().addProperty(MAX_IMPL, (int) maxImplParameter.get().getValue());
+				document.getProperties().getCustomProperties().addProperty(MAX_IMPL, maxImplParameter.get().getValue().intValue());
 			else
-				soaThresholdProperty.setLpwstr(String.valueOf((int) maxImplParameter.get().getValue()));
+				soaThresholdProperty.setLpwstr(maxImplParameter.get().getValue().intValue() + "");
 		}
 
 		CTProperty nonApplicable = document.getProperties().getCustomProperties().getProperty(_27001_NA_MEASURES);
@@ -305,14 +310,6 @@ public class ExportAnalysisReport {
 			return result.get();
 		}
 		return null;
-	}
-
-	private String formatedImpact(String impactFin) {
-		try {
-			return kEuroFormat.format(Double.parseDouble(impactFin) * 0.001);
-		} catch (Exception e) {
-			return impactFin;
-		}
 	}
 
 	private String formatLikelihood(String likelihood) {
@@ -896,7 +893,10 @@ public class ExportAnalysisReport {
 					while (row.getTableCells().size() < 6)
 						row.addNewTableCell();
 					row.getCell(0).setText(assessment.getScenario().getName());
-					setCellText(row.getCell(1), formatedImpact(assessment.getImpactFin()), ParagraphAlignment.CENTER);
+					IValue impact = assessment.getImpact(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+					if (impact == null)
+						throw new TrickException("error.analysis.repport.unsupported", "Analysis cannot export repport");
+					setCellText(row.getCell(1), kEuroFormat.format(impact.getReal() * 0.001), ParagraphAlignment.CENTER);
 					setCellText(row.getCell(2), formatLikelihood(assessment.getLikelihood()), ParagraphAlignment.CENTER);
 					addCellNumber(row.getCell(3), kEuroFormat.format(assessment.getALE() * 0.001));
 					addCellParagraph(row.getCell(4), assessment.getOwner());
@@ -1045,11 +1045,11 @@ public class ExportAnalysisReport {
 			return;
 		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
 		List<Measure> measures = (List<Measure>) analysis.findMeasureByStandard(standard);
-		List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
+		ValueFactory factory = new ValueFactory(analysis.getDynamicParameters());
 		if (measures == null)
 			return;
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, expressionParameters);
+		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, factory);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
 		if (xssfSheet.getRow(rowCount) == null)
@@ -1076,7 +1076,7 @@ public class ExportAnalysisReport {
 			List<Phase> phases = analysis.findUsablePhase();
 			int columnIndex = 2;
 			for (Phase phase : phases) {
-				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, expressionParameters);
+				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances, factory);
 				if (xssfSheet.getRow(rowCount = 0) == null)
 					xssfSheet.createRow(rowCount);
 				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
@@ -1160,6 +1160,7 @@ public class ExportAnalysisReport {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void generateExtendedParameters(String type) throws Exception {
 		XWPFParagraph paragraph = null;
 		XWPFTable table = null;
@@ -1172,16 +1173,9 @@ public class ExportAnalysisReport {
 
 		paragraph = findTableAnchor("<" + parmetertype + ">");
 
-		List<Parameter> parameters = analysis.getParameters();
+		List<IBoundedParameter> parameters = (List<IBoundedParameter>) analysis.findParametersByType(type);
 
-		List<ExtendedParameter> extendedParameters = new ArrayList<ExtendedParameter>();
-
-		for (Parameter parameter : parameters) {
-			if (parameter.getType().getLabel().equals(type))
-				extendedParameters.add((ExtendedParameter) parameter);
-		}
-
-		if (paragraph != null && extendedParameters.size() > 0) {
+		if (paragraph != null && parameters.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);
@@ -1220,38 +1214,37 @@ public class ExportAnalysisReport {
 			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
 			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
 
-			int countrow = 0;
+			int countrow = 0, length = parameters.size()-1;
 			// set data
-			for (ExtendedParameter extendedParameter : extendedParameters) {
+			for (IBoundedParameter parameter : parameters) {
 				row = table.createRow();
 
 				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
-				row.getCell(0).setText("" + extendedParameter.getLevel());
-				row.getCell(1).setText(extendedParameter.getAcronym());
-				row.getCell(2).setText(extendedParameter.getDescription());
+				row.getCell(0).setText("" + parameter.getLevel());
+				row.getCell(1).setText(parameter.getAcronym());
+				row.getCell(2).setText(parameter.getDescription());
 				Double value = 0.;
-				value = extendedParameter.getValue();
+				value = parameter.getValue();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(3), kEuroFormat.format(value));
 				if (countrow % 2 != 0)
 					row.getCell(3).setColor(SUB_HEADER_COLOR);
-				value = extendedParameter.getBounds().getFrom();
+				value = parameter.getBounds().getFrom();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(4), kEuroFormat.format(value));
-				if (extendedParameter.getLevel() == 10)
+				if (parameter.getLevel() == length)
 					addCellNumber(row.getCell(5), "+∞");
 				else {
-					value = extendedParameter.getBounds().getTo();
+					value = parameter.getBounds().getTo();
 					if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 						value *= 0.001;
 					addCellNumber(row.getCell(5), kEuroFormat.format(value));
 				}
 				for (int i = 4; i < 6; i++)
 					row.getCell(i).setColor(SUB_HEADER_COLOR);
-
 				countrow++;
 			}
 		}
@@ -1356,7 +1349,8 @@ public class ExportAnalysisReport {
 		// run = paragraph.getRuns().get(0);
 
 		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
-		List<AcronymParameter> expressionParameters = this.analysis.getExpressionParameters();
+		Map<String, Double> expressionParameters = this.analysis.getDynamicParameters().stream()
+				.collect(Collectors.toMap(DynamicParameter::getAcronym, DynamicParameter::getValue));
 
 		if (paragraph != null && analysisStandards.size() > 0) {
 

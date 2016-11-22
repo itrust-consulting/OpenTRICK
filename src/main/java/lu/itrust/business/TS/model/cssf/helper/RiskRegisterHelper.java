@@ -8,7 +8,7 @@ import lu.itrust.business.TS.model.cssf.EvaluationResult;
 
 /**
  * @author eomar
- *
+ * Used into riskRegister JSP
  */
 public class RiskRegisterHelper {
 	/** The Net Evaluation Data (Probability, Impact and Importance) */

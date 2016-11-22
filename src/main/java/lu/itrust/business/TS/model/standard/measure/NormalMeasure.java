@@ -25,6 +25,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.AssetTypeValue;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.expressions.StringExpressionParser;
 
@@ -43,6 +44,7 @@ import lu.itrust.business.expressions.StringExpressionParser;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idNormalMeasure")
+//@DiscriminatorValue("NORMAL")
 public class NormalMeasure extends Measure {
 
 	/***********************************************************************************************
@@ -212,9 +214,18 @@ public class NormalMeasure extends Measure {
 	 */
 	@Override
 	@Transient
-	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
+	public double getImplementationRateValue(ValueFactory factory) {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate())).evaluate(dynamicParameters);
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
+		} catch (Exception ex) {
+			return 0.0;
+		}
+	}
+	
+	@Override
+	public double getImplementationRateValue(Map<String, Double> factory) {
+		try {
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -241,7 +252,7 @@ public class NormalMeasure extends Measure {
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof String) && !(implementationRate instanceof Double))
+		if (!(implementationRate instanceof String || implementationRate instanceof Double))
 			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
 		super.setImplementationRate(implementationRate.toString());
 	}
@@ -329,5 +340,4 @@ public class NormalMeasure extends Measure {
 			measure.assetTypeValues.add(assetTypeValue);
 		}
 	}
-
 }

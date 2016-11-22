@@ -77,10 +77,7 @@
   </head>
   <body paddingwidth="0" paddingheight="0"   style="padding-top: 0; padding-bottom: 0; padding-top: 0; padding-bottom: 0; background-repeat: repeat; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-font-smoothing: antialiased;" offset="0" toppadding="0" leftpadding="0">
     <table width="100%" border="0" cellspacing="0" cellpadding="0" class="tableContent bgBody" align="center"  style='font-family:Helvetica, Arial,serif;'>
-
-      
       <tr><td height='35'></td></tr>
-
       <tr>
         <td>
           <table width="600" border="0" cellspacing="0" cellpadding="0" align="center" class='bgItem'>

@@ -6,7 +6,8 @@ package lu.itrust.business.TS.component;
 import java.util.Collections;
 import java.util.List;
 
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
@@ -21,7 +22,7 @@ public class ComplianceChartData {
 
 	private List<Measure> measures = Collections.emptyList();
 
-	private List<AcronymParameter> analysisExpressionParameters = Collections.emptyList();
+	private ValueFactory factory = new ValueFactory(Collections.emptyList());
 
 	/**
 	 * 
@@ -40,14 +41,25 @@ public class ComplianceChartData {
 
 	/**
 	 * @param standard
-	 * @param analysis
+	 * @param analysisKey
 	 * @param measures
-	 * @param analysisExpressionParameters The expression parameters of the associated analysis.
+	 * @param factory
 	 */
-	public ComplianceChartData(String standard, String analysis, List<Measure> measures, List<AcronymParameter> analysisExpressionParameters) {
+	public ComplianceChartData(String standard, String analysis, List<Measure> measures, ValueFactory factory) {
 		this(standard, analysis);
 		this.measures = measures;
-		this.analysisExpressionParameters = analysisExpressionParameters;
+		this.factory = factory;
+	}
+
+	/**
+	 * @param standard
+	 * @param analysis
+	 * @param measures
+	 * @param analysisExpressionParameters
+	 *            The expression parameters of the associated analysis.
+	 */
+	public ComplianceChartData(String standard, String analysis, List<Measure> measures, List<IProbabilityParameter> analysisExpressionParameters) {
+		this(standard, analysis, measures, new ValueFactory(analysisExpressionParameters));
 	}
 
 	/**
@@ -73,7 +85,10 @@ public class ComplianceChartData {
 	}
 
 	/**
-	 * @param analysisKey A key which uniquely identifies this chart data in a compliance chart that compares the compliance of several analyses.
+	 * @param analysisKey
+	 *            A key which uniquely identifies this chart data in a
+	 *            compliance chart that compares the compliance of several
+	 *            analyses.
 	 */
 	public void setAnalysisKey(String analysisKey) {
 		this.analysisKey = analysisKey;
@@ -95,16 +110,17 @@ public class ComplianceChartData {
 	}
 
 	/**
-	 * Gets the expression parameters of the associated analysis. Used to evaluate the implementation rate. 
+	 * @return the factory
 	 */
-	public List<AcronymParameter> getAnalysisExpressionParameters() {
-		return analysisExpressionParameters;
+	public ValueFactory getFactory() {
+		return factory;
 	}
 
 	/**
-	 * Sets the expression parameters of the associated analysis. Used to evaluate the implementation rate. 
+	 * @param factory
+	 *            the factory to set
 	 */
-	public void setAnalysisExpressionParameters(List<AcronymParameter> analysisExpressionParameters) {
-		this.analysisExpressionParameters = analysisExpressionParameters;
+	public void setFactory(ValueFactory factory) {
+		this.factory = factory;
 	}
 }

@@ -302,7 +302,9 @@ public class ActionPlanEntry {
 	 * @throws TrickException
 	 */
 	public void setTotalALE(double totalALE) throws TrickException {
-		if (totalALE < 0)
+		if (Double.isNaN(totalALE))
+			throw new TrickException("error.action_plan_entry.total.ale.nan", "Please check your data: Total ALE is not a number");
+		else if (totalALE < 0)
 			throw new TrickException("error.action_plan_entry.total_ale", "Total ALE cannot be negative!");
 		this.totalALE = totalALE;
 	}
@@ -353,7 +355,9 @@ public class ActionPlanEntry {
 	 * @throws TrickException
 	 */
 	public void setCost(double cost) throws TrickException {
-		if (cost < 0)
+		if (Double.isNaN(cost))
+			throw new TrickException("error.action_plan_entry.cost.nan", "Please check your data: Cost is not a number");
+		else if (cost < 0)
 			throw new TrickException("error.action_plan_entry", "Cost cannot be negative");
 		this.cost = cost;
 		calculcateROI();

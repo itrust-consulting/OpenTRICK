@@ -1,5 +1,12 @@
 package lu.itrust.business.TS.model.assessment;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -8,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -15,11 +23,13 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.ManyToAny;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.IAcronymParameter;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
-
 
 /**
  * Assessment: <br>
@@ -35,7 +45,7 @@ import lu.itrust.business.TS.model.scenario.Scenario;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }) )
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
 public class Assessment implements Cloneable {
 
 	/***********************************************************************************************
@@ -44,7 +54,7 @@ public class Assessment implements Cloneable {
 
 	/** identifier from the database */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idAssessment")
 	private int id = -1;
 
@@ -57,28 +67,21 @@ public class Assessment implements Cloneable {
 	private String comment = "";
 
 	/** hidden assessment comment */
-	@Column(name = "dtHiddenComment", nullable = false, length=16777216)
+	@Column(name = "dtHiddenComment", nullable = false, length = 16777216)
 	private String hiddenComment = "";
 
 	/** hidden assessment comment */
 	@Column(name = "dtOwner")
 	private String owner = "";
 
-	/** The impactFin value of this assessment */
-	@Column(name = "dtImpactRep", nullable = false)
-	private String impactRep = "0";
+	@ManyToAny(metaDef = "VALUE_META_DEF", metaColumn = @Column(name = "dtValueType"))
+	@Cascade(CascadeType.ALL)
+	@JoinTable(name = "AssessmentImpacts", joinColumns = @JoinColumn(name = "fiAssessment"), inverseJoinColumns = @JoinColumn(name = "fiValue"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"fiAssessment", "fiValue" }))
+	private List<IValue> impacts = new LinkedList<>();
 
-	/** The impactOp value of this assessment */
-	@Column(name = "dtImpactOp", nullable = false)
-	private String impactOp = "0";
-
-	/** The impactLeg value of this assessment */
-	@Column(name = "dtImpactLeg", nullable = false)
-	private String impactLeg = "0";
-
-	/** The impactFin value of this assessment */
-	@Column(name = "dtImpactFin", nullable = false)
-	private String impactFin = "0";
+	@Transient
+	private Map<String, IValue> impactMapper = null;
 
 	/** The impactFin value of this assessment */
 	@Column(name = "dtImpactReal", nullable = false)
@@ -135,12 +138,6 @@ public class Assessment implements Cloneable {
 	}
 
 	public Assessment() {
-	}
-
-	public boolean isCSSF() {
-		return !((impactLeg == null || impactLeg.trim().equals("0") || impactLeg.trim().equals("0.0"))
-				&& (impactOp == null || impactOp.trim().equals("0") || impactOp.trim().equals("0.0"))
-				&& (impactRep == null || impactRep.trim().equals("0") || impactRep.trim().equals("0.0")));
 	}
 
 	/**
@@ -224,101 +221,86 @@ public class Assessment implements Cloneable {
 		this.owner = owner;
 	}
 
-	/**
-	 * getImpactRep: <br>
-	 * Returns the field "impactRep"
-	 * 
-	 * @return The impactRep value
-	 */
-	public String getImpactRep() {
-		return impactRep;
-	}
-
-	/**
-	 * setImpactRep: <br>
-	 * Sets the field "impactRep" with a value
-	 * 
-	 * @param impactRep
-	 *            The value to set "impactRep"
-	 */
-	public void setImpactRep(String impactRep) {
-		this.impactRep = checkImpact(impactRep);
-	}
-
-	/**
-	 * getImpactOp: <br>
-	 * Returns the field "impactOp"
-	 * 
-	 * @return The impactOp value
-	 */
-	public String getImpactOp() {
-		return impactOp;
-	}
-
-	/**
-	 * setImpactOp: <br>
-	 * Sets the field "ImpactOp" with a value
-	 * 
-	 * @param impactOp
-	 *            The value to set "impactOp"
-	 */
-	public void setImpactOp(String impactOp) {
-		this.impactOp = checkImpact(impactOp);
-	}
-
-	/**
-	 * getImpactLeg: <br>
-	 * Returns the field "impactLeg"
-	 * 
-	 * @return The impactLeg value
-	 */
-	public String getImpactLeg() {
-		return impactLeg;
-	}
-
-	/**
-	 * setImpactLeg: <br>
-	 * Sets the field "impactLeg" with a value
-	 * 
-	 * @param impactLeg
-	 *            The value to set "impactLeg"
-	 */
-	public void setImpactLeg(String impactLeg) {
-		this.impactLeg = checkImpact(impactLeg);
-	}
-
-	/**
-	 * getImpactFin: <br>
-	 * Returns the field "impactFin"
-	 * 
-	 * @return The Impact value
-	 */
-	public String getImpactFin() {
-		return impactFin;
-	}
-
 	protected String checkImpact(String impact) {
-		/*
-		 * if (impact == null) throw new IllegalArgumentException(
-		 * "Impact value is null"); else if (impact.trim().isEmpty()) impact =
-		 * "0"; else if (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw
-		 * new IllegalArgumentException(
-		 * "Impact does not meet the regular expression: " +
-		 * Constant.REGEXP_VALID_IMPACT);
-		 */
-		return impact.toLowerCase();
+		return impact == null ? "0" : impact.toLowerCase();
 	}
 
 	/**
-	 * setImpact: <br>
-	 * Sets the field "impactFin" with a value
-	 * 
-	 * @param impactFin
-	 *            The value to set "impactFin"
+	 * @return the impacts
 	 */
-	public void setImpactFin(String impact) {
+	public List<IValue> getImpacts() {
+		return impacts;
+	}
 
-		this.impactFin = checkImpact(impact);
+	/**
+	 * @param impacts
+	 *            the impacts to set
+	 */
+	public void setImpacts(List<IValue> impacts) {
+		if (impactMapper != null)
+			impactMapper = null;
+		this.impacts = impacts;
+	}
+
+	public IValue getImpact(String name) {
+		return getImpactMapper().get(name);
+	}
+
+	public String getImpactAcronym(String name) {
+		IValue value = getImpact(name);
+		return value == null ? null : value.getVariable();
+	}
+
+	public int getImpactLevel(String name) {
+		IValue value = getImpact(name);
+		return value == null ? 0 : value.getLevel();
+	}
+
+	public double getImpactValue(String name) {
+		IValue value = getImpact(name);
+		return value == null ? 0D : value.getReal();
+	}
+
+	public IAcronymParameter getImpactParameter(String name) {
+		IValue value = getImpact(name);
+		return value == null ? null : value.getParameter();
+	}
+
+	public boolean hasImpact(String name) {
+		return getImpactMapper().containsKey(name);
+	}
+
+	public void setImpact(IValue impact) {
+		synchronized (this) {
+			IValue old = getImpactMapper().get(impact.getName());
+			if (old == null) {
+				impacts.add(impact);
+				getImpactMapper().put(impact.getName(), impact);
+			} else if (!old.equals(impact)) {
+				impacts.remove(old);
+				impacts.add(impact);
+				getImpactMapper().put(impact.getName(), impact);
+			}
+		}
+	}
+
+	/**
+	 * @return the impactMapper
+	 */
+	protected synchronized Map<String, IValue> getImpactMapper() {
+		if (impacts == null || impacts.isEmpty())
+			return Collections.emptyMap();
+		if (impactMapper == null)
+			setImpactMapper(impacts.stream().collect(Collectors.toMap(IValue::getName, Function.identity())));
+		return impactMapper;
+	}
+
+	/**
+	 * @param impactMapper
+	 *            the impactMapper to set
+	 */
+	protected void setImpactMapper(Map<String, IValue> impactMapper) {
+		this.impactMapper = impactMapper;
 	}
 
 	public double getImpactReal() {
@@ -349,13 +331,6 @@ public class Assessment implements Cloneable {
 	 *            The value to set "likelihood"
 	 */
 	public void setLikelihood(String likelihood) {
-		/*
-		 * if ((likelihood == null) ||
-		 * (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) { throw new
-		 * IllegalArgumentException(
-		 * "Likelihood value is null or it does not meet the regular expression: "
-		 * + Constant.REGEXP_VALID_LIKELIHOOD); }
-		 */
 		this.likelihood = likelihood;
 	}
 

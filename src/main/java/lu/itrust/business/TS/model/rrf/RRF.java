@@ -11,7 +11,8 @@ import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.SecurityCriteria;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.model.standard.measure.Measure;
@@ -47,7 +48,7 @@ public class RRF {
 	 * @return The Calculated RRF
 	 * @throws TrickException
 	 */
-	public static double calculateRRF(Assessment tmpAssessment, Parameter tuningParameter, Measure measure) throws TrickException {
+	public static double calculateRRF(Assessment tmpAssessment, IParameter tuningParameter, Measure measure) throws TrickException {
 		if (tuningParameter == null)
 			return 0;
 		if (measure instanceof NormalMeasure)
@@ -58,8 +59,8 @@ public class RRF {
 			return 0;
 	}
 
-	public static double calculateRRF(Assessment tmpAssessment, List<Parameter> parameters, Measure measure) throws TrickException {
-		Parameter parameter = parameters.stream().filter(param -> param.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF)).findAny().orElse(null);
+	public static double calculateRRF(Assessment tmpAssessment, List<SimpleParameter> simpleParameters, Measure measure) throws TrickException {
+		IParameter parameter = simpleParameters.stream().filter(param -> param.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF)).findAny().orElse(null);
 		return calculateRRF(tmpAssessment, parameter, measure);
 	}
 	
@@ -84,7 +85,7 @@ public class RRF {
 	 * @return The Calculated RRF
 	 * @throws TrickException
 	 */
-	public static double calculateNormalMeasureRRF(Scenario scenario, AssetType assetType, Parameter tuningParameter, NormalMeasure measure) throws TrickException {
+	public static double calculateNormalMeasureRRF(Scenario scenario, AssetType assetType, IParameter tuningParameter, NormalMeasure measure) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -166,10 +167,10 @@ public class RRF {
 
 		// RRF completion:
 		// (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
-		return assetValue / 100. * strength * category * type * source * tuningParameter.getValue() / 100.;
+		return assetValue / 100. * strength * category * type * source * tuningParameter.getValue().doubleValue() / 100.;
 	}
 
-	public static double calculateAssetMeasureRRF(Scenario scenario, Asset asset, Parameter tuningParameter, AssetMeasure measure) throws TrickException {
+	public static double calculateAssetMeasureRRF(Scenario scenario, Asset asset, IParameter tuningParameter, AssetMeasure measure) throws TrickException {
 		double strength;
 		double category;
 		double type;
@@ -230,7 +231,7 @@ public class RRF {
 
 		// RRF completion:
 		// (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
-		return assetValue / 100. * strength * category * type * source * tuningParameter.getValue() / 100.;
+		return assetValue / 100. * strength * category * type * source * tuningParameter.getValue().doubleValue() / 100.;
 	}
 
 	/**

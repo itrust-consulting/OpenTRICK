@@ -6,12 +6,12 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <!-- ###################################################################### HTML #################################################################### -->
 <c:if test="${empty locale }">
-	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request"/>
+	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
 <!DOCTYPE html>
 <html lang="${locale.language}">
 <!-- Include Header -->
-<c:set scope="request" var="title" value="label.title.knowledgebase"/>
+<c:set scope="request" var="title" value="label.title.knowledgebase" />
 <jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
@@ -31,6 +31,8 @@
 						<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
 						<li id="control_tab_measure" style="display: none;"><a href="#tab_measure" data-toggle="tab"><spring:message code="label.menu.knowledgebase.measures" text="Measures" /></a></li>
 					</ul></li>
+
+				<li><a href="#tab_kb_scale_type" data-toggle="tab"> <spring:message code="label.menu.knowledgebase.impacts" text="Impacts" /></a></li>
 				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
 				<li id="tabOption" style="display: none;" class="dropdown-submenu pull-right"><a href="#" title='<fmt:message key="label.options" />' class="dropdown-toggle"
 					data-toggle="dropdown" style="padding-bottom: 5px; padding-top: 5px"><span class="fa fa-bars fa-2x"></span></a></li>
@@ -39,8 +41,9 @@
 				<jsp:include page="customer/customers.jsp" />
 				<jsp:include page="language/languages.jsp" />
 				<jsp:include page="standards/standard/standards.jsp" />
-				<jsp:include page="analysis/analyses.jsp" />
 				<jsp:include page="standards/measure/measures.jsp" />
+				<jsp:include page="analysis/analyses.jsp" />
+				<jsp:include page="scale/home.jsp" />
 				<jsp:include page="widget.jsp" />
 
 			</div>
@@ -56,6 +59,7 @@
 	<script type="text/javascript" src="<spring:url value="js/trickservice/standard.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/language.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/scale.js" />"></script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

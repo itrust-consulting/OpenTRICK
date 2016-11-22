@@ -51,7 +51,7 @@ $(document).ready(function() {
 		loadChartDynamicParameterEvolution();
 		loadChartDynamicAleEvolutionByAssetType();
 		loadChartDynamicAleEvolutionByScenario();
-	}, 30000); // every 30s
+	}, 300000); // every 30s
 });
 
 $.fn.loadOrUpdateChart = function(parameters) {
@@ -446,7 +446,7 @@ function displayChart(id, response) {
 }
 
 function loadChartAsset() {
-
+	
 	if ($('#chart_ale_asset').length) {
 		if ($('#chart_ale_asset').is(":visible")) {
 			var $progress = $("#loading-indicator").show();

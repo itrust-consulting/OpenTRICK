@@ -15,6 +15,7 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceScaleType;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 
 /**
@@ -45,12 +46,16 @@ public class ControllerKnowledgeBase {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	@Autowired
+	private ServiceScaleType serviceScaleType;
+
 	@RequestMapping
 	public String displayKnowledgeBase(Map<String, Object> model, Principal principal) throws Exception {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.put("languages", serviceLanguage.getAll());
 		model.put("standards", serviceStandard.getAllNotBoundToAnalysis());
 		model.put("analyses", serviceAnalysis.getAllProfiles());
+		model.put("scaleTypes", serviceScaleType.findAll());
 		return "knowledgebase/knowledgebase";
 	}
 

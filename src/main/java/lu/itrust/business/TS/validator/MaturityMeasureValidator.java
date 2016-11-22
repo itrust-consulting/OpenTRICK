@@ -4,7 +4,8 @@
 package lu.itrust.business.TS.validator;
 
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.standard.measure.MaturityMeasure;
 
 /**
@@ -59,9 +60,9 @@ public class MaturityMeasureValidator extends MeasureValidator {
 		case IMPLEMENTATION_RATE:
 			if (candidate == null)
 				return ERROR_MATURITY_MEASURE_IMPLEMENTATION_RATE_NULL_A_MATURITY_MEASURE_SHOULD_ALWAYS_HAVE_AN_PARAMETER_FOR_IMPLEMENTATION_RATE;
-			else if (!(candidate instanceof Parameter))
+			else if (!(candidate instanceof SimpleParameter))
 				return ERROR_UNSUPPORTED_DATA_IMPLEMENTATION_RATE_IMPLEMENTATION_RATE_VALUE_IS_NOT_SUPPORTED;
-			else if(((Parameter) candidate).getValue()<0 || ((Parameter) candidate).getValue()>100)
+			else if(((IParameter) candidate).getValue().doubleValue()<0 || ((IParameter) candidate).getValue().doubleValue()>100)
 				return ERROR_MATURITY_MEASURE_IMPLEMENTATION_RATE_NULL_IMPLEMENTATION_RATE_SHOULD_BE_A_REAL_BETWEEN_0_AND_100;
 			break;
 		case SML1_COST:

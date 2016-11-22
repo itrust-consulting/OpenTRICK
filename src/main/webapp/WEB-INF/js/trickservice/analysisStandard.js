@@ -286,88 +286,99 @@ function editMeasure(element, idStandard, idMeasure) {
 }
 
 function manageMeasure(url) {
-	$.ajax({
-		url : url,
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
-			if ($content.length) {
-				if ($("#modalMeasureForm").length)
-					$("#modalMeasureForm").replaceWith($content);
-				else
-					$content.appendTo($("#widgets"));
-				$content.find("#measure_form_tabs").tab();
-				var $assetTab = $content.find("#tab_asset");
-				if ($assetTab.length) {
+	$
+			.ajax({
+				url : url,
+				type : "get",
+				contentType : "application/json;charset=UTF-8",
+				success : function(response, textStatus, jqXHR) {
+					var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
+					if ($content.length) {
+						if ($("#modalMeasureForm").length)
+							$("#modalMeasureForm").replaceWith($content);
+						else
+							$content.appendTo($("#widgets"));
+						$content.find("#measure_form_tabs").tab();
+						var $assetTab = $content.find("#tab_asset");
+						if ($assetTab.length) {
 
-					var onSelectedAsset = function(asset) {
-						var id = $(asset).attr("data-trick-id");
-						$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($(asset));
-						$(asset).appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']"));
-						$(asset).attr("data-trick-selected", true);
-						var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>')
-						var $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" ><input type="text" class="slider" id="asset_slider_' + id
-								+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="property_asset_' + id
-								+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>');
-						var $value = $('<td data-trick-class="MeasureAssetValue"  data-trick-asset-id="' + id + '"><input type="text" id="property_asset_' + id
-								+ '_value" style="min-width: 50px;" readonly="readonly" class="form-control" value="0" name="' + id + '"></td>');
-						$header.appendTo($content.find("#slidersTitle"));
-						$data.appendTo($content.find("#sliders"));
-						$value.appendTo($content.find("#values"));
-						$data.find(".slider").slider().on('slide', function(event) {
-							$value.find("input").val(event.value);
-						});
-					};
+							var onSelectedAsset = function(asset) {
+								var $asset = $(asset), id = $asset.attr("data-trick-id");
+								$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($asset);
+								$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']")).attr("data-trick-selected", true);
+								if (application.analysisType == "QUANTITATIVE") {
+									var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>'), $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="'
+											+ id
+											+ '" ><input type="text" class="slider" id="asset_slider_'
+											+ id
+											+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="property_asset_'
+											+ id
+											+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>'), $value = $('<td data-trick-class="MeasureAssetValue"  data-trick-asset-id="'
+											+ id
+											+ '"><input type="text" id="property_asset_'
+											+ id
+											+ '_value" style="min-width: 50px;" readonly="readonly" class="form-control" value="0" name="' + id + '"></td>');
 
-					var onDeselectedAsset = function(asset) {
-						var id = $(asset).attr("data-trick-id");
-						$(asset).find("input").remove();
-						$(asset).appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']"));
-						$(asset).attr("data-trick-selected", false);
-						$content.find('[data-trick-class="MeasureAssetValue"][data-trick-asset-id="' + id + '"]').remove();
-					};
+									$header.appendTo($content.find("#slidersTitle"));
+									$data.appendTo($content.find("#sliders"));
+									$value.appendTo($content.find("#values"));
+									$data.find(".slider").slider().on('slide', function(event) {
+										$value.find("input").val(event.value);
+									});
+								}
+							};
 
-					$assetTab.find("li[data-trick-type]").each(function() {
-						$(this).on("click", function() {
-							if ($(this).attr("data-trick-selected") == "true")
-								onDeselectedAsset(this);
-							else
-								onSelectedAsset(this);
-						});
-					});
+							var onDeselectedAsset = function(asset) {
+								var $asset = $(asset);
+								$asset.find("input").remove();
+								$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']")).attr("data-trick-selected", false);
+								if (application.analysisType == "QUANTITATIVE")
+									$content.find('[data-trick-class="MeasureAssetValue"][data-trick-asset-id="' + $asset.attr("data-trick-id") + '"]').remove();
+							};
 
-					var updateAssetUI = function(selected) {
-						if (selected === 'ALL')
-							$assetTab.find("li[data-trick-type]").show();
-						else {
-							$assetTab.find("li[data-trick-type='" + selected + "']").show();
-							$assetTab.find("li[data-trick-type!='" + selected + "']").hide();
+							$assetTab.find("li[data-trick-type]").each(function() {
+								$(this).on("click", function() {
+									if ($(this).attr("data-trick-selected") == "true")
+										onDeselectedAsset(this);
+									else
+										onSelectedAsset(this);
+								});
+							});
+
+							var updateAssetUI = function(selected) {
+								if (selected === 'ALL')
+									$assetTab.find("li[data-trick-type]").show();
+								else {
+									$assetTab.find("li[data-trick-type='" + selected + "']").show();
+									$assetTab.find("li[data-trick-type!='" + selected + "']").hide();
+								}
+							};
+
+							updateAssetUI($assetTab.find("#assettypes").val());
+
+							$assetTab.find("#assettypes").on("change", function() {
+								updateAssetUI($(this).val());
+							});
 						}
-					};
 
-					updateAssetUI($assetTab.find("#assettypes").val());
-
-					$assetTab.find("#assettypes").on("change", function() {
-						updateAssetUI($(this).val());
-					});
-				}
-				$content.find(".slider").slider({
-					reversed : true
-				}).each(function() {
-					$(this).on("change", function(event) {
-						$content.find("#values input[name='" + event.target.name + "']").val(event.value.newValue);
-					});
-				});
-				new Modal($content).Show();
-			} else if (response["error"] != undefined) {
-				$("#info-dialog .modal-body").text(response["error"]);
-				$("#info-dialog").modal("show");
-			} else
-				unknowError()
-		},
-		error : unknowError
-	});
+						if (application.analysisType == "QUANTITATIVE") {
+							$content.find(".slider").slider({
+								reversed : true
+							}).each(function() {
+								$(this).on("change", function(event) {
+									$content.find("#values input[name='" + event.target.name + "']").val(event.value.newValue);
+								});
+							});
+						}
+						new Modal($content).Show();
+					} else if (response["error"] != undefined) {
+						$("#info-dialog .modal-body").text(response["error"]);
+						$("#info-dialog").modal("show");
+					} else
+						unknowError()
+				},
+				error : unknowError
+			});
 	return false;
 }
 
@@ -384,26 +395,36 @@ function saveMeasure() {
 	data.idStandard = form.find("#idStandard").val();
 	data.assetValues = [];
 
-	form.find("#tab_properties #values input[id^='property_asset']").each(function() {
-		data.assetValues.push({
-			id : this.name,
-			value : properties[this.name]
-		});
-		delete properties[this.name];
-	});
-
-	data.properties = properties;
-	data.computable = data.computable === "on";
-
 	if ($assetTab.length) {
 		data.type = "ASSET";
+		if (application.analysisType == "QUANTITATIVE") {
+			form.find("#tab_properties #values input[id^='property_asset']").each(function() {
+				data.assetValues.push({
+					id : this.name,
+					value : properties[this.name]
+				});
+				delete properties[this.name];
+			});
+		} else {
+			$assetTab.find("li[data-trick-selected='true'][data-trick-type][data-trick-id]").each(function() {
+				data.assetValues.push({
+					id : this.getAttribute("data-trick-id"),
+					value : 100
+				});
+			});
+		}
+
 		if (data.computable && !data.assetValues.length) {
 			$("<label class='label label-danger'></label>").text(MessageResolver("error.asset.empty", "Asset cannot be empty")).appendTo($("#modalMeasureForm #error_container"));
 			$("#modalMeasureForm a[href='#tab_asset']").tab("show");
 			return false;
 		}
+
 	} else
 		data.type = "NORMAL";
+
+	data.properties = properties;
+	data.computable = data.computable === "on";
 
 	$.ajax({
 		url : context + "/Analysis/Standard/Measure/Save",
@@ -455,19 +476,20 @@ function deleteMeasure(measureId, standardid) {
 	if (standardid == null || standardid == undefined)
 		return false;
 
+	var selectedMeasures = [];
+
 	if (measureId == null || measureId == undefined) {
-		var selectedMeasures = findSelectItemIdBySection("section_standard_" + standardid);
+		selectedMeasures = findSelectItemIdBySection("section_standard_" + standardid);
 		if (!selectedMeasures.length)
 			return false;
-	}
+	} else
+		selectedMeasures.push(measureId);
 
 	var standard = $("#section_standard_" + standardid + " #menu_standard_" + standardid + " li:first-child").text();
 
 	if (selectedMeasures.length == 1) {
-		measureId = selectedMeasures[0];
-		var measure = $("#section_standard_" + standardid + " tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
+		var measure = $("#section_standard_" + standardid + " tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)");
 		reference = $(measure[0]).text();
-
 		$("#confirm-dialog .modal-body").html(
 				MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
 						+ "</strong> from the standard <strong>" + standard
@@ -483,14 +505,10 @@ function deleteMeasure(measureId, standardid) {
 		var errors = false;
 
 		while (selectedMeasures.length) {
-
 			if (errors)
 				break;
-
-			rowTrickId = selectedMeasures.pop();
-
 			$.ajax({
-				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + rowTrickId,
+				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + selectedMeasures.pop(),
 				async : false,
 				type : "POST",
 				contentType : "application/json;charset=UTF-8",

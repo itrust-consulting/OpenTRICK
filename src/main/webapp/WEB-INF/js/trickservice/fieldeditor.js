@@ -96,7 +96,7 @@ function FieldEditor(element, validator) {
 				$td = $element;
 			else {
 				$td = $element.closest("td");
-				rows = $element.text().split(/\n/).length;
+				rows = $element.text().split("\n").length;
 				if (rows == 1)
 					rows = 2;
 			}
@@ -110,6 +110,12 @@ function FieldEditor(element, validator) {
 					this.realValue = this.element.getAttribute("data-real-value");
 				if (minValue != undefined || maxValue != undefined)
 					this.validator = new FieldBoundedValidator(minValue, maxValue);
+				var dataList = $element.attr("data-trick-list-value");
+				if (dataList) {
+					this.fieldEditor.setAttribute("list", dataList);
+					if (width < 60)
+						width = 100;
+				}
 			}
 			$fieldEditor = $(this.fieldEditor)
 
@@ -401,11 +407,9 @@ function FieldEditor(element, validator) {
 
 ExtendedFieldEditor.prototype = new FieldEditor();
 
-function ExtendedFieldEditor(element) {
-
+function ExtendedFieldEditor(section, element) {
 	FieldEditor.call(this, element);
-	this.controllor = "ExtendedParameter";
-
+	this.section = section;
 	ExtendedFieldEditor.prototype.Save = function(that) {
 		if (!that.Validate()) {
 			that.Rollback();
@@ -420,16 +424,13 @@ function ExtendedFieldEditor(element) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response, textStatus, jqXHR) {
 						if (response["success"] != undefined) {
-							var computeAle = that.fieldName == "value" || that.fieldName == "acronym";
 							try {
 								that.UpdateUI();
-								reloadSection("section_parameter");
 							} finally {
-								if (computeAle) {
+								if (that.fieldName == "value") {
 									updateAssessmentAle(true);
-									reloadSection("section_parameter_extended");
-									if (that.fieldName == "value")
-										reloadSection([ "section_asset", "section_scenario" ]);
+									$("datalist[id^='dataList-parameter-']").remove();
+									reloadSection([ that.section, "section_asset", "section_scenario" ]);
 								}
 							}
 						} else if (response["error"] != undefined) {
@@ -549,7 +550,7 @@ function AssessmentFieldEditor(element) {
 							that.UpdateUI();
 							if (application["estimation-helper"] != undefined) {
 								application["estimation-helper"].tryUpdate(that.classId);
-								reloadSection([ "section_asset", "section_scenario" ], undefined, true);
+								reloadSection([ "section_asset", "section_scenario", "section_riskregister" ], undefined, true);
 								chartALE();
 							}
 						} else {
@@ -574,54 +575,64 @@ function AssessmentFieldEditor(element) {
 
 AssessmentExtendedParameterEditor.prototype = new AssessmentFieldEditor();
 
+/**
+ * Data list must be remove when parameter value change.
+ * 
+ * @See ExtendedFieldEditor
+ */
 function AssessmentExtendedParameterEditor(element) {
 
 	AssessmentFieldEditor.call(this, element);
 
-	this.acromym = [];
+	if (this.analysisType == "QUANTITATIVE") {
+		this.dataListName = undefined;
 
-	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
-		var $element = $(this.element);
-		if ($element.find("select,input,textarea").length)
-			return true;
-		if (!this.LoadData())
-			return true;
-		if (this.element.hasAttribute("data-real-value"))
-			this.realValue = $element.attr("data-real-value").trim();
+		this.acromyms = [];
 
-		var that = this, indexOf = this.acromym.indexOf(this.defaultValue), value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue
-				: this.defaultValue;
+		AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
+			var that = this, $element = $(this.element);
+			if ($element.find("select,input,textarea").length)
+				return true;
+			if (!this.LoadData())
+				return true;
+			this.fieldEditor = document.createElement("input");
+			this.fieldEditor.setAttribute("list", this.dataListName);
+			this.fieldEditor.setAttribute("class", "form-control");
+			this.fieldEditor.setAttribute("class", "form-control");
+			this.fieldEditor.setAttribute("placeholder", this.defaultValue);
+			this.fieldEditor.setAttribute("value", this.defaultValue);
+			this.fieldEditor.setAttribute("style", "padding: 4px; width:100px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
+			this.backupData.width = $element.width();
+			this.backupData.orginalStyle = $element.attr("style");
+			$element.css({
+				"padding" : 0,
+				"width" : this.backupData.width
+			});
 
-		this.fieldEditor = document.createElement("input");
-		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("placeholder", value);
-		this.fieldEditor.setAttribute("value", value);
-		this.fieldEditor.setAttribute("style", "padding: 4px; width:80px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
+			$(this.fieldEditor).blur(function() {
+				return that.Save(that);
+			});
 
-		this.backupData.width = $element.width();
-		this.backupData.orginalStyle = $element.attr("style");
+			return false;
+		};
 
-		$element.css({
-			"padding" : 0,
-			"width" : this.backupData.width
-		});
-
-		$(this.fieldEditor).blur(function() {
-			return that.Save(that);
-		});
-
-		return false;
-	};
-
-	AssessmentExtendedParameterEditor.prototype.__extractAcronym = function(value) {
-		if (this.choose.indexOf(value) == -1)
-			return value;
-		return value.split(" (", 1)[0];
-	};
-
-	AssessmentExtendedParameterEditor.prototype.GetValue = function() {
-		return this.__extractAcronym(FieldEditor.prototype.GetValue.call(this));
-	};
+		AssessmentExtendedParameterEditor.prototype.__generateDataList = function() {
+			if (!this.dataListName)
+				return this;
+			var dataList = document.getElementById(this.dataListName);
+			if (dataList != null)
+				return this;
+			dataList = document.createElement("datalist");
+			dataList.setAttribute("id", this.dataListName);
+			for (var i = 0; i < this.choose.length; i++) {
+				var option = document.createElement("option");
+				option.setAttribute("value", this.acromyms[i]);
+				option.innerText = this.acromyms[i] + " (" + this.choose[i] + ")";
+				dataList.appendChild(option);
+			}
+			$(dataList).hide().appendTo("#widgets");
+		};
+	}
 }
 
 AssessmentImpactFieldEditor.prototype = new AssessmentExtendedParameterEditor();
@@ -630,123 +641,61 @@ function AssessmentImpactFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
 
-	AssessmentImpactFieldEditor.prototype.LoadData = function() {
-		var $impactAcronyms = $("#Scale_Impact td[data-trick-field='acronym']"), $impactValue = $("#Scale_Impact td[data-trick-field='value']");
-		for (var i = 0; i < $impactAcronyms.length; i++) {
-			this.acromym[i] = $($impactAcronyms[i]).text();
-			this.choose[i] = this.acromym[i] + " (" + $($impactValue[i]).text() + ")";
-		}
-		return this.choose.length;
-	};
+	if (this.analysisType == "QUANTITATIVE") {
+		AssessmentImpactFieldEditor.prototype.LoadData = function() {
+			var name = this.element.getAttribute("data-trick-field"), id = "IMPACT" == name ? "#Scale_Impact" : "#Scale_Impact_" + name, $acronyms = $(
+					"td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='value']", id);
+			this.dataListName = "dataList-parameter-impact-" + name.toLowerCase();
+			for (var i = 0; i < $values.length; i++) {
+				this.acromyms[i] = $acronyms[i].innerText;
+				this.choose[i] = $values[i].innerText;
+			}
+			this.__generateDataList();
+			return this.choose.length;
+		};
+	} else {
+		AssessmentImpactFieldEditor.prototype.LoadData = function() {
+			var name = this.element.getAttribute("data-trick-field"), id = "#Scale_Impact_" + name, $acronyms = $("td[data-trick-field='acronym']", id), $values = $(
+					"td[data-trick-field='level']", id), $title = $("td[data-trick-field='description']", id);
+			for (var i = 0; i < $values.length; i++) {
+				this.choose[i] = $acronyms[i].innerText;
+				this.chooseTranslate[i] = $values[i].innerText;
+				this.chooseTitle[i] = $title[i].innerText;
+			}
+			return this.choose.length;
+		};
+	}
 
-	AssessmentImpactFieldEditor.prototype.Show = function() {
-		if (this.fieldEditor == null || this.fieldEditor == undefined)
-			return false;
-		if (this.element == null || this.element == undefined)
-			return false;
-
-		var data = [], $element = $(this.element);
-		for (var i = 0; i < this.choose.length; i++)
-			data.push({
-				value : this.choose[i]
-			});
-		var iteams = new Bloodhound({
-			datumTokenizer : function(d) {
-				return Bloodhound.tokenizers.whitespace(d.value);
-			},
-			queryTokenizer : Bloodhound.tokenizers.whitespace,
-			limit : this.choose.length,
-			local : data
-		});
-		iteams.initialize();
-		$element.html(this.fieldEditor)
-		$(this.fieldEditor).typeahead(null, {
-			displayKey : 'value',
-			source : iteams.ttAdapter()
-		}).focus();
-		this.__supportTabNav();
-		return false;
-	};
 }
 
-/*
-AssessmentProbaFieldEditor.prototype = new FieldEditor();
+AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
+
 function AssessmentProbaFieldEditor(element) {
 
 	AssessmentExtendedParameterEditor.call(this, element);
-
-	AssessmentProbaFieldEditor.prototype.LoadData = function() {
-		var $probAcronyms = $("#Scale_Probability td[data-trick-field='acronym']"), $probaAcronymsValues = $("#Scale_Probability td[data-trick-field='value']");
-		for (var i = 0; i < $probAcronyms.length; i++) {
-			this.acromym[i] = $($probAcronyms[i]).text();
-			this.choose[i] = this.acromym[i] + " (" + $($probaAcronymsValues[i]).text() + ")";
-		}
-		return this.choose.length;
-	};
-
-	AssessmentProbaFieldEditor.prototype.GeneratefieldEditor = function() {
-		var $element = $(this.element);
-		if ($element.find("input,select,textarea").length)
-			return true;
-		if (!this.LoadData())
-			return true;
-		if (this.element.hasAttribute("data-real-value"))
-			this.realValue = this.element.getAttribute("data-real-value");
-		this.fieldEditor = document.createElement("select");
-		this.fieldEditor.setAttribute("class", "form-control");
-		this.fieldEditor.setAttribute("placeholder", this.realValue == null || this.realValue == undefined ? this.defaultValue : this.realValue == '0' ? this.acromym[0]
-				: this.realValue);
-		var that = this, $fieldEditor = $(this.fieldEditor);
-
-		this.fieldEditor.setAttribute("style", "padding: 4px; width:80px; margin-left:auto; position:absolute; z-index:2; margin-right:auto;");
-
-		for (var i = 0; i < this.choose.length; i++) {
-			var option = document.createElement("option"), $option = $(option);
-			option.setAttribute("value", this.acromym[i]);
-			if (this.acromym[i] == this.defaultValue)
-				option.setAttribute("selected", "selected");
-			$option.text(this.choose[i]).appendTo($fieldEditor);
-		}
-
-		this.backupData.width = $element.width();
-		this.backupData.orginalStyle = $element.attr("style");
-		$element.css({
-			"padding" : 0,
-			"width" : this.backupData.width
-		});
-		$fieldEditor.blur(function() {
-			return that.Save(that);
-		});
-
-		return false;
-	};
-
-	AssessmentProbaFieldEditor.prototype.__extractAcronym = function(value) {
-		var value = AssessmentExtendedParameterEditor.prototype.__extractAcronym.call(this, value);
-		if (value == this.acromym[0])
-			return '0';
-		return value;
-	};
-}
-*/
-
-AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
-function AssessmentProbaFieldEditor(element) {
-	FieldEditor.call(this, element);
-}
-
-function SelectText(element) {
-	var doc = document, text = doc.getElementById(element), range, selection;
-	if (doc.body.createTextRange) {
-		range = document.body.createTextRange();
-		range.moveToElementText(text);
-		range.select();
-	} else if (window.getSelection) {
-		selection = window.getSelection();
-		range = document.createRange();
-		range.selectNodeContents(text);
-		selection.removeAllRanges();
-		selection.addRange(range);
+	if (this.analysisType == "QUANTITATIVE") {
+		AssessmentProbaFieldEditor.prototype.LoadData = function() {
+			this.dataListName = "dataList-parameter-probability";
+			var $acronyms = $("td[data-trick-field='acronym']", "#Scale_Probability,#DynamicParameters"), $values = $("td[data-trick-field='value']",
+					"#Scale_Probability,#DynamicParameters");
+			for (var i = 0; i < $values.length; i++) {
+				this.acromyms[i] = $acronyms[i].innerText;
+				this.choose[i] = $values[i].innerText;
+			}
+			this.__generateDataList();
+			return this.choose.length;
+		};
+	} else {
+		AssessmentProbaFieldEditor.prototype.LoadData = function() {
+			var id = "#Scale_Probability", $acronyms = $("td[data-trick-field='acronym']", id), $values = $("td[data-trick-field='level']", id), $title = $(
+					"td[data-trick-field='description']", id);
+			for (var i = 0; i < $values.length; i++) {
+				this.choose[i] = $acronyms[i].innerText;
+				this.chooseTranslate[i] = $values[i].innerText;
+				this.chooseTitle[i] = $title[i].innerText;
+			}
+			return this.choose.length;
+		};
 	}
 }
 
@@ -805,18 +754,22 @@ function editField(element, controller, id, field, type) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (controller == null || controller == undefined)
 			controller = FieldEditor.prototype.__findControllor(element);
-		if (controller == "ExtendedParameter")
-			fieldEditor = new ExtendedFieldEditor(element);
-		else if (controller == "Assessment") {
-			field = $(element).attr("data-trick-field");
-			var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
-			var fieldProba = "likelihood";
+		if (controller == "LikelihoodParameter" || controller == "ImpactParameter") {
+			if (application.analysisType == "QUANTITATIVE")
+				fieldEditor = new ExtendedFieldEditor("section_parameter_extended", element);
+			else if (controller == "LikelihoodParameter")
+				fieldEditor = new ExtendedFieldEditor("section_parameter_probability", element);
+			else
+				fieldEditor = new ExtendedFieldEditor("section_parameter_impact", element);
+		} else if (controller == "Assessment") {
+			field = element.getAttribute("data-trick-field");
+			var fieldImpact = [ "comment", "hiddenComment", "uncertainty", "owner" ];
 			if (fieldImpact.indexOf(field) != -1)
-				fieldEditor = new AssessmentImpactFieldEditor(element);
-			else if (field == fieldProba)
+				fieldEditor = new AssessmentFieldEditor(element);
+			else if (field == "likelihood")
 				fieldEditor = new AssessmentProbaFieldEditor(element);
 			else
-				fieldEditor = new AssessmentFieldEditor(element);
+				fieldEditor = new AssessmentImpactFieldEditor(element);
 		} else if (controller == "MaturityMeasure")
 			fieldEditor = new MaturityMeasureFieldEditor(element);
 		else

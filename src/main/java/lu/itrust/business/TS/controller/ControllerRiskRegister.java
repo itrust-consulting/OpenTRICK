@@ -4,7 +4,6 @@ import static lu.itrust.business.TS.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.security.Principal;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,22 +28,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskRegister;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
-import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServiceImpactParameter;
+import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.cssf.helper.CSSFExportForm;
 import lu.itrust.business.TS.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.TS.model.general.helper.ExportType;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 /**
  * ControllerRiskRegister.java: <br>
@@ -78,7 +79,13 @@ public class ControllerRiskRegister {
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
+	private ServiceSimpleParameter serviceSimpleParameter;
+
+	@Autowired
+	private ServiceImpactParameter serviceImpactParameter;
+
+	@Autowired
+	private ServiceLikelihoodParameter serviceLikelihoodParameter;
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
@@ -96,21 +103,16 @@ public class ControllerRiskRegister {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping
 	public String showRiskRegister(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
-
 		// retrieve analysis ID
 		Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		// load all actionplans from the selected analysis
 		// prepare model
+		ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
+		model.put("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
+		model.put("type", analysis.getType());
 		model.put("riskregister", analysis.getRiskRegisters());
-
-		model.put("parameters", analysis.findExtendedByAnalysis());
-
+		model.put("valueFactory", valueFactory);
 		model.put("language", analysis.getLanguage().getAlpha2());
-
-		model.put("riskProfileMapping", analysis.mapRiskProfile());
-
-		model.put("estimationMapping", analysis.mapAssessment());
-
 		// return view
 		return "analyses/single/components/riskRegister/home";
 	}
@@ -136,48 +138,19 @@ public class ControllerRiskRegister {
 	// *****************************************************************
 	// * compute risk register
 	// *****************************************************************
-
-	/**
-	 * computeRiskRegister: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param principal
-	 * @param locale
-	 * @param value
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
-	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody String computeRiskRegister(HttpSession session, Principal principal) throws Exception {
-		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
-		WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, true);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", analysisLocale));
-		// execute task
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", analysisLocale));
-	}
-
+	
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/RiskSheet/Form/Export", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request, Principal principal) {
+	public String exportFrom(@RequestParam(value = "type", defaultValue = "REPORT") ExportType type, HttpSession session, Model model, HttpServletRequest request,
+			Principal principal) {
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<ExtendedParameter> impacts = new LinkedList<>(), probabilities = new LinkedList<>();
-		serviceParameter.getAllExtendedFromAnalysis(analysisId).forEach(parameter -> {
-			if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				impacts.add(parameter);
-			else if (parameter.isMatch(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
-				probabilities.add(parameter);
-		});
+		List<? extends IParameter> impacts = serviceImpactParameter.findByAnalysisId(analysisId), probabilities = serviceLikelihoodParameter.findByAnalysisId(analysisId);
 
-		model.addAttribute("parameters", serviceParameter.getAllFromAnalysisByType(analysisId, Constant.PARAMETERTYPE_TYPE_CSSF).stream()
-				.collect(Collectors.toMap(Parameter::getDescription, Function.identity())));
-		
+		model.addAttribute("parameters", serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, analysisId).stream()
+				.collect(Collectors.toMap(IParameter::getDescription, Function.identity())));
+
 		model.addAttribute("owners", serviceAssessment.getDistinctOwnerByIdAnalysis(analysisId));
-		
+
 		model.addAttribute("type", type);
 
 		model.addAttribute("impacts", impacts);

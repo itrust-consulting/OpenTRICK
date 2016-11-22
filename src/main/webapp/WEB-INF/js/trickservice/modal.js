@@ -51,9 +51,9 @@ function Modal(content, body) {
 		button_footer_cancel.setAttribute("data-dismiss", "modal");
 		button_footer_cancel.setAttribute("data-control-type", "cancel");
 		button_footer_cancel.setAttribute("class", "btn btn-default");
-		if(jQuery.isFunction(MessageResolver)){
-			okText = MessageResolver("label.action.ok",okText);
-			cancelText= MessageResolver("label.action.cancel",cancelText);
+		if (jQuery.isFunction(MessageResolver)) {
+			okText = MessageResolver("label.action.ok", okText);
+			cancelText = MessageResolver("label.action.cancel", cancelText);
 		}
 		$(button_footer_OK).text(okText)
 		$(button_footer_cancel).text(cancelText);
@@ -79,7 +79,7 @@ function Modal(content, body) {
 		this.modal.setAttribute("role", "dialog");
 		this.modal.setAttribute("tabindex", "-1");
 		this.modal.setAttribute("data-aria-hidden", "true");
-		/*this.modal.setAttribute("aria-hidden", "true");*/
+		/* this.modal.setAttribute("aria-hidden", "true"); */
 		this.modal_dialog.setAttribute("class", "modal-dialog");
 		modal_content.setAttribute("class", "modal-content");
 		this.modal_header.setAttribute("class", "modal-header");
@@ -219,7 +219,10 @@ function Modal(content, body) {
 
 	if (content != undefined)
 		this.FromContent(content);
-	if (body != undefined)
+	if (body != undefined) {
+		if (!content)
+			this.Intialise();
 		this.setBody(body);
+	}
 
 }

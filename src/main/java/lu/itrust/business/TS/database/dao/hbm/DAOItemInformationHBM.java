@@ -57,11 +57,12 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#getFromAnalysisById(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation)  {
 		String query =
 			"Select iteminformation From Analysis as analysis inner join analysis.itemInformations as iteminformation where analysis.id = :idAnalysis and iteminformation.id = :idIteminformation";
-		return (ItemInformation) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idIteminformation", idIteminformation).uniqueResult();
+		return (ItemInformation) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idIteminformation", idIteminformation).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -71,11 +72,12 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.TS.database.dao.DAOItemInformation#getFromAnalysisIdByDescription(int,
 	 *      java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description)  {
 		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id and ";
 		query += "iteminformation.description = :iteminformation";
-		return (ItemInformation) getSession().createQuery(query).setParameter("id", analysisId).setParameter("description", description).uniqueResult();
+		return (ItemInformation) getSession().createQuery(query).setParameter("id", analysisId).setParameter("description", description).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -87,9 +89,9 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer iteminformationId)  {
-		String query = "Select count(itemInformation) From Analysis as analysis inner join analysis.itemInformations as itemInformation where analysis.id = :analysisid and ";
+		String query = "Select count(itemInformation) > 0 From Analysis as analysis inner join analysis.itemInformations as itemInformation where analysis.id = :analysisid and ";
 		query += "itemInformation.id = :itemInformationId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("itemInformationId", iteminformationId).uniqueResult()).intValue() > 0;
+		return (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("itemInformationId", iteminformationId).getSingleResult();
 	}
 
 	/**
@@ -101,7 +103,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ItemInformation> getAll()  {
-		return getSession().createQuery("From ItemInformation").list();
+		return getSession().createQuery("From ItemInformation").getResultList();
 	}
 
 	/**
@@ -142,9 +144,8 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 		casepart += "when 'strategic' then 0 ";
 		casepart += "else 1 ";
 		casepart += "end";
-		
 		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id order by case itemInformation.description " + casepart;
-		return getSession().createQuery(query).setInteger("id", analysisID).list();
+		return getSession().createQuery(query).setParameter("id", analysisID).getResultList();
 	}
 
 	/**

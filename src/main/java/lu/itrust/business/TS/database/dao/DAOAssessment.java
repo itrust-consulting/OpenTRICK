@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -62,4 +63,6 @@ public interface DAOAssessment {
 	public Assessment getByAssetAndScenario(int idAsset, int idScenario);
 
 	public List<String> getDistinctOwnerByIdAnalysis(Integer analysisId);
+
+	public void delete(IValue impact);
 }

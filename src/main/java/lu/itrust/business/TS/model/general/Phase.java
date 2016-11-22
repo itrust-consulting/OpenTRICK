@@ -19,8 +19,8 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 
 /**
- * Parameter: <br>
- * This class represents a Parameter and its data.
+ * SimpleParameter: <br>
+ * This class represents a SimpleParameter and its data.
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1

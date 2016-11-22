@@ -10,6 +10,7 @@ import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -349,5 +350,12 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	@Override
 	public List<String> getDistinctOwnerByIdAnalysis(Integer analysisId) {
 		return daoAssessment.getDistinctOwnerByIdAnalysis(analysisId);
+	}
+
+	@Transactional
+	@Override
+	public void delete(IValue impact) {
+		daoAssessment.delete(impact);
+		
 	}
 }

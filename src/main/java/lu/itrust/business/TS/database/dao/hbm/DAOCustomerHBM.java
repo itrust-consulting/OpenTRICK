@@ -35,161 +35,6 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	}
 
 	/**
-	 * get: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#get(int)
-	 */
-	@Override
-	public Customer get(Integer id)  {
-		return (Customer) getSession().get(Customer.class, id);
-	}
-
-	/**
-	 * getProfileCustomer: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getProfileCustomer()
-	 */
-	@Override
-	public Customer getProfile()  {
-		return (Customer) getSession().createQuery("From Customer where canBeUsed = false").uniqueResult();
-	}
-
-	/**
-	 * getCustomerFromContactPerson: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getCustomerFromContactPerson(java.lang.String)
-	 */
-	@Override
-	public Customer getFromContactPerson(String contactPerson)  {
-		return (Customer) getSession().createQuery("From Customer where contactPerson = :contactPerson").setParameter("contactPerson", contactPerson).uniqueResult();
-	}
-
-	/**
-	 * isProfileCustomer: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#isProfileCustomer(int)
-	 */
-	@Override
-	public boolean isProfile(Integer idCustomer)  {
-		Boolean result = (Boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer")
-				.setParameter("idCustomer", idCustomer).uniqueResult();
-		return result == null ? false : !result;
-	}
-
-	/**
-	 * customerProfileExists: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerProfileExists()
-	 */
-	@Override
-	public boolean profileExists()  {
-		return ((Long) getSession().createQuery("Select count(customer) From Customer as customer where customer.canBeUsed = false").uniqueResult()).intValue() == 1;
-	}
-
-	/**
-	 * customerHasUsers: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerHasUsers(int)
-	 */
-	@Override
-	public boolean hasUsers(Integer idCustomer)  {
-		String query = "Select count(customer) From User as user inner join user.customers as customer where customer.id = :idCustomer";
-		return ((Long) getSession().createQuery(query).setParameter("idCustomer", idCustomer).uniqueResult()).intValue() != 0;
-	}
-
-	/**
-	 * customerExistsByOrganisation: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerExistsByOrganisation(java.lang.String)
-	 */
-	@Override
-	public boolean existsByOrganisation(String organisation)  {
-		return (Boolean) getSession().createQuery("Select count(customer)>0 From Customer as customer where customer.organisation = :organisation")
-				.setParameter("organisation", organisation).uniqueResult();
-	}
-
-	/**
-	 * getAllCustomers: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomers()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Customer> getAll()  {
-		return (List<Customer>) getSession().createQuery("From Customer").list();
-	}
-
-	/**
-	 * getAllCustomersAndProfileOfUser: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomersAndProfileOfUser(java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Customer> getAllAndProfileOfUser(String username)  {
-		String query = "Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1";
-		query += " where user.login = :username)  order by customer.canBeUsed asc, customer.organisation asc, customer.contactPerson asc";
-		return getSession().createQuery(query).setParameter("username", username).list();
-	}
-
-	/**
-	 * getAllCustomersNoProfilesOfUser: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomersNoProfilesOfUser(java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Customer> getAllNotProfileOfUser(String username)  {
-		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.canBeUsed = true order by customer.organisation ";
-		query += "asc, customer.contactPerson asc";
-		return getSession().createQuery(query).setParameter("username", username).list();
-	}
-
-	/**
-	 * getAllCustomersNoProfiles: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomersNoProfiles()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Customer> getAllNotProfiles()  {
-		return (List<Customer>) getSession().createQuery("From Customer WHERE canBeUsed=true").list();
-	}
-
-	/**
-	 * save: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#save(lu.itrust.business.TS.model.general.Customer)
-	 */
-	@Override
-	public void save(Customer customer)  {
-		getSession().save(customer);
-	}
-
-	/**
-	 * saveOrUpdate: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#saveOrUpdate(lu.itrust.business.TS.model.general.Customer)
-	 */
-	@Override
-	public void saveOrUpdate(Customer customer)  {
-		getSession().saveOrUpdate(customer);
-	}
-
-	/**
 	 * delete: <br>
 	 * Description
 	 * 
@@ -213,29 +58,189 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	}
 
 	@Override
-	public Customer getOneNoProfile() {
-		return (Customer) getSession().createQuery("From Customer where canBeUsed = true").setMaxResults(1).uniqueResult();
-	}
-
-	@Override
-	public Customer getFromUsernameAndId(String username, int idCustomer) {
-		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.id = :idCustomer";
-		return (Customer) getSession().createQuery(query).setParameter("username", username).setInteger("idCustomer", idCustomer).uniqueResult();
-	}
-
-	@Override
 	public boolean exists(int idCustomer) {
-		return (boolean) getSession().createQuery("Select count(*)>0 From Customer where id = :idCustomer").setInteger("idCustomer", idCustomer).uniqueResult();
-	}
-
-	@Override
-	public boolean isInUsed(Customer customer) {
-		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where customer = :customer").setParameter("customer", customer).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*)>0 From Customer where id = :idCustomer").setParameter("idCustomer", idCustomer).getSingleResult();
 	}
 
 	@Override
 	public boolean existsByIdAndOrganisation(int id, String organisation) {
 		return (Boolean) getSession().createQuery("Select count(customer)>0 From Customer as customer where customer.id <> :id and customer.organisation = :organisation")
-				.setInteger("id", id).setParameter("organisation", organisation).uniqueResult();
+				.setParameter("id", id).setParameter("organisation", organisation).getSingleResult();
+	}
+
+	/**
+	 * customerExistsByOrganisation: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerExistsByOrganisation(java.lang.String)
+	 */
+	@Override
+	public boolean existsByOrganisation(String organisation)  {
+		return (boolean) getSession().createQuery("Select count(customer)>0 From Customer as customer where customer.organisation = :organisation")
+				.setParameter("organisation", organisation).getSingleResult();
+	}
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#get(int)
+	 */
+	@Override
+	public Customer get(Integer id)  {
+		return (Customer) getSession().get(Customer.class, id);
+	}
+
+	/**
+	 * getAllCustomers: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomers()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getAll()  {
+		return (List<Customer>) getSession().createQuery("From Customer").getResultList();
+	}
+
+	/**
+	 * getAllCustomersAndProfileOfUser: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomersAndProfileOfUser(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getAllAndProfileOfUser(String username)  {
+		String query = "Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1";
+		query += " where user.login = :username)  order by customer.canBeUsed asc, customer.organisation asc, customer.contactPerson asc";
+		return getSession().createQuery(query).setParameter("username", username).getResultList();
+	}
+
+	/**
+	 * getAllCustomersNoProfilesOfUser: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomersNoProfilesOfUser(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getAllNotProfileOfUser(String username)  {
+		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.canBeUsed = true order by customer.organisation ";
+		query += "asc, customer.contactPerson asc";
+		return getSession().createQuery(query).setParameter("username", username).getResultList();
+	}
+
+	/**
+	 * getAllCustomersNoProfiles: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getAllCustomersNoProfiles()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getAllNotProfiles()  {
+		return (List<Customer>) getSession().createQuery("From Customer WHERE canBeUsed=true").getResultList();
+	}
+
+	/**
+	 * getCustomerFromContactPerson: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getCustomerFromContactPerson(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Customer getFromContactPerson(String contactPerson)  {
+		return (Customer) getSession().createQuery("From Customer where contactPerson = :contactPerson").setParameter("contactPerson", contactPerson).uniqueResultOptional().orElse(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Customer getFromUsernameAndId(String username, int idCustomer) {
+		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.id = :idCustomer";
+		return (Customer) getSession().createQuery(query).setParameter("username", username).setParameter("idCustomer", idCustomer).uniqueResultOptional().orElse(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Customer getOneNoProfile() {
+		return (Customer) getSession().createQuery("From Customer where canBeUsed = true").setMaxResults(1).uniqueResultOptional().orElse(null);
+	}
+
+	/**
+	 * getProfileCustomer: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#getProfileCustomer()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public Customer getProfile()  {
+		return (Customer) getSession().createQuery("From Customer where canBeUsed = false").uniqueResultOptional().orElse(null);
+	}
+
+	/**
+	 * customerHasUsers: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerHasUsers(int)
+	 */
+	@Override
+	public boolean hasUsers(Integer idCustomer)  {
+		String query = "Select count(customer) > 0 From User as user inner join user.customers as customer where customer.id = :idCustomer";
+		return  (boolean) getSession().createQuery(query).setParameter("idCustomer", idCustomer).getSingleResult();
+	}
+
+	@Override
+	public boolean isInUsed(Customer customer) {
+		return (boolean) getSession().createQuery("Select count(*)>0 From Analysis where customer = :customer").setParameter("customer", customer).getSingleResult();
+	}
+
+	/**
+	 * isProfileCustomer: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#isProfileCustomer(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean isProfile(Integer idCustomer)  {
+		return !(boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer")
+				.setParameter("idCustomer", idCustomer).uniqueResultOptional().orElse(true);
+		
+	}
+
+	/**
+	 * customerProfileExists: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#customerProfileExists()
+	 */
+	@Override
+	public boolean profileExists()  {
+		return (boolean) getSession().createQuery("Select count(customer)>0 From Customer as customer where customer.canBeUsed = false").getSingleResult();
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#save(lu.itrust.business.TS.model.general.Customer)
+	 */
+	@Override
+	public void save(Customer customer)  {
+		getSession().save(customer);
+	}
+
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#saveOrUpdate(lu.itrust.business.TS.model.general.Customer)
+	 */
+	@Override
+	public void saveOrUpdate(Customer customer)  {
+		getSession().saveOrUpdate(customer);
 	}
 }

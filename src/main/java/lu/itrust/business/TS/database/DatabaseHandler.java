@@ -7,11 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.List;
-import java.util.Vector;
 
 import lu.itrust.business.TS.component.TrickLogManager;
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.model.analysis.Analysis;
 
 /**
  * DatabaseHandler: This class handles the creation, closing and queriyng from
@@ -169,129 +166,6 @@ public class DatabaseHandler {
 		return query;
 	}
 
-	/**
-	 * getAssetTypeIdFromLabel: <br>
-	 * Get the AssetTypeID depending of label of the Asset If label belongs to
-	 * nothing, return -1
-	 * 
-	 * @param analysis
-	 *            The Analysis Object to retrieve ID fields
-	 * @param label
-	 *            The Label of the Asset Type
-	 * 
-	 * @throws SQLException
-	 */
-	public int getAssetTypeIDFromLabel(Analysis analysis, String label) throws SQLException {
-
-		// ****************************************************************
-		// * Declaration of variables
-		// ****************************************************************
-		int ID = -1;
-		Vector<Object> params = new Vector<Object>();
-		ResultSet rs = null;
-		String query = "";
-
-		// ****************************************************************
-		// * retrieve asset type ID
-		// ****************************************************************
-
-		// build query
-		query = "SELECT idAssetType, dtLabel FROM assettype WHERE idAnalysis=? AND idVersion=? AND ";
-		query += "idCreationDate=?";
-
-		// add parameters
-		params.clear();
-		params.add(analysis.getIdentifier());
-		params.add(analysis.getVersion());
-		params.add(analysis.getCreationDate());
-
-		// execute query
-		rs = this.query(query, params);
-
-		// retrieve result
-		while (rs.next()) {
-
-			if (label.equalsIgnoreCase(rs.getString(Constant.ASSETTYPE_MYSQL_LABEL))) {
-
-				// ****************************************************************
-				// * store ID
-				// ****************************************************************
-				ID = rs.getInt(Constant.ASSETTYPE_MYSQL_ID);
-
-				// ID was found leave loop
-				break;
-			}
-		}
-
-		// close result
-		rs.close();
-
-		// ****************************************************************
-		// * return ID
-		// ****************************************************************
-		return ID;
-	}
-
-	/**
-	 * getScenarioTypeIDFromLabel: <br>
-	 * Get the ScenarioTypeID depending of label of the Scenario If Label
-	 * belongs to nothing, return -1.
-	 * 
-	 * @param analysis
-	 *            The Analysis Object to retrieve ID fields
-	 * @param label
-	 *            The Label of the Scenario Type
-	 * @throws SQLException
-	 */
-	public int getScenarioTypeIDFromLabel(Analysis analysis, String label) throws SQLException {
-
-		// ****************************************************************
-		// * Declaration of variables
-		// ****************************************************************
-		int ID = -1;
-		Vector<Object> params = new Vector<Object>();
-		ResultSet rs = null;
-		String query = "";
-
-		// ****************************************************************
-		// * retrieve asset type ID
-		// ****************************************************************
-
-		// build query
-		query = "SELECT idScenarioType, dtLabel FROM ScenarioType WHERE idAnalysis=? AND idVersion=? AND ";
-		query += "idCreationDate=?";
-
-		// add parameters
-		params.add(analysis.getIdentifier());
-		params.add(analysis.getVersion());
-		params.add(analysis.getCreationDate());
-
-		// execute query
-		rs = this.query(query, params);
-
-		// retrieve result
-		while (rs.next()) {
-
-			if (label.equalsIgnoreCase(rs.getString(Constant.SCENARIOTYPE_MYSQL_LABEL))) {
-
-				// ****************************************************************
-				// * store ID
-				// ****************************************************************
-				ID = rs.getInt(Constant.SCENARIOTYPE_MYSQL_ID);
-
-				// ID was found leave loop
-				break;
-			}
-		}
-
-		// close result
-		rs.close();
-
-		// ****************************************************************
-		// * return ID
-		// ****************************************************************
-		return ID;
-	}
 
 	/**
 	 * query: <br>

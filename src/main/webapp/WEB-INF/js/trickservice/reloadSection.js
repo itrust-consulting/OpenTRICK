@@ -44,6 +44,7 @@ function reloadSection(section, subSection, refreshOnly) {
 				reloadSection(section[i][0], section[i][1], refreshOnly);
 			else
 				reloadSection(section[i], subSection, refreshOnly);
+
 		}
 	} else if (section == "section_standard")
 		location.reload();
@@ -97,7 +98,6 @@ function reloadSection(section, subSection, refreshOnly) {
 function findControllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Analysis/Asset/Section",
-		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
 		"section_scenario" : "/Analysis/Scenario/Section",
 		"section_phase" : "/Analysis/Phase/Section",
 		"section_analysis" : "/Analysis/Section",
@@ -111,14 +111,21 @@ function findControllerBySection(section, subSection) {
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
 		"section_riskregister" : "/Analysis/RiskRegister/Section",
 		"section_soa" : "/Analysis/Standard/SOA",
-		"section_ids" : "/Admin/IDS/Section"
+		"section_ids" : "/Admin/IDS/Section",
+		"section_kb_scale_type" : "/KnowledgeBase/ScaleType",
+		"section_parameter_extended" : "/Analysis/Parameter/Extended/Section",
+		"section_parameter_probability" : "/Analysis/Parameter/Probability/Section",
+		"section_parameter_impact" : "/Analysis/Parameter/Impact/Section"
 	};
 
 	if (section.match("^section_standard_")) {
 		$("[data-toggle='tooltip']", "#" + section).tooltip('destroy');
 		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
 	}
-	
+
+	if ("section_riskregister" == section && application.analysisType != "QUALITATIVE")
+		return undefined;
+
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
 	else
@@ -128,18 +135,16 @@ function findControllerBySection(section, subSection) {
 function callbackBySection(section) {
 	var callbacks = {
 		"section_asset" : function() {
-			reloadSection("section_scenario", undefined, true /*
-																 * prevent
-																 * propagation
-																 */);
+			reloadSection("section_scenario", undefined, true);
+			if (application.analysisType == "QUALITATIVE")
+				reloadSection("section_riskregister", undefined, true);
 			chartALE();
 			return false;
 		},
 		"section_scenario" : function() {
-			reloadSection("section_asset", undefined, true /*
-															 * prevent
-															 * propagation
-															 */);
+			reloadSection("section_asset", undefined, true);
+			if (application.analysisType == "QUALITATIVE")
+				reloadSection("section_riskregister", undefined, true);
 			chartALE();
 			return false;
 		},

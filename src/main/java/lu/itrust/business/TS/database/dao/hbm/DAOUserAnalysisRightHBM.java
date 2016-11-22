@@ -69,10 +69,11 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 *      java.lang.Integer,
 	 *      lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right)  {
 		String query = "Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.id = :idAnalysis and userRight.user.id = :idUser";
-		AnalysisRight analysisRight = (AnalysisRight) getSession().createQuery(query).setParameter("idAnalysis", analysisId).setParameter("idUser", userId).uniqueResult();
+		AnalysisRight analysisRight = (AnalysisRight) getSession().createQuery(query).setParameter("idAnalysis", analysisId).setParameter("idUser", userId).uniqueResultOptional().orElse(null);
 		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
 	}
 
@@ -84,15 +85,14 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 *      java.lang.String,
 	 *      lu.itrust.business.TS.model.analysis.rights.AnalysisRight)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right)  {
 		String query = "Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.id = :idAnalysis and userRight.user.login = :login";
-		AnalysisRight analysisRight = (AnalysisRight) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResult();
-		User user = (User) getSession().createQuery("FROM User as user where user.login = :username").setParameter("username", username).uniqueResult();
+		AnalysisRight analysisRight = (AnalysisRight) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResultOptional().orElse(null);
+		User user = (User) getSession().createQuery("FROM User as user where user.login = :username").setParameter("username", username).uniqueResultOptional().orElse(null);
 		Boolean isProfile = (Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :id").setParameter("id", idAnalysis)
-				.uniqueResult();
-		if (isProfile == null)
-			isProfile = false;
+				.uniqueResultOptional().orElse(false);
 		if (analysisRight == null && isProfile) {
 			if (user.isAutorised(RoleType.ROLE_CONSULTANT))
 				analysisRight = AnalysisRight.ALL;
@@ -137,7 +137,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	@Override
 	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid)  {
 		return (List<UserAnalysisRight>) getSession().createQuery("select userRight From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :analysis")
-				.setParameter("analysis", analysisid).list();
+				.setParameter("analysis", analysisid).getResultList();
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	@Override
 	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis)  {
 		return (List<UserAnalysisRight>) getSession().createQuery("select userRight From Analysis analysis inner join analysis.userRights userRight WHERE analysis = :analysis")
-				.setParameter("analysis", analysis).list();
+				.setParameter("analysis", analysis).getResultList();
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	public List<UserAnalysisRight> getAllFromUser(String login)  {
 		return (List<UserAnalysisRight>) getSession()
 				.createQuery("select userRight From Analysis analysis inner join analysis.userRights userRight where userRight.user.login = :user").setParameter("user", login)
-				.list();
+				.getResultList();
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	@Override
 	public List<UserAnalysisRight> getAllFromUser(User user)  {
 		return (List<UserAnalysisRight>) getSession().createQuery("select userRight From Analysis analysis inner join analysis.userRights userRight WHERE userRight.user = :user")
-				.setParameter("user", user).list();
+				.setParameter("user", user).getResultList();
 	}
 
 	/**
@@ -230,21 +230,22 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		return getSession()
 				.createQuery(
 						"select userRight From Analysis as analysis inner join analysis.userRights as userRight where analysis.identifier = :identifier and analysis.id <> :idAnalysis and userRight.right <>'READ'")
-				.setString("identifier", identifier).setInteger("idAnalysis", analysisId).list();
+				.setParameter("identifier", identifier).setParameter("idAnalysis", analysisId).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right)  {
 		AnalysisRight analysisRight = (AnalysisRight) getSession()
 				.createQuery(
 						"Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.identifier = :identifier and analysis.version = :version and userRight.user = :owner")
-				.setParameter("identifier", identifier).setString("version", version).setParameter("owner", owner).uniqueResult();
+				.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).uniqueResultOptional().orElse(null);
 		if (!(analysisRight == null || right == null) && analysisRight.ordinal() <= right.ordinal())
 			return true;
 		else
 			return (boolean) getSession()
 					.createQuery("Select count(*)>0 From Analysis analysis where analysis.identifier = :identifier and analysis.version = :version and analysis.owner = :owner")
-					.setParameter("identifier", identifier).setString("version", version).setParameter("owner", owner).uniqueResult();
+					.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).getSingleResult();
 	}
 
 	@Override
@@ -252,7 +253,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		return (boolean) getSession()
 				.createQuery(
 						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))")
-				.setInteger("idAnalysis", idAnalysis).setString("username", username).setParameterList("rights", AnalysisRight.highRightFrom(right)).uniqueResult();
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", AnalysisRight.highRightFrom(right)).getSingleResult();
 	}
 
 	@Override
@@ -265,6 +266,6 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		return (boolean) getSession()
 				.createQuery(
 						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and userRight.user.login = :username and userRight.right in (:rights)")
-				.setInteger("idAnalysis", idAnalysis).setString("username", username).setParameterList("rights", rights).uniqueResult();
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", rights).getSingleResult();
 	}
 }

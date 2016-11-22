@@ -43,17 +43,19 @@ public class DAOResetPasswordHBM extends DAOHibernate implements DAOResetPasswor
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.database.dao.DAOResetPassword#get(lu.itrust.business.TS.usermanagement.User)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ResetPassword get(User user) {
-		return (ResetPassword) getSession().createQuery("From ResetPassword where user = :user").setParameter("user", user).uniqueResult();
+		return (ResetPassword) getSession().createQuery("From ResetPassword where user = :user").setParameter("user", user).uniqueResultOptional().orElse(null);
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.TS.database.dao.DAOResetPassword#get(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ResetPassword get(String keyControl) {
-		return (ResetPassword) getSession().createQuery("From ResetPassword where keyControl = :keyControl").setParameter("keyControl", keyControl).uniqueResult();
+		return (ResetPassword) getSession().createQuery("From ResetPassword where keyControl = :keyControl").setParameter("keyControl", keyControl).uniqueResultOptional().orElse(null);
 	}
 
 	/* (non-Javadoc)
@@ -62,7 +64,7 @@ public class DAOResetPasswordHBM extends DAOHibernate implements DAOResetPasswor
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ResetPassword> getAll() {
-		return getSession().createQuery("From ResetPassword").list();
+		return getSession().createQuery("From ResetPassword").getResultList();
 	}
 
 	/* (non-Javadoc)
@@ -71,7 +73,7 @@ public class DAOResetPasswordHBM extends DAOHibernate implements DAOResetPasswor
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ResetPassword> getAll(int page, int size) {
-		return getSession().createQuery("From ResetPassword").setMaxResults(size).setFirstResult((page-1)*size).list();
+		return getSession().createQuery("From ResetPassword").setMaxResults(size).setFirstResult((page-1)*size).getResultList();
 	}
 
 	/* (non-Javadoc)

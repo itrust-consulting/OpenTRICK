@@ -1,4 +1,4 @@
-var activeSelector = undefined, helper = undefined, $probaScale, $impactScale;
+var activeSelector = undefined, helper = undefined, scales = [];
 
 function escape(key, val) {
 	if (typeof (val) != "string")
@@ -74,13 +74,18 @@ function saveAssessmentData(e) {
 								}
 							}
 						}
-						if (!updated)
+						if (!updated) {
 							$target.attr($target.hasAttr("placeholder") ? "placeholder" : "data-trick-value", $target.val());
+							if ($target.hasAttr("list"))
+								$target.attr("title", $("option[value='" + value + "']", "#" + $target.attr("list")).attr("title"));
+							else if ($target.tagName = 'SELECT')
+								$target.attr("title", $target.find("option:selected").attr('title'));
+						}
 					}
 				}
 			},
 			error : unknowError
-		}).complete(function(){
+		}).complete(function() {
 			$progress.hide();
 		});
 	}
@@ -131,16 +136,11 @@ function loadAssessmentData(id) {
 					});
 				}
 
-				$("button[name='probaScale']", $assessmentUI).click(function() {
-					if ($probaScale == undefined)
-						$probaScale = $("#probaScale");
-					$probaScale.modal("show");
-				});
-
-				$("button[name='impactScale']", $assessmentUI).click(function() {
-					if ($impactScale == undefined)
-						$impactScale = $("#impactScale");
-					$impactScale.modal("show");
+				$("button[data-scale-modal]", $assessmentUI).click(function() {
+					var name = this.getAttribute("data-scale-modal");
+					if (scales[name] == undefined)
+						scales[name] = $("#" + name);
+					scales[name].modal("show");
 				});
 
 			} else
@@ -148,7 +148,7 @@ function loadAssessmentData(id) {
 		},
 		error : unknowError
 	}).complete(function() {
-		if(idAsset ==-1 || idScenario ==-1)
+		if (idAsset == -1 || idScenario == -1)
 			fixTableHeader(".table-fixed-header-analysis");
 		$progress.hide()
 	});
@@ -287,9 +287,9 @@ AssessmentHelder.prototype = {
 	updateContent : function() {
 		var type = this.getCurrent(activeSelector).find("option:selected").attr("data-trick-type"), $elements = $("div[data-trick-content]:visible a[data-trick-id!='-1']");
 		if (activeSelector == "asset") {
-			$elements.each(function(i) {
-				var $this = $(this);
-				if ($this.attr("data-trick-type").search(type) != -1)
+			$elements.each(function() {
+				var $this = $(this), scenarioType = $this.attr("data-trick-type");
+				if (scenarioType && scenarioType.search(type) != -1)
 					$this.show();
 				else
 					$this.hide();

@@ -204,7 +204,7 @@ public class ControllerPhase {
 						errors.put("endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale));
 					}
 					// add phase to analysis
-					analysis.addPhase(phase);
+					analysis.add(phase);
 				} else {
 
 					if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {

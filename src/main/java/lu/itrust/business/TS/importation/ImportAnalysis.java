@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,6 +30,7 @@ import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
+import lu.itrust.business.TS.database.dao.DAOScaleType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
@@ -37,12 +39,14 @@ import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOScaleTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.model.assessment.Assessment;
@@ -61,15 +65,24 @@ import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManage
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.history.helper.ComparatorHistoryVersion;
 import lu.itrust.business.TS.model.iteminformation.ItemInformation;
-import lu.itrust.business.TS.model.parameter.DynamicParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.MaturityParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
-import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.IImpactParameter;
+import lu.itrust.business.TS.model.parameter.IMaturityParameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
 import lu.itrust.business.TS.model.parameter.helper.Bounds;
-import lu.itrust.business.TS.model.parameter.helper.ExtendedParameterComparator;
 import lu.itrust.business.TS.model.parameter.helper.ParameterManager;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.DynamicParameter;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.TS.model.parameter.impl.MaturityParameter;
+import lu.itrust.business.TS.model.parameter.impl.Parameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
+import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.TS.model.parameter.value.impl.Value;
 import lu.itrust.business.TS.model.riskinformation.RiskInformation;
+import lu.itrust.business.TS.model.scale.ScaleType;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.scenario.ScenarioType;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
@@ -123,6 +136,8 @@ public class ImportAnalysis {
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
+	private DAOScaleType daoScaleType;
+
 	private Session session;
 
 	private String currentSqliteTable = "";
@@ -153,7 +168,17 @@ public class ImportAnalysis {
 	/** Map of Measures */
 	private Map<String, Measure> measures = null;
 
-	private Map<String, ExtendedParameter> extendedParameters = null;
+	private Map<String, IImpactParameter> impactParameters = null;
+
+	private Map<String, IProbabilityParameter> probabilities = null;
+
+	private Map<String, Assessment> assessments;
+
+	private Map<String, ScaleType> impactTypes;
+
+	private boolean compability1X = false;
+
+	private ValueFactory factory = null;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -230,14 +255,14 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * import risk information
 			// ****************************************************************
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", 1));
 			importRiskInformation();
 
 			// ****************************************************************
 			// * import item information
 			// ****************************************************************
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", 5));
 			importItemInformation();
 
@@ -247,26 +272,33 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", 10));
 			importSimpleParameters();
-			
+
 			// ****************************************************************
 			// * import dynamic parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.dynamic_parameters.importing", "Import dynamic parameters", 15));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.dynamic_parameters.importing", "Import dynamic parameters", 12));
 			importDynamicParameters();
 
 			// ****************************************************************
 			// * import extended parameters
 			// ****************************************************************
-			
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 15));
-			importExtendedParameters();
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.impact_type.importing", "Import parameter type", 15));
+			//
+			importImpactParameterTypes();
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 18));
+			importImpactParameters();
+			// ****************************************************************
+			// * import extended parameters
+			// ****************************************************************
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 20));
+			importProbabilities();
 
 			// ****************************************************************
 			// * import maturity parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", 23));
 			importMaturityParameters();
 
 			// ****************************************************************
@@ -283,6 +315,9 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", 35));
 			importScenarios();
 
+			// Update value factory
+			factory = new ValueFactory(this.analysis.getParameters());
+
 			// ****************************************************************
 			// * import assessments
 			// ****************************************************************
@@ -290,7 +325,7 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", 40));
 			importAssessments();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_profile.importing", "Import risk profile", 45));
 			importRiskProfile();
 
 			// ****************************************************************
@@ -311,8 +346,9 @@ public class ImportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", 70));
 			importAssetTypeValues();
+
 			importAssetValues();
-			
+
 			// ****************************************************************
 			// * import maturity measures
 			// ****************************************************************
@@ -333,7 +369,7 @@ public class ImportAnalysis {
 			new DynamicParameterComputer(session, new AssessmentAndRiskProfileManager()).computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
-			new AssessmentAndRiskProfileManager().UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());
+			new AssessmentAndRiskProfileManager().updateRiskDendencies(analysis, factory);
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
@@ -362,37 +398,75 @@ public class ImportAnalysis {
 	}
 
 	private void importRiskProfile() throws SQLException {
-		ResultSet resultSet = sqlite.query("Select * From risk_profile");
-		if (resultSet == null)
+		if (analysis.getType() != AnalysisType.QUALITATIVE)
 			return;
-		List<RiskProfile> riskProfiles = new ArrayList<>(analysis.getAssessments().size());
-		while (resultSet.next()) {
-			RiskProfile riskProfile = new RiskProfile(assets.get(resultSet.getInt("id_asset")), scenarios.get(resultSet.getInt("id_threat")));
+		ResultSet resultSet = null;
+		Map<String, RiskProfile> riskProfiles = null;
+		try {
+			resultSet = sqlite.query("Select * From risk_profile");
+			if (resultSet == null)
+				return;
+			riskProfiles = new LinkedHashMap<>(analysis.getAssessments().size());
+			while (resultSet.next()) {
 
-			riskProfile.setActionPlan(resultSet.getString("actionPlan"));
-			riskProfile.setRiskTreatment(resultSet.getString("treatment"));
-			riskProfile.setRiskStrategy(RiskStrategy.valueOf(resultSet.getString("strategy")));
+				int assetId = resultSet.getInt("id_asset"), scenarioId = resultSet.getInt("id_threat");
 
-			riskProfile.setExpProbaImpact(new RiskProbaImpact());
-			riskProfile.setRawProbaImpact(new RiskProbaImpact());
+				RiskProfile riskProfile = new RiskProfile(assets.get(assetId), scenarios.get(scenarioId));
 
-			riskProfile.getExpProbaImpact().setImpactFin(extendedParameters.get(resultSet.getString("exp_impact_fin")));
-			riskProfile.getExpProbaImpact().setImpactLeg(extendedParameters.get(resultSet.getString("exp_impact_leg")));
-			riskProfile.getExpProbaImpact().setImpactOp(extendedParameters.get(resultSet.getString("exp_impact_op")));
-			riskProfile.getExpProbaImpact().setImpactRep(extendedParameters.get(resultSet.getString("exp_impact_rep")));
-			riskProfile.getExpProbaImpact().setProbability(extendedParameters.get(resultSet.getString("exp_probability")));
+				riskProfile.setActionPlan(resultSet.getString("actionPlan"));
+				riskProfile.setRiskTreatment(resultSet.getString("treatment"));
+				riskProfile.setRiskStrategy(RiskStrategy.valueOf(resultSet.getString("strategy")));
 
-			riskProfile.getRawProbaImpact().setImpactFin(extendedParameters.get(resultSet.getString("raw_impact_fin")));
-			riskProfile.getRawProbaImpact().setImpactLeg(extendedParameters.get(resultSet.getString("raw_impact_leg")));
-			riskProfile.getRawProbaImpact().setImpactOp(extendedParameters.get(resultSet.getString("raw_impact_op")));
-			riskProfile.getRawProbaImpact().setImpactRep(extendedParameters.get(resultSet.getString("raw_impact_rep")));
-			riskProfile.getRawProbaImpact().setProbability(extendedParameters.get(resultSet.getString("raw_probability")));
+				riskProfile.setExpProbaImpact(new RiskProbaImpact());
+				riskProfile.setRawProbaImpact(new RiskProbaImpact());
+				riskProfile.getExpProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("exp_probability")));
+				riskProfile.getRawProbaImpact().setProbability((LikelihoodParameter) probabilities.get(resultSet.getString("raw_probability")));
+				if (isCompability1X()) {
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("exp_impact_fin"))));
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("exp_impact_leg"))));
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("exp_impact_op"))));
+					riskProfile.getExpProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("exp_impact_rep"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[0], resultSet.getString("raw_impact_fin"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[1], resultSet.getString("raw_impact_leg"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[2], resultSet.getString("raw_impact_op"))));
+					riskProfile.getRawProbaImpact()
+							.add((ImpactParameter) impactParameters.get(Parameter.key(Constant.DEFAULT_IMPACT_TYPE_NAMES[3], resultSet.getString("raw_impact_rep"))));
+				}
+				riskProfiles.put(key(assetId, scenarioId), riskProfile);
+			}
 
-			riskProfiles.add(riskProfile);
-
+			if (!isCompability1X()) {
+				resultSet.close();
+				resultSet = sqlite.query("Select * From risk_profile_impact");
+				if (resultSet == null)
+					return;
+				while (resultSet.next()) {
+					RiskProfile riskProfile = riskProfiles.get(key(resultSet.getInt("id_asset"), resultSet.getInt("id_threat")));
+					ImpactParameter impact = (ImpactParameter) impactParameters.get(resultSet.getString("value"));
+					switch (resultSet.getString("name")) {
+					case "RAW":
+						riskProfile.getRawProbaImpact().add(impact);
+						break;
+					case "EXP":
+						riskProfile.getExpProbaImpact().add(impact);
+						break;
+					}
+				}
+			}
+			analysis.setRiskProfiles(riskProfiles.values().parallelStream().collect(Collectors.toList()));
+		} finally {
+			if (resultSet != null)
+				resultSet.close();
+			if (riskProfiles != null)
+				riskProfiles.clear();
 		}
-
-		analysis.setRiskProfiles(riskProfiles);
 
 	}
 
@@ -413,6 +487,14 @@ public class ImportAnalysis {
 			phases.clear();
 		if (scenarios != null)
 			scenarios.clear();
+		if (impactParameters != null)
+			impactParameters.clear();
+		if (assessments != null)
+			assessments.clear();
+		if (probabilities != null)
+			probabilities.clear();
+		if (impactTypes != null)
+			impactTypes.clear();
 	}
 
 	/**
@@ -465,9 +547,17 @@ public class ImportAnalysis {
 			if (analysis.getLabel() == null)
 				this.analysis.setLabel(rs.getString(Constant.IDENTIFIER_LABEL));
 
-			analysis.setCssf(getBoolean(rs, "cssf"));
+			String type = getString(rs, "analysis_type");
 
-			analysis.setUncertainty(getBoolean(rs, "uncertainty"));
+			if (type == null)
+				analysis.setType(getBoolean(rs, "cssf") ? AnalysisType.QUALITATIVE : AnalysisType.QUANTITATIVE);
+			else
+				analysis.setType(AnalysisType.valueOf(type));
+
+			if (analysis.getType() == AnalysisType.QUANTITATIVE)
+				analysis.setUncertainty(getBoolean(rs, "uncertainty"));
+			else
+				analysis.setUncertainty(false);
 		}
 
 		// close result
@@ -736,7 +826,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of risk information
 			// ****************************************************************
-			this.analysis.addARiskInformation(tempRI);
+			this.analysis.add(tempRI);
 		}
 
 		// Close ResultSet
@@ -776,7 +866,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of risk information
 			// ****************************************************************
-			this.analysis.addARiskInformation(tempRI);
+			this.analysis.add(tempRI);
 		}
 
 		// Close ResultSet
@@ -817,7 +907,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of risk information
 			// ****************************************************************
-			this.analysis.addARiskInformation(tempRI);
+			this.analysis.add(tempRI);
 		}
 
 		// Close ResultSet
@@ -927,7 +1017,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of assets
 			// ****************************************************************
-			this.analysis.addAnAsset(tempAsset);
+			this.analysis.add(tempAsset);
 		}
 
 		// Close ResultSet
@@ -1036,7 +1126,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of scenarios
 			// ****************************************************************
-			this.analysis.addAScenario(tempScenario);
+			this.analysis.add(tempScenario);
 		}
 
 		// Close ResultSet
@@ -1062,126 +1152,109 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		Asset tempAsset = null;
-		Scenario tempScenario = null;
-		double likelihoodValue = 0;
-		double impactRep = 0;
-		double impactOp = 0;
-		double impactLeg = 0;
-		double impactFin = 0;
-		double impactValue = 0;
-		double ALE = 0;
-		double ALEO = 0;
-		double ALEP = 0;
-		String query = "";
-		String parameterName = null;
-		Assessment tmpAssessment = null;
 
 		// ****************************************************************
 		// * Query sqlite for all assessment
 		// ****************************************************************
 
-		// build query
-		query = "SELECT * FROM assessment";
+		try {
+			// build query
+			String query = "SELECT * FROM assessment";
 
-		// execute query
-		rs = sqlite.query(query, null);
+			// execute query
+			rs = sqlite.query(query);
 
-		// Loop assessment
-		while (rs.next()) {
+			// Loop assessment
+			while (rs.next()) {
 
-			// ****************************************************************
-			// retrieve likelihood value
-			// ****************************************************************
+				// ****************************************************************
+				// * retrieve asset instance
+				// ****************************************************************
 
-			parameterName = rs.getString(Constant.ASSESSMENT_POTENTIALITY);
+				int assetId = rs.getInt(Constant.ASSET_ID_ASSET), scenarioId = rs.getInt(Constant.THREAT_ID_THREAT);
 
-			if (extendedParameters.containsKey(parameterName))
-				likelihoodValue = extendedParameters.get(parameterName).getValue();
+				// ****************************************************************
+				// * create assessment instance
+				// ****************************************************************
+				Assessment tmpAssessment = new Assessment();
+				tmpAssessment.setAsset(assets.get(assetId));
+				tmpAssessment.setScenario(scenarios.get(scenarioId));
+				tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
+				tmpAssessment.setLikelihood(rs.getString(Constant.ASSESSMENT_POTENTIALITY));
+				tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
+				tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
+				tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
+				tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
+				tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
 
-			// ****************************************************************
-			// * Retrieve Impact values
-			// ****************************************************************
+				tmpAssessment.setSelected(rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
 
-			// Reputation
-			impactRep = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_REP));
+				tmpAssessment.setALE(tmpAssessment.getImpactReal() * tmpAssessment.getLikelihoodReal());
 
-			// Financial
-			impactFin = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_FIN));
+				tmpAssessment.setALEO(tmpAssessment.getALE() / tmpAssessment.getUncertainty());
 
-			// Operational
-			impactOp = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_OP));
+				tmpAssessment.setALEP(tmpAssessment.getALE() * tmpAssessment.getUncertainty());
 
-			// Legal
-			impactLeg = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_LEG));
+				if (isCompability1X()) {
+					if (analysis.getType() == AnalysisType.QUANTITATIVE)
+						setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_NAME, tmpAssessment.getImpactReal());
+					else {
+						for (int i = 0; i < Constant.ASSESSMENT_IMPACT_NAMES.length; i++)
+							setImpact(tmpAssessment, Constant.DEFAULT_IMPACT_TYPE_NAMES[i], getString(rs, Constant.ASSESSMENT_IMPACT_NAMES[i]));
+					}
+				} else {
+					if (assessments == null)
+						assessments = new HashMap<>();
+					assessments.put(key(assetId, scenarioId), tmpAssessment);
+				}
+				// ****************************************************************
+				// * add instance to list of assessments
+				// ****************************************************************
+				this.analysis.add(tmpAssessment);
+			}
 
-			// Determine biggest impact
-			impactValue = Math.max(impactFin, Math.max(impactLeg, Math.max(impactOp, impactRep)));
+			/**
+			 * load impact
+			 */
 
-			// ****************************************************************
-			// ALE calculation
-			// ****************************************************************
+			if (!(assessments == null || assessments.isEmpty())) {
+				rs.close();
+				// execute query
+				rs = sqlite.query("SELECT * FROM assessment_impacts");
+				if (rs == null)
+					return;
+				while (rs.next())
+					assessments.get(key(rs.getInt(Constant.ASSET_ID_ASSET), rs.getInt(Constant.THREAT_ID_THREAT)))
+							.setImpact(factory.findValue(getDouble(rs, "value"), getString(rs, "name")));
+			}
 
-			// ALE=Impact * Likelihood
-			ALE = impactValue * likelihoodValue;
-
-			// ALEO=ALE / Uncertainty
-			ALEO = ALE / rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY);
-
-			// ALEP=ALE * Uncertainty
-			ALEP = ALE * rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY);
-
-			// ****************************************************************
-			// * retrieve asset instance
-			// ****************************************************************
-			tempAsset = assets.get(rs.getInt(Constant.ASSET_ID_ASSET));
-
-			// ****************************************************************
-			// * retrieve scenario instance
-			// ****************************************************************
-			tempScenario = scenarios.get(rs.getInt(Constant.THREAT_ID_THREAT));
-
-			// ****************************************************************
-			// * create assessment instance
-			// ****************************************************************
-			tmpAssessment = new Assessment();
-			tmpAssessment.setAsset(tempAsset);
-			tmpAssessment.setScenario(tempScenario);
-			tmpAssessment.setImpactRep(rs.getString(Constant.ASSESSMENT_IMPACT_REP));
-			tmpAssessment.setImpactOp(rs.getString(Constant.ASSESSMENT_IMPACT_OP));
-			tmpAssessment.setImpactLeg(rs.getString(Constant.ASSESSMENT_IMPACT_LEG));
-			tmpAssessment.setImpactFin(rs.getString(Constant.ASSESSMENT_IMPACT_FIN));
-			tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
-			tmpAssessment.setLikelihood(rs.getString(Constant.ASSESSMENT_POTENTIALITY));
-			tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
-			tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
-			tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
-			tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
-			tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
-			tmpAssessment.setALEO(ALEO);
-			tmpAssessment.setALE(ALE);
-			tmpAssessment.setALEP(ALEP);
-			tmpAssessment.setSelected(rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
-
-			// System.out.println(tmpAssessment.getALE() + ":::" +
-			// tmpAssessment.getAsset().getName() + ":::" +
-			// tmpAssessment.getScenario().getName());
-
-			// ****************************************************************
-			// * add instance to list of assessments
-			// ****************************************************************
-			this.analysis.addAnAssessment(tmpAssessment);
+		} finally {
+			// Close ResultSet
+			if (rs != null)
+				rs.close();
 		}
+	}
 
-		// Close ResultSet
-		rs.close();
+	private String key(int assetId, int scenarioId) {
+		return assetId + "_" + scenarioId;
+	}
+
+	private void setImpact(Assessment tmpAssessment, String type, String value) {
+		IImpactParameter parameter = impactParameters.get(Parameter.key(type, value));
+		IValue impact = parameter == null ? factory.findValue(value, type) : new Value(parameter);
+		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
+	}
+
+	private void setImpact(Assessment tmpAssessment, String type, Double value) {
+		IValue impact = factory.findValue(value, type);
+		tmpAssessment.setImpact(impact == null ? factory.findValue(0.0, type) : impact);
 	}
 
 	/**
 	 * importSimpleParameters: <br>
 	 * <ul>
 	 * <li>Imports all Simple Parameters (scope, maturity max efficiency)</li>
-	 * <li>Creates Objects for each Simple Parameter</li>
+	 * <li>Creates Objects for each Simple SimpleParameter</li>
 	 * <li>Adds the Objects to the "parameters" field List</li>
 	 * </ul>
 	 * 
@@ -1195,7 +1268,7 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		Parameter parameter = null;
+		SimpleParameter simpleParameter = null;
 		String query = "";
 		ParameterType parameterType = null;
 
@@ -1221,12 +1294,12 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// retrieve parameter type
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SINGLE);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null)
 			// save parameter type into database
-			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_SINGLE, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME));
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME));
 
 		// Retrieve result
 		if (rs.next()) {
@@ -1234,28 +1307,28 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create parameter instance for internal setup rate
 			// ****************************************************************
-			parameter = new Parameter();
-			parameter.setDescription(Constant.PARAMETER_INTERNAL_SETUP_RATE);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.PARAMETER_INTERNAL_SETUP_RATE));
+			simpleParameter = new SimpleParameter();
+			simpleParameter.setDescription(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+			simpleParameter.setType(parameterType);
+			simpleParameter.setValue(rs.getInt(Constant.PARAMETER_INTERNAL_SETUP_RATE));
 
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(parameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * create instance for external setup rate
 			// ****************************************************************
-			parameter = new Parameter();
-			parameter.setDescription(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
+			simpleParameter = new SimpleParameter();
+			simpleParameter.setDescription(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+			simpleParameter.setType(parameterType);
+			simpleParameter.setValue(rs.getInt(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
 
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(parameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * Insert default lifetime into simple parameter table
@@ -1264,15 +1337,15 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create instance of parameter
 			// ****************************************************************
-			parameter = new Parameter();
-			parameter.setDescription(Constant.PARAMETER_LIFETIME_DEFAULT);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.PARAMETER_LIFETIME_DEFAULT));
+			simpleParameter = new SimpleParameter();
+			simpleParameter.setDescription(Constant.PARAMETER_LIFETIME_DEFAULT);
+			simpleParameter.setType(parameterType);
+			simpleParameter.setValue(rs.getInt(Constant.PARAMETER_LIFETIME_DEFAULT));
 
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(parameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * Insert tuning into simple parameter table
@@ -1281,34 +1354,34 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create instance of tuning
 			// *****************************************************************
-			parameter = new Parameter();
-			parameter.setDescription(Constant.PARAMETER_MAX_RRF);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.PARAMETER_MAX_RRF));
+			simpleParameter = new SimpleParameter();
+			simpleParameter.setDescription(Constant.PARAMETER_MAX_RRF);
+			simpleParameter.setType(parameterType);
+			simpleParameter.setValue(rs.getInt(Constant.PARAMETER_MAX_RRF));
 			/*
 			 * //
 			 * ****************************************************************
 			 * // * add instance to list of parameters //
 			 * ****************************************************************
 			 */
-			this.analysis.addAParameter(parameter);
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * Insert mandatoryPhase into simple parameter table
 			// ****************************************************************
 
-			parameter = new Parameter(parameterType, Constant.SOA_THRESHOLD, rs.getDouble(Constant.SOA_THRESHOLD));
-			this.analysis.addAParameter(parameter);
+			simpleParameter = new SimpleParameter(parameterType, Constant.SOA_THRESHOLD, rs.getDouble(Constant.SOA_THRESHOLD));
+			this.analysis.add(simpleParameter);
 
 			// ****************************************************************
 			// * create instance of mandatoryPhase
 			// *****************************************************************
 
-			parameter = new Parameter();
-			parameter.setDescription(Constant.MANDATORY_PHASE);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.MANDATORY_PHASE));
-			this.analysis.addAParameter(parameter);
+			simpleParameter = new SimpleParameter();
+			simpleParameter.setDescription(Constant.MANDATORY_PHASE);
+			simpleParameter.setType(parameterType);
+			simpleParameter.setValue(rs.getInt(Constant.MANDATORY_PHASE));
+			this.analysis.add(simpleParameter);
 
 			/*
 			 * //
@@ -1320,24 +1393,24 @@ public class ImportAnalysis {
 		// close result
 		rs.close();
 
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_CSSF);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_CSSF_NAME);
 		if (parameterType == null)
-			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF, Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_CSSF_NAME));
 
 		rs = sqlite.query("SELECT cssfImpactThreshold, cssfProbabilityThreshold, cssfDirectSize, cssfIndirectSize, cssfCIASize FROM scope");
 		if (rs == null) {
-			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
-			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
-			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
-			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
-			this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, (double) Constant.CSSF_IMPACT_THRESHOLD_VALUE));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, (double) Constant.CSSF_PROBABILITY_THRESHOLD_VALUE));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, 20D));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, 5D));
+			this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, -1D));
 		} else {
 			while (rs.next()) {
-				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, rs.getDouble(Constant.CSSF_IMPACT_THRESHOLD)));
-				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, rs.getDouble(Constant.CSSF_PROBABILITY_THRESHOLD)));
-				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_DIRECT_SIZE, rs.getDouble(Constant.CSSF_DIRECT_SIZE)));
-				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_INDIRECT_SIZE, rs.getDouble(Constant.CSSF_INDIRECT_SIZE)));
-				this.analysis.addAParameter(new Parameter(parameterType, Constant.CSSF_CIA_SIZE, rs.getDouble(Constant.CSSF_CIA_SIZE)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_IMPACT_THRESHOLD, rs.getDouble(Constant.CSSF_IMPACT_THRESHOLD)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_PROBABILITY_THRESHOLD, rs.getDouble(Constant.CSSF_PROBABILITY_THRESHOLD)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_DIRECT_SIZE, rs.getDouble(Constant.CSSF_DIRECT_SIZE)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_INDIRECT_SIZE, rs.getDouble(Constant.CSSF_INDIRECT_SIZE)));
+				this.analysis.add(new SimpleParameter(parameterType, Constant.CSSF_CIA_SIZE, rs.getDouble(Constant.CSSF_CIA_SIZE)));
 			}
 			rs.close();
 		}
@@ -1350,12 +1423,12 @@ public class ImportAnalysis {
 		// * retrieve parametertype label
 		// ****************************************************************
 
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null)
 			// save parameter type into database
-			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_MAX_EFF, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME));
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME));
 
 		// ****************************************************************
 		// * retrieve maturity_max_effency
@@ -1364,7 +1437,7 @@ public class ImportAnalysis {
 		currentSqliteTable = "maturity_max_eff";
 
 		// build and execute query
-		rs = sqlite.query("SELECT * FROM maturity_max_eff", null);
+		rs = sqlite.query("SELECT * FROM maturity_max_eff");
 
 		// retrieve results
 		while (rs.next()) {
@@ -1376,15 +1449,15 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create instance
 			// ****************************************************************
-			parameter = new Parameter();
-			parameter.setDescription("SML" + String.valueOf(rs.getInt(Constant.MATURITY_MAX_EFF_COL)));
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getDouble(Constant.MATURITY_MAX_EFF_VALUE) * 100);
+			simpleParameter = new SimpleParameter();
+			simpleParameter.setDescription("SML" + String.valueOf(rs.getInt(Constant.MATURITY_MAX_EFF_COL)));
+			simpleParameter.setType(parameterType);
+			simpleParameter.setValue(rs.getDouble(Constant.MATURITY_MAX_EFF_VALUE) * 100);
 
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(parameter);
+			this.analysis.add(simpleParameter);
 		}
 
 		// close result
@@ -1398,12 +1471,12 @@ public class ImportAnalysis {
 		// * retrieve parametertype label
 		// ****************************************************************
 
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE);
+		parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
 			// save parameter type into database
-			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
+			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
 		}
 
 		currentSqliteTable = "maturity_IS";
@@ -1413,7 +1486,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build and execute query
-		rs = sqlite.query("SELECT * FROM maturity_IS", null);
+		rs = sqlite.query("SELECT * FROM maturity_IS");
 
 		// retrieve results
 		while (rs.next()) {
@@ -1425,7 +1498,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create instance
 			// ****************************************************************
-			parameter = new Parameter();
+			simpleParameter = new SimpleParameter();
 
 			String desc = "ImpScale";
 
@@ -1450,70 +1523,103 @@ public class ImportAnalysis {
 				break;
 			}
 
-			parameter.setDescription(desc);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getDouble(Constant.MATURITY_IS_VALUE) * 100);
+			simpleParameter.setDescription(desc);
+			simpleParameter.setType(parameterType);
+			simpleParameter.setValue(rs.getDouble(Constant.MATURITY_IS_VALUE) * 100);
 
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(parameter);
+			this.analysis.add(simpleParameter);
 		}
 
 		// close result
 		rs.close();
 
 	}
-	
+
 	private void importDynamicParameters() throws Exception {
-
-		// ****************************************************************
-		// * Create parameter type for dynamic parameters
-		// ****************************************************************
-
-		// Retrieve parameter type if it exists
-		ParameterType parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
-		if (parameterType == null) {
-			// It does not exist; create it
-			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_DYNAMIC, Constant.PARAMETERTYPE_TYPE_DYNAMIC_NAME);
-			parameterType.setId(Constant.PARAMETERTYPE_TYPE_DYNAMIC);
-
-			// Save parameter type into database
-			daoParameterType.save(parameterType);
-		}
-
 		// Import dynamic parameters
 		ResultSet rs = null;
 		try {
-			rs = sqlite.query("SELECT * FROM dynamic_parameter", null);
+			rs = sqlite.query("SELECT * FROM dynamic_parameter");
+			if (rs == null)
+				return;
 			while (rs.next()) {
 				final DynamicParameter dynamicParameter = new DynamicParameter();
 				dynamicParameter.setDescription(rs.getString(Constant.NAME_PARAMETER));
-				dynamicParameter.setType(parameterType);
 				dynamicParameter.setAcronym(rs.getString(Constant.ACRO_PARAMETER));
 				dynamicParameter.setValue(rs.getDouble(Constant.VALUE_PARAMETER));
-				this.analysis.addAParameter(dynamicParameter);
+				this.analysis.add(dynamicParameter);
 			}
-		} catch (SQLException ex) {
-			// Table does not exist, so we are dealing with an old database.
-		}
-		finally {
+		} finally {
 			if (rs != null)
 				rs.close();
 		}
+	}
+
+	private void importImpactParameterTypes() throws SQLException {
+		ResultSet resultSet = null;
+		try {
+			impactTypes = new LinkedHashMap<>();
+			resultSet = sqlite.query("Select * From impact_type");
+			if (resultSet == null) {
+				setCompability1X(true);
+				if (analysis.getType() == AnalysisType.QUANTITATIVE)
+					addImpactType(Constant.DEFAULT_IMPACT_NAME, Constant.DEFAULT_IMPACT_TRANSLATE, "");
+				else {
+					for (int i = 0; i < Constant.DEFAULT_IMPACT_TYPE_NAMES.length; i++)
+						addImpactType(Constant.DEFAULT_IMPACT_TYPE_NAMES[i], Constant.DEFAULT_IMPACT_TYPE_TRANSLATES[i], "i");
+				}
+			} else {
+				while (resultSet.next()) {
+					String name = resultSet.getString("name"), acronym = resultSet.getString("acronym");
+					ScaleType type = daoScaleType.findOne(name);
+					if (type == null) {
+						type = new ScaleType(name.toUpperCase(), generateAcronym(name, acronym.toLowerCase()));
+						type.put(this.analysis.getLanguage().getAlpha2(), resultSet.getString("translation"));
+						daoScaleType.saveOrUpdate(type);
+					}
+					impactTypes.put(type.getName(), type);
+				}
+			}
+		} finally {
+			if (resultSet != null)
+				resultSet.close();
+		}
+	}
+
+	private void addImpactType(String name, String translate, String prefix) {
+		ScaleType type = daoScaleType.findOne(name);
+		if (type == null) {
+			type = new ScaleType(name, generateAcronym(name, prefix + name.substring(0, 1).toLowerCase()));
+			type.put(this.analysis.getLanguage().getAlpha2(), translate);
+			daoScaleType.saveOrUpdate(type);
+		}
+		impactTypes.put(type.getName(), type);
+	}
+
+	private String generateAcronym(String name, String acronym) {
+		int length = 1;
+		while (daoScaleType.hasAcronym(acronym)) {
+			if (acronym.equals(name) || length >= name.length())
+				throw new TrickException("error.generate.impact.acronym", "Impact acronym cannot be generated, please contact your support.");
+			acronym = "i" + name.substring(0, length++).toLowerCase();
+		}
+		return acronym;
 	}
 
 	/**
 	 * importExtendedParameters: <br>
 	 * <ul>
 	 * <li>Imports all Extended Parameters (Likelihood, Impact)</li>
-	 * <li>Creates Objects for each Extended Parameter</li>
+	 * <li>Creates Objects for each Extended SimpleParameter</li>
 	 * <li>Adds the Objects to the "parameters" field List</li>
 	 * </ul>
 	 * 
 	 * @throws Exception
 	 */
-	private void importExtendedParameters() throws Exception {
+	private void importImpactParameters() throws Exception {
 
 		System.out.println("Import Extended Parameters");
 
@@ -1521,10 +1627,7 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		ExtendedParameter extenededParameter = null;
 		String query = "";
-		Bounds parameterbounds = null;
-		ParameterType parameterType = null;
 
 		// ****************************************************************
 		// * Import Impact
@@ -1533,16 +1636,6 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * retrieve parametertype
 		// ****************************************************************
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPACT);
-
-		// paramter type does not exist -> NO
-		if (parameterType == null)
-			// save parameter type into database
-			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPACT, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME));
-
-		// ****************************************************************
-		// * retrieve impact values
-		// ****************************************************************
 
 		currentSqliteTable = "impact";
 
@@ -1550,9 +1643,9 @@ public class ImportAnalysis {
 		query = "SELECT * FROM impact";
 
 		// execute query
-		rs = sqlite.query(query, null);
+		rs = sqlite.query(query);
 
-		List<ExtendedParameter> extendedParameters = new ArrayList<ExtendedParameter>();
+		List<ImpactParameter> impactParameters = new ArrayList<ImpactParameter>(11);
 
 		// retrieve results
 		while (rs.next()) {
@@ -1564,49 +1657,54 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create instance of extended parameter
 			// ****************************************************************
-			extenededParameter = new ExtendedParameter();
-			extenededParameter.setDescription(rs.getString(Constant.NAME_IMPACT));
-			extenededParameter.setType(parameterType);
-			extenededParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_IMPACT)));
-			extenededParameter.setAcronym(rs.getString(Constant.ACRO_IMPACT));
-			extenededParameter.setValue(rs.getDouble(Constant.VALUE_IMPACT));
-			parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_IMPACT), rs.getDouble(Constant.VALUE_TO_IMPACT));
-			extenededParameter.setBounds(parameterbounds);
+			ImpactParameter impactParameter = new ImpactParameter();
+			if (!isCompability1X())
+				impactParameter.setType(impactTypes.get(getString(rs, "type").toUpperCase()));
+			impactParameter.setDescription(rs.getString(Constant.NAME_IMPACT));
+			impactParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_IMPACT)));
+			impactParameter.setAcronym(rs.getString(Constant.ACRO_IMPACT));
+			impactParameter.setValue(rs.getDouble(Constant.VALUE_IMPACT));
+			Bounds parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_IMPACT), rs.getDouble(Constant.VALUE_TO_IMPACT));
+			impactParameter.setBounds(parameterbounds);
 
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			extendedParameters.add(extenededParameter);
+			impactParameters.add(impactParameter);
 		}
 
 		// close result
 		rs.close();
 
-		// ****************************************************************
-		// * Import likelihood
-		// ****************************************************************
+		if (isCompability1X()) {
+			ParameterManager.ComputeImpactValue(impactParameters);
+			this.impactParameters = new LinkedHashMap<>();
+			impactTypes.values().forEach(scaleType -> {
+				impactParameters.forEach(parameter -> {
+					ImpactParameter impactParameter = parameter.clone();
+					impactParameter.setType(scaleType);
+					this.impactParameters.put(Parameter.key(scaleType.getName(), impactParameter.getAcronym()), impactParameter);
+					impactParameter.setAcronym(scaleType.getAcronym() + impactParameter.getLevel());
+					this.analysis.add(impactParameter);
+				});
+			});
+			impactParameters.clear();
+		} else {
+			this.analysis.getParameters().put(Constant.PARAMETER_CATEGORY_IMPACT, impactParameters);
+			this.impactParameters = impactParameters.stream().collect(Collectors.toMap(ImpactParameter::getAcronym, Function.identity()));
+		}
+	}
+
+	private void importProbabilities() throws SQLException {
+
+		System.out.println("Import probability Parameters");
 
 		// ****************************************************************
-		// * retrieve parameter type label
+		// * initialise variables
 		// ****************************************************************
-
-		Comparator<ExtendedParameter> comparator = new ExtendedParameterComparator();
-
-		Collections.sort(extendedParameters, comparator);
-
-		ParameterManager.ComputeImpactValue(extendedParameters);
-
-		this.analysis.getParameters().addAll(extendedParameters);
-
-		this.extendedParameters = extendedParameters.stream().collect(Collectors.toMap(ExtendedParameter::getAcronym, Function.identity()));
-
-		extendedParameters.clear();
-
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_PROPABILITY);
-
-		// paramter type does not exist -> NO
-		if (parameterType == null)
-			daoParameterType.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_PROPABILITY, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME));
+		ResultSet rs = null;
+		String query = "";
+		Bounds parameterbounds = null;
 
 		// ****************************************************************
 		// * retrieve likelihood values
@@ -1620,6 +1718,8 @@ public class ImportAnalysis {
 		// execute query
 		rs = sqlite.query(query, null);
 
+		List<LikelihoodParameter> likelihoodParameters = new ArrayList<>(11);
+
 		// retrieve results
 		while (rs.next()) {
 
@@ -1630,43 +1730,35 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * create instance
 			// ****************************************************************
-			extenededParameter = new ExtendedParameter();
-			extenededParameter.setDescription(rs.getString(Constant.NAME_POTENTIALITY));
-			extenededParameter.setType(parameterType);
-			extenededParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_POTENTIALITY)));
-			extenededParameter.setAcronym(rs.getString(Constant.ACRO_POTENTIALITY));
-			extenededParameter.setValue(rs.getDouble(Constant.VALUE_POTENTIALITY));
+			LikelihoodParameter likelihoodParameter = new LikelihoodParameter();
+			likelihoodParameter.setDescription(rs.getString(Constant.NAME_POTENTIALITY));
+			likelihoodParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_POTENTIALITY)));
+			likelihoodParameter.setAcronym(rs.getString(Constant.ACRO_POTENTIALITY));
+			likelihoodParameter.setValue(rs.getDouble(Constant.VALUE_POTENTIALITY));
 			parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_POTENTIALITY), rs.getDouble(Constant.VALUE_TO_POTENTIALITY));
-			extenededParameter.setBounds(parameterbounds);
+			likelihoodParameter.setBounds(parameterbounds);
 
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			extendedParameters.add(extenededParameter);
+			likelihoodParameters.add(likelihoodParameter);
 		}
 
 		// close result
 		rs.close();
 
-		Collections.sort(extendedParameters, comparator);
+		ParameterManager.ComputeLikehoodValue(likelihoodParameters);
 
-		ParameterManager.ComputeImpactValue(extendedParameters);
+		this.analysis.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, likelihoodParameters);
 
-		this.analysis.getParameters().addAll(extendedParameters);
-
-		extendedParameters.forEach(parameter -> this.extendedParameters.put(parameter.getAcronym(), parameter));
-
-		extendedParameters.clear();
-
-		// recalculate parameter scales of impact and probability
-		// this.analysis.computeParameterScales();
+		this.probabilities = likelihoodParameters.stream().collect(Collectors.toMap(LikelihoodParameter::getAcronym, Function.identity()));
 	}
 
 	/**
 	 * importMaturityParameters: <br>
 	 * <ul>
 	 * <li>Imports all Maturity Parameters</li>
-	 * <li>Creates Objects for each Maturity Parameter</li>
+	 * <li>Creates Objects for each Maturity SimpleParameter</li>
 	 * <li>Adds the Objects to the "parameters" field List</li>
 	 * </ul>
 	 * 
@@ -1684,19 +1776,7 @@ public class ImportAnalysis {
 		String label = "";
 		String cat = "";
 		String temp = "";
-		ParameterType parameterType = null;
 		MaturityParameter maturityParameter = null;
-
-		// ****************************************************************
-		// * retrieve parameter type
-		// ****************************************************************
-
-		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML);
-
-		// paramter type does not exist -> NO
-		if (parameterType == null)
-			daoParameterType.save(
-					parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME));
 
 		// ****************************************************************
 		// * import maturity parameters
@@ -1759,7 +1839,6 @@ public class ImportAnalysis {
 				maturityParameter = new MaturityParameter();
 				maturityParameter.setCategory(cat);
 				maturityParameter.setDescription(label);
-				maturityParameter.setType(parameterType);
 				parameters.add(maturityParameter);
 			}
 
@@ -1798,8 +1877,8 @@ public class ImportAnalysis {
 
 		}
 
-		for (Parameter parameter : parameters)
-			this.analysis.addAParameter(parameter);
+		for (IMaturityParameter parameter : parameters)
+			this.analysis.add(parameter);
 
 		// close result
 		rs.close();
@@ -1875,7 +1954,7 @@ public class ImportAnalysis {
 
 		// populate usedPhases list
 		for (Phase phase2 : phases.values())
-			this.analysis.addPhase(phase2);
+			this.analysis.add(phase2);
 
 		// order phases by phase number
 		this.analysis.initialisePhases();
@@ -2429,7 +2508,7 @@ public class ImportAnalysis {
 					// ****************************************************************
 					// * add instance to list of item information
 					// ****************************************************************
-					this.analysis.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i))));
+					this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i))));
 				}
 			}
 		}
@@ -2440,7 +2519,7 @@ public class ImportAnalysis {
 		// Add missing scope
 		for (String scopeName : extendedScopes) {
 			if (!this.analysis.getItemInformations().stream().anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
-				this.analysis.addAnItemInformation(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
+				this.analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 		}
 
 		// ****************************************************************
@@ -2482,8 +2561,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * add instance to list of item information
 				// ****************************************************************
-				this.analysis
-						.addAnItemInformation(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
+				this.analysis.add(new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i))));
 			}
 		}
 	}
@@ -2516,7 +2594,7 @@ public class ImportAnalysis {
 		Standard standard = null;
 		MeasureDescription mesDesc = null;
 		MeasureDescriptionText mesText = null;
-		Parameter implementationRateParameter = null;
+		IParameter implementationRateParameter = null;
 		double implementationRate = 0;
 		MaturityMeasure maturityMeasure = null;
 		Integer standardVersion = 2005;
@@ -2672,7 +2750,7 @@ public class ImportAnalysis {
 					tempPhase.setAnalysis(analysis);
 					phases.put(numPhase, tempPhase);
 
-					analysis.addPhase(tempPhase);
+					analysis.add(tempPhase);
 				}
 
 			}
@@ -2724,12 +2802,10 @@ public class ImportAnalysis {
 			// System.out.println(implementationRate);
 
 			// parse implmentation rate parameters
-			for (Parameter parameter : analysis.getParameters()) {
-
-				// System.out.println(parameter.getType().getLabel());
+			for (SimpleParameter parameter : analysis.getSimpleParameters()) {
 
 				// find implementation rate parameter and wanted value
-				if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
+				if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
 					if (parameter.getValue() == implementationRate) {
 						// retrieve object
 						implementationRateParameter = parameter;
@@ -2781,7 +2857,7 @@ public class ImportAnalysis {
 
 		// add analysis standards from map to the analysis
 		for (AnalysisStandard analysisStandard2 : analysisStandards.values())
-			analysis.addAnalysisStandard(analysisStandard2);
+			analysis.add(analysisStandard2);
 	}
 
 	/**
@@ -2920,31 +2996,6 @@ public class ImportAnalysis {
 		}
 	}
 
-	/**
-	 * convertImpactToDouble: <br>
-	 * Takes a string value (value from SQLite file) and converts it into a
-	 * valid double value.
-	 * 
-	 * @param impact
-	 *            The impact value as string
-	 * @return A valid Double value
-	 */
-	private double convertImpactToDouble(String impact) {
-		// ****************************************************************
-		// * Initialise variables
-		// ****************************************************************
-		// ****************************************************************
-		// * pattern matches a acronym -> YES
-		// ****************************************************************
-		try {
-			if (extendedParameters.containsKey(impact))
-				return extendedParameters.get(impact).getValue();
-			return Double.parseDouble(impact);
-		} catch (NumberFormatException | NullPointerException e) {
-			return 0;
-		}
-	}
-
 	public void setAnalysis(Analysis analysis2) {
 		this.analysis = analysis2;
 	}
@@ -2978,6 +3029,7 @@ public class ImportAnalysis {
 		setDaoStandard(new DAOStandardHBM(session));
 		setDaoParameterType(new DAOParameterTypeHBM(session));
 		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
+		setDaoScaleType(new DAOScaleTypeHBM(session));
 	}
 
 	public static String getString(ResultSet rs, String name) {
@@ -3101,6 +3153,21 @@ public class ImportAnalysis {
 	}
 
 	/**
+	 * @return the daoScaleType
+	 */
+	public DAOScaleType getDaoScaleType() {
+		return daoScaleType;
+	}
+
+	/**
+	 * @param daoScaleType
+	 *            the daoScaleType to set
+	 */
+	public void setDaoScaleType(DAOScaleType daoScaleType) {
+		this.daoScaleType = daoScaleType;
+	}
+
+	/**
 	 * @return the currentSqliteTable
 	 */
 	public String getCurrentSqliteTable() {
@@ -3131,6 +3198,21 @@ public class ImportAnalysis {
 			this.analysis.setOwner(owner);
 			this.analysis.addUserRight(owner, AnalysisRight.ALL);
 		}
+	}
+
+	/**
+	 * @return the compability1X
+	 */
+	public boolean isCompability1X() {
+		return compability1X;
+	}
+
+	/**
+	 * @param compability1x
+	 *            the compability1X to set
+	 */
+	public void setCompability1X(boolean compability1x) {
+		compability1X = compability1x;
 	}
 
 }

@@ -17,6 +17,14 @@
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
+<c:set var="implementationRateAttr">
+	<c:choose>
+		<c:when test="${type == 'QUALITATIVE'}">
+			data-trick-min-value='0' data-trick-max-value='100' data-trick-step-value='1'
+		</c:when>
+		<c:otherwise>data-trick-list-value="dataListImplementationRate"</c:otherwise>
+	</c:choose>
+</c:set>
 <c:forEach items="${measures.keySet()}" var="standard">
 	<spring:eval expression="T(lu.itrust.business.TS.model.standard.measure.helper.MeasureManager).getStandard(standards, standard)" var="selectedStandard" scope="page" />
 	<c:set var="standardType" value="${selectedStandard.type}" scope="page"/>
@@ -118,7 +126,7 @@
 				<tbody>
 					<c:forEach items="${measures.get(standard)}" var="measure">
 						<c:set var="css">
-							<c:if test="${measure.getImplementationRateValue(expressionParameters) < 100 and measure.status!='NA' }">class="success"</c:if>
+							<c:if test="${measure.getImplementationRateValue(valueFactory) < 100 and measure.status!='NA' }">class="success"</c:if>
 						</c:set>
 						<c:set var="todoCSS">
 							<c:choose>
@@ -128,7 +136,7 @@
 						</c:set>
 						<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 						<c:set var="dblclickaction">
-							<c:if test="${isEditable and ( analysisOnly or measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
+							<c:if test="${isEditable and ( analysisOnly or type == 'QUANTITATIVE' and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 								ondblclick="return editMeasure(this,${standardid},${measure.id});"
 							</c:if>
 						</c:set>
@@ -178,14 +186,14 @@
 								</tr>
 							</c:when>
 							<c:otherwise>
-								<tr data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)" data-trick-level="${measure.measureDescription.level}" 
+								<tr ${isAnalysisOnly?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)" data-trick-level="${measure.measureDescription.level}" 
 									data-trick-class="Measure" data-is-linked='${hasTicket}'
 									data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 									<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
 										<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
 											onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 									</c:if>
-									<td ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''} >
+									<td ${not isAnalysisOnly ?dblclickaction:''} >
 										<c:choose>
 											<c:when test="${hasTicket}">
 												<spring:eval expression="T(lu.itrust.business.TS.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName,ticketingURL,measure.ticket)" var="ticketLink" />
@@ -194,7 +202,7 @@
 											<c:otherwise><spring:message text="${measure.measureDescription.reference}" /></c:otherwise>
 										</c:choose>
 									</td>
-									<td ${popoverRef} ${selectedStandard.computable && selectedStandard.type!='MATURITY'?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+									<td ${popoverRef}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate="${statusM},${statusAP},${statusNA}"
 										data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"
 										data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"><c:choose>
@@ -208,17 +216,15 @@
 												${statusM}
 											</c:otherwise>
 										</c:choose></td>
+									<fmt:formatNumber value="${measure.getImplementationRateValue(valueFactory)}" maxFractionDigits="0" minFractionDigits="0" var="implementationRateValue"/>
 									<c:choose>
 										<c:when test="${standardType.name.equals('MATURITY')}">
-											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double"
-												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${measure.measureDescription.reference}');" onclick="return editField(this);"><fmt:formatNumber
-													value="${measure.getImplementationRateValue(expressionParameters)}" maxFractionDigits="0" minFractionDigits="0" /></td>
+											<td ${css} data-trick-field="implementationRate" data-trick-class="MaturityMeasure" data-trick-field-type="double" title="${implementationRateValue} %"
+												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}');updateMeasureEffience('${measure.measureDescription.reference}');" onclick="return editField(this);">${implementationRateValue}</td>
 										</c:when>
 										<c:otherwise>
-											<td ${css} data-trick-field="implementationRate" data-trick-field-type="string"
-												title="${measure.getImplementationRateValue(expressionParameters)}"
-												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><spring:message
-													text="${measure.getImplementationRate()}" /></td>
+											<td ${css} data-trick-field="implementationRate" data-trick-field-type="string" ${implementationRateAttr} title="${implementationRateValue} %"
+												data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);">${implementationRateValue}</td>
 											<c:if test="${hasMaturity and standard.equals('27002') }">
 												<td class="text-center" data-trick-field='mer' ><c:choose>
 														<c:when test="${empty effectImpl27002[measure.measureDescription.reference]}">0</c:when>
@@ -247,7 +253,7 @@
 										data-real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
 											value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
 									<c:choose>
-										<c:when test="${measure.getImplementationRateValue(expressionParameters)>=100 || measure.getStatus().equals('NA')}">
+										<c:when test="${implementationRateValue>=100 || measure.getStatus().equals('NA')}">
 											<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
 													value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
 										</c:when>

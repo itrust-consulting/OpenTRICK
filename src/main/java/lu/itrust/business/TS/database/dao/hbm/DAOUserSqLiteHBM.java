@@ -46,7 +46,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#get(long)
 	 */
 	@Override
-	public UserSQLite get(Integer id)  {
+	public UserSQLite get(Integer id) {
 		return (UserSQLite) getSession().get(UserSQLite.class, id);
 	}
 
@@ -56,9 +56,10 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByFilename(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public UserSQLite getByFilename(String filename)  {
-		return (UserSQLite) getSession().createQuery("From UserSQLite where filename = :filename").setParameter("filename", filename).uniqueResult();
+	public UserSQLite getByFilename(String filename) {
+		return (UserSQLite) getSession().createQuery("From UserSQLite where filename = :filename").setParameter("filename", filename).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -68,10 +69,11 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByUserSQLiteIdAndUserLogin(long,
 	 *      java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public UserSQLite getByIdAndUser(Integer idFile, String username)  {
-		String query = "From UserSQLite where id = :idFile and user.login = :username";
-		return (UserSQLite) getSession().createQuery(query).setParameter("idFile", idFile).setParameter("username", username).uniqueResult();
+	public UserSQLite getByIdAndUser(Integer id, String username) {
+		String query = "From UserSQLite where id = :id and user.login = :username";
+		return (UserSQLite) getSession().createQuery(query).setParameter("id", id).setParameter("username", username).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -82,8 +84,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserSQLite> getAllFromUser(String username)  {
-		return getSession().createQuery("From UserSQLite where user.login = :username order by exportTime desc").setParameter("username", username).list();
+	public List<UserSQLite> getAllFromUser(String username) {
+		return getSession().createQuery("From UserSQLite where user.login = :username order by exportTime desc").setParameter("username", username).getResultList();
 	}
 
 	/**
@@ -95,9 +97,9 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize)  {
+	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) {
 		String query = "From UserSQLite where user.login = :username order by exportTime desc";
-		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
+		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).getResultList();
 	}
 
 	/**
@@ -107,7 +109,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#save(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Override
-	public UserSQLite save(UserSQLite userSqLite)  {
+	public UserSQLite save(UserSQLite userSqLite) {
 		return (UserSQLite) getSession().save(userSqLite);
 	}
 
@@ -118,7 +120,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#saveOrUpdate(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Override
-	public void saveOrUpdate(UserSQLite userSqLite)  {
+	public void saveOrUpdate(UserSQLite userSqLite) {
 		getSession().saveOrUpdate(userSqLite);
 	}
 
@@ -129,7 +131,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#merge(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Override
-	public UserSQLite merge(UserSQLite userSqLite)  {
+	public UserSQLite merge(UserSQLite userSqLite) {
 		return (UserSQLite) getSession().merge(userSqLite);
 	}
 
@@ -140,8 +142,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(long)
 	 */
 	@Override
-	public void delete(Integer idUserSqLite)  {
-		delete(get(idUserSqLite));
+	public void delete(Integer id) {
+		delete(get(id));
 	}
 
 	/**
@@ -151,7 +153,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(java.lang.String)
 	 */
 	@Override
-	public void delete(String filename)  {
+	public void delete(String filename) {
 		delete(getByFilename(filename));
 	}
 
@@ -162,14 +164,14 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(lu.itrust.business.TS.model.general.UserSQLite)
 	 */
 	@Override
-	public void delete(UserSQLite userSqLite)  {
+	public void delete(UserSQLite userSqLite) {
 		getSession().delete(userSqLite);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getDistinctIdentifierByUser(User user) {
-		return getSession().createQuery("Select distinct identifier From UserSQLite where user = :user order by identifier desc").setParameter("user", user).list();
+		return getSession().createQuery("Select distinct identifier From UserSQLite where user = :user order by identifier desc").setParameter("user", user).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -179,12 +181,12 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 			throw new IllegalArgumentException();
 		if ("ALL".equalsIgnoreCase(filter.getFilter()))
 			return getSession().createQuery(String.format("From UserSQLite where user.login = :username order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
+					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();
 		else
 			return getSession()
 					.createQuery(String.format("From UserSQLite where user.login = :username and identifier = :filter order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setString("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
-					.list();
+					.setParameter("username", username).setParameter("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
+					.getResultList();
 	}
 
 	@Override

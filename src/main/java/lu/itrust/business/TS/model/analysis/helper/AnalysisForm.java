@@ -4,10 +4,13 @@
 package lu.itrust.business.TS.model.analysis.helper;
 
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.history.History;
+import lu.itrust.business.TS.model.scale.Scale;
 
 /**
  * @author eomar
@@ -45,11 +48,15 @@ public class AnalysisForm {
 
 	private List<AnalysisStandardBaseInfo> standards;
 
+	private List<Integer> impacts = Collections.emptyList();
+
+	private Scale scale;
+
 	private String version;
 
 	private boolean uncertainty;
 
-	private boolean cssf;
+	private AnalysisType type;
 
 	/**
 	 * 
@@ -58,7 +65,7 @@ public class AnalysisForm {
 	}
 
 	public boolean isAssessment() {
-		return assessment && asset > 0 && asset == scenario;
+		return assessment && asset > 0 && asset == scenario && asset == parameter;
 	}
 
 	public void setAssessment(boolean assessment) {
@@ -69,7 +76,7 @@ public class AnalysisForm {
 	 * @return the riskProfile
 	 */
 	public boolean isRiskProfile() {
-		return riskProfile && cssf && asset > 0 && asset == scenario;
+		return riskProfile && type == AnalysisType.QUALITATIVE && asset > 0 && asset == scenario && asset == parameter;
 	}
 
 	/**
@@ -179,23 +186,21 @@ public class AnalysisForm {
 		return new History(version, new Timestamp(System.currentTimeMillis()), author, comment);
 	}
 
-	public void setDefaultProfile(int defaultProfileId) {
-		if (profile < 1)
-			profile = defaultProfileId;
+	public void updateProfile() {
 		if (scope < 1)
-			scope = defaultProfileId;
+			scope = profile;
 		if (riskInformation < 1)
-			riskInformation = defaultProfileId;
+			riskInformation = profile;
 		if (parameter < 1)
-			parameter = defaultProfileId;
+			parameter = profile;
 		if (standards == null || standards.isEmpty()) {
 			if (standards == null)
 				standards = new LinkedList<AnalysisStandardBaseInfo>();
-			standards.add(new AnalysisStandardBaseInfo(defaultProfileId));
+			standards.add(new AnalysisStandardBaseInfo(profile));
 		}
 
 		if (scenario < 1)
-			scenario = defaultProfileId;
+			scenario = profile;
 	}
 
 	public int getProfile() {
@@ -228,24 +233,18 @@ public class AnalysisForm {
 	}
 
 	/**
-	 * isCssf: <br>
-	 * Returns the cssf field value.
-	 * 
-	 * @return The value of the cssf field
+	 * @return the type
 	 */
-	public boolean isCssf() {
-		return cssf;
+	public AnalysisType getType() {
+		return type;
 	}
 
 	/**
-	 * setCssf: <br>
-	 * Sets the Field "cssf" with a value.
-	 * 
-	 * @param cssf
-	 *            The Value to set the cssf field
+	 * @param type
+	 *            the type to set
 	 */
-	public void setCssf(boolean cssf) {
-		this.cssf = cssf;
+	public void setType(AnalysisType type) {
+		this.type = type;
 	}
 
 	public String getName() {
@@ -270,4 +269,35 @@ public class AnalysisForm {
 	public void setStandards(List<AnalysisStandardBaseInfo> standards) {
 		this.standards = standards;
 	}
+
+	/**
+	 * @return the impacts
+	 */
+	public List<Integer> getImpacts() {
+		return impacts;
+	}
+
+	/**
+	 * @param impacts
+	 *            the impacts to set
+	 */
+	public void setImpacts(List<Integer> impacts) {
+		this.impacts = impacts;
+	}
+
+	/**
+	 * @return the scale
+	 */
+	public Scale getScale() {
+		return scale;
+	}
+
+	/**
+	 * @param scale
+	 *            the scale to set
+	 */
+	public void setScale(Scale scale) {
+		this.scale = scale;
+	}
+
 }

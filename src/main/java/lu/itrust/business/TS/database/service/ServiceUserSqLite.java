@@ -19,7 +19,7 @@ public interface ServiceUserSqLite {
 
 	public UserSQLite getByFilename(String filename);
 
-	public UserSQLite getByIdAndUser(Integer idFile, String username);
+	public UserSQLite getByIdAndUser(Integer id, String username);
 
 	public List<UserSQLite> getAllFromUser(String username);
 
@@ -31,7 +31,7 @@ public interface ServiceUserSqLite {
 
 	public UserSQLite merge(UserSQLite userSqLite);
 
-	public void delete(Integer idUserSqLite);
+	public void delete(Integer id);
 
 	public void delete(String filename);
 

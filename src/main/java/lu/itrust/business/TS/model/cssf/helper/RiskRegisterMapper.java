@@ -9,7 +9,7 @@ import java.util.Map;
 
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 /**
  * @author eomar
@@ -17,21 +17,20 @@ import lu.itrust.business.TS.model.parameter.Parameter;
  */
 public class RiskRegisterMapper {
 	
-	public static Map<Integer, RiskRegisterHelper> Generate(List<RiskRegisterItem> riskRegisterItems,List<Parameter> parameters) throws TrickException{
+	public static Map<Integer, RiskRegisterHelper> Generate(List<RiskRegisterItem> riskRegisterItems,ValueFactory factory) throws TrickException{
 		Map<Integer, RiskRegisterHelper> mapping = new LinkedHashMap<Integer, RiskRegisterHelper>(riskRegisterItems.size());
-		ParameterConvertor convertor = new ParameterConvertor(parameters);
 		for (RiskRegisterItem registerItem : riskRegisterItems) {
 			RiskRegisterHelper registerHelper = new RiskRegisterHelper();
 			mapping.put(registerItem.getId(), registerHelper);
 			
-			registerHelper.getRawEvaluation().setImpact(convertor.getImpactLevel(registerItem.getRawEvaluation().getImpact()));
-			registerHelper.getRawEvaluation().setProbability(convertor.getProbabiltyLevel(registerItem.getRawEvaluation().getProbability()));
+			registerHelper.getRawEvaluation().setImpact(factory.findImpactLevelByMaxLevel(registerItem.getRawEvaluation().getImpact()));
+			registerHelper.getRawEvaluation().setProbability(factory.findProbLevel(registerItem.getRawEvaluation().getProbability()));
 		
-			registerHelper.getExpectedEvaluation().setImpact(convertor.getImpactLevel(registerItem.getExpectedEvaluation().getImpact()));
-			registerHelper.getExpectedEvaluation().setProbability(convertor.getProbabiltyLevel(registerItem.getExpectedEvaluation().getProbability()));
+			registerHelper.getExpectedEvaluation().setImpact(factory.findImpactLevelByMaxLevel(registerItem.getExpectedEvaluation().getImpact()));
+			registerHelper.getExpectedEvaluation().setProbability(factory.findProbLevel(registerItem.getExpectedEvaluation().getProbability()));
 			
-			registerHelper.getNetEvaluation().setImpact(convertor.getImpactLevel(registerItem.getNetEvaluation().getImpact()));
-			registerHelper.getNetEvaluation().setProbability(convertor.getProbabiltyLevel(registerItem.getNetEvaluation().getProbability()));
+			registerHelper.getNetEvaluation().setImpact(factory.findImpactLevelByMaxLevel(registerItem.getNetEvaluation().getImpact()));
+			registerHelper.getNetEvaluation().setProbability(factory.findProbLevel(registerItem.getNetEvaluation().getProbability()));
 
 		}
 		return mapping;

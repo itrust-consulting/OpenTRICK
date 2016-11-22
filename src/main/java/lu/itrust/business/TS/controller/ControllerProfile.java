@@ -213,7 +213,7 @@ public class ControllerProfile {
 	}
 
 	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String deleteReport(@PathVariable Integer id, Principal principal, Locale locale) {
+	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
 		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
 		if (report == null)
 			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
@@ -232,18 +232,20 @@ public class ControllerProfile {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Sqlite/{idFile}/Download")
-	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	@RequestMapping("/Sqlite/{id}/Download")
+	public String downloadSqlite(@PathVariable Integer id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
+		
+		
 		// get user file by given file id and username
-		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
+		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)
 			return "errors/404";
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(), userSqLite.getVersion());
-		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+		if (idAnalysis <1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		// set response contenttype to sqlite
 		response.setContentType("sqlite");
@@ -284,7 +286,7 @@ public class ControllerProfile {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Report/{id}/Download")
-	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
+	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response, Locale locale) throws Exception {
 
 		// get user file by given file id and username
 		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
@@ -295,7 +297,7 @@ public class ControllerProfile {
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(), wordReport.getVersion());
 
-		if (idAnalysis == null || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+		if (idAnalysis <1 || !serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
 			throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		
 		String extension = ReportType.getExtension(wordReport.getType());

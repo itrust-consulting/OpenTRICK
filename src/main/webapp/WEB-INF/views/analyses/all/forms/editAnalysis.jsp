@@ -4,10 +4,26 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <jsp:include page="../../../template/successErrors.jsp" />
 <c:if test="${analysis != null}">
 	<div id="form_edit_analysis">
 		<input type="hidden" name="id" value="${analysis.id}" id="analysis_id">
+		
+		<c:if test="${not analysis.profile}">
+			<div class="form-group">
+				<label for="type" class="col-sm-2 control-label"> <spring:message code="label.analysis.type" text="Type" /></label>
+				<div class="col-sm-10" align="center">
+					<div class="btn-group" data-toggle="buttons">
+						<c:forEach items="${types}" var="type" varStatus="status">
+							<c:set var="typeValue" value="${fn:toLowerCase(type)}" />
+							<label class="btn btn-default disabled ${analysis.type == type? 'active':''}"><spring:message code="label.analysis.type.${typeValue}" text="${typeValue}" /></label>
+						</c:forEach>
+					</div>
+				</div>
+			</div>
+		</c:if>
+
 		<div class="form-group">
 			<label for="identifier" class="col-sm-2 control-label"> <spring:message code="label.analysis.identifier" text="Identifier" />
 			</label>
@@ -92,15 +108,16 @@
 				<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
 				</label>
 				<div class="col-sm-10" align="center">
-					<input type="checkbox" name="uncertainty" class="checkbox" ${analysis.uncertainty?"checked='checked'":''}>
+					<c:choose>
+						<c:when test="${ analysis.type=='QUALITATIVE'}">
+							<input type="checkbox" name="uncertainty" class="checkbox" disabled="disabled" >
+						</c:when>
+						<c:otherwise><input type="checkbox" name="uncertainty" class="checkbox" ${analysis.uncertainty?"checked='checked'":''}></c:otherwise>
+					</c:choose>
+					
 				</div>
 			</div>
-			<div class="form-group">
-				<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" /></label>
-				<div class="col-sm-10" align="center">
-					<input type="checkbox" name="cssf" class="checkbox" ${analysis.cssf?"checked='checked'":''}>
-				</div>
-			</div>
+
 		</c:if>
 	</div>
 </c:if>

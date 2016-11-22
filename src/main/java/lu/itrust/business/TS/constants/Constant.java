@@ -166,8 +166,8 @@ public class Constant {
 	/** Standard Caption regular Expression */
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
-	/** Regular expression for Parameter types */
-	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
+	/** Regular expression for SimpleParameter types */
+	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
 
 	/** Regular expression for asset types */
 	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl";
@@ -259,7 +259,7 @@ public class Constant {
 	public final static int PHASE_NOT_USABLE = 0;
 	public final static int PHASE_DEFAULT = 1;
 
-	/** Parameter Type Identifiers */
+	/** SimpleParameter Type Identifiers */
 	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML = 1;
 	public final static int PARAMETERTYPE_TYPE_PROPABILITY = 2;
 	public final static int PARAMETERTYPE_TYPE_IMPACT = 3;
@@ -268,8 +268,12 @@ public class Constant {
 	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
 	public final static int PARAMETERTYPE_TYPE_CSSF = 7;
 	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 8;
+	public final static int PARAMETERTYPE_TYPE_IMPACT_REP = 9;
+	public final static int PARAMETERTYPE_TYPE_IMPACT_OPE = 10;
+	public final static int PARAMETERTYPE_TYPE_IMPACT_LEG = 11;
+	public final static Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC };
 
-	/** Parameter Type Names */
+	/** SimpleParameter Type Names */
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
 	public final static String PARAMETERTYPE_TYPE_IMPACT_NAME = "IMPACT";
 	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME = "IMPSCALE";
@@ -278,6 +282,31 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
 	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
 	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
+	public final static String PARAMETERTYPE_TYPE_IMPACT_REP_NAME = "IMPACT_REP";
+	public final static String PARAMETERTYPE_TYPE_IMPACT_OPE_NAME = "IMPACT_OPE";
+	public final static String PARAMETERTYPE_TYPE_IMPACT_LEG_NAME = "IMPACT_LEG";
+
+	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETERTYPE_TYPE_PROPABILITY_NAME, PARAMETERTYPE_TYPE_DYNAMIC_NAME };
+
+	/**
+	 * FINANCIAL, LEGAL, OPERATIONAL, REPUTATIONAL
+	 * 
+	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
+	 * @see #ASSESSMENT_IMPACT_NAMES
+	 */
+	public final static String[] DEFAULT_IMPACT_TYPE_NAMES = { "FINANCIAL", "LEGAL", "OPERATIONAL", "REPUTATIONAL" };
+
+	/**
+	 * Financial, Legal, Operational, Reputational
+	 * 
+	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
+	 * @see #ASSESSMENT_IMPACT_NAMES
+	 */
+	public final static String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational", "Reputational" };
+
+	public static final String DEFAULT_IMPACT_NAME = PARAMETERTYPE_TYPE_IMPACT_NAME;
+
+	public static final String DEFAULT_IMPACT_TRANSLATE = "Impact";
 
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
@@ -302,7 +331,7 @@ public class Constant {
 	public static final String RI_TYPE_RISK_TBS = "Risk_TBS";
 	public static final String RI_TYPE_RISK_TBA = "Risk_TBA";
 
-	/** Parameter Attributes */
+	/** SimpleParameter Attributes */
 	public final static String PARAMATTRIBUTE_NAME = "Name";
 	public final static String PARAMATTRIBUTE_VALUE = "Value";
 	public final static String PARAMATTRIBUTE_MAT_CATEGORY = "Category";
@@ -312,10 +341,24 @@ public class Constant {
 	public final static String PARAMATTRIBUTE_EXT_FROM = "From";
 	public final static String PARAMATTRIBUTE_EXT_TO = "To";
 
-	/** Parameter Attribute Value Types */
+	/** SimpleParameter Attribute Value Types */
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_STRING = "S";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_INTEGER = "I";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_DOUBLE = "D";
+	
+	/** Parameter Category**/
+	
+	public final static String PARAMETER_CATEGORY_IMPACT = "IMPACT";
+	
+	public final static String PARAMETER_CATEGORY_PROBABILITY = "PROBABILITY";
+	
+	public final static String PARAMETER_CATEGORY_PROBABILITY_DYNAMIC = "DYNAMIC";
+	
+	public final static String PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD = "LIKELIHOOD";
+	
+	public final static String PARAMETER_CATEGORY_MATURITY = "MATURITY";
+	
+	public final static String PARAMETER_CATEGORY_SIMPLE = "SIMPLE";
 
 	/** CIA */
 	public static final String CONFIDENTIALITY_RISK = "Confidentiality";
@@ -328,233 +371,6 @@ public class Constant {
 
 	/***********************************************************************************************
 	 * List of Common Constants - END
-	 **********************************************************************************************/
-
-	/***********************************************************************************************
-	 * MYSQL Constant Fields - BEGIN
-	 **********************************************************************************************/
-
-	/** List of Constants for the MySQL Table "Analysis" */
-	public final static String ANALYSIS_MYSQL_AUTHOR = "dtAuthor";
-	public final static String ANALYSIS_MYSQL_COMMENT = "dtComment";
-	public final static String ANALYSIS_MYSQL_DATE = "dtDateComment";
-	public final static String ANALYSIS_MYSQL_VERSION = "idVersion";
-
-	/** List of Constants for the MySQL Table "RiskInformation" */
-	public final static String RI_MYSQL_CATEGORY = "dtCategory";
-	public final static String RI_MYSQL_LABEL = "dtLabel";
-	public final static String RI_MYSQL_ACRONYM = "dtAcronym";
-	public final static String RI_MYSQL_CHAPTER = "dtChapter";
-	public final static String RI_MYSQL_EXPOSED = "dtExposed";
-	public final static String RI_MYSQL_COMMENT = "dtComment";
-	public final static String RI_MYSQL_HIDDEN_COMMENT = "dtHiddenComment";
-
-	/** List of Constants for the MySQL Table "ItemInformation" */
-	public final static String ITEMINFO_MYSQL_VALUE = "dtValue";
-	public final static String ITEMINFO_MYSQL_LABEL = "dtLabel";
-	public final static String ITEMINFO_MYSQL_TYPE = "dtType";
-
-	/** List of Constants for the MySQL Table "Parameter" */
-	public final static String PARAM_MYSQL_ID = "idParameter";
-	public final static String PARAM_MYSQL_TYPE = "fiParameterType";
-
-	/** List of Constants for the MySQL Table "ParameterAttribute" */
-	public final static String PARAMATTRIBUTE_MYSQL_ATTRIBUTE = "dtAttribute";
-	public final static String PARAMATTRIBUTE_MYSQL_VALUE = "dtValue";
-
-	/** List of Constants for the MySQL Table "ParameterType" */
-	public final static String PARAMETERTYPE_MYSQL_LABEL = "dtLabel";
-
-	/** List of Constants for the MySQL Table "Asset" */
-	public final static String ASSET_MYSQL_ID = "idAsset";
-	public final static String ASSET_MYSQL_LABEL = "dtLabel";
-	public final static String ASSET_MYSQL_VALUE = "dtValue";
-	public final static String ASSET_MYSQL_COMMENT = "dtComment";
-	public final static String ASSET_MYSQL_SELECTED = "dtSelected";
-
-	/** List of Constants for the MySQL Table "AssetType" */
-	public final static String ASSETTYPE_MYSQL_ID = "idAssetType";
-	public final static String ASSETTYPE_MYSQL_LABEL = "dtLabel";
-
-	/** List of Constants for the MySQL Table "ScenarioAssetTypeValue" */
-	public final static String SCENARIOASSETTYPEVALUE_MYSQL_ID = "dtValue";
-
-	/** List of Constants for the MySQL Table "Scenario" */
-	public final static String SCENARIO_MYSQL_ID = "idScenario";
-	public final static String SCENARIO_MYSQL_LABEL = "dtLabel";
-	public final static String SCENARIO_MYSQL_SELECTED = "dtSelected";
-	public final static String SCENARIO_MYSQL_DESCRIPTION = "dtDescription";
-	public final static String SCENARIO_MYSQL_CONFIDENTIALITY = "dtConfidentialityCat";
-	public final static String SCENARIO_MYSQL_INTEGRITY = "dtIntegrityCat";
-	public final static String SCENARIO_MYSQL_AVAILABILITY = "dtAvailabilityCat";
-	public final static String SCENARIO_MYSQL_PREVENTIVE = "dtPreventive";
-	public final static String SCENARIO_MYSQL_DETECTIVE = "dtDetective";
-	public final static String SCENARIO_MYSQL_LIMITABILITY = "dtLimitability";
-	public final static String SCENARIO_MYSQL_CORRECTIVE = "dtCorrective";
-	public final static String SCENARIO_MYSQL_INTENTIONAL = "dtIntentional";
-	public final static String SCENARIO_MYSQL_ACCIDENTAL = "dtAccidental";
-	public final static String SCENARIO_MYSQL_ENVIRONMENTAL = "dtEnvironmental";
-	public final static String SCENARIO_MYSQL_INTERNALTHREAT = "dtInternalThreat";
-	public final static String SCENARIO_MYSQL_EXTERNALTHREAT = "dtExternalThreat";
-
-	/** List of Constants for the MySQL Table "ScenarioType" */
-	public static final String SCENARIOTYPE_MYSQL_ID = "idScenarioType";
-	public static final String SCENARIOTYPE_MYSQL_LABEL = "dtLabel";
-
-	/** List of Constants for the MySQL Table "ActionPlan" */
-	public final static String ACTIONPLAN_MYSQL_ID = "idActionPlanCalculation";
-	public final static String ACTIONPLAN_MYSQL_MEASURE_ID = "idMeasureDescription";
-	public final static String ACTIONPLAN_MYSQL_ORDER = "dtOrder";
-	public final static String ACTIONPLAN_MYSQL_COST = "dtCost";
-	public final static String ACTIONPLAN_MYSQL_ROI = "dtROI";
-	public final static String ACTIONPLAN_MYSQL_TOTALALE = "dtTotalALE";
-	public final static String ACTIONPLAN_MYSQL_DELTAALE = "dtDeltaALE";
-
-	/** List of Constants for the MySQL Table "ActionPlanAsset" */
-	public final static String ACTIONPLANASSET_MYSQL_ASSET_ID = "idAsset";
-
-	/** List of Constants for the MySQL Table "ActionPlanType" */
-	public final static String ACTIONPLANTYPE_MYSQL_ID = "idActionPlanType";
-	public final static String ACTIONPLANTYPE_MYSQL_LABEL = "dtLabel";
-
-	/** List of Constants for the MySQL Table "ActionPlanAsset" */
-	public final static String ACTIONPLANASSET_MYSQL_CURRENTALE = "dtCurrentALE";
-
-	/** List of Constants for the MySQL Table "actionplansummary" */
-	public static final String ACTIONPLANSUMMARY_MYSQL_ID = "idActionPlanSummary";
-	public final static String ACTIONPLANSUMMARY_MYSQL_CONFORMANCE27001 = "dt27001Conformance";
-	public final static String ACTIONPLANSUMMARY_MYSQL_CONFORMANCE27002 = "dt27001Conformance";
-	public final static String ACTIONPLANSUMMARY_MYSQL_CURRENTMEASURECOST = "dtCurrentCostMeasures";
-	public final static String ACTIONPLANSUMMARY_MYSQL_CURRENTDELTAALE = "dtCurrentDeltaALE";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALEXTERNALMAINTENANCE = "dtTotalExternalMaintenance";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALEXTERNALWORKLOAD = "dtTotalExternalWorkload";
-	public final static String ACTIONPLANSUMMARY_MYSQL_IMPLEMENTEDMEASURECOUNT = "dtImplementedMeasureCount";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALINTERNALMAINTENANCE = "dtTotalInternalMaintenance";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALINTERNALWORKLOAD = "dtTotalInternalWorkload";
-	public final static String ACTIONPLANSUMMARY_MYSQL_INVESTMENT = "dtInvestment";
-	public final static String ACTIONPLANSUMMARY_MYSQL_MEASURECOUNT = "dtMeasureCount";
-	public final static String ACTIONPLANSUMMARY_MYSQL_RECURRENTCOST = "dtRecurrentCost";
-	public final static String ACTIONPLANSUMMARY_MYSQL_RELATIVEROSI = "dtRelativeROSI";
-	public final static String ACTIONPLANSUMMARY_MYSQL_ROSI = "dtROSI";
-	public final static String ACTIONPLANSUMMARY_MYSQL_STAGENAME = "idName";
-	public final static String ACTIONPLANSUMMARY_MYSQL_CURRENTTOTALALE = "dtCurrentTotalALE";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALCOST = "dtTotalCost";
-
-	/** List of Constants for the MySQL Table "MaturityMeasure" */
-	public final static String MATMEASURE_MYSQL_ID = "idMaturityMeasure";
-	public final static String MATMEASURE_MYSQL_STATUS = "dtStatus";
-	public final static String MATMEASURE_MYSQL_DESCRIPTION_ID = "fiMeasureDescription";
-	public final static String MATMEASURE_MYSQL_IMP_RATE = "fiImplementationRateParameter";
-	public final static String MATMEASURE_MYSQL_INTERNALWORKLOAD = "dtInternalWorkLoad";
-	public final static String MATMEASURE_MYSQL_EXTERNALWORKLOAD = "dtExternalWorkLoad";
-	public final static String MATMEASURE_MYSQL_INVESTMENT = "dtInvestment";
-	public final static String MATMEASURE_MYSQL_LIFETIME = "dtLifetime";
-	public final static String MATMEASURE_MYSQL_MAINTENANCE = "dtMaintenance";
-	public final static String MATMEASURE_MYSQL_COST = "dtCost";
-	public final static String MATMEASURE_MYSQL_COMMENT = "dtComment";
-	public final static String MATMEASURE_MYSQL_TODO = "dtToDo";
-	public final static String MATMEASURE_MYSQL_REACHEDSML = "dtReachedLevel";
-	public final static String MATMEASURE_MYSQL_SML1COST = "dtSML1Cost";
-	public final static String MATMEASURE_MYSQL_SML2COST = "dtSML2Cost";
-	public final static String MATMEASURE_MYSQL_SML3COST = "dtSML3Cost";
-	public final static String MATMEASURE_MYSQL_SML4COST = "dtSML4Cost";
-	public final static String MATMEASURE_MYSQL_SML5COST = "dtSML5Cost";
-
-	/** List of Constants for the MySQL Table "NormalMeasure" */
-	public final static String MEASURE_MYSQL_ID = "idNormalMeasure";
-	public final static String MEASURE_MYSQL_STATUS = "dtStatus";
-	public final static String MEASURE_MYSQL_DESCRIPTION_ID = "fiMeasureDescription";
-	public final static String MEASURE_MYSQL_IMP_RATE = "dtImplementationRate";
-	public final static String MEASURE_MYSQL_PHASE_ID = "fiPhase";
-	public final static String MEASURE_MYSQL_INTERNALWORKLOAD = "dtInternalWorkLoad";
-	public final static String MEASURE_MYSQL_EXTERNALWORKLOAD = "dtExternalWorkLoad";
-	public final static String MEASURE_MYSQL_INVESTMENT = "dtInvestment";
-	public final static String MEASURE_MYSQL_LIFETIME = "dtLifetime";
-	public final static String MEASURE_MYSQL_MAINTENANCE = "dtMaintenance";
-	public final static String MEASURE_MYSQL_COST = "dtCost";
-	public final static String MEASURE_MYSQL_COMMENT = "dtComment";
-	public final static String MEASURE_MYSQL_TODO = "dtToDo";
-	public final static String MEASURE_MYSQL_TOCHECK = "dtToCheck";
-	public final static String MEASURE_MYSQL_STRENGTH_MEASURE = "dtMeasureStrength";
-	public final static String MEASURE_MYSQL_STRENGTH_SECTORAL = "dtSectoralStrength";
-	public final static String MEASURE_MYSQL_CIA_CONFIDENTIALITY = "dtConfidentialityCat";
-	public final static String MEASURE_MYSQL_CIA_INTEGRITY = "dtIntegrityCat";
-	public final static String MEASURE_MYSQL_CIA_AVAILABILITY = "dtAvailabilityCat";
-	public final static String MEASURE_MYSQL_RISK_PREVENTIVE = "dtPreventiveRisk";
-	public final static String MEASURE_MYSQL_RISK_DETECTIVE = "dtDetectiveRisk";
-	public final static String MEASURE_MYSQL_RISK_LIMITABILITY = "dtLimitabilityRisk";
-	public final static String MEASURE_MYSQL_RISK_CORRECTIVE = "dtCorrectiveRisk";
-	public final static String MEASURE_MYSQL_RISK_INTENTIONAL = "dtIntentionalRisk";
-	public final static String MEASURE_MYSQL_RISK_ACCIDENTAL = "dtAccidentalRisk";
-	public final static String MEASURE_MYSQL_RISK_ENVIRONMENTAL = "dtEnvironmentalRisk";
-	public final static String MEASURE_MYSQL_RISK_INTERNALTHREAT = "dtInternalThreatRisk";
-	public final static String MEASURE_MYSQL_RISK_EXTERNALTHREAT = "dtExternalThreatRisk";
-	public final static String MEASURE_MYSQL_SOA_REFERENCE = "dtReferenceSOA";
-	public final static String MEASURE_MYSQL_SOA_COMMENT = "dtCommentSOA";
-	public final static String MEASURE_MYSQL_SOA_RISK = "dtRiskSOA";
-
-	/** List of Constants for the MySQL Table "MeasureDescription" */
-	public static final String MEASUREDESCRIPTION_MYSQL_ID = "idMeasureDescription";
-	public final static String MEASUREDESCRIPTION_MYSQL_LEVEL = "dtLevel";
-	public final static String MEASUREDESCRIPTION_MYSQL_REFERENCE = "dtReference";
-	public final static String MEASUREDESCRIPTION_MYSQL_STANDARD_ID = "fiStandard";
-
-	/** List of Constants for the MySQL Table "MeasureDescriptionText" */
-	public final static String MEASUREDESCRIPTIONTEXT_MYSQL_DOMAIN = "dtDomain";
-	public final static String MEASUREDESCRIPTIONTEXT_MYSQL_DESCRIPTION = "dtDescription";
-
-	/** List of Constants for the MySQL Table "AnalysisStandard" */
-	public final static String STANDARD_MYSQL_ID = "idStandard";
-	public final static String STANDARD_MYSQL_LABEL = "dtLabel";
-
-	/** List of Constants for the MySQL Table "Phase" */
-	public final static String PHASE_MYSQL_ID = "idPhase";
-	public final static String PHASE_MYSQL_BEGINDATE = "dtBeginDate";
-	public final static String PHASE_MYSQL_ENDDATE = "dtEndDate";
-
-	/** List of Constants for the MySQL Table "AssetTypeValue" */
-	public final static String ASSETTYPEVALUE_MYSQL_VALUE = "dtValue";
-
-	/** List of Constants for the MySQL Table "Assessment" */
-	public final static String ASSESSMENT_MYSQL_ID = "idAssessment";
-	public final static String ASSESSMENT_MYSQL_ASSET_ID = "idAsset";
-	public final static String ASSESSMENT_MYSQL_SCENARIO_ID = "idScenario";
-	public final static String ASSESSMENT_MYSQL_COMMENT = "dtComment";
-	public static final String ASSESSMENT_MYSQL_IMPACT_LEG = "dtImpactLeg";
-	public static final String ASSESSMENT_MYSQL_IMPACT_OP = "dtImpactOp";
-	public static final String ASSESSMENT_MYSQL_IMPACT_REP = "dtImpactRep";
-	public final static String ASSESSMENT_MYSQL_IMPACT_FIN = "dtImpactFin";
-	public final static String ASSESSMENT_MYSQL_IMPACT_REAL = "dtImpactReal";
-	public final static String ASSESSMENT_MYSQL_LIKELIHOOD = "dtLikelihood";
-	public final static String ASSESSMENT_MYSQL_LIKELIHOOD_REAL = "dtLikelihoodReal";
-	public final static String ASSESSMENT_MYSQL_UNCERTAINTY = "dtUncertainty";
-	public final static String ASSESSMENT_MYSQL_ALE = "dtALE";
-	public final static String ASSESSMENT_MYSQL_ALEO = "dtALEO";
-	public final static String ASSESSMENT_MYSQL_ALEP = "dtALEP";
-
-	/** List of Constants for the MySQL Table "Language" */
-	public final static String LANGUAGE_MYSQL_ID = "idLanguage";
-	public final static String LANGUAGE_MYSQL_ALPHA3 = "dtAlpha3";
-	public final static String LANGUAGE_MYSQL_NAME = "dtName";
-	public final static String LANGUAGE_MYSQL_ALTNAME = "dtAlternativeName";
-
-	/** List of Constants for the MySQL Table "RiskRegister" */
-	public static final String RISKREGISTER_MYSQL_ID = "idRiskRegisterEntry";
-	public static final String RISKREGISTER_MYSQL_SCENARIO_ID = "idScenario";
-	public static final String RISKREGISTER_MYSQL_POSITION = "dtOrder";
-	public static final String RISKREGISTER_MYSQL_RAW_PROPABILITY = "dtRawEvaluationProbability";
-	public static final String RISKREGISTER_MYSQL_RAW_IMPACT = "dtRawEvaluationImpact";
-	public static final String RISKREGISTER_MYSQL_RAW_IMPORTANCE = "dtRawEvaluationImportance";
-	public static final String RISKREGISTER_MYSQL_NET_PROPABILITY = "dtNetEvaluationProbability";
-	public static final String RISKREGISTER_MYSQL_NET_IMPACT = "dtNetEvaluationImpact";
-	public static final String RISKREGISTER_MYSQL_NET_IMPORTANCE = "dtNetEvaluationImportance";
-	public static final String RISKREGISTER_MYSQL_EXP_PROPABILITY = "dtExpectedProbability";
-	public static final String RISKREGISTER_MYSQL_EXP_IMPACT = "dtExpectedImpact";
-	public static final String RISKREGISTER_MYSQL_EXP_IMPORTANCE = "dtExpectedImportance";
-	public static final String RISKREGISTER_MYSQL_STRATEGY = "dtResponseStrategy";
-
-	/***********************************************************************************************
-	 * MYSQL Constant Fields - END
 	 **********************************************************************************************/
 
 	/***********************************************************************************************
@@ -591,7 +407,7 @@ public class Constant {
 	public static final String MATURITY_RATE = "rate";
 	public static final String MATURITY_DOMAIN = "domain";
 	public static final String VALUE_SPEC = "value_spec";
-	
+
 	/** SML LEVEL **/
 	public static final String MATURITY_LEVEL_SML5 = "SML5";
 	public static final String MATURITY_LEVEL_SML4 = "SML4";
@@ -599,8 +415,6 @@ public class Constant {
 	public static final String MATURITY_LEVEL_SML2 = "SML2";
 	public static final String MATURITY_LEVEL_SML1 = "SML1";
 	public static final String MATURITY_LEVEL_SML0 = "SML0";
-	
-	
 
 	/** List of Constants for the Sqlite Table "maturity_phase" */
 	public final static String MATURITYPHASE_ID = "phase";
@@ -700,6 +514,14 @@ public class Constant {
 	public static final String ASSESSMENT_POTENTIALITY = "potentiality";
 	public static final String ASSESSMENT_POTENTIALITY_REAL = "potentiality_hidden";
 	public static final String ASSESSMENT_SEL_ASSESSMENT = "selected";
+
+	/**
+	 * Order must be same to {@link #DEFAULT_IMPACT_TYPE_NAMES}
+	 * 
+	 * @see #DEFAULT_IMPACT_TYPE_NAMES
+	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
+	 */
+	public static final String[] ASSESSMENT_IMPACT_NAMES = { ASSESSMENT_IMPACT_FIN, ASSESSMENT_IMPACT_LEG, ASSESSMENT_IMPACT_OP, ASSESSMENT_IMPACT_REP };
 
 	/** List of Constants for the Sqlite Table "history" */
 	public static final String HISTORY_COMMENT = MEASURE_COMMENT;
@@ -801,7 +623,7 @@ public class Constant {
 	public static final String ALLOWED_TICKETING = "allowedTicketing";
 
 	public static final String TICKETING_NAME = "ticketingName";
-	
+
 	public static final String TICKETING_URL = "ticketingURL";
 
 	public static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
@@ -843,6 +665,5 @@ public class Constant {
 	public static final double EVOLUTION_MIN_ALE_RELATIVE_DIFFERENCE = 0.2; // +/-
 
 	public static final String API_AUTHENTICATION_TOKEN_NAME = "X-Auth-Token";
-
 
 }

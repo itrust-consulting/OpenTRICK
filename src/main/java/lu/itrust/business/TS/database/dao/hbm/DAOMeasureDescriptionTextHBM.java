@@ -51,10 +51,11 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#getMeasureDescriptionTextByIdAndLanguageId(int,
 	 *      int)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage)  {
 		String query = "from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
-		return (MeasureDescriptionText) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult();
+		return (MeasureDescriptionText) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -66,8 +67,8 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 */
 	@Override
 	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage)  {
-		String query = "Select count(*) from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
-		return (Long) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult() >= 1;
+		String query = "Select count(*)>0 from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
+		return (boolean) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).getSingleResult();
 	}
 
 	/**
@@ -80,7 +81,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	@Override
 	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID)  {
 		String query = "from MeasureDescriptionText where measureDescription.id = :measureDescriptionid";
-		return (List<MeasureDescriptionText>) getSession().createQuery(query).setParameter("measureDescriptionid", measureDescriptionID).list();
+		return (List<MeasureDescriptionText>) getSession().createQuery(query).setParameter("measureDescriptionid", measureDescriptionID).getResultList();
 	}
 
 	/**

@@ -41,15 +41,16 @@ public class DAOMeasureAssetValueHBM extends DAOHibernate implements DAOMeasureA
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MeasureAssetValue> getByAssetId(int idAsset) {
-		return getSession().createQuery("From MeasureAssetValue where asset.id = :idAsset").setParameter("idAsset", idAsset).list();
+		return getSession().createQuery("From MeasureAssetValue where asset.id = :idAsset").setParameter("idAsset", idAsset).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public MeasureAssetValue getByMeasureIdAndAssetId(int measureId, int assetId) {
 		return (MeasureAssetValue) getSession()
 				.createQuery(
 						"Select measureAssetValue From AssetMeasure assetMeasure inner join assetMeasure.measureAssetValues as measureAssetValue where assetMeasure.id = :idMeasure and measureAssetValue.asset.id = :idAsset")
-				.setParameter("idMeasure", measureId).setParameter("idAsset", assetId).uniqueResult();
+				.setParameter("idMeasure", measureId).setParameter("idAsset", assetId).uniqueResultOptional().orElse(null);
 	}
 
 }

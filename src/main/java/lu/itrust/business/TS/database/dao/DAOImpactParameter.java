@@ -1,0 +1,24 @@
+/**
+ * 
+ */
+package lu.itrust.business.TS.database.dao;
+
+import java.util.List;
+
+import lu.itrust.business.TS.database.TemplateDAOService;
+import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.TS.model.scale.ScaleType;
+
+/**
+ * @author eomar
+ *
+ */
+public interface DAOImpactParameter extends TemplateDAOService<ImpactParameter, Integer> {
+
+	List<ImpactParameter> findByTypeAndAnalysisId(String type, Integer idAnalysis);
+	
+	List<ImpactParameter> findByTypeAndAnalysisId(ScaleType type, Integer idAnalysis);
+
+	List<String> findAcronymByTypeAndAnalysisId(String type, Integer idAnalysis);
+
+}

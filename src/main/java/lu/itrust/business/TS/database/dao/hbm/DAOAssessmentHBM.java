@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -60,10 +61,11 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 *   lu.itrust.business.TS.database.dao.DAOAssessment#getFromAnalysisById(java.lang.Integer,
 	 *   java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.id = :idAssessment";
-		return (Assessment) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idAssessment", idAssessment).uniqueResult();
+		return (Assessment) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idAssessment", idAssessment).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -74,8 +76,8 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 *      java.lang.Integer)
 	 */
 	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId) {
-		String query = "Select count(assessment) From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :analysisId and assessment.id = :assessmentId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("assessmentId", assessmentId).uniqueResult()).intValue() > 0;
+		String query = "Select count(assessment) > 0 From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :analysisId and assessment.id = :assessmentId";
+		return (boolean) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("assessmentId", assessmentId).getSingleResult();
 	}
 
 	/**
@@ -87,7 +89,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAll() {
-		return getSession().createQuery("From Assessment").list();
+		return getSession().createQuery("From Assessment").getResultList();
 	}
 
 	/**
@@ -100,7 +102,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@Override
 	public List<Assessment> getAllFromAnalysis(Integer idAnalysis) {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/**
@@ -115,7 +117,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym) {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and (assessment.impactRep = :acronym or ";
 		query += "assessment.impactOp = :acronym or assessment.impactLeg = :acronym or assessment.impactFin = :acronym or assessment.likelihood = :acronym)";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("acronym", acronym).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("acronym", acronym).getResultList();
 	}
 
 	/**
@@ -128,7 +130,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@Override
 	public List<Assessment> getAllFromAnalysisAndSelectedScenario(Integer idAnalysis) {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.scenario.selected = true";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/**
@@ -140,7 +142,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllFromScenario(Integer scenarioID) {
-		return getSession().createQuery("From Assessment where scenario.id = :scenarioId").setParameter("scenarioId", scenarioID).list();
+		return getSession().createQuery("From Assessment where scenario.id = :scenarioId").setParameter("scenarioId", scenarioID).getResultList();
 	}
 
 	/**
@@ -152,7 +154,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllFromScenario(Scenario scenario) {
-		return getSession().createQuery("From Assessment where scenario = :scenario").setParameter("scenario", scenario).list();
+		return getSession().createQuery("From Assessment where scenario = :scenario").setParameter("scenario", scenario).getResultList();
 	}
 
 	/**
@@ -164,7 +166,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllSelectedFromScenario(Scenario scenario) {
-		return getSession().createQuery("From Assessment where scenario = :scenario and selected = true").setParameter("scenario", scenario).list();
+		return getSession().createQuery("From Assessment where scenario = :scenario and selected = true").setParameter("scenario", scenario).getResultList();
 	}
 
 	/**
@@ -176,7 +178,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario) {
-		return getSession().createQuery("From Assessment where scenario = :scenario and selected = false").setParameter("scenario", scenario).list();
+		return getSession().createQuery("From Assessment where scenario = :scenario and selected = false").setParameter("scenario", scenario).getResultList();
 	}
 
 	/**
@@ -189,7 +191,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@Override
 	public List<Assessment> getAllFromAnalysisAndSelectedAsset(Integer idAnalysis) {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.asset.selected = true";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
 	/**
@@ -201,7 +203,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllFromAsset(Integer assetID) {
-		return getSession().createQuery("From Assessment where asset.id = :assetID").setParameter("assetID", assetID).list();
+		return getSession().createQuery("From Assessment where asset.id = :assetID").setParameter("assetID", assetID).getResultList();
 	}
 
 	/**
@@ -213,7 +215,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllFromAsset(Asset asset) {
-		return getSession().createQuery("From Assessment where asset = :asset").setParameter("asset", asset).list();
+		return getSession().createQuery("From Assessment where asset = :asset").setParameter("asset", asset).getResultList();
 	}
 
 	/**
@@ -225,7 +227,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllSelectedFromAsset(Asset asset) {
-		return getSession().createQuery("From Assessment where asset = :asset and selected = true").setParameter("asset", asset).list();
+		return getSession().createQuery("From Assessment where asset = :asset and selected = true").setParameter("asset", asset).getResultList();
 	}
 
 	/**
@@ -237,7 +239,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> getAllUnSelectedFromAsset(Asset asset) {
-		return getSession().createQuery("From Assessment where asset = :asset and selected = false").setParameter("asset", asset).list();
+		return getSession().createQuery("From Assessment where asset = :asset and selected = false").setParameter("asset", asset).getResultList();
 	}
 
 	/**
@@ -289,19 +291,21 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@Override
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis) {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true";
-		return getSession().createQuery(query).setInteger("idAnalysis", idAnalysis).list();
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Assessment getByAssetAndScenario(Asset asset, Scenario scenario) {
 		return (Assessment) getSession().createQuery("From Assessment  where scenario = :scenario and asset = :asset").setParameter("asset", asset)
-				.setParameter("scenario", scenario).uniqueResult();
+				.setParameter("scenario", scenario).uniqueResultOptional().orElse(null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Assessment getByAssetAndScenario(int idAsset, int idScenario) {
-		return (Assessment) getSession().createQuery("From Assessment  where scenario.id = :idScenario and asset.id = :idAsset").setInteger("idAsset", idAsset)
-				.setInteger("idScenario", idScenario).uniqueResult();
+		return (Assessment) getSession().createQuery("From Assessment  where scenario.id = :idScenario and asset.id = :idAsset").setParameter("idAsset", idAsset)
+				.setParameter("idScenario", idScenario).uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -310,6 +314,11 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 		return getSession()
 				.createQuery(
 						"Select distinct assessment.owner From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true and assessment.owner<>''")
-				.setInteger("idAnalysis", analysisId).list();
+				.setParameter("idAnalysis", analysisId).getResultList();
+	}
+
+	@Override
+	public void delete(IValue impact) {
+		getSession().delete(impact);
 	}
 }

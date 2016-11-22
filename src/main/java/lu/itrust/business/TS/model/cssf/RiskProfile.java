@@ -16,6 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -24,7 +25,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.model.asset.Asset;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -65,18 +66,14 @@ public class RiskProfile implements Cloneable {
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
-			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiRawImpactRep")),
-			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiRawImpactOp")),
-			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiRawImpactLeg")),
-			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiRawImpactFin")) })
+			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileRawImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiRawImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
+					"fiRawImpact", "fiRiskProfile" }))) })
 	private RiskProbaImpact rawProbaImpact;
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiExpProbability")),
-			@AssociationOverride(name = "impactRep", joinColumns = @JoinColumn(name = "fiExpImpactRep")),
-			@AssociationOverride(name = "impactOp", joinColumns = @JoinColumn(name = "fiExpImpactOp")),
-			@AssociationOverride(name = "impactLeg", joinColumns = @JoinColumn(name = "fiExpImpactLeg")),
-			@AssociationOverride(name = "impactFin", joinColumns = @JoinColumn(name = "fiExpImpactFin")) })
+			@AssociationOverride(name = "impacts", joinTable = @JoinTable(name = "RiskProfileExpImpacts", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiExpImpact"), uniqueConstraints = @UniqueConstraint(columnNames = {
+					"fiExpImpact", "fiRiskProfile" }))) })
 	private RiskProbaImpact expProbaImpact;
 
 	/**
@@ -298,14 +295,14 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
-	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
+	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters) throws CloneNotSupportedException {
 		RiskProfile riskProfile = (RiskProfile) super.clone();
 		riskProfile.updateData(assets, scenarios, parameters);
 		riskProfile.id = 0;
 		return riskProfile;
 	}
 
-	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, Parameter> parameters) throws CloneNotSupportedException {
+	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios, Map<String, IParameter> parameters) throws CloneNotSupportedException {
 		if (rawProbaImpact != null)
 			rawProbaImpact = rawProbaImpact.duplicate(parameters);
 		if (expProbaImpact != null)

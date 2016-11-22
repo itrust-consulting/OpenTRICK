@@ -53,7 +53,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@Override
 	public boolean existsByAlpha3(String alpha3)  {
-		return ((Long) getSession().createQuery("select count(*) From Language where alpha3 = :alpha3").setString("alpha3", alpha3.toUpperCase()).uniqueResult()).intValue() > 0;
+		return (boolean) getSession().createQuery("select count(*) > 0 From Language where alpha3 = :alpha3").setParameter("alpha3", alpha3.toUpperCase()).getSingleResult();
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@Override
 	public boolean existsByName(String name)  {
-		return ((Long) getSession().createQuery("select count(*) From Language where name = :name").setString("name", name).uniqueResult()).intValue() > 0;
+		return (boolean) getSession().createQuery("select count(*) > 0 From Language where name = :name").setParameter("name", name).getSingleResult();
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@Override
 	public boolean existsByAltName(String altName)  {
-		return ((Long) getSession().createQuery("select count(*) From Language where altName = :altName").setString("altName", altName).uniqueResult()).intValue() > 0;
+		return (boolean) getSession().createQuery("select count(*)>0 From Language where altName = :altName").setParameter("altName", altName).getSingleResult();
 	}
 
 	/**
@@ -84,10 +84,11 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#getLanguageOfAnalysis(java.lang.Integer)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Language getFromAnalysis(Integer idAnalysis)  {
 		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
-				.uniqueResult();
+				.uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -96,9 +97,10 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#getLanguageByAlpha3(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Language getByAlpha3(String alpha3)  {
-		return (Language) getSession().createQuery("From Language where alpha3 = :alpha3").setParameter("alpha3", alpha3.toUpperCase()).uniqueResult();
+		return (Language) getSession().createQuery("From Language where alpha3 = :alpha3").setParameter("alpha3", alpha3.toUpperCase()).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -107,9 +109,10 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#getLanguageByName(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Language getByName(String name)  {
-		return (Language) getSession().createQuery("From Language where name = :name").setParameter("name", name).uniqueResult();
+		return (Language) getSession().createQuery("From Language where name = :name").setParameter("name", name).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -118,9 +121,10 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#getLanguageByAltName(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Language getByAltName(String alternativeName)  {
-		return (Language) getSession().createQuery("From Language where altName = :altName").setParameter("altName", alternativeName).uniqueResult();
+		return (Language) getSession().createQuery("From Language where altName = :altName").setParameter("altName", alternativeName).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -132,7 +136,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Language> getAll()  {
-		return (List<Language>) getSession().createQuery("From Language").list();
+		return (List<Language>) getSession().createQuery("From Language").getResultList();
 	}
 
 	/**
@@ -183,24 +187,24 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 
 	@Override
 	public boolean isInUse(Language language) {
-		return (boolean) getSession().createQuery("Select count(*) > 0 From Analysis where language = :language").setParameter("language", language).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Analysis where language = :language").setParameter("language", language).getSingleResult();
 	}
 
 	@Override
 	public boolean existsByIdAndAlpha3(int id, String alpha3) {
-		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and alpha3 = :alpha3").setInteger("id", id)
-				.setParameter("alpha3", String.valueOf(alpha3).toUpperCase()).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and alpha3 = :alpha3").setParameter("id", id)
+				.setParameter("alpha3", String.valueOf(alpha3).toUpperCase()).getSingleResult();
 	}
 
 	@Override
 	public boolean existsByIdAndName(int id, String name) {
-		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and name = :name").setInteger("id", id)
-				.setParameter("name", String.valueOf(name).toUpperCase()).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and name = :name").setParameter("id", id)
+				.setParameter("name", String.valueOf(name).toUpperCase()).getSingleResult();
 	}
 
 	@Override
 	public boolean existsByIdAndAltName(int id, String altName) {
-		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and altName = :altName").setInteger("id", id)
-				.setParameter("altName", String.valueOf(altName).toUpperCase()).uniqueResult();
+		return (boolean) getSession().createQuery("Select count(*) > 0 From Language where id <> :id and altName = :altName").setParameter("id", id)
+				.setParameter("altName", String.valueOf(altName).toUpperCase()).getSingleResult();
 	}
 }

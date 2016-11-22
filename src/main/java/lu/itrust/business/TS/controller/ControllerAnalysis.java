@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.constants.Constant.FILTER_ANALYSIS_NAME;
 import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_ANALYSIS_NAME;
 import static lu.itrust.business.TS.constants.Constant.LAST_SELECTED_CUSTOMER_ID;
 import static lu.itrust.business.TS.constants.Constant.OPEN_MODE;
+import static lu.itrust.business.TS.constants.Constant.PARAMETERTYPE_TYPE_SINGLE_NAME;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_CONSULTANT;
 import static lu.itrust.business.TS.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.TS.constants.Constant.SELECTED_ANALYSIS;
@@ -28,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -92,7 +92,9 @@ import lu.itrust.business.TS.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.model.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.model.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.model.assessment.helper.Estimation;
 import lu.itrust.business.TS.model.general.Customer;
 import lu.itrust.business.TS.model.general.Language;
 import lu.itrust.business.TS.model.general.LogAction;
@@ -104,9 +106,8 @@ import lu.itrust.business.TS.model.general.TSSettingName;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.history.History;
 import lu.itrust.business.TS.model.iteminformation.helper.ComparatorItemInformation;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.ExtendedParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.Standard;
 import lu.itrust.business.TS.model.standard.helper.StandardComparator;
@@ -248,6 +249,7 @@ public class ControllerAnalysis {
 		if (analysis == null)
 			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
+		ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 		Boolean readOnly = OpenMode.isReadOnly(mode);
 		List<Standard> standards = null;
 		boolean hasMaturity = false;
@@ -259,26 +261,24 @@ public class ControllerAnalysis {
 			case READ:
 			case EDIT:
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-				Optional<Parameter> soaParameter = analysis.getParameters().stream().filter(parameter -> parameter.getDescription().equals(SOA_THRESHOLD)).findFirst();
 				standards = analysis.getAnalysisStandards().stream().map(analysisStandard -> analysisStandard.getStandard()).sorted(new StandardComparator())
 						.collect(Collectors.toList());
 				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
 				hasMaturity = measures.containsKey(Constant.STANDARD_MATURITY);
-				model.addAttribute("soaThreshold", soaParameter.isPresent() ? soaParameter.get().getValue() : 100.0);
+				model.addAttribute("soaThreshold", analysis.getParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
 				model.addAttribute("soas", analysis.getAnalysisStandards().stream().filter(AnalysisStandard::isSoaEnabled).collect(
 						Collectors.toMap(analysisStandard -> analysisStandard.getStandard(), analysisStandard -> measures.get(analysisStandard.getStandard().getLabel()))));
 				model.addAttribute("measures", measures);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
-				model.addAttribute("show_cssf", analysis.isCssf());
+				model.addAttribute("type", analysis.getType());
 				model.addAttribute("standards", standards);
 				model.addAttribute("hasMaturity", hasMaturity);
-				if (analysis.isCssf()) {
-					model.addAttribute("riskProfileMapping", analysis.mapRiskProfile());
-					model.addAttribute("estimationMapping", analysis.mapAssessment());
-				}
+				if (analysis.getType() == AnalysisType.QUALITATIVE)
+					model.addAttribute("estimations", Estimation.GenerateEstimation(analysis, valueFactory, Estimation.IdComparator()));
 				if (hasMaturity)
-					model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002),
-							measures.get(Constant.STANDARD_MATURITY), analysis.getParameters(), true, analysis.getExpressionParameters()));
+					model.addAttribute("effectImpl27002",
+							MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
+									analysis.findByGroup(Constant.PARAMETER_CATEGORY_SIMPLE, Constant.PARAMETER_CATEGORY_MATURITY), true, valueFactory));
 				break;
 			case EDIT_MEASURE:
 				standards = analysis.getAnalysisStandards().stream().filter(analysisStandard -> !analysisStandard.getMeasures().isEmpty())
@@ -290,15 +290,19 @@ public class ControllerAnalysis {
 				break;
 			case EDIT_ESTIMATION:
 			case READ_ESTIMATION:
+				model.addAttribute("type", analysis.getType());
 				model.addAttribute("assets", analysis.findSelectedAssets());
 				model.addAttribute("scenarios", analysis.findSelectedScenarios());
-				List<ExtendedParameter> probabilities = new LinkedList<>(), impacts = new LinkedList<>();
-				analysis.groupExtended(probabilities, impacts);
-				model.addAttribute("impacts", impacts);
-				model.addAttribute("probabilities", probabilities);
+				model.addAttribute("impacts", valueFactory.getImpacts());
+				model.addAttribute("probabilities", analysis.getLikelihoodParameters());
+				if (analysis.getType() != AnalysisType.QUALITATIVE) {
+					model.addAttribute("dynamics", analysis.getDynamicParameters());
+					model.addAttribute("show_uncertainty", analysis.isUncertainty());
+				}
+				model.addAttribute("impactTypes", analysis.getImpacts());
 				break;
 			}
-			model.addAttribute("expressionParameters", analysis.getExpressionParameters());
+			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("login", user.getLogin());
@@ -496,7 +500,7 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			assessmentAndRiskProfileManager.UpdateAssetALE(analysis);
+			assessmentAndRiskProfileManager.updateAssetALE(analysis, null);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
@@ -578,7 +582,6 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Edit/{analysisId}")
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Locale locale) throws Exception {
-
 		// retrieve analysis
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
@@ -593,6 +596,8 @@ public class ControllerAnalysis {
 
 			// add customers of user
 			model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+
+			model.put("types", AnalysisType.values());
 
 			// add the analysis object
 			model.put("analysis", analysis);
@@ -770,10 +775,9 @@ public class ControllerAnalysis {
 			if (analysis == null)
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
-			String lastVersion = serviceAnalysis.getAllNotEmptyVersion(analysis.getIdentifier()).stream().sorted((v0, v1) -> {
+			String lastVersion = serviceAnalysis.getAllVersion(analysis.getIdentifier()).stream().sorted((v0, v1) -> {
 				return NaturalOrderComparator.compareTo(v1, v0);
 			}).findFirst().get();
-
 
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
@@ -787,8 +791,8 @@ public class ControllerAnalysis {
 			Date date = new Date(System.currentTimeMillis());
 			String version = jsonNode.get("version").asText();
 			String comment = jsonNode.get("comment").asText();
-			
-			String error  = validator.validate(history, "author", author);
+
+			String error = validator.validate(history, "author", author);
 			if (error != null)
 				errors.put("author", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
@@ -1086,7 +1090,7 @@ public class ControllerAnalysis {
 	private void exportRawActionPlan(HttpServletResponse response, Analysis analysis, String username, Locale locale) throws IOException {
 		XSSFWorkbook workbook = null;
 		try {
-			List<AcronymParameter> expressionParameters = analysis.getExpressionParameters();
+			List<IProbabilityParameter> expressionParameters = analysis.getExpressionParameters();
 			int lineIndex = 0;
 			workbook = new XSSFWorkbook();
 			XSSFSheet sheet = workbook.createSheet(messageSource.getMessage("label.raw.action_plan", null, "Raw action plan", locale));
@@ -1126,7 +1130,7 @@ public class ControllerAnalysis {
 		}
 	}
 
-	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, List<AcronymParameter> expressionParameters, Locale locale) {
+	private void writeActionPLanData(XSSFRow row, ActionPlanEntry actionPlanEntry, List<IProbabilityParameter> expressionParameters, Locale locale) {
 		for (int i = 0; i < 21; i++) {
 			if (row.getCell(i) == null)
 				row.createCell(i, i < 7 ? Cell.CELL_TYPE_STRING : Cell.CELL_TYPE_NUMERIC);
@@ -1249,8 +1253,6 @@ public class ControllerAnalysis {
 
 			boolean uncertainty = jsonNode.has("uncertainty") ? !jsonNode.get("uncertainty").asText().isEmpty() : false;
 
-			boolean cssf = jsonNode.has("cssf") ? !jsonNode.get("cssf").asText().isEmpty() : false;
-
 			if (idLanguage < 1)
 				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
 			else if (language == null)
@@ -1260,13 +1262,12 @@ public class ControllerAnalysis {
 
 			if (!errors.isEmpty())
 				return false;
-			boolean update = analysis.getId() > 0 && !analysis.isProfile() && cssf != analysis.isCssf();
+			boolean update = analysis.getId() > 0 && !analysis.isProfile();
 			analysis.setLabel(comment);
 			analysis.setLanguage(language);
-			analysis.setUncertainty(uncertainty);
-			analysis.setCssf(cssf);
+			analysis.setUncertainty(analysis.getType() == AnalysisType.QUALITATIVE ? false : uncertainty);
 			if (update)
-				assessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, analysis.mapExtendedParameterByAcronym());
+				assessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
 			serviceAnalysis.saveOrUpdate(analysis);
 			return true;
 		} catch (TrickException e) {

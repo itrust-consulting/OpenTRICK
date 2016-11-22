@@ -22,6 +22,7 @@ import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
 import lu.itrust.business.TS.model.general.Phase;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.expressions.StringExpressionParser;
 
@@ -35,6 +36,7 @@ import lu.itrust.business.expressions.StringExpressionParser;
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idAssetMeasure")
+// @DiscriminatorValue("ASSET")
 public class AssetMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -194,9 +196,28 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	@Transient
-	public double getImplementationRateValue(Map<String, Double> dynamicParameters) {
+	public double getImplementationRateValue(ValueFactory factory) {
 		try {
-			return (new StringExpressionParser(this.getImplementationRate())).evaluate(dynamicParameters);
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
+		} catch (Exception ex) {
+			return 0.0;
+		}
+	}
+
+	/**
+	 * getImplementationRateValue: <br>
+	 * Returns the Implementation Rate value using the getImplementationRate
+	 * method.
+	 * 
+	 * @return Implementation Rate Value
+	 * @see lu.itrust.business.TS.model.standard.measure.Measure#getImplementationRateValue()
+	 * @see lu.itrust.business.TS.model.standard.measure.NormalMeasure#getImplementationRate()
+	 */
+	@Override
+	@Transient
+	public double getImplementationRateValue(Map<String, Double> factory) {
+		try {
+			return (new StringExpressionParser(this.getImplementationRate())).evaluate(factory);
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -211,7 +232,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 			return new ArrayList<String>();
 		}
 	}
-	
+
 	/**
 	 * setImplementationRate: <br>
 	 * Sets the Implementation Rate with a Value
@@ -223,7 +244,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof String) && !(implementationRate instanceof Double))
+		if (!(implementationRate instanceof String || implementationRate instanceof Double))
 			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type String!");
 		super.setImplementationRate(implementationRate.toString());
 	}
@@ -237,7 +258,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * @throws TrickException
 	 * @see lu.itrust.business.TS.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
 	 */
-	public void setImplementationRate(double implementationRate) throws TrickException {
+	public void setImplementationRate(String implementationRate) throws TrickException {
 		super.setImplementationRate(implementationRate);
 	}
 

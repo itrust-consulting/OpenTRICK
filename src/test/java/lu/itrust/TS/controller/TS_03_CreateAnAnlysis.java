@@ -41,6 +41,7 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -103,6 +104,8 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	public static int ANALYSIS_ID = -1;
 
+	public static int DEFAULT_PROFILE = -1;
+
 	@Test
 	@Transactional(readOnly = true)
 	public void test_00_loadData() throws Exception {
@@ -112,15 +115,15 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		Customer customer = serviceCustomer.getFromContactPerson("me");
 		notNull(customer, "'me' customer cannot be found");
 		CUSTOMER_ID = customer.getId();
+		DEFAULT_PROFILE = serviceAnalysis.getDefaultProfileId();
 	}
 
 	@Test(timeOut = 120000, dependsOnMethods = "test_00_loadData")
 	public void test_01_CreateSimpleAnalysis() throws Exception {
-		this.mockMvc
-				.perform(post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
-						.param("author", "Admin Admin").param("name", SIMPLE_ANALYSIS_NAME).param("version", SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
-						.param("customer", String.valueOf(CUSTOMER_ID)).param("language", String.valueOf(LANGUAGE_ID)))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+		this.mockMvc.perform(post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
+				.param("author", "Admin Admin").param("name", SIMPLE_ANALYSIS_NAME).param("version", SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
+				.param("customer", String.valueOf(CUSTOMER_ID)).param("language", String.valueOf(LANGUAGE_ID)).param("profile", String.valueOf(DEFAULT_PROFILE))
+				.param("type", AnalysisType.QUANTITATIVE.name())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 	}
 
@@ -336,7 +339,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "impactFin", "String", "i9")))
+						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "IMPACT", "String", "i9")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		this.mockMvc
 				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
@@ -353,7 +356,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		notNull(assessment, "Assessment cannot be found");
 		assertTrue("Assessment should be selected", assessment.isSelected());
 		assessment = serviceAssessment.get(assessment.getId());
-		assertEquals("impactFin should be i9", "i9", assessment.getImpactFin());
+		assertEquals("Impact should be i9", "i9", assessment.getImpactAcronym("IMPACT"));
 		assertEquals("likelihood should be p9", "p9", assessment.getLikelihood());
 	}
 

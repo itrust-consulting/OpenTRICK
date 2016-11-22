@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.model.standard.measure;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +23,8 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.general.Phase;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
+import lu.itrust.business.TS.model.parameter.IProbabilityParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescription;
 
@@ -40,6 +40,7 @@ import lu.itrust.business.TS.model.standard.measuredescription.MeasureDescriptio
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+//@DiscriminatorColumn(name="dtType")
 public abstract class Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -217,19 +218,24 @@ public abstract class Measure implements Cloneable {
 	 * @return The Implementation Rate Real Value
 	 */
 	@Transient
-	public abstract double getImplementationRateValue(Map<String, Double> dynamicParameters);
+	public abstract double getImplementationRateValue(ValueFactory factory);
+	
+	/**
+	 * getImplementationRate: <br>
+	 * Returns the "implementationRate" field value (Real Value)
+	 * 
+	 * @return The Implementation Rate Real Value
+	 */
+	@Transient
+	public abstract double getImplementationRateValue(Map<String, Double> factory);
 
 	@Transient
 	public abstract List<String> getVariablesInvolvedInImplementationRateValue();
 
 	@Transient
-	public double getImplementationRateValue(List<AcronymParameter> expressionParameters) {
+	public double getImplementationRateValue(List<IProbabilityParameter> expressionParameters) {
 		// Turn expression parameters into a map { key => value }
-		Map<String, Double> expressionParameterValues = new HashMap<>();
-		for (AcronymParameter expressionParameter : expressionParameters)
-			expressionParameterValues.put(expressionParameter.getAcronym(), expressionParameter.getValue());
-
-		return this.getImplementationRateValue(expressionParameterValues);
+		return this.getImplementationRateValue(new ValueFactory(expressionParameters));
 	}
 
 	/**

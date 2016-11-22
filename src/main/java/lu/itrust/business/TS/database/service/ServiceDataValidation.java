@@ -38,4 +38,5 @@ public interface ServiceDataValidation {
 	public Map<String, String> validate(Object object);
 
 	public Map<String, String> validate(Object o, Map<Object, Object> choose);
+
 }

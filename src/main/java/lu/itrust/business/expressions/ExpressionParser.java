@@ -1,8 +1,9 @@
 package lu.itrust.business.expressions;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 
 /**
  * Interface for a parser of basic arithmetical expressions containing
@@ -33,6 +34,8 @@ public interface ExpressionParser {
 	 * @throws IllegalArgumentException
 	 *             Throws an exception if a variable has no assigned value.
 	 */
+	public double evaluate(ValueFactory factory) throws InvalidExpressionException, IllegalArgumentException;
+	
 	public double evaluate(Map<String, Double> variableValueMap) throws InvalidExpressionException, IllegalArgumentException;
 
 	/**
@@ -43,5 +46,8 @@ public interface ExpressionParser {
 	 * @return Returns true iff the expression has no syntax errors and no
 	 *         unknown variables.
 	 */
-	public boolean isValid(List<String> variables);
+	
+	public boolean isValid(Collection<String> names);
+	
+	public boolean isValid(ValueFactory factory);
 }

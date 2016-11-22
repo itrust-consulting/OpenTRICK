@@ -11,4 +11,11 @@
 	<jsp:include page="./standards/measure/widgetcontent.jsp" />
 	<jsp:include page="./standards/standard/widgetcontent.jsp" />
 	<div class="modal fade" id="rrfEditor" tabindex="-1" role="dialog" data-aria-labelledby="rrfEditor" data-aria-hidden="true" data-backdrop="static"></div>
+	<c:if test="${isEditable and type =='QUANTITATIVE'}">
+		<datalist id="dataListImplementationRate" hidden="hidden">
+			<c:forEach end="100" begin="0" step="1" var="implementationRate">
+				<option value="${implementationRate}">${implementationRate}</option>
+			</c:forEach>
+		</datalist>
+	</c:if>
 </div>

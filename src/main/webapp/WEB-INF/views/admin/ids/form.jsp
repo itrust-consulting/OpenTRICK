@@ -48,7 +48,6 @@
 							<form:checkbox path="enable" cssClass="checkbox"/>
 						</div>
 					</div>
-					
 					<form:button type="submit" hidden="hidden" id="ids_form_submit_button"/>
 				</form:form>
 				<div id="ids-error-container"></div>

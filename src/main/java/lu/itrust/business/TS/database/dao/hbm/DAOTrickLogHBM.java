@@ -3,12 +3,15 @@
  */
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.Criteria;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Property;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.database.dao.DAOTrickLog;
@@ -45,36 +48,36 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 
 	@Override
 	public Long count() {
-		return (Long) getSession().createQuery("Select count(*) From TrickLog").uniqueResult();
+		return (Long) getSession().createQuery("Select count(*) From TrickLog").getSingleResult();
 	}
 
 	@Override
 	public Long countByLevel(LogLevel level) {
-		return (Long) getSession().createQuery("Select count(*) From TrickLog where level = :level").setParameter("level", level).uniqueResult();
+		return (Long) getSession().createQuery("Select count(*) From TrickLog where level = :level").setParameter("level", level).getSingleResult();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAll() {
-		return getSession().createQuery("From TrickLog").list();
+		return getSession().createQuery("From TrickLog").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAllByLevel(LogLevel level, int page, int size) {
-		return getSession().createQuery("From TrickLog where level = :level").setParameter("level", level).setFirstResult((page - 1) * size).setMaxResults(size).list();
+		return getSession().createQuery("From TrickLog where level = :level").setParameter("level", level).setFirstResult((page - 1) * size).setMaxResults(size).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAllByLevel(LogLevel level) {
-		return getSession().createQuery("From TrickLog where level = :level").setParameter("level", level).list();
+		return getSession().createQuery("From TrickLog where level = :level").setParameter("level", level).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAll(int page, int size) {
-		return getSession().createQuery("From TrickLog").setFirstResult((page - 1) * size).setMaxResults(size).list();
+		return getSession().createQuery("From TrickLog").setFirstResult((page - 1) * size).setMaxResults(size).getResultList();
 	}
 
 	@Override
@@ -98,52 +101,50 @@ public class DAOTrickLogHBM extends DAOHibernate implements DAOTrickLog {
 		getSession().delete(trickLog);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAll(Integer page, TrickLogFilter filter) {
-		
-		Criteria criteria = getSession().createCriteria(TrickLog.class);
+		CriteriaBuilder criteriaBuilder = getSession().getCriteriaBuilder();
+		CriteriaQuery<TrickLog> criteria = criteriaBuilder.createQuery(TrickLog.class);
+		Root<TrickLog> root = criteria.from(TrickLog.class);
 		if (filter.isOrderDescending())
-			criteria.addOrder(Order.desc("created"));
+			criteria.orderBy(criteriaBuilder.desc(root.get("created")));
 		else
-			criteria.addOrder(Order.asc("created"));
-		
-		if(filter.getLevel()!=null)
-			criteria.add(Property.forName("level").eq(filter.getLevel()));
-		
-		if (filter.getType()!=null)
-			criteria.add(Property.forName("type").eq(filter.getType()));
-		
-		if(!(filter.getAuthor()==null || filter.getAuthor().isEmpty()))
-			criteria.add(Property.forName("author").eq(filter.getAuthor()));
-		
-		if(filter.getAction()!=null)
-			criteria.add(Property.forName("action").eq(filter.getAction()));
-
-		return criteria.setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
+			criteria.orderBy(criteriaBuilder.asc(root.get("created")));
+		List<Predicate> predicates = new LinkedList<>();
+		if (filter.getLevel() != null)
+			predicates.add(criteriaBuilder.equal(root.get("level"), filter.getLevel()));
+		if (filter.getType() != null)
+			predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("type"), filter.getType())));
+		if (!(filter.getAuthor() == null || filter.getAuthor().isEmpty()))
+			predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("author"), filter.getAuthor())));
+		if (filter.getAction() != null)
+			predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("action"), filter.getAction())));
+		if (!predicates.isEmpty())
+			criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+		return getSession().createQuery(criteria).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getDistinctAuthor() {
-		return getSession().createQuery("Select distinct author From TrickLog order by author").list();
+		return getSession().createQuery("Select distinct author From TrickLog order by author").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LogLevel> getDistinctLevel() {
-		return getSession().createQuery("Select distinct level From TrickLog order by level").list();
+		return getSession().createQuery("Select distinct level From TrickLog order by level").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LogType> getDistinctType() {
-		return getSession().createQuery("Select distinct type From TrickLog order by type").list();
+		return getSession().createQuery("Select distinct type From TrickLog order by type").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<LogAction> getDistinctAction() {
-		return getSession().createQuery("Select distinct action From TrickLog order by action").list();
+		return getSession().createQuery("Select distinct action From TrickLog order by action").getResultList();
 	}
 }

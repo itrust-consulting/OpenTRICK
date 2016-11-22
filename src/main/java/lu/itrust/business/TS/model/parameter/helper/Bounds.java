@@ -58,16 +58,16 @@ public class Bounds implements Cloneable {
 
 	/**
 	 * updateBounds: <br>
-	 * Updates the Parameter From and To values using a Bounds object as previous To value (which
-	 * serves in the current Parameter as From value). If the prevBounds parameter is null, the
+	 * Updates the SimpleParameter From and To values using a Bounds object as previous To value (which
+	 * serves in the current SimpleParameter as From value). If the prevBounds parameter is null, the
 	 * previous value will be used as 0 (there are no previous values).
 	 * 
 	 * @param prevBounds
-	 *            The previous Parameter Bounds
+	 *            The previous SimpleParameter Bounds
 	 * @param value
-	 *            The current Parameter Value
+	 *            The current SimpleParameter Value
 	 * @param nextValue
-	 *            The next Parameter Value
+	 *            The next SimpleParameter Value
 	 * @throws TrickException
 	 */
 	public void updateBounds(Bounds prevBounds, double value, double nextValue) throws TrickException {
@@ -80,15 +80,15 @@ public class Bounds implements Cloneable {
 
 	/**
 	 * updateBounds: <br>
-	 * Updates the Parameter From and To values using a Bounds object as previous To value (which
-	 * serves in the current Parameter as From value).
+	 * Updates the SimpleParameter From and To values using a Bounds object as previous To value (which
+	 * serves in the current SimpleParameter as From value).
 	 * 
 	 * @param prevTo
-	 *            The previous Parameter To value
+	 *            The previous SimpleParameter To value
 	 * @param value
-	 *            The current Parameter Value
+	 *            The current SimpleParameter Value
 	 * @param nextValue
-	 *            The next Parameter Value
+	 *            The next SimpleParameter Value
 	 * @throws TrickException
 	 */
 	public void updateBounds(double prevTo, double value, double nextValue) throws TrickException {
@@ -166,7 +166,19 @@ public class Bounds implements Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	public Bounds clone(){
+		try {
+			return (Bounds) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new TrickException("error.clone.bounds", "Bounds cannot be copied", e);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Bounds [from=" + from + ", to=" + to + "]";
 	}
 }

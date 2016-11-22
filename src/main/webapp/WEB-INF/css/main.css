@@ -319,21 +319,6 @@ a[role="changeUILanguage"]:hover {
 	border-color: #dddddd;
 }
 
-.clearfix () { &:before, &:after {
-	content: " ";
-	display: table;
-}
-
-&
-:after {
-	clear: both;
-}
-
-}
-.container { .clearfix ();
-	
-}
-
 ul.asset-measure {
 	height: 265px;
 	padding: 0px;

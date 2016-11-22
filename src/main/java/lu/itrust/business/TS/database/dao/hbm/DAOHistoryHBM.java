@@ -49,9 +49,10 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 		return (History) getSession().get(History.class, id);
 	}
 
+	@SuppressWarnings("unchecked")
 	public History getFromAnalysisById(Integer idAnalysis, Integer idHistory)  {
 		String query = "Select history From Analysis as analysis inner join analysis.histories as history where analysis.id = :idAnalysis and history.id = :idHistory";
-		return (History) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idHistory", idHistory).uniqueResult();
+		return (History) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idHistory", idHistory).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -63,8 +64,8 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer historyId)  {
-		String query = "Select count(history) From Analysis as analysis inner join analysis.histories as history where analysis.id = :analysisId and history.id = :historyId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("historyId", historyId).uniqueResult()).intValue() > 0;
+		String query = "Select count(history)>0 From Analysis as analysis inner join analysis.histories as history where analysis.id = :analysisId and history.id = :historyId";
+		return (boolean) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("historyId", historyId).getSingleResult();
 	}
 
 	/**
@@ -108,7 +109,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	public List<String> getVersionsFromAnalysis(Integer analysisId)  {
 		String query = "Select distinct history.version " + "From Analysis as analysis inner join analysis.histories as history where analysis.identifier = ( Select analysis2.identifier";
 		query += " From Analysis as analysis2 where analysis2.id = :analysisId )";
-		return getSession().createQuery(query).setInteger("analysisId", analysisId).list();
+		return getSession().createQuery(query).setParameter("analysisId", analysisId).getResultList();
 	}
 
 	/**
@@ -120,7 +121,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<History> getAll()  {
-		return (List<History>) getSession().createQuery("From History").list();
+		return (List<History>) getSession().createQuery("From History").getResultList();
 	}
 
 	/**
@@ -149,7 +150,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<History> getAllFromAnalysis(Analysis analysis)  {
-		return (List<History>) getSession().createQuery("From History where analysis = :analysis").setParameter("analysis", analysis).list();
+		return (List<History>) getSession().createQuery("From History where analysis = :analysis").setParameter("analysis", analysis).getResultList();
 	}
 
 	/**

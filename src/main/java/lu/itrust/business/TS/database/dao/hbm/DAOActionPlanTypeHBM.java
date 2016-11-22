@@ -2,7 +2,6 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -52,10 +51,10 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOActionPlanType#getByName(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public ActionPlanType getByName(String name)  {
-		Query query = getSession().createQuery("From ActionPlanType where name = :name").setParameter("name", name.trim());
-		return (ActionPlanType) query.uniqueResult();
+		return (ActionPlanType) getSession().createQuery("From ActionPlanType where name = :name").setParameter("name", name.trim()).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -67,7 +66,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanType> getAll()  {
-		return (List<ActionPlanType>) getSession().createQuery("From ActionPlanType").list();
+		return (List<ActionPlanType>) getSession().createQuery("From ActionPlanType").getResultList();
 	}
 
 	/**

@@ -15,11 +15,13 @@
 				</h4>
 			</div>
 			<div class="modal-body" style="padding-bottom: 5px; padding-top: 5px;">
-				<ul id="scenario_form_tabs" class="nav nav-tabs">
-					<li class="active"><a href="#tab_scenario_general" data-toggle="tab"><spring:message code="label.menu.general" text="General" /></a></li>
-					<li><a href="#tab_scenario_properties" data-toggle="tab"><spring:message code="label.menu.properties" text="Properties" /></a></li>
-					<li id="error_scenario_container" style="padding-top: 10px; padding-left: 10px"></li>
-				</ul>
+				<c:if test="${type == 'QUANTITATIVE' }">
+					<ul id="scenario_form_tabs" class="nav nav-tabs">
+						<li class="active"><a href="#tab_scenario_general" data-toggle="tab"><spring:message code="label.menu.general" text="General" /></a></li>
+						<li><a href="#tab_scenario_properties" data-toggle="tab"><spring:message code="label.menu.properties" text="Properties" /></a></li>
+						<li id="error_scenario_container" style="padding-top: 10px; padding-left: 10px"></li>
+					</ul>
+				</c:if>
 				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal tab-content" id="scenario_form">
 					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
 					<div id="tab_scenario_general" class="tab-pane active" style="padding-top: 17px;">
@@ -108,124 +110,128 @@
 							</div>
 						</div>
 					</div>
-					<div id="tab_scenario_properties" class="tab-pane" style="padding-top: 17px;">
-						<spring:message text="${empty scenario or scenario.hasControlCharacteristics()?'success':'danger'}" var="cssclass" />
-						<div class="sceneario-sliders">
-							<table data-trick-controller-name='scenario' class="table table-condensed" style="margin-bottom: 0;">
-								<thead>
-									<tr>
-										<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.preventive" /></th>
-										<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.detective" /></th>
-										<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.limitative" /></th>
-										<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.corrective" /></th>
-										<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.intentional" /></th>
-										<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.accidental" /></th>
-										<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
-										<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
-										<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
-									</tr>
-								</thead>
-								<tbody>
-									<c:choose>
-										<c:when test="${empty scenario}">
-											<tr style="text-align: center;">
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="0.25" data-slider-min="0" data-slider-max="1"
-													data-slider-step="0.05" data-slider-value="0.25" data-slider-orientation="vertical" data-slider-selection="after" name="preventive" data-slider-tooltip="show"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="0.25" data-slider-min="0" data-slider-max="1"
-													data-slider-step="0.05" data-slider-value="0.25" name="detective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="0.25" data-slider-min="0" data-slider-max="1"
-													data-slider-step="0.05" data-slider-value="0.25" data-slider-orientation="vertical" data-slider-selection="after" name="limitative" data-slider-tooltip="show"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="0.25" data-slider-min="0" data-slider-max="1"
-													data-slider-step="0.05" data-slider-value="0.25" name="corrective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="0" data-slider-min="0" data-slider-max="1"
-													data-slider-step="1" data-slider-value="0" name="intentional" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_accidental" value="0" data-slider-min="0" data-slider-max="1"
-													data-slider-step="1" data-slider-value="0" name="accidental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="0" data-slider-min="0" data-slider-max="1"
-													data-slider-step="1" data-slider-value="0" name="environmental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="0" data-slider-min="0" data-slider-max="1"
-													data-slider-step="1" data-slider-value="0" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_externalThreat" value="0" data-slider-min="0" data-slider-max="1"
-													data-slider-step="1" data-slider-value="0" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-											</tr>
-											<tr>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly"
-													class="form-control" value="0.25"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_detective_value" value="0.25"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly"
-													class="form-control" value="0.25"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_corrective_value" value="0.25"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_intentional_value" value="0"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_accidental_value"
-													value="0"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_environmental_value" value="0"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_internalThreat_value" value="0"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_externalThreat_value" value="0"></td>
-											</tr>
-										</c:when>
-										<c:otherwise>
-											<tr style="text-align: center;">
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="${scenario.preventive}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.preventive}" data-slider-orientation="vertical" data-slider-selection="after"
-													name="preventive" data-slider-tooltip="show"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="${scenario.detective}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
-													data-slider-tooltip="show"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="${scenario.limitative}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.limitative}" data-slider-orientation="vertical" data-slider-selection="after"
-													name="limitative" data-slider-tooltip="show"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="${scenario.corrective}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.corrective}" name="corrective" data-slider-orientation="vertical"
-													data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="${scenario.intentional}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.intentional}" name="intentional" data-slider-orientation="vertical"
-													data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_accidental" value="${scenario.accidental}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.accidental}" name="accidental" data-slider-orientation="vertical" data-slider-selection="after"
-													data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="${scenario.environmental}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.environmental}" name="environmental" data-slider-orientation="vertical"
-													data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="${scenario.internalThreat}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.internalThreat}" name="internalThreat" data-slider-orientation="vertical"
-													data-slider-selection="after" data-slider-tooltip="show"></td>
-												<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_externalThreat" value="${scenario.externalThreat}" data-slider-min="0"
-													data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.externalThreat}" name="externalThreat" data-slider-orientation="vertical"
-													data-slider-selection="after" data-slider-tooltip="show"></td>
-											</tr>
-											<tr>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly"
-													class="form-control" value="${scenario.preventive}"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_detective_value" value="${scenario.detective}"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly"
-													class="form-control" value="${scenario.limitative}"></td>
-												<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_corrective_value" value="${scenario.corrective}"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_intentional_value" value="${scenario.intentional}"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_accidental_value"
-													value="${scenario.accidental}"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_environmental_value" value="${scenario.environmental}"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_internalThreat_value" value="${scenario.internalThreat}"></td>
-												<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
-													id="scenario_externalThreat_value" value="${scenario.externalThreat}"></td>
-											</tr>
-										</c:otherwise>
-									</c:choose>
-
-								</tbody>
-							</table>
+					<c:if test="${type == 'QUANTITATIVE' }">
+						<div id="tab_scenario_properties" class="tab-pane" style="padding-top: 17px;">
+							<spring:message text="${empty scenario or scenario.hasControlCharacteristics()?'success':'danger'}" var="cssclass" />
+							<div class="sceneario-sliders">
+								<table data-trick-controller-name='scenario' class="table table-condensed" style="margin-bottom: 0;">
+									<thead>
+										<tr>
+											<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.preventive" /></th>
+											<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.detective" /></th>
+											<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.limitative" /></th>
+											<th class="${cssclass} pdlc text-center" data-trick-type="type"><spring:message code="label.rrf.scenario.corrective" /></th>
+											<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.intentional" /></th>
+											<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.accidental" /></th>
+											<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.environmental" /></th>
+											<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" /></th>
+											<th class="warning text-center" data-trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" /></th>
+										</tr>
+									</thead>
+									<tbody>
+										<c:choose>
+											<c:when test="${empty scenario}">
+												<tr style="text-align: center;">
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="0.25" data-slider-min="0"
+														data-slider-max="1" data-slider-step="0.05" data-slider-value="0.25" data-slider-orientation="vertical" data-slider-selection="after" name="preventive"
+														data-slider-tooltip="show"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="0.25" data-slider-min="0" data-slider-max="1"
+														data-slider-step="0.05" data-slider-value="0.25" name="detective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="0.25" data-slider-min="0"
+														data-slider-max="1" data-slider-step="0.05" data-slider-value="0.25" data-slider-orientation="vertical" data-slider-selection="after" name="limitative"
+														data-slider-tooltip="show"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="0.25" data-slider-min="0"
+														data-slider-max="1" data-slider-step="0.05" data-slider-value="0.25" name="corrective" data-slider-orientation="vertical" data-slider-selection="after"
+														data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="0" data-slider-min="0" data-slider-max="1"
+														data-slider-step="1" data-slider-value="0" name="intentional" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_accidental" value="0" data-slider-min="0" data-slider-max="1"
+														data-slider-step="1" data-slider-value="0" name="accidental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="0" data-slider-min="0" data-slider-max="1"
+														data-slider-step="1" data-slider-value="0" name="environmental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="0" data-slider-min="0" data-slider-max="1"
+														data-slider-step="1" data-slider-value="0" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_externalThreat" value="0" data-slider-min="0" data-slider-max="1"
+														data-slider-step="1" data-slider-value="0" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+												</tr>
+												<tr>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly"
+														class="form-control" value="0.25"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_detective_value" value="0.25"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly"
+														class="form-control" value="0.25"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_corrective_value" value="0.25"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_intentional_value" value="0"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_accidental_value" value="0"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_environmental_value" value="0"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_internalThreat_value" value="0"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_externalThreat_value" value="0"></td>
+												</tr>
+											</c:when>
+											<c:otherwise>
+												<tr style="text-align: center;">
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="${scenario.preventive}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.preventive}" data-slider-orientation="vertical" data-slider-selection="after"
+														name="preventive" data-slider-tooltip="show"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_detective" value="${scenario.detective}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.detective}" name="detective" data-slider-orientation="vertical"
+														data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" id="scenario_limitative" class="slider" value="${scenario.limitative}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.limitative}" data-slider-orientation="vertical" data-slider-selection="after"
+														name="limitative" data-slider-tooltip="show"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" class="slider" id="scenario_corrective" value="${scenario.corrective}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="0.05" data-slider-value="${scenario.corrective}" name="corrective" data-slider-orientation="vertical"
+														data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_intentional" value="${scenario.intentional}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.intentional}" name="intentional" data-slider-orientation="vertical"
+														data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_accidental" value="${scenario.accidental}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.accidental}" name="accidental" data-slider-orientation="vertical" data-slider-selection="after"
+														data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="${scenario.environmental}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.environmental}" name="environmental" data-slider-orientation="vertical"
+														data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="${scenario.internalThreat}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.internalThreat}" name="internalThreat" data-slider-orientation="vertical"
+														data-slider-selection="after" data-slider-tooltip="show"></td>
+													<td class="warning" data-trick-type="source"><input type="text" class="slider" id="scenario_externalThreat" value="${scenario.externalThreat}" data-slider-min="0"
+														data-slider-max="1" data-slider-step="1" data-slider-value="${scenario.externalThreat}" name="externalThreat" data-slider-orientation="vertical"
+														data-slider-selection="after" data-slider-tooltip="show"></td>
+												</tr>
+												<tr>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly"
+														class="form-control" value="${scenario.preventive}"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_detective_value" value="${scenario.detective}"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly"
+														class="form-control" value="${scenario.limitative}"></td>
+													<td class="${cssclass} pdlc" data-trick-type="type"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_corrective_value" value="${scenario.corrective}"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_intentional_value" value="${scenario.intentional}"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_accidental_value" value="${scenario.accidental}"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_environmental_value" value="${scenario.environmental}"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_internalThreat_value" value="${scenario.internalThreat}"></td>
+													<td class="warning" data-trick-type="source"><input type="text" style="text-align: center;" readonly="readonly" class="form-control"
+														id="scenario_externalThreat_value" value="${scenario.externalThreat}"></td>
+												</tr>
+											</c:otherwise>
+										</c:choose>
+									</tbody>
+								</table>
+							</div>
 						</div>
-					</div>
+					</c:if>
 				</form>
 			</div>
 			<div class="modal-footer">

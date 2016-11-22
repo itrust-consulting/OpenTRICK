@@ -55,6 +55,7 @@ import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.helper.AnalysisComparator;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
@@ -210,6 +211,7 @@ public class ControllerRRF {
 			model.addAttribute(SCENARIOS, ScenarioManager.SplitByType(scenarios));
 
 			Measure measure = splittedmeasures.entrySet().iterator().next().getValue().get(0);
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
@@ -217,7 +219,7 @@ public class ControllerRRF {
 				model.addAttribute("measureid", normalMeasure.getId());
 				model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
-				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				if (type == AnalysisType.QUALITATIVE) {
 					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
 				} else {
 					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
@@ -250,7 +252,7 @@ public class ControllerRRF {
 				model.addAttribute("measureid", assetMeasure.getId());
 				model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
-				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				if (type == AnalysisType.QUALITATIVE) {
 					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
 				} else {
 					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
@@ -333,7 +335,7 @@ public class ControllerRRF {
 		scenario.getAssetTypeValues().sort(new AssetTypeValueComparator());
 		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 		List<Measure> measures = new ArrayList<Measure>();
-		for (AnalysisStandard standard : standards){
+		for (AnalysisStandard standard : standards) {
 			if (standard.getStandard().getId() == measureFilter.getIdStandard() && standard.getStandard().getType() != StandardType.MATURITY) {
 				if (measureFilter.getIdMeasure() < 1 && standard.getStandard().getType() == StandardType.ASSET)
 					return JsonMessage.Error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
@@ -380,12 +382,14 @@ public class ControllerRRF {
 		if (measure.getAnalysisStandard().getStandard().getId() != standardID || measure.getAnalysisStandard().getStandard().getType() == StandardType.MATURITY)
 			return null;
 
+		AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
+		
 		if (measure instanceof NormalMeasure) {
 
 			NormalMeasure normalMeasure = (NormalMeasure) measure;
 			model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
-			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+			if (type == AnalysisType.QUALITATIVE) {
 				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
 			} else {
 				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
@@ -418,7 +422,7 @@ public class ControllerRRF {
 			model.addAttribute("measureid", assetMeasure.getId());
 			model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
-			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+			if (type == AnalysisType.QUALITATIVE) {
 				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
 			} else {
 				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
@@ -575,7 +579,7 @@ public class ControllerRRF {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
-			return JsonMessage.Error( messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.internal", null, "Internal error occurred", locale));
 		}
 
 	}
@@ -583,7 +587,7 @@ public class ControllerRRF {
 	@RequestMapping(value = "/Export/Raw/{idAnalysis}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportRawRFF(@PathVariable int idAnalysis, Model model, HttpServletResponse response, Principal principal, Locale locale) throws Exception {
-		exportRawRRF(serviceAnalysis.get(idAnalysis), response, principal.getName(),locale);
+		exportRawRRF(serviceAnalysis.get(idAnalysis), response, principal.getName(), locale);
 	}
 
 	private void exportRawRRF(Analysis analysis, HttpServletResponse response, String username, Locale locale) throws Exception {
@@ -594,7 +598,7 @@ public class ControllerRRF {
 			writeAnalysisIdentifier(analysis, workbook);
 			writeScenario(analysis.getScenarios(), assetTypes, workbook, locale);
 			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
-				writeMeasure(analysis.isCssf(), analysisStandard, assetTypes, workbook, locale);
+				writeMeasure(analysis.getType() == AnalysisType.QUALITATIVE, analysisStandard, assetTypes, workbook, locale);
 			response.setContentType("xlsx");
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("RAW RRF %s_V%s.xlsx", analysis.getLabel(), analysis.getVersion()) + "\"");

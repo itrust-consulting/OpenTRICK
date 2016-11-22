@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.parameter.value.IValue;
 import lu.itrust.business.TS.model.scenario.Scenario;
 
 /**
@@ -54,6 +55,8 @@ public interface ServiceAssessment {
 	public void saveOrUpdate(List<Assessment> assessments);
 
 	public void delete(Assessment assessment);
+	
+	public void delete(IValue impact);
 
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis);
 

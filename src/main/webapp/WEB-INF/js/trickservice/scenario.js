@@ -22,31 +22,34 @@ function editScenario(rowTrickId, isAdd) {
 					unknowError();
 				else {
 					$("#addScenarioModal").replaceWith($modal);
-					$modal.find(".slider").slider({
-						reversed : true
-					}).each(
-							function() {
-								$(this).on(
-										"change",
-										function(event) {
-											$modal.find("#scenario_" + event.target.name + "_value").val(event.value.newValue);
-											switch (event.target.name) {
-											case "preventive":
-											case "detective":
-											case "limitative":
-											case "corrective":
-												var total = parseFloat($("#scenario_preventive_value", $modal).val()) + parseFloat($("#scenario_detective_value", $modal).val())
-														+ parseFloat($("#scenario_limitative_value", $modal).val()) + parseFloat($("#scenario_corrective_value", $modal).val());
-												if (Math.abs(1 - total) > 0.01)
-													$(".pdlc", $modal).removeClass("success").addClass("danger");
-												else
-													$(".pdlc", $modal).removeClass("danger").addClass("success");
-												break;
-											default:
-												break;
-											}
-										});
-							});
+					if (application.analysisType == "QUANTITATIVE") {
+						$modal.find(".slider").slider({
+							reversed : true
+						}).each(
+								function() {
+									$(this).on(
+											"change",
+											function(event) {
+												$modal.find("#scenario_" + event.target.name + "_value").val(event.value.newValue);
+												switch (event.target.name) {
+												case "preventive":
+												case "detective":
+												case "limitative":
+												case "corrective":
+													var total = parseFloat($("#scenario_preventive_value", $modal).val())
+															+ parseFloat($("#scenario_detective_value", $modal).val()) + parseFloat($("#scenario_limitative_value", $modal).val())
+															+ parseFloat($("#scenario_corrective_value", $modal).val());
+													if (Math.abs(1 - total) > 0.01)
+														$(".pdlc", $modal).removeClass("success").addClass("danger");
+													else
+														$(".pdlc", $modal).removeClass("danger").addClass("success");
+													break;
+												default:
+													break;
+												}
+											});
+								});
+					}
 					$modal.modal("show");
 				}
 				return false;
@@ -102,7 +105,8 @@ function saveScenario(form) {
 	} catch (e) {
 		switch (e) {
 		case "error.scenario.control.characteristic":
-			$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please check control characteristics, sum must be 1")).appendTo($("#error_scenario_container"));
+			$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please check control characteristics, sum must be 1"))
+					.appendTo($("#error_scenario_container"));
 			break;
 		case "error.scenario.threat.source":
 			$("<label class='label label-danger'></label>").text(MessageResolver(e, "Please define a threat source")).appendTo($("#error_scenario_container"));
@@ -111,7 +115,8 @@ function saveScenario(form) {
 			$("<label class='label label-danger'></label>").text(MessageResolver("error.unknown.occurred", "An unknown error occurred")).appendTo($("#error_scenario_container"));
 			break;
 		}
-		$("#addScenarioModal li:not(.active) a[href='#tab_scenario_properties']").tab("show");
+		if (application.analysisType == "QUANTITATIVE")
+			$("#addScenarioModal li:not(.active) a[href='#tab_scenario_properties']").tab("show");
 	}
 	return false;
 }

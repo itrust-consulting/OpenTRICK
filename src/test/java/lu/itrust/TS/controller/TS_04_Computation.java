@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeActionPlan;
-import lu.itrust.business.TS.asynchronousWorkers.WorkerComputeRiskRegister;
+
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
@@ -36,7 +36,7 @@ import lu.itrust.business.TS.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.model.analysis.Analysis;
 import lu.itrust.business.TS.model.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.model.general.OpenMode;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 
 /**
  * @author eomar
@@ -93,29 +93,32 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		isNull(worker.getError(), "An error occured while compute action plan");
 	}
 
-	@Test
+	@Deprecated
+	//@Test
 	@Transactional(readOnly = true)
-	public void loadCSSFParameter() {
+	protected void loadCSSFParameter() {
 		Analysis analysis = serviceAnalysis.get(ANALYSIS_ID);
 		notNull(analysis, "Analysis cannot be found");
-		Parameter parameter = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
-		notNull(parameter, "Analysis cannot be found");
-		put(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID, parameter.getId());
+		SimpleParameter simpleParameter = (SimpleParameter) analysis.findParameter(Constant.PARAMETERTYPE_TYPE_CSSF_NAME, Constant.CSSF_CIA_SIZE);
+		notNull(simpleParameter, "Analysis cannot be found");
+		put(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID, simpleParameter.getId());
 	}
 
-	@Test(dependsOnMethods = "loadCSSFParameter")
-	public void test_01_UpdateCSSFParameter() throws Exception {
+	@Deprecated
+	//@Test(dependsOnMethods = "loadCSSFParameter")
+	protected void test_01_UpdateCSSFParameter() throws Exception {
 		int id = getInteger(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID);
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Parameter/" + id).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/SimpleParameter/" + id).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", id, "value", "double", -1D)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
 
-	@Test(timeOut = 120000, dependsOnMethods = { "test_01_UpdateCSSFParameter", "loadCSSFParameter" })
-	public synchronized void test_01_RiskRegister() throws Exception {
-		this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+	@Deprecated
+	//@Test(timeOut = 120000, dependsOnMethods = { "test_01_UpdateCSSFParameter", "loadCSSFParameter" })
+	protected synchronized void test_01_RiskRegister() throws Exception {
+		/*this.mockMvc.perform(post("/Analysis/RiskRegister/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
@@ -138,7 +141,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		while (worker.isWorking())
 			wait(100);
 		serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
-		isNull(worker.getError(), "An error occured while compute risk register");
+		isNull(worker.getError(), "An error occured while compute risk register");*/
 	}
 
 	@Test(dependsOnMethods = "test_00_ActionPlan")
@@ -148,9 +151,10 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		notEmpty(actionPlans, "Action plan is empty");
 	}
 
-	@Test(dependsOnMethods = "test_01_RiskRegister")
+	@Deprecated
+	//@Test(dependsOnMethods = "test_01_RiskRegister")
 	@Transactional(readOnly = true)
-	public void test_03_CheckRiskRegister() throws Exception {
+	protected void test_03_CheckRiskRegister() throws Exception {
 
 		List<RiskRegisterItem> riskRegisterItems = serviceRiskRegister.getAllFromAnalysis(ANALYSIS_ID);
 		notEmpty(riskRegisterItems, "Risk register is empty");

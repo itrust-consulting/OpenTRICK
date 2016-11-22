@@ -16,23 +16,12 @@ function displayActionPlanOptions(analysisId) {
 }
 
 function calculateActionPlanWithOptions(form) {
-
-	var form = $("#" + form);
-
-	var data = {};
-
-	data["id"] = form.find("input[name='id']").val();
-
-	form.find("input[name^='standard_']").each(function() {
-
-		var name = $(this).attr("name");
-
-		var value = $(this).is(":checked");
-
-		data[name] = value;
-
+	var $form = $("#" + form), data = {
+		"id" : $form.find("input[name='id']").val()
+	};
+	$form.find("input[name^='standard_']").each(function() {
+		data[this.name] = this.checked;
 	});
-
 	return calculateAction(data);
 }
 

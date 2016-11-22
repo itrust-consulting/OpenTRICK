@@ -231,37 +231,29 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
-		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-		$("#deleteAnalysisModel .btn").unbind();
-		$("#deleteanalysisbuttonNo").click(function() {
-			$("#deleteAnalysisModel .btn").unbind();
-			$("#deleteAnalysisModel").modal("hide");
-		});
-		$("#deleteanalysisbuttonYes").one("click", function() {
-			$("#deleteprogressbar").show();
-			$("#deleteAnalysisModel .btn").prop("disabled", true);
+		var $modal = showDialog("#deleteAnalysisModel", MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
+		$("button[data-action='delete']", $modal).one("click", function() {
+			var $progress = $("#loading-indicator").show(), $buttons = $(".btn", $modal).prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "POST",
 				contentType : "application/json;charset=UTF-8",
 				success : function(response, textStatus, jqXHR) {
-					$("#deleteprogressbar").hide();
-					$("#deleteAnalysisModel").modal('hide');
 					if (response.success != undefined) {
 						reloadSection("section_analysis");
-					} else if (response.error != undefined) {
-						$("#alert-dialog .modal-body").html(response.error);
-						$("#alert-dialog").modal("toggle");
-					}
+					} else if (response.error != undefined)
+						showDialog("#alert-dialog", response.error)
 					return false;
 				},
 				error : unknowError
 			}).complete(function() {
-				$("#deleteanalysisbuttonYes").prop("disabled", false);
+				$buttons.prop("disabled", false);
+				$modal.modal("hide");
+				$progress.hide();
 			});
 			return false;
 		});
-		$("#deleteAnalysisModel").modal('show');
+
 	} else
 		permissionError();
 	return false;
@@ -322,28 +314,16 @@ function createAnalysisProfile(analysisId, section_analysis) {
 }
 
 function saveAnalysisProfile(form) {
+	var $modal = $("#analysisProfileModal"), $progress = $("#loading-indicator").show(), $form = $("#" + form), data = {
+		"id" : $form.find("#id").val(),
+		"description" : $form.find("#name").val()
+	};
 
-	var data = {};
+	$(".label-danger", $form).remove();
 
-	var id = $("#" + form).find("#id").val();
-
-	var description = $("#" + form).find("#name").val();
-
-	data["id"] = id;
-
-	data["description"] = description;
-
-	$("#" + form).find("select[name='standards'] option").each(function() {
-
-		var name = $(this).attr("value");
-
-		var value = $(this).is(":checked");
-
-		data[name] = value;
-
+	$form.find("select[name='standards'] option").each(function() {
+		data[this.value] = $(this).is(":checked");
 	});
-
-	var $progress = $("#loading-indicator").show();
 
 	$.ajax({
 		url : context + "/AnalysisProfile/Save",
@@ -351,51 +331,26 @@ function saveAnalysisProfile(form) {
 		data : JSON.stringify(data),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-
-			var alert = $("#analysisProfileform .label-danger");
-			if (alert.length)
-				alert.remove();
 			for ( var error in response) {
 				if (error === "taskid")
 					continue;
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
-
 				$(errorElement).text(response[error]);
 				switch (error) {
 				case "description":
-					$(errorElement).appendTo($("#analysisProfileform #name").parent());
+					$(errorElement).appendTo($("#name", $form).parent());
 					break;
 				case "analysisprofile":
 				default:
-					$(errorElement).appendTo($("#analysisProfileform").parent());
+					$(errorElement).appendTo($form.parent());
 					break;
 				}
 			}
 
-			if (!$("#analysisProfileform .label-danger").length) {
-				var progressBar = new ProgressBar();
-				progressBar.Initialise();
-				$(progressBar.progress).appendTo($("#" + form).parent());
-				$(progressBar.progress).css("width", "100%");
-				$(progressBar.progress).css("display", "inline-block");
-				callback = {
-					failed : function() {
-						progressBar.Destroy();
-						$("#analysisProfileModal").modal("toggle");
-						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
-						$("#alert-dialog").modal("toggle");
-					},
-					success : function() {
-						setTimeout(function() {
-							progressBar.Destroy();
-							$("#analysisProfileModal").modal("toggle");
-						}, 2000);
-
-					}
-				};
-				progressBar.OnComplete(callback.success);
-				updateStatus(progressBar, response["taskid"], callback, undefined);
+			if (!$(".label-danger", $form).length) {
+				application["taskManager"].Start();
+				$modal.modal("hide");
 			}
 			return false;
 
@@ -427,10 +382,9 @@ function customAnalysis(element) {
 									$old.replaceWith($modalContent);
 								else
 									$modalContent.appendTo("#widget");
-								var modal = new Modal($modalContent), $modalBody = $(modal.modal_body);
-								var $emptyText = $modalBody.find("*[dropzone='true']>div:first").text();
-								var $removeText = MessageResolver("label.action.delete", "Delete");
-								var $lockText = MessageResolver("label.action.lock", "Lock");
+								var modal = new Modal($modalContent), $modalBody = $(modal.modal_body), $emptyText = $modalBody.find("*[dropzone='true']>div:first").text(), $removeText = MessageResolver(
+										"label.action.delete", "Delete"), $lockText = MessageResolver("label.action.lock", "Lock"), $analysisSelector = $("#selector-analysis",
+										$modalBody), $impacts = $("select[name='impacts']", $modalBody), $generalTab = $("#group_1"), $advanceTab = $("#group_2");
 								// load data from database and manage caching
 
 								analysesCaching = {
@@ -439,7 +393,7 @@ function customAnalysis(element) {
 									customers : {},
 									cloneWidth : undefined,
 									assessmentDisable : true,
-									cssfChecked : false,
+									analysisType : undefined,
 									saveVersions : function(identifier, data) {
 										for (var i = 0; i < data.length; i++)
 											this.versions[data[i].id] = data[i];
@@ -504,13 +458,13 @@ function customAnalysis(element) {
 										});
 									},
 									updateVersionSelector : function(identifier) {
-										var instance = this;
-										var versions = this.identifiers[identifier];
-										var $analysisVersions = $("#analysis-versions", $modalBody);
+										var instance = this, versions = this.identifiers[identifier], $analysisVersions = $("#analysis-versions", $modalBody);
 										for (var i = 0; i < versions.length; i++) {
-											var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' title='" + versions[i].label + " v."
-													+ versions[i].version + "'>" + versions[i].version + "</li>");
-											$li.appendTo($analysisVersions);
+											if (versions[i].type == instance.analysisType) {
+												var $li = $("<li class='list-group-item' data-trick-id='" + versions[i].id + "' data-trick-analysis-type='" + instance.analysisType
+														+ "' title='" + versions[i].label + " v." + versions[i].version + "'>" + versions[i].version + "</li>");
+												$li.appendTo($analysisVersions);
+											}
 										}
 
 										$("#analysis-versions li", $modalBody).hover(function() {
@@ -552,10 +506,9 @@ function customAnalysis(element) {
 									},
 									checkPhase : function() {
 										var $phaseInput = $("input[name='phase']", $modalBody), $standards = $("#analysis-build-standards>div>label");
-										if (!$standards.length) {
-											$phaseInput.prop("disabled", true);
-											$phaseInput.prop("checked", false);
-										} else {
+										if (!$standards.length)
+											$phaseInput.prop("disabled", true).prop("checked", false);
+										else {
 											$phaseInput.prop("disabled", false);
 											var idAnalysis = -1;
 											for (var i = 0; i < $standards.length; i++) {
@@ -563,8 +516,7 @@ function customAnalysis(element) {
 												if (i == 0)
 													idAnalysis = currentIdAnalysis;
 												else if (currentIdAnalysis != idAnalysis) {
-													$phaseInput.prop("disabled", true);
-													$phaseInput.prop("checked", false);
+													$phaseInput.prop("disabled", true).prop("checked", false);
 													break;
 												}
 											}
@@ -572,14 +524,27 @@ function customAnalysis(element) {
 										return this;
 									},
 									checkRiskDependancies : function() {
-										var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well")
-												.attr("data-trick-id"), estimation = trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
+										var trick_id_asset = $("#analysis-build-assets .well").attr("data-trick-id"), trick_id_parameter = $("#analysis-build-parameters .well")
+												.attr("data-trick-id"), trick_id_scenario = $("#analysis-build-scenarios .well").attr("data-trick-id"), estimation = trick_id_parameter == undefined
+												|| trick_id_parameter != trick_id_asset || trick_id_asset != trick_id_scenario || trick_id_asset == undefined;
 										$modalBody.find("input[name='assessment']").prop("disabled", this.assessmentDisable = estimation).prop("checked", false);
 										return this.checkProfile();
 									},
 									checkProfile : function() {
-										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled", this.assessmentDisable || !this.cssfChecked);
-										return this;
+										$modalBody.find("input[name='riskProfile']").prop("checked", false).prop("disabled",
+												this.assessmentDisable || this.analysisType != 'QUALITATIVE');
+										$modalBody.find("input[name='uncertainty']").prop("checked", false).prop("disabled", this.analysisType == 'QUALITATIVE');
+										$modalBody.find("a[data-trick-type-control][data-trick-type-control!='" + this.analysisType + "']").trigger("click");
+										var type = this.analysisType;
+										$modalBody.find("select[name='profile']").val("-1").find("option[value!='-1']").each(function() {
+											if (this.getAttribute("data-type") == type)
+												this.removeAttribute("hidden");
+											else
+												this.setAttribute("hidden", "hidden")
+										});
+
+										$analysisSelector.trigger("change");
+										return this.checkParameter();
 									},
 									checkAssetStandard : function() {
 										var analysisAsset = $("#analysis-build-assets input").val();
@@ -594,6 +559,22 @@ function customAnalysis(element) {
 										});
 										if ($label.length)
 											this.nameAnalysisStandard();
+										return this;
+									},
+									checkParameter : function() {
+										var trick_id_parameter = $("#analysis-build-parameters .well").attr("data-trick-id") == undefined;
+										if (this.analysisType != 'QUALITATIVE')
+											this.changeImpactState(true);
+										else if (trick_id_parameter) {
+											if ($impacts.is(":disabled"))
+												this.changeImpactState(false);
+										} else if (!$impacts.is(":disabled"))
+											this.changeImpactState(true);
+										return this;
+									},
+									changeImpactState : function(enable) {
+										$impacts.val('-1').prop("disabled", enable);
+										$modalBody.find("input[name='scale.level']").val('11').prop("disabled", enable);
 										return this;
 									},
 									nameAnalysisStandard : function() {
@@ -621,7 +602,8 @@ function customAnalysis(element) {
 								};
 
 								var $locker = $("<a href='#' style='margin-right:3px;' class='pull-right' title='" + $lockText
-										+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $cssf = $("#cssf");
+										+ "'  ><i class='fa fa-unlock'></i><input hidden class='pull-right' type='checkbox' style='margin-right:3px; margin-left:3px' ></a>"), $analysisType = $(
+										"input[name='type']", $modalContent);
 
 								// Event user select a customer
 								$("#selector-customer").on("change", function(e) {
@@ -634,18 +616,28 @@ function customAnalysis(element) {
 										analysesCaching.updateAnalysisIdentifiers(idCustomer);
 								});
 
-								$("#selector-analysis").on("change", function(e) {
+								$analysisSelector.on("change", function(e) {
 									$("#analysis-versions li[class!='disabled']", $modalBody).remove();
 									var identifier = $(e.target).val();
 									if (identifier != -1)
 										analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
+
 								});
 
-								$cssf.on("change", function(e) {
-									analysesCaching.cssfChecked = $cssf.is(":checked");
-									analysesCaching.checkProfile();
+								$analysisType.on("change", function(e) {
+									if (e.currentTarget.checked) {
+										analysesCaching.analysisType = e.currentTarget.value;
+										analysesCaching.checkProfile();
+									}
 								});
 
+								$impacts.on("change", function() {
+									var options = this.selectedOptions;
+									if (options[0].value == "-1" && options.length > 1)
+										$(options[0]).prop("selected", false)
+								});
+
+								$("#analysis-build-parameters").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
 								$("#analysis-build-scenarios").attr("data-trick-callback", "analysesCaching.checkRiskDependancies()");
 								$("#analysis-build-assets").attr("data-trick-callback", "analysesCaching.checkRiskDependancies().checkAssetStandard()");
 								$("#analysis-build-standards").attr("data-trick-callback", "analysesCaching.checkPhase().checkAssetStandard()");
@@ -663,7 +655,8 @@ function customAnalysis(element) {
 												$parent.find('input[name]').attr("value", ui.draggable.attr("data-trick-id"));
 												var callback = $parent.attr("data-trick-callback");
 												$(
-														"<a href='#' class='pull-right text-danger' title='" + $removeText
+														"<a href='#' data-trick-type-control='" + ui.draggable.attr("data-trick-analysis-type")
+																+ "' class='pull-right text-danger' title='" + $removeText
 																+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($this).click(
 														function() {
 															var $newParent = $(this).parent();
@@ -709,9 +702,9 @@ function customAnalysis(element) {
 																					+ "<input data-trick-field='name' hidden>"
 																					+ "<input data-trick-field='version' hidden>"
 																					+ "<input data-trick-field='type' hidden>");
-																			$content.attr("data-trick-name", data.name).attr("data-trick-version", data.version);
-																			$content.attr("data-trick-id", data.idAnalysis).attr("data-trick-type", data.type);
-																			$content.attr("data-trick-owner-id", data.idAnalysisStandard).text(
+																			$content.attr("data-trick-name", data.name).attr("data-trick-version", data.version).attr(
+																					"data-trick-id", data.idAnalysis).attr("data-trick-type", data.type).attr(
+																					"data-trick-owner-id", data.idAnalysisStandard).text(
 																					ui.draggable.attr("title") + " - " + data.name + " v" + data.version);
 																			$inputs.attr("data-trick-id", data.idAnalysis).attr("data-trick-owner-id", data.idAnalysisStandard)
 																					.appendTo($parent);
@@ -723,7 +716,9 @@ function customAnalysis(element) {
 																			} else
 																				$content.appendTo($this);
 																			$(
-																					"<a href='#' class='pull-right text-danger' title='"
+																					"<a href='#' class='pull-right text-danger' data-trick-type-control='"
+																							+ ui.draggable.attr("data-trick-analysis-type")
+																							+ "' title='"
 																							+ $removeText
 																							+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
 																					.appendTo($content).click(
@@ -759,9 +754,8 @@ function customAnalysis(element) {
 													}
 												});
 
-								var $saveButton = $(modal.modal_footer).find("button[name='save']");
-								var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
-								var $progress_bar = $modalBody.find(".progress");
+								var $saveButton = $(modal.modal_footer).find("button[name='save']"), $cancelButton = $(modal.modal_footer).find("button[name='cancel']"), $progress_bar = $modalBody
+										.find(".progress");
 								$cancelButton.click(function() {
 									if (!$cancelButton.is(":disabled"))
 										modal.Destroy();
@@ -771,7 +765,7 @@ function customAnalysis(element) {
 								$saveButton.click(function() {
 									$(modal.modal).find(".label-danger, .alert").remove();
 									$(modal.modal_dialog).find("button").prop("disabled", true);
-									$progress_bar.show();
+									$progress.show();
 									$.ajax({
 										url : context + "/Analysis/Build/Save",
 										type : "post",
@@ -782,12 +776,12 @@ function customAnalysis(element) {
 											var response = parseJson(data);
 											if (typeof response == 'object') {
 												if (response.error != undefined)
-													$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
+													$(showError($("#build-analysis-modal-error", $modalBody)[0], response.error)).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});
 												else if (response.success != undefined) {
-													$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
+													$(showSuccess($("#build-analysis-modal-error", $modalBody)[0], response.success)).css({
 														'margin-bottom' : '0',
 														'padding' : '6px 10px'
 													});
@@ -810,6 +804,8 @@ function customAnalysis(element) {
 														case "version":
 														case "assessment":
 														case "profile":
+														case "impacts":
+														case "scale.level":
 														case "name":
 															$(errorElement).appendTo($("form *[name='" + error + "']", $modalBody).parent());
 															break;
@@ -829,20 +825,24 @@ function customAnalysis(element) {
 														}
 													}
 
-													if ($("#group_1:hidden .label-danger", $modalContent).length)
-														$("a[href='#group_1']", $modalContent).tab("show");
-													else if ($("#group_2:hidden  .label-danger", $modalContent).length)
-														$("a[href='#group_2']", $modalContent).tab("show");
+													if ($(".label-danger", $generalTab).length) {
+														if ($generalTab.is(":hidden"))
+															$("a[href='#group_1']", $modalContent).tab("show");
+													} else if ($(".label-danger", $advanceTab).length) {
+														if ($advanceTab.is(":hidden"))
+															$("a[href='#group_2']", $modalContent).tab("show");
+													}
 												}
 											} else
 												unknowError();
 										},
 										error : unknowError
+									}).complete(function() {
+										$(modal.modal_dialog).find("button").prop("disabled", false);
+										$progress.hide();
 									});
-									$(modal.modal_dialog).find("button").prop("disabled", false);
-									$progress_bar.hide();
-								});
-
+								})
+								$analysisType.trigger("change");
 								modal.Show();
 							}
 							return false;
@@ -954,15 +954,12 @@ function calculateActionPlan(analysisId) {
 	}
 
 	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-
-		var data = {};
-
-		data["id"] = analysisID;
-
 		$.ajax({
 			url : context + "/Analyis/ActionPlan/Compute",
 			type : "post",
-			data : JSON.stringify(data),
+			data : JSON.stringify({
+				"id" : analysisID
+			}),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
@@ -1003,15 +1000,12 @@ function calculateRiskRegister(analysisId) {
 	}
 
 	if (userCan(analysisID, ANALYSIS_RIGHT.READ)) {
-
-		var data = {};
-
-		data["id"] = analysisID;
-
 		$.ajax({
 			url : context + "/Analyis/RiskRegister/Compute",
 			type : "post",
-			data : JSON.stringify(data),
+			data : JSON.stringify({
+				"id" : analysisID
+			}),
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response, textStatus, jqXHR) {
@@ -1031,82 +1025,53 @@ function calculateRiskRegister(analysisId) {
 }
 
 function duplicateAnalysis(form, analyisId) {
-	var oldVersion = $("#history_oldVersion").prop("value");
-	/*
-	 * $(".progress-striped").show(); $(".progress-striped").addClass("active");
-	 */
-	var labels = $("#addHistoryModal .label-danger");
-	if (labels.length)
-		labels.remove();
-
-	var alert = $("#addHistoryModal [class='alert alert-warning']");
-	if (alert.length)
-		alert.remove();
-
+	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal"), oldVersion = $("#history_oldVersion", $modal).prop("value"), $buttons = $modal.find(
+			"[data-action!='cancel']").prop("disabled", true);
+	$(".label-danger", $modal).remove();
+	$("[class='alert alert-warning']", $modal);
 	$.ajax({
 		url : context + "/Analysis/Duplicate/" + analyisId,
 		type : "post",
-		aync : true,
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response, textStatus, jqXHR) {
-
-			$("#history_oldVersion").attr("value", oldVersion);
-
+			$("#history_oldVersion", $modal).attr("value", oldVersion);
 			var errorcounter = 0;
-
 			for ( var error in response) {
-				$(".progress-striped").removeClass("active");
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
-
 				$(errorElement).text(response[error]);
-
 				switch (error) {
 				case "author":
 					errorcounter++;
-					$(errorElement).appendTo($("#addHistoryModal #history_author").parent());
+					$(errorElement).appendTo($("#history_author", $modal).parent());
 					break;
 				case "version":
-					$(errorElement).appendTo($("#addHistoryModal #history_version").parent());
+					$(errorElement).appendTo($("#history_version", $modal).parent());
 					errorcounter++;
 					break;
 				case "comment":
 					errorcounter++;
-					$(errorElement).appendTo($("#addHistoryModal #history_comment").parent());
+					$(errorElement).appendTo($("#history_comment", $modal).parent());
 					break;
 				case "analysis":
 					errorcounter++;
 					var alertElement = document.createElement("div");
 					alertElement.setAttribute("class", "alert alert-warning");
 					$(alertElement).text($(errorElement).text());
-					$("#addHistoryModal .modal-body").prepend($(alertElement));
+					$(".modal-body", $modal).prepend($(alertElement));
 					break;
 				}
-
 			}
 			if (errorcounter == 0) {
-				progressBar = new ProgressBar();
-				progressBar.Initialise();
-				$(progressBar.progress).appendTo($("#history_form").parent());
-				callback = {
-					failed : function() {
-						progressBar.Destroy();
-						$("#addHistoryModal").modal("hide");
-						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
-						$("#alert-dialog").modal("show");
-					},
-					success : function() {
-						progressBar.Destroy();
-						setTimeout("location.reload()", 1000);
-						$("#addHistoryModal").modal("hide");
-					}
-				};
-				progressBar.OnComplete(callback.success);
-				updateStatus(progressBar, response["analysis_task_id"], callback, undefined);
+				$modal.modal("hide");
+				application["taskManager"].Start();
 			}
 		},
 		error : unknowError
+	}).complete(function() {
+		$progress.hide();
+		$buttons.prop("disabled", false);
 	});
 	return false;
 }
@@ -1120,7 +1085,7 @@ function customerChange(customer, nameFilter) {
 		contentType : "application/json;charset=UTF-8",
 		data : $(nameFilter).val(),
 		success : function(response, textStatus, jqXHR) {
-			var $newSection = $(new DOMParser().parseFromString(response, "text/html")).find("#section_analysis");
+			var $newSection = $("#section_analysis", new DOMParser().parseFromString(response, "text/html"));
 			if ($newSection.length) {
 				$("#section_analysis").replaceWith($newSection);
 				$(document).ready(function() {

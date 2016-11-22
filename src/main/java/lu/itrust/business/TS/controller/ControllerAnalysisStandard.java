@@ -57,12 +57,14 @@ import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceMaturityParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
-import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceTSSetting;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -72,6 +74,7 @@ import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.model.analysis.Analysis;
+import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.asset.AssetType;
@@ -82,8 +85,9 @@ import lu.itrust.business.TS.model.general.OpenMode;
 import lu.itrust.business.TS.model.general.Phase;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
-import lu.itrust.business.TS.model.parameter.AcronymParameter;
-import lu.itrust.business.TS.model.parameter.Parameter;
+import lu.itrust.business.TS.model.parameter.IParameter;
+import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
+import lu.itrust.business.TS.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.TS.model.standard.AnalysisStandard;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.MaturityStandard;
@@ -143,9 +147,6 @@ public class ControllerAnalysisStandard {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
-
-	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
@@ -180,6 +181,15 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private ServiceUser serviceUser;
+
+	@Autowired
+	private ServiceDynamicParameter serviceDynamicParameter;
+
+	@Autowired
+	private ServiceSimpleParameter serviceSimpleParameter;
+
+	@Autowired
+	private ServiceMaturityParameter serviceMaturityParameter;
 
 	@Autowired
 	private ServiceTSSetting serviceTSSetting;
@@ -226,8 +236,8 @@ public class ControllerAnalysisStandard {
 
 		Map<String, List<Measure>> measures = new LinkedHashMap<>(analysisStandards.size());
 
-		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
-		
+		ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
+
 		analysisStandards.forEach(analysisStandard -> {
 			standards.add(analysisStandard.getStandard());
 			measures.put(analysisStandard.getStandard().getLabel(), analysisStandard.getMeasures());
@@ -237,9 +247,7 @@ public class ControllerAnalysisStandard {
 
 		if (hasMaturity)
 			model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(measures.get(Constant.STANDARD_27002), measures.get(Constant.STANDARD_MATURITY),
-					serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME),
-					true, expressionParameters));
-
+					loadMaturityParameters(idAnalysis), true, factory));
 		model.addAttribute("hasMaturity", hasMaturity);
 
 		model.addAttribute("standards", standards);
@@ -250,7 +258,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		model.addAttribute("expressionParameters", expressionParameters);
+		model.addAttribute("valueFactory", factory);
 
 		return "analyses/single/components/standards/standard/standards";
 	}
@@ -277,17 +285,14 @@ public class ControllerAnalysisStandard {
 		AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, standardid);
 		if (analysisStandard == null)
 			return null;
-		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+		ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 		List<Standard> standards = new ArrayList<Standard>(1);
 		Map<String, List<Measure>> measures = new HashMap<>(1);
 		if (analysisStandard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
 			AnalysisStandard maturityStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardName(idAnalysis, Constant.STANDARD_MATURITY);
-			if (maturityStandard != null && maturityStandard.getStandard().isComputable()) {
-				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
-						Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-				model.addAttribute("effectImpl27002",
-						MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(), parameters, true, expressionParameters));
-			}
+			if (maturityStandard != null && maturityStandard.getStandard().isComputable())
+				model.addAttribute("effectImpl27002", MeasureManager.ComputeMaturiyEfficiencyRate(analysisStandard.getMeasures(), maturityStandard.getMeasures(),
+						loadMaturityParameters(idAnalysis), true, factory));
 		}
 
 		standards.add(analysisStandard.getStandard());
@@ -302,7 +307,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode) && serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
-		model.addAttribute("expressionParameters", expressionParameters);
+		model.addAttribute("valueFactory", factory);
 
 		return "analyses/single/components/standards/standard/standards";
 	}
@@ -333,7 +338,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
 		model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
-		model.addAttribute("expressionParameters", serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis));
+		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 		return "analyses/single/components/standards/measure/singleMeasure";
 	}
 
@@ -341,13 +346,17 @@ public class ControllerAnalysisStandard {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
 		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002, chapters);
 		List<Measure> maturities = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_MATURITY,
 				chapters.stream().map(reference -> "M." + reference).collect(Collectors.toList()));
-		List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
-				Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, parameters, false, expressionParameters);
+		return MeasureManager.ComputeMaturiyEfficiencyRate(measures, maturities, loadMaturityParameters(idAnalysis), false,
+				new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
+	}
+
+	private List<IParameter> loadMaturityParameters(Integer idAnalysis) {
+		List<IParameter> parameters = new LinkedList<>(serviceMaturityParameter.findByAnalysisId(idAnalysis));
+		parameters.addAll(serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME, idAnalysis));
+		return parameters;
 	}
 
 	/**
@@ -362,17 +371,15 @@ public class ControllerAnalysisStandard {
 			if (!measure.getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_27002))
 				return;
 			if (measure.getMeasureDescription().isComputable()) {
-				List<AcronymParameter> expressionParameters = serviceParameter.getAllExpressionParametersFromAnalysis(idAnalysis);
+				ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 				String chapter = measure.getMeasureDescription().getReference().split("[.]", 2)[0];
 				List<Measure> measures = serviceMeasure.getReferenceStartWith(idAnalysis, Constant.STANDARD_MATURITY, "M." + chapter);
 				if (measures.isEmpty())
 					model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
 				else {
 					model.addAttribute("hasMaturity", true);
-					List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME,
-							Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, parameters, expressionParameters).get(chapter);
-					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue(expressionParameters) * maturity * 0.01);
+					Double maturity = MeasureManager.ComputeMaturityByChapter(measures, loadMaturityParameters(idAnalysis), factory).get(chapter);
+					model.addAttribute("effectImpl27002", maturity == null ? 0 : measure.getImplementationRateValue(factory) * maturity * 0.01);
 				}
 			} else
 				model.addAttribute("hasMaturity", serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
@@ -474,11 +481,13 @@ public class ControllerAnalysisStandard {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
-		Parameter parameter = serviceParameter.getByAnalysisIdAndDescription(idAnalysis, Constant.SOA_THRESHOLD);
+		IParameter parameter = serviceSimpleParameter.findByAnalysisIdAndDescription(idAnalysis, Constant.SOA_THRESHOLD);
 
-		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue());
+		model.addAttribute("soaThreshold", parameter == null ? 100.0 : parameter.getValue().doubleValue());
 
 		Comparator<Measure> comparator = new MeasureComparator();
+
+		model.addAttribute("valueFactory", new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis)));
 
 		model.addAttribute("soas", serviceAnalysisStandard.findBySOAEnabledAndAnalysisId(true, idAnalysis).stream().map(analysisStandard -> {
 			analysisStandard.getMeasures().sort(comparator);
@@ -600,14 +609,14 @@ public class ControllerAnalysisStandard {
 				standard.setVersion(serviceStandard.getNextVersionByNameAndType(standard.getLabel(), standard.getType()));
 				switch (standard.getType()) {
 				case ASSET:
-					analysis.addAnalysisStandard(new AssetStandard(standard));
+					analysis.add(new AssetStandard(standard));
 					break;
 				case MATURITY:
-					analysis.addAnalysisStandard(new MaturityStandard(standard));
+					analysis.add(new MaturityStandard(standard));
 					break;
 				case NORMAL:
 				default:
-					analysis.addAnalysisStandard(new NormalStandard(standard));
+					analysis.add(new NormalStandard(standard));
 					break;
 				}
 				serviceAnalysis.saveOrUpdate(analysis);
@@ -675,12 +684,8 @@ public class ControllerAnalysisStandard {
 			if (standard.getType() == StandardType.MATURITY) {
 				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
-				for (Parameter parameter : analysis.getParameters()) {
-					if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
-						implementationRate = parameter;
-						break;
-					}
-				}
+				implementationRate = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)
+						&& (parameter.getValue().doubleValue() == 0 || parameter.getDescription().equals(Constant.IS_NOT_ACHIEVED))).findAny().orElse(null);
 			} else if (standard.getType() == StandardType.NORMAL) {
 				analysisStandard = new NormalStandard();
 				measure = new NormalMeasure();
@@ -697,7 +702,7 @@ public class ControllerAnalysisStandard {
 			if (phase == null) {
 				phase = new Phase(Constant.PHASE_DEFAULT);
 				phase.setAnalysis(analysis);
-				analysis.addPhase(phase);
+				analysis.add(phase);
 			}
 
 			analysisStandard.setStandard(standard);
@@ -710,7 +715,7 @@ public class ControllerAnalysisStandard {
 				analysisStandard.getMeasures().add(measure2);
 			}
 
-			analysis.addAnalysisStandard(analysisStandard);
+			analysis.add(analysisStandard);
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
@@ -803,7 +808,7 @@ public class ControllerAnalysisStandard {
 			if (!analysisStandard.getStandard().isAnalysisOnly())
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			Measure measure = MeasureManager.Create(analysisStandard);
 
@@ -835,7 +840,7 @@ public class ControllerAnalysisStandard {
 
 			measure.setMeasureDescription(new MeasureDescription(new MeasureDescriptionText(language)));
 
-			if (!isCSSF) {
+			if (type != AnalysisType.QUALITATIVE) {
 				Map<String, Boolean> excludes = new HashMap<>();
 				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 					excludes.put(category, true);
@@ -843,10 +848,12 @@ public class ControllerAnalysisStandard {
 			}
 
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
+			
+			model.addAttribute("type", type);
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure, language.getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure,type, language.getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -873,7 +880,7 @@ public class ControllerAnalysisStandard {
 			else if (!(measure.getAnalysisStandard().getStandard().isComputable() || measure.getAnalysisStandard().getStandard().isAnalysisOnly()))
 				throw new TrickException("error.action.not_authorise", "Action does not authorised");
 
-			boolean isCSSF = serviceAnalysis.isAnalysisCssf(idAnalysis);
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
@@ -905,18 +912,20 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
 			}
 
-			if (!isCSSF) {
+			if (type == AnalysisType.QUANTITATIVE) {
 				Map<String, Boolean> excludes = new HashMap<>();
 				for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 					excludes.put(category, true);
 				model.addAttribute("cssfExcludes", excludes);
 			}
 
+			model.addAttribute("type", type);
+
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure,type, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -939,6 +948,7 @@ public class ControllerAnalysisStandard {
 		try {
 
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.getFromAnalysisIdAndStandardId(idAnalysis, measureForm.getIdStandard());
+			AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
 
 			if (analysisStandard == null) {
 				errors.put("standard", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not belong to analysis!", locale));
@@ -987,7 +997,7 @@ public class ControllerAnalysisStandard {
 				measure.setAnalysisStandard(analysisStandard);
 			}
 
-			if (measureForm.getProperties() == null) {
+			if (type == AnalysisType.QUANTITATIVE && measureForm.getProperties() == null) {
 				errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 				return errors;
 			}
@@ -996,7 +1006,7 @@ public class ControllerAnalysisStandard {
 				validate(measureForm, errors, locale);
 				if (!errors.isEmpty())
 					return errors;
-				if (!update(measure, measureForm, idAnalysis, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
+				if (!update(measure, measureForm, idAnalysis, type, serviceLanguage.getFromAnalysis(idAnalysis), locale, errors).isEmpty())
 					return errors;
 			} else if (StandardType.NORMAL.equals(analysisStandard.getStandard().getType())) {
 				if (measure.getId() < 1)
@@ -1036,7 +1046,7 @@ public class ControllerAnalysisStandard {
 			boolean isMaturity = measure instanceof MaturityMeasure;
 			model.addAttribute("isMaturity", isMaturity);
 			if (isMaturity)
-				model.addAttribute("impscales", serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME));
+				model.addAttribute("impscales", serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, idAnalysis));
 			model.addAttribute("isLinkedToProject", serviceAnalysis.hasProject(idAnalysis) && loadUserSettings(principal, model, null));
 			model.addAttribute("showTodo", measureDescription.isComputable());
 			model.addAttribute("selectedMeasure", measure);
@@ -1169,7 +1179,7 @@ public class ControllerAnalysisStandard {
 
 				Map<String, TicketingTask> tasks = client.findByIdsAndProjectId(analysis.getProject(), keyIssues).stream()
 						.collect(Collectors.toMap(task -> task.getId(), Function.identity()));
-				List<Parameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				List<? extends IParameter> parameters = analysis.findParametersByType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 				model.addAttribute("measures", measures);
 				model.addAttribute("parameters", parameters);
 				model.addAttribute("tasks", tasks);
@@ -1369,18 +1379,18 @@ public class ControllerAnalysisStandard {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		Iterator<Parameter> iterator = analysis.getParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
+		Iterator<SimpleParameter> iterator = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
 		while (iterator.hasNext()) {
-			Parameter parameter = iterator.next();
+			IParameter parameter = iterator.next();
 			switch (parameter.getDescription()) {
 			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
-				internalSetupValue = parameter.getValue();
+				internalSetupValue = parameter.getValue().doubleValue();
 				break;
 			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
-				externalSetupValue = parameter.getValue();
+				externalSetupValue = parameter.getValue().doubleValue();
 				break;
 			case Constant.PARAMETER_LIFETIME_DEFAULT:
-				lifetimeDefault = parameter.getValue();
+				lifetimeDefault = parameter.getValue().doubleValue();
 				break;
 			}
 		}
@@ -1446,8 +1456,8 @@ public class ControllerAnalysisStandard {
 			errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
 	}
 
-	private Map<String, String> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, Language language, Locale locale, Map<String, String> errors)
-			throws Exception {
+	private Map<String, String> update(Measure measure, MeasureForm measureForm, Integer idAnalysis, AnalysisType type, Language language, Locale locale,
+			Map<String, String> errors) throws Exception {
 		if (errors == null)
 			errors = new LinkedHashMap<String, String>();
 		MeasureDescription description = measure.getMeasureDescription();
@@ -1484,7 +1494,7 @@ public class ControllerAnalysisStandard {
 
 		description.setComputable(measureForm.isComputable());
 
-		if (measureForm.getProperties() == null) {
+		if (type == AnalysisType.QUANTITATIVE && measureForm.getProperties() == null) {
 			errors.put("properties", messageSource.getMessage("error.properties.empty", null, "Properties cannot be empty", locale));
 			return errors;
 		}
@@ -1494,7 +1504,8 @@ public class ControllerAnalysisStandard {
 			if (assetMeasure.getMeasurePropertyList() == null)
 				assetMeasure.setMeasurePropertyList(new MeasureProperties());
 
-			measureForm.getProperties().copyTo(assetMeasure.getMeasurePropertyList());
+			if (type == AnalysisType.QUANTITATIVE)
+				measureForm.getProperties().copyTo(assetMeasure.getMeasurePropertyList());
 
 			List<MeasureAssetValue> assetValues = new ArrayList<MeasureAssetValue>(measureForm.getAssetValues().size());
 			for (MeasureAssetValueForm assetValueForm : measureForm.getAssetValues()) {
@@ -1523,7 +1534,8 @@ public class ControllerAnalysisStandard {
 			NormalMeasure normalMeasure = (NormalMeasure) measure;
 			if (normalMeasure.getMeasurePropertyList() == null)
 				normalMeasure.setMeasurePropertyList(new MeasureProperties());
-			measureForm.getProperties().copyTo(normalMeasure.getMeasurePropertyList());
+			if (type == AnalysisType.QUANTITATIVE)
+				measureForm.getProperties().copyTo(normalMeasure.getMeasurePropertyList());
 			updateAssetTypeValues(normalMeasure, measureForm.getAssetValues(), errors, locale);
 		}
 

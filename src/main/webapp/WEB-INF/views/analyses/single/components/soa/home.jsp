@@ -63,7 +63,7 @@
 									</tr>
 								</c:when>
 								<c:otherwise>
-									<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(expressionParameters)}" />
+									<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(valueFactory)}" />
 									<c:set var="css">
 										<c:if test="${implementationRateValue < 100 and implementationRateValue < soaThreshold}">class="success"</c:if>
 									</c:set>

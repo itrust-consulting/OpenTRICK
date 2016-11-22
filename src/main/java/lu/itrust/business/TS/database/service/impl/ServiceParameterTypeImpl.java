@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.database.dao.DAOParameterType;
 import lu.itrust.business.TS.database.service.ServiceParameterType;
-import lu.itrust.business.TS.model.parameter.ParameterType;
+import lu.itrust.business.TS.model.parameter.type.impl.ParameterType;
 
 /**
  * ServiceParameterTypeImpl.java: <br>
@@ -76,7 +76,7 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * @param parameterType
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#save(lu.itrust.business.TS.model.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#save(lu.itrust.business.TS.model.parameter.type.impl.ParameterType)
 	 */
 	@Transactional
 	@Override
@@ -92,7 +92,7 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * @param parameterType
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#saveOrUpdate(lu.itrust.business.TS.model.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#saveOrUpdate(lu.itrust.business.TS.model.parameter.type.impl.ParameterType)
 	 */
 	@Transactional
 	@Override
@@ -108,7 +108,7 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	 * @param parameterType
 	 * @
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#delete(lu.itrust.business.TS.model.parameter.ParameterType)
+	 * @see lu.itrust.business.TS.database.service.ServiceParameterType#delete(lu.itrust.business.TS.model.parameter.type.impl.ParameterType)
 	 */
 	@Transactional
 	@Override

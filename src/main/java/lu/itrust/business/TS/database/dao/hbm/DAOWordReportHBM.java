@@ -40,7 +40,7 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 * lu.itrust.business.TS.database.dao.DAOWordReport#get(java.lang.Integer)
 	 */
 	@Override
-	public WordReport get(Integer id) {
+	public WordReport get(Long id) {
 		return (WordReport) getSession().get(WordReport.class, id);
 	}
 
@@ -51,9 +51,10 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 * lu.itrust.business.TS.database.dao.DAOWordReport#getByFileName(java.lang
 	 * .String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public WordReport getByFilename(String fileName) {
-		return (WordReport) getSession().createQuery("From WordReport where filename = :filename").setString("filename", fileName).uniqueResult();
+		return (WordReport) getSession().createQuery("From WordReport where filename = :filename").setParameter("filename", fileName).uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -63,10 +64,11 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 * lu.itrust.business.TS.database.dao.DAOWordReport#getByIdAndUser(java.
 	 * lang.Integer, java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public WordReport getByIdAndUser(Integer id, String username) {
-		return (WordReport) getSession().createQuery("From WordReport where id = :id and user.login = :username").setInteger("id", id).setString("username", username)
-				.uniqueResult();
+	public WordReport getByIdAndUser(Long id, String username) {
+		return (WordReport) getSession().createQuery("From WordReport where id = :id and user.login = :username").setParameter("id", id).setParameter("username", username)
+				.uniqueResultOptional().orElse(null);
 	}
 
 	/*
@@ -79,7 +81,7 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<WordReport> getAllFromUser(String username) {
-		return getSession().createQuery("From WordReport where user.login = :username order by created desc").setString("username", username).list();
+		return getSession().createQuery("From WordReport where user.login = :username order by created desc").setParameter("username", username).getResultList();
 	}
 
 	/*
@@ -92,8 +94,8 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<WordReport> getAllFromUser(String username, Integer pageIndex, Integer pageSize) {
-		return getSession().createQuery("From WordReport where user.login = :username order by created desc").setString("username", username).setFirstResult((pageIndex - 1) * pageSize)
-				.setMaxResults(pageSize).list();
+		return getSession().createQuery("From WordReport where user.login = :username order by created desc").setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize)
+				.setMaxResults(pageSize).getResultList();
 	}
 
 	/*
@@ -106,8 +108,8 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<WordReport> getAllFromUserAndIdentifier(String username, String identifier, Integer pageIndex, Integer pageSize) {
-		return getSession().createQuery("From WordReport where identifier = :identifier and user.login = :username order by created desc").setString("identifier", identifier)
-				.setString("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
+		return getSession().createQuery("From WordReport where identifier = :identifier and user.login = :username order by created desc").setParameter("identifier", identifier)
+				.setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).getResultList();
 	}
 
 	/*
@@ -154,7 +156,7 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	 * )
 	 */
 	@Override
-	public void delete(Integer id) {
+	public void delete(Long id) {
 		delete(get(id));
 	}
 
@@ -178,7 +180,7 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getDistinctIdentifierByUser(User user) {
-		return getSession().createQuery("Select distinct identifier From WordReport where user = :user order by identifier desc").setParameter("user", user).list();
+		return getSession().createQuery("Select distinct identifier From WordReport where user = :user order by identifier desc").setParameter("user", user).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -188,12 +190,12 @@ public class DAOWordReportHBM extends DAOHibernate implements DAOWordReport {
 			throw new IllegalArgumentException();
 		if ("ALL".equalsIgnoreCase(filter.getFilter()))
 			return getSession().createQuery(String.format("From WordReport where user.login = :username order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
+					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();
 		else
 			return getSession()
 					.createQuery(String.format("From WordReport where user.login = :username and identifier = :filter order by %s %s", filter.getSort(), filter.getDirection()))
-					.setParameter("username", username).setString("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
-					.list();
+					.setParameter("username", username).setParameter("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
+					.getResultList();
 	}
 
 	@Override

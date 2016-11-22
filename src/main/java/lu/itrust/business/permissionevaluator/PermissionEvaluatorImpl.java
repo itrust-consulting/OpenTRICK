@@ -18,15 +18,19 @@ import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceHistory;
+import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
+import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceMaturityParameter;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceSimpleParameter;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.model.analysis.rights.AnalysisRight;
@@ -68,7 +72,19 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	private ServiceMeasure serviceMeasure;
 
 	@Autowired
-	private ServiceParameter serviceParameter;
+	private ServiceSimpleParameter serviceSimpleParameter;
+
+	@Autowired
+	private ServiceImpactParameter serviceImpactParameter;
+
+	@Autowired
+	private ServiceMaturityParameter serviceMaturityParameter;
+
+	@Autowired
+	private ServiceLikelihoodParameter serviceLikelihoodParameter;
+
+	@Autowired
+	private ServiceDynamicParameter serviceDynamicParameter;
 
 	@Autowired
 	private ServicePhase servicePhase;
@@ -106,7 +122,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) {
 		try {
-			
+
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else if (!serviceAnalysis.exists(analysisId))
@@ -123,7 +139,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 			if (right == null)
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
-			
+
 			switch (className) {
 
 			case "Scenario": {
@@ -166,11 +182,30 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
-			case "Parameter": {
-				if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
+			case "SimpleParameter": {
+				if (!serviceSimpleParameter.belongsToAnalysis(analysisId, elementId))
 					return false;
 				break;
 			}
+
+			case "LikelihoodParameter": {
+				if (!serviceLikelihoodParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+
+			case "MaturityParameter": {
+				if (!serviceMaturityParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+
+			case "ImpactParameter": {
+				if (!serviceImpactParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+
 			case "ActionPlanEntry": {
 				if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
 					return false;
@@ -191,10 +226,17 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					return false;
 				break;
 			}
+
+			case "DynamicParameter": {
+				if (!serviceDynamicParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+
 			default:
 				return false;
 			}
-			
+
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);

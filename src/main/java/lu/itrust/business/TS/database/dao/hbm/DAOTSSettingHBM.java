@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.database.dao.DAOTSSetting;
 import lu.itrust.business.TS.model.general.TSSetting;
 import lu.itrust.business.TS.model.general.TSSettingName;
@@ -20,7 +19,7 @@ public class DAOTSSettingHBM extends DAOHibernate implements DAOTSSetting {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TSSetting> getAll() {
-		return getSession().createQuery("From TSSetting").list();
+		return getSession().createQuery("From TSSetting").getResultList();
 	}
 
 	@Override
@@ -47,7 +46,7 @@ public class DAOTSSettingHBM extends DAOHibernate implements DAOTSSetting {
 
 	@Override
 	public void delete(String name) {
-		getSession().createQuery("Delete TSSetting where name = :name").setString("name", name).executeUpdate();
+		getSession().createQuery("Delete TSSetting where name = :name").setParameter("name", name).executeUpdate();
 	}
 
 	@Override
@@ -55,17 +54,12 @@ public class DAOTSSettingHBM extends DAOHibernate implements DAOTSSetting {
 		return isAllowed(name, false);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean isAllowed(TSSettingName name, boolean defaultValue) {
-		try {
-			if (!name.name().startsWith("SETTING_ALLOWED"))
-				return defaultValue;
-			Boolean allowed = (Boolean) getSession().createQuery("Select value = 'true' From TSSetting where name = :name").setParameter("name", name).uniqueResult();
-			return allowed == null ? defaultValue : allowed;
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+		if (!name.name().startsWith("SETTING_ALLOWED"))
 			return defaultValue;
-		}
+		return (boolean) getSession().createQuery("Select value = 'true' From TSSetting where name = :name").setParameter("name", name).uniqueResultOptional().orElse(defaultValue);
 	}
 
 }

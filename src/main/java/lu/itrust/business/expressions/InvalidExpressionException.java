@@ -6,7 +6,7 @@ package lu.itrust.business.expressions;
  * @author Steve Muller (SMU), itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
-public class InvalidExpressionException extends Exception {
+public class InvalidExpressionException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	public InvalidExpressionException() {
