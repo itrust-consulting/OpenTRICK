@@ -1058,8 +1058,8 @@ public class ActionPlanComputation {
 
 			if (measureProperties != null) {
 				measureProperties.setSoaRisk(soarisk);
-				if (StringUtils.isEmpty(measureProperties.getSoaExport()))
-					measureProperties.setSoaExport(soarisk);
+				if (StringUtils.isEmpty(measureProperties.getSoaComment()))
+					measureProperties.setSoaComment(soarisk);
 			}
 		}
 

@@ -9,6 +9,12 @@
 	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
 </c:if>
 <c:set var="language" value="${locale.language}" scope="request" />
+<spring:message code="label.measure.status.m" var="statusM" />
+<spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.na" var="statusNA" />
+<spring:message code="label.title.measure.status.m" var="titleStatusM" />
+<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <div id="tabSOA" class="tab-pane">
 	<div class="section" id="section_soa" style="z-index: 3">
 		<div class="page-header tab-content-header">
@@ -36,9 +42,10 @@
 						<tr>
 							<th style="width: 3%;" title='<spring:message code="label.title.sao.measure.ref" />' ><spring:message code="label.measure.ref" /></th>
 							<th style="width: 15%;" title='<spring:message code="label.measure.domain" />' ><spring:message code="label.measure.domain" /></th>
+							<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />' ><spring:message code="label.measure.status" /></th>
+							<th style="width: 2%;" title='<spring:message code="label.title.measure.ir" />' ><spring:message code="label.measure.ir" /></th>
 							<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />' ><spring:message code="label.measure.phase" /></th>
 							<th style="width: 15%;" title='<spring:message code="label.measure.soa.risk" />' ><spring:message code="label.measure.soa.risk" /></th>
-							<th style="width: 15%;" title='<spring:message code="label.comment" />' ><spring:message code="label.comment"/></th>
 							<th title='<spring:message code="label.justification" />' ><spring:message code="label.justification" /></th>
 							<th title='<spring:message code="label.reference" />' ><spring:message code="label.reference" /></th>
 						</tr>
@@ -52,7 +59,7 @@
 									<tr style="background-color: #F8F8F8;" data-trick-id='${measure.id}'>
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 										<td><spring:message text="${measure.measureDescription.reference}" /></td>
-										<td colspan="6"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+										<td colspan="7"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									</tr>
 								</c:when>
 								<c:otherwise>
@@ -75,16 +82,21 @@
 											</c:otherwise>
 										</c:choose>
 										<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-										<td>
-											<c:choose>
-												<c:when test="${measure.phase.number == 0}">NA</c:when>
-												<c:otherwise>${measure.phase.number}</c:otherwise>
-											</c:choose>
-										</td>
+										<c:choose>
+											<c:when test="${measure.status=='NA'}">
+												<td title="${titleStatusNA}">${statusNA}</td>
+											</c:when>
+											<c:when test="${measure.status=='AP'}">
+												<td title="${titleStatusAP}">${statusAP}</td>
+											</c:when>
+											<c:otherwise>
+												<td title="${titleStatusM}">${statusM}</td>
+											</c:otherwise>
+										</c:choose>
+										<td><fmt:formatNumber value="${measure.implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
+										<td>${measure.phase.number}</td>
 										<td><pre><spring:message text="${measure.measurePropertyList.soaRisk}" /></pre></td>
-										<td ${empty css? empty measure.measurePropertyList.soaExport? 'class="warning"' : '' : css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaExport" data-trick-content="text" data-trick-field-type="string" 
-											data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.measurePropertyList.soaExport}" /></pre></td>
-										<td ${empty css? empty measure.measurePropertyList.soaComment? 'class="warning"' : '' : css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" 
+										<td ${empty measure.measurePropertyList.soaComment? 'class="warning"' : empty css? '' : css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaComment" 
 											data-trick-content="text" data-trick-field-type="string" data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.measurePropertyList.soaComment}" /></pre></td>
 										<td ${css} onclick="return editField(this.firstElementChild);"><pre data-trick-field="soaReference" data-trick-content="text" 
 											data-trick-field-type="string"><spring:message text="${measure.measurePropertyList.soaReference}" /></pre></td>

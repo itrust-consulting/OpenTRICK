@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -65,6 +67,8 @@ public class WorkerSOAExport extends WorkerImpl {
 	private DAOUser daoUser;
 
 	private Locale locale;
+	
+	private DateFormat format = null;
 
 	private DAOAnalysis daoAnalysis;
 
@@ -207,6 +211,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			// progress, max, size, index
 			int[] progressing = { 2, 95, 0, 0 };
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
+			format = locale.getLanguage().equals("fr") ? new SimpleDateFormat("dd-MM-yyyy") : new SimpleDateFormat("MM-dd-yyyy");
 			serviceTaskFeedback.send(getId(), new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
 			workFile = new File(String.format("%s/tmp/SOA_%d_%s_V%s.docm", rootPath, System.nanoTime(), analysis.getLabel().replaceAll("/|-|:|.|&", "_"), analysis.getVersion()));
 			File doctemplate = new File(String.format("%s/data/%s.dotm", rootPath, locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE));
@@ -266,27 +271,25 @@ public class WorkerSOAExport extends WorkerImpl {
 	 */
 	private void generateTable(List<Measure> measures, XWPFDocument document, MessageHandler handler, int[] progressing) {
 		int rowIndex = 0;
-		XWPFTable table = document.createTable(measures.size(), 6);
+		XWPFTable table = document.createTable(measures.size(), 5);
 		table.setStyleID("TSSOA");
 		XWPFTableRow row = getRow(table, rowIndex++);
 		getCell(row, 0).setText(messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
 		getCell(row, 1).setText(messageSource.getMessage("report.measure.domain", null, "Domain", locale));
-		getCell(row, 2).setText(messageSource.getMessage("report.measure.phase", null, "P", locale));
-		getCell(row, 3).setText(messageSource.getMessage("report.soa.export", null, "Comment", locale));
-		getCell(row, 4).setText(messageSource.getMessage("report.soa.justification", null, "Justification", locale));
-		getCell(row, 5).setText(messageSource.getMessage("report.soa.reference", null, "Reference", locale));
+		getCell(row, 2).setText(messageSource.getMessage("report.measure.due", null, "Due date", locale));
+		getCell(row, 3).setText(messageSource.getMessage("report.soa.justification", null, "Justification", locale));
+		getCell(row, 4).setText(messageSource.getMessage("report.soa.reference", null, "Reference", locale));
 		for (Measure measure : measures) {
 			row = getRow(table, rowIndex++);
 			getCell(row, 0).setText(measure.getMeasureDescription().getReference());
 			getCell(row, 1).setText(measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage()).getDomain());
 			if (measure.getMeasureDescription().isComputable()) {
-				getCell(row, 2).setText(measure.getPhase().getNumber() + "");
+				getCell(row, 2).setText(format.format(measure.getPhase().getEndDate()));
 				MeasureProperties properties = measure instanceof NormalMeasure ? ((NormalMeasure) measure).getMeasurePropertyList()
 						: measure instanceof AssetMeasure ? ((AssetMeasure) measure).getMeasurePropertyList() : null;
 				if (properties != null) {
-					addCellContent(getCell(row, 3), properties.getSoaExport());
-					addCellContent(getCell(row, 4), properties.getSoaComment());
-					addCellContent(getCell(row, 5), properties.getSoaReference());
+					addCellContent(getCell(row, 3), properties.getSoaComment());
+					addCellContent(getCell(row, 4), properties.getSoaReference());
 				}
 			}
 			handler.setProgress((int) (progressing[0] + (++progressing[3] / (double) progressing[2]) * (progressing[1] - progressing[0])));

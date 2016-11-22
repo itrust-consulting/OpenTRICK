@@ -590,7 +590,7 @@ function manageSOA() {
 }
 
 function validateSOAState(idStandard,idMeasure){
-	$("tr[data-trick-id='"+idMeasure+"']>td:not(.success)>pre[data-trick-field!='soaReference'][data-trick-field]","#table_SOA_"+idStandard).each(function(){
+	$("tr[data-trick-id='"+idMeasure+"']>td>pre[data-trick-field!='soaReference'][data-trick-field]","#table_SOA_"+idStandard).each(function(){
 		var $this = $(this), $td = $this.parent();
 		if($this.text().trim() =="")
 			$td.addClass("warning");
