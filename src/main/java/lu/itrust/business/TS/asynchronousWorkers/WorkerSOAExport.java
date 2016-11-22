@@ -276,7 +276,7 @@ public class WorkerSOAExport extends WorkerImpl {
 		XWPFTableRow row = getRow(table, rowIndex++);
 		getCell(row, 0).setText(messageSource.getMessage("report.measure.reference", null, "Ref.", locale));
 		getCell(row, 1).setText(messageSource.getMessage("report.measure.domain", null, "Domain", locale));
-		getCell(row, 2).setText(messageSource.getMessage("report.measure.due", null, "Due date", locale));
+		getCell(row, 2).setText(messageSource.getMessage("report.measure.due.date", null, "Due date", locale));
 		getCell(row, 3).setText(messageSource.getMessage("report.soa.justification", null, "Justification", locale));
 		getCell(row, 4).setText(messageSource.getMessage("report.soa.reference", null, "Reference", locale));
 		for (Measure measure : measures) {
