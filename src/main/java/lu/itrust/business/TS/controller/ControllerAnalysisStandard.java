@@ -536,7 +536,7 @@ public class ControllerAnalysisStandard {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageSOA(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		model.addAttribute("analysisStandards", serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS),
-				NormalStandard.class.getSimpleName(), AssetStandard.class.getSimpleName()));
+				NormalStandard.class, AssetStandard.class));
 		return "analyses/single/components/soa/form";
 	}
 

@@ -209,12 +209,22 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	}
 
 	@Override
-	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, String... classes) {
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?>... classes) {
 		return daoAnalysisStandard.findByAndAnalysisIdAndTypeIn(analysisId, classes);
 	}
 
 	@Override
 	public AnalysisStandard findOne(int id, int analysisId) {
 		return daoAnalysisStandard.findOne(id, analysisId);
+	}
+
+	@Override
+	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes) {
+		return daoAnalysisStandard.findByComputableAndAnalysisIdAndTypeIn(computable,idAnalysis,classes);
+	}
+
+	@Override
+	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes) {
+		return  daoAnalysisStandard.findStandardByComputableAndAnalysisIdAndTypeIn(computable,idAnalysis,classes);
 	}
 }

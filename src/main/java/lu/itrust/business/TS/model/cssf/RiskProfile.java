@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.TS.model.cssf;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.AssociationOverride;
@@ -17,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -27,6 +30,7 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.TS.model.asset.Asset;
 import lu.itrust.business.TS.model.parameter.IParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * @author eomar
@@ -63,6 +67,11 @@ public class RiskProfile implements Cloneable {
 
 	@Column(name = "dtActionPlan", length = 1024)
 	private String actionPlan;
+
+	@ManyToMany
+	@JoinTable(name = "RiskProfileMeasures", joinColumns = @JoinColumn(name = "fiRiskProfile"), inverseJoinColumns = @JoinColumn(name = "fiMeasure"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"fiRiskProfile", "fiMeasure" }))
+	private List<Measure> measures = new LinkedList<Measure>();
 
 	@Embedded
 	@AssociationOverrides({ @AssociationOverride(name = "probability", joinColumns = @JoinColumn(name = "fiRawProbability")),
@@ -199,6 +208,21 @@ public class RiskProfile implements Cloneable {
 	 */
 	public RiskProbaImpact getRawProbaImpact() {
 		return rawProbaImpact;
+	}
+	
+
+	/**
+	 * @return the measures
+	 */
+	public List<Measure> getMeasures() {
+		return measures;
+	}
+
+	/**
+	 * @param measures the measures to set
+	 */
+	public void setMeasures(List<Measure> measures) {
+		this.measures = measures;
 	}
 
 	/**

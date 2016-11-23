@@ -49,7 +49,11 @@ public interface ServiceAnalysisStandard {
 
 	public List<AnalysisStandard> findBySOAEnabledAndAnalysisId(boolean b, Integer idAnalysis);
 
-	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, String ... classes);
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?> ... classes);
 
 	public AnalysisStandard findOne(int id, int analysisId);
+	
+	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?> ...classes);
+
+	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?> ...classes);
 }

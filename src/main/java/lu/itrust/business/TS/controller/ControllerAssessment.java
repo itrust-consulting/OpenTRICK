@@ -29,11 +29,13 @@ import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.component.TrickLogManager;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
@@ -42,12 +44,15 @@ import lu.itrust.business.TS.model.analysis.AnalysisType;
 import lu.itrust.business.TS.model.assessment.Assessment;
 import lu.itrust.business.TS.model.assessment.helper.ALE;
 import lu.itrust.business.TS.model.asset.Asset;
+import lu.itrust.business.TS.model.cssf.RiskProfile;
 import lu.itrust.business.TS.model.cssf.RiskStrategy;
 import lu.itrust.business.TS.model.general.helper.AssessmentAndRiskProfileManager;
 import lu.itrust.business.TS.model.parameter.ILevelParameter;
 import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
 import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
+import lu.itrust.business.TS.model.standard.AssetStandard;
+import lu.itrust.business.TS.model.standard.NormalStandard;
 
 /**
  * @author eom
@@ -81,6 +86,12 @@ public class ControllerAssessment {
 
 	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
+	
+	@Autowired
+	private ServiceRiskProfile serviceRiskProfile;
+	
+	@Autowired
+	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
 	private ServiceScenario serviceScenario;
@@ -363,13 +374,26 @@ public class ControllerAssessment {
 			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			// return null
 			TrickLogManager.Persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale));
 		}
 		return "redirect:/Error";
 
+	}
+
+	@RequestMapping(value = "/RiskProfile/Manage-measure", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
+			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public String manageRiskProfileMeasure(@RequestParam(name="idAsset") Integer idAsset, @RequestParam(name="idScenario") Integer idScenario, Model model, HttpSession session,
+			Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
+		if(riskProfile == null)
+			return null;
+		model.addAttribute("riskProfile", riskProfile);
+		model.addAttribute("standards", serviceAnalysisStandard.findStandardByComputableAndAnalysisIdAndTypeIn(true,idAnalysis, NormalStandard.class,AssetStandard.class ));
+		return "analyses/single/components/estimation/form/measure";
 	}
 
 	private Comparator<? super Assessment> assessmentAssetComparator() {
@@ -452,7 +476,7 @@ public class ControllerAssessment {
 			model.addAttribute("ale", ale);
 			model.addAttribute("aleo", aleo);
 			model.addAttribute("alep", alep);
-			
+
 			AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 		}
 		if (sort)

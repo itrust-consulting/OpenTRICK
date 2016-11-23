@@ -272,21 +272,31 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 				.setParameter("analysis", idAnalysis).setParameter("state", state).getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, String... classes) {
-		return getSession()
-				.createQuery(
-						"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.class in :types order by analysisStandard.standard.label ASC")
-				.setParameter("analysis", analysisId).setParameterList("types", classes).getResultList();
+	public List<AnalysisStandard> findByAndAnalysisIdAndTypeIn(Integer analysisId, Class<?>... classes) {
+		return getSession().createQuery(
+				"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and type(analysisStandard) in :types order by analysisStandard.standard.label ASC",
+				AnalysisStandard.class).setParameter("analysis", analysisId).setParameterList("types", classes).getResultList();
+	}
+
+	@Override
+	public AnalysisStandard findOne(int id, int analysisId) {
+		return (AnalysisStandard) getSession().createQuery(
+				"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.id = :id",
+				AnalysisStandard.class).setParameter("analysis", analysisId).setParameter("id", id).uniqueResultOptional().orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public AnalysisStandard findOne(int id, int analysisId) {
-		return (AnalysisStandard) getSession()
-				.createQuery(
-						"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.id = :id")
-				.setParameter("analysis", analysisId).setParameter("id", id).uniqueResultOptional().orElse(null);
+	public List<AnalysisStandard> findByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes) {
+		return getSession().createQuery(
+				"Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = :computable and type(analysisStandard) in :types order by analysisStandard.standard.label ASC").setParameter("analysis", idAnalysis).setParameter("computable", computable).setParameterList("types", classes).getResultList();
+	}
+
+	@Override
+	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes) {
+		return getSession().createQuery(
+				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = :computable and type(analysisStandard) in :types order by analysisStandard.standard.label ASC",
+				Standard.class).setParameter("analysis", idAnalysis).setParameter("computable", computable).setParameterList("types", classes).getResultList();
 	}
 }

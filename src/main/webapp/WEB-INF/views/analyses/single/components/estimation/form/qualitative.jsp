@@ -6,6 +6,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
+<spring:message code="label.measure.status.m" var="statusM" />
+<spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.na" var="statusNA" />
+<spring:message code="label.title.measure.status.m" var="titleStatusM" />
+<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <c:set var="strategyForm">
 	<select name="riskProfile.riskStrategy" class="form-control">
 		<c:forEach items="${strategies}" var="strategy">
@@ -45,7 +51,7 @@
 							</span>
 						</button></span>
 					<c:choose>
-						<c:when test="${empty riskProfile.rawProbaImpact.probability }">
+						<c:when test="${empty riskProfile.rawProbaImpact.probability}">
 							<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='0' data-trick-type='integer'>
 								<c:forEach items="${probabilities}" var="parameter">
 									<option value="${parameter.id}" title='<spring:message text="${parameter.description}"/>'><spring:message text="${parameter.level}" /></option>
@@ -55,8 +61,8 @@
 						<c:otherwise>
 							<select class="form-control" name="riskProfile.rawProbaImpact.probability" data-trick-value='${riskProfile.rawProbaImpact.probability.id}' data-trick-type='integer'>
 								<c:forEach items="${probabilities}" var="parameter">
-									<option value="${parameter.id}" ${riskProfile.rawProbaImpact.probability==parameter?"selected='selected'" :""}
-										title='<spring:message text="${parameter.description}"/>'><spring:message text="${parameter.level}" /></option>
+									<option value="${parameter.id}" ${riskProfile.rawProbaImpact.probability==parameter?"selected='selected'" :""} title='<spring:message text="${parameter.description}"/>'><spring:message
+											text="${parameter.level}" /></option>
 								</c:forEach>
 							</select>
 						</c:otherwise>
@@ -129,8 +135,8 @@
 							<c:otherwise>
 								<select class="form-control" name="${impactName}" data-trick-value='${impact.id}' data-trick-type='integer'>
 									<c:forEach items="${impacts[impactType.name]}" var="parameter">
-										<option value="${parameter.acronym}" ${impact.parameter==parameter? "selected='selected'" : ""}
-											title='<spring:message text="${parameter.description}"/>'><spring:message text="${parameter.level}" />
+										<option value="${parameter.acronym}" ${impact.parameter==parameter? "selected='selected'" : ""} title='<spring:message text="${parameter.description}"/>'><spring:message
+												text="${parameter.level}" />
 										</option>
 									</c:forEach>
 								</select>
@@ -161,8 +167,8 @@
 						<c:otherwise>
 							<select class="form-control" name="riskProfile.expProbaImpact.probability" data-trick-value='${riskProfile.expProbaImpact.probability.id}' data-trick-type='integer'>
 								<c:forEach items="${probabilities}" var="parameter">
-									<option value="${parameter.id}" ${riskProfile.expProbaImpact.probability==parameter?"selected='selected'":""}
-										title='<spring:message text="${parameter.description}"/>' ><spring:message text="${parameter.level}" /></option>
+									<option value="${parameter.id}" ${riskProfile.expProbaImpact.probability==parameter?"selected='selected'":""} title='<spring:message text="${parameter.description}"/>'><spring:message
+											text="${parameter.level}" /></option>
 								</c:forEach>
 							</select>
 						</c:otherwise>
@@ -239,12 +245,61 @@
 	<label class='label-control'>${riskTreatment}</label>
 	<textarea class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;" placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
 </div>
-
 <div class='form-group'>
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
-	<label class='label-control'>${actionPlan}</label>
-	<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
-	<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}" style="resize: vertical;" placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
+	<label class='label-control col-xs-11' style="padding-left: 0">${actionPlan}</label><span class="col-xs-1"><button class="btn btn-xs btn-default pull-right" id='measureManagementBtn'><i class="fa fa-cog" aria-hidden="true"></i>
+	</button></span>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th style="width: 2%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
+				<th style="width: 3%;" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+				<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
+				<th style="width: 2%;" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir_no_unit" /></th>
+				<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />'><spring:message code="label.measure.phase" /></th>
+				<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${riskProfile.measures}" var="measure">
+				<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(valueFactory)}" />
+				<tr data-trick-class="Measure" data-trick-id="${measure.id}">
+					<td><spring:message text='${ measure.measureDescription.standard.label}' /></td>
+					<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
+					<c:choose>
+						<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
+							<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true" data-content=''
+								title='<spring:message
+														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+						</c:when>
+						<c:otherwise>
+							<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+								data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
+								title='<spring:message
+														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+						</c:otherwise>
+					</c:choose>
+					<c:choose>
+						<c:when test="${measure.status=='NA'}">
+							<td title="${titleStatusNA}">${statusNA}</td>
+						</c:when>
+						<c:when test="${measure.status=='AP'}">
+							<td title="${titleStatusAP}">${statusAP}</td>
+						</c:when>
+						<c:otherwise>
+							<td title="${titleStatusM}">${statusM}</td>
+						</c:otherwise>
+					</c:choose>
+					<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
+					<td>${measure.phase.number}</td>
+					<td><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+			</c:forEach>
+		</tbody>
+	</table>
+	<c:if test="${not empty riskProfile.actionPlan}">
+		<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
+		<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}" style="resize: vertical;" placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
+	</c:if>
 </div>
 
 <div class='form-group'>

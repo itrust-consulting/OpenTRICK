@@ -136,7 +136,11 @@ function loadAssessmentData(id) {
 					});
 				}
 
-				$("button[data-scale-modal]", $assessmentUI).click(function() {
+				$("button#measureManagementBtn").on("click", function(e) {
+					manageRiskProfileMeasure(idAsset, idScenario, e);
+				});
+
+				$("button[data-scale-modal]", $assessmentUI).on("click", function() {
 					var name = this.getAttribute("data-scale-modal");
 					if (scales[name] == undefined)
 						scales[name] = $("#" + name);
@@ -153,6 +157,28 @@ function loadAssessmentData(id) {
 		$progress.hide()
 	});
 	return false;
+}
+
+function manageRiskProfileMeasure(idAsset, idScenario, e) {
+	var $progress = $("#loading-indicator").show();
+	$.ajax({
+		url : context + "/Analysis/Assessment/RiskProfile/Manage-measure?idAsset=" + idAsset + "&idScenario=" + idScenario,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			var $measureManager = $("div#riskProfileMeasureManager", new DOMParser().parseFromString(response, "text/html"));
+			if ($measureManager.length) {
+				$measureManager.appendTo("#widgets").modal("show").on("hidden.bs.modal", function() {
+					$measureManager.remove();
+				});
+			} else
+				unknowError();
+		},
+		error : unknowError
+	}).complete(function() {
+		$progress.hide()
+	});
+	return false;
+
 }
 
 function backupDescriptionHeight() {
