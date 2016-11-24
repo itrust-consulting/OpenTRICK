@@ -392,7 +392,7 @@ public class ControllerAssessment {
 		if(riskProfile == null)
 			return null;
 		model.addAttribute("riskProfile", riskProfile);
-		model.addAttribute("standards", serviceAnalysisStandard.findStandardByComputableAndAnalysisIdAndTypeIn(true,idAnalysis, NormalStandard.class,AssetStandard.class ));
+		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis, NormalStandard.class,AssetStandard.class ));
 		return "analyses/single/components/estimation/form/measure";
 	}
 

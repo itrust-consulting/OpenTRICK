@@ -8,6 +8,7 @@ import static lu.itrust.business.TS.constants.Constant.TICKETING_URL;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -535,8 +536,8 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/SOA/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageSOA(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
-		model.addAttribute("analysisStandards", serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS),
-				NormalStandard.class, AssetStandard.class));
+		model.addAttribute("analysisStandards",
+				serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), NormalStandard.class, AssetStandard.class));
 		return "analyses/single/components/soa/form";
 	}
 
@@ -848,12 +849,12 @@ public class ControllerAnalysisStandard {
 			}
 
 			model.addAttribute("isComputable", measure.getAnalysisStandard().getStandard().isComputable());
-			
+
 			model.addAttribute("type", type);
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure,type, language.getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure, type, language.getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -925,7 +926,7 @@ public class ControllerAnalysisStandard {
 
 			model.addAttribute("isAnalysisOnly", measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 
-			model.addAttribute("measureForm", MeasureForm.Build(measure,type, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
+			model.addAttribute("measureForm", MeasureForm.Build(measure, type, serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3()));
 
 			// return success message
 			return "analyses/single/components/standards/measure/form";
@@ -1056,6 +1057,54 @@ public class ControllerAnalysisStandard {
 		}
 		return "analyses/single/components/standards/measure";
 
+	}
+
+	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateCost(HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		Iterator<SimpleParameter> iterator = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
+		while (iterator.hasNext()) {
+			IParameter parameter = iterator.next();
+			switch (parameter.getDescription()) {
+			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
+				internalSetupValue = parameter.getValue().doubleValue();
+				break;
+			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
+				externalSetupValue = parameter.getValue().doubleValue();
+				break;
+			case Constant.PARAMETER_LIFETIME_DEFAULT:
+				lifetimeDefault = parameter.getValue().doubleValue();
+				break;
+			}
+		}
+		updateMeasureCost(externalSetupValue, internalSetupValue, lifetimeDefault, analysis);
+		serviceAnalysis.saveOrUpdate(analysis);
+		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null, "Measure cost has been successfully updated", locale));
+	}
+
+	@RequestMapping(value = "/Measures", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Object loadMeasureByStandard(@RequestParam("idStandard") Integer idStandard, Principal principal, HttpSession session, Locale locale) {
+		return serviceMeasure.getAllFromAnalysisAndStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard).stream().map(measure -> {
+			MeasureForm measureForm = new MeasureForm();
+			MeasureDescriptionText descriptionText = measure.getMeasureDescription().getMeasureDescriptionTextByAlpha2(locale.getLanguage());
+			measureForm.setId(measure.getId());
+			measureForm.setIdStandard(idStandard);
+			measureForm.setReference(measure.getMeasureDescription().getReference());
+			measureForm.setLevel(measure.getMeasureDescription().getLevel());
+			measureForm.setComputable(measure.getMeasureDescription().isComputable());
+			measureForm.setImplementationRate((int) measure.getImplementationRateValue(Collections.emptyList()));
+			measureForm.setStatus(measure.getStatus());
+			measureForm.setPhase(measure.getPhase().getNumber());
+			if (descriptionText != null) {
+				measureForm.setDomain(descriptionText.getDomain());
+				measureForm.setDescription(descriptionText.getDescription());
+			}
+			return measureForm;
+		}).collect(Collectors.toList());
 	}
 
 	@RequestMapping(value = "/Ticketing/Generate", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1371,32 +1420,6 @@ public class ControllerAnalysisStandard {
 				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);
 		}
 		return allowedTicketing;
-	}
-
-	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateCost(HttpSession session, Principal principal, Locale locale) {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		double externalSetupValue = -1, internalSetupValue = -1, lifetimeDefault = -1;
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		Iterator<SimpleParameter> iterator = analysis.getSimpleParameters().stream().filter(parameter -> parameter.isMatch(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)).iterator();
-		while (iterator.hasNext()) {
-			IParameter parameter = iterator.next();
-			switch (parameter.getDescription()) {
-			case Constant.PARAMETER_INTERNAL_SETUP_RATE:
-				internalSetupValue = parameter.getValue().doubleValue();
-				break;
-			case Constant.PARAMETER_EXTERNAL_SETUP_RATE:
-				externalSetupValue = parameter.getValue().doubleValue();
-				break;
-			case Constant.PARAMETER_LIFETIME_DEFAULT:
-				lifetimeDefault = parameter.getValue().doubleValue();
-				break;
-			}
-		}
-		updateMeasureCost(externalSetupValue, internalSetupValue, lifetimeDefault, analysis);
-		serviceAnalysis.saveOrUpdate(analysis);
-		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null, "Measure cost has been successfully updated", locale));
 	}
 
 	private void updateMeasureCost(double externalSetupValue, double internalSetupValue, double lifetimeDefault, Analysis analysis) {

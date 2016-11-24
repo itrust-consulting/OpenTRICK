@@ -299,4 +299,11 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = :computable and type(analysisStandard) in :types order by analysisStandard.standard.label ASC",
 				Standard.class).setParameter("analysis", idAnalysis).setParameter("computable", computable).setParameterList("types", classes).getResultList();
 	}
+
+	@Override
+	public List<Standard> findStandardByAnalysisIdAndTypeIn(Integer idAnalysis, Class<?>... classes) {
+		return getSession().createQuery(
+				"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and type(analysisStandard) in :types order by analysisStandard.standard.label ASC",
+				Standard.class).setParameter("analysis", idAnalysis).setParameterList("types", classes).getResultList();
+	}
 }

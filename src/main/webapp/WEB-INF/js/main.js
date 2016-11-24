@@ -10,7 +10,7 @@ function Application() {
 	this.localesMessages = {};
 	this.fixedOffset = 0
 	this.shownScrollTop = true;
-	this.analysisType='';
+	this.analysisType = '';
 }
 
 if (!String.prototype.capitalize) {
@@ -111,30 +111,6 @@ function switchTab(tabName) {
 	if ($tab.parent().css("display") != "none")
 		$tab.tab("show");
 	return false;
-}
-
-function togglePopever(e) {
-	var target = e.target, current = application["settings-open-popover"];
-	if (current != undefined) {
-		if (target === current)
-			return e;
-		else if (current.hasAttribute("aria-describedby"))
-			$(current).click();
-	}
-	application["settings-open-popover"] = target;
-	return e;
-}
-
-function toggleToolTip(e) {
-	var target = e.target, current = application["settings-open-tooltip"];
-	if (current != undefined) {
-		if (target === current)
-			return e;
-		else
-			$(current).tooltip("hide");
-	}
-	application["settings-open-tooltip"] = target;
-	return e;
 }
 
 function hasScrollBar(element) {
@@ -662,11 +638,44 @@ function oldversionComparator(version1, version2) {
 		return value1 > value2 ? 1 : -1;
 }
 
+function togglePopever(e) {
+	var target = e.target, current = application["settings-open-popover"];
+	if (current != undefined) {
+		if (target === current)
+			return e;
+		else if (current.hasAttribute("aria-describedby"))
+			$(current).click();
+	}
+	application["settings-open-popover"] = target;
+	return e;
+}
+
+function toggleToolTip(e) {
+	var target = e.target, current = application["settings-open-tooltip"];
+	if (current != undefined) {
+		if (target === current)
+			return e;
+		else
+			$(current).tooltip("hide");
+	} else
+		$(".tooltip").remove();
+	application["settings-open-tooltip"] = target;
+	return e;
+}
+
 function closeToolTips() {
 	if (application["settings-open-tooltip"]) {
 		$(application["settings-open-tooltip"]).tooltip("hide");
 		delete application["settings-open-tooltip"];
 	}
+
+}
+
+function forceCloseToolTips() {
+	closeToolTips();
+	setTimeout(function() {
+		$(".tooltip.fade.top.in").remove();
+	}, 100);
 }
 
 function closePopover() {
@@ -813,7 +822,7 @@ $(document)
 
 						$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function(e) {
 
-							closeToolTips();
+							forceCloseToolTips();
 
 							if (application.shownScrollTop) {
 								$bodyHtml.animate({
@@ -845,10 +854,9 @@ $(document)
 
 					var $toolTips = $('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
 
-					if ($toolTips.length) {
-						$window.keydown(function(e) {
-							if (e.keyCode == 27)
-								closeToolTips();
-						});
-					}
+					$window.keydown(function(e) {
+						if (e.keyCode == 27)
+							forceCloseToolTips();
+					});
+
 				});

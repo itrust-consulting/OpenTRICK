@@ -42,6 +42,12 @@ public class MeasureForm {
 	private MeasureProperties properties;
 
 	private StandardType type;
+	
+	private int implementationRate;
+	
+	private String status;
+	
+	private int phase;
 
 	/**
 	 * 
@@ -179,6 +185,48 @@ public class MeasureForm {
 	public String toString() {
 		return "MeasureForm [id=" + id + ", idStandard=" + idStandard + ", reference=" + reference + ", level=" + level + ", computable=" + computable + ", domain=" + domain
 				+ ", description=" + description + ", assetValues=" + assetValues + ", properties=" + properties + ", type=" + type + "]";
+	}
+
+	/**
+	 * @return the implementationRate
+	 */
+	public int getImplementationRate() {
+		return implementationRate;
+	}
+
+	/**
+	 * @param implementationRate the implementationRate to set
+	 */
+	public void setImplementationRate(int implementationRate) {
+		this.implementationRate = implementationRate;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	/**
+	 * @return the phase
+	 */
+	public int getPhase() {
+		return phase;
+	}
+
+	/**
+	 * @param phase the phase to set
+	 */
+	public void setPhase(int phase) {
+		this.phase = phase;
 	}
 
 }

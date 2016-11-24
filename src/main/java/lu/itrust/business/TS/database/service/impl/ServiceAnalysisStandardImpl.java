@@ -227,4 +227,9 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	public List<Standard> findStandardByComputableAndAnalysisIdAndTypeIn(boolean computable, Integer idAnalysis, Class<?>... classes) {
 		return  daoAnalysisStandard.findStandardByComputableAndAnalysisIdAndTypeIn(computable,idAnalysis,classes);
 	}
+
+	@Override
+	public List<Standard> findStandardByAnalysisIdAndTypeIn(Integer idAnalysis, Class<?>... classes) {
+		return daoAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis,classes);
+	}
 }

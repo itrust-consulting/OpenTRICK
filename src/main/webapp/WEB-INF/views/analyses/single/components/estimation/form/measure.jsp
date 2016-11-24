@@ -25,10 +25,11 @@
 				<ul class="nav nav-tabs">
 					<li class="active"><a href="#tab_current_measure" data-toggle="tab"><spring:message code='label.measures' /></a></li>
 					<li><a href="#tab_add_measure" data-toggle="tab"><spring:message code='label.action.add' /></a></li>
+					<li id="riskProfileMessageContainer" style="padding-top: 10px"></li>
 				</ul>
 				<div class="tab-content" style="height: 580px; overflow-y: auto; overflow-x: hidden">
 					<div id="tab_current_measure" class="tab-pane active" style="padding-top: 5px;">
-						<table class="table table-hover">
+						<table class="table table-hover" id="riskProfileSelectedMeasureContainer">
 							<thead>
 								<tr>
 									<th style="width: 5%;" title='<spring:message code="label.action" />'><spring:message code="label.action" /></th>
@@ -44,6 +45,9 @@
 								<c:forEach items="${riskProfile.measures}" var="measure">
 									<c:set var="implementationRateValue" value="${measure.getImplementationRateValue(valueFactory)}" />
 									<tr data-trick-class="Measure" data-trick-id="${measure.id}">
+										<td><button class="btn btn-xs btn-danger">
+												<i class="fa fa-times" aria-hidden="true"></i>
+											</button></td>
 										<td><spring:message text='${ measure.measureDescription.standard.label}' /></td>
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
 										<c:choose>
@@ -77,18 +81,32 @@
 							</tbody>
 						</table>
 					</div>
-					<div id="tab_add_measure" class="tab-pane" style="padding-top: 5px;" >
+					<div id="tab_add_measure" class="tab-pane" style="padding-top: 5px;">
 						<div class="form-group">
-							<label class="label-control col-sm-4"><spring:message code="label.measure.norm"/></label>
+							<label class="label-control col-sm-4"><spring:message code="label.measure.norm" /></label>
 							<div class="col-sm-8">
 								<select name="standard" id="riskProfileStandardSelector" class="form-control">
 									<option disabled="disabled" value="-1" selected="selected"><spring:message code="label.action.choose" /></option>
 									<c:forEach items="${standards}" var="standard">
-										<option value="${standard.id}"><spring:message text="${standard.label}"/></option>
+										<option value="${standard.id}"><spring:message text="${standard.label}" /></option>
 									</c:forEach>
 								</select>
 							</div>
 						</div>
+						<table class="table table-hover" id="riskProfileStandardMeasureContainer">
+							<thead>
+								<tr>
+									<th style="width: 5%;" title='<spring:message code="label.action" />'><spring:message code="label.action" /></th>
+									<th style="width: 2%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
+									<th style="width: 3%;" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
+									<th style="width: 2%;" title='<spring:message code="label.title.measure.status" />'><spring:message code="label.measure.status" /></th>
+									<th style="width: 2%;" title='<spring:message code="label.title.measure.ir" />'><spring:message code="label.measure.ir_no_unit" /></th>
+									<th style="width: 2%;" title='<spring:message code="label.title.measure.phase" />'><spring:message code="label.measure.phase" /></th>
+									<th title='<spring:message code="label.measure.domain" />'><spring:message code="label.measure.domain" /></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
 					</div>
 				</div>
 			</div>

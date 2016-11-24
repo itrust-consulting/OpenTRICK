@@ -49,7 +49,7 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Description id */
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idMeasureDescription")
 	private int id = -1;
 
@@ -147,19 +147,14 @@ public class MeasureDescription implements Cloneable {
 	 * @return
 	 */
 	public MeasureDescriptionText getMeasureDescriptionTextByAlpha2(String alpha2) {
-
-		MeasureDescriptionText descriptionText = null;
 		MeasureDescriptionText descriptionTextEnglish = null;
-
 		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts) {
 			if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase(alpha2))
 				return measureDescriptionText;
 			else if (measureDescriptionText.getLanguage().getAlpha2().equalsIgnoreCase("en"))
 				descriptionTextEnglish = measureDescriptionText;
 		}
-
-		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
-				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
+		return descriptionTextEnglish != null ? descriptionTextEnglish : measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : null;
 	}
 
 	/**

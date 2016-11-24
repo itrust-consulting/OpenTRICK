@@ -249,11 +249,20 @@
 		</div>
 	</div>
 	<jsp:include page="../../../../template/scripts.jsp" />
-	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-assessment.js" />"></script>
+	<c:if test="${type=='QUALITATIVE'}" >
+		<script type="text/javascript">
+		<!-- 
+			application['measureStatus'] = { 'NA' : {title : '<spring:message code="label.title.measure.status.na"/>',value : '<spring:message code="label.measure.status.na"/>'},'AP' : {title : '<spring:message code="label.title.measure.status.ap"/>',value : '<spring:message code="label.measure.status.ap"/>'},'M' :{title : '<spring:message code="label.title.measure.status.m"/>',value : '<spring:message code="label.measure.status.m"/>'}}; 
+		-->
+		</script>
+	</c:if>
 	<script type="text/javascript">
-	<!--
-		application.openMode = OPEN_MODE.valueOf('${open}');
+		<!-- 
+			application['openMode'] = OPEN_MODE.valueOf('${open}');
+			application.analysisType = '${type}'
 		-->
 	</script>
+	<script type="text/javascript" src="<spring:url value="/js/trickservice/analysis-assessment.js" />"></script>
+	
 </body>
 </html>

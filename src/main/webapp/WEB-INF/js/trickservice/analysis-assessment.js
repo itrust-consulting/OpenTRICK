@@ -1,4 +1,4 @@
-var activeSelector = undefined, helper = undefined, scales = [];
+var activeSelector = undefined, helper = undefined, scales = [], standardCaching = undefined;
 
 function escape(key, val) {
 	if (typeof (val) != "string")
@@ -161,20 +161,163 @@ function loadAssessmentData(id) {
 
 function manageRiskProfileMeasure(idAsset, idScenario, e) {
 	var $progress = $("#loading-indicator").show();
-	$.ajax({
-		url : context + "/Analysis/Assessment/RiskProfile/Manage-measure?idAsset=" + idAsset + "&idScenario=" + idScenario,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			var $measureManager = $("div#riskProfileMeasureManager", new DOMParser().parseFromString(response, "text/html"));
-			if ($measureManager.length) {
-				$measureManager.appendTo("#widgets").modal("show").on("hidden.bs.modal", function() {
-					$measureManager.remove();
-				});
-			} else
-				unknowError();
-		},
-		error : unknowError
-	}).complete(function() {
+	$.ajax(
+			{
+				url : context + "/Analysis/Assessment/RiskProfile/Manage-measure?idAsset=" + idAsset + "&idScenario=" + idScenario,
+				contentType : "application/json;charset=UTF-8",
+				success : function(response) {
+					var $measureManager = $("div#riskProfileMeasureManager", new DOMParser().parseFromString(response, "text/html"));
+					if ($measureManager.length) {
+						$measureManager.appendTo("#widgets").modal("show").on("hide.bs.modal",function(){
+							closeToolTips();
+						}).on("hidden.bs.modal", function() {
+							$measureManager.remove();
+						});
+						var $standardSelector = $("#riskProfileStandardSelector", $measureManager), $messageContainer = $("#riskProfileMessageContainer", $measureManager), 
+						$selectedMeasures = $("table#riskProfileSelectedMeasureContainer",$measureManager),$standardMeasures = $("table#riskProfileStandardMeasureContainer",$measureManager);
+						if (standardCaching == undefined) {
+							standardCaching = {
+								standards : {},
+								measures : {},
+								$standardSelector : $standardSelector,
+								$measureManager : $measureManager,
+								$selectedMeasures : $selectedMeasures,
+								$standardMeasures : $standardMeasures,
+								$messageContainer : $messageContainer,
+								load : function(standard) {
+									if (this.hasStandard(standard))
+										return this.clearStandardMeasureUI().updateStandardUI(standard);
+									var instance = this;
+									$progress.show();
+									$.ajax(
+											{
+												url : context + "/Analysis/Standard/Measures?idStandard=" + standard,
+												contentType : "application/json;charset=UTF-8",
+												success : function(response) {
+													if ($.isArray(response)) {
+														standardCaching.addStandard(standard, response).clearStandardMeasureUI().updateStandardUI(standard);
+													} else if (response.error)
+														$("<label class='label label-danger' />").text(response.error).appendTo(instance.$messageContainer.empty());
+													else
+														$("<label class='label label-danger' />").text(
+																MessageResolver("error.loading.measures", 'An unknown error occurred while loading measures')).appendTo(
+																		instance.$messageContainer.empty());
+												},error : unknowError
+											}).complete(function() {
+										$progress.hide();
+									});
+									return this;
+								},
+								hasStandard : function(standard) {
+									return this.standards[standard] != undefined;
+								},
+								addStandard : function(standard, measures) {
+									if(!this.hasStandard(standard))
+										this.standards[standard] = {measures : {}}
+									 var computableMeasure = this.standards[standard].measures = {};
+									for (let measure of measures) {
+										if(measure.computable)
+											computableMeasure[measure.id] = measure;
+									}
+									return this;
+								}, getStandardMeasures : function(standard){
+									var selected = this.standards[standard];
+									return selected==undefined? [] :  selected.measures;
+								},getMeasure : function(idStandard,idMeasure){
+									return this.getStandardMeasures(idStandard)[idMeasure];
+								},
+								addMeasure : function(measure) {
+									if (!this.measures[measure.id]){
+										this.measures[measure.id] = measure;
+										var $measure = $("tbody tr[data-trick-id='"+measure.id+"']",this.$standardMeasures),$clone = $measure.clone();
+										if(!$measure.length){
+											var $tr = $("<tr data-trick-id='"+measure.id+"' data-trick-class='Measure'>"),
+											$button = $("<button class='btn btn-xs btn-danger'><i class='fa fa-times' aria-hidden='true'></i></button>"), status = application.measureStatus[measure.status];
+											$button.appendTo($("<td />").appendTo($tr));
+											$("<td>"+standardName+"</td>").appendTo($tr);
+											$("<td 	data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>"+measure.reference+"</td>").attr("data-title",measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
+											$("<td>"+status.value+"</td>").attr("title",status.title).appendTo($tr);
+											$("<td>"+measure.implementationRate+"</td>").appendTo($tr);
+											$("<td>"+measure.phase+"</td>").appendTo($tr);
+											$("<td>"+measure.domain+"</td>").appendTo($tr);
+											$button.on("click",function(){
+												var $tr = $(this).closest("tr[data-trick-id]"), id = $tr.attr('data-trick-id');
+												$tr.find("td[data-toggle='tooltip']").tooltip("destroy");
+												standardCaching.removeMeasure(id);
+												$tr.remove();
+											});
+											$clone = $tr;
+										}else {
+											$("button.btn.btn-xs.btn-primary",$clone).removeClass("btn-primary").addClass("btn-danger").off("click").on("click",function(){
+												var $tr = $(this).closest("tr[data-trick-id]"), id = $tr.attr('data-trick-id');
+												$tr.find("td[data-toggle='tooltip']").tooltip("destroy");
+												standardCaching.removeMeasure(id);
+												$tr.remove();
+											}).find("i.fa-plus").removeClass("fa-plus").addClass("fa-times");
+											$clone.find("[data-toggle='tooltip']").tooltip().on('show.bs.tooltip', toggleToolTip);
+											$measure.addClass("info");
+										}
+										$clone.appendTo($("tbody",this.$selectedMeasures));
+									}
+									return this;
+								},
+								removeMeasure : function(idMeasure) {
+									if (this.measures[idMeasure])
+										delete this.measures[idMeasure];
+									$("tbody tr[data-trick-id='"+idMeasure+"']",this.$standardMeasures).removeClass("info");
+									return this;
+								},
+								updateStandardUI : function(standard) {
+									var measures = this.getStandardMeasures(standard),$tbody = $("tbody",this.$standardMeasures), standardName = $("option:selected",this.$standardSelector).text();
+									for ( var idMeasure in measures) {
+										var measure = measures[idMeasure],  $tr = $("<tr data-trick-id='"+measure.id+"' data-trick-class='Measure'>"),
+										$button = $("<button class='btn btn-xs btn-primary'><i class='fa fa-plus' aria-hidden='true'></i></button>"), status = application.measureStatus[measure.status];
+										$button.appendTo($("<td />").appendTo($tr));
+										$("<td>"+standardName+"</td>").appendTo($tr);
+										$("<td 	data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>"+measure.reference+"</td>").attr("data-title",measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
+										$("<td>"+status.value+"</td>").attr("title",status.title).appendTo($tr);
+										$("<td>"+measure.implementationRate+"</td>").appendTo($tr);
+										$("<td>"+measure.phase+"</td>").appendTo($tr);
+										$("<td>"+measure.domain+"</td>").appendTo($tr);
+										if(this.measures[measure.id]!=undefined)
+											$tr.addClass("info");
+										$button.on("click",function(){
+											standardCaching.addMeasure(standardCaching.getMeasure(standard,$(this).closest("tr[data-trick-id]").attr("data-trick-id")));
+										});
+										$tr.appendTo($tbody);
+									}
+									return this;
+								},
+								clearStandardMeasureUI : function() {
+									this.$standardMeasures.find("tbody").empty();
+									return this;
+								},update : function($standardSelector,$measureManager,$selectedMeasures, $standardMeasures,$messageContainer){
+									this.$standardSelector = $standardSelector;
+									this.$measureManager = $measureManager;
+									this.$selectedMeasures = $selectedMeasures;
+									this.$standardMeasures = $standardMeasures;
+									this.$messageContainer = $messageContainer;
+								}
+							};
+						}else standardCaching.update( $standardSelector,$measureManager,$selectedMeasures, $standardMeasures, $messageContainer);
+						
+						$standardSelector.on("change", function() {
+							if (this.value == "-1")
+								standardCaching.clearStandardMeasureUI();
+							else
+								standardCaching.load(this.value);
+							forceCloseToolTips();
+						});
+						
+						$('a[data-toggle="tab"]', $measureManager).on('shown.bs.tab', function(e) {
+							forceCloseToolTips();
+						});
+
+					} else
+						unknowError();
+				},
+				error : unknowError
+			}).complete(function() {
 		$progress.hide()
 	});
 	return false;
