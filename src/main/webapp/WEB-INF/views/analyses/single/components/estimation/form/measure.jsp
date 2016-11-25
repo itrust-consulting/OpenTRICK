@@ -12,7 +12,7 @@
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
-<div class="modal fade" id="riskProfileMeasureManager" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="probaScaleModal">
+<div class="modal fade" id="riskProfileMeasureManager" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="probaScaleModal" data-keyboard="false">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -48,30 +48,27 @@
 										<td><button class="btn btn-xs btn-danger">
 												<i class="fa fa-times" aria-hidden="true"></i>
 											</button></td>
-										<td><spring:message text='${ measure.measureDescription.standard.label}' /></td>
+										<td data-real-value='${measure.measureDescription.standard.id}'><spring:message text='${ measure.measureDescription.standard.label}' /></td>
 										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
 										<c:choose>
 											<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
-												<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true" data-content=''
-													title='<spring:message
-														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+												<td><spring:message text="${measure.measureDescription.reference}" /></td>
 											</c:when>
 											<c:otherwise>
-												<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-													data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
-													title='<spring:message
-														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+												<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;' title='<spring:message
+														text="${measureDescriptionText.description}" />'><spring:message
+														text="${measure.measureDescription.reference}" /></td>
 											</c:otherwise>
 										</c:choose>
 										<c:choose>
 											<c:when test="${measure.status=='NA'}">
-												<td title="${titleStatusNA}">${statusNA}</td>
+												<td title="${titleStatusNA}" data-real-value='NA'>${statusNA}</td>
 											</c:when>
 											<c:when test="${measure.status=='AP'}">
-												<td title="${titleStatusAP}">${statusAP}</td>
+												<td title="${titleStatusAP}" data-real-value='AP'>${statusAP}</td>
 											</c:when>
 											<c:otherwise>
-												<td title="${titleStatusM}">${statusM}</td>
+												<td title="${titleStatusM}" data-real-value='M'>${statusM}</td>
 											</c:otherwise>
 										</c:choose>
 										<td><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>

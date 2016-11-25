@@ -351,6 +351,7 @@ public class WorkerImportStandard implements Worker {
 									measureDescription.setLevel(Integer.valueOf(sheet.getRow(indexRow).getCell(0).getStringCellValue()));
 
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
+								System.out.println(measureDescription.getReference());
 								measureDescription.setComputable(sheet.getRow(indexRow).getCell(2).getBooleanCellValue());
 
 								if (startColSheet + 3 <= endColSheet) {

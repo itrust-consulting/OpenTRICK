@@ -8,6 +8,8 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
@@ -19,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +38,7 @@ import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceDynamicParameter;
 import lu.itrust.business.TS.database.service.ServiceImpactParameter;
 import lu.itrust.business.TS.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceRiskProfile;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
@@ -53,6 +57,7 @@ import lu.itrust.business.TS.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.TS.model.scenario.Scenario;
 import lu.itrust.business.TS.model.standard.AssetStandard;
 import lu.itrust.business.TS.model.standard.NormalStandard;
+import lu.itrust.business.TS.model.standard.measure.Measure;
 
 /**
  * @author eom
@@ -86,15 +91,18 @@ public class ControllerAssessment {
 
 	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
-	
+
 	@Autowired
 	private ServiceRiskProfile serviceRiskProfile;
-	
+
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
 	private ServiceScenario serviceScenario;
+
+	@Autowired
+	private ServiceMeasure serviceMeasure;
 
 	/**
 	 * loadAssessmentsOfAsset: <br>
@@ -385,15 +393,33 @@ public class ControllerAssessment {
 	@RequestMapping(value = "/RiskProfile/Manage-measure", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
 			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String manageRiskProfileMeasure(@RequestParam(name="idAsset") Integer idAsset, @RequestParam(name="idScenario") Integer idScenario, Model model, HttpSession session,
+	public String manageRiskProfileMeasure(@RequestParam(name = "idAsset") Integer idAsset, @RequestParam(name = "idScenario") Integer idScenario, Model model, HttpSession session,
 			Principal principal, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
-		if(riskProfile == null)
+		if (riskProfile == null)
 			return null;
 		model.addAttribute("riskProfile", riskProfile);
-		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis, NormalStandard.class,AssetStandard.class ));
+		model.addAttribute("valueFactory", new ValueFactory(Collections.emptyList()));
+		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis, NormalStandard.class, AssetStandard.class));
 		return "analyses/single/components/estimation/form/measure";
+	}
+
+	@RequestMapping(value = "/RiskProfile/Update/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY) and "
+			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.TS.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String saveRiskProfileMeasure(@RequestBody List<Integer> measureIds, @RequestParam(name = "idAsset") Integer idAsset,
+			@RequestParam(name = "idScenario") Integer idScenario, HttpSession session, Principal principal, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
+		if (riskProfile == null)
+			return JsonMessage.Error(messageSource.getMessage("error.risk_profile.not_found", null, "Risk profile cannot be found", locale));
+		Map<Integer, Measure> measures = serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).stream().collect(Collectors.toMap(Measure::getId, Function.identity()));
+		riskProfile.getMeasures().removeIf(measure -> !measures.containsKey(measure.getId()));
+		riskProfile.getMeasures().forEach(measure -> measures.remove(measure.getId()));
+		riskProfile.getMeasures().addAll(measures.values());
+		serviceRiskProfile.saveOrUpdate(riskProfile);
+		return JsonMessage.Success(messageSource.getMessage("success.save.risk_profile", null, "Risk profile has been successfully save", locale));
 	}
 
 	private Comparator<? super Assessment> assessmentAssetComparator() {

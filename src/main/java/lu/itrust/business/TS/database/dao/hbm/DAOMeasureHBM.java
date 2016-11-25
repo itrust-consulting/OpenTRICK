@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -340,7 +341,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public int countNormalMeasure() {
-		return  (int) getSession().createQuery("Select count(*) From NormalMeasure").uniqueResultOptional().orElse(0);
+		return (int) getSession().createQuery("Select count(*) From NormalMeasure").uniqueResultOptional().orElse(0);
 	}
 
 	/**
@@ -389,10 +390,13 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getByIdAnalysisAndIds(Integer idAnalysis, List<Integer> ids) {
-		return getSession()
-				.createQuery(
-						"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and measure.id in :ids order by measure.id")
-				.setParameter("idAnalysis", idAnalysis).setParameterList("ids", ids).getResultList();
+		if (ids.isEmpty())
+			return Collections.emptyList();
+		else
+			return getSession()
+					.createQuery(
+							"Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures as measure where analysis.id = :idAnalysis and measure.id in :ids order by measure.id")
+					.setParameter("idAnalysis", idAnalysis).setParameterList("ids", ids).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -238,7 +238,6 @@
 	<label class='label-control'>${comment}</label>
 	<textarea class="form-control" name="comment" title="${comment}" style="resize: vertical;" placeholder="${commentContent}" data-trick-type='string'>${commentContent}</textarea>
 </div>
-
 <div class='form-group'>
 	<spring:message code="label.risk_treatment" text="Risk treatment" var='riskTreatment' />
 	<spring:message text='${riskProfile.riskTreatment}' var="riskTreatmentContent" />
@@ -246,10 +245,23 @@
 	<textarea class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;" placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
 </div>
 <div class='form-group'>
+	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
+	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
+	<label class='label-control'>${hiddenComment}</label>
+	<textarea class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
+</div>
+<div class='form-group'>
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
-	<label class='label-control col-xs-11' style="padding-left: 0">${actionPlan}</label><span class="col-xs-1"><button class="btn btn-xs btn-default pull-right" id='measureManagementBtn'><i class="fa fa-cog" aria-hidden="true"></i>
-	</button></span>
-	<table class="table table-hover">
+	<label class='label-control col-xs-11' style="padding-left: 0">${actionPlan}</label><span class="col-xs-1"><button class="btn btn-xs btn-default pull-right"
+			id='measureManagementBtn'>
+			<i class="fa fa-cog" aria-hidden="true"></i>
+		</button></span>
+	<c:if test="${ empty riskProfile.actionPlan}">
+		<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
+		<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}" style="resize: vertical; margin-top: 5px; display: inline-block;"
+			placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
+	</c:if>
+	<table id="riskProfileMeasure" class="table table-hover">
 		<thead>
 			<tr>
 				<th style="width: 2%;" title='<spring:message code="label.measure.norm" />'><spring:message code="label.measure.norm" /></th>
@@ -268,15 +280,12 @@
 					<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}" />
 					<c:choose>
 						<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
-							<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true" data-content=''
-								title='<spring:message
-														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+							<td><spring:message text="${measure.measureDescription.reference}" /></td>
 						</c:when>
 						<c:otherwise>
-							<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-								data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
+							<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'
 								title='<spring:message
-														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+														text="${measureDescriptionText.description}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 						</c:otherwise>
 					</c:choose>
 					<c:choose>
@@ -296,15 +305,4 @@
 			</c:forEach>
 		</tbody>
 	</table>
-	<c:if test="${not empty riskProfile.actionPlan}">
-		<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
-		<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}" style="resize: vertical;" placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
-	</c:if>
-</div>
-
-<div class='form-group'>
-	<spring:message code="label.assessment.hidden_comment" var='hiddenComment' />
-	<spring:message text="${assessment.hiddenComment}" var="hiddenCommentContent" />
-	<label class='label-control'>${hiddenComment}</label>
-	<textarea class="form-control" name="hiddenComment" title="${hiddenComment}" style="resize: vertical;" placeholder="${hiddenCommentContent}" data-trick-type='string'>${hiddenCommentContent}</textarea>
 </div>

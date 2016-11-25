@@ -674,7 +674,7 @@ function closeToolTips() {
 function forceCloseToolTips() {
 	closeToolTips();
 	setTimeout(function() {
-		$(".tooltip.fade.top.in").remove();
+		$(".tooltip.fade.top.in:visible").remove();
 	}, 100);
 }
 
@@ -852,7 +852,7 @@ $(document)
 						});
 					}
 
-					var $toolTips = $('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
+					$('[data-toggle="tooltip"]').tooltip().on('show.bs.tooltip', toggleToolTip);
 
 					$window.keydown(function(e) {
 						if (e.keyCode == 27)
