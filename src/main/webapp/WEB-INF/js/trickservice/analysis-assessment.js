@@ -99,6 +99,37 @@ function saveAssessmentData(e) {
 	return false;
 }
 
+function toggleAdditionalActionPlan(e) {
+	var $additional = $("textarea[name='riskProfile.actionPlan']");
+	if (e == undefined) {
+		if (helper['toggleAdditionalActionPlan'] == undefined)
+			helper['toggleAdditionalActionPlan'] = $additional.is(":visible") ? 'show' : 'hide';
+		else {
+			var $show = $("#measureManagementAdvance a[data-action='show']").parent(), $hide = $("#measureManagementAdvance a[data-action='hide']").parent();
+			if (helper['toggleAdditionalActionPlan'] == 'hide') {
+				$additional.hide();
+				$show.show();
+				$hide.hide();
+			} else {
+				$additional.css({ "display": "inline-block" });
+				$show.hide();
+				$hide.show();
+			}
+		}
+	} else {
+		$("#measureManagementAdvance a[data-action][data-action!='manage']").parent().toggle();
+		if (helper["toggleAdditionalActionPlan"] == 'hide') {
+			$additional.css({ "display": "inline-block" });
+			helper["toggleAdditionalActionPlan"] = 'show';
+		}
+		else {
+			$additional.css({ "display": "none" });
+			helper["toggleAdditionalActionPlan"] = 'hide';
+		}
+	}
+	return false;
+}
+
 function loadAssessmentData(id) {
 	var $currentUI = $("#estimation-ui"), idAsset = -3, idScenario = -3, url = context + "/Analysis/Assessment/";
 	if (activeSelector == "asset") {
@@ -126,6 +157,7 @@ function loadAssessmentData(id) {
 					$("select:not([disabled])", $assessmentUI).prop("disabled", true);
 					$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
 					$("a[data-controller]", $assessmentUI).remove();
+					$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).remove();
 				} else {
 					$("select", $assessmentUI).on("change", saveAssessmentData);
 					$("textarea,input:not([disabled])", $assessmentUI).on("blur", saveAssessmentData);
@@ -141,14 +173,19 @@ function loadAssessmentData(id) {
 						}
 						return false;
 					});
+
+					$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).on("click", function (e) {
+						forceCloseToolTips();
+						manageRiskProfileMeasure(idAsset, idScenario, e);
+						return false;
+					});
 				}
 
-				$("button#measureManagementBtn").on("click", function (e) {
-					forceCloseToolTips();
-					manageRiskProfileMeasure(idAsset, idScenario, e);
-				});
+				$("#measureManagementAdvance a[data-action][data-action!='manage']", $assessmentUI).on("click", toggleAdditionalActionPlan)
 				
-				$('[data-toggle="tooltip"]',$assessmentUI).tooltip().on('show.bs.tooltip', toggleToolTip);
+				toggleAdditionalActionPlan();
+
+				$('[data-toggle="tooltip"]', $assessmentUI).tooltip().on('show.bs.tooltip', toggleToolTip);
 
 				$("button[data-scale-modal]", $assessmentUI).on("click", function () {
 					forceCloseToolTips();
@@ -191,7 +228,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							$selectedMeasures: $selectedMeasures,
 							$standardMeasures: $standardMeasures,
 							$messageContainer: $messageContainer,
-							
+
 							load: function (standard) {
 								this.$messageContainer.empty();
 								if (this.hasStandard(standard))
@@ -298,25 +335,25 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 								this.$selectedMeasures = $selectedMeasures;
 								this.$standardMeasures = $standardMeasures;
 								this.$messageContainer = $messageContainer;
-							}, updateView : function(){
-								var measures = this.measures, $finalBody = $("tbody","#riskProfileMeasure"), $currentTrs = $("tr[data-trick-id]",$finalBody), $selectedTrs = $("tbody>tr[data-trick-id]",this.$selectedMeasures);
-								$currentTrs.each(function(){
-									var $this = $(this),  measureId = $this.attr("data-trick-id");
-									if(!measures[measureId])
+							}, updateView: function () {
+								var measures = this.measures, $finalBody = $("tbody", "#riskProfileMeasure"), $currentTrs = $("tr[data-trick-id]", $finalBody), $selectedTrs = $("tbody>tr[data-trick-id]", this.$selectedMeasures);
+								$currentTrs.each(function () {
+									var $this = $(this), measureId = $this.attr("data-trick-id");
+									if (!measures[measureId])
 										$this.remove();
 									else delete measures[measureId];
 								});
-								
-								$selectedTrs.each(function(){
+
+								$selectedTrs.each(function () {
 									var measureId = this.getAttribute("data-trick-id");
-									if(measures[measureId]){
+									if (measures[measureId]) {
 										var $clone = $(this).clone();
-										$("td:first",$clone).remove();
-										$("td[data-toggle='tooltip']",$clone).tooltip().on('show.bs.tooltip', toggleToolTip);
+										$("td:first", $clone).remove();
+										$("td[data-toggle='tooltip']", $clone).tooltip().on('show.bs.tooltip', toggleToolTip);
 										$clone.appendTo($finalBody);
 									}
 								});
-								
+
 								return this;
 							}
 						};
@@ -352,24 +389,24 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 					$("button[name='save']").on("click", function () {
 						var measures = [];
 						for (let id of standardCaching.measures) {
-							if(id>0)
+							if (id > 0)
 								measures.push(id);
 						}
 						$progress.show();
 						$messageContainer.empty();
 						$.ajax({
 							url: context + "/Analysis/Assessment/RiskProfile/Update/Measure?idAsset=" + idAsset + "&idScenario=" + idScenario,
-							type : "POST",
+							type: "POST",
 							data: JSON.stringify(measures),
 							contentType: "application/json;charset=UTF-8",
 							success: function (response) {
-								if(response.success){
+								if (response.success) {
 									$("<label class='label label-success' />").text(response.success).appendTo($messageContainer);
 									standardCaching.updateView().$measureManager.modal("hide");
-								}else if(response.error)
+								} else if (response.error)
 									$("<label class='label label-error' />").text(response.error).appendTo($messageContainer);
 								else $("<label class='label label-error' />").text(MessageResolver("error.saving.measures", 'An unknown error occurred while saving measures')).appendTo($messageContainer);
-								
+
 							},
 							error: unknowError
 						}).complete(function () { $progress.hide() });

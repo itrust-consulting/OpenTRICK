@@ -252,15 +252,22 @@
 </div>
 <div class='form-group'>
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
-	<label class='label-control col-xs-11' style="padding-left: 0">${actionPlan}</label><span class="col-xs-1"><button class="btn btn-xs btn-default pull-right"
-			id='measureManagementBtn'>
-			<i class="fa fa-cog" aria-hidden="true"></i>
-		</button></span>
-	<c:if test="${ empty riskProfile.actionPlan}">
-		<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
-		<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}" style="resize: vertical; margin-top: 5px; display: inline-block;"
-			placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
-	</c:if>
+	<label class='label-control col-xs-11' style="padding-left: 0">${actionPlan}</label>
+	<div class="col-xs-1">
+		<div class="pull-right">
+			<a class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-cog" aria-hidden="true"></i></a>
+			<ul class="dropdown-menu" id="measureManagementAdvance">
+				<li><a href="#" data-action='manage'><spring:message code='label.risk_profile.manage.measure' text="Manage measure" /></a></li>
+				<li role="separator" class="divider"></li>
+				<li class="dropdown-header"><spring:message code='label.description' text="Description" /></li>
+				<li style="display :${empty riskProfile.actionPlan? '' : 'none'};"><a href="#" data-action='show'><spring:message code='label.action.show' /></a></li>
+				<li style="display: ${empty riskProfile.actionPlan? 'none' : ''};"><a href="#" data-action='hide'><spring:message code='label.action.hide' text="Hide" /></a></li>
+			</ul>
+		</div>
+	</div>
+	<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
+	<textarea class="form-control" name="riskProfile.actionPlan" title="${actionPlan}"
+		style="resize: vertical; margin-top: 5px; display: ${empty riskProfile.actionPlan? 'none' : 'inline-block'};" placeholder="${actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 	<table id="riskProfileMeasure" class="table table-hover">
 		<thead>
 			<tr>
