@@ -127,7 +127,6 @@ function toggleAdditionalActionPlan(e) {
 			helper["toggleAdditionalActionPlan"] = 'hide';
 		}
 	}
-	return false;
 }
 
 function loadAssessmentData(id) {
@@ -177,7 +176,6 @@ function loadAssessmentData(id) {
 					$("#measureManagementAdvance a[data-action='manage']", $assessmentUI).on("click", function (e) {
 						forceCloseToolTips();
 						manageRiskProfileMeasure(idAsset, idScenario, e);
-						return false;
 					});
 				}
 
