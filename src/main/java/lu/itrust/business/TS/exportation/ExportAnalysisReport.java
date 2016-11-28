@@ -21,7 +21,7 @@ import java.util.Optional;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -1025,7 +1025,7 @@ public class ExportAnalysisReport {
 				if (xssfSheet.getRow(rowIndex) == null)
 					xssfSheet.createRow(rowIndex);
 				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
-					xssfSheet.getRow(rowIndex).createCell(j, Cell.CELL_TYPE_NUMERIC);
+					xssfSheet.getRow(rowIndex).createCell(j, CellType.NUMERIC);
 			}
 			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataInternalWorkload.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataExternalWorkload.get(i)));
@@ -1063,7 +1063,7 @@ public class ExportAnalysisReport {
 			if (xssfSheet.getRow(rowCount).getCell(0) == null)
 				xssfSheet.getRow(rowCount).createCell(0);
 			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1, Cell.CELL_TYPE_NUMERIC);
+				xssfSheet.getRow(rowCount).createCell(1, CellType.NUMERIC);
 			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
 			xssfSheet.getRow(rowCount++).getCell(1).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
 		}
@@ -1085,7 +1085,7 @@ public class ExportAnalysisReport {
 					if (xssfSheet.getRow(rowCount) == null)
 						xssfSheet.createRow(rowCount);
 					if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-						xssfSheet.getRow(rowCount).createCell(columnIndex, Cell.CELL_TYPE_NUMERIC);
+						xssfSheet.getRow(rowCount).createCell(columnIndex, CellType.NUMERIC);
 					xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
 				}
 				columnIndex++;

@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -408,22 +408,22 @@ public class ControllerKnowledgeBaseStandard {
 
 			// standard name
 			cell = sheet.getRow(row).getCell(namecol);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellType(CellType.STRING);
 			cell.setCellValue(standard.getLabel());
 
 			// standard version
 			cell = sheet.getRow(row).getCell(versioncol);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellType(CellType.NUMERIC);
 			cell.setCellValue(standard.getVersion());
 
 			// standard description
 			cell = sheet.getRow(row).getCell(desccol);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellType(CellType.STRING);
 			cell.setCellValue(standard.getDescription());
 
 			// standard computable
 			cell = sheet.getRow(row).getCell(computablecol);
-			cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+			cell.setCellType(CellType.BOOLEAN);
 			cell.setCellValue(standard.isComputable());
 
 			/**
@@ -534,19 +534,19 @@ public class ControllerKnowledgeBaseStandard {
 				cell = sheetrow.getCell(levelcol);
 				if (cell == null)
 					cell = sheetrow.createCell(levelcol);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellType(CellType.NUMERIC);
 				cell.setCellValue(measuredescription.getLevel());
 
 				cell = sheet.getRow(row).getCell(referencecol);
 				if (cell == null)
 					cell = sheetrow.createCell(referencecol);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellType(CellType.STRING);
 				cell.setCellValue(measuredescription.getReference());
 
 				cell = sheet.getRow(row).getCell(computablecol);
 				if (cell == null)
 					cell = sheetrow.createCell(computablecol);
-				cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+				cell.setCellType(CellType.BOOLEAN);
 				cell.setCellValue(measuredescription.isComputable());
 
 				int domaincol = computablecol + 1;
@@ -569,7 +569,7 @@ public class ControllerKnowledgeBaseStandard {
 					cell = sheet.getRow(row).getCell(domaincol);
 					if (cell == null)
 						cell = sheetrow.createCell(domaincol);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellType(CellType.STRING);
 					cell.setCellValue(domain);
 					// System.out.println("Domaincol: "+domaincol);
 					domaincol++;
@@ -578,7 +578,7 @@ public class ControllerKnowledgeBaseStandard {
 					cell = sheet.getRow(row).getCell(descriptioncol);
 					if (cell == null)
 						cell = sheetrow.createCell(descriptioncol);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellType(CellType.STRING);
 					cell.setCellValue(description);
 					// System.out.println("Desccol: "+descriptioncol);
 					descriptioncol++;
