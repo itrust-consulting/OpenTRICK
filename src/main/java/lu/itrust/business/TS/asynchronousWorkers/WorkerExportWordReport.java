@@ -143,12 +143,12 @@ public class WorkerExportWordReport implements Worker {
 	}
 
 	private void saveWordDocument(Session session) throws Exception {
-		File file = exportAnalysisReport.getWorkFile();
-		User user = new DAOUserHBM(session).get(username);
-		Analysis analysis = exportAnalysisReport.getAnalysis();
-		WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
-				FileCopyUtils.copyToByteArray(file));
 		try {
+			User user = new DAOUserHBM(session).get(username);
+			Analysis analysis = exportAnalysisReport.getAnalysis();
+			File file = exportAnalysisReport.getWorkFile();
+			WordReport report = WordReport.BuildReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
+					FileCopyUtils.copyToByteArray(file));
 			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", 99));
 			session.getTransaction().begin();
 			new DAOWordReportHBM(session).saveOrUpdate(report);
